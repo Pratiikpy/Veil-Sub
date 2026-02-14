@@ -185,10 +185,7 @@ mapping sub_created: field => u32;           // BHP256(pass_id) => block.height 
 | Resource | Link |
 |----------|------|
 | Frontend | [https://veilsub.vercel.app](https://veilsub.vercel.app) |
-| v4 Contract on Explorer | [explorer.aleo.org/testnet/program/veilsub_v4.aleo](https://explorer.aleo.org/testnet/program/veilsub_v4.aleo) |
-| v3 Contract on Explorer | [explorer.aleo.org/testnet/program/veilsub_v3.aleo](https://explorer.aleo.org/testnet/program/veilsub_v3.aleo) |
-| v2 Contract on Explorer | [explorer.aleo.org/testnet/program/veilsub_v2.aleo](https://explorer.aleo.org/testnet/program/veilsub_v2.aleo) |
-| v1 Contract on Explorer | [explorer.aleo.org/testnet/program/veilsub_v1.aleo](https://explorer.aleo.org/testnet/program/veilsub_v1.aleo) |
+| Contract (v4) on Explorer | [explorer.aleo.org/testnet/program/veilsub_v4.aleo](https://explorer.aleo.org/testnet/program/veilsub_v4.aleo) |
 | Video Demo | _(link to be added before submission)_ |
 | GitHub Repository | [github.com/Pratiikpy/VeilSub](https://github.com/Pratiikpy/VeilSub) |
 
@@ -198,8 +195,6 @@ mapping sub_created: field => u32;           // BHP256(pass_id) => block.height 
 |-------------|------|---------------|
 | v1 Deployment | `at1jny60sr...` | [View](https://explorer.aleo.org/testnet/transaction/at1jny60sr) |
 | v1 Creator Registration | `at1d9u6kdt...` | [View](https://explorer.aleo.org/testnet/transaction/at1d9u6kdt) |
-| v2 Deployment | _(pending — will be added after deploy)_ | — |
-| v3 Deployment | _(pending — will be added after deploy)_ | — |
 | v4 Deployment | `at19p9704709ke49lvhhr6edwkm4mvhr9se2fcvyu7246p83df9qy8sj6esdl` | [View](https://explorer.aleo.org/testnet/transaction/at19p9704709ke49lvhhr6edwkm4mvhr9se2fcvyu7246p83df9qy8sj6esdl) |
 | v4 register_creator | `at1yz35veu4t40j003cl8q5t5ecetfzwf95xtsv2y7f7lpxj83efq9ssey6kr` | [View](https://explorer.aleo.org/testnet/transaction/at1yz35veu4t40j003cl8q5t5ecetfzwf95xtsv2y7f7lpxj83efq9ssey6kr) |
 | v4 subscribe | `at1fvzv6mnllw8fvpuj4439syy05chvmsszxwk65cd0d7gy5fkquqrs34dudp` | [View](https://explorer.aleo.org/testnet/transaction/at1fvzv6mnllw8fvpuj4439syy05chvmsszxwk65cd0d7gy5fkquqrs34dudp) |
