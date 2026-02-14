@@ -202,10 +202,10 @@ mapping sub_created: field => u32;           // BHP256(pass_id) => block.height 
 | v3 Deployment | _(pending — will be added after deploy)_ | — |
 | v4 Deployment | `at19p9704709ke49lvhhr6edwkm4mvhr9se2fcvyu7246p83df9qy8sj6esdl` | [View](https://explorer.aleo.org/testnet/transaction/at19p9704709ke49lvhhr6edwkm4mvhr9se2fcvyu7246p83df9qy8sj6esdl) |
 | v4 register_creator | `at1yz35veu4t40j003cl8q5t5ecetfzwf95xtsv2y7f7lpxj83efq9ssey6kr` | [View](https://explorer.aleo.org/testnet/transaction/at1yz35veu4t40j003cl8q5t5ecetfzwf95xtsv2y7f7lpxj83efq9ssey6kr) |
-| v4 subscribe | _(requires 2nd wallet)_ | — |
-| v4 verify_access | _(requires AccessPass record)_ | — |
-| v4 tip | _(requires 2nd wallet)_ | — |
-| v4 renew | _(requires AccessPass record)_ | — |
+| v4 subscribe | `at1fvzv6mnllw8fvpuj4439syy05chvmsszxwk65cd0d7gy5fkquqrs34dudp` | [View](https://explorer.aleo.org/testnet/transaction/at1fvzv6mnllw8fvpuj4439syy05chvmsszxwk65cd0d7gy5fkquqrs34dudp) |
+| v4 verify_access | `at1rp6yjqg73pmun2twl950ttu734tccnkccdzyfk4ysxr8g9285sqq2llyh9` | [View](https://explorer.aleo.org/testnet/transaction/at1rp6yjqg73pmun2twl950ttu734tccnkccdzyfk4ysxr8g9285sqq2llyh9) |
+| v4 tip | `at1za9p384s07f2rh2r6sdyua0j3lanjgsfyxmdg5qhcpfz6unr6gyschd5ku` | [View](https://explorer.aleo.org/testnet/transaction/at1za9p384s07f2rh2r6sdyua0j3lanjgsfyxmdg5qhcpfz6unr6gyschd5ku) |
+| v4 renew | `at1d485afvx6440fr4c4yyq6a8unwgaaaxlgsc6z0xuu846qatx0y9s88tadt` | [View](https://explorer.aleo.org/testnet/transaction/at1d485afvx6440fr4c4yyq6a8unwgaaaxlgsc6z0xuu846qatx0y9s88tadt) |
 | v4 publish_content | `at1kz9aedwvm4hkpg054vxxdw5sxj79r9tw7mek4y96k8ykwwjpxcgq8k6r9s` | [View](https://explorer.aleo.org/testnet/transaction/at1kz9aedwvm4hkpg054vxxdw5sxj79r9tw7mek4y96k8ykwwjpxcgq8k6r9s) |
 
 ## How to Test
