@@ -7,10 +7,12 @@ import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { generatePassId, formatCredits } from '@/lib/utils'
-import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT } from '@/lib/config'
+import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT, KNOWN_TOKENS } from '@/lib/config'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
 import type { SubscriptionTier, TxStatus } from '@/types'
+
+type PaymentType = 'credits' | 'token'
 
 interface Props {
   isOpen: boolean
@@ -27,13 +29,15 @@ export default function SubscribeModal({
   creatorAddress,
   basePrice,
 }: Props) {
-  const { subscribe, getCreditsRecords, connected } = useVeilSub()
+  const { subscribe, subscribeToken, getCreditsRecords, connected } = useVeilSub()
   const { blockHeight } = useBlockHeight()
   const { startPolling, stopPolling } = useTransactionPoller()
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
   const [txId, setTxId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [insufficientBalance, setInsufficientBalance] = useState(false)
+  const [paymentType, setPaymentType] = useState<PaymentType>('credits')
+  const selectedToken = KNOWN_TOKENS[0] // USDCx default
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -128,6 +132,7 @@ export default function SubscribeModal({
     setTxId(null)
     setError(null)
     setInsufficientBalance(false)
+    setPaymentType('credits')
     onClose()
   }
 
@@ -194,6 +199,30 @@ export default function SubscribeModal({
                   </ul>
                 </div>
 
+                {/* Payment Type Toggle */}
+                <div className="flex items-center gap-2 p-1 rounded-xl bg-white/[0.03] border border-white/[0.06] mb-4">
+                  <button
+                    onClick={() => setPaymentType('credits')}
+                    className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
+                      paymentType === 'credits'
+                        ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
+                        : 'text-slate-500 hover:text-slate-300'
+                    }`}
+                  >
+                    ALEO Credits
+                  </button>
+                  <button
+                    onClick={() => setPaymentType('token')}
+                    className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
+                      paymentType === 'token'
+                        ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                        : 'text-slate-500 hover:text-slate-300'
+                    }`}
+                  >
+                    {selectedToken.symbol} (Stablecoin)
+                  </button>
+                </div>
+
                 {/* Fee Breakdown */}
                 <div className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06] mb-4">
                   <div className="text-xs text-slate-500 space-y-1">
@@ -216,7 +245,9 @@ export default function SubscribeModal({
                 <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/10 mb-6">
                   <p className="text-xs text-green-400">
                     Your identity stays private. The creator will receive payment
-                    but will never know who you are. Both transfers use private credit transfers.
+                    but will never know who you are. {paymentType === 'credits'
+                      ? 'Both transfers use credits.aleo/transfer_private.'
+                      : `Both transfers use token_registry.aleo/transfer_private (${selectedToken.symbol}).`}
                   </p>
                 </div>
 
@@ -241,7 +272,11 @@ export default function SubscribeModal({
                   disabled={txStatus !== 'idle'}
                   className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Subscribe Privately
+                  {txStatus !== 'idle'
+                    ? 'Processing...'
+                    : paymentType === 'credits'
+                    ? 'Subscribe Privately'
+                    : `Subscribe with ${selectedToken.symbol}`}
                 </button>
               </>
             ) : (

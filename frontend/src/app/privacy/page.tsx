@@ -12,6 +12,8 @@ import {
   ShieldCheck,
   Database,
   Layers,
+  Coins,
+  ArrowLeftRight,
 } from 'lucide-react'
 import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
@@ -49,7 +51,8 @@ export default function PrivacyPage() {
         </section>
 
         {/* ZK Explainer */}
-        <section className="py-16 border-t border-white/5">
+        <div className="gradient-divider" />
+        <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-bold text-white mb-4">What Are Zero-Knowledge Proofs?</h2>
@@ -97,7 +100,8 @@ export default function PrivacyPage() {
         </section>
 
         {/* Private vs Public */}
-        <section className="py-16 border-t border-white/5">
+        <div className="gradient-divider" />
+        <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-bold text-white mb-4">What&apos;s Private vs. Public</h2>
@@ -132,7 +136,7 @@ export default function PrivacyPage() {
                     },
                     {
                       title: 'Payment Amount Per Subscriber',
-                      desc: 'All payments use credits.aleo/transfer_private. Individual payment amounts are hidden on-chain.',
+                      desc: 'All payments use credits.aleo/transfer_private or token_registry.aleo/transfer_private. Individual payment amounts are hidden on-chain regardless of token type.',
                       icon: Lock,
                     },
                     {
@@ -212,8 +216,73 @@ export default function PrivacyPage() {
           </div>
         </section>
 
+        {/* Multi-Token Privacy */}
+        <div className="gradient-divider" />
+        <section className="py-16">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-white mb-4">Multi-Token Privacy (v5)</h2>
+              <p className="text-slate-400 max-w-2xl mx-auto">
+                VeilSub v5 supports any ARC-20 token (USDCx, USAD, and future tokens) via <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300 text-xs">token_registry.aleo</code>. Privacy guarantees extend to all payment types.
+              </p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <GlassCard shimmer delay={0}>
+                <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4">
+                  <Coins className="w-6 h-6 text-green-400" />
+                </div>
+                <h3 className="text-white font-semibold mb-2">Any ARC-20 Token</h3>
+                <p className="text-sm text-slate-400">
+                  VeilSub uses <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300 text-xs">token_registry.aleo</code> — the standard ARC-20 hub. This means any token on Aleo (USDCx, USAD, future tokens) works without redeployment.
+                </p>
+              </GlassCard>
+
+              <GlassCard shimmer delay={0.1}>
+                <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4">
+                  <ArrowLeftRight className="w-6 h-6 text-violet-400" />
+                </div>
+                <h3 className="text-white font-semibold mb-2">Private Token Transfers</h3>
+                <p className="text-sm text-slate-400">
+                  Token payments use <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300 text-xs">token_registry.aleo/transfer_private</code>. The same privacy model as ALEO credits — sender, amount, and token type are all hidden on-chain.
+                </p>
+              </GlassCard>
+
+              <GlassCard shimmer delay={0.2}>
+                <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center mb-4">
+                  <Shield className="w-6 h-6 text-indigo-400" />
+                </div>
+                <h3 className="text-white font-semibold mb-2">Same Privacy Guarantees</h3>
+                <p className="text-sm text-slate-400">
+                  Whether paying with ALEO credits or stablecoins, the subscriber&apos;s identity never enters finalize. The AccessPass record is identical — token type doesn&apos;t affect privacy.
+                </p>
+              </GlassCard>
+            </div>
+
+            <div className="mt-8 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+              <h4 className="text-sm font-medium text-white mb-3">Token-Specific Public Data</h4>
+              <p className="text-xs text-slate-400 mb-3">
+                v5 adds three new mappings for token-denominated subscriptions. These follow the same aggregate-only principle:
+              </p>
+              <div className="grid sm:grid-cols-3 gap-3">
+                {[
+                  { name: 'tier_prices_token', desc: 'Creator price per token type (hashed composite key)' },
+                  { name: 'total_revenue_token', desc: 'Aggregate revenue per token type per creator' },
+                  { name: 'platform_revenue_token', desc: 'Aggregate platform earnings per token type' },
+                ].map((m) => (
+                  <div key={m.name} className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                    <code className="text-xs text-violet-300">{m.name}</code>
+                    <p className="text-xs text-slate-500 mt-1">{m.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Trust Model */}
-        <section className="py-16 border-t border-white/5">
+        <div className="gradient-divider" />
+        <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-bold text-white mb-4">Trust Model</h2>
@@ -243,7 +312,8 @@ export default function PrivacyPage() {
                   <h3 className="text-white font-semibold">Creators Trust</h3>
                 </div>
                 <p className="text-sm text-slate-400 text-center">
-                  Real <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300 text-xs">credits.aleo/transfer_private</code> transfers
+                  Real <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300 text-xs">credits.aleo/transfer_private</code> and{' '}
+                  <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300 text-xs">token_registry.aleo/transfer_private</code> transfers
                   guarantee payment arrives. Aggregate stats are provably correct via
                   on-chain mappings.
                 </p>
@@ -267,7 +337,8 @@ export default function PrivacyPage() {
         </section>
 
         {/* Threat Model */}
-        <section className="py-16 border-t border-white/5">
+        <div className="gradient-divider" />
+        <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-bold text-white mb-4">Privacy Threat Model</h2>
@@ -387,8 +458,8 @@ export default function PrivacyPage() {
                       desc: 'AccessPasses are unrecoverable without your private key. This is the fundamental privacy/recoverability tradeoff in ZK systems.',
                     },
                     {
-                      title: 'No Subscription Expiry',
-                      desc: 'AccessPasses are permanent. Time-based expiry would require adding finalize to verify_access, breaking its zero-public-footprint property.',
+                      title: 'Client-Side Expiry Check',
+                      desc: 'AccessPasses have an expires_at field (block height), but expiry is enforced client-side only. Adding finalize to verify_access would break its zero-public-footprint property. A sophisticated user could bypass expiry locally — but cannot forge payment or pass ownership.',
                     },
                   ].map((item) => (
                     <div key={item.title} className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
@@ -403,12 +474,78 @@ export default function PrivacyPage() {
         </section>
 
         {/* Code Proof */}
-        <section className="py-16 border-t border-white/5">
+        <div className="gradient-divider" />
+        <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-bold text-white mb-4">Privacy in the Code</h2>
               <p className="text-slate-400">How each transition protects your identity.</p>
             </motion.div>
+
+            {/* verify_access Code Snippet */}
+            <div className="mb-8 p-5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+              <h3 className="text-sm font-medium text-white mb-3">Zero-Footprint Access Proof</h3>
+              <pre className="text-xs text-slate-300 font-mono leading-relaxed overflow-x-auto">
+                <code>{`// Zero-footprint — no finalize function exists
+transition verify_access(pass: AccessPass, creator: address) -> AccessPass {
+    assert_eq(pass.creator, creator);
+    return AccessPass {
+        owner: pass.owner,
+        creator: pass.creator,
+        tier: pass.tier,
+        pass_id: pass.pass_id,
+        expires_at: pass.expires_at,
+    };
+}
+// No finalize_verify_access. Zero public state change. No on-chain trace.`}</code>
+              </pre>
+            </div>
+
+            {/* Data Flow Diagram */}
+            <div className="mb-8 grid md:grid-cols-2 gap-4">
+              <div className="p-5 rounded-xl bg-violet-500/5 border border-violet-500/15">
+                <h4 className="text-sm font-medium text-violet-300 mb-3">Subscribe Flow</h4>
+                <div className="space-y-2 text-xs text-slate-400">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
+                    <span>Wallet sends payment via ZK proof</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
+                    <span>AccessPass record created (private, encrypted to your key)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0" />
+                    <span>Finalize updates aggregate mappings only (count, revenue)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
+                    <span>Subscriber address never enters finalize scope</span>
+                  </div>
+                </div>
+              </div>
+              <div className="p-5 rounded-xl bg-green-500/5 border border-green-500/15">
+                <h4 className="text-sm font-medium text-green-300 mb-3">Verify Access Flow</h4>
+                <div className="space-y-2 text-xs text-slate-400">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
+                    <span>Wallet submits AccessPass to transition</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
+                    <span>Pass consumed and re-created (UTXO pattern)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
+                    <span>No finalize function — zero public state change</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
+                    <span>No on-chain evidence that verification occurred</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div className="space-y-4">
               {[
@@ -425,8 +562,24 @@ export default function PrivacyPage() {
                   guarantee: 'Finalize only updates aggregate total_revenue — tipper address stays completely private.',
                 },
                 {
+                  fn: 'renew()',
+                  guarantee: 'Same privacy model as subscribe — self.caller never reaches finalize. Consumes old pass, creates new one with extended expiry.',
+                },
+                {
+                  fn: 'publish_content()',
+                  guarantee: 'Only content_id and min_tier enter finalize. Content body stays off-chain. Creator address is already public.',
+                },
+                {
+                  fn: 'subscribe_token()',
+                  guarantee: 'Same privacy model as subscribe — pays with any ARC-20 token via token_registry.aleo/transfer_private. Subscriber address never reaches finalize.',
+                },
+                {
+                  fn: 'tip_token()',
+                  guarantee: 'Same privacy model as tip — pays with any ARC-20 token. Only aggregate revenue per token type is stored publicly.',
+                },
+                {
                   fn: 'All payments',
-                  guarantee: 'Use credits.aleo/transfer_private — not public transfers. Amount and sender are hidden on-chain.',
+                  guarantee: 'Use credits.aleo/transfer_private or token_registry.aleo/transfer_private — never public transfers. Amount, sender, and token type are hidden on-chain.',
                 },
               ].map((item, i) => (
                 <motion.div
@@ -448,7 +601,8 @@ export default function PrivacyPage() {
         </section>
 
         {/* Comparison */}
-        <section className="py-16 border-t border-white/5">
+        <div className="gradient-divider" />
+        <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-bold text-white mb-4">VeilSub vs. Traditional Platforms</h2>
@@ -469,6 +623,7 @@ export default function PrivacyPage() {
                     ['Transaction history', 'Permanent & visible', 'Hidden on-chain'],
                     ['Creator sees who subscribes', 'Yes — full list', 'No — aggregate only'],
                     ['Payment privacy', 'Bank/card linked', 'Private credit transfer'],
+                    ['Multi-token privacy', 'Card/bank linked to identity', 'Any ARC-20 token, fully private'],
                     ['Third-party data access', 'Platform sells data', 'No data to sell'],
                     ['Censorship resistance', 'Platform can ban', 'On-chain, unstoppable'],
                   ].map(([feature, trad, veilsub]) => (

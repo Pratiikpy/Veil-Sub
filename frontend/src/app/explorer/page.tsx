@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   Search,
@@ -11,6 +11,7 @@ import {
   AlertCircle,
   ArrowRight,
   Shield,
+  TrendingUp,
 } from 'lucide-react'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { formatCredits, isValidAleoAddress, shortenAddress } from '@/lib/utils'
@@ -19,6 +20,25 @@ import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
 import OnChainVerify from '@/components/OnChainVerify'
 import type { CreatorProfile } from '@/types'
+
+function MiniSparkline({ data }: { data: number[] }) {
+  if (!data.length) return null
+  const max = Math.max(...data, 1)
+  const barCount = Math.min(data.length, 14)
+  const bars = data.slice(-barCount)
+
+  return (
+    <div className="flex items-end gap-px h-6" title="Subscription activity (last 14 days)">
+      {bars.map((v, i) => (
+        <div
+          key={i}
+          className="w-1 rounded-full bg-violet-400/60 transition-all"
+          style={{ height: `${Math.max((v / max) * 100, 8)}%` }}
+        />
+      ))}
+    </div>
+  )
+}
 
 const SEARCH_PLACEHOLDERS = [
   'Enter creator\'s Aleo address (aleo1...)',
@@ -33,7 +53,20 @@ export default function ExplorerPage() {
   const [result, setResult] = useState<CreatorProfile | null>(null)
   const [searched, setSearched] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [sparkData, setSparkData] = useState<number[]>([])
   const { placeholder, isAnimating } = useCyclingPlaceholder(SEARCH_PLACEHOLDERS)
+
+  // Fetch sparkline data when a creator is found
+  useEffect(() => {
+    if (!result?.address) { setSparkData([]); return }
+    fetch(`/api/analytics/summary?creator=${encodeURIComponent(result.address)}`)
+      .then((r) => r.json())
+      .then((json) => {
+        const daily: { subscriptions: number }[] = json.daily || []
+        setSparkData(daily.map((d) => d.subscriptions))
+      })
+      .catch(() => setSparkData([]))
+  }, [result?.address])
 
   const handleSearch = async () => {
     if (loading) return
@@ -184,9 +217,17 @@ export default function ExplorerPage() {
                           displayedValue={result.subscriberCount}
                         />
                       </div>
-                      <p className="text-2xl font-bold text-white">
-                        {result.subscriberCount}
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-2xl font-bold text-white">
+                          {result.subscriberCount}
+                        </p>
+                        {sparkData.length > 0 && (
+                          <div className="flex items-center gap-1.5">
+                            <TrendingUp className="w-3 h-3 text-violet-400" />
+                            <MiniSparkline data={sparkData} />
+                          </div>
+                        )}
+                      </div>
                       <p className="text-xs text-slate-500 mt-1">
                         Aggregate count only — no individual IDs visible
                       </p>

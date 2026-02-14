@@ -96,13 +96,14 @@ function OverviewTab() {
 │ (Shield Wallet)│    │  Program    │     │                   │
 │               │    │             │     │  PRIVATE:          │
 │ 1. Pick tier  │    │ subscribe() │     │  - AccessPass      │
-│ 2. Pay ALEO   │    │             │     │  - Payment details │
+│ 2. Pay ALEO   │    │ renew()     │     │  - Payment details │
 │ 3. Get pass   │    │ verify()    │     │  - Subscriber ID   │
-│               │    │             │     │                   │
-│               │    │ tip()       │     │  PUBLIC:           │
+│               │    │ tip()       │     │                   │
+│               │    │ publish()   │     │  PUBLIC:           │
 │               │    │             │     │  - Subscriber count│
 └──────────────┘     └─────────────┘     │  - Total revenue   │
                                          │  - Tier prices     │
+                                         │  - Content meta    │
         ┌──────────────┐                 └───────────────────┘
         │   Creator     │
         │ Sees: 47 subs │
@@ -143,9 +144,9 @@ function ContractTab() {
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Program ID</h3>
         <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/20 flex items-center justify-between">
-          <code className="text-violet-300 text-sm font-mono">veilsub_v4.aleo</code>
+          <code className="text-violet-300 text-sm font-mono">veilsub_v5.aleo</code>
           <a
-            href="https://explorer.aleo.org/testnet/program/veilsub_v4.aleo"
+            href="https://explorer.aleo.org/testnet/program/veilsub_v5.aleo"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1"
@@ -164,6 +165,7 @@ function ContractTab() {
     creator: address,  // which creator (private)
     tier: u8,          // 1=basic, 2=premium, 3=vip (private)
     pass_id: field,    // unique identifier (private)
+    expires_at: u32,   // block height when pass expires (private)
 }`}
         />
       </div>
@@ -172,9 +174,19 @@ function ContractTab() {
         <h3 className="text-xl font-semibold text-white mb-3">Mappings (Public)</h3>
         <CodeBlock
           lang="leo"
-          code={`mapping tier_prices: address => u64;      // creator => base price (microcredits)
-mapping subscriber_count: address => u64; // creator => total subscribers
-mapping total_revenue: address => u64;    // creator => total earned`}
+          code={`// Core mappings (ALEO credits)
+mapping tier_prices: address => u64;           // creator => base price (microcredits)
+mapping subscriber_count: address => u64;      // creator => total subscribers
+mapping total_revenue: address => u64;         // creator => total earned
+mapping platform_revenue: u8 => u64;          // key 0 = total platform earnings
+mapping content_count: address => u64;         // creator => number of posts
+mapping content_meta: field => u8;             // hashed content_id => min tier required
+mapping sub_created: field => u32;             // hashed pass_id => block.height at creation
+
+// Token-specific mappings (v5 — ARC-20 multi-token)
+mapping tier_prices_token: field => u128;      // hash(creator, token_id) => price in token
+mapping total_revenue_token: field => u128;    // hash(creator, token_id) => total earned
+mapping platform_revenue_token: field => u128; // hash(token_id, platform) => platform earnings`}
         />
       </div>
 
@@ -201,6 +213,31 @@ mapping total_revenue: address => u64;    // creator => total earned`}
               name: 'tip(payment, creator, amount)',
               type: 'async',
               desc: 'Private tip to creator. Only aggregate revenue updated. Tipper identity stays private.',
+            },
+            {
+              name: 'renew(old_pass, payment, new_tier, amount, pass_id, expires_at)',
+              type: 'async',
+              desc: 'Consumes expired (or active) pass, pays again, and creates a new AccessPass with extended expiry. Allows tier changes. Revenue updated, subscriber_count NOT incremented (renewal, not new sub).',
+            },
+            {
+              name: 'publish_content(content_id, min_tier)',
+              type: 'async',
+              desc: 'Creator publishes content metadata on-chain. Records content existence and minimum tier required for access. Content body stays off-chain — only tier-gating is enforced on-chain.',
+            },
+            {
+              name: 'set_token_price(token_id, price)',
+              type: 'async',
+              desc: 'Creator sets subscription price in a specific ARC-20 token (v5). Requires prior register_creator call. Enables multi-token payments (USDCx, USAD, etc.).',
+            },
+            {
+              name: 'subscribe_token(payment, creator, tier, amount, token_id, pass_id)',
+              type: 'async',
+              desc: 'Subscribe with any ARC-20 token via token_registry.aleo (v5). Same privacy model as subscribe() — subscriber identity never enters finalize. Supports USDCx, USAD, and any ARC-20 token.',
+            },
+            {
+              name: 'tip_token(payment, creator, amount, token_id)',
+              type: 'async',
+              desc: 'Tip with any ARC-20 token (v5). Same privacy model as tip() — tipper identity stays private. Token-specific revenue tracking.',
             },
           ].map((t) => (
             <div
@@ -324,13 +361,13 @@ function ApiTab() {
         <CodeBlock
           lang="bash"
           code={`# Get creator's tier price
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v4.aleo/mapping/tier_prices/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v5.aleo/mapping/tier_prices/<creator_address>
 
 # Get subscriber count
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v4.aleo/mapping/subscriber_count/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v5.aleo/mapping/subscriber_count/<creator_address>
 
 # Get total revenue
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v4.aleo/mapping/total_revenue/<creator_address>`}
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v5.aleo/mapping/total_revenue/<creator_address>`}
         />
       </div>
 
@@ -347,7 +384,7 @@ curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v4.aleo/mappin
 const tx = Transaction.createTransaction(
   publicKey,                    // your wallet address
   WalletAdapterNetwork.Testnet,
-  'veilsub_v4.aleo',          // program ID
+  'veilsub_v5.aleo',          // program ID
   'subscribe',                  // transition name
   [
     creatorPaymentRecord,       // credits record for creator (95%)

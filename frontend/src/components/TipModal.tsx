@@ -6,9 +6,12 @@ import { X, Heart } from 'lucide-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { creditsToMicrocredits } from '@/lib/utils'
+import { KNOWN_TOKENS } from '@/lib/config'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
 import type { TxStatus } from '@/types'
+
+type PaymentType = 'credits' | 'token'
 
 interface Props {
   isOpen: boolean
@@ -19,13 +22,15 @@ interface Props {
 const TIP_AMOUNTS = [1, 5, 10, 25]
 
 export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
-  const { tip, getCreditsRecords, connected } = useVeilSub()
+  const { tip, tipToken, getCreditsRecords, connected } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
   const [selectedAmount, setSelectedAmount] = useState(5)
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
   const [txId, setTxId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [insufficientBalance, setInsufficientBalance] = useState(false)
+  const [paymentType, setPaymentType] = useState<PaymentType>('credits')
+  const selectedToken = KNOWN_TOKENS[0]
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -105,6 +110,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
     setTxId(null)
     setError(null)
     setInsufficientBalance(false)
+    setPaymentType('credits')
     onClose()
   }
 
@@ -146,6 +152,30 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
             {txStatus === 'idle' ? (
               <>
+                {/* Payment Type Toggle */}
+                <div className="flex items-center gap-2 p-1 rounded-xl bg-white/[0.03] border border-white/[0.06] mb-4">
+                  <button
+                    onClick={() => setPaymentType('credits')}
+                    className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
+                      paymentType === 'credits'
+                        ? 'bg-pink-500/20 text-pink-300 border border-pink-500/30'
+                        : 'text-slate-500 hover:text-slate-300'
+                    }`}
+                  >
+                    ALEO Credits
+                  </button>
+                  <button
+                    onClick={() => setPaymentType('token')}
+                    className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
+                      paymentType === 'token'
+                        ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                        : 'text-slate-500 hover:text-slate-300'
+                    }`}
+                  >
+                    {selectedToken.symbol}
+                  </button>
+                </div>
+
                 <div className="grid grid-cols-4 gap-2 mb-6">
                   {TIP_AMOUNTS.map((amount) => (
                     <button
@@ -162,7 +192,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                   ))}
                 </div>
                 <p className="text-center text-sm text-slate-400 mb-4">
-                  {selectedAmount} ALEO credits
+                  {selectedAmount} {paymentType === 'credits' ? 'ALEO credits' : selectedToken.symbol}
                 </p>
 
                 {error && (
@@ -185,7 +215,11 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                   disabled={txStatus !== 'idle'}
                   className="w-full py-3 rounded-xl bg-gradient-to-r from-pink-600 to-violet-600 text-white font-medium hover:from-pink-500 hover:to-violet-500 transition-all hover:shadow-[0_0_30px_rgba(236,72,153,0.3)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Tip Privately
+                  {txStatus !== 'idle'
+                    ? 'Processing...'
+                    : paymentType === 'credits'
+                    ? 'Tip Privately'
+                    : `Tip with ${selectedToken.symbol}`}
                 </button>
               </>
             ) : (

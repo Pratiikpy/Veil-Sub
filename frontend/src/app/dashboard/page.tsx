@@ -14,6 +14,8 @@ import {
   Share2,
   Lock,
   Percent,
+  ArrowRight,
+  Sparkles,
 } from 'lucide-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
@@ -22,6 +24,8 @@ import StatsPanel from '@/components/StatsPanel'
 import TransactionStatus from '@/components/TransactionStatus'
 import CreatorQRCode from '@/components/CreatorQRCode'
 import CreatePostForm from '@/components/CreatePostForm'
+import ActivityChart from '@/components/ActivityChart'
+import TierDistribution from '@/components/TierDistribution'
 import { creditsToMicrocredits, formatCredits, shortenAddress } from '@/lib/utils'
 import { PLATFORM_FEE_PCT } from '@/lib/config'
 import { TIERS } from '@/types'
@@ -47,7 +51,7 @@ function ShareText({ text }: { text: string }) {
       </div>
       <button
         onClick={copy}
-        className="mt-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors flex items-center gap-2"
+        className="mt-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors flex items-center gap-2 active:scale-[0.98]"
       >
         {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
         {copied ? 'Copied' : 'Copy to clipboard'}
@@ -55,6 +59,45 @@ function ShareText({ text }: { text: string }) {
     </div>
   )
 }
+
+function DashboardSkeleton() {
+  return (
+    <div className="min-h-screen">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="animate-pulse mb-8">
+          <div className="h-8 w-52 rounded-lg bg-white/[0.06] mb-3" />
+          <div className="h-4 w-80 rounded-lg bg-white/[0.04]" />
+        </div>
+        <div className="max-w-lg animate-pulse">
+          <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-5 h-5 rounded bg-white/[0.06]" />
+              <div className="h-5 w-40 rounded-lg bg-white/[0.06]" />
+            </div>
+            <div className="mb-6">
+              <div className="h-4 w-48 rounded bg-white/[0.04] mb-2" />
+              <div className="h-12 w-full rounded-xl bg-white/[0.04]" />
+              <div className="h-3 w-52 rounded bg-white/[0.03] mt-2" />
+            </div>
+            <div className="h-20 w-full rounded-lg bg-white/[0.03] mb-6" />
+            <div className="h-12 w-full rounded-xl bg-white/[0.06]" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const SPARKLE_POSITIONS = [
+  { x: -60, y: -60 },
+  { x: 60, y: -60 },
+  { x: -80, y: 0 },
+  { x: 80, y: 0 },
+  { x: -60, y: 60 },
+  { x: 60, y: 60 },
+  { x: 0, y: -80 },
+  { x: 0, y: 80 },
+]
 
 export default function DashboardPage() {
   const { publicKey, connected } = useWallet()
@@ -120,7 +163,7 @@ export default function DashboardPage() {
               setShowCelebration(false)
               setIsRegistered(true)
               setRefreshKey((k) => k + 1)
-            }, 3000)
+            }, 4000)
           } else if (result.status === 'failed') {
             setTxStatus('failed')
           }
@@ -164,11 +207,7 @@ export default function DashboardPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-slate-400">Loading...</div>
-      </div>
-    )
+    return <DashboardSkeleton />
   }
 
   return (
@@ -194,8 +233,28 @@ export default function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-20"
+            className="flex flex-col items-center justify-center py-20 relative"
           >
+            {/* Sparkle burst */}
+            {SPARKLE_POSITIONS.map((pos, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-2 h-2 rounded-full bg-violet-400"
+                style={{ left: '50%', top: '40%' }}
+                initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+                animate={{
+                  x: pos.x,
+                  y: pos.y,
+                  opacity: [1, 1, 0],
+                  scale: [0.5, 1.2, 0],
+                }}
+                transition={{
+                  duration: 1.2,
+                  delay: 0.3 + i * 0.05,
+                  ease: 'easeOut',
+                }}
+              />
+            ))}
             <motion.div
               animate={{ rotate: [0, -10, 10, -10, 0] }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -205,9 +264,33 @@ export default function DashboardPage() {
             <h2 className="text-3xl font-bold text-white mb-3">
               You&apos;re Registered!
             </h2>
-            <p className="text-slate-400 text-center max-w-md">
+            <p className="text-slate-400 text-center max-w-md mb-8">
               Your creator profile is live on-chain. Subscribers can now find you and subscribe privately.
             </p>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 }}
+              className="space-y-3 text-center"
+            >
+              <p className="text-xs text-slate-500 uppercase tracking-wider font-medium">Next steps</p>
+              <div className="flex items-center gap-3 flex-wrap justify-center">
+                <Link
+                  href={`/creator/${publicKey}`}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-colors active:scale-[0.98]"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  View your page
+                </Link>
+                <button
+                  onClick={copyLink}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-300 hover:bg-white/10 transition-colors active:scale-[0.98]"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Share your link
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         ) : !isRegistered ? (
           /* Registration Form */
@@ -300,7 +383,7 @@ export default function DashboardPage() {
               <div className="flex gap-2">
                 <button
                   onClick={copyLink}
-                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors flex items-center gap-2"
+                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors flex items-center gap-2 active:scale-[0.98]"
                 >
                   {copied ? (
                     <Check className="w-4 h-4 text-green-400" />
@@ -311,7 +394,7 @@ export default function DashboardPage() {
                 </button>
                 <Link
                   href={`/creator/${publicKey}`}
-                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors flex items-center gap-2"
+                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors flex items-center gap-2 active:scale-[0.98]"
                 >
                   <ExternalLink className="w-4 h-4" />
                   View
@@ -346,6 +429,49 @@ export default function DashboardPage() {
                 />
               )}
             </motion.div>
+
+            {/* Analytics */}
+            {publicKey && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.16 }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-white">
+                    Analytics
+                  </h2>
+                  <span className="text-xs text-slate-500">All values verified on-chain</span>
+                </div>
+
+                {/* 30-Day Overview Summary */}
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                    <p className="text-xs text-slate-500 mb-1">New Subscribers</p>
+                    <p className="text-lg font-semibold text-white">
+                      {stats?.subscriberCount ?? 0}
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                    <p className="text-xs text-slate-500 mb-1">Total Revenue</p>
+                    <p className="text-lg font-semibold text-white">
+                      {stats?.totalRevenue ? formatCredits(stats.totalRevenue) : '0'} <span className="text-xs font-normal text-slate-500">ALEO</span>
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                    <p className="text-xs text-slate-500 mb-1">Active Tiers</p>
+                    <p className="text-lg font-semibold text-white">
+                      {stats?.tierPrice != null ? '3' : '0'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid lg:grid-cols-2 gap-4">
+                  <ActivityChart creatorAddress={publicKey} />
+                  <TierDistribution creatorAddress={publicKey} />
+                </div>
+              </motion.div>
+            )}
 
             {/* Tier Pricing Breakdown */}
             {stats?.tierPrice != null && (

@@ -155,6 +155,72 @@ export function useVeilSub() {
     [execute]
   )
 
+  const setTokenPrice = useCallback(
+    async (tokenId: string, price: string) => {
+      return execute(
+        'set_token_price',
+        [
+          `${tokenId}field`,
+          `${price}u128`,
+        ],
+        FEES.SET_TOKEN_PRICE
+      )
+    },
+    [execute]
+  )
+
+  const subscribeToken = useCallback(
+    async (
+      tokenRecordCreator: string,
+      tokenRecordPlatform: string,
+      creatorAddress: string,
+      tier: number,
+      amount: string,
+      tokenId: string,
+      passId: string,
+      expiresAt: number
+    ) => {
+      return execute(
+        'subscribe_token',
+        [
+          tokenRecordCreator,
+          tokenRecordPlatform,
+          creatorAddress,
+          `${tier}u8`,
+          `${amount}u128`,
+          `${tokenId}field`,
+          `${passId}field`,
+          `${expiresAt}u32`,
+        ],
+        FEES.SUBSCRIBE_TOKEN
+      )
+    },
+    [execute]
+  )
+
+  const tipToken = useCallback(
+    async (
+      tokenRecordCreator: string,
+      tokenRecordPlatform: string,
+      creatorAddress: string,
+      amount: string,
+      tokenId: string
+    ) => {
+      return execute(
+        'tip_token',
+        [
+          tokenRecordCreator,
+          tokenRecordPlatform,
+          creatorAddress,
+          `${amount}u128`,
+          `${tokenId}field`,
+        ],
+        FEES.TIP_TOKEN
+      )
+    },
+    [execute]
+  )
+
   const getCreditsRecords = useCallback(async (): Promise<string[]> => {
     if (!connected) return []
     try {
@@ -236,6 +302,9 @@ export function useVeilSub() {
     verifyAccess,
     renew,
     publishContent,
+    setTokenPrice,
+    subscribeToken,
+    tipToken,
     getCreditsRecords,
     getAccessPasses,
     pollTxStatus,

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, use } from 'react'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import {
   Shield,
   Heart,
@@ -13,6 +14,8 @@ import {
   RefreshCw,
   Clock,
   AlertTriangle,
+  ArrowRight,
+  Search,
 } from 'lucide-react'
 import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
@@ -31,13 +34,52 @@ import {
 import { TIERS } from '@/types'
 import type { CreatorProfile, SubscriptionTier, AccessPass } from '@/types'
 
+function CreatorSkeleton() {
+  return (
+    <div className="min-h-screen">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Header skeleton */}
+        <div className="mb-10 animate-pulse">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 rounded-2xl bg-white/[0.06]" />
+            <div>
+              <div className="h-6 w-40 rounded-lg bg-white/[0.06] mb-2" />
+              <div className="h-4 w-28 rounded-lg bg-white/[0.04]" />
+            </div>
+          </div>
+          {/* Stats row skeleton */}
+          <div className="flex gap-6">
+            <div className="h-4 w-32 rounded-lg bg-white/[0.04]" />
+            <div className="h-4 w-36 rounded-lg bg-white/[0.04]" />
+          </div>
+        </div>
+        {/* Tier cards skeleton */}
+        <div className="grid sm:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="animate-pulse p-6 rounded-xl border border-white/[0.06] bg-white/[0.02]">
+              <div className="h-5 w-24 rounded-lg bg-white/[0.06] mb-3" />
+              <div className="h-8 w-20 rounded-lg bg-white/[0.06] mb-1" />
+              <div className="h-3 w-36 rounded-lg bg-white/[0.04] mb-4" />
+              <div className="space-y-2 mb-6">
+                <div className="h-3 w-full rounded bg-white/[0.03]" />
+                <div className="h-3 w-3/4 rounded bg-white/[0.03]" />
+              </div>
+              <div className="h-10 w-full rounded-lg bg-white/[0.06]" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function CreatorPage({
   params,
 }: {
   params: Promise<{ address: string }>
 }) {
   const { address } = use(params)
-  const { connected } = useWallet()
+  const { connected, publicKey } = useWallet()
   const { fetchCreatorStats } = useCreatorStats()
   const { getAccessPasses } = useVeilSub()
   const { blockHeight } = useBlockHeight()
@@ -86,11 +128,7 @@ export default function CreatorPage({
   }, [connected, address, getAccessPasses])
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-slate-400">Loading creator...</div>
-      </div>
-    )
+    return <CreatorSkeleton />
   }
 
   const isRegistered = stats?.tierPrice !== null && stats?.tierPrice !== undefined
@@ -153,15 +191,40 @@ export default function CreatorPage({
         </motion.div>
 
         {!isRegistered ? (
-          <div className="text-center py-20">
-            <Lock className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-white mb-2">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-20"
+          >
+            <div className="w-20 h-20 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center mx-auto mb-6">
+              <Shield className="w-10 h-10 text-slate-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-3">
               Creator Not Found
             </h2>
-            <p className="text-slate-400">
-              This address hasn&apos;t registered as a creator yet.
+            <p className="text-slate-400 max-w-md mx-auto mb-2">
+              This address hasn&apos;t registered as a creator on VeilSub yet.
             </p>
-          </div>
+            <p className="text-xs text-slate-500 font-mono mb-8">
+              {shortenAddress(address)}
+            </p>
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <Link
+                href="/#explore"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium text-sm hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] active:scale-[0.98]"
+              >
+                <Search className="w-4 h-4" />
+                Browse Featured Creators
+              </Link>
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-sm hover:bg-white/10 transition-colors active:scale-[0.98]"
+              >
+                Register as a Creator
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </motion.div>
         ) : (
           <div className="space-y-10">
             {/* User's Existing Passes */}
@@ -212,7 +275,7 @@ export default function CreatorPage({
                                 <span className="text-xs text-red-400">Expired</span>
                                 <button
                                   onClick={() => setRenewPass(pass)}
-                                  className="ml-2 px-2.5 py-1 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-colors flex items-center gap-1"
+                                  className="ml-2 px-2.5 py-1 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-colors flex items-center gap-1 active:scale-[0.98]"
                                 >
                                   <RefreshCw className="w-3 h-3" />
                                   Renew
@@ -260,7 +323,7 @@ export default function CreatorPage({
                       }`}
                     >
                       {tier.id === 3 && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-violet-500/20 border border-violet-500/30">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-violet-500/20 border border-violet-500/30 pulse-glow">
                           <span className="text-xs font-medium text-violet-300">
                             Popular
                           </span>
@@ -320,6 +383,7 @@ export default function CreatorPage({
               creatorAddress={address}
               userPasses={userPasses}
               connected={connected}
+              walletAddress={publicKey}
               blockHeight={blockHeight}
             />
 
@@ -343,7 +407,7 @@ export default function CreatorPage({
                 <button
                   onClick={() => setShowTip(true)}
                   disabled={!connected}
-                  className="px-6 py-2.5 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-300 font-medium text-sm hover:bg-pink-500/20 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2.5 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-300 font-medium text-sm hover:bg-pink-500/20 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
                 >
                   <Heart className="w-4 h-4" />
                   Tip

@@ -10,10 +10,11 @@ export interface AccessPass {
 export interface ContentPost {
   id: string
   title: string
-  body: string
+  body: string | null  // null when server-gated (content not yet unlocked)
   minTier: number
   createdAt: string
   contentId: string  // on-chain content_id (field), or 'seed' for seed content
+  gated?: boolean    // true when body is server-redacted
 }
 
 export interface CreatorProfile {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Lock, Unlock, Star, MessageSquare, Crown, Shield, RefreshCw } from 'lucide-react'
+import { Lock, Unlock, Star, MessageSquare, Crown, Shield, RefreshCw, Loader2 } from 'lucide-react'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import type { AccessPass, ContentPost } from '@/types'
 
@@ -10,6 +10,7 @@ interface Props {
   creatorAddress: string
   userPasses: AccessPass[]
   connected: boolean
+  walletAddress?: string | null
   refreshKey?: number
   blockHeight?: number | null
 }
@@ -84,9 +85,11 @@ function LoadingSkeleton() {
   )
 }
 
-export default function ContentFeed({ creatorAddress, userPasses, connected, refreshKey, blockHeight }: Props) {
-  const { getPostsForCreator, loading } = useContentFeed()
+export default function ContentFeed({ creatorAddress, userPasses, connected, walletAddress, refreshKey, blockHeight }: Props) {
+  const { getPostsForCreator, unlockPost, loading } = useContentFeed()
   const [posts, setPosts] = useState<ContentPost[]>([])
+  const [unlockedBodies, setUnlockedBodies] = useState<Record<string, string>>({})
+  const [unlockingIds, setUnlockingIds] = useState<Set<string>>(new Set())
   const [error, setError] = useState(false)
   const [initialLoad, setInitialLoad] = useState(true)
 
@@ -113,13 +116,37 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, ref
     0
   )
 
+  // Auto-unlock gated posts when user has valid passes
+  useEffect(() => {
+    if (!walletAddress || activePasses.length === 0) return
+
+    const gatedPosts = posts.filter(
+      (p) => p.gated && p.body === null && highestTier >= p.minTier && !unlockedBodies[p.id] && !unlockingIds.has(p.id)
+    )
+
+    if (gatedPosts.length === 0) return
+
+    gatedPosts.forEach(async (post) => {
+      setUnlockingIds((prev) => new Set(prev).add(post.id))
+      const body = await unlockPost(post.id, creatorAddress, walletAddress, activePasses)
+      if (body) {
+        setUnlockedBodies((prev) => ({ ...prev, [post.id]: body }))
+      }
+      setUnlockingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(post.id)
+        return next
+      })
+    })
+  }, [posts, activePasses, highestTier, walletAddress, creatorAddress, unlockPost, unlockedBodies, unlockingIds])
+
   return (
     <div>
       <h2 className="text-lg font-semibold text-white mb-2">
         Exclusive Content
       </h2>
       <p className="text-xs text-slate-500 mb-4">
-        Content gating is client-side — your AccessPass record is checked locally in your browser. No server ever sees your pass.
+        Content is server-gated — locked posts are never sent to your browser until your AccessPass is verified.
       </p>
 
       {initialLoad && loading ? (
@@ -139,7 +166,11 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, ref
         <div className="space-y-4">
           {posts.map((post, i) => {
             const tier = tierConfig[post.minTier] || tierConfig[1]
-            const unlocked = highestTier >= post.minTier
+            const hasAccess = highestTier >= post.minTier
+            const unlockedBody = unlockedBodies[post.id]
+            const isUnlocking = unlockingIds.has(post.id)
+            const displayBody = unlockedBody || post.body
+            const unlocked = hasAccess && displayBody != null
             const Icon = tier.icon
 
             return (
@@ -163,6 +194,8 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, ref
                     >
                       {unlocked ? (
                         <Icon className={`w-4 h-4 ${tier.text}`} />
+                      ) : isUnlocking ? (
+                        <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
                       ) : (
                         <Lock className="w-4 h-4 text-slate-600" />
                       )}
@@ -190,22 +223,26 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, ref
                     )}
                   </div>
 
-                  {unlocked ? (
+                  {unlocked && displayBody ? (
                     <p className="text-sm text-slate-300 leading-relaxed">
-                      {post.body}
+                      {displayBody}
                     </p>
+                  ) : isUnlocking ? (
+                    <div className="flex items-center gap-2 py-3">
+                      <Loader2 className="w-4 h-4 text-violet-400 animate-spin" />
+                      <p className="text-sm text-slate-400">Verifying access pass...</p>
+                    </div>
                   ) : (
-                    <div className="relative">
-                      <p className="text-sm text-slate-600 blur-sm select-none" aria-hidden>
-                        {post.body.slice(0, 120)}...
+                    <div className="py-4 text-center">
+                      <Lock className="w-5 h-5 text-slate-600 mx-auto mb-2" />
+                      <p className="text-sm text-slate-500">
+                        {connected
+                          ? `Subscribe to ${tier.name} or higher to unlock`
+                          : 'Connect wallet and subscribe to unlock'}
                       </p>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <p className="text-sm text-slate-500 bg-[#0a0a0f]/80 px-3 py-1.5 rounded-lg">
-                          {connected
-                            ? `Subscribe to ${tier.name} or higher to unlock`
-                            : 'Connect wallet and subscribe to unlock'}
-                        </p>
-                      </div>
+                      <p className="text-xs text-slate-600 mt-1">
+                        Content is server-protected — not visible in network requests
+                      </p>
                     </div>
                   )}
 
@@ -231,7 +268,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, ref
         <div className="flex items-center gap-2">
           <Shield className="w-3.5 h-3.5 text-violet-400 shrink-0" />
           <p className="text-xs text-slate-500">
-            Content is gated by your AccessPass — checked locally in your browser. Zero server involvement.
+            Gated content is server-protected. Bodies are only delivered after AccessPass verification — never exposed in network requests.
           </p>
         </div>
       </div>

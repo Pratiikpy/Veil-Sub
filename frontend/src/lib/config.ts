@@ -1,4 +1,4 @@
-export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v4.aleo'
+export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v5.aleo'
 // API calls use Next.js rewrite proxy (/api/aleo/*) to avoid leaking user interest to third parties
 // The actual endpoint is configured in next.config.ts rewrites
 export const APP_NAME = 'VeilSub'
@@ -12,7 +12,15 @@ export const FEES = {
   VERIFY: 350_000,         // 0.35 credits (no finalize)
   RENEW: 5_000_000,        // 5 credits (same as subscribe)
   PUBLISH: 500_000,        // 0.5 credits (finalize only)
+  SET_TOKEN_PRICE: 500_000,  // 0.5 credits (finalize only)
+  SUBSCRIBE_TOKEN: 5_000_000, // 5 credits (two token transfer_private + finalize)
+  TIP_TOKEN: 3_000_000,     // 3 credits (two token transfer_private + finalize)
 } as const
+
+// Known ARC-20 token IDs on Aleo testnet
+export const KNOWN_TOKENS: { id: string; name: string; symbol: string; decimals: number }[] = [
+  { id: '3443843282313283355522573239085696902919850365217539366784739393210722344986field', name: 'USDCx', symbol: 'USDCx', decimals: 6 },
+]
 
 // 1 ALEO credit = 1,000,000 microcredits
 export const MICROCREDITS_PER_CREDIT = 1_000_000

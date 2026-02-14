@@ -13,6 +13,10 @@
   --font-display: var(--font-space-grotesk);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -68,6 +72,19 @@ body {
   background: rgba(139, 92, 246, 0.25) !important;
   box-shadow: 0 0 20px rgba(139, 92, 246, 0.2) !important;
 }
+
+/* Connected wallet button — emerald tint */
+.wallet-adapter-button-trigger.wallet-adapter-button-connected,
+.wallet-adapter-button[data-state="connected"] {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+.wallet-adapter-button-trigger.wallet-adapter-button-connected:hover,
+.wallet-adapter-button[data-state="connected"]:hover {
+  background: rgba(16, 185, 129, 0.2) !important;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15) !important;
+}
+
 .wallet-adapter-modal-wrapper {
   background: #13111c !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -94,10 +111,35 @@ body {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(139, 92, 246, 0.15),
+    rgba(139, 92, 246, 0.10),
     transparent
   );
   animation: shimmer 2.5s ease-in-out infinite;
+}
+
+/* Animated gradient text */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.animate-gradient-text {
+  background-size: 200% auto;
+  animation: gradient-shift 4s ease-in-out infinite;
+}
+
+/* Pulse glow for CTAs and badges */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(139, 92, 246, 0.15); }
+  50% { box-shadow: 0 0 15px rgba(139, 92, 246, 0.3); }
+}
+.pulse-glow {
+  animation: pulse-glow 2.5s ease-in-out infinite;
+}
+
+/* Gradient divider */
+.gradient-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), rgba(168, 85, 247, 0.15), transparent);
 }
 
 /* Active nav indicator */

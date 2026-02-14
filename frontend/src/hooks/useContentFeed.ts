@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { SEED_CONTENT } from '@/lib/config'
-import type { ContentPost } from '@/types'
+import type { AccessPass, ContentPost } from '@/types'
 
 export function useContentFeed() {
   const [loading, setLoading] = useState(false)
@@ -16,6 +16,7 @@ export function useContentFeed() {
         minTier: s.minTier,
         createdAt: s.createdAt,
         contentId: s.contentId,
+        gated: s.minTier > 0,
       }))
 
       setLoading(true)
@@ -33,6 +34,41 @@ export function useContentFeed() {
       }
       setLoading(false)
       return seedPosts
+    },
+    []
+  )
+
+  const unlockPost = useCallback(
+    async (
+      postId: string,
+      creatorAddress: string,
+      walletAddress: string,
+      accessPasses: AccessPass[]
+    ): Promise<string | null> => {
+      try {
+        const res = await fetch('/api/posts/unlock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            postId,
+            creatorAddress,
+            walletAddress,
+            accessPasses: accessPasses.map((p) => ({
+              creator: p.creator,
+              tier: p.tier,
+              expiresAt: p.expiresAt,
+            })),
+            timestamp: Date.now(),
+          }),
+        })
+        if (res.ok) {
+          const { body } = await res.json()
+          return body as string
+        }
+      } catch {
+        // Unlock failed
+      }
+      return null
     },
     []
   )
@@ -69,5 +105,5 @@ export function useContentFeed() {
     []
   )
 
-  return { getPostsForCreator, createPost, loading }
+  return { getPostsForCreator, unlockPost, createPost, loading }
 }

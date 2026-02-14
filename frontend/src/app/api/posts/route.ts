@@ -17,7 +17,18 @@ export async function GET(req: NextRequest) {
 
   try {
     const raw = await redis.zrange(`veilsub:posts:${creator}`, 0, -1, { rev: true })
-    const posts = raw.map((p) => (typeof p === 'string' ? JSON.parse(p) : p))
+    const posts = raw.map((p) => {
+      const post = typeof p === 'string' ? JSON.parse(p) : p
+      // Server-side content gating: redact body for tier-gated posts
+      if (post.minTier && post.minTier > 0) {
+        return {
+          ...post,
+          body: null, // Body is NEVER sent for gated content
+          gated: true,
+        }
+      }
+      return post
+    })
     return NextResponse.json({ posts })
   } catch {
     return NextResponse.json({ posts: [] })

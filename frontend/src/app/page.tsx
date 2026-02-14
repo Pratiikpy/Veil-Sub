@@ -20,12 +20,15 @@ import {
   Search,
   Users,
   Coins,
+  Sparkles,
+  Camera,
 } from 'lucide-react'
 import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
 import PageTransition from '@/components/PageTransition'
 import FloatingOrbs from '@/components/FloatingOrbs'
 import AnimatedCounter from '@/components/AnimatedCounter'
 import UseCaseCard from '@/components/UseCaseCard'
+import QRScanner from '@/components/QRScanner'
 import { FEATURED_CREATORS } from '@/lib/config'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { shortenAddress, formatCredits } from '@/lib/utils'
@@ -46,7 +49,7 @@ function FeaturedCreatorCard({ address, label }: { address: string; label: strin
   return (
     <Link
       href={`/creator/${address}`}
-      className="block p-5 rounded-xl bg-white/[0.02] border border-white/10 hover:border-violet-500/30 transition-all group"
+      className="block p-5 rounded-xl bg-white/[0.02] border border-white/10 hover:border-violet-500/30 hover:-translate-y-0.5 transition-all group"
     >
       <div className="flex items-center gap-3 mb-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
@@ -78,6 +81,7 @@ function FeaturedCreatorCard({ address, label }: { address: string; label: strin
 
 function ExploreCreatorSection() {
   const [searchAddress, setSearchAddress] = useState('')
+  const [showQRScanner, setShowQRScanner] = useState(false)
   const router = useRouter()
 
   const handleSearch = () => {
@@ -88,7 +92,7 @@ function ExploreCreatorSection() {
   }
 
   return (
-    <section className="py-20 border-t border-white/5">
+    <section id="explore" className="py-20">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -133,16 +137,24 @@ function ExploreCreatorSection() {
               />
             </div>
             <button
+              onClick={() => setShowQRScanner(true)}
+              className="px-3 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all active:scale-[0.98]"
+              title="Scan QR Code"
+            >
+              <Camera className="w-5 h-5" />
+            </button>
+            <button
               onClick={handleSearch}
               disabled={!searchAddress.trim().startsWith('aleo1')}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium text-sm hover:from-violet-500 hover:to-purple-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium text-sm hover:from-violet-500 hover:to-purple-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
             >
               Go
             </button>
           </div>
           <p className="text-xs text-slate-500 mt-2 text-center">
-            Know a creator&apos;s address? Paste it above to visit their page.
+            Know a creator&apos;s address? Paste it above or scan a QR code.
           </p>
+          <QRScanner isOpen={showQRScanner} onClose={() => setShowQRScanner(false)} />
         </motion.div>
       </div>
     </section>
@@ -157,54 +169,87 @@ export default function HomePage() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <FloatingOrbs />
+        {/* Dot grid background */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(139, 92, 246, 0.08) 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
+            maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)',
+          }}
+        />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
           <motion.div
             {...fadeUp}
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <div className="flex flex-col sm:flex-row items-center gap-3 mb-8">
+            <div className="flex items-center justify-center mb-8">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20">
                 <Shield className="w-4 h-4 text-violet-400" />
                 <span className="text-sm text-violet-300">
                   Powered by Aleo Zero-Knowledge Proofs
                 </span>
               </div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20">
-                <Zap className="w-4 h-4 text-purple-400" />
-                <span className="text-sm text-purple-300">
-                  Built for the Aleo Privacy Buildathon
-                </span>
-              </div>
             </div>
 
             <h1 className="text-5xl sm:text-7xl font-bold tracking-tight mb-6">
-              <span className="bg-gradient-to-r from-white via-violet-200 to-purple-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-white via-violet-200 to-purple-300 bg-clip-text text-transparent animate-gradient-text">
                 Subscribe Privately.
               </span>
               <br />
-              <span className="bg-gradient-to-r from-violet-400 to-purple-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-violet-400 to-purple-500 bg-clip-text text-transparent animate-gradient-text">
                 Prove Access.
               </span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10">
-              Support your favorite creators without revealing your identity.
-              Powered by Aleo&apos;s programmable privacy.
+            <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-6">
+              The private access layer for the creator economy. Zero-footprint verification. Multi-token payments. Built on Aleo.
             </p>
+
+            {/* Proof badges */}
+            <div className="flex items-center justify-center gap-3 flex-wrap mb-10">
+              <div className="px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300">
+                <span className="font-semibold">9</span> Transitions
+              </div>
+              <div className="px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-300">
+                <span className="font-semibold">10</span> Mappings
+              </div>
+              <div className="px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-xs text-green-300">
+                <span className="font-semibold">Multi-Token</span>
+                <span className="text-green-400/60 ml-1">ALEO + USDCx</span>
+              </div>
+            </div>
 
             <div className="flex items-center justify-center gap-4 flex-wrap">
               {connected ? (
-                <Link
-                  href="/dashboard"
-                  className="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_30px_rgba(139,92,246,0.3)]"
-                >
-                  Go to Dashboard
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
+                <>
+                  <Link
+                    href="/dashboard"
+                    className="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:-translate-y-0.5 active:scale-[0.98]"
+                  >
+                    Go to Dashboard
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <Link
+                    href={`/creator/${FEATURED_CREATORS[0]?.address || ''}`}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-sm hover:bg-white/10 transition-colors active:scale-[0.98]"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Try as Subscriber
+                  </Link>
+                </>
               ) : (
-                <div className="px-8 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-sm">
-                  Connect wallet to get started
+                <div className="flex flex-col items-center gap-3">
+                  <Link
+                    href={`/creator/${FEATURED_CREATORS[0]?.address || ''}`}
+                    className="inline-flex items-center gap-2 px-10 py-4 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold text-lg hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_40px_rgba(139,92,246,0.35)] hover:-translate-y-0.5 active:scale-[0.98] pulse-glow"
+                  >
+                    Try Live Demo
+                    <ArrowRight className="w-5 h-5" />
+                  </Link>
+                  <p className="text-xs text-slate-500">No wallet needed to browse. Connect to subscribe.</p>
                 </div>
               )}
             </div>
@@ -213,7 +258,8 @@ export default function HomePage() {
       </section>
 
       {/* Problem Statement */}
-      <section className="py-16 border-t border-white/5">
+      <div className="gradient-divider" />
+      <section className="py-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             {...fadeUp}
@@ -263,7 +309,8 @@ export default function HomePage() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 border-t border-white/5">
+      <div className="gradient-divider" />
+      <section className="py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             {...fadeUp}
@@ -331,7 +378,8 @@ export default function HomePage() {
       </section>
 
       {/* Privacy Architecture */}
-      <section className="py-20 border-t border-white/5">
+      <div className="gradient-divider" />
+      <section className="py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             {...fadeUp}
@@ -353,7 +401,7 @@ export default function HomePage() {
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="p-6 rounded-xl bg-violet-500/5 border border-violet-500/20"
+              className="p-6 rounded-xl bg-violet-500/5 border border-violet-500/20 hover:border-violet-500/30 transition-all"
             >
               <div className="flex items-center gap-2 mb-4">
                 <EyeOff className="w-5 h-5 text-violet-400" />
@@ -383,7 +431,7 @@ export default function HomePage() {
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="p-6 rounded-xl bg-white/[0.02] border border-white/10"
+              className="p-6 rounded-xl bg-white/[0.02] border border-white/10 hover:border-violet-500/30 transition-all"
             >
               <div className="flex items-center gap-2 mb-4">
                 <Eye className="w-5 h-5 text-slate-400" />
@@ -413,7 +461,8 @@ export default function HomePage() {
       </section>
 
       {/* Privacy in Action — Stats */}
-      <section className="py-20 border-t border-white/5">
+      <div className="gradient-divider" />
+      <section className="py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             {...fadeUp}
@@ -431,7 +480,7 @@ export default function HomePage() {
           </motion.div>
 
           <div className="grid sm:grid-cols-3 gap-6">
-            <div className="text-center p-8 rounded-2xl bg-white/[0.02] border border-white/5">
+            <div className="text-center p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-violet-500/30 transition-all">
               <div className="text-4xl font-bold text-white mb-2">
                 <AnimatedCounter target={100} suffix="%" />
               </div>
@@ -439,15 +488,15 @@ export default function HomePage() {
                 Subscriber Identity Hidden
               </p>
             </div>
-            <div className="text-center p-8 rounded-2xl bg-white/[0.02] border border-white/5">
+            <div className="text-center p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-violet-500/30 transition-all">
               <div className="text-4xl font-bold text-white mb-2">
-                <AnimatedCounter target={6} />
+                <AnimatedCounter target={9} />
               </div>
               <p className="text-sm text-slate-400">
                 On-Chain Transitions
               </p>
             </div>
-            <div className="text-center p-8 rounded-2xl bg-white/[0.02] border border-white/5">
+            <div className="text-center p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-violet-500/30 transition-all">
               <div className="text-4xl font-bold text-white mb-2">
                 <AnimatedCounter target={0} suffix=" data leaks" />
               </div>
@@ -460,10 +509,12 @@ export default function HomePage() {
       </section>
 
       {/* Explore a Creator */}
+      <div className="gradient-divider" />
       <ExploreCreatorSection />
 
       {/* Who Uses VeilSub? */}
-      <section className="py-20 border-t border-white/5">
+      <div className="gradient-divider" />
+      <section className="py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             {...fadeUp}
@@ -514,7 +565,8 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 border-t border-white/5">
+      <div className="gradient-divider" />
+      <section className="py-20">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             {...fadeUp}
@@ -532,7 +584,7 @@ export default function HomePage() {
             <div className="flex items-center justify-center gap-4 flex-wrap">
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_30px_rgba(139,92,246,0.3)]"
+                className="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 Become a Creator
                 <ArrowRight className="w-4 h-4" />
@@ -541,7 +593,7 @@ export default function HomePage() {
                 href="https://github.com/Pratiikpy/VeilSub"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-sm hover:bg-white/10 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-sm hover:bg-white/10 transition-colors active:scale-[0.98]"
               >
                 <Code className="w-4 h-4" />
                 View Source
@@ -551,8 +603,71 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Why This Matters */}
+      <div className="gradient-divider" />
+      <section className="py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            {...fadeUp}
+            viewport={{ once: true }}
+            whileInView="animate"
+            initial="initial"
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Why This Matters
+            </h2>
+            <p className="text-slate-400">
+              Privacy isn&apos;t a feature — it&apos;s a fundamental right.
+            </p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              {
+                icon: Shield,
+                persona: 'Political dissident',
+                scenario: 'Support independent journalism without your government knowing.',
+              },
+              {
+                icon: EyeOff,
+                persona: 'Investigative journalist',
+                scenario: 'Accept tips from sources who must stay anonymous.',
+              },
+              {
+                icon: Lock,
+                persona: 'DAO governance',
+                scenario: 'Vote with your wallet without revealing your identity to other members.',
+              },
+              {
+                icon: UserCheck,
+                persona: 'Research supporter',
+                scenario: 'Fund controversial research without professional backlash.',
+              },
+            ].map((item, i) => {
+              const Icon = item.icon
+              return (
+                <motion.div
+                  key={item.persona}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  className="p-5 rounded-xl bg-white/[0.02] border border-white/5 hover:border-violet-500/20 transition-all"
+                >
+                  <Icon className="w-5 h-5 text-violet-400 mb-3" />
+                  <p className="text-sm font-medium text-white mb-1.5">{item.persona}</p>
+                  <p className="text-xs text-slate-400 leading-relaxed">{item.scenario}</p>
+                </motion.div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* Built By */}
-      <section className="py-16 border-t border-white/5">
+      <div className="gradient-divider" />
+      <section className="py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             {...fadeUp}
@@ -576,25 +691,39 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 py-8">
+      <div className="gradient-divider" />
+      <footer className="py-8">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <Shield className="w-4 h-4 text-violet-400" />
               <span className="text-sm text-slate-400">
                 VeilSub — Private Creator Subscriptions
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-xs text-green-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                Testnet Live
               </span>
             </div>
             <div className="flex items-center gap-4 text-xs text-slate-500">
               <span>Built on Aleo</span>
               <span>|</span>
               <a
-                href="https://explorer.aleo.org/testnet/program/veilsub_v4.aleo"
+                href="https://explorer.aleo.org/testnet/program/veilsub_v5.aleo"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-violet-400 hover:text-violet-300"
               >
                 Explorer
+              </a>
+              <span>|</span>
+              <a
+                href="https://aleoscan.io/program/veilsub_v5.aleo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-violet-400 hover:text-violet-300"
+              >
+                Aleoscan
               </a>
               <span>|</span>
               <a

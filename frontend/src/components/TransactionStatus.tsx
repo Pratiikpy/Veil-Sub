@@ -21,7 +21,7 @@ const steps = [
   {
     key: 'proving',
     label: 'Generating ZK Proof',
-    activeMsg: 'Building your zero-knowledge proof — this may take 30-60 seconds',
+    activeMsg: 'Generating zero-knowledge proof... This cryptographic computation ensures your identity stays private.',
     doneMsg: 'ZK proof generated',
     icon: Cpu,
   },
@@ -86,7 +86,7 @@ export default function TransactionStatus({ status, txId }: Props) {
         <div>
           <p className="text-red-300 text-sm font-medium">Transaction Failed</p>
           <p className="text-red-400/60 text-xs">
-            The transaction was rejected or encountered an error. Please try again.
+            ZK proof failed — try again or check wallet connection.
           </p>
         </div>
       </motion.div>
@@ -117,18 +117,28 @@ export default function TransactionStatus({ status, txId }: Props) {
         const isActive = i === currentIdx
         const isDone = i < currentIdx
         const isPending = i > currentIdx
+        const isConfirmedStep = step.key === 'confirmed' && status === 'confirmed'
 
         return (
           <motion.div
             key={step.key}
             initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: isPending ? 0.4 : 1, x: 0 }}
-            transition={{ delay: i * 0.08 }}
+            animate={{
+              opacity: isPending ? 0.4 : 1,
+              x: 0,
+              scale: isConfirmedStep ? [1, 1.03, 1] : 1,
+            }}
+            transition={{
+              delay: i * 0.08,
+              scale: isConfirmedStep ? { duration: 0.4, ease: 'easeOut' } : undefined,
+            }}
             className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
               isActive
-                ? 'bg-violet-500/10 border border-violet-500/25'
+                ? 'bg-violet-500/10 border border-violet-500/25 animate-pulse'
                 : isDone
-                ? 'bg-green-500/5 border border-green-500/10'
+                ? isConfirmedStep
+                  ? 'bg-green-500/10 border border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.1)]'
+                  : 'bg-green-500/5 border border-green-500/10'
                 : 'bg-white/[0.01] border border-white/[0.04]'
             }`}
           >
@@ -188,17 +198,19 @@ export default function TransactionStatus({ status, txId }: Props) {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-3 p-3 rounded-xl bg-green-500/5 border border-green-500/10"
+          className="mt-3"
         >
-          <p className="text-xs text-slate-400 mb-1">Transaction ID</p>
+          <p className="text-xs text-slate-500 mb-2">Transaction ID</p>
           <a
             href={`https://explorer.aleo.org/testnet/transaction/${txId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-violet-400 hover:text-violet-300 break-all inline-flex items-center gap-1"
+            className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-violet-500/30 hover:bg-violet-500/5 transition-all group"
           >
-            {txId}
-            <ExternalLink className="w-3 h-3 shrink-0" />
+            <span className="text-xs text-violet-400 group-hover:text-violet-300 break-all flex-1 font-mono">
+              {txId}
+            </span>
+            <ExternalLink className="w-4 h-4 text-violet-400 group-hover:text-violet-300 shrink-0" />
           </a>
         </motion.div>
       )}
