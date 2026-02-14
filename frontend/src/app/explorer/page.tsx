@@ -183,7 +183,7 @@ export default function ExplorerPage() {
                 </div>
                 <div className="flex gap-2">
                   <a
-                    href={`https://explorer.aleo.org/testnet/address/${result.address}`}
+                    href={`https://explorer.provable.com/testnet/address/${result.address}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors"

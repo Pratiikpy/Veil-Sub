@@ -236,24 +236,25 @@ mapping platform_revenue_token: field => u128;   // hash(token_id, 0field) => pl
 | Resource | Link |
 |----------|------|
 | Frontend | [https://veilsub.vercel.app](https://veilsub.vercel.app) |
-| Contract (v5) on Explorer | [explorer.aleo.org/testnet/program/veilsub_v5.aleo](https://explorer.aleo.org/testnet/program/veilsub_v5.aleo) |
-| Contract (v4) on Explorer | [explorer.aleo.org/testnet/program/veilsub_v4.aleo](https://explorer.aleo.org/testnet/program/veilsub_v4.aleo) |
+| Contract (v4 — live) on Explorer | [explorer.provable.com/testnet/program/veilsub_v4.aleo](https://explorer.provable.com/testnet/program/veilsub_v4.aleo) |
+| Contract (v4) on Aleoscan | [aleoscan.io/program/veilsub_v4.aleo](https://aleoscan.io/program/veilsub_v4.aleo) |
+| Contract v5 | Pending testnet deployment (code in `contracts/veilsub/src/main.leo`) |
 | Video Demo | _(link to be added before submission)_ |
-| GitHub Repository | [github.com/Pratiikpy/VeilSub](https://github.com/Pratiikpy/VeilSub) |
+| GitHub Repository | [github.com/Pratiikpy/Veil-Sub](https://github.com/Pratiikpy/Veil-Sub) |
 
 ## Verified On-Chain Transactions
 
 | Transaction | Hash | Explorer Link |
 |-------------|------|---------------|
-| v1 Deployment | `at1jny60sr...` | [View](https://explorer.aleo.org/testnet/transaction/at1jny60sr) |
-| v1 Creator Registration | `at1d9u6kdt...` | [View](https://explorer.aleo.org/testnet/transaction/at1d9u6kdt) |
-| v4 Deployment | `at19p9704709ke49lvhhr6edwkm4mvhr9se2fcvyu7246p83df9qy8sj6esdl` | [View](https://explorer.aleo.org/testnet/transaction/at19p9704709ke49lvhhr6edwkm4mvhr9se2fcvyu7246p83df9qy8sj6esdl) |
-| v4 register_creator | `at1yz35veu4t40j003cl8q5t5ecetfzwf95xtsv2y7f7lpxj83efq9ssey6kr` | [View](https://explorer.aleo.org/testnet/transaction/at1yz35veu4t40j003cl8q5t5ecetfzwf95xtsv2y7f7lpxj83efq9ssey6kr) |
-| v4 subscribe | `at1fvzv6mnllw8fvpuj4439syy05chvmsszxwk65cd0d7gy5fkquqrs34dudp` | [View](https://explorer.aleo.org/testnet/transaction/at1fvzv6mnllw8fvpuj4439syy05chvmsszxwk65cd0d7gy5fkquqrs34dudp) |
-| v4 verify_access | `at1rp6yjqg73pmun2twl950ttu734tccnkccdzyfk4ysxr8g9285sqq2llyh9` | [View](https://explorer.aleo.org/testnet/transaction/at1rp6yjqg73pmun2twl950ttu734tccnkccdzyfk4ysxr8g9285sqq2llyh9) |
-| v4 tip | `at1za9p384s07f2rh2r6sdyua0j3lanjgsfyxmdg5qhcpfz6unr6gyschd5ku` | [View](https://explorer.aleo.org/testnet/transaction/at1za9p384s07f2rh2r6sdyua0j3lanjgsfyxmdg5qhcpfz6unr6gyschd5ku) |
-| v4 renew | `at1d485afvx6440fr4c4yyq6a8unwgaaaxlgsc6z0xuu846qatx0y9s88tadt` | [View](https://explorer.aleo.org/testnet/transaction/at1d485afvx6440fr4c4yyq6a8unwgaaaxlgsc6z0xuu846qatx0y9s88tadt) |
-| v4 publish_content | `at1kz9aedwvm4hkpg054vxxdw5sxj79r9tw7mek4y96k8ykwwjpxcgq8k6r9s` | [View](https://explorer.aleo.org/testnet/transaction/at1kz9aedwvm4hkpg054vxxdw5sxj79r9tw7mek4y96k8ykwwjpxcgq8k6r9s) |
+| v1 Deployment | `at1jny60sr...` | _(v1 deprecated — see v4/v5 transactions below)_ |
+| v1 Creator Registration | `at1d9u6kdt...` | _(v1 deprecated — see v4/v5 transactions below)_ |
+| v4 Deployment | `at19p9704709ke49lvhhr6edwkm4mvhr9se2fcvyu7246p83df9qy8sj6esdl` | [View](https://explorer.provable.com/testnet/transaction/at19p9704709ke49lvhhr6edwkm4mvhr9se2fcvyu7246p83df9qy8sj6esdl) |
+| v4 register_creator | `at1yz35veu4t40j003cl8q5t5ecetfzwf95xtsv2y7f7lpxj83efq9ssey6kr` | [View](https://explorer.provable.com/testnet/transaction/at1yz35veu4t40j003cl8q5t5ecetfzwf95xtsv2y7f7lpxj83efq9ssey6kr) |
+| v4 subscribe | `at1fvzv6mnllw8fvpuj4439syy05chvmsszxwk65cd0d7gy5fkquqrs34dudp` | [View](https://explorer.provable.com/testnet/transaction/at1fvzv6mnllw8fvpuj4439syy05chvmsszxwk65cd0d7gy5fkquqrs34dudp) |
+| v4 verify_access | `at1rp6yjqg73pmun2twl950ttu734tccnkccdzyfk4ysxr8g9285sqq2llyh9` | [View](https://explorer.provable.com/testnet/transaction/at1rp6yjqg73pmun2twl950ttu734tccnkccdzyfk4ysxr8g9285sqq2llyh9) |
+| v4 tip | `at1za9p384s07f2rh2r6sdyua0j3lanjgsfyxmdg5qhcpfz6unr6gyschd5ku` | [View](https://explorer.provable.com/testnet/transaction/at1za9p384s07f2rh2r6sdyua0j3lanjgsfyxmdg5qhcpfz6unr6gyschd5ku) |
+| v4 renew | `at1d485afvx6440fr4c4yyq6a8unwgaaaxlgsc6z0xuu846qatx0y9s88tadt` | [View](https://explorer.provable.com/testnet/transaction/at1d485afvx6440fr4c4yyq6a8unwgaaaxlgsc6z0xuu846qatx0y9s88tadt) |
+| v4 publish_content | `at1kz9aedwvm4hkpg054vxxdw5sxj79r9tw7mek4y96k8ykwwjpxcgq8k6r9s` | [View](https://explorer.provable.com/testnet/transaction/at1kz9aedwvm4hkpg054vxxdw5sxj79r9tw7mek4y96k8ykwwjpxcgq8k6r9s) |
 
 ## How to Test
 

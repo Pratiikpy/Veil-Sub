@@ -160,7 +160,7 @@ export default function CreatorPage({
                 {shortenAddress(address)}
               </h1>
               <a
-                href={`https://explorer.aleo.org/testnet/address/${address}`}
+                href={`https://explorer.provable.com/testnet/address/${address}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-sm text-violet-400 hover:text-violet-300"

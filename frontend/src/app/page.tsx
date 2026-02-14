@@ -590,7 +590,7 @@ export default function HomePage() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <a
-                href="https://github.com/Pratiikpy/VeilSub"
+                href="https://github.com/Pratiikpy/Veil-Sub"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-sm hover:bg-white/10 transition-colors active:scale-[0.98]"
@@ -709,7 +709,7 @@ export default function HomePage() {
               <span>Built on Aleo</span>
               <span>|</span>
               <a
-                href="https://explorer.aleo.org/testnet/program/veilsub_v5.aleo"
+                href="https://explorer.provable.com/testnet/program/veilsub_v4.aleo"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-violet-400 hover:text-violet-300"
@@ -718,7 +718,7 @@ export default function HomePage() {
               </a>
               <span>|</span>
               <a
-                href="https://aleoscan.io/program/veilsub_v5.aleo"
+                href="https://aleoscan.io/program/veilsub_v4.aleo"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-violet-400 hover:text-violet-300"
@@ -727,7 +727,7 @@ export default function HomePage() {
               </a>
               <span>|</span>
               <a
-                href="https://github.com/Pratiikpy/VeilSub"
+                href="https://github.com/Pratiikpy/Veil-Sub"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-violet-400 hover:text-violet-300 inline-flex items-center gap-1"
