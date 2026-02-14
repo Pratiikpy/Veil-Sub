@@ -200,13 +200,13 @@ mapping sub_created: field => u32;           // BHP256(pass_id) => block.height 
 | v1 Creator Registration | `at1d9u6kdt...` | [View](https://explorer.aleo.org/testnet/transaction/at1d9u6kdt) |
 | v2 Deployment | _(pending — will be added after deploy)_ | — |
 | v3 Deployment | _(pending — will be added after deploy)_ | — |
-| v4 Deployment | _(pending — will be added after deploy)_ | — |
-| v4 register_creator | _(pending)_ | — |
-| v4 subscribe | _(pending)_ | — |
-| v4 verify_access | _(pending)_ | — |
-| v4 tip | _(pending)_ | — |
-| v4 renew | _(pending)_ | — |
-| v4 publish_content | _(pending)_ | — |
+| v4 Deployment | `at19p9704709ke49lvhhr6edwkm4mvhr9se2fcvyu7246p83df9qy8sj6esdl` | [View](https://explorer.aleo.org/testnet/transaction/at19p9704709ke49lvhhr6edwkm4mvhr9se2fcvyu7246p83df9qy8sj6esdl) |
+| v4 register_creator | `at1yz35veu4t40j003cl8q5t5ecetfzwf95xtsv2y7f7lpxj83efq9ssey6kr` | [View](https://explorer.aleo.org/testnet/transaction/at1yz35veu4t40j003cl8q5t5ecetfzwf95xtsv2y7f7lpxj83efq9ssey6kr) |
+| v4 subscribe | _(requires 2nd wallet)_ | — |
+| v4 verify_access | _(requires AccessPass record)_ | — |
+| v4 tip | _(requires 2nd wallet)_ | — |
+| v4 renew | _(requires AccessPass record)_ | — |
+| v4 publish_content | `at1kz9aedwvm4hkpg054vxxdw5sxj79r9tw7mek4y96k8ykwwjpxcgq8k6r9s` | [View](https://explorer.aleo.org/testnet/transaction/at1kz9aedwvm4hkpg054vxxdw5sxj79r9tw7mek4y96k8ykwwjpxcgq8k6r9s) |
 
 ## How to Test
 
