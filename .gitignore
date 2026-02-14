@@ -27,3 +27,6 @@ aleo-reference-projects/
 .idea/
 .vscode/
 *.swp
+
+# Claude Code
+.claude/
