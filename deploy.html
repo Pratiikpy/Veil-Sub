@@ -26,6 +26,8 @@
 
     const NETWORK_URL = 'https://api.explorer.provable.com/v1';
 
+    // Program source matches deployed veilsub_v4.aleo on testnet
+    // Deployed: tx at19p9704709ke49lvhhr6edwkm4mvhr9se2fcvyu7246p83df9qy8sj6esdl
     const PROGRAM_SOURCE = `import credits.aleo;
 program veilsub_v4.aleo;
 
@@ -83,26 +85,28 @@ finalize register_creator:
 
 function subscribe:
     input r0 as credits.aleo/credits.record;
-    input r1 as address.private;
-    input r2 as u8.private;
-    input r3 as u64.private;
-    input r4 as field.private;
-    input r5 as u32.private;
-    gte r2 1u8 into r6;
-    assert.eq r6 true;
-    lte r2 3u8 into r7;
+    input r1 as credits.aleo/credits.record;
+    input r2 as address.private;
+    input r3 as u8.private;
+    input r4 as u64.private;
+    input r5 as field.private;
+    input r6 as u32.private;
+    gte r3 1u8 into r7;
     assert.eq r7 true;
-    div r3 20u64 into r8;
-    sub r3 r8 into r9;
-    call credits.aleo/transfer_private r0 r1 r9 into r10 r11;
-    call credits.aleo/transfer_private r10 aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk r8 into r12 r13;
-    cast self.caller r1 r2 r4 r5 into r14 as AccessPass.record;
-    async subscribe r1 r3 r2 r4 r5 into r15;
-    output r14 as AccessPass.record;
-    output r12 as credits.aleo/credits.record;
+    lte r3 3u8 into r8;
+    assert.eq r8 true;
+    div r4 20u64 into r9;
+    sub r4 r9 into r10;
+    call credits.aleo/transfer_private r0 r2 r10 into r11 r12;
+    call credits.aleo/transfer_private r1 aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk r9 into r13 r14;
+    cast self.caller r2 r3 r5 r6 into r15 as AccessPass.record;
+    async subscribe r2 r4 r3 r5 r6 into r16;
+    output r15 as AccessPass.record;
     output r11 as credits.aleo/credits.record;
     output r13 as credits.aleo/credits.record;
-    output r15 as veilsub_v4.aleo/subscribe.future;
+    output r12 as credits.aleo/credits.record;
+    output r14 as credits.aleo/credits.record;
+    output r16 as veilsub_v4.aleo/subscribe.future;
 
 finalize subscribe:
     input r0 as address.public;
@@ -145,17 +149,19 @@ function verify_access:
 
 function tip:
     input r0 as credits.aleo/credits.record;
-    input r1 as address.private;
-    input r2 as u64.private;
-    div r2 20u64 into r3;
-    sub r2 r3 into r4;
-    call credits.aleo/transfer_private r0 r1 r4 into r5 r6;
-    call credits.aleo/transfer_private r5 aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk r3 into r7 r8;
-    async tip r1 r2 into r9;
-    output r7 as credits.aleo/credits.record;
+    input r1 as credits.aleo/credits.record;
+    input r2 as address.private;
+    input r3 as u64.private;
+    div r3 20u64 into r4;
+    sub r3 r4 into r5;
+    call credits.aleo/transfer_private r0 r2 r5 into r6 r7;
+    call credits.aleo/transfer_private r1 aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk r4 into r8 r9;
+    async tip r2 r3 into r10;
     output r6 as credits.aleo/credits.record;
     output r8 as credits.aleo/credits.record;
-    output r9 as veilsub_v4.aleo/tip.future;
+    output r7 as credits.aleo/credits.record;
+    output r9 as credits.aleo/credits.record;
+    output r10 as veilsub_v4.aleo/tip.future;
 
 finalize tip:
     input r0 as address.public;
@@ -171,25 +177,27 @@ finalize tip:
 function renew:
     input r0 as AccessPass.record;
     input r1 as credits.aleo/credits.record;
-    input r2 as u8.private;
-    input r3 as u64.private;
-    input r4 as field.private;
-    input r5 as u32.private;
-    gte r2 1u8 into r6;
-    assert.eq r6 true;
-    lte r2 3u8 into r7;
+    input r2 as credits.aleo/credits.record;
+    input r3 as u8.private;
+    input r4 as u64.private;
+    input r5 as field.private;
+    input r6 as u32.private;
+    gte r3 1u8 into r7;
     assert.eq r7 true;
-    div r3 20u64 into r8;
-    sub r3 r8 into r9;
-    call credits.aleo/transfer_private r1 r0.creator r9 into r10 r11;
-    call credits.aleo/transfer_private r10 aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk r8 into r12 r13;
-    cast self.caller r0.creator r2 r4 r5 into r14 as AccessPass.record;
-    async renew r0.creator r3 r2 r4 r5 into r15;
-    output r14 as AccessPass.record;
-    output r12 as credits.aleo/credits.record;
+    lte r3 3u8 into r8;
+    assert.eq r8 true;
+    div r4 20u64 into r9;
+    sub r4 r9 into r10;
+    call credits.aleo/transfer_private r1 r0.creator r10 into r11 r12;
+    call credits.aleo/transfer_private r2 aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk r9 into r13 r14;
+    cast self.caller r0.creator r3 r5 r6 into r15 as AccessPass.record;
+    async renew r0.creator r4 r3 r5 r6 into r16;
+    output r15 as AccessPass.record;
     output r11 as credits.aleo/credits.record;
     output r13 as credits.aleo/credits.record;
-    output r15 as veilsub_v4.aleo/renew.future;
+    output r12 as credits.aleo/credits.record;
+    output r14 as credits.aleo/credits.record;
+    output r16 as veilsub_v4.aleo/renew.future;
 
 finalize renew:
     input r0 as address.public;
@@ -242,6 +250,9 @@ finalize publish_content:
     get.or_use content_count[r0] 0u64 into r6;
     add r6 1u64 into r7;
     set r7 into content_count[r0];
+
+constructor:
+    assert.eq edition 0u16;
 `;
 
     function log(msg, cls = '') {

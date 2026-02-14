@@ -30,6 +30,11 @@ import credits.aleo;
 
 program veilsub_v4.aleo {
 
+    // Constructor — required for deployment on current Aleo consensus.
+    // @noupgrade prevents future program modifications (immutable contract).
+    @noupgrade
+    async constructor() {}
+
     // Platform treasury address — receives 5% fee on subscriptions and tips.
     const PLATFORM_ADDR: address = aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk;
 
@@ -87,14 +92,16 @@ program veilsub_v4.aleo {
     // Subscriber pays real ALEO and gets private AccessPass with expiry
     // PRIVACY: self.caller is used ONLY for AccessPass.owner — never passed to finalize
     // PLATFORM FEE: 5% to platform, 95% to creator — both via transfer_private
+    // Uses 2 separate input records to avoid chained transfer_private synthesis issues
     async transition subscribe(
-        payment: credits.aleo/credits,
+        payment_creator: credits.aleo/credits,
+        payment_platform: credits.aleo/credits,
         creator: address,
         tier: u8,
         amount: u64,
         pass_id: field,
         expires_at: u32,
-    ) -> (AccessPass, credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, Future) {
+    ) -> (AccessPass, credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, Future) {
         assert(tier >= 1u8);
         assert(tier <= 3u8);
 
@@ -102,13 +109,13 @@ program veilsub_v4.aleo {
         let platform_cut: u64 = amount / 20u64;
         let creator_cut: u64 = amount - platform_cut;
 
-        // Transfer creator's share (PRIVATE)
-        let (remaining, creator_payment): (credits.aleo/credits, credits.aleo/credits) =
-            credits.aleo/transfer_private(payment, creator, creator_cut);
+        // Transfer creator's share (PRIVATE) — from first record
+        let (change_creator, creator_payment): (credits.aleo/credits, credits.aleo/credits) =
+            credits.aleo/transfer_private(payment_creator, creator, creator_cut);
 
-        // Transfer platform's share (PRIVATE)
-        let (final_change, platform_payment): (credits.aleo/credits, credits.aleo/credits) =
-            credits.aleo/transfer_private(remaining, PLATFORM_ADDR, platform_cut);
+        // Transfer platform's share (PRIVATE) — from second record (no chaining)
+        let (change_platform, platform_payment): (credits.aleo/credits, credits.aleo/credits) =
+            credits.aleo/transfer_private(payment_platform, PLATFORM_ADDR, platform_cut);
 
         // Create private AccessPass for subscriber
         let pass: AccessPass = AccessPass {
@@ -119,7 +126,7 @@ program veilsub_v4.aleo {
             expires_at: expires_at,
         };
 
-        return (pass, final_change, creator_payment, platform_payment, finalize_subscribe(creator, amount, tier, pass_id, expires_at));
+        return (pass, change_creator, change_platform, creator_payment, platform_payment, finalize_subscribe(creator, amount, tier, pass_id, expires_at));
     }
     async function finalize_subscribe(
         creator: address,
@@ -179,24 +186,26 @@ program veilsub_v4.aleo {
     }
 
     // Subscriber tips a creator with 5% platform fee
+    // Uses 2 separate input records to avoid chained transfer_private synthesis issues
     async transition tip(
-        payment: credits.aleo/credits,
+        payment_creator: credits.aleo/credits,
+        payment_platform: credits.aleo/credits,
         creator: address,
         amount: u64,
-    ) -> (credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, Future) {
+    ) -> (credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, Future) {
         // Calculate platform cut (5%) and creator cut (95%)
         let platform_cut: u64 = amount / 20u64;
         let creator_cut: u64 = amount - platform_cut;
 
-        // Transfer creator's share (PRIVATE)
-        let (remaining, creator_payment): (credits.aleo/credits, credits.aleo/credits) =
-            credits.aleo/transfer_private(payment, creator, creator_cut);
+        // Transfer creator's share (PRIVATE) — from first record
+        let (change_creator, creator_payment): (credits.aleo/credits, credits.aleo/credits) =
+            credits.aleo/transfer_private(payment_creator, creator, creator_cut);
 
-        // Transfer platform's share (PRIVATE)
-        let (final_change, platform_payment): (credits.aleo/credits, credits.aleo/credits) =
-            credits.aleo/transfer_private(remaining, PLATFORM_ADDR, platform_cut);
+        // Transfer platform's share (PRIVATE) — from second record (no chaining)
+        let (change_platform, platform_payment): (credits.aleo/credits, credits.aleo/credits) =
+            credits.aleo/transfer_private(payment_platform, PLATFORM_ADDR, platform_cut);
 
-        return (final_change, creator_payment, platform_payment, finalize_tip(creator, amount));
+        return (change_creator, change_platform, creator_payment, platform_payment, finalize_tip(creator, amount));
     }
     async function finalize_tip(
         creator: address,
@@ -214,14 +223,16 @@ program veilsub_v4.aleo {
     // Renew an expired (or active) subscription — allows tier change
     // Consumes old pass, creates new pass with extended expiry
     // PRIVACY: Same model as subscribe — self.caller never reaches finalize
+    // Uses 2 separate input records to avoid chained transfer_private synthesis issues
     async transition renew(
         old_pass: AccessPass,
-        payment: credits.aleo/credits,
+        payment_creator: credits.aleo/credits,
+        payment_platform: credits.aleo/credits,
         new_tier: u8,
         amount: u64,
         new_pass_id: field,
         new_expires_at: u32,
-    ) -> (AccessPass, credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, Future) {
+    ) -> (AccessPass, credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, Future) {
         assert(new_tier >= 1u8);
         assert(new_tier <= 3u8);
 
@@ -231,13 +242,13 @@ program veilsub_v4.aleo {
         let platform_cut: u64 = amount / 20u64;
         let creator_cut: u64 = amount - platform_cut;
 
-        // Transfer creator's share (PRIVATE)
-        let (remaining, creator_payment): (credits.aleo/credits, credits.aleo/credits) =
-            credits.aleo/transfer_private(payment, creator, creator_cut);
+        // Transfer creator's share (PRIVATE) — from first record
+        let (change_creator, creator_payment): (credits.aleo/credits, credits.aleo/credits) =
+            credits.aleo/transfer_private(payment_creator, creator, creator_cut);
 
-        // Transfer platform's share (PRIVATE)
-        let (final_change, platform_payment): (credits.aleo/credits, credits.aleo/credits) =
-            credits.aleo/transfer_private(remaining, PLATFORM_ADDR, platform_cut);
+        // Transfer platform's share (PRIVATE) — from second record (no chaining)
+        let (change_platform, platform_payment): (credits.aleo/credits, credits.aleo/credits) =
+            credits.aleo/transfer_private(payment_platform, PLATFORM_ADDR, platform_cut);
 
         // Create new AccessPass with updated tier and expiry
         let new_pass: AccessPass = AccessPass {
@@ -248,7 +259,7 @@ program veilsub_v4.aleo {
             expires_at: new_expires_at,
         };
 
-        return (new_pass, final_change, creator_payment, platform_payment, finalize_renew(creator, amount, new_tier, new_pass_id, new_expires_at));
+        return (new_pass, change_creator, change_platform, creator_payment, platform_payment, finalize_renew(creator, amount, new_tier, new_pass_id, new_expires_at));
     }
     async function finalize_renew(
         creator: address,
