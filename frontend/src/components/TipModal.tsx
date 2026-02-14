@@ -62,9 +62,9 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
     try {
       const records = await getCreditsRecords()
-      if (records.length === 0) {
+      if (records.length < 2) {
         setInsufficientBalance(true)
-        setError('No private ALEO credits found.')
+        setError('Need at least 2 private credit records. Split your credits first.')
         setTxStatus('idle')
         return
       }
@@ -72,6 +72,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
       setTxStatus('proving')
       const id = await tip(
         records[0],
+        records[1],
         creatorAddress,
         creditsToMicrocredits(selectedAmount)
       )

@@ -57,7 +57,8 @@ export function useVeilSub() {
 
   const subscribe = useCallback(
     async (
-      creditsRecordPlaintext: string,
+      creditsRecordCreator: string,
+      creditsRecordPlatform: string,
       creatorAddress: string,
       tier: number,
       amountMicrocredits: number,
@@ -67,7 +68,8 @@ export function useVeilSub() {
       return execute(
         'subscribe',
         [
-          creditsRecordPlaintext,
+          creditsRecordCreator,
+          creditsRecordPlatform,
           creatorAddress,
           `${tier}u8`,
           `${amountMicrocredits}u64`,
@@ -82,14 +84,16 @@ export function useVeilSub() {
 
   const tip = useCallback(
     async (
-      creditsRecordPlaintext: string,
+      creditsRecordCreator: string,
+      creditsRecordPlatform: string,
       creatorAddress: string,
       amountMicrocredits: number
     ) => {
       return execute(
         'tip',
         [
-          creditsRecordPlaintext,
+          creditsRecordCreator,
+          creditsRecordPlatform,
           creatorAddress,
           `${amountMicrocredits}u64`,
         ],
@@ -113,7 +117,8 @@ export function useVeilSub() {
   const renew = useCallback(
     async (
       accessPassPlaintext: string,
-      creditsRecordPlaintext: string,
+      creditsRecordCreator: string,
+      creditsRecordPlatform: string,
       newTier: number,
       amountMicrocredits: number,
       newPassId: string,
@@ -123,7 +128,8 @@ export function useVeilSub() {
         'renew',
         [
           accessPassPlaintext,
-          creditsRecordPlaintext,
+          creditsRecordCreator,
+          creditsRecordPlatform,
           `${newTier}u8`,
           `${amountMicrocredits}u64`,
           `${newPassId}field`,

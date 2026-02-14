@@ -79,9 +79,9 @@ export default function SubscribeModal({
     try {
       // Fetch user's credits records
       const records = await getCreditsRecords()
-      if (records.length === 0) {
+      if (records.length < 2) {
         setInsufficientBalance(true)
-        setError('No private ALEO credits found.')
+        setError('Need at least 2 private credit records. Split your credits first.')
         setTxStatus('idle')
         return
       }
@@ -92,6 +92,7 @@ export default function SubscribeModal({
       setTxStatus('proving')
       const id = await subscribe(
         records[0],
+        records[1],
         creatorAddress,
         tier.id,
         totalPrice,
