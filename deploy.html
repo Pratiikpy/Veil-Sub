@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>VeilSub v4 Deployer</title>
+  <style>
+    body { font-family: monospace; background: #1a1a2e; color: #eee; padding: 40px; }
+    #log { white-space: pre-wrap; background: #0d0d1a; padding: 20px; border-radius: 8px; max-height: 80vh; overflow-y: auto; }
+    .error { color: #ff6b6b; }
+    .success { color: #51cf66; }
+    .info { color: #74c0fc; }
+    button { padding: 12px 24px; background: #7c3aed; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 10px 0; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    h1 { color: #7c3aed; }
+  </style>
+</head>
+<body>
+  <h1>VeilSub v4 — Deploy to Aleo Testnet</h1>
+  <p>This page deploys veilsub_v4.aleo using the Provable SDK in the browser (native XHR for SRS downloads).</p>
+  <p><label>Private Key: <input type="password" id="pkInput" placeholder="APrivateKey1..." style="width:400px;padding:8px;background:#0d0d1a;color:#eee;border:1px solid #333;border-radius:4px;" /></label></p>
+  <button id="deployBtn" onclick="startDeploy()">Deploy veilsub_v4.aleo</button>
+  <div id="log"></div>
+
+  <script type="module">
+    // Import SDK from CDN
+    import { ProgramManager, AleoKeyProvider, AleoNetworkClient, Account } from 'https://unpkg.com/@provablehq/sdk@0.9.15/dist/testnet/browser.js';
+
+    const NETWORK_URL = 'https://api.explorer.provable.com/v1';
+
+    const PROGRAM_SOURCE = `import credits.aleo;
+program veilsub_v4.aleo;
+
+record AccessPass:
+    owner as address.private;
+    creator as address.private;
+    tier as u8.private;
+    pass_id as field.private;
+    expires_at as u32.private;
+
+mapping tier_prices:
+    key as address.public;
+    value as u64.public;
+
+mapping subscriber_count:
+    key as address.public;
+    value as u64.public;
+
+mapping total_revenue:
+    key as address.public;
+    value as u64.public;
+
+mapping platform_revenue:
+    key as u8.public;
+    value as u64.public;
+
+mapping content_count:
+    key as address.public;
+    value as u64.public;
+
+mapping content_meta:
+    key as field.public;
+    value as u8.public;
+
+mapping sub_created:
+    key as field.public;
+    value as u32.public;
+
+function register_creator:
+    input r0 as u64.public;
+    gt r0 0u64 into r1;
+    assert.eq r1 true;
+    async register_creator self.caller r0 into r2;
+    output r2 as veilsub_v4.aleo/register_creator.future;
+
+finalize register_creator:
+    input r0 as address.public;
+    input r1 as u64.public;
+    contains tier_prices[r0] into r2;
+    not r2 into r3;
+    assert.eq r3 true;
+    set r1 into tier_prices[r0];
+    set 0u64 into subscriber_count[r0];
+    set 0u64 into total_revenue[r0];
+
+function subscribe:
+    input r0 as credits.aleo/credits.record;
+    input r1 as address.private;
+    input r2 as u8.private;
+    input r3 as u64.private;
+    input r4 as field.private;
+    input r5 as u32.private;
+    gte r2 1u8 into r6;
+    assert.eq r6 true;
+    lte r2 3u8 into r7;
+    assert.eq r7 true;
+    div r3 20u64 into r8;
+    sub r3 r8 into r9;
+    call credits.aleo/transfer_private r0 r1 r9 into r10 r11;
+    call credits.aleo/transfer_private r10 aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk r8 into r12 r13;
+    cast self.caller r1 r2 r4 r5 into r14 as AccessPass.record;
+    async subscribe r1 r3 r2 r4 r5 into r15;
+    output r14 as AccessPass.record;
+    output r12 as credits.aleo/credits.record;
+    output r11 as credits.aleo/credits.record;
+    output r13 as credits.aleo/credits.record;
+    output r15 as veilsub_v4.aleo/subscribe.future;
+
+finalize subscribe:
+    input r0 as address.public;
+    input r1 as u64.public;
+    input r2 as u8.public;
+    input r3 as field.public;
+    input r4 as u32.public;
+    get tier_prices[r0] into r5;
+    is.eq r2 3u8 into r6;
+    is.eq r2 2u8 into r7;
+    ternary r7 2u64 1u64 into r8;
+    ternary r6 5u64 r8 into r9;
+    mul r5 r9 into r10;
+    gte r1 r10 into r11;
+    assert.eq r11 true;
+    gt r4 block.height into r12;
+    assert.eq r12 true;
+    add block.height 1200000u32 into r13;
+    lte r4 r13 into r14;
+    assert.eq r14 true;
+    hash.bhp256 r3 into r15 as field;
+    set block.height into sub_created[r15];
+    get.or_use subscriber_count[r0] 0u64 into r16;
+    add r16 1u64 into r17;
+    set r17 into subscriber_count[r0];
+    get.or_use total_revenue[r0] 0u64 into r18;
+    add r18 r1 into r19;
+    set r19 into total_revenue[r0];
+    get.or_use platform_revenue[0u8] 0u64 into r20;
+    div r1 20u64 into r21;
+    add r20 r21 into r22;
+    set r22 into platform_revenue[0u8];
+
+function verify_access:
+    input r0 as AccessPass.record;
+    input r1 as address.private;
+    assert.eq r0.creator r1;
+    cast r0.owner r0.creator r0.tier r0.pass_id r0.expires_at into r2 as AccessPass.record;
+    output r2 as AccessPass.record;
+
+function tip:
+    input r0 as credits.aleo/credits.record;
+    input r1 as address.private;
+    input r2 as u64.private;
+    div r2 20u64 into r3;
+    sub r2 r3 into r4;
+    call credits.aleo/transfer_private r0 r1 r4 into r5 r6;
+    call credits.aleo/transfer_private r5 aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk r3 into r7 r8;
+    async tip r1 r2 into r9;
+    output r7 as credits.aleo/credits.record;
+    output r6 as credits.aleo/credits.record;
+    output r8 as credits.aleo/credits.record;
+    output r9 as veilsub_v4.aleo/tip.future;
+
+finalize tip:
+    input r0 as address.public;
+    input r1 as u64.public;
+    get.or_use total_revenue[r0] 0u64 into r2;
+    add r2 r1 into r3;
+    set r3 into total_revenue[r0];
+    get.or_use platform_revenue[0u8] 0u64 into r4;
+    div r1 20u64 into r5;
+    add r4 r5 into r6;
+    set r6 into platform_revenue[0u8];
+
+function renew:
+    input r0 as AccessPass.record;
+    input r1 as credits.aleo/credits.record;
+    input r2 as u8.private;
+    input r3 as u64.private;
+    input r4 as field.private;
+    input r5 as u32.private;
+    gte r2 1u8 into r6;
+    assert.eq r6 true;
+    lte r2 3u8 into r7;
+    assert.eq r7 true;
+    div r3 20u64 into r8;
+    sub r3 r8 into r9;
+    call credits.aleo/transfer_private r1 r0.creator r9 into r10 r11;
+    call credits.aleo/transfer_private r10 aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk r8 into r12 r13;
+    cast self.caller r0.creator r2 r4 r5 into r14 as AccessPass.record;
+    async renew r0.creator r3 r2 r4 r5 into r15;
+    output r14 as AccessPass.record;
+    output r12 as credits.aleo/credits.record;
+    output r11 as credits.aleo/credits.record;
+    output r13 as credits.aleo/credits.record;
+    output r15 as veilsub_v4.aleo/renew.future;
+
+finalize renew:
+    input r0 as address.public;
+    input r1 as u64.public;
+    input r2 as u8.public;
+    input r3 as field.public;
+    input r4 as u32.public;
+    get tier_prices[r0] into r5;
+    is.eq r2 3u8 into r6;
+    is.eq r2 2u8 into r7;
+    ternary r7 2u64 1u64 into r8;
+    ternary r6 5u64 r8 into r9;
+    mul r5 r9 into r10;
+    gte r1 r10 into r11;
+    assert.eq r11 true;
+    gt r4 block.height into r12;
+    assert.eq r12 true;
+    add block.height 1200000u32 into r13;
+    lte r4 r13 into r14;
+    assert.eq r14 true;
+    hash.bhp256 r3 into r15 as field;
+    set block.height into sub_created[r15];
+    get.or_use total_revenue[r0] 0u64 into r16;
+    add r16 r1 into r17;
+    set r17 into total_revenue[r0];
+    get.or_use platform_revenue[0u8] 0u64 into r18;
+    div r1 20u64 into r19;
+    add r18 r19 into r20;
+    set r20 into platform_revenue[0u8];
+
+function publish_content:
+    input r0 as field.public;
+    input r1 as u8.public;
+    gte r1 1u8 into r2;
+    assert.eq r2 true;
+    lte r1 3u8 into r3;
+    assert.eq r3 true;
+    async publish_content self.caller r0 r1 into r4;
+    output r4 as veilsub_v4.aleo/publish_content.future;
+
+finalize publish_content:
+    input r0 as address.public;
+    input r1 as field.public;
+    input r2 as u8.public;
+    get tier_prices[r0] into r3;
+    gt r3 0u64 into r4;
+    assert.eq r4 true;
+    hash.bhp256 r1 into r5 as field;
+    set r2 into content_meta[r5];
+    get.or_use content_count[r0] 0u64 into r6;
+    add r6 1u64 into r7;
+    set r7 into content_count[r0];
+`;
+
+    function log(msg, cls = '') {
+      const el = document.getElementById('log');
+      const span = document.createElement('span');
+      span.className = cls;
+      span.textContent = msg + '\n';
+      el.appendChild(span);
+      el.scrollTop = el.scrollHeight;
+    }
+
+    window.startDeploy = async function() {
+      const btn = document.getElementById('deployBtn');
+      const PRIVATE_KEY = document.getElementById('pkInput').value.trim();
+      if (!PRIVATE_KEY || !PRIVATE_KEY.startsWith('APrivateKey1')) {
+        log('ERROR: Please enter a valid Aleo private key.', 'error');
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'Deploying...';
+
+      try {
+        log('Creating Account from private key...', 'info');
+        const account = new Account({ privateKey: PRIVATE_KEY });
+        log(`Address: ${account.address().to_string()}`, 'info');
+
+        log('Initializing network client...', 'info');
+        const networkClient = new AleoNetworkClient(NETWORK_URL);
+
+        log('Setting up key provider...', 'info');
+        const keyProvider = new AleoKeyProvider();
+        keyProvider.useCache(true);
+
+        log('Creating ProgramManager...', 'info');
+        const pm = new ProgramManager(NETWORK_URL, keyProvider, undefined);
+        pm.setAccount(account);
+
+        log('Starting deployment of veilsub_v4.aleo...', 'info');
+        log('This will take 10-30 minutes (key synthesis + proof generation)...', 'info');
+        log('DO NOT close this tab!', 'error');
+        log(`Started at: ${new Date().toLocaleTimeString()}`, 'info');
+
+        const txId = await pm.deploy(PROGRAM_SOURCE, 1_000_000);
+
+        log('', '');
+        log('========================================', 'success');
+        log(`DEPLOYMENT SUCCESSFUL!`, 'success');
+        log(`Transaction ID: ${txId}`, 'success');
+        log(`Explorer: https://explorer.aleo.org/testnet/transaction/${txId}`, 'success');
+        log(`Finished at: ${new Date().toLocaleTimeString()}`, 'success');
+        log('========================================', 'success');
+
+        btn.textContent = 'Deployed!';
+      } catch (err) {
+        log(`Deploy failed: ${err.message || err}`, 'error');
+        log(`Full error: ${JSON.stringify(err, null, 2)}`, 'error');
+        btn.textContent = 'Failed - Check Log';
+        btn.disabled = false;
+      }
+    };
+  </script>
+</body>
+</html>

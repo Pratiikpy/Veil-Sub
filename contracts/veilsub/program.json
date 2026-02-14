@@ -1,0 +1,16 @@
+{
+  "program": "veilsub_v4.aleo",
+  "version": "0.1.0",
+  "description": "VeilSub - Private Creator Subscriptions on Aleo",
+  "license": "MIT",
+  "leo": "3.4.0",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    }
+  ],
+  "dev_dependencies": null
+}

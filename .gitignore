@@ -1,0 +1,29 @@
+node_modules/
+.next/
+.env.local
+.env
+.env.production
+*.log
+.DS_Store
+.vercel
+contracts/veilsub/build/
+contracts/veilsub/outputs/
+
+# Junk artifacts
+*.bin
+*.pem
+*.key
+nul
+Usersprate*
+
+# Reference repos (not part of project)
+aleo-reference-projects/
+
+# Lock files
+/package-lock.json
+/frontend/package-lock.json
+
+# IDE
+.idea/
+.vscode/
+*.swp

@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@provablehq/sdk": "^0.9.16",
+    "xhr2": "^0.2.1",
+    "xmlhttprequest-ssl": "^4.0.0"
+  }
+}
