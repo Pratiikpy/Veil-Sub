@@ -93,7 +93,7 @@ function OverviewTab() {
           lang="plaintext"
           code={`┌──────────────┐     ┌─────────────┐     ┌───────────────────┐
 │  Subscriber   │────>│   VeilSub   │────>│   Aleo Network    │
-│ (Shield Wallet)│    │  Program    │     │                   │
+│  (Leo Wallet)  │    │  Program    │     │                   │
 │               │    │             │     │  PRIVATE:          │
 │ 1. Pick tier  │    │ subscribe() │     │  - AccessPass      │
 │ 2. Pay ALEO   │    │ renew()     │     │  - Payment details │
@@ -437,7 +437,7 @@ function FaqTab() {
     },
     {
       q: 'What wallet do I need?',
-      a: 'You need Shield Wallet (formerly Leo Wallet) — a browser extension for Aleo. Install it from leo.app and get testnet credits from faucet.aleo.org.',
+      a: 'You need Leo Wallet — a browser extension for Aleo. Install it from leo.app and get testnet credits from faucet.aleo.org.',
     },
     {
       q: 'How does the AccessPass work?',
@@ -461,7 +461,7 @@ function FaqTab() {
     },
     {
       q: 'How can I test subscribing?',
-      a: 'Connect your Shield Wallet on the app, then visit a creator page. If no creator is registered yet, register yourself on the Dashboard page first (costs a small network fee). Then open the creator page in a different browser or wallet to test subscribing. You can also use the Verify page to check on-chain mapping data.',
+      a: 'Connect your Leo Wallet on the app, then visit a creator page. If no creator is registered yet, register yourself on the Dashboard page first (costs a small network fee). Then open the creator page in a different browser or wallet to test subscribing. You can also use the Verify page to check on-chain mapping data.',
     },
   ]
 

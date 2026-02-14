@@ -332,7 +332,7 @@ export default function HomePage() {
               {
                 icon: Wallet,
                 title: 'Connect Wallet',
-                desc: 'Link your Shield Wallet with one click. Your address stays private.',
+                desc: 'Link your Leo Wallet with one click. Your address stays private.',
               },
               {
                 icon: UserCheck,

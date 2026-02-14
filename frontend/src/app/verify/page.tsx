@@ -146,7 +146,7 @@ export default function VerifyPage() {
                 Connect Your Wallet
               </h2>
               <p className="text-slate-400 text-sm">
-                Connect your Shield Wallet to view and verify your Access
+                Connect your Leo Wallet to view and verify your Access
                 Passes.
               </p>
             </div>

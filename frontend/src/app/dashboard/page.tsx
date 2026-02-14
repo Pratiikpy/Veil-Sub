@@ -199,7 +199,7 @@ export default function DashboardPage() {
             Connect Your Wallet
           </h2>
           <p className="text-slate-400">
-            Connect your Shield Wallet to access the creator dashboard.
+            Connect your Leo Wallet to access the creator dashboard.
           </p>
         </div>
       </div>

@@ -45,7 +45,7 @@ export default function BalanceConverter({
           </p>
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <ArrowRight className="w-3 h-3" />
-            <span>Shield Wallet → Settings → Convert Credits</span>
+            <span>Leo Wallet → Settings → Convert Credits</span>
           </div>
         </div>
 

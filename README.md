@@ -36,7 +36,7 @@ As a content creator with 6,400+ followers, this is **my problem**. My audience 
 ```
 ┌──────────────┐     ┌──────────────────┐     ┌───────────────────┐
 │  Subscriber   │────>│     VeilSub      │────>│   Aleo Network    │
-│ (Shield Wallet)│    │   v5 Program     │     │                   │
+│ (Leo Wallet)  │    │   v5 Program     │     │                   │
 │               │    │                  │     │  PRIVATE:          │
 │ 1. Pick tier  │    │ subscribe()      │     │  - AccessPass      │
 │ 2. Pay ALEO   │    │ subscribe_token()│     │  - Payment details │
@@ -167,9 +167,11 @@ We document what an adversary *could* learn, because honest threat modeling demo
 
 ## Smart Contract
 
-**Program ID:** `veilsub_v5.aleo`
+**Deployed Program:** `veilsub_v4.aleo` (live on testnet — [view on explorer](https://explorer.provable.com/testnet/program/veilsub_v4.aleo))
 
-**Imports:** `credits.aleo`, `token_registry.aleo`
+**v5 Program:** `veilsub_v5.aleo` (code complete, pending testnet deployment)
+
+**Imports:** `credits.aleo`, `token_registry.aleo` (v5)
 
 ### Record Types (Private)
 ```
@@ -237,7 +239,7 @@ mapping platform_revenue_token: field => u128;   // hash(token_id, 0field) => pl
 |----------|------|
 | Frontend | [https://veilsub.vercel.app](https://veilsub.vercel.app) |
 | Contract (v4 — live) on Explorer | [explorer.provable.com/testnet/program/veilsub_v4.aleo](https://explorer.provable.com/testnet/program/veilsub_v4.aleo) |
-| Contract (v4) on Aleoscan | [aleoscan.io/program/veilsub_v4.aleo](https://aleoscan.io/program/veilsub_v4.aleo) |
+| Contract (v4) on Aleoscan | [testnet.aleoscan.io/program?id=veilsub_v4.aleo](https://testnet.aleoscan.io/program?id=veilsub_v4.aleo) |
 | Contract v5 | Pending testnet deployment (code in `contracts/veilsub/src/main.leo`) |
 | Video Demo | _(link to be added before submission)_ |
 | GitHub Repository | [github.com/Pratiikpy/Veil-Sub](https://github.com/Pratiikpy/Veil-Sub) |
@@ -246,8 +248,6 @@ mapping platform_revenue_token: field => u128;   // hash(token_id, 0field) => pl
 
 | Transaction | Hash | Explorer Link |
 |-------------|------|---------------|
-| v1 Deployment | `at1jny60sr...` | _(v1 deprecated — see v4/v5 transactions below)_ |
-| v1 Creator Registration | `at1d9u6kdt...` | _(v1 deprecated — see v4/v5 transactions below)_ |
 | v4 Deployment | `at19p9704709ke49lvhhr6edwkm4mvhr9se2fcvyu7246p83df9qy8sj6esdl` | [View](https://explorer.provable.com/testnet/transaction/at19p9704709ke49lvhhr6edwkm4mvhr9se2fcvyu7246p83df9qy8sj6esdl) |
 | v4 register_creator | `at1yz35veu4t40j003cl8q5t5ecetfzwf95xtsv2y7f7lpxj83efq9ssey6kr` | [View](https://explorer.provable.com/testnet/transaction/at1yz35veu4t40j003cl8q5t5ecetfzwf95xtsv2y7f7lpxj83efq9ssey6kr) |
 | v4 subscribe | `at1fvzv6mnllw8fvpuj4439syy05chvmsszxwk65cd0d7gy5fkquqrs34dudp` | [View](https://explorer.provable.com/testnet/transaction/at1fvzv6mnllw8fvpuj4439syy05chvmsszxwk65cd0d7gy5fkquqrs34dudp) |
@@ -259,12 +259,12 @@ mapping platform_revenue_token: field => u128;   // hash(token_id, 0field) => pl
 ## How to Test
 
 ### Prerequisites
-- [Shield Wallet](https://www.leo.app/) browser extension installed
+- [Leo Wallet](https://www.leo.app/) browser extension installed
 - Testnet ALEO credits (get from [faucet.aleo.org](https://faucet.aleo.org/))
 
 ### Test Flow
 1. **Visit the app** at the deployed URL
-2. **Connect Shield Wallet** (or Fox Wallet) using the button in the header
+2. **Connect Leo Wallet** (or Fox Wallet) using the button in the header
 3. **Register as creator**: Go to Dashboard → enter a price (e.g., 5 ALEO) → click Register → approve in wallet
 4. **Copy your creator page link** from the dashboard
 5. **Publish content**: On the dashboard, create a post with title, body, and tier requirement → click Publish → approve in wallet
@@ -285,7 +285,7 @@ Visit these creator pages to test the subscription flow without registering:
 | Smart Contract | Leo on Aleo Testnet |
 | Frontend | Next.js 16, React 19, TypeScript |
 | Styling | Tailwind CSS 4, Framer Motion |
-| Wallet Integration | @demox-labs/aleo-wallet-adapter (Shield + Fox Wallet) |
+| Wallet Integration | @demox-labs/aleo-wallet-adapter (Leo Wallet + Fox Wallet) |
 | Chain Queries | Provable API (REST) |
 | Content Storage | Supabase (encrypted, persistent) + Upstash Redis (cache) |
 | Off-chain Encryption | AES-256-GCM (Web Crypto API) |
@@ -297,7 +297,7 @@ Visit these creator pages to test the subscription flow without registering:
 
 ```
 frontend/ (Next.js App Router)
-├── providers/WalletProvider.tsx         ← Shield Wallet + Fox Wallet (dual wallet)
+├── providers/WalletProvider.tsx         ← Leo Wallet + Fox Wallet (dual wallet)
 ├── hooks/
 │   ├── useVeilSub.ts                   ← 9 transitions: register, subscribe, verify, tip, renew, publish, set_token_price, subscribe_token, tip_token
 │   ├── useCreatorStats.ts              ← Public mapping queries (REST)
@@ -358,7 +358,7 @@ contracts/veilsub/ (Leo Program)
 **GTM**:
 1. Launch with creator's own audience (6.4K followers) for initial traction
 2. Target privacy-focused creator communities (adult content, political commentary)
-3. Partner with Shield Wallet for co-marketing
+3. Partner with Leo Wallet for co-marketing
 4. Expand to enterprise use cases (private B2B subscriptions, gated content for organizations)
 
 ## Roadmap
@@ -433,7 +433,7 @@ contracts/veilsub/ (Leo Program)
 - API routes: `/api/creators`, `/api/analytics`
 
 **Frontend Enhancements**:
-- Dual wallet support (Shield/Leo Wallet + Fox Wallet)
+- Dual wallet support (Leo Wallet + Fox Wallet)
 - COOP/COEP security headers for Aleo WASM SharedArrayBuffer compatibility
 - Updated program ID and platform address throughout
 
