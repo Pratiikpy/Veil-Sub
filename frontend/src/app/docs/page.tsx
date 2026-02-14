@@ -143,9 +143,9 @@ function ContractTab() {
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Program ID</h3>
         <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/20 flex items-center justify-between">
-          <code className="text-violet-300 text-sm font-mono">veilsub_v2.aleo</code>
+          <code className="text-violet-300 text-sm font-mono">veilsub_v4.aleo</code>
           <a
-            href="https://explorer.aleo.org/testnet/program/veilsub_v2.aleo"
+            href="https://explorer.aleo.org/testnet/program/veilsub_v4.aleo"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1"
@@ -324,13 +324,13 @@ function ApiTab() {
         <CodeBlock
           lang="bash"
           code={`# Get creator's tier price
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v2.aleo/mapping/tier_prices/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v4.aleo/mapping/tier_prices/<creator_address>
 
 # Get subscriber count
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v2.aleo/mapping/subscriber_count/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v4.aleo/mapping/subscriber_count/<creator_address>
 
 # Get total revenue
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v2.aleo/mapping/total_revenue/<creator_address>`}
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v4.aleo/mapping/total_revenue/<creator_address>`}
         />
       </div>
 
@@ -343,18 +343,20 @@ curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v2.aleo/mappin
           lang="typescript"
           code={`import { Transaction, WalletAdapterNetwork } from '@demox-labs/aleo-wallet-adapter-base'
 
-// Create a subscribe transaction
+// Create a subscribe transaction (v4: 2 credit records)
 const tx = Transaction.createTransaction(
   publicKey,                    // your wallet address
   WalletAdapterNetwork.Testnet,
-  'veilsub_v2.aleo',          // program ID
+  'veilsub_v4.aleo',          // program ID
   'subscribe',                  // transition name
   [
-    creditsRecordPlaintext,     // your credits record
+    creatorPaymentRecord,       // credits record for creator (95%)
+    platformPaymentRecord,      // credits record for platform fee (5%)
     creatorAddress,             // creator's address
     '1u8',                      // tier (1=Supporter, 2=Premium, 3=VIP)
     '5000000u64',               // amount in microcredits (5 ALEO)
-    '12345field',               // unique pass_id
+    passIdField,                // unique pass_id (field)
+    expiresAtU32,               // expiry block height (u32)
   ],
   5_000_000,                    // fee in microcredits
   false                         // public fee
