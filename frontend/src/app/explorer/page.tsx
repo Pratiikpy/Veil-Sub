@@ -59,13 +59,18 @@ export default function ExplorerPage() {
   // Fetch sparkline data when a creator is found
   useEffect(() => {
     if (!result?.address) { setSparkData([]); return }
-    fetch(`/api/analytics/summary?creator=${encodeURIComponent(result.address)}`)
+    const controller = new AbortController()
+    fetch(`/api/analytics/summary?creator=${encodeURIComponent(result.address)}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((json) => {
         const daily: { subscriptions: number }[] = json.daily || []
         setSparkData(daily.map((d) => d.subscriptions))
       })
-      .catch(() => setSparkData([]))
+      .catch((err) => {
+        if (err.name === 'AbortError') return
+        setSparkData([])
+      })
+    return () => controller.abort()
   }, [result?.address])
 
   const handleSearch = async () => {

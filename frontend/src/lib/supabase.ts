@@ -1,17 +1,14 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 
-/** Client-side Supabase client (anon key — safe for browser) */
-export function getClientSupabase(): SupabaseClient | null {
-  if (!supabaseUrl || !supabaseAnonKey) return null
-  return createClient(supabaseUrl, supabaseAnonKey)
-}
+let serverInstance: SupabaseClient | null = null
 
 /** Server-side Supabase client (service role key — API routes only) */
 export function getServerSupabase(): SupabaseClient | null {
+  if (serverInstance) return serverInstance
   if (!supabaseUrl || !supabaseServiceKey) return null
-  return createClient(supabaseUrl, supabaseServiceKey)
+  serverInstance = createClient(supabaseUrl, supabaseServiceKey)
+  return serverInstance
 }

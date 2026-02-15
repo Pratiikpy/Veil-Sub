@@ -12,11 +12,13 @@ export function generatePassId(): string {
   for (let i = 0; i < bytes.length; i++) {
     num = num * BigInt(256) + BigInt(bytes[i])
   }
-  // Ensure it fits in Aleo's scalar field (< 2^253)
+  // Ensure it fits in Aleo's base field (BLS12-377)
   const maxField = BigInt(
-    '8444461749428370424248824938781546531375899335154063827935233455917409239040'
+    '8444461749428370424248824938781546531375899335154063827935233455917409239041'
   )
-  return (num % maxField).toString()
+  const result = num % maxField
+  // Avoid zero pass_id (could be a sentinel value)
+  return (result === BigInt(0) ? BigInt(1) : result).toString()
 }
 
 /**
@@ -26,8 +28,12 @@ export function formatCredits(microcredits: number): string {
   if (!Number.isFinite(microcredits)) return '0'
   const credits = microcredits / MICROCREDITS_PER_CREDIT
   if (credits >= 1000) return `${(credits / 1000).toFixed(1)}K`
-  if (credits === Math.floor(credits)) return credits.toString()
-  return credits.toFixed(2)
+  if (credits >= 1) {
+    return credits === Math.floor(credits) ? credits.toString() : credits.toFixed(2)
+  }
+  if (credits >= 0.01) return credits.toFixed(2)
+  if (credits > 0) return '<0.01'
+  return '0'
 }
 
 /**
@@ -50,7 +56,12 @@ export function parseRecordPlaintext(
       // Wallet adapters may return pre-parsed objects
       const obj: Record<string, unknown> = plaintext
       for (const [k, v] of Object.entries(obj)) {
-        result[k] = String(v ?? '')
+        let strVal = String(v ?? '')
+        // Apply same suffix stripping as the string parsing path
+        strVal = strVal.replace(/\.(private|public)$/, '')
+        strVal = strVal.replace(/^(-?\d+)(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)$/, '$1')
+        strVal = strVal.replace(/^(\d+)(field|scalar|group)$/, '$1')
+        result[k] = strVal
       }
       return result
     }
@@ -63,14 +74,37 @@ export function parseRecordPlaintext(
       let val = pair.slice(colonIdx + 1).trim()
       // Strip visibility suffix (.private / .public)
       val = val.replace(/\.(private|public)$/, '')
-      // Strip type suffixes (u8, u64, field, etc.)
-      val = val.replace(/(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128|field|scalar|group|bool)$/, '')
+      // Strip numeric type suffixes only when preceded by digits (safe for addresses)
+      val = val.replace(/^(-?\d+)(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)$/, '$1')
+      val = val.replace(/^(\d+)(field|scalar|group)$/, '$1')
       result[key] = val
     }
   } catch {
     // Ignore parse errors — return what we have
   }
   return result
+}
+
+/**
+ * Parse a record plaintext into a typed AccessPass, returning null if invalid.
+ */
+export function parseAccessPass(
+  plaintext: string
+): { owner: string; creator: string; tier: number; passId: string; expiresAt: number; rawPlaintext: string } | null {
+  const parsed = parseRecordPlaintext(plaintext)
+  const tier = parseInt(parsed.tier ?? '', 10)
+  const expiresAt = parseInt(parsed.expires_at ?? '', 10)
+  if (!parsed.owner || !parsed.creator || isNaN(tier) || tier < 1 || tier > 3 || isNaN(expiresAt)) {
+    return null
+  }
+  return {
+    owner: parsed.owner,
+    creator: parsed.creator,
+    tier,
+    passId: parsed.pass_id ?? '',
+    expiresAt,
+    rawPlaintext: plaintext,
+  }
 }
 
 /**

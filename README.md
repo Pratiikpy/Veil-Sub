@@ -372,10 +372,12 @@ contracts/veilsub/ (Leo Program)
 - [ ] Wave 4: Batch subscription support, creator discovery marketplace
 - [ ] Wave 5+: Mainnet deployment, SDK for third-party integration
 
-## What's Next for Mainnet
+## Future Roadmap
 
 - **Mainnet deployment** — Deploy veilsub_v5.aleo to Aleo mainnet with real credits and stablecoin payments. Zero code changes required — the contract is production-ready.
-- **SDK for third-party integration** — Publish a TypeScript SDK so any dApp can verify AccessPass ownership and gate content behind VeilSub subscriptions.
+- **TypeScript SDK** — Publish an open-source SDK so any Aleo dApp can verify AccessPass ownership and gate content behind VeilSub subscriptions — turning VeilSub into a composable privacy primitive.
+- **DAO governance** — On-chain governance where AccessPass holders vote on platform parameters (fee percentages, subscription durations) using private ballots — no voter identity leakage.
+- **Mobile wallet support** — Deep-link integration with Leo Wallet mobile (iOS/Android) for one-tap subscription and renewal from any device.
 - **Creator discovery marketplace** — On-chain creator registry with category tags, subscriber leaderboards (aggregate only), and search — all without exposing individual subscriber identities.
 
 ## Team

@@ -67,7 +67,7 @@ async function deploy() {
   console.log('Time started:', new Date().toLocaleTimeString());
 
   try {
-    const txId = await pm.deploy(programSource, 1_000_000);
+    const txId = await pm.deploy(programSource, 5_000_000);
     console.log(`\nDeployment transaction submitted!`);
     console.log(`Transaction ID: ${txId}`);
     console.log(`Explorer: https://explorer.aleo.org/testnet/transaction/${txId}`);

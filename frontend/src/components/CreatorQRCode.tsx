@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useCallback, useState, useEffect } from 'react'
+import { useRef, useCallback, useState, useEffect, type RefObject } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { Download, Share2, Shield, Check } from 'lucide-react'
 import GlassCard from './GlassCard'
@@ -12,8 +12,17 @@ interface Props {
 
 export default function CreatorQRCode({ creatorAddress, delay = 0 }: Props) {
   const qrRef = useRef<HTMLDivElement>(null)
-  const [creatorUrl, setCreatorUrl] = useState(`/creator/${creatorAddress}`)
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [creatorUrl, setCreatorUrl] = useState(
+    `${process.env.NEXT_PUBLIC_APP_URL || ''}/creator/${creatorAddress}`
+  )
   const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+    }
+  }, [])
 
   useEffect(() => {
     setCreatorUrl(`${window.location.origin}/creator/${creatorAddress}`)
@@ -59,7 +68,8 @@ export default function CreatorQRCode({ creatorAddress, delay = 0 }: Props) {
       } else {
         await navigator.clipboard.writeText(creatorUrl)
         setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
+        if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+        copyTimerRef.current = setTimeout(() => setCopied(false), 2000)
       }
     } catch {
       // User cancelled share dialog or clipboard not available

@@ -9,7 +9,24 @@
  * ever appear in the database.
  */
 
-const ENCRYPTION_KEY = process.env.SUPABASE_ENCRYPTION_KEY || 'veilsub-default-key-change-in-production'
+let _cachedKey: string | null = null
+
+function getEncryptionKey(): string {
+  if (_cachedKey) return _cachedKey
+  const key = process.env.SUPABASE_ENCRYPTION_KEY
+  if (key) {
+    _cachedKey = key
+    return key
+  }
+  // In production runtime (not build), warn loudly about missing key
+  if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
+    console.error('[encryption] CRITICAL: SUPABASE_ENCRYPTION_KEY not set in production — using dev fallback')
+  } else if (typeof window === 'undefined') {
+    console.warn('[encryption] SUPABASE_ENCRYPTION_KEY not set — using dev fallback')
+  }
+  _cachedKey = 'veilsub-dev-key-not-for-production'
+  return _cachedKey
+}
 
 async function getKeyMaterial(password: string): Promise<CryptoKey> {
   const enc = new TextEncoder()
@@ -36,7 +53,7 @@ export async function encrypt(plaintext: string): Promise<string> {
   const enc = new TextEncoder()
   const salt = crypto.getRandomValues(new Uint8Array(16))
   const iv = crypto.getRandomValues(new Uint8Array(12))
-  const keyMaterial = await getKeyMaterial(ENCRYPTION_KEY)
+  const keyMaterial = await getKeyMaterial(getEncryptionKey())
   const key = await deriveKey(keyMaterial, salt)
   const ciphertext = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
@@ -49,7 +66,11 @@ export async function encrypt(plaintext: string): Promise<string> {
   combined.set(iv, salt.length)
   combined.set(new Uint8Array(ciphertext), salt.length + iv.length)
 
-  return btoa(String.fromCharCode(...combined))
+  let binary = ''
+  for (let i = 0; i < combined.length; i++) {
+    binary += String.fromCharCode(combined[i])
+  }
+  return btoa(binary)
 }
 
 /**
@@ -61,7 +82,7 @@ export async function decrypt(encoded: string): Promise<string> {
   const salt = data.slice(0, 16)
   const iv = data.slice(16, 28)
   const ciphertext = data.slice(28)
-  const keyMaterial = await getKeyMaterial(ENCRYPTION_KEY)
+  const keyMaterial = await getKeyMaterial(getEncryptionKey())
   const key = await deriveKey(keyMaterial, salt)
   const plaintext = await crypto.subtle.decrypt(
     { name: 'AES-GCM', iv },
@@ -77,6 +98,15 @@ export async function decrypt(encoded: string): Promise<string> {
  */
 export async function hashAddress(address: string): Promise<string> {
   const enc = new TextEncoder()
+  if (typeof crypto === 'undefined' || !crypto.subtle) {
+    // Fallback for non-secure contexts (HTTP dev environments)
+    let hash = 0
+    for (let i = 0; i < address.length; i++) {
+      hash = ((hash << 5) - hash) + address.charCodeAt(i)
+      hash |= 0
+    }
+    return Math.abs(hash).toString(16).padStart(16, '0')
+  }
   const hash = await crypto.subtle.digest('SHA-256', enc.encode(address))
   return Array.from(new Uint8Array(hash))
     .map((b) => b.toString(16).padStart(2, '0'))

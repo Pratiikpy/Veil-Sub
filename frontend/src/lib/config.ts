@@ -12,15 +12,7 @@ export const FEES = {
   VERIFY: 350_000,         // 0.35 credits (no finalize)
   RENEW: 5_000_000,        // 5 credits (same as subscribe)
   PUBLISH: 500_000,        // 0.5 credits (finalize only)
-  SET_TOKEN_PRICE: 500_000,  // 0.5 credits (finalize only)
-  SUBSCRIBE_TOKEN: 5_000_000, // 5 credits (two token transfer_private + finalize)
-  TIP_TOKEN: 3_000_000,     // 3 credits (two token transfer_private + finalize)
 } as const
-
-// Known ARC-20 token IDs on Aleo testnet
-export const KNOWN_TOKENS: { id: string; name: string; symbol: string; decimals: number }[] = [
-  { id: '3443843282313283355522573239085696902919850365217539366784739393210722344986field', name: 'USDCx', symbol: 'USDCx', decimals: 6 },
-]
 
 // 1 ALEO credit = 1,000,000 microcredits
 export const MICROCREDITS_PER_CREDIT = 1_000_000
@@ -49,7 +41,7 @@ export const SEED_CONTENT: SeedContent[] = [
     title: 'Early Access: Next Week Preview',
     body: 'Thank you for subscribing! As a Supporter, you get first access to all upcoming content before it goes live. This week: deep dive into Aleo privacy patterns, a new tutorial series on Leo programming, and exclusive community updates.',
     minTier: 1,
-    createdAt: new Date().toISOString(),
+    createdAt: '2026-02-10T12:00:00Z',
     contentId: 'seed',
   },
   {
@@ -57,7 +49,7 @@ export const SEED_CONTENT: SeedContent[] = [
     title: 'Behind the Scenes: Building on Aleo',
     body: 'Premium members get a look behind the curtain. Today: how we designed VeilSub\'s privacy model, the challenges of building ZK subscription proofs, and what we learned from auditing other Aleo programs. Plus a sneak peek at upcoming features.',
     minTier: 2,
-    createdAt: new Date().toISOString(),
+    createdAt: '2026-02-08T15:30:00Z',
     contentId: 'seed',
   },
   {
@@ -65,7 +57,7 @@ export const SEED_CONTENT: SeedContent[] = [
     title: 'VIP Lounge: Ask Me Anything',
     body: 'Welcome to the inner circle. VIP members get direct access — submit questions for our weekly AMA, request custom content topics, and get priority responses. This month\'s spotlight: advanced Leo patterns for privacy-preserving DeFi.',
     minTier: 3,
-    createdAt: new Date().toISOString(),
+    createdAt: '2026-02-05T09:00:00Z',
     contentId: 'seed',
   },
 ]

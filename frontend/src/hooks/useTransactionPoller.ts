@@ -14,7 +14,8 @@ interface PollResult {
 
 export function useTransactionPoller() {
   const { transactionStatus } = useWallet()
-  const abortRef = useRef(false)
+  // Track the latest abort fn so stopPolling can cancel whatever is active
+  const latestAbortRef = useRef<(() => void) | null>(null)
 
   const pollWallet = useCallback(
     async (txId: string): Promise<PollResult> => {
@@ -43,12 +44,11 @@ export function useTransactionPoller() {
   }, [])
 
   const pollExplorer = useCallback(async (txId: string): Promise<PollResult> => {
-    const res = await fetch(
-      `/api/aleo/transaction/${txId}`
-    )
-    if (!res.ok) throw new Error('Explorer proxy error')
+    // Use Aleoscan as an independent verification source
+    const res = await fetch(`/api/aleoscan/transaction/${txId}`)
+    if (!res.ok) throw new Error('Aleoscan proxy error')
     const text = await res.text()
-    if (text && text !== 'null') {
+    if (text && text !== 'null' && !text.includes('"error"')) {
       return { status: 'confirmed', strategy: 'explorer' }
     }
     return { status: 'pending', strategy: 'explorer' }
@@ -85,39 +85,59 @@ export function useTransactionPoller() {
       intervalMs = 3000,
       maxAttempts = 120
     ) => {
-      abortRef.current = false
+      // Per-invocation abort — no shared ref interference
+      const aborted = { current: false }
       let attempts = 0
+      let timeoutId: ReturnType<typeof setTimeout> | null = null
+
+      const abort = () => {
+        aborted.current = true
+        if (timeoutId) clearTimeout(timeoutId)
+      }
+
+      // Cancel any previous polling session
+      if (latestAbortRef.current) latestAbortRef.current()
+      latestAbortRef.current = abort
 
       const poll = async () => {
-        if (abortRef.current || attempts >= maxAttempts) {
+        if (aborted.current) return
+
+        if (attempts >= maxAttempts) {
           onStatus({ status: 'failed', strategy: 'fallback' })
           return
         }
 
         attempts++
-        const result = await pollOnce(txId)
-        onStatus(result)
+        try {
+          const result = await pollOnce(txId)
+          if (aborted.current) return
+          onStatus(result)
 
-        if (result.status === 'confirmed' || result.status === 'failed') {
-          return
+          if (result.status === 'confirmed' || result.status === 'failed') {
+            return
+          }
+        } catch {
+          // pollOnce threw unexpectedly — continue polling
+          if (aborted.current) return
         }
 
-        setTimeout(poll, intervalMs)
+        timeoutId = setTimeout(poll, intervalMs)
       }
 
       // Start first poll after a small delay
-      setTimeout(poll, 1000)
+      timeoutId = setTimeout(poll, 1000)
 
-      // Return abort function
-      return () => {
-        abortRef.current = true
-      }
+      // Return abort function for callers that want direct control
+      return abort
     },
     [pollOnce]
   )
 
   const stopPolling = useCallback(() => {
-    abortRef.current = true
+    if (latestAbortRef.current) {
+      latestAbortRef.current()
+      latestAbortRef.current = null
+    }
   }, [])
 
   return { startPolling, stopPolling, pollOnce }

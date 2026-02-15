@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import {
   Shield,
@@ -13,7 +13,7 @@ import {
 import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
-import { parseRecordPlaintext, shortenAddress } from '@/lib/utils'
+import { parseAccessPass, shortenAddress } from '@/lib/utils'
 import { TIERS } from '@/types'
 import type { AccessPass, TxStatus } from '@/types'
 import GlassCard from '@/components/GlassCard'
@@ -40,8 +40,21 @@ export default function VerifyPage() {
   // Stop polling on unmount
   useEffect(() => {
     return () => stopPolling()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [stopPolling])
+
+  const loadPasses = useCallback(async () => {
+    setLoading(true)
+    try {
+      const records = await getAccessPasses()
+      const parsed = records
+        .map((r) => parseAccessPass(r))
+        .filter((p): p is NonNullable<typeof p> => p !== null && p.creator !== '')
+      setPasses(parsed)
+    } catch {
+      setPasses([])
+    }
+    setLoading(false)
+  }, [getAccessPasses])
 
   useEffect(() => {
     if (!connected) {
@@ -49,32 +62,7 @@ export default function VerifyPage() {
       return
     }
     loadPasses()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connected, getAccessPasses])
-
-  const loadPasses = async () => {
-    setLoading(true)
-    try {
-      const records = await getAccessPasses()
-      const parsed = records
-        .map((r) => {
-          const p = parseRecordPlaintext(r)
-          return {
-            owner: p.owner ?? '',
-            creator: p.creator ?? '',
-            tier: parseInt(p.tier ?? '0', 10),
-            passId: p.pass_id ?? '',
-            expiresAt: parseInt(p.expires_at ?? '0', 10),
-            rawPlaintext: r,
-          }
-        })
-        .filter((p) => p.creator && p.tier > 0)
-      setPasses(parsed)
-    } catch {
-      setPasses([])
-    }
-    setLoading(false)
-  }
+  }, [connected, loadPasses])
 
   const handleVerify = async (pass: AccessPass) => {
     setSelectedPass(pass)

@@ -22,6 +22,7 @@ export interface CreatorProfile {
   tierPrice: number | null  // microcredits, null = not registered
   subscriberCount: number
   totalRevenue: number      // microcredits
+  contentCount?: number     // number of published posts
 }
 
 export type TxStatus =

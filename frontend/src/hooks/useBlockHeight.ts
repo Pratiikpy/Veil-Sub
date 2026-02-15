@@ -6,10 +6,10 @@ export function useBlockHeight() {
   const [blockHeight, setBlockHeight] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true)
-      const res = await fetch('/api/aleo/latest/height')
+      const res = await fetch('/api/aleo/latest/height', signal ? { signal } : undefined)
       if (!res.ok) throw new Error('Failed to fetch block height')
       const text = await res.text()
       const height = parseInt(text, 10)
@@ -17,6 +17,7 @@ export function useBlockHeight() {
         setBlockHeight(height)
       }
     } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return
       console.error('[useBlockHeight] Error:', err)
     } finally {
       setLoading(false)
@@ -24,7 +25,13 @@ export function useBlockHeight() {
   }, [])
 
   useEffect(() => {
-    refresh()
+    const controller = new AbortController()
+    refresh(controller.signal)
+    const interval = setInterval(() => refresh(controller.signal), 60_000)
+    return () => {
+      controller.abort()
+      clearInterval(interval)
+    }
   }, [refresh])
 
   return { blockHeight, loading, refresh }

@@ -19,14 +19,22 @@ export default function TierDistribution({ creatorAddress }: Props) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch(`/api/analytics/summary?creator=${encodeURIComponent(creatorAddress)}`)
-      .then((res) => res.json())
+    const controller = new AbortController()
+    fetch(`/api/analytics/summary?creator=${encodeURIComponent(creatorAddress)}`, { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error('API error')
+        return res.json()
+      })
       .then((json) => {
         setDistribution(json.tierDistribution || {})
         setTotal(json.totalSubscribers || 0)
         setLoading(false)
       })
-      .catch(() => setLoading(false))
+      .catch((err) => {
+        if (err.name === 'AbortError') return
+        setLoading(false)
+      })
+    return () => controller.abort()
   }, [creatorAddress])
 
   if (loading) {

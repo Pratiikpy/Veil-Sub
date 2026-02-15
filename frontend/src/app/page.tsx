@@ -43,7 +43,11 @@ function FeaturedCreatorCard({ address, label }: { address: string; label: strin
   const [stats, setStats] = useState<{ subscriberCount: number; tierPrice: number | null } | null>(null)
 
   useEffect(() => {
-    fetchCreatorStats(address).then((s) => setStats(s))
+    let cancelled = false
+    fetchCreatorStats(address).then((s) => {
+      if (!cancelled) setStats(s)
+    })
+    return () => { cancelled = true }
   }, [address, fetchCreatorStats])
 
   return (
@@ -92,7 +96,7 @@ function ExploreCreatorSection() {
   }
 
   return (
-    <section id="explore" className="py-20">
+    <section id="featured" className="py-20">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -133,12 +137,14 @@ function ExploreCreatorSection() {
                 onChange={(e) => setSearchAddress(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="aleo1..."
+                aria-label="Enter creator Aleo address"
                 className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm"
               />
             </div>
             <button
               onClick={() => setShowQRScanner(true)}
               className="px-3 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all active:scale-[0.98]"
+              aria-label="Scan QR Code"
               title="Scan QR Code"
             >
               <Camera className="w-5 h-5" />
@@ -173,7 +179,7 @@ export default function HomePage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: 'radial-gradient(rgba(139, 92, 246, 0.08) 1px, transparent 1px)',
+            backgroundImage: 'radial-gradient(rgba(139, 92, 246, 0.04) 1px, transparent 1px)',
             backgroundSize: '32px 32px',
             maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)',
             WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)',
@@ -460,6 +466,68 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Why This Is Impossible on Transparent Chains */}
+      <div className="gradient-divider" />
+      <section className="py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            {...fadeUp}
+            viewport={{ once: true }}
+            whileInView="animate"
+            initial="initial"
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Why This Is Impossible on Transparent Chains
+            </h2>
+            <p className="text-slate-400">
+              These privacy guarantees are enforced by the Leo compiler — not by policy.
+            </p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            {[
+              {
+                icon: Shield,
+                title: 'Subscriber address never enters public state',
+                desc: 'On EVM chains, every subscription creates a visible transaction. On Aleo, subscriber addresses never reach finalize scope — enforced by the Leo compiler.',
+              },
+              {
+                icon: EyeOff,
+                title: 'Access verification leaves zero on-chain trace',
+                desc: 'verify_access has no finalize block. When you prove access, zero public state changes occur.',
+              },
+              {
+                icon: Lock,
+                title: 'All payments are cryptographically hidden',
+                desc: 'Both ALEO and ARC-20 payments use transfer_private. No transaction graph links subscribers to creators.',
+              },
+              {
+                icon: Sparkles,
+                title: 'No subscription graph exists to analyze',
+                desc: 'AccessPasses are encrypted records. Even validators cannot see who subscribed to whom.',
+              },
+            ].map((item, i) => {
+              const Icon = item.icon
+              return (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  className="p-5 rounded-xl bg-white/[0.02] border border-white/5 hover:border-violet-500/20 transition-all"
+                >
+                  <Icon className="w-5 h-5 text-violet-400 mb-3" />
+                  <p className="text-sm font-semibold text-white mb-1.5">{item.title}</p>
+                  <p className="text-xs text-slate-400 leading-relaxed">{item.desc}</p>
+                </motion.div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* Privacy in Action — Stats */}
       <div className="gradient-divider" />
       <section className="py-20">
@@ -497,11 +565,11 @@ export default function HomePage() {
               </p>
             </div>
             <div className="text-center p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-violet-500/30 transition-all">
-              <div className="text-4xl font-bold text-white mb-2">
-                <AnimatedCounter target={0} suffix=" data leaks" />
+              <div className="text-4xl font-bold text-green-400 mb-2">
+                Zero
               </div>
               <p className="text-sm text-slate-400">
-                Zero Public Subscriber Data
+                Public Subscriber Data
               </p>
             </div>
           </div>
@@ -692,50 +760,76 @@ export default function HomePage() {
 
       {/* Footer */}
       <div className="gradient-divider" />
-      <footer className="py-8">
+      <footer className="py-12">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Shield className="w-4 h-4 text-violet-400" />
-              <span className="text-sm text-slate-400">
-                VeilSub — Private Creator Subscriptions
-              </span>
+          <div className="grid sm:grid-cols-3 gap-8 mb-8">
+            {/* Brand */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                  <Shield className="w-3.5 h-3.5 text-white" />
+                </div>
+                <span className="font-bold text-white">VeilSub</span>
+              </div>
+              <p className="text-sm text-slate-500 mb-3">
+                Private creator subscriptions powered by zero-knowledge proofs on Aleo.
+              </p>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-xs text-green-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                 Testnet Live
               </span>
             </div>
-            <div className="flex items-center gap-4 text-xs text-slate-500">
-              <span>Built on Aleo</span>
-              <span>|</span>
-              <a
-                href="https://explorer.provable.com/testnet/program/veilsub_v4.aleo"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-violet-400 hover:text-violet-300"
-              >
-                Explorer
-              </a>
-              <span>|</span>
-              <a
-                href="https://aleoscan.io/program/veilsub_v4.aleo"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-violet-400 hover:text-violet-300"
-              >
-                Aleoscan
-              </a>
-              <span>|</span>
-              <a
-                href="https://github.com/Pratiikpy/Veil-Sub"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-violet-400 hover:text-violet-300 inline-flex items-center gap-1"
-              >
-                <Github className="w-3 h-3" />
-                GitHub
-              </a>
+
+            {/* Quick Links */}
+            <div>
+              <p className="text-sm font-medium text-white mb-3">Quick Links</p>
+              <div className="space-y-2">
+                {[
+                  { href: '/privacy', label: 'Privacy Model' },
+                  { href: '/docs', label: 'Documentation' },
+                  { href: '/explorer', label: 'On-Chain Explorer' },
+                  { href: '/verify', label: 'Verify Access' },
+                  { href: '/explore', label: 'Explore Creators' },
+                ].map((link) => (
+                  <Link key={link.href} href={link.href} className="block text-sm text-slate-400 hover:text-violet-400 transition-colors">
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
             </div>
+
+            {/* External Links */}
+            <div>
+              <p className="text-sm font-medium text-white mb-3">Resources</p>
+              <div className="space-y-2">
+                {[
+                  { href: 'https://github.com/Pratiikpy/Veil-Sub', label: 'GitHub', icon: true },
+                  { href: 'https://explorer.provable.com/testnet/program/veilsub_v5.aleo', label: 'Provable Explorer', icon: false },
+                  { href: 'https://aleoscan.io/program/veilsub_v5.aleo', label: 'Aleoscan', icon: false },
+                  { href: 'https://www.leo.app/', label: 'Leo Wallet', icon: false },
+                ].map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-slate-400 hover:text-violet-400 transition-colors inline-flex items-center gap-1"
+                  >
+                    {link.icon && <Github className="w-3 h-3" />}
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-xs text-slate-500">
+              Built on Aleo by Prateek
+            </p>
+            <span className="text-xs text-slate-600 px-2.5 py-1 rounded-full bg-white/[0.02] border border-white/5">
+              v5.0 — Wave 2
+            </span>
           </div>
         </div>
       </footer>

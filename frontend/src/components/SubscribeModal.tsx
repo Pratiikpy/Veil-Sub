@@ -1,18 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Shield, Sparkles } from 'lucide-react'
+import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { generatePassId, formatCredits } from '@/lib/utils'
-import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT, KNOWN_TOKENS } from '@/lib/config'
+import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT } from '@/lib/config'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
 import type { SubscriptionTier, TxStatus } from '@/types'
-
-type PaymentType = 'credits' | 'token'
 
 interface Props {
   isOpen: boolean
@@ -29,45 +28,46 @@ export default function SubscribeModal({
   creatorAddress,
   basePrice,
 }: Props) {
-  const { subscribe, subscribeToken, getCreditsRecords, connected } = useVeilSub()
+  const { subscribe, getCreditsRecords, connected } = useVeilSub()
   const { blockHeight } = useBlockHeight()
   const { startPolling, stopPolling } = useTransactionPoller()
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
   const [txId, setTxId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [insufficientBalance, setInsufficientBalance] = useState(false)
-  const [paymentType, setPaymentType] = useState<PaymentType>('credits')
-  const selectedToken = KNOWN_TOKENS[0] // USDCx default
+  const submittingRef = useRef(false)
+  const txStatusRef = useRef(txStatus)
+  txStatusRef.current = txStatus
 
   // Lock body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
-      return () => { document.body.style.overflow = '' }
     }
+    return () => { document.body.style.overflow = '' }
   }, [isOpen])
-
-  // Escape key to close
-  useEffect(() => {
-    if (!isOpen) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleClose()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, txStatus])
 
   // Stop polling on unmount
   useEffect(() => {
     return () => stopPolling()
   }, [stopPolling])
 
+  // Detect wallet disconnect during transaction
+  useEffect(() => {
+    if (!connected && (txStatus === 'signing' || txStatus === 'proving' || txStatus === 'broadcasting')) {
+      setTxStatus('failed')
+      setError('Wallet disconnected. Please reconnect and try again.')
+      stopPolling()
+      submittingRef.current = false
+    }
+  }, [connected, txStatus, stopPolling])
+
   const totalPrice = basePrice * tier.priceMultiplier
   const creatorCut = totalPrice - Math.floor(totalPrice / 20)
   const platformCut = Math.floor(totalPrice / 20)
 
   const handleSubscribe = async () => {
+    if (submittingRef.current) return
     if (!connected) {
       setError('Please connect your wallet first.')
       return
@@ -77,16 +77,20 @@ export default function SubscribeModal({
       return
     }
 
+    submittingRef.current = true
     setError(null)
     setTxStatus('signing')
 
     try {
-      // Fetch user's credits records
-      const records = await getCreditsRecords()
+      // Fetch user's credits records and deduplicate
+      const rawRecords = await getCreditsRecords()
+      const seen = new Set<string>()
+      const records = rawRecords.filter(r => { if (seen.has(r)) return false; seen.add(r); return true })
       if (records.length < 2) {
         setInsufficientBalance(true)
-        setError('Need at least 2 private credit records. Split your credits first.')
+        setError('Need at least 2 private credit records. Use Leo Wallet → Send → send credits to yourself to split them.')
         setTxStatus('idle')
+        submittingRef.current = false
         return
       }
 
@@ -110,9 +114,11 @@ export default function SubscribeModal({
         startPolling(id, (result) => {
           if (result.status === 'confirmed') {
             setTxStatus('confirmed')
+            toast.success('Subscribed!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             setError('Transaction failed on-chain.')
+            toast.error('Subscription failed')
           }
         })
       } else {
@@ -122,6 +128,8 @@ export default function SubscribeModal({
     } catch (err) {
       setTxStatus('failed')
       setError(err instanceof Error ? err.message : 'Transaction failed')
+    } finally {
+      submittingRef.current = false
     }
   }
 
@@ -132,9 +140,22 @@ export default function SubscribeModal({
     setTxId(null)
     setError(null)
     setInsufficientBalance(false)
-    setPaymentType('credits')
+    submittingRef.current = false
     onClose()
   }
+
+  // Escape key to close (uses refs to avoid stale closures)
+  const handleCloseRef = useRef(handleClose)
+  handleCloseRef.current = handleClose
+  useEffect(() => {
+    if (!isOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && (txStatusRef.current === 'idle' || txStatusRef.current === 'failed' || txStatusRef.current === 'confirmed'))
+        handleCloseRef.current()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen])
 
   return (
     <AnimatePresence>
@@ -199,30 +220,6 @@ export default function SubscribeModal({
                   </ul>
                 </div>
 
-                {/* Payment Type Toggle */}
-                <div className="flex items-center gap-2 p-1 rounded-xl bg-white/[0.03] border border-white/[0.06] mb-4">
-                  <button
-                    onClick={() => setPaymentType('credits')}
-                    className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
-                      paymentType === 'credits'
-                        ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
-                        : 'text-slate-500 hover:text-slate-300'
-                    }`}
-                  >
-                    ALEO Credits
-                  </button>
-                  <button
-                    onClick={() => setPaymentType('token')}
-                    className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
-                      paymentType === 'token'
-                        ? 'bg-green-500/20 text-green-300 border border-green-500/30'
-                        : 'text-slate-500 hover:text-slate-300'
-                    }`}
-                  >
-                    {selectedToken.symbol} (Stablecoin)
-                  </button>
-                </div>
-
                 {/* Fee Breakdown */}
                 <div className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06] mb-4">
                   <div className="text-xs text-slate-500 space-y-1">
@@ -245,9 +242,7 @@ export default function SubscribeModal({
                 <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/10 mb-6">
                   <p className="text-xs text-green-400">
                     Your identity stays private. The creator will receive payment
-                    but will never know who you are. {paymentType === 'credits'
-                      ? 'Both transfers use credits.aleo/transfer_private.'
-                      : `Both transfers use token_registry.aleo/transfer_private (${selectedToken.symbol}).`}
+                    but will never know who you are. Both transfers use credits.aleo/transfer_private.
                   </p>
                 </div>
 
@@ -272,11 +267,7 @@ export default function SubscribeModal({
                   disabled={txStatus !== 'idle'}
                   className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {txStatus !== 'idle'
-                    ? 'Processing...'
-                    : paymentType === 'credits'
-                    ? 'Subscribe Privately'
-                    : `Subscribe with ${selectedToken.symbol}`}
+                  {txStatus !== 'idle' ? 'Processing...' : 'Subscribe Privately'}
                 </button>
               </>
             ) : (

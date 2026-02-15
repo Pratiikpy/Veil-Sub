@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Lock, Unlock, Star, MessageSquare, Crown, Shield, RefreshCw, Loader2 } from 'lucide-react'
+import { Lock, Unlock, Star, MessageSquare, Crown, Shield, RefreshCw, Loader2, FileText, ArrowRight } from 'lucide-react'
+import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import type { AccessPass, ContentPost } from '@/types'
 
@@ -86,10 +87,13 @@ function LoadingSkeleton() {
 }
 
 export default function ContentFeed({ creatorAddress, userPasses, connected, walletAddress, refreshKey, blockHeight }: Props) {
+  const { signMessage } = useWallet()
   const { getPostsForCreator, unlockPost, loading } = useContentFeed()
   const [posts, setPosts] = useState<ContentPost[]>([])
   const [unlockedBodies, setUnlockedBodies] = useState<Record<string, string>>({})
   const [unlockingIds, setUnlockingIds] = useState<Set<string>>(new Set())
+  const unlockingRef = useRef(new Set<string>())
+  const failedUnlocksRef = useRef(new Set<string>())
   const [error, setError] = useState(false)
   const [initialLoad, setInitialLoad] = useState(true)
 
@@ -121,24 +125,41 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
     if (!walletAddress || activePasses.length === 0) return
 
     const gatedPosts = posts.filter(
-      (p) => p.gated && p.body === null && highestTier >= p.minTier && !unlockedBodies[p.id] && !unlockingIds.has(p.id)
+      (p) => p.gated && p.body === null && highestTier >= p.minTier && !unlockedBodies[p.id] && !unlockingRef.current.has(p.id) && !failedUnlocksRef.current.has(p.id)
     )
 
     if (gatedPosts.length === 0) return
 
-    gatedPosts.forEach(async (post) => {
-      setUnlockingIds((prev) => new Set(prev).add(post.id))
-      const body = await unlockPost(post.id, creatorAddress, walletAddress, activePasses)
-      if (body) {
-        setUnlockedBodies((prev) => ({ ...prev, [post.id]: body }))
+    let cancelled = false
+
+    ;(async () => {
+      for (const post of gatedPosts) {
+        if (cancelled) break
+        unlockingRef.current.add(post.id)
+        setUnlockingIds((prev) => new Set(prev).add(post.id))
+        const body = await unlockPost(post.id, creatorAddress, walletAddress, activePasses, signMessage ?? null)
+
+        // Always clean up unlocking state, even if cancelled
+        unlockingRef.current.delete(post.id)
+        setUnlockingIds((prev) => {
+          const next = new Set(prev)
+          next.delete(post.id)
+          return next
+        })
+
+        if (cancelled) break
+
+        if (body) {
+          setUnlockedBodies((prev) => ({ ...prev, [post.id]: body }))
+        } else {
+          failedUnlocksRef.current.add(post.id)
+        }
       }
-      setUnlockingIds((prev) => {
-        const next = new Set(prev)
-        next.delete(post.id)
-        return next
-      })
-    })
-  }, [posts, activePasses, highestTier, walletAddress, creatorAddress, unlockPost, unlockedBodies, unlockingIds])
+    })()
+
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [posts, activePasses, highestTier, walletAddress, creatorAddress, unlockPost, unlockedBodies, signMessage])
 
   return (
     <div>
@@ -164,6 +185,15 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         </div>
       ) : (
         <div className="space-y-4">
+          {posts.length === 0 && (
+            <div className="p-8 rounded-xl bg-white/[0.02] border border-white/5 text-center">
+              <FileText className="w-10 h-10 text-slate-700 mx-auto mb-3" />
+              <h3 className="text-white font-medium mb-1">No Posts Yet</h3>
+              <p className="text-sm text-slate-500">
+                This creator hasn&apos;t published any exclusive content yet. Check back soon!
+              </p>
+            </div>
+          )}
           {posts.map((post, i) => {
             const tier = tierConfig[post.minTier] || tierConfig[1]
             const hasAccess = highestTier >= post.minTier
@@ -233,16 +263,35 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       <p className="text-sm text-slate-400">Verifying access pass...</p>
                     </div>
                   ) : (
-                    <div className="py-4 text-center">
-                      <Lock className="w-5 h-5 text-slate-600 mx-auto mb-2" />
-                      <p className="text-sm text-slate-500">
-                        {connected
-                          ? `Subscribe to ${tier.name} or higher to unlock`
-                          : 'Connect wallet and subscribe to unlock'}
-                      </p>
-                      <p className="text-xs text-slate-600 mt-1">
-                        Content is server-protected — not visible in network requests
-                      </p>
+                    <div className="py-3">
+                      {/* Blurred placeholder lines */}
+                      <div className="space-y-2 mb-4">
+                        <div className="h-3 rounded bg-gradient-to-r from-white/[0.06] to-white/[0.02] w-full blur-sm" />
+                        <div className="h-3 rounded bg-gradient-to-r from-white/[0.05] to-white/[0.02] w-[85%] blur-sm" />
+                        <div className="h-3 rounded bg-gradient-to-r from-white/[0.04] to-white/[0.01] w-[60%] blur-sm" />
+                      </div>
+                      {/* Pulsing lock icon */}
+                      <div className="flex flex-col items-center gap-3">
+                        <motion.div
+                          animate={{ scale: [1, 1.1, 1] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                          className={`w-10 h-10 rounded-full flex items-center justify-center ${tier.lockBg}`}
+                        >
+                          <Lock className={`w-4.5 h-4.5 ${tier.text}`} />
+                        </motion.div>
+                        <button
+                          className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${tier.lockBg} ${tier.text} border ${tier.border} hover:brightness-125 active:scale-[0.98]`}
+                          disabled
+                        >
+                          {connected
+                            ? `Subscribe to ${tier.name} to unlock`
+                            : 'Connect wallet to unlock'}
+                          <ArrowRight className="w-3 h-3" />
+                        </button>
+                        <p className="text-xs text-slate-600">
+                          Content is server-protected — not visible in network requests
+                        </p>
+                      </div>
                     </div>
                   )}
 

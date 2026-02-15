@@ -21,13 +21,21 @@ export default function ActivityChart({ creatorAddress }: Props) {
   const chartRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    fetch(`/api/analytics/summary?creator=${encodeURIComponent(creatorAddress)}`)
-      .then((res) => res.json())
+    const controller = new AbortController()
+    fetch(`/api/analytics/summary?creator=${encodeURIComponent(creatorAddress)}`, { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error('API error')
+        return res.json()
+      })
       .then((json) => {
         setData(json.daily || [])
         setLoading(false)
       })
-      .catch(() => setLoading(false))
+      .catch((err) => {
+        if (err.name === 'AbortError') return
+        setLoading(false)
+      })
+    return () => controller.abort()
   }, [creatorAddress])
 
   // Staggered entrance animation via IntersectionObserver

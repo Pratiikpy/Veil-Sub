@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { hashAddress } from '@/lib/encryption'
 
-interface CreatorProfile {
+interface SupabaseCreatorProfile {
   address_hash: string
   display_name: string | null
   bio: string | null
@@ -16,27 +16,29 @@ interface SubscriptionEvent {
 }
 
 export function useSupabase() {
-  const getCreatorProfile = useCallback(async (address: string): Promise<CreatorProfile | null> => {
+  const getCreatorProfile = useCallback(async (address: string): Promise<SupabaseCreatorProfile | null> => {
     try {
       const addressHashValue = await hashAddress(address)
       const res = await fetch(`/api/creators?address_hash=${addressHashValue}`)
+      if (!res.ok) return null
       const { profile } = await res.json()
-      return profile
+      return profile ?? null
     } catch {
       return null
     }
   }, [])
 
   const upsertCreatorProfile = useCallback(
-    async (address: string, displayName?: string, bio?: string): Promise<CreatorProfile | null> => {
+    async (address: string, displayName?: string, bio?: string): Promise<SupabaseCreatorProfile | null> => {
       try {
         const res = await fetch('/api/creators', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ address, display_name: displayName, bio }),
         })
+        if (!res.ok) return null
         const { profile } = await res.json()
-        return profile
+        return profile ?? null
       } catch {
         return null
       }
@@ -68,6 +70,7 @@ export function useSupabase() {
     try {
       const addressHashValue = await hashAddress(address)
       const res = await fetch(`/api/analytics?creator_address_hash=${addressHashValue}`)
+      if (!res.ok) return []
       const { events } = await res.json()
       return events || []
     } catch {

@@ -12,7 +12,7 @@ export function useContentFeed() {
       const seedPosts: ContentPost[] = SEED_CONTENT.map((s) => ({
         id: s.id,
         title: s.title,
-        body: s.body,
+        body: s.minTier > 0 ? null : s.body,
         minTier: s.minTier,
         createdAt: s.createdAt,
         contentId: s.contentId,
@@ -26,8 +26,9 @@ export function useContentFeed() {
         )
         if (res.ok) {
           const { posts } = await res.json()
+          const apiPosts = posts as ContentPost[]
           setLoading(false)
-          return [...(posts as ContentPost[]), ...seedPosts]
+          return apiPosts.length > 0 ? apiPosts : seedPosts
         }
       } catch {
         // Fallback to seed content only
@@ -43,22 +44,48 @@ export function useContentFeed() {
       postId: string,
       creatorAddress: string,
       walletAddress: string,
-      accessPasses: AccessPass[]
+      accessPasses: AccessPass[],
+      signFn: ((msg: Uint8Array) => Promise<Uint8Array>) | null = null
     ): Promise<string | null> => {
       try {
+        const timestamp = Date.now()
+        let signature: string | undefined
+
+        if (signFn) {
+          try {
+            const message = `veilsub:unlock:${postId}:${timestamp}`
+            const msgBytes = new TextEncoder().encode(message)
+            const sigBytes = await signFn(msgBytes)
+            let binary = ''
+            for (let i = 0; i < sigBytes.length; i++) {
+              binary += String.fromCharCode(sigBytes[i])
+            }
+            signature = btoa(binary)
+          } catch {
+            // Wallet rejected or unavailable — continue without signature
+          }
+        }
+
+        // Hash wallet address client-side to avoid sending plaintext to server.
+        // This preserves rate-limiting capability without leaking subscriber identity.
+        const addrBytes = new TextEncoder().encode(walletAddress)
+        const hashBuf = await crypto.subtle.digest('SHA-256', addrBytes)
+        const walletHash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
+
         const res = await fetch('/api/posts/unlock', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             postId,
             creatorAddress,
-            walletAddress,
+            walletHash,
             accessPasses: accessPasses.map((p) => ({
               creator: p.creator,
               tier: p.tier,
               expiresAt: p.expiresAt,
             })),
-            timestamp: Date.now(),
+            timestamp,
+            ...(signature ? { signature } : {}),
           }),
         })
         if (res.ok) {
@@ -105,5 +132,21 @@ export function useContentFeed() {
     []
   )
 
-  return { getPostsForCreator, unlockPost, createPost, loading }
+  const deletePost = useCallback(
+    async (creatorAddress: string, postId: string): Promise<boolean> => {
+      try {
+        const res = await fetch('/api/posts', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ creator: creatorAddress, postId }),
+        })
+        return res.ok
+      } catch {
+        return false
+      }
+    },
+    []
+  )
+
+  return { getPostsForCreator, unlockPost, createPost, deletePost, loading }
 }

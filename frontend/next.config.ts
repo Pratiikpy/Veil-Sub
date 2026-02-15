@@ -18,8 +18,20 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/aleo/:path*',
-        destination: 'https://api.explorer.provable.com/v1/testnet/:path*',
+        source: '/api/aleo/latest/height',
+        destination: 'https://api.explorer.provable.com/v1/testnet/latest/height',
+      },
+      {
+        source: '/api/aleo/program/:program/mapping/:mapping/:key',
+        destination: 'https://api.explorer.provable.com/v1/testnet/program/:program/mapping/:mapping/:key',
+      },
+      {
+        source: '/api/aleo/transaction/:txId',
+        destination: 'https://api.explorer.provable.com/v1/testnet/transaction/:txId',
+      },
+      {
+        source: '/api/aleoscan/transaction/:txId',
+        destination: 'https://api.aleoscan.io/v2/testnet/transaction/:txId',
       },
     ]
   },

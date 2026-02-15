@@ -26,7 +26,15 @@ export async function GET(req: NextRequest) {
       .limit(500)
 
     if (!events || events.length === 0) {
-      return NextResponse.json(generateMockData())
+      return NextResponse.json({
+        daily: Array.from({ length: 30 }, (_, i) => {
+          const d = new Date(); d.setDate(d.getDate() - (29 - i))
+          return { date: d.toISOString().split('T')[0], subscriptions: 0, revenue: 0, tips: 0 }
+        }),
+        tierDistribution: {},
+        totalSubscribers: 0,
+        totalRevenue: 0,
+      })
     }
 
     // Bucket into daily aggregates
@@ -66,8 +74,9 @@ export async function GET(req: NextRequest) {
       totalSubscribers: events.length,
       totalRevenue: events.reduce((sum, e) => sum + (e.amount_microcredits || 0), 0),
     })
-  } catch {
-    return NextResponse.json(generateMockData())
+  } catch (err) {
+    console.error('[API /analytics/summary]', err)
+    return NextResponse.json({ error: 'Failed to load analytics' }, { status: 500 })
   }
 }
 

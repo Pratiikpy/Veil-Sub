@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, RefreshCw, Shield } from 'lucide-react'
+import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
@@ -36,27 +37,30 @@ export default function RenewModal({
   const [txId, setTxId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [insufficientBalance, setInsufficientBalance] = useState(false)
+  const submittingRef = useRef(false)
+  const txStatusRef = useRef(txStatus)
+  txStatusRef.current = txStatus
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
-      return () => { document.body.style.overflow = '' }
     }
+    return () => { document.body.style.overflow = '' }
   }, [isOpen])
-
-  useEffect(() => {
-    if (!isOpen) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleClose()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, txStatus])
 
   useEffect(() => {
     return () => stopPolling()
   }, [stopPolling])
+
+  // Detect wallet disconnect during transaction
+  useEffect(() => {
+    if (!connected && (txStatus === 'signing' || txStatus === 'proving' || txStatus === 'broadcasting')) {
+      setTxStatus('failed')
+      setError('Wallet disconnected. Please reconnect and try again.')
+      stopPolling()
+      submittingRef.current = false
+    }
+  }, [connected, txStatus, stopPolling])
 
   const totalPrice = basePrice * selectedTier.priceMultiplier
   const creatorCut = totalPrice - Math.floor(totalPrice / 20)
@@ -67,6 +71,7 @@ export default function RenewModal({
   const daysRemaining = blocksRemaining !== null ? Math.round((blocksRemaining * 3) / 86400) : null
 
   const handleRenew = async () => {
+    if (submittingRef.current) return
     if (!connected) {
       setError('Please connect your wallet first.')
       return
@@ -76,15 +81,19 @@ export default function RenewModal({
       return
     }
 
+    submittingRef.current = true
     setError(null)
     setTxStatus('signing')
 
     try {
-      const records = await getCreditsRecords()
+      const rawRecords = await getCreditsRecords()
+      const seen = new Set<string>()
+      const records = rawRecords.filter(r => { if (seen.has(r)) return false; seen.add(r); return true })
       if (records.length < 2) {
         setInsufficientBalance(true)
-        setError('Need at least 2 private credit records. Split your credits first.')
+        setError('Need at least 2 private credit records. Use Leo Wallet → Send → send credits to yourself to split them.')
         setTxStatus('idle')
+        submittingRef.current = false
         return
       }
 
@@ -108,9 +117,11 @@ export default function RenewModal({
         startPolling(id, (result) => {
           if (result.status === 'confirmed') {
             setTxStatus('confirmed')
+            toast.success('Subscription renewed!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             setError('Transaction failed on-chain.')
+            toast.error('Renewal failed')
           }
         })
       } else {
@@ -120,6 +131,8 @@ export default function RenewModal({
     } catch (err) {
       setTxStatus('failed')
       setError(err instanceof Error ? err.message : 'Renewal failed')
+    } finally {
+      submittingRef.current = false
     }
   }
 
@@ -130,8 +143,22 @@ export default function RenewModal({
     setTxId(null)
     setError(null)
     setInsufficientBalance(false)
+    submittingRef.current = false
     onClose()
   }
+
+  // Escape key to close (uses refs to avoid stale closures)
+  const handleCloseRef = useRef(handleClose)
+  handleCloseRef.current = handleClose
+  useEffect(() => {
+    if (!isOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && (txStatusRef.current === 'idle' || txStatusRef.current === 'failed' || txStatusRef.current === 'confirmed'))
+        handleCloseRef.current()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen])
 
   return (
     <AnimatePresence>

@@ -1,17 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Heart } from 'lucide-react'
+import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { creditsToMicrocredits } from '@/lib/utils'
-import { KNOWN_TOKENS } from '@/lib/config'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
 import type { TxStatus } from '@/types'
-
-type PaymentType = 'credits' | 'token'
 
 interface Props {
   isOpen: boolean
@@ -22,55 +20,60 @@ interface Props {
 const TIP_AMOUNTS = [1, 5, 10, 25]
 
 export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
-  const { tip, tipToken, getCreditsRecords, connected } = useVeilSub()
+  const { tip, getCreditsRecords, connected } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
   const [selectedAmount, setSelectedAmount] = useState(5)
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
   const [txId, setTxId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [insufficientBalance, setInsufficientBalance] = useState(false)
-  const [paymentType, setPaymentType] = useState<PaymentType>('credits')
-  const selectedToken = KNOWN_TOKENS[0]
+  const submittingRef = useRef(false)
+  const txStatusRef = useRef(txStatus)
+  txStatusRef.current = txStatus
 
   // Lock body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
-      return () => { document.body.style.overflow = '' }
     }
+    return () => { document.body.style.overflow = '' }
   }, [isOpen])
-
-  // Escape key to close
-  useEffect(() => {
-    if (!isOpen) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleClose()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, txStatus])
 
   // Stop polling on unmount
   useEffect(() => {
     return () => stopPolling()
   }, [stopPolling])
 
+  // Detect wallet disconnect during transaction
+  useEffect(() => {
+    if (!connected && (txStatus === 'signing' || txStatus === 'proving' || txStatus === 'broadcasting')) {
+      setTxStatus('failed')
+      setError('Wallet disconnected. Please reconnect and try again.')
+      stopPolling()
+      submittingRef.current = false
+    }
+  }, [connected, txStatus, stopPolling])
+
   const handleTip = async () => {
+    if (submittingRef.current) return
     if (!connected) {
       setError('Please connect your wallet first.')
       return
     }
 
+    submittingRef.current = true
     setError(null)
     setTxStatus('signing')
 
     try {
-      const records = await getCreditsRecords()
+      const rawRecords = await getCreditsRecords()
+      const seen = new Set<string>()
+      const records = rawRecords.filter(r => { if (seen.has(r)) return false; seen.add(r); return true })
       if (records.length < 2) {
         setInsufficientBalance(true)
-        setError('Need at least 2 private credit records. Split your credits first.')
+        setError('Need at least 2 private credit records. Use Leo Wallet → Send → send credits to yourself to split them.')
         setTxStatus('idle')
+        submittingRef.current = false
         return
       }
 
@@ -88,9 +91,11 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         startPolling(id, (result) => {
           if (result.status === 'confirmed') {
             setTxStatus('confirmed')
+            toast.success('Tip sent!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             setError('Transaction failed on-chain.')
+            toast.error('Tip failed')
           }
         })
       } else {
@@ -100,6 +105,8 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
     } catch (err) {
       setTxStatus('failed')
       setError(err instanceof Error ? err.message : 'Tip failed')
+    } finally {
+      submittingRef.current = false
     }
   }
 
@@ -110,9 +117,22 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
     setTxId(null)
     setError(null)
     setInsufficientBalance(false)
-    setPaymentType('credits')
+    submittingRef.current = false
     onClose()
   }
+
+  // Escape key to close (uses refs to avoid stale closures)
+  const handleCloseRef = useRef(handleClose)
+  handleCloseRef.current = handleClose
+  useEffect(() => {
+    if (!isOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && (txStatusRef.current === 'idle' || txStatusRef.current === 'failed' || txStatusRef.current === 'confirmed'))
+        handleCloseRef.current()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen])
 
   return (
     <AnimatePresence>
@@ -152,30 +172,6 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
             {txStatus === 'idle' ? (
               <>
-                {/* Payment Type Toggle */}
-                <div className="flex items-center gap-2 p-1 rounded-xl bg-white/[0.03] border border-white/[0.06] mb-4">
-                  <button
-                    onClick={() => setPaymentType('credits')}
-                    className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
-                      paymentType === 'credits'
-                        ? 'bg-pink-500/20 text-pink-300 border border-pink-500/30'
-                        : 'text-slate-500 hover:text-slate-300'
-                    }`}
-                  >
-                    ALEO Credits
-                  </button>
-                  <button
-                    onClick={() => setPaymentType('token')}
-                    className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
-                      paymentType === 'token'
-                        ? 'bg-green-500/20 text-green-300 border border-green-500/30'
-                        : 'text-slate-500 hover:text-slate-300'
-                    }`}
-                  >
-                    {selectedToken.symbol}
-                  </button>
-                </div>
-
                 <div className="grid grid-cols-4 gap-2 mb-6">
                   {TIP_AMOUNTS.map((amount) => (
                     <button
@@ -192,7 +188,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                   ))}
                 </div>
                 <p className="text-center text-sm text-slate-400 mb-4">
-                  {selectedAmount} {paymentType === 'credits' ? 'ALEO credits' : selectedToken.symbol}
+                  {selectedAmount} ALEO credits
                 </p>
 
                 {error && (
@@ -215,11 +211,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                   disabled={txStatus !== 'idle'}
                   className="w-full py-3 rounded-xl bg-gradient-to-r from-pink-600 to-violet-600 text-white font-medium hover:from-pink-500 hover:to-violet-500 transition-all hover:shadow-[0_0_30px_rgba(236,72,153,0.3)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {txStatus !== 'idle'
-                    ? 'Processing...'
-                    : paymentType === 'credits'
-                    ? 'Tip Privately'
-                    : `Tip with ${selectedToken.symbol}`}
+                  {txStatus !== 'idle' ? 'Processing...' : 'Tip Privately'}
                 </button>
               </>
             ) : (

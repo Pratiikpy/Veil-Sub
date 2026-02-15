@@ -21,57 +21,22 @@ import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
+import { useSupabase } from '@/hooks/useSupabase'
 import SubscribeModal from '@/components/SubscribeModal'
 import TipModal from '@/components/TipModal'
 import RenewModal from '@/components/RenewModal'
 import ContentFeed from '@/components/ContentFeed'
 import CreatorQRCode from '@/components/CreatorQRCode'
+import PageTransition from '@/components/PageTransition'
 import {
   shortenAddress,
   formatCredits,
-  parseRecordPlaintext,
+  parseAccessPass,
 } from '@/lib/utils'
 import { TIERS } from '@/types'
 import type { CreatorProfile, SubscriptionTier, AccessPass } from '@/types'
 
-function CreatorSkeleton() {
-  return (
-    <div className="min-h-screen">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header skeleton */}
-        <div className="mb-10 animate-pulse">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-2xl bg-white/[0.06]" />
-            <div>
-              <div className="h-6 w-40 rounded-lg bg-white/[0.06] mb-2" />
-              <div className="h-4 w-28 rounded-lg bg-white/[0.04]" />
-            </div>
-          </div>
-          {/* Stats row skeleton */}
-          <div className="flex gap-6">
-            <div className="h-4 w-32 rounded-lg bg-white/[0.04]" />
-            <div className="h-4 w-36 rounded-lg bg-white/[0.04]" />
-          </div>
-        </div>
-        {/* Tier cards skeleton */}
-        <div className="grid sm:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse p-6 rounded-xl border border-white/[0.06] bg-white/[0.02]">
-              <div className="h-5 w-24 rounded-lg bg-white/[0.06] mb-3" />
-              <div className="h-8 w-20 rounded-lg bg-white/[0.06] mb-1" />
-              <div className="h-3 w-36 rounded-lg bg-white/[0.04] mb-4" />
-              <div className="space-y-2 mb-6">
-                <div className="h-3 w-full rounded bg-white/[0.03]" />
-                <div className="h-3 w-3/4 rounded bg-white/[0.03]" />
-              </div>
-              <div className="h-10 w-full rounded-lg bg-white/[0.06]" />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
+import CreatorSkeleton from '@/components/CreatorSkeleton'
 
 export default function CreatorPage({
   params,
@@ -83,23 +48,40 @@ export default function CreatorPage({
   const { fetchCreatorStats } = useCreatorStats()
   const { getAccessPasses } = useVeilSub()
   const { blockHeight } = useBlockHeight()
+  const { getCreatorProfile } = useSupabase()
 
   const [stats, setStats] = useState<CreatorProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState(false)
+  const [displayName, setDisplayName] = useState<string | null>(null)
+  const [bio, setBio] = useState<string | null>(null)
   const [selectedTier, setSelectedTier] = useState<SubscriptionTier | null>(null)
   const [showTip, setShowTip] = useState(false)
   const [userPasses, setUserPasses] = useState<AccessPass[]>([])
   const [renewPass, setRenewPass] = useState<AccessPass | null>(null)
 
-  // Fetch creator stats
+  // Fetch creator stats and profile
   useEffect(() => {
+    let cancelled = false
+    setFetchError(false)
     fetchCreatorStats(address).then((s) => {
+      if (cancelled) return
       setStats(s)
       setLoading(false)
     }).catch(() => {
+      if (cancelled) return
+      setFetchError(true)
       setLoading(false)
     })
-  }, [address, fetchCreatorStats])
+    getCreatorProfile(address).then((profile) => {
+      if (cancelled) return
+      if (profile) {
+        setDisplayName(profile.display_name)
+        setBio(profile.bio)
+      }
+    }).catch(() => { /* profile unavailable, defaults are fine */ })
+    return () => { cancelled = true }
+  }, [address, fetchCreatorStats, getCreatorProfile])
 
   // Fetch user's access passes for this creator
   useEffect(() => {
@@ -107,28 +89,43 @@ export default function CreatorPage({
       setUserPasses([])
       return
     }
+    let cancelled = false
     getAccessPasses().then((records) => {
+      if (cancelled) return
       const passes = records
-        .map((r) => {
-          const parsed = parseRecordPlaintext(r)
-          return {
-            owner: parsed.owner ?? '',
-            creator: parsed.creator ?? '',
-            tier: parseInt(parsed.tier ?? '0', 10),
-            passId: parsed.pass_id ?? '',
-            expiresAt: parseInt(parsed.expires_at ?? '0', 10),
-            rawPlaintext: r,
-          }
-        })
-        .filter((p) => p.creator === address && !isNaN(p.tier))
+        .map((r) => parseAccessPass(r))
+        .filter((p): p is NonNullable<typeof p> => p !== null && p.creator === address)
       setUserPasses(passes)
     }).catch(() => {
+      if (cancelled) return
       setUserPasses([])
     })
+    return () => { cancelled = true }
   }, [connected, address, getAccessPasses])
 
   if (loading) {
     return <CreatorSkeleton />
+  }
+
+  if (fetchError) {
+    return (
+      <PageTransition className="min-h-screen">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="p-8 rounded-xl border border-red-500/20 bg-red-500/5 text-center">
+            <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
+            <h2 className="text-xl font-bold text-white mb-2">Failed to Load Creator</h2>
+            <p className="text-sm text-slate-400 mb-4">Could not fetch creator data. Please check your connection and try again.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-medium text-sm hover:bg-white/10 transition-colors inline-flex items-center gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Retry
+            </button>
+          </div>
+        </div>
+      </PageTransition>
+    )
   }
 
   const isRegistered = stats?.tierPrice !== null && stats?.tierPrice !== undefined
@@ -142,8 +139,20 @@ export default function CreatorPage({
     return { expired: false, daysLeft }
   }
 
+  const getExpiryColor = (daysLeft: number) => {
+    if (daysLeft > 14) return { bg: 'bg-green-500/10', text: 'text-green-400', border: 'border-green-500/20', bar: 'bg-green-500' }
+    if (daysLeft >= 7) return { bg: 'bg-orange-500/10', text: 'text-orange-400', border: 'border-orange-500/20', bar: 'bg-orange-500' }
+    return { bg: 'bg-red-500/10', text: 'text-red-400', border: 'border-red-500/20', bar: 'bg-red-500' }
+  }
+
+  const getProgressPercent = (pass: AccessPass) => {
+    if (blockHeight === null || pass.expiresAt === 0) return 100
+    const blocksLeft = pass.expiresAt - blockHeight
+    return Math.min(100, Math.max(0, (blocksLeft / 864000) * 100))
+  }
+
   return (
-    <div className="min-h-screen">
+    <PageTransition className="min-h-screen">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Creator Header */}
         <motion.div
@@ -157,8 +166,16 @@ export default function CreatorPage({
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white mb-1">
-                {shortenAddress(address)}
+                {displayName || shortenAddress(address)}
               </h1>
+              {displayName && (
+                <p className="text-xs text-slate-500 font-mono mb-1">
+                  {shortenAddress(address)}
+                </p>
+              )}
+              {bio && (
+                <p className="text-sm text-slate-400 mb-1">{bio}</p>
+              )}
               <a
                 href={`https://explorer.provable.com/testnet/address/${address}`}
                 target="_blank"
@@ -210,7 +227,7 @@ export default function CreatorPage({
             </p>
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <Link
-                href="/#explore"
+                href="/#featured"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium text-sm hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] active:scale-[0.98]"
               >
                 <Search className="w-4 h-4" />
@@ -268,27 +285,39 @@ export default function CreatorPage({
 
                         {/* Expiry display */}
                         {expiry !== null && (
-                          <span className="ml-auto flex items-center gap-1.5">
+                          <span className="ml-auto flex items-center gap-2">
                             {expiry.expired ? (
                               <>
-                                <AlertTriangle className="w-3 h-3 text-red-400" />
-                                <span className="text-xs text-red-400">Expired</span>
+                                <span className="px-2 py-0.5 rounded-full text-xs font-medium border bg-gray-500/10 text-gray-400 border-gray-500/20">
+                                  Expired
+                                </span>
                                 <button
                                   onClick={() => setRenewPass(pass)}
-                                  className="ml-2 px-2.5 py-1 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-colors flex items-center gap-1 active:scale-[0.98]"
+                                  className="px-2.5 py-1 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-colors flex items-center gap-1 active:scale-[0.98]"
                                 >
                                   <RefreshCw className="w-3 h-3" />
                                   Renew
                                 </button>
                               </>
-                            ) : (
-                              <>
-                                <Clock className="w-3 h-3 text-slate-500" />
-                                <span className="text-xs text-slate-400">
-                                  ~{expiry.daysLeft}d left
-                                </span>
-                              </>
-                            )}
+                            ) : (() => {
+                              const colors = getExpiryColor(expiry.daysLeft)
+                              const progress = getProgressPercent(pass)
+                              return (
+                                <>
+                                  <div className="w-16 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                                    <motion.div
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${progress}%` }}
+                                      transition={{ duration: 0.8, ease: 'easeOut' }}
+                                      className={`h-full rounded-full ${colors.bar}`}
+                                    />
+                                  </div>
+                                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${colors.bg} ${colors.text} ${colors.border}`}>
+                                    {expiry.daysLeft}d left
+                                  </span>
+                                </>
+                              )
+                            })()}
                           </span>
                         )}
                       </div>
@@ -472,6 +501,6 @@ export default function CreatorPage({
           basePrice={basePrice}
         />
       )}
-    </div>
+    </PageTransition>
   )
 }

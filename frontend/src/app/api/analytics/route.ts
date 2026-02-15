@@ -29,10 +29,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Storage not configured' }, { status: 503 })
   }
 
+  let payload
+  try { payload = await req.json() } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
+
   try {
-    const { creator_address, tier, amount_microcredits, tx_id } = await req.json()
-    if (!creator_address || !tier || !amount_microcredits) {
-      return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+    const { creator_address, tier, amount_microcredits, tx_id } = payload
+    if (!creator_address || typeof creator_address !== 'string') {
+      return NextResponse.json({ error: 'Missing creator_address' }, { status: 400 })
+    }
+    if (typeof tier !== 'number' || !Number.isInteger(tier) || tier < 1 || tier > 3) {
+      return NextResponse.json({ error: 'Invalid tier (must be 1-3)' }, { status: 400 })
+    }
+    if (typeof amount_microcredits !== 'number' || amount_microcredits < 0 || amount_microcredits > 1_000_000_000_000) {
+      return NextResponse.json({ error: 'Invalid amount' }, { status: 400 })
     }
 
     const creatorHash = await hashAddress(creator_address)
@@ -49,11 +60,13 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('[API /analytics POST] Supabase error:', error)
+      return NextResponse.json({ error: 'Internal error' }, { status: 500 })
     }
 
     return NextResponse.json({ event: data })
-  } catch {
+  } catch (err) {
+    console.error('[API /analytics POST]', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }

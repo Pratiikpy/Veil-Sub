@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home', requiresWallet: false },
+  { href: '/explore', label: 'Explore', requiresWallet: false },
   { href: '/privacy', label: 'Privacy', requiresWallet: false },
   { href: '/docs', label: 'Docs', requiresWallet: false },
   { href: '/explorer', label: 'Explorer', requiresWallet: false },

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Camera, AlertCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -16,6 +16,7 @@ type ScannerComponent = React.ComponentType<any>
 export default function QRScanner({ isOpen, onClose }: Props) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
+  const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [Scanner, setScanner] = useState<ScannerComponent | null>(null)
 
   // Dynamically import the QR scanner on open
@@ -28,9 +29,12 @@ export default function QRScanner({ isOpen, onClose }: Props) {
     }
   }, [])
 
-  // Load when opened
+  // Load when opened; cleanup error timer on unmount
   useEffect(() => {
     if (isOpen && !Scanner) loadScanner()
+    return () => {
+      if (errorTimerRef.current) clearTimeout(errorTimerRef.current)
+    }
   }, [isOpen, Scanner, loadScanner])
 
   const handleDecode = (result: string) => {
@@ -41,7 +45,8 @@ export default function QRScanner({ isOpen, onClose }: Props) {
       router.push(`/creator/${match[0]}`)
     } else {
       setError('No valid Aleo address found in QR code')
-      setTimeout(() => setError(null), 3000)
+      if (errorTimerRef.current) clearTimeout(errorTimerRef.current)
+      errorTimerRef.current = setTimeout(() => setError(null), 3000)
     }
   }
 

@@ -155,72 +155,6 @@ export function useVeilSub() {
     [execute]
   )
 
-  const setTokenPrice = useCallback(
-    async (tokenId: string, price: string) => {
-      return execute(
-        'set_token_price',
-        [
-          `${tokenId}field`,
-          `${price}u128`,
-        ],
-        FEES.SET_TOKEN_PRICE
-      )
-    },
-    [execute]
-  )
-
-  const subscribeToken = useCallback(
-    async (
-      tokenRecordCreator: string,
-      tokenRecordPlatform: string,
-      creatorAddress: string,
-      tier: number,
-      amount: string,
-      tokenId: string,
-      passId: string,
-      expiresAt: number
-    ) => {
-      return execute(
-        'subscribe_token',
-        [
-          tokenRecordCreator,
-          tokenRecordPlatform,
-          creatorAddress,
-          `${tier}u8`,
-          `${amount}u128`,
-          `${tokenId}field`,
-          `${passId}field`,
-          `${expiresAt}u32`,
-        ],
-        FEES.SUBSCRIBE_TOKEN
-      )
-    },
-    [execute]
-  )
-
-  const tipToken = useCallback(
-    async (
-      tokenRecordCreator: string,
-      tokenRecordPlatform: string,
-      creatorAddress: string,
-      amount: string,
-      tokenId: string
-    ) => {
-      return execute(
-        'tip_token',
-        [
-          tokenRecordCreator,
-          tokenRecordPlatform,
-          creatorAddress,
-          `${amount}u128`,
-          `${tokenId}field`,
-        ],
-        FEES.TIP_TOKEN
-      )
-    },
-    [execute]
-  )
-
   const getCreditsRecords = useCallback(async (): Promise<string[]> => {
     if (!connected) return []
     try {
@@ -228,23 +162,35 @@ export function useVeilSub() {
       if (requestRecordPlaintexts) {
         try {
           records = await requestRecordPlaintexts('credits.aleo')
-        } catch {
-          /* fallback */
+        } catch (err) {
+          console.warn('[VeilSub] requestRecordPlaintexts failed, trying fallback:', err)
         }
       }
       if (records.length === 0 && requestRecords) {
         try {
           records = await requestRecords('credits.aleo')
-        } catch {
+        } catch (err) {
+          console.error('[VeilSub] requestRecords failed:', err)
           return []
         }
       }
-      return records.map((r: unknown) => {
+      const plaintexts = records.map((r: unknown) => {
         if (typeof r === 'string') return r
         if (r && typeof r === 'object' && 'plaintext' in r)
           return (r as { plaintext: string }).plaintext
-        return JSON.stringify(r)
-      })
+        return ''
+      }).filter(Boolean)
+
+      // Parse microcredits from each record and sort by balance descending
+      // Record format: { ..., microcredits: 5000000u64.private, ... }
+      const parseMicrocredits = (plaintext: string): number => {
+        const match = plaintext.match(/microcredits\s*:\s*(\d+)u64/)
+        return match ? parseInt(match[1], 10) : 0
+      }
+
+      return plaintexts
+        .filter((p) => parseMicrocredits(p) > 0) // Filter out spent/empty records
+        .sort((a, b) => parseMicrocredits(b) - parseMicrocredits(a)) // Largest first
     } catch (err) {
       console.error('[VeilSub] Failed to fetch credits records:', err)
       return []
@@ -258,14 +204,15 @@ export function useVeilSub() {
       if (requestRecordPlaintexts) {
         try {
           records = await requestRecordPlaintexts(PROGRAM_ID)
-        } catch {
-          /* fallback */
+        } catch (err) {
+          console.warn('[VeilSub] requestRecordPlaintexts failed for access passes, trying fallback:', err)
         }
       }
       if (records.length === 0 && requestRecords) {
         try {
           records = await requestRecords(PROGRAM_ID)
-        } catch {
+        } catch (err) {
+          console.error('[VeilSub] requestRecords failed for access passes:', err)
           return []
         }
       }
@@ -273,8 +220,9 @@ export function useVeilSub() {
         if (typeof r === 'string') return r
         if (r && typeof r === 'object' && 'plaintext' in r)
           return (r as { plaintext: string }).plaintext
-        return JSON.stringify(r)
-      })
+        console.warn('[VeilSub] Skipping unrecognized record format:', r)
+        return ''
+      }).filter(Boolean)
     } catch (err) {
       console.error('[VeilSub] Failed to fetch access passes:', err)
       return []
@@ -302,9 +250,6 @@ export function useVeilSub() {
     verifyAccess,
     renew,
     publishContent,
-    setTokenPrice,
-    subscribeToken,
-    tipToken,
     getCreditsRecords,
     getAccessPasses,
     pollTxStatus,

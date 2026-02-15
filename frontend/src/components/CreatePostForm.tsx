@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { FileText, Send } from 'lucide-react'
+import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
@@ -26,13 +27,20 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
   const [txId, setTxId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const submittingRef = useRef(false)
+
+  useEffect(() => {
+    return () => stopPolling()
+  }, [stopPolling])
 
   const handlePublish = async () => {
+    if (submittingRef.current) return
     if (!title.trim() || !body.trim()) {
       setError('Title and body are required.')
       return
     }
 
+    submittingRef.current = true
     setError(null)
     setTxStatus('signing')
 
@@ -46,12 +54,22 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
         setTxId(id)
         setTxStatus('broadcasting')
 
-        // Save to Redis (async, optimistic — don't block on it)
-        createPost(creatorAddress, title.trim(), body.trim(), minTier, contentId)
+        // Capture post data before clearing form — save to Redis only after on-chain confirmation
+        const postTitle = title.trim()
+        const postBody = body.trim()
+        const postTier = minTier
 
-        startPolling(id, (result) => {
+        startPolling(id, async (result) => {
           if (result.status === 'confirmed') {
             setTxStatus('confirmed')
+            // Save to Redis AFTER on-chain confirmation to avoid orphan posts
+            const saved = await createPost(creatorAddress, postTitle, postBody, postTier, contentId)
+            if (!saved) {
+              console.error('[CreatePostForm] Failed to save post body to Redis')
+              toast.error('Post confirmed on-chain but failed to save content. Try re-publishing.')
+            } else {
+              toast.success('Post published on-chain!')
+            }
             setTitle('')
             setBody('')
             setMinTier(1)
@@ -59,6 +77,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             setError('Transaction failed on-chain.')
+            toast.error('Publish failed')
           }
         })
       } else {
@@ -68,6 +87,8 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
     } catch (err) {
       setTxStatus('failed')
       setError(err instanceof Error ? err.message : 'Publish failed')
+    } finally {
+      submittingRef.current = false
     }
   }
 
@@ -146,7 +167,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
 
           <button
             onClick={handlePublish}
-            disabled={!title.trim() || !body.trim()}
+            disabled={!title.trim() || !body.trim() || (txStatus !== 'idle' && txStatus !== 'failed')}
             className="mt-4 w-full py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium text-sm hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <Send className="w-4 h-4" />

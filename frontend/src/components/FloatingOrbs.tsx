@@ -1,36 +1,38 @@
 'use client'
 
+import { useReducedMotion } from 'framer-motion'
 import { motion } from 'framer-motion'
 
 export default function FloatingOrbs() {
+  const prefersReducedMotion = useReducedMotion()
   const orbs = [
     {
       size: 400,
-      color: 'rgba(139, 92, 246, 0.10)',
+      color: 'rgba(139, 92, 246, 0.06)',
       x: '15%',
       y: '20%',
       duration: 20,
-      blur: 80,
+      blur: 100,
       xDrift: [0, 100, -50, 0],
       yDrift: [0, -80, 60, 0],
     },
     {
       size: 500,
-      color: 'rgba(99, 102, 241, 0.08)',
+      color: 'rgba(99, 102, 241, 0.05)',
       x: '75%',
       y: '60%',
       duration: 25,
-      blur: 60,
+      blur: 80,
       xDrift: [0, -90, 70, 0],
       yDrift: [0, 70, -50, 0],
     },
     {
       size: 350,
-      color: 'rgba(168, 85, 247, 0.06)',
+      color: 'rgba(168, 85, 247, 0.04)',
       x: '45%',
       y: '40%',
       duration: 18,
-      blur: 40,
+      blur: 60,
       xDrift: [0, 70, -80, 50, 0],
       yDrift: [0, 80, -60, 40, 0],
     },
@@ -50,12 +52,12 @@ export default function FloatingOrbs() {
             top: orb.y,
             filter: `blur(${orb.blur}px)`,
           }}
-          animate={{
+          animate={prefersReducedMotion ? {} : {
             x: orb.xDrift,
             y: orb.yDrift,
             scale: [1, 1.1, 0.95, 1],
           }}
-          transition={{
+          transition={prefersReducedMotion ? {} : {
             duration: orb.duration,
             repeat: Infinity,
             ease: 'easeInOut',
