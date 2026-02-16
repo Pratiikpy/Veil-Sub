@@ -137,7 +137,8 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         setStatusMessage('Fetching updated records...')
         await new Promise(r => setTimeout(r, 2000))
         const newRecords = await getCreditsRecords()
-        const deduped = newRecords.filter(r => { const s = new Set<string>(); return !s.has(r) && s.add(r) })
+        const dedupSet = new Set<string>()
+        const deduped = newRecords.filter(r => { if (dedupSet.has(r)) return false; dedupSet.add(r); return true })
         if (deduped.length < 2) {
           setTxStatus('failed')
           setError('Split completed but records not yet synced. Please try again in a few seconds.')
