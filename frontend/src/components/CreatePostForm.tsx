@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { FileText, Send } from 'lucide-react'
 import { toast } from 'sonner'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export default function CreatePostForm({ creatorAddress, onPostCreated }: Props) {
+  const { signMessage } = useWallet()
   const { publishContent } = useVeilSub()
   const { createPost } = useContentFeed()
   const { startPolling, stopPolling } = useTransactionPoller()
@@ -63,7 +65,14 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
           if (result.status === 'confirmed') {
             setTxStatus('confirmed')
             // Save to Redis AFTER on-chain confirmation to avoid orphan posts
-            const saved = await createPost(creatorAddress, postTitle, postBody, postTier, contentId)
+            const wrappedSign = signMessage
+              ? async (msg: Uint8Array) => {
+                  const result = await signMessage(msg)
+                  if (!result) throw new Error('Signing cancelled')
+                  return result
+                }
+              : null
+            const saved = await createPost(creatorAddress, postTitle, postBody, postTier, contentId, wrappedSign)
             if (!saved) {
               console.error('[CreatePostForm] Failed to save post body to Redis')
               toast.error('Post confirmed on-chain but failed to save content. Try re-publishing.')

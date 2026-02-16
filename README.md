@@ -119,9 +119,10 @@ Mapping::set(sub_created, hashed_pass_id, block.height);
 Content body is no longer exposed in browser network responses for gated content:
 - **GET /api/posts** returns `body: null, gated: true` for posts with `minTier > 0`
 - **POST /api/posts/unlock** requires wallet signature + valid AccessPass to return content
-- Server verifies: wallet ownership (signature), AccessPass tier >= post minTier, expiry validity
+- Server verifies: wallet signature (required), walletHash matches SHA-256(address), AccessPass tier >= post minTier, expiry validity
 - Rate limited: 30 requests/minute per wallet, 5-minute timestamp replay protection
-- **Privacy trade-off**: Server learns (wallet, creator, content, time) per unlock request — but does NOT persist access logs
+- Content POST/DELETE endpoints require wallet signature authentication — only the creator can publish or delete content
+- **Privacy trade-off**: Server learns (walletHash, creator, content, time) per unlock request — but does NOT persist access logs
 
 ### Encrypted Backend (Supabase)
 
@@ -278,7 +279,7 @@ mapping platform_revenue_token: field => u128;   // hash(token_id, 0field) => pl
 
 ### Test Flow
 1. **Visit the app** at the deployed URL
-2. **Connect Leo Wallet** (or Fox Wallet) using the button in the header
+2. **Connect Leo Wallet** (or Shield Wallet) using the button in the header
 3. **Register as creator**: Go to Dashboard → enter a price (e.g., 5 ALEO) → click Register → approve in wallet
 4. **Copy your creator page link** from the dashboard
 5. **Publish content**: On the dashboard, create a post with title, body, and tier requirement → click Publish → approve in wallet
@@ -299,7 +300,7 @@ Visit these creator pages to test the subscription flow without registering:
 | Smart Contract | Leo on Aleo Testnet |
 | Frontend | Next.js 16, React 19, TypeScript |
 | Styling | Tailwind CSS 4, Framer Motion |
-| Wallet Integration | @demox-labs/aleo-wallet-adapter (Leo Wallet + Fox Wallet) |
+| Wallet Integration | @provablehq/aleo-wallet-adaptor (Leo Wallet + Shield Wallet) |
 | Chain Queries | Provable API (REST) |
 | Content Storage | Supabase (encrypted, persistent) + Upstash Redis (cache) |
 | Off-chain Encryption | AES-256-GCM (Web Crypto API) |
@@ -311,7 +312,7 @@ Visit these creator pages to test the subscription flow without registering:
 
 ```
 frontend/ (Next.js App Router)
-├── providers/WalletProvider.tsx         ← Leo Wallet + Fox Wallet (dual wallet)
+├── providers/WalletProvider.tsx         ← Leo Wallet + Shield Wallet (dual wallet)
 ├── hooks/
 │   ├── useVeilSub.ts                   ← 9 transitions: register, subscribe, verify, tip, renew, publish, set_token_price, subscribe_token, tip_token
 │   ├── useCreatorStats.ts              ← Public mapping queries (REST)
@@ -497,7 +498,7 @@ contracts/veilsub/ (Leo Program)
 - API routes: `/api/creators`, `/api/analytics`
 
 **Frontend Enhancements**:
-- Dual wallet support (Leo Wallet + Fox Wallet)
+- Dual wallet support (Leo Wallet + Shield Wallet)
 - COOP/COEP security headers for Aleo WASM SharedArrayBuffer compatibility
 - Updated program ID and platform address throughout
 

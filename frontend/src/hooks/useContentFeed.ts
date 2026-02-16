@@ -106,9 +106,31 @@ export function useContentFeed() {
       title: string,
       body: string,
       minTier: number,
-      contentId: string
+      contentId: string,
+      signFn: ((msg: Uint8Array) => Promise<Uint8Array>) | null = null
     ): Promise<ContentPost | null> => {
       try {
+        const timestamp = Date.now()
+        const addrBytes = new TextEncoder().encode(creatorAddress)
+        const hashBuf = await crypto.subtle.digest('SHA-256', addrBytes)
+        const walletHash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
+
+        let signature: string | undefined
+        if (signFn) {
+          try {
+            const message = `veilsub:post:${creatorAddress}:${timestamp}`
+            const msgBytes = new TextEncoder().encode(message)
+            const sigBytes = await signFn(msgBytes)
+            let binary = ''
+            for (let i = 0; i < sigBytes.length; i++) {
+              binary += String.fromCharCode(sigBytes[i])
+            }
+            signature = btoa(binary)
+          } catch {
+            // Wallet rejected signing
+          }
+        }
+
         const res = await fetch('/api/posts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -118,6 +140,9 @@ export function useContentFeed() {
             body,
             minTier,
             contentId,
+            walletHash,
+            timestamp,
+            signature,
           }),
         })
         if (res.ok) {
@@ -133,12 +158,43 @@ export function useContentFeed() {
   )
 
   const deletePost = useCallback(
-    async (creatorAddress: string, postId: string): Promise<boolean> => {
+    async (
+      creatorAddress: string,
+      postId: string,
+      signFn: ((msg: Uint8Array) => Promise<Uint8Array>) | null = null
+    ): Promise<boolean> => {
       try {
+        const timestamp = Date.now()
+        const addrBytes = new TextEncoder().encode(creatorAddress)
+        const hashBuf = await crypto.subtle.digest('SHA-256', addrBytes)
+        const walletHash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
+
+        let signature: string | undefined
+        if (signFn) {
+          try {
+            const message = `veilsub:delete:${postId}:${timestamp}`
+            const msgBytes = new TextEncoder().encode(message)
+            const sigBytes = await signFn(msgBytes)
+            let binary = ''
+            for (let i = 0; i < sigBytes.length; i++) {
+              binary += String.fromCharCode(sigBytes[i])
+            }
+            signature = btoa(binary)
+          } catch {
+            // Wallet rejected signing
+          }
+        }
+
         const res = await fetch('/api/posts', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ creator: creatorAddress, postId }),
+          body: JSON.stringify({
+            creator: creatorAddress,
+            postId,
+            walletHash,
+            timestamp,
+            signature,
+          }),
         })
         return res.ok
       } catch {

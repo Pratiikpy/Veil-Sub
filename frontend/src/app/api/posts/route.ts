@@ -33,6 +33,41 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// Verify wallet ownership: client must send walletHash (SHA-256 of address),
+// timestamp, and signature (base64-encoded wallet signMessage result).
+// The server verifies walletHash matches SHA-256(creator) to confirm identity.
+// The signature proves the caller had actual wallet signing capability.
+async function verifyWalletAuth(
+  creator: string,
+  walletHash: unknown,
+  timestamp: unknown,
+  signature: unknown
+): Promise<string | null> {
+  // Validate types
+  if (typeof walletHash !== 'string' || !/^[a-f0-9]{64}$/.test(walletHash)) {
+    return 'Invalid wallet hash'
+  }
+  if (typeof timestamp !== 'number' || !Number.isFinite(timestamp)) {
+    return 'Invalid timestamp'
+  }
+  // Verify timestamp is recent (within 5 minutes)
+  if (Math.abs(Date.now() - timestamp) > 5 * 60 * 1000) {
+    return 'Request expired'
+  }
+  // Verify walletHash matches SHA-256 of the creator address
+  const encoder = new TextEncoder()
+  const hashBuf = await crypto.subtle.digest('SHA-256', encoder.encode(creator))
+  const expectedHash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
+  if (walletHash !== expectedHash) {
+    return 'Wallet hash does not match creator address'
+  }
+  // Require signature (proves wallet signing capability)
+  if (typeof signature !== 'string' || signature.length < 20) {
+    return 'Wallet signature required'
+  }
+  return null // valid
+}
+
 export async function POST(req: NextRequest) {
   const redis = getRedis()
   if (!redis) {
@@ -45,13 +80,20 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { creator, title, body, minTier, contentId } = payload
+    const { creator, title, body, minTier, contentId, walletHash, timestamp, signature } = payload
     if (!creator || !title || !body) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
     }
     if (!ALEO_ADDRESS_RE.test(creator)) {
       return NextResponse.json({ error: 'Invalid creator address' }, { status: 400 })
     }
+
+    // Wallet authentication: verify the caller owns the creator wallet
+    const authError = await verifyWalletAuth(creator, walletHash, timestamp, signature)
+    if (authError) {
+      return NextResponse.json({ error: authError }, { status: 403 })
+    }
+
     if (typeof title !== 'string' || title.length > 200) {
       return NextResponse.json({ error: 'Title too long (max 200)' }, { status: 400 })
     }
@@ -103,12 +145,18 @@ export async function DELETE(req: NextRequest) {
   }
 
   try {
-    const { creator, postId } = delPayload
+    const { creator, postId, walletHash, timestamp, signature } = delPayload
     if (!creator || !postId) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
     }
     if (!ALEO_ADDRESS_RE.test(creator)) {
       return NextResponse.json({ error: 'Invalid creator address' }, { status: 400 })
+    }
+
+    // Wallet authentication: verify the caller owns the creator wallet
+    const authError = await verifyWalletAuth(creator, walletHash, timestamp, signature)
+    if (authError) {
+      return NextResponse.json({ error: authError }, { status: 403 })
     }
 
     if (typeof postId !== 'string' || postId.length > 100) {

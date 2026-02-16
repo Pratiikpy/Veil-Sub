@@ -96,6 +96,7 @@ function DashboardSkeleton() {
 }
 
 function PostsList({ address }: { address: string }) {
+  const { signMessage } = useWallet()
   const { getPostsForCreator, deletePost } = useContentFeed()
   const [posts, setPosts] = useState<{ id: string; title: string; minTier: number; createdAt?: string; contentId?: string }[]>([])
   const [postsLoaded, setPostsLoaded] = useState(false)
@@ -119,7 +120,14 @@ function PostsList({ address }: { address: string }) {
   useEffect(() => { fetchPosts() }, [fetchPosts])
 
   const handleDelete = async (postId: string) => {
-    const ok = await deletePost(address, postId)
+    const wrappedSign = signMessage
+      ? async (msg: Uint8Array) => {
+          const result = await signMessage(msg)
+          if (!result) throw new Error('Signing cancelled')
+          return result
+        }
+      : null
+    const ok = await deletePost(address, postId, wrappedSign)
     if (ok) {
       setPosts((prev) => prev.filter((p) => p.id !== postId))
       toast.success('Post deleted')

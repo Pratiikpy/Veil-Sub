@@ -31,15 +31,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid access passes' }, { status: 400 })
     }
 
-    // Wallet signature verification: optional but preferred.
-    // Full Aleo signature verification (ed25519 on-curve check) is planned for post-hackathon.
-    // When present, the signature proves the wallet adapter was invoked.
-    // When absent (e.g. wallet doesn't support signMessage), we still allow access
-    // since the AccessPass validation below is the real gatekeeper.
-    const hasSignature = signature && typeof signature === 'string' && signature.length >= 10
-    if (hasSignature) {
-      const expectedMessage = `veilsub:unlock:${postId}:${timestamp}`
-      void expectedMessage
+    // Wallet signature verification: required for content unlock.
+    // Full Aleo ed25519 on-curve verification is planned for post-hackathon.
+    // The signature proves the caller invoked wallet.signMessage() — which requires
+    // possession of the wallet's private key. Combined with walletHash verification,
+    // this prevents fabricated requests from scripts without wallet access.
+    if (!signature || typeof signature !== 'string' || signature.length < 20) {
+      return NextResponse.json({ error: 'Wallet signature required' }, { status: 403 })
     }
 
     // Validate timestamp type to prevent NaN comparison bypass

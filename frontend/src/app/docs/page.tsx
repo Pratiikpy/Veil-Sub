@@ -396,7 +396,7 @@ const result = await executeTransaction({
     expiresAtU32,               // expiry block height (u32)
   ],
   fee: 5_000_000,              // fee in microcredits
-  privateFee: false,
+  privateFee: true,
 })
 
 const txId = result?.transactionId`}

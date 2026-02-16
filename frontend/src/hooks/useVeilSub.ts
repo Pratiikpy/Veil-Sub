@@ -30,7 +30,7 @@ export function useVeilSub() {
         function: functionName,
         inputs,
         fee,
-        privateFee: false,
+        privateFee: true,
       })
 
       return result?.transactionId ?? null
@@ -241,7 +241,7 @@ export function useVeilSub() {
     return ''
   }
 
-  // NullPay pattern: requestRecords(program, false) fetches all records, then filter manually
+  // Fetch all records (including spent), then filter for valid ones with positive balance
   const getTokenRecords = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
