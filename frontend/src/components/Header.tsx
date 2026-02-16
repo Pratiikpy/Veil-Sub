@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
-import { WalletMultiButton } from '@demox-labs/aleo-wallet-adapter-reactui'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
+import { WalletMultiButton } from '@provablehq/aleo-wallet-adaptor-react-ui'
 import { Shield, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'

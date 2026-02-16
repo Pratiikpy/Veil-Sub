@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useRef } from 'react'
-import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 // All API calls routed through Next.js rewrite proxy to avoid leaking user interest to third-party APIs
 
 type PollingStrategy = 'wallet' | 'provable' | 'explorer' | 'fallback'
@@ -20,8 +20,8 @@ export function useTransactionPoller() {
   const pollWallet = useCallback(
     async (txId: string): Promise<PollResult> => {
       if (!transactionStatus) throw new Error('No wallet transactionStatus')
-      const status = await transactionStatus(txId)
-      const s = (typeof status === 'string' ? status : '').toLowerCase()
+      const result = await transactionStatus(txId)
+      const s = (typeof result === 'string' ? result : result?.status || '').toLowerCase()
       if (s.includes('finalize') || s.includes('confirm') || s.includes('accept')) {
         return { status: 'confirmed', strategy: 'wallet' }
       }

@@ -1,15 +1,13 @@
 'use client'
 
 import { FC, ReactNode, useMemo } from 'react'
-import { WalletProvider as AleoWalletProvider } from '@demox-labs/aleo-wallet-adapter-react'
-import { WalletModalProvider } from '@demox-labs/aleo-wallet-adapter-reactui'
-import {
-  WalletAdapterNetwork,
-  DecryptPermission,
-} from '@demox-labs/aleo-wallet-adapter-base'
-import { LeoWalletAdapter, FoxWalletAdapter } from 'aleo-adapters'
-import '@demox-labs/aleo-wallet-adapter-reactui/styles.css'
-import { APP_NAME } from '@/lib/config'
+import { AleoWalletProvider } from '@provablehq/aleo-wallet-adaptor-react'
+import { WalletModalProvider } from '@provablehq/aleo-wallet-adaptor-react-ui'
+import { DecryptPermission } from '@provablehq/aleo-wallet-adaptor-core'
+import { Network } from '@provablehq/aleo-types'
+import { LeoWalletAdapter } from '@provablehq/aleo-wallet-adaptor-leo'
+import '@provablehq/aleo-wallet-adaptor-react-ui/dist/styles.css'
+import { APP_NAME, PROGRAM_ID } from '@/lib/config'
 
 interface Props {
   children: ReactNode
@@ -19,7 +17,6 @@ export const WalletProvider: FC<Props> = ({ children }) => {
   const wallets = useMemo(
     () => [
       new LeoWalletAdapter({ appName: APP_NAME }),
-      new FoxWalletAdapter({ appName: APP_NAME }),
     ],
     []
   )
@@ -27,10 +24,10 @@ export const WalletProvider: FC<Props> = ({ children }) => {
   return (
     <AleoWalletProvider
       wallets={wallets}
-      network={WalletAdapterNetwork.Testnet}
-      decryptPermission={DecryptPermission.UponRequest}
-      programs={['credits.aleo']}
-      autoConnect={false}
+      network={Network.TESTNET}
+      decryptPermission={DecryptPermission.AutoDecrypt}
+      programs={[PROGRAM_ID, 'credits.aleo']}
+      autoConnect
     >
       <WalletModalProvider>{children}</WalletModalProvider>
     </AleoWalletProvider>

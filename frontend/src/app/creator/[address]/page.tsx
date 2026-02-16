@@ -17,7 +17,7 @@ import {
   ArrowRight,
   Search,
 } from 'lucide-react'
-import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
@@ -44,7 +44,7 @@ export default function CreatorPage({
   params: Promise<{ address: string }>
 }) {
   const { address } = use(params)
-  const { connected, publicKey } = useWallet()
+  const { connected, address: publicKey } = useWallet()
   const { fetchCreatorStats } = useCreatorStats()
   const { getAccessPasses } = useVeilSub()
   const { blockHeight } = useBlockHeight()

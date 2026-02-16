@@ -23,7 +23,7 @@ import {
   Sparkles,
   Camera,
 } from 'lucide-react'
-import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import PageTransition from '@/components/PageTransition'
 import FloatingOrbs from '@/components/FloatingOrbs'
 import AnimatedCounter from '@/components/AnimatedCounter'

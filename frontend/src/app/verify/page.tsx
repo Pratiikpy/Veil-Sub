@@ -10,7 +10,7 @@ import {
   RefreshCw,
   Zap,
 } from 'lucide-react'
-import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { parseAccessPass, shortenAddress } from '@/lib/utils'

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Lock, Unlock, Star, MessageSquare, Crown, Shield, RefreshCw, Loader2, FileText, ArrowRight } from 'lucide-react'
-import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import type { AccessPass, ContentPost } from '@/types'
 
@@ -137,7 +137,14 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         if (cancelled) break
         unlockingRef.current.add(post.id)
         setUnlockingIds((prev) => new Set(prev).add(post.id))
-        const body = await unlockPost(post.id, creatorAddress, walletAddress, activePasses, signMessage ?? null)
+        const wrappedSign = signMessage
+          ? async (msg: Uint8Array) => {
+              const result = await signMessage(msg)
+              if (!result) throw new Error('Signing cancelled')
+              return result
+            }
+          : null
+        const body = await unlockPost(post.id, creatorAddress, walletAddress, activePasses, wrappedSign)
 
         // Always clean up unlocking state, even if cancelled
         unlockingRef.current.delete(post.id)

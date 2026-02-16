@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import {
   Settings,
   Copy,
@@ -267,7 +267,7 @@ function ProfileEditor({ address }: { address: string }) {
 }
 
 export default function DashboardPage() {
-  const { publicKey, connected } = useWallet()
+  const { address: publicKey, connected } = useWallet()
   const { registerCreator } = useVeilSub()
   const { fetchCreatorStats } = useCreatorStats()
   const { startPolling, stopPolling } = useTransactionPoller()

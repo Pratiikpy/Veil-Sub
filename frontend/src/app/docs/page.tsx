@@ -120,7 +120,7 @@ function OverviewTab() {
             { label: 'Smart Contract', value: 'Leo 3.4.0 on Aleo Testnet' },
             { label: 'Frontend', value: 'Next.js 16, React 19, TypeScript' },
             { label: 'Styling', value: 'Tailwind CSS 4, Framer Motion' },
-            { label: 'Wallet', value: '@demox-labs/aleo-wallet-adapter' },
+            { label: 'Wallet', value: '@provablehq/aleo-wallet-adaptor' },
             { label: 'Chain Queries', value: 'Provable API (REST)' },
             { label: 'Hosting', value: 'Vercel' },
           ].map((item) => (
@@ -378,15 +378,15 @@ curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v5.aleo/mappin
         </p>
         <CodeBlock
           lang="typescript"
-          code={`import { Transaction, WalletAdapterNetwork } from '@demox-labs/aleo-wallet-adapter-base'
+          code={`import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 
-// Create a subscribe transaction (v4: 2 credit records)
-const tx = Transaction.createTransaction(
-  publicKey,                    // your wallet address
-  WalletAdapterNetwork.Testnet,
-  'veilsub_v5.aleo',          // program ID
-  'subscribe',                  // transition name
-  [
+const { executeTransaction } = useWallet()
+
+// Execute a subscribe transaction (v5)
+const result = await executeTransaction({
+  program: 'veilsub_v5.aleo',
+  function: 'subscribe',
+  inputs: [
     creatorPaymentRecord,       // credits record for creator (95%)
     platformPaymentRecord,      // credits record for platform fee (5%)
     creatorAddress,             // creator's address
@@ -395,11 +395,11 @@ const tx = Transaction.createTransaction(
     passIdField,                // unique pass_id (field)
     expiresAtU32,               // expiry block height (u32)
   ],
-  5_000_000,                    // fee in microcredits
-  false                         // public fee
-)
+  fee: 5_000_000,              // fee in microcredits
+  privateFee: false,
+})
 
-const txId = await requestTransaction(tx)`}
+const txId = result?.transactionId`}
         />
       </div>
 

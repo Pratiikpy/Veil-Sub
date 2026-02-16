@@ -1,47 +1,40 @@
 'use client'
 
 import { useCallback } from 'react'
-import { useWallet } from '@demox-labs/aleo-wallet-adapter-react'
-import {
-  Transaction,
-  WalletAdapterNetwork,
-} from '@demox-labs/aleo-wallet-adapter-base'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { PROGRAM_ID, FEES, TOKEN_FEES } from '@/lib/config'
 
 export function useVeilSub() {
   const {
-    publicKey,
+    address,
     connected,
-    requestTransaction,
-    requestRecordPlaintexts,
+    executeTransaction,
     requestRecords,
     transactionStatus,
   } = useWallet()
 
-  // Generic execute helper
+  // Generic execute helper — uses new @provablehq executeTransaction API
   const execute = useCallback(
     async (
       functionName: string,
       inputs: string[],
       fee: number
     ): Promise<string | null> => {
-      if (!publicKey || !requestTransaction) {
+      if (!address || !executeTransaction) {
         throw new Error('Wallet not connected')
       }
 
-      const tx = Transaction.createTransaction(
-        publicKey,
-        WalletAdapterNetwork.Testnet,
-        PROGRAM_ID,
-        functionName,
+      const result = await executeTransaction({
+        program: PROGRAM_ID,
+        function: functionName,
         inputs,
         fee,
-        false // public fee
-      )
+        privateFee: false,
+      })
 
-      return await requestTransaction(tx)
+      return result?.transactionId ?? null
     },
-    [publicKey, requestTransaction]
+    [address, executeTransaction]
   )
 
   const registerCreator = useCallback(
@@ -222,25 +215,11 @@ export function useVeilSub() {
     [execute]
   )
 
+  // New API: requestRecords(program, includePlaintext?) replaces requestRecordPlaintexts
   const getTokenRecords = useCallback(async (): Promise<string[]> => {
-    if (!connected) return []
+    if (!connected || !requestRecords) return []
     try {
-      let records: unknown[] = []
-      if (requestRecordPlaintexts) {
-        try {
-          records = await requestRecordPlaintexts('token_registry.aleo')
-        } catch (err) {
-          console.warn('[VeilSub] requestRecordPlaintexts failed for token records, trying fallback:', err)
-        }
-      }
-      if (records.length === 0 && requestRecords) {
-        try {
-          records = await requestRecords('token_registry.aleo')
-        } catch (err) {
-          console.error('[VeilSub] requestRecords failed for token records:', err)
-          return []
-        }
-      }
+      const records = await requestRecords('token_registry.aleo', true)
       const plaintexts = records.map((r: unknown) => {
         if (typeof r === 'string') return r
         if (r && typeof r === 'object' && 'plaintext' in r)
@@ -248,7 +227,6 @@ export function useVeilSub() {
         return ''
       }).filter(Boolean)
 
-      // Parse amount from each record and sort by balance descending
       const parseAmount = (plaintext: string): number => {
         const match = plaintext.match(/amount\s*:\s*(\d+)u128/)
         return match ? parseInt(match[1], 10) : 0
@@ -261,27 +239,12 @@ export function useVeilSub() {
       console.error('[VeilSub] Failed to fetch token records:', err)
       return []
     }
-  }, [connected, requestRecordPlaintexts, requestRecords])
+  }, [connected, requestRecords])
 
   const getCreditsRecords = useCallback(async (): Promise<string[]> => {
-    if (!connected) return []
+    if (!connected || !requestRecords) return []
     try {
-      let records: unknown[] = []
-      if (requestRecordPlaintexts) {
-        try {
-          records = await requestRecordPlaintexts('credits.aleo')
-        } catch (err) {
-          console.warn('[VeilSub] requestRecordPlaintexts failed, trying fallback:', err)
-        }
-      }
-      if (records.length === 0 && requestRecords) {
-        try {
-          records = await requestRecords('credits.aleo')
-        } catch (err) {
-          console.error('[VeilSub] requestRecords failed:', err)
-          return []
-        }
-      }
+      const records = await requestRecords('credits.aleo', true)
       const plaintexts = records.map((r: unknown) => {
         if (typeof r === 'string') return r
         if (r && typeof r === 'object' && 'plaintext' in r)
@@ -289,59 +252,42 @@ export function useVeilSub() {
         return ''
       }).filter(Boolean)
 
-      // Parse microcredits from each record and sort by balance descending
-      // Record format: { ..., microcredits: 5000000u64.private, ... }
       const parseMicrocredits = (plaintext: string): number => {
         const match = plaintext.match(/microcredits\s*:\s*(\d+)u64/)
         return match ? parseInt(match[1], 10) : 0
       }
 
       return plaintexts
-        .filter((p) => parseMicrocredits(p) > 0) // Filter out spent/empty records
-        .sort((a, b) => parseMicrocredits(b) - parseMicrocredits(a)) // Largest first
+        .filter((p) => parseMicrocredits(p) > 0)
+        .sort((a, b) => parseMicrocredits(b) - parseMicrocredits(a))
     } catch (err) {
       console.error('[VeilSub] Failed to fetch credits records:', err)
       return []
     }
-  }, [connected, requestRecordPlaintexts, requestRecords])
+  }, [connected, requestRecords])
 
   const getAccessPasses = useCallback(async (): Promise<string[]> => {
-    if (!connected) return []
+    if (!connected || !requestRecords) return []
     try {
-      let records: unknown[] = []
-      if (requestRecordPlaintexts) {
-        try {
-          records = await requestRecordPlaintexts(PROGRAM_ID)
-        } catch (err) {
-          console.warn('[VeilSub] requestRecordPlaintexts failed for access passes, trying fallback:', err)
-        }
-      }
-      if (records.length === 0 && requestRecords) {
-        try {
-          records = await requestRecords(PROGRAM_ID)
-        } catch (err) {
-          console.error('[VeilSub] requestRecords failed for access passes:', err)
-          return []
-        }
-      }
+      const records = await requestRecords(PROGRAM_ID, true)
       return records.map((r: unknown) => {
         if (typeof r === 'string') return r
         if (r && typeof r === 'object' && 'plaintext' in r)
           return (r as { plaintext: string }).plaintext
-        console.warn('[VeilSub] Skipping unrecognized record format:', r)
         return ''
       }).filter(Boolean)
     } catch (err) {
       console.error('[VeilSub] Failed to fetch access passes:', err)
       return []
     }
-  }, [connected, requestRecordPlaintexts, requestRecords])
+  }, [connected, requestRecords])
 
   const pollTxStatus = useCallback(
     async (txId: string): Promise<string> => {
       if (!transactionStatus) return 'unknown'
       try {
-        return await transactionStatus(txId)
+        const result = await transactionStatus(txId)
+        return result?.status ?? 'unknown'
       } catch {
         return 'unknown'
       }
@@ -350,7 +296,7 @@ export function useVeilSub() {
   )
 
   return {
-    publicKey,
+    publicKey: address,
     connected,
     registerCreator,
     subscribe,
