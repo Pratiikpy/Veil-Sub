@@ -89,9 +89,19 @@ export default function RenewModal({
       const rawRecords = await getCreditsRecords()
       const seen = new Set<string>()
       const records = rawRecords.filter(r => { if (seen.has(r)) return false; seen.add(r); return true })
-      if (records.length < 2) {
+      if (records.length < 1) {
         setInsufficientBalance(true)
-        setError('Need at least 2 private credit records. Use Leo Wallet → Send → send credits to yourself to split them.')
+        setError('No private credit records found. Convert public credits to private or get testnet credits.')
+        setTxStatus('idle')
+        submittingRef.current = false
+        return
+      }
+
+      const match = records[0].match(/microcredits\s*:\s*(\d+)u64/)
+      const available = match ? parseInt(match[1], 10) : 0
+      if (available < totalPrice) {
+        setInsufficientBalance(true)
+        setError(`Insufficient private balance. You have ${formatCredits(available)} ALEO but need ${formatCredits(totalPrice)} ALEO.`)
         setTxStatus('idle')
         submittingRef.current = false
         return
@@ -101,10 +111,10 @@ export default function RenewModal({
       const newExpiresAt = blockHeight + SUBSCRIPTION_DURATION_BLOCKS
 
       setTxStatus('proving')
+      // v6: Single record — contract chains transfers internally
       const id = await renew(
         pass.rawPlaintext,
         records[0],
-        records[1],
         selectedTier.id,
         totalPrice,
         newPassId,
@@ -281,7 +291,7 @@ export default function RenewModal({
 
                 {insufficientBalance && (
                   <div className="mb-4">
-                    <BalanceConverter requiredAmount={totalPrice} currentBalance={0} />
+                    <BalanceConverter requiredAmount={totalPrice} />
                   </div>
                 )}
 

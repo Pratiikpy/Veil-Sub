@@ -1,19 +1,15 @@
 'use client'
 
 import { AlertTriangle, ArrowRight, ExternalLink } from 'lucide-react'
-import { formatCredits } from '@/lib/utils'
 
 interface Props {
   requiredAmount: number
-  currentBalance: number
 }
 
 export default function BalanceConverter({
   requiredAmount,
-  currentBalance,
 }: Props) {
-  const shortfall = requiredAmount - currentBalance
-  const shortfallDisplay = formatCredits(shortfall > 0 ? shortfall : 0)
+  const requiredDisplay = (requiredAmount / 1_000_000).toFixed(2)
 
   return (
     <div className="p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/20 space-y-4">
@@ -24,9 +20,9 @@ export default function BalanceConverter({
             Insufficient Private Balance
           </h4>
           <p className="text-xs text-slate-400">
-            You need{' '}
-            <strong className="text-white">{shortfallDisplay} ALEO</strong> more
-            in private credits to complete this transaction.
+            You need at least{' '}
+            <strong className="text-white">{requiredDisplay} ALEO</strong> in
+            a single private credit record to complete this transaction.
           </p>
         </div>
       </div>

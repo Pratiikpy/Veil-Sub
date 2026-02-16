@@ -48,10 +48,10 @@ export function useVeilSub() {
     [execute]
   )
 
+  // v6: Single payment record — contract chains transfers internally
   const subscribe = useCallback(
     async (
-      creditsRecordCreator: string,
-      creditsRecordPlatform: string,
+      creditsRecord: string,
       creatorAddress: string,
       tier: number,
       amountMicrocredits: number,
@@ -61,8 +61,7 @@ export function useVeilSub() {
       return execute(
         'subscribe',
         [
-          creditsRecordCreator,
-          creditsRecordPlatform,
+          creditsRecord,
           creatorAddress,
           `${tier}u8`,
           `${amountMicrocredits}u64`,
@@ -75,18 +74,17 @@ export function useVeilSub() {
     [execute]
   )
 
+  // v6: Single payment record
   const tip = useCallback(
     async (
-      creditsRecordCreator: string,
-      creditsRecordPlatform: string,
+      creditsRecord: string,
       creatorAddress: string,
       amountMicrocredits: number
     ) => {
       return execute(
         'tip',
         [
-          creditsRecordCreator,
-          creditsRecordPlatform,
+          creditsRecord,
           creatorAddress,
           `${amountMicrocredits}u64`,
         ],
@@ -107,11 +105,11 @@ export function useVeilSub() {
     [execute]
   )
 
+  // v6: old_pass + single payment record
   const renew = useCallback(
     async (
       accessPassPlaintext: string,
-      creditsRecordCreator: string,
-      creditsRecordPlatform: string,
+      creditsRecord: string,
       newTier: number,
       amountMicrocredits: number,
       newPassId: string,
@@ -121,8 +119,7 @@ export function useVeilSub() {
         'renew',
         [
           accessPassPlaintext,
-          creditsRecordCreator,
-          creditsRecordPlatform,
+          creditsRecord,
           `${newTier}u8`,
           `${amountMicrocredits}u64`,
           `${newPassId}field`,
@@ -149,7 +146,7 @@ export function useVeilSub() {
   )
 
   // =========================================
-  // v5 Token Transitions
+  // v6 Token Transitions (single record)
   // =========================================
 
   const setTokenPrice = useCallback(
@@ -163,10 +160,10 @@ export function useVeilSub() {
     [execute]
   )
 
+  // v6: Single token record
   const subscribeToken = useCallback(
     async (
-      tokenRecCreator: string,
-      tokenRecPlatform: string,
+      tokenRecord: string,
       creatorAddress: string,
       tier: number,
       amount: number,
@@ -177,8 +174,7 @@ export function useVeilSub() {
       return execute(
         'subscribe_token',
         [
-          tokenRecCreator,
-          tokenRecPlatform,
+          tokenRecord,
           creatorAddress,
           `${tier}u8`,
           `${amount}u128`,
@@ -192,10 +188,10 @@ export function useVeilSub() {
     [execute]
   )
 
+  // v6: Single token record
   const tipToken = useCallback(
     async (
-      tokenRecCreator: string,
-      tokenRecPlatform: string,
+      tokenRecord: string,
       creatorAddress: string,
       amount: number,
       tokenId: string
@@ -203,8 +199,7 @@ export function useVeilSub() {
       return execute(
         'tip_token',
         [
-          tokenRecCreator,
-          tokenRecPlatform,
+          tokenRecord,
           creatorAddress,
           `${amount}u128`,
           `${tokenId}field`,

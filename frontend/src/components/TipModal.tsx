@@ -70,13 +70,6 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
       const rawRecords = await getCreditsRecords()
       const seen = new Set<string>()
       const records = rawRecords.filter(r => { if (seen.has(r)) return false; seen.add(r); return true })
-      if (records.length < 2) {
-        setInsufficientBalance(true)
-        setError('Need at least 2 private credit records. Use Leo Wallet → Send → send credits to yourself to split them.')
-        setTxStatus('idle')
-        submittingRef.current = false
-        return
-      }
 
       const tipAmount = parseFloat(customAmount) || selectedAmount
       if (tipAmount < 0.1 || tipAmount > 1000) {
@@ -86,12 +79,32 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         return
       }
 
+      const tipMicrocredits = creditsToMicrocredits(tipAmount)
+
+      if (records.length < 1) {
+        setInsufficientBalance(true)
+        setError('No private credit records found. Convert public credits to private or get testnet credits.')
+        setTxStatus('idle')
+        submittingRef.current = false
+        return
+      }
+
+      const match = records[0].match(/microcredits\s*:\s*(\d+)u64/)
+      const available = match ? parseInt(match[1], 10) : 0
+      if (available < tipMicrocredits) {
+        setInsufficientBalance(true)
+        setError(`Insufficient private balance. You have ${(available / 1_000_000).toFixed(2)} ALEO but need ${tipAmount} ALEO.`)
+        setTxStatus('idle')
+        submittingRef.current = false
+        return
+      }
+
       setTxStatus('proving')
+      // v6: Single record — contract chains transfers internally
       const id = await tip(
         records[0],
-        records[1],
         creatorAddress,
-        creditsToMicrocredits(tipAmount)
+        tipMicrocredits
       )
 
       if (id) {
@@ -226,7 +239,6 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                   <div className="mb-4">
                     <BalanceConverter
                       requiredAmount={creditsToMicrocredits(selectedAmount)}
-                      currentBalance={0}
                     />
                   </div>
                 )}

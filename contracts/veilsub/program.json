@@ -1,7 +1,7 @@
 {
-  "program": "veilsub_v5.aleo",
+  "program": "veilsub_v6.aleo",
   "version": "0.1.0",
-  "description": "VeilSub - Private Creator Subscriptions on Aleo (Multi-Token)",
+  "description": "VeilSub - Private Creator Subscriptions on Aleo (Single-Record Payments)",
   "license": "MIT",
   "leo": "3.4.0",
   "dependencies": [

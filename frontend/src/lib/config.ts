@@ -1,4 +1,4 @@
-export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v5.aleo'
+export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v6.aleo'
 // API calls use Next.js rewrite proxy (/api/aleo/*) to avoid leaking user interest to third parties
 // The actual endpoint is configured in next.config.ts rewrites
 export const APP_NAME = 'VeilSub'
@@ -7,8 +7,8 @@ export const APP_DESCRIPTION = 'Private Creator Subscriptions on Aleo'
 // Fee estimates in microcredits
 export const FEES = {
   REGISTER: 500_000,       // 0.5 credits
-  SUBSCRIBE: 5_000_000,    // 5 credits (two transfer_private calls + finalize)
-  TIP: 3_000_000,          // 3 credits (two transfer_private calls + finalize)
+  SUBSCRIBE: 5_000_000,    // 5 credits (chained transfer_private calls + finalize)
+  TIP: 3_000_000,          // 3 credits (chained transfer_private calls + finalize)
   VERIFY: 350_000,         // 0.35 credits (no finalize)
   RENEW: 5_000_000,        // 5 credits (same as subscribe)
   PUBLISH: 500_000,        // 0.5 credits (finalize only)
