@@ -29,7 +29,7 @@ export const WalletProvider: FC<Props> = ({ children }) => {
       wallets={wallets}
       network={WalletAdapterNetwork.Testnet}
       decryptPermission={DecryptPermission.UponRequest}
-      programs={['credits.aleo', PROGRAM_ID, 'token_registry.aleo']}
+      programs={['credits.aleo', PROGRAM_ID]}
       autoConnect={false}
     >
       <WalletModalProvider>{children}</WalletModalProvider>
