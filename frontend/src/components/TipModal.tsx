@@ -150,7 +150,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh] bg-black/60 backdrop-blur-sm overflow-y-auto"
           onClick={handleClose}
         >
           <motion.div
@@ -161,7 +161,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
             role="dialog"
             aria-modal="true"
             aria-label="Send a private tip"
-            className="w-full max-w-sm rounded-2xl bg-[#13111c] border border-white/10 p-6 shadow-2xl"
+            className="w-full max-w-sm rounded-2xl bg-[#13111c] border border-white/10 p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
