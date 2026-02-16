@@ -6,7 +6,7 @@ import {
   Transaction,
   WalletAdapterNetwork,
 } from '@demox-labs/aleo-wallet-adapter-base'
-import { PROGRAM_ID, FEES } from '@/lib/config'
+import { PROGRAM_ID, FEES, TOKEN_FEES } from '@/lib/config'
 
 export function useVeilSub() {
   const {
@@ -155,6 +155,114 @@ export function useVeilSub() {
     [execute]
   )
 
+  // =========================================
+  // v5 Token Transitions
+  // =========================================
+
+  const setTokenPrice = useCallback(
+    async (tokenId: string, price: number) => {
+      return execute(
+        'set_token_price',
+        [`${tokenId}field`, `${price}u128`],
+        TOKEN_FEES.SET_TOKEN_PRICE
+      )
+    },
+    [execute]
+  )
+
+  const subscribeToken = useCallback(
+    async (
+      tokenRecCreator: string,
+      tokenRecPlatform: string,
+      creatorAddress: string,
+      tier: number,
+      amount: number,
+      tokenId: string,
+      passId: string,
+      expiresAt: number
+    ) => {
+      return execute(
+        'subscribe_token',
+        [
+          tokenRecCreator,
+          tokenRecPlatform,
+          creatorAddress,
+          `${tier}u8`,
+          `${amount}u128`,
+          `${tokenId}field`,
+          `${passId}field`,
+          `${expiresAt}u32`,
+        ],
+        TOKEN_FEES.SUBSCRIBE_TOKEN
+      )
+    },
+    [execute]
+  )
+
+  const tipToken = useCallback(
+    async (
+      tokenRecCreator: string,
+      tokenRecPlatform: string,
+      creatorAddress: string,
+      amount: number,
+      tokenId: string
+    ) => {
+      return execute(
+        'tip_token',
+        [
+          tokenRecCreator,
+          tokenRecPlatform,
+          creatorAddress,
+          `${amount}u128`,
+          `${tokenId}field`,
+        ],
+        TOKEN_FEES.TIP_TOKEN
+      )
+    },
+    [execute]
+  )
+
+  const getTokenRecords = useCallback(async (): Promise<string[]> => {
+    if (!connected) return []
+    try {
+      let records: unknown[] = []
+      if (requestRecordPlaintexts) {
+        try {
+          records = await requestRecordPlaintexts('token_registry.aleo')
+        } catch (err) {
+          console.warn('[VeilSub] requestRecordPlaintexts failed for token records, trying fallback:', err)
+        }
+      }
+      if (records.length === 0 && requestRecords) {
+        try {
+          records = await requestRecords('token_registry.aleo')
+        } catch (err) {
+          console.error('[VeilSub] requestRecords failed for token records:', err)
+          return []
+        }
+      }
+      const plaintexts = records.map((r: unknown) => {
+        if (typeof r === 'string') return r
+        if (r && typeof r === 'object' && 'plaintext' in r)
+          return (r as { plaintext: string }).plaintext
+        return ''
+      }).filter(Boolean)
+
+      // Parse amount from each record and sort by balance descending
+      const parseAmount = (plaintext: string): number => {
+        const match = plaintext.match(/amount\s*:\s*(\d+)u128/)
+        return match ? parseInt(match[1], 10) : 0
+      }
+
+      return plaintexts
+        .filter((p) => parseAmount(p) > 0)
+        .sort((a, b) => parseAmount(b) - parseAmount(a))
+    } catch (err) {
+      console.error('[VeilSub] Failed to fetch token records:', err)
+      return []
+    }
+  }, [connected, requestRecordPlaintexts, requestRecords])
+
   const getCreditsRecords = useCallback(async (): Promise<string[]> => {
     if (!connected) return []
     try {
@@ -250,6 +358,10 @@ export function useVeilSub() {
     verifyAccess,
     renew,
     publishContent,
+    setTokenPrice,
+    subscribeToken,
+    tipToken,
+    getTokenRecords,
     getCreditsRecords,
     getAccessPasses,
     pollTxStatus,

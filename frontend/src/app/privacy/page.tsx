@@ -99,6 +99,62 @@ export default function PrivacyPage() {
           </div>
         </section>
 
+        {/* Zero-Footprint Hero Callout */}
+        <div className="gradient-divider" />
+        <section className="py-16">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial">
+              <div className="relative rounded-2xl overflow-hidden">
+                {/* Gradient border effect */}
+                <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-violet-500 via-green-400 to-violet-500 opacity-60" />
+                <div className="relative rounded-2xl bg-[#0d0b14] p-8">
+                  <div className="flex items-start gap-5">
+                    <div className="shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500/20 to-green-500/20 flex items-center justify-center">
+                      <Fingerprint className="w-7 h-7 text-green-400" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-3">
+                        <h3 className="text-xl font-bold text-white">Zero-Footprint Access Verification</h3>
+                        <span className="px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-xs font-medium text-green-400">
+                          Unique to VeilSub
+                        </span>
+                      </div>
+                      <div className="grid sm:grid-cols-2 gap-3 mb-5">
+                        {[
+                          'verify_access has NO finalize block — zero public state changes when proving access',
+                          'No mapping writes, no counter increments, no on-chain evidence of verification',
+                          'Prevents timing correlation attacks — observers cannot track when access is checked',
+                          'Subscriber identity never touches any public scope, even during verification',
+                        ].map((point, idx) => (
+                          <div key={idx} className="flex items-start gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0 mt-1.5" />
+                            <p className="text-sm text-slate-400 leading-relaxed">{point}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                        <pre className="text-xs text-slate-300 font-mono leading-relaxed overflow-x-auto">
+                          <code>{`transition verify_access(pass: AccessPass, creator: address) -> AccessPass {
+    assert_eq(pass.creator, creator);
+    return AccessPass { owner: pass.owner, creator: pass.creator,
+        tier: pass.tier, pass_id: pass.pass_id, expires_at: pass.expires_at };
+}
+// ↑ No finalize_verify_access. Zero public state change. No on-chain trace.`}</code>
+                        </pre>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-3">
+                        No other Aleo subscription project has zero-footprint access verification.
+                        Most projects require on-chain reads or mapping lookups to check access — VeilSub proves
+                        it purely through record ownership, leaving no trace.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Private vs Public */}
         <div className="gradient-divider" />
         <section className="py-16">
@@ -630,6 +686,48 @@ transition verify_access(pass: AccessPass, creator: address) -> AccessPass {
                     <tr key={feature} className="border-b border-white/5">
                       <td className="py-3 px-4 text-white">{feature}</td>
                       <td className="py-3 px-4 text-center text-red-300/70">{trad}</td>
+                      <td className="py-3 px-4 text-center text-green-300">{veilsub}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        {/* Extended Privacy Comparison */}
+        <div className="gradient-divider" />
+        <section className="py-16">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-white mb-4">Privacy Comparison</h2>
+              <p className="text-slate-400">How VeilSub compares to traditional platforms and other blockchain payment protocols.</p>
+            </motion.div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left py-3 px-4 text-slate-400 font-medium">Feature</th>
+                    <th className="text-center py-3 px-4 text-red-400 font-medium">Patreon / Substack</th>
+                    <th className="text-center py-3 px-4 text-amber-400 font-medium">Payment Protocol</th>
+                    <th className="text-center py-3 px-4 text-green-400 font-medium">VeilSub</th>
+                  </tr>
+                </thead>
+                <tbody className="text-slate-300">
+                  {[
+                    ['Subscriber identity', 'Public', 'In receipt records', 'Never on-chain'],
+                    ['Access check evidence', 'Logged server-side', 'N/A', 'Zero footprint'],
+                    ['Content delivery', 'Server-only', 'N/A', 'ZK + server hybrid'],
+                    ['Payment privacy', 'None (bank-linked)', 'Private transfers', 'Private transfers'],
+                    ['Off-chain storage', 'Plaintext DB', 'Encrypted DB', 'AES-256-GCM encrypted'],
+                    ['Multi-token support', 'Card/bank only', 'Token-specific', 'Any ARC-20 token'],
+                    ['Censorship resistance', 'Platform-controlled', 'On-chain', 'On-chain + immutable'],
+                  ].map(([feature, trad, protocol, veilsub]) => (
+                    <tr key={feature} className="border-b border-white/5">
+                      <td className="py-3 px-4 text-white">{feature}</td>
+                      <td className="py-3 px-4 text-center text-red-300/70">{trad}</td>
+                      <td className="py-3 px-4 text-center text-amber-300/70">{protocol}</td>
                       <td className="py-3 px-4 text-center text-green-300">{veilsub}</td>
                     </tr>
                   ))}

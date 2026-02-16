@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { href: '/explore', label: 'Explore', requiresWallet: false },
   { href: '/privacy', label: 'Privacy', requiresWallet: false },
   { href: '/docs', label: 'Docs', requiresWallet: false },
+  { href: '/vision', label: 'Vision', requiresWallet: false },
   { href: '/explorer', label: 'Explorer', requiresWallet: false },
   { href: '/verify', label: 'Verify', requiresWallet: true },
   { href: '/dashboard', label: 'Dashboard', requiresWallet: true },

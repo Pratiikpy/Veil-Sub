@@ -14,6 +14,13 @@ export const FEES = {
   PUBLISH: 500_000,        // 0.5 credits (finalize only)
 } as const
 
+// Fee estimates for token-based transitions (v5)
+export const TOKEN_FEES = {
+  SUBSCRIBE_TOKEN: 5_000_000,
+  TIP_TOKEN: 3_000_000,
+  SET_TOKEN_PRICE: 500_000,
+} as const
+
 // 1 ALEO credit = 1,000,000 microcredits
 export const MICROCREDITS_PER_CREDIT = 1_000_000
 
@@ -66,4 +73,7 @@ export const SEED_CONTENT: SeedContent[] = [
 // Populated after v3 deployment with real testnet addresses.
 export const FEATURED_CREATORS: { address: string; label: string }[] = [
   { address: 'aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk', label: 'Prateek (VeilSub Creator)' },
+  // Demo creators — populate addresses after v5 testnet registration
+  // { address: '<demo_address_2>', label: 'Privacy Advocate' },
+  // { address: '<demo_address_3>', label: 'ZK Researcher' },
 ]

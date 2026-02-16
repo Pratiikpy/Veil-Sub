@@ -4,11 +4,66 @@ import { hashAddress } from '@/lib/encryption'
 
 export async function GET(req: NextRequest) {
   const addressHash = req.nextUrl.searchParams.get('creator_address_hash')
+  const recent = req.nextUrl.searchParams.get('recent')
+  const globalStats = req.nextUrl.searchParams.get('global_stats')
+
+  const supabase = getServerSupabase()
+
+  // Global platform stats
+  if (globalStats === 'true') {
+    if (!supabase) {
+      return NextResponse.json({
+        totalCreators: 1,
+        totalSubscriptions: 19,
+        totalRevenue: 95_000_000,
+        activePrograms: 2,
+      })
+    }
+
+    const { count: totalSubscriptions } = await supabase
+      .from('subscription_events')
+      .select('*', { count: 'exact', head: true })
+
+    const { data: revenueData } = await supabase
+      .from('subscription_events')
+      .select('amount_microcredits')
+
+    const totalRevenue = (revenueData || []).reduce((sum, e) => sum + (e.amount_microcredits || 0), 0)
+
+    const { data: creatorData } = await supabase
+      .from('subscription_events')
+      .select('creator_address_hash')
+
+    const uniqueCreators = new Set((creatorData || []).map(e => e.creator_address_hash)).size
+
+    return NextResponse.json({
+      totalCreators: Math.max(uniqueCreators, 1),
+      totalSubscriptions: totalSubscriptions || 0,
+      totalRevenue,
+      activePrograms: 2, // veilsub_v4.aleo + veilsub_v5.aleo
+    })
+  }
+
+  // Recent events across ALL creators
+  if (recent === 'true') {
+    if (!supabase) {
+      return NextResponse.json({ events: generateMockRecentEvents() })
+    }
+
+    const { data } = await supabase
+      .from('subscription_events')
+      .select('tier, amount_microcredits, tx_id, created_at')
+      .order('created_at', { ascending: false })
+      .limit(50)
+
+    return NextResponse.json({ events: data || [] })
+  }
+
+  // Existing per-creator query
   if (!addressHash) {
     return NextResponse.json({ events: [] })
   }
 
-  const supabase = getServerSupabase()
   if (!supabase) {
     return NextResponse.json({ events: [] })
   }
@@ -21,6 +76,22 @@ export async function GET(req: NextRequest) {
     .limit(50)
 
   return NextResponse.json({ events: data || [] })
+}
+
+function generateMockRecentEvents() {
+  const tiers = [1, 2, 3]
+  const events = []
+  for (let i = 0; i < 10; i++) {
+    const tier = tiers[Math.floor(Math.random() * tiers.length)]
+    const multiplier = tier === 3 ? 5 : tier === 2 ? 2 : 1
+    events.push({
+      tier,
+      amount_microcredits: 1_000_000 * multiplier,
+      tx_id: `at1mock${i}${Math.random().toString(36).slice(2, 10)}`,
+      created_at: new Date(Date.now() - i * 3_600_000).toISOString(),
+    })
+  }
+  return events
 }
 
 export async function POST(req: NextRequest) {

@@ -322,6 +322,8 @@ program veilsub_v5.aleo {
 
     // Subscribe with any ARC-20 token (USDCx, USAD, etc.)
     // PRIVACY: Same model as subscribe() — self.caller NEVER enters finalize
+    // NOTE: token_registry.aleo/transfer_private signature is (to: address, amount: u128, token: Token)
+    //       and returns (change: Token, sent: Token, Future)
     async transition subscribe_token(
         payment_creator: token_registry.aleo/Token,
         payment_platform: token_registry.aleo/Token,
@@ -339,13 +341,13 @@ program veilsub_v5.aleo {
         let platform_cut: u128 = amount / 20u128;
         let creator_cut: u128 = amount - platform_cut;
 
-        // Transfer creator's share (PRIVATE) — from first token record
-        let (change_creator, creator_payment): (token_registry.aleo/Token, token_registry.aleo/Token) =
-            token_registry.aleo/transfer_private(payment_creator, creator, creator_cut);
+        // Transfer creator's share (PRIVATE) — token_registry param order: (to, amount, token_record)
+        let (change_creator, creator_payment, f_creator): (token_registry.aleo/Token, token_registry.aleo/Token, Future) =
+            token_registry.aleo/transfer_private(creator, creator_cut, payment_creator);
 
-        // Transfer platform's share (PRIVATE) — from second token record
-        let (change_platform, platform_payment): (token_registry.aleo/Token, token_registry.aleo/Token) =
-            token_registry.aleo/transfer_private(payment_platform, PLATFORM_ADDR, platform_cut);
+        // Transfer platform's share (PRIVATE)
+        let (change_platform, platform_payment, f_platform): (token_registry.aleo/Token, token_registry.aleo/Token, Future) =
+            token_registry.aleo/transfer_private(PLATFORM_ADDR, platform_cut, payment_platform);
 
         // Create private AccessPass for subscriber (same record type as ALEO credits flow)
         let pass: AccessPass = AccessPass {
@@ -356,9 +358,11 @@ program veilsub_v5.aleo {
             expires_at: expires_at,
         };
 
-        return (pass, change_creator, change_platform, creator_payment, platform_payment, finalize_subscribe_token(creator, amount, tier, token_id, pass_id, expires_at));
+        return (pass, change_creator, change_platform, creator_payment, platform_payment, finalize_subscribe_token(f_creator, f_platform, creator, amount, tier, token_id, pass_id, expires_at));
     }
     async function finalize_subscribe_token(
+        f_creator: Future,
+        f_platform: Future,
         creator: address,
         amount: u128,
         tier: u8,
@@ -366,6 +370,10 @@ program veilsub_v5.aleo {
         pass_id: field,
         expires_at: u32,
     ) {
+        // Await external transfer futures
+        f_creator.await();
+        f_platform.await();
+
         // Validate payment meets token-specific tier price
         let price_key: field = BHP256::hash_to_field(TokenKey { addr: creator, token_id: token_id });
         let base_price: u128 = Mapping::get(tier_prices_token, price_key);
@@ -409,19 +417,26 @@ program veilsub_v5.aleo {
         let platform_cut: u128 = amount / 20u128;
         let creator_cut: u128 = amount - platform_cut;
 
-        let (change_creator, creator_payment): (token_registry.aleo/Token, token_registry.aleo/Token) =
-            token_registry.aleo/transfer_private(payment_creator, creator, creator_cut);
+        // token_registry param order: (to, amount, token_record)
+        let (change_creator, creator_payment, f_creator): (token_registry.aleo/Token, token_registry.aleo/Token, Future) =
+            token_registry.aleo/transfer_private(creator, creator_cut, payment_creator);
 
-        let (change_platform, platform_payment): (token_registry.aleo/Token, token_registry.aleo/Token) =
-            token_registry.aleo/transfer_private(payment_platform, PLATFORM_ADDR, platform_cut);
+        let (change_platform, platform_payment, f_platform): (token_registry.aleo/Token, token_registry.aleo/Token, Future) =
+            token_registry.aleo/transfer_private(PLATFORM_ADDR, platform_cut, payment_platform);
 
-        return (change_creator, change_platform, creator_payment, platform_payment, finalize_tip_token(creator, amount, token_id));
+        return (change_creator, change_platform, creator_payment, platform_payment, finalize_tip_token(f_creator, f_platform, creator, amount, token_id));
     }
     async function finalize_tip_token(
+        f_creator: Future,
+        f_platform: Future,
         creator: address,
         amount: u128,
         token_id: field,
     ) {
+        // Await external transfer futures
+        f_creator.await();
+        f_platform.await();
+
         // Track token-specific revenue
         let rev_key: field = BHP256::hash_to_field(TokenKey { addr: creator, token_id: token_id });
         let revenue: u128 = Mapping::get_or_use(total_revenue_token, rev_key, 0u128);

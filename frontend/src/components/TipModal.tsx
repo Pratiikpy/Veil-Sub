@@ -23,6 +23,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
   const { tip, getCreditsRecords, connected } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
   const [selectedAmount, setSelectedAmount] = useState(5)
+  const [customAmount, setCustomAmount] = useState('')
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
   const [txId, setTxId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -77,12 +78,20 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         return
       }
 
+      const tipAmount = parseFloat(customAmount) || selectedAmount
+      if (tipAmount < 0.1 || tipAmount > 1000) {
+        setError('Tip amount must be between 0.1 and 1000 ALEO.')
+        setTxStatus('idle')
+        submittingRef.current = false
+        return
+      }
+
       setTxStatus('proving')
       const id = await tip(
         records[0],
         records[1],
         creatorAddress,
-        creditsToMicrocredits(selectedAmount)
+        creditsToMicrocredits(tipAmount)
       )
 
       if (id) {
@@ -172,13 +181,13 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
             {txStatus === 'idle' ? (
               <>
-                <div className="grid grid-cols-4 gap-2 mb-6">
+                <div className="grid grid-cols-4 gap-2 mb-4">
                   {TIP_AMOUNTS.map((amount) => (
                     <button
                       key={amount}
-                      onClick={() => setSelectedAmount(amount)}
+                      onClick={() => { setSelectedAmount(amount); setCustomAmount('') }}
                       className={`py-3 rounded-xl text-sm font-medium transition-all ${
-                        selectedAmount === amount
+                        selectedAmount === amount && !customAmount
                           ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300'
                           : 'bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10'
                       }`}
@@ -187,8 +196,24 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                     </button>
                   ))}
                 </div>
+                <div className="relative mb-4">
+                  <input
+                    type="number"
+                    value={customAmount}
+                    onChange={(e) => {
+                      setCustomAmount(e.target.value)
+                      if (e.target.value) setSelectedAmount(0)
+                    }}
+                    placeholder="Custom amount"
+                    min="0.1"
+                    max="1000"
+                    step="0.1"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm pr-16"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-500">ALEO</span>
+                </div>
                 <p className="text-center text-sm text-slate-400 mb-4">
-                  {selectedAmount} ALEO credits
+                  {customAmount ? `${customAmount} ALEO credits` : `${selectedAmount} ALEO credits`}
                 </p>
 
                 {error && (

@@ -16,6 +16,16 @@ The AccessPass record is a composable primitive:
 
 Any Aleo dApp can verify AccessPass ownership via `verify_access` — a zero-footprint transition with no finalize, no public state change, and no on-chain evidence.
 
+## What Makes VeilSub Unique
+
+| Differentiator | Details |
+|----------------|---------|
+| **Zero-Footprint Access Verification** | `verify_access` has NO finalize — when proving access, zero public state changes occur. No mapping writes, no counters, no on-chain evidence. No other Aleo project has this. |
+| **Subscriber Never in Finalize** | `self.caller` (subscriber) is NEVER passed to any finalize function. Identity has no code path to public state. |
+| **Server-Gated Content** | Content body is server-protected with wallet authentication + AccessPass verification. Not visible in browser network tab. |
+| **AES-256-GCM Off-Chain Encryption** | All off-chain data (creator profiles, analytics) stored with AES-256-GCM encryption. Zero plaintext Aleo addresses in the database. |
+| **API Proxy Privacy** | All mapping reads go through Next.js rewrites, preventing browser-to-Provable IP correlation. |
+
 ## The Problem
 
 Every major subscription platform — Patreon, Ko-fi, YouTube Memberships — exposes who supports whom. Subscriber lists are public. Transaction history is permanent. Fans face social risk for what they support.
@@ -167,9 +177,9 @@ We document what an adversary *could* learn, because honest threat modeling demo
 
 ## Smart Contract
 
-**Deployed Program:** `veilsub_v4.aleo` (live on testnet — [view on explorer](https://explorer.provable.com/testnet/program/veilsub_v4.aleo))
+**Deployed Program:** `veilsub_v5.aleo` (v5 multi-token — [view on explorer](https://explorer.provable.com/testnet/program/veilsub_v5.aleo))
 
-**v5 Program:** `veilsub_v5.aleo` (code complete, pending testnet deployment)
+**Previous Version:** `veilsub_v4.aleo` (live on testnet — [view on explorer](https://explorer.provable.com/testnet/program/veilsub_v4.aleo))
 
 **Imports:** `credits.aleo`, `token_registry.aleo` (v5)
 
@@ -240,7 +250,7 @@ mapping platform_revenue_token: field => u128;   // hash(token_id, 0field) => pl
 | Frontend | [https://veilsub.vercel.app](https://veilsub.vercel.app) |
 | Contract (v4 — live) on Explorer | [explorer.provable.com/testnet/program/veilsub_v4.aleo](https://explorer.provable.com/testnet/program/veilsub_v4.aleo) |
 | Contract (v4) on Aleoscan | [testnet.aleoscan.io/program?id=veilsub_v4.aleo](https://testnet.aleoscan.io/program?id=veilsub_v4.aleo) |
-| Contract v5 | Pending testnet deployment (code in `contracts/veilsub/src/main.leo`) |
+| Contract v5 on Explorer | [explorer.provable.com/testnet/program/veilsub_v5.aleo](https://explorer.provable.com/testnet/program/veilsub_v5.aleo) |
 | Video Demo | _(link to be added before submission)_ |
 | GitHub Repository | [github.com/Pratiikpy/Veil-Sub](https://github.com/Pratiikpy/Veil-Sub) |
 
@@ -255,6 +265,10 @@ mapping platform_revenue_token: field => u128;   // hash(token_id, 0field) => pl
 | v4 tip | `at1za9p384s07f2rh2r6sdyua0j3lanjgsfyxmdg5qhcpfz6unr6gyschd5ku` | [View](https://explorer.provable.com/testnet/transaction/at1za9p384s07f2rh2r6sdyua0j3lanjgsfyxmdg5qhcpfz6unr6gyschd5ku) |
 | v4 renew | `at1d485afvx6440fr4c4yyq6a8unwgaaaxlgsc6z0xuu846qatx0y9s88tadt` | [View](https://explorer.provable.com/testnet/transaction/at1d485afvx6440fr4c4yyq6a8unwgaaaxlgsc6z0xuu846qatx0y9s88tadt) |
 | v4 publish_content | `at1kz9aedwvm4hkpg054vxxdw5sxj79r9tw7mek4y96k8ykwwjpxcgq8k6r9s` | [View](https://explorer.provable.com/testnet/transaction/at1kz9aedwvm4hkpg054vxxdw5sxj79r9tw7mek4y96k8ykwwjpxcgq8k6r9s) |
+| **v5 Deployment** | `at1gv50luj8gyrvgh00ur5zczalsr7u78qwq6xs5w3uxyscmd0y3cqqtud9kp` | [View](https://explorer.provable.com/testnet/transaction/at1gv50luj8gyrvgh00ur5zczalsr7u78qwq6xs5w3uxyscmd0y3cqqtud9kp) |
+| v5 register_creator | `at14ga9mnven3ps90s95adp5tl5nanxqeu97f2jd78dld2rsppymqrqr32l0g` | [View](https://explorer.provable.com/testnet/transaction/at14ga9mnven3ps90s95adp5tl5nanxqeu97f2jd78dld2rsppymqrqr32l0g) |
+| v5 publish_content | `at1htp8d9syshs4ka7aw3u2d29rqw6kt0yxyw5apf4x23nzxyewrqxq725um7` | [View](https://explorer.provable.com/testnet/transaction/at1htp8d9syshs4ka7aw3u2d29rqw6kt0yxyw5apf4x23nzxyewrqxq725um7) |
+| v5 set_token_price | `at1ckdnk7z8w05gs5s3yav2kh25rnr5shq2f8q7up6tfdqtta98rc9sa9zj00` | [View](https://explorer.provable.com/testnet/transaction/at1ckdnk7z8w05gs5s3yav2kh25rnr5shq2f8q7up6tfdqtta98rc9sa9zj00) |
 
 ## How to Test
 
@@ -312,7 +326,8 @@ frontend/ (Next.js App Router)
 │   ├── creator/[address]/page.tsx      ← Subscribe + tip + renew + server-gated content feed
 │   ├── privacy/page.tsx                ← Privacy architecture docs (incl. multi-token privacy)
 │   ├── docs/page.tsx                   ← Technical documentation (9 transitions, 10 mappings)
-│   ├── explorer/page.tsx               ← On-chain explorer with activity sparklines
+│   ├── explorer/page.tsx               ← On-chain explorer with global stats, activity chart, events table
+│   ├── vision/page.tsx                ← Vision & use cases (6 cards + roadmap)
 │   ├── verify/page.tsx                 ← Access verification
 │   └── api/
 │       ├── posts/route.ts              ← Content API (server-gated body redaction)
@@ -340,8 +355,21 @@ frontend/ (Next.js App Router)
     └── utils.ts                        ← Helpers (passId generation, formatting)
 
 contracts/veilsub/ (Leo Program)
-└── src/main.leo                        ← 1 record, 1 struct, 10 mappings, 9 transitions, 2 imports, BHP256 hashing
+├── src/main.leo                        ← 1 record, 1 struct, 10 mappings, 9 transitions, 2 imports, BHP256 hashing
+└── tests/test_veilsub.leo              ← Unit tests: tier multipliers, fee splits, hash consistency, expiry bounds
 ```
+
+## Privacy Comparison
+
+| Feature | Patreon/Substack | Payment Protocol | VeilSub |
+|---------|-----------------|------------------|---------|
+| Subscriber identity | Public | In receipt records | Never on-chain |
+| Access check evidence | Logged server-side | N/A | Zero footprint |
+| Content delivery | Server-only | N/A | ZK + server hybrid |
+| Payment privacy | None (bank-linked) | Private transfers | Private transfers |
+| Off-chain storage | Plaintext DB | Encrypted DB | AES-256-GCM encrypted |
+| Multi-token support | Card/bank only | Token-specific | Any ARC-20 token |
+| Censorship resistance | Platform-controlled | On-chain | On-chain + immutable |
 
 ## Use Cases
 
@@ -368,7 +396,8 @@ contracts/veilsub/ (Leo Program)
 - [x] Wave 2→3: Persistent content backend (Upstash Redis), featured creators, loading skeletons
 - [x] Wave 2 (v4): BHP256 hashing, real PLATFORM_ADDR, encrypted Supabase backend, dual wallet, COOP/COEP headers
 - [x] Wave 2 (v5): Multi-token support via token_registry.aleo (9 transitions, 10 mappings), server-gated content, analytics dashboard, QR scanning
-- [ ] Wave 3: v5 testnet deployment, video demo, Vercel deploy
+- [x] Wave 2 (enhanced): Explorer dashboard, Vision page, zero-footprint hero, flexible tipping, Leo tests, privacy comparison
+- [x] Wave 2 (v5 deployed): v5 testnet deployment with 4 verified on-chain transactions
 - [ ] Wave 4: Batch subscription support, creator discovery marketplace
 - [ ] Wave 5+: Mainnet deployment, SDK for third-party integration
 
@@ -392,7 +421,40 @@ contracts/veilsub/ (Leo Program)
 
 > VeilSub is a **new project entering in Wave 2** — no prior Wave 1 submission.
 
-### Wave 2 — v5 Strategic Upgrade (Current)
+### Wave 2 — Enhanced Explorer, Vision, Privacy (Current)
+
+**Explorer Dashboard**:
+- Global platform stats banner: Total Creators, Total Subscriptions, Platform Revenue, Active Programs with animated counters
+- Activity chart integration: 30-day subscription activity visualization for searched creators
+- Recent events table: paginated, filterable (All/Subscriptions/Tips), with tier badges, copy-to-clipboard tx IDs, explorer verify links
+- Loading shimmer skeletons for all async data
+
+**Vision & Roadmap Page**:
+- New `/vision` page with 6 use-case cards: Anonymous Journalism, Private Creator Monetization, Research Access, DAO Membership, Event Ticketing, Developer SDK
+- Composable privacy primitive section with code snippet
+- Platform stats (9 transitions, 10 mappings, 0 identity leaks)
+- Roadmap timeline from Wave 2 to Mainnet
+
+**Privacy Page Enhancements**:
+- Zero-footprint hero callout with gradient violet→green border, code snippet, 4 bullet points
+- "Unique to VeilSub" badge highlighting verify_access as a differentiator
+- Extended Privacy Comparison table: VeilSub vs Patreon/Substack vs Payment Protocols (7 dimensions)
+
+**Flexible Tipping**:
+- Custom amount input field in TipModal with ALEO suffix
+- Validation: 0.1-1000 ALEO range
+- Preset buttons + custom amount coexist (selecting one clears the other)
+
+**v5 Token Transitions Wired**:
+- `setTokenPrice`, `subscribeToken`, `tipToken`, `getTokenRecords` added to `useVeilSub` hook
+- WalletProvider now requests programs for `credits.aleo`, `veilsub_v5.aleo`, and `token_registry.aleo`
+- TOKEN_FEES config for token-based transitions
+
+**Leo Tests**:
+- New `contracts/veilsub/tests/test_veilsub.leo` with 5 test transitions
+- Tests: tier multipliers (1x/2x/5x), fee splits (5%/95%), BHP256 hash consistency, expiry bounds, token fee split (u128)
+
+### Wave 2 — v5 Strategic Upgrade
 
 **Smart Contract v5** (`veilsub_v5.aleo`):
 - **Multi-token support**: Added `token_registry.aleo` import — any ARC-20 token (USDCx, USAD, future tokens) now supported

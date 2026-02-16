@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import {
   Search,
@@ -12,6 +12,12 @@ import {
   ArrowRight,
   Shield,
   TrendingUp,
+  Activity,
+  Copy,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  BarChart3,
 } from 'lucide-react'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { formatCredits, isValidAleoAddress, shortenAddress } from '@/lib/utils'
@@ -19,7 +25,23 @@ import { useCyclingPlaceholder } from '@/hooks/useCyclingPlaceholder'
 import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
 import OnChainVerify from '@/components/OnChainVerify'
+import AnimatedCounter from '@/components/AnimatedCounter'
+import ActivityChart from '@/components/ActivityChart'
 import type { CreatorProfile } from '@/types'
+
+interface GlobalStats {
+  totalCreators: number
+  totalSubscriptions: number
+  totalRevenue: number
+  activePrograms: number
+}
+
+interface RecentEvent {
+  tier: number
+  amount_microcredits: number
+  tx_id: string | null
+  created_at: string
+}
 
 function MiniSparkline({ data }: { data: number[] }) {
   if (!data.length) return null
@@ -40,12 +62,31 @@ function MiniSparkline({ data }: { data: number[] }) {
   )
 }
 
+const TIER_LABELS: Record<number, { name: string; color: string }> = {
+  1: { name: 'Supporter', color: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
+  2: { name: 'Premium', color: 'bg-violet-500/20 text-violet-300 border-violet-500/30' },
+  3: { name: 'VIP', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
+}
+
 const SEARCH_PLACEHOLDERS = [
   'Enter creator\'s Aleo address (aleo1...)',
   'Search by aleo1 address...',
   'Paste a creator address to look up stats...',
   'Lookup on-chain subscription data...',
 ]
+
+const EVENTS_PER_PAGE = 10
+
+function timeAgo(dateStr: string): string {
+  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
+  if (seconds < 60) return `${seconds}s ago`
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  return `${days}d ago`
+}
 
 export default function ExplorerPage() {
   const { fetchCreatorStats, loading } = useCreatorStats()
@@ -55,6 +96,36 @@ export default function ExplorerPage() {
   const [error, setError] = useState<string | null>(null)
   const [sparkData, setSparkData] = useState<number[]>([])
   const { placeholder, isAnimating } = useCyclingPlaceholder(SEARCH_PLACEHOLDERS)
+
+  // Global stats
+  const [globalStats, setGlobalStats] = useState<GlobalStats | null>(null)
+
+  // Recent events
+  const [events, setEvents] = useState<RecentEvent[]>([])
+  const [eventsLoading, setEventsLoading] = useState(true)
+  const [eventsPage, setEventsPage] = useState(0)
+  const [eventFilter, setEventFilter] = useState<'all' | 'subscriptions' | 'tips'>('all')
+  const [copiedTxId, setCopiedTxId] = useState<string | null>(null)
+
+  // Fetch global stats
+  useEffect(() => {
+    fetch('/api/analytics?global_stats=true')
+      .then((r) => r.json())
+      .then(setGlobalStats)
+      .catch(() => setGlobalStats({ totalCreators: 1, totalSubscriptions: 0, totalRevenue: 0, activePrograms: 2 }))
+  }, [])
+
+  // Fetch recent events
+  useEffect(() => {
+    setEventsLoading(true)
+    fetch('/api/analytics?recent=true')
+      .then((r) => r.json())
+      .then((json) => {
+        setEvents(json.events || [])
+        setEventsLoading(false)
+      })
+      .catch(() => setEventsLoading(false))
+  }, [])
 
   // Fetch sparkline data when a creator is found
   useEffect(() => {
@@ -98,12 +169,30 @@ export default function ExplorerPage() {
     }
   }
 
+  const copyTxId = useCallback((txId: string) => {
+    navigator.clipboard.writeText(txId)
+    setCopiedTxId(txId)
+    setTimeout(() => setCopiedTxId(null), 2000)
+  }, [])
+
+  const filteredEvents = events.filter((e) => {
+    if (eventFilter === 'all') return true
+    if (eventFilter === 'tips') return e.tier === 0 || e.amount_microcredits < 500_000
+    return e.tier >= 1 && e.tier <= 3
+  })
+
+  const totalPages = Math.ceil(filteredEvents.length / EVENTS_PER_PAGE)
+  const paginatedEvents = filteredEvents.slice(
+    eventsPage * EVENTS_PER_PAGE,
+    (eventsPage + 1) * EVENTS_PER_PAGE
+  )
+
   const isRegistered = result?.tierPrice !== null && result?.tierPrice !== undefined
 
   return (
     <PageTransition>
       <div className="min-h-screen">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -116,6 +205,53 @@ export default function ExplorerPage() {
               Only aggregate data is visible — subscriber identities are always private.
             </p>
           </motion.div>
+
+          {/* Global Platform Stats */}
+          {globalStats && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10"
+            >
+              <GlassCard delay={0}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="w-4 h-4 text-violet-400" />
+                  <span className="text-xs text-slate-400">Total Creators</span>
+                </div>
+                <p className="text-2xl font-bold text-white">
+                  <AnimatedCounter target={globalStats.totalCreators} />
+                </p>
+              </GlassCard>
+              <GlassCard delay={0.05}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Activity className="w-4 h-4 text-green-400" />
+                  <span className="text-xs text-slate-400">Total Subscriptions</span>
+                </div>
+                <p className="text-2xl font-bold text-white">
+                  <AnimatedCounter target={globalStats.totalSubscriptions} />
+                </p>
+              </GlassCard>
+              <GlassCard delay={0.1}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Coins className="w-4 h-4 text-amber-400" />
+                  <span className="text-xs text-slate-400">Platform Revenue</span>
+                </div>
+                <p className="text-2xl font-bold text-white">
+                  {formatCredits(globalStats.totalRevenue)} <span className="text-sm text-slate-400">ALEO</span>
+                </p>
+              </GlassCard>
+              <GlassCard delay={0.15}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Shield className="w-4 h-4 text-blue-400" />
+                  <span className="text-xs text-slate-400">Active Programs</span>
+                </div>
+                <p className="text-2xl font-bold text-white">
+                  <AnimatedCounter target={globalStats.activePrograms} />
+                </p>
+              </GlassCard>
+            </motion.div>
+          )}
 
           {/* Search Box */}
           <motion.div
@@ -166,12 +302,12 @@ export default function ExplorerPage() {
             </motion.div>
           )}
 
-          {/* Results */}
+          {/* Search Results */}
           {searched && result && !error && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="space-y-6"
+              className="space-y-6 mb-12"
             >
               {/* Creator Header */}
               <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
@@ -279,6 +415,9 @@ export default function ExplorerPage() {
                     </GlassCard>
                   </div>
 
+                  {/* Activity Chart for searched creator */}
+                  <ActivityChart creatorAddress={result.address} />
+
                   {/* Data Source */}
                   <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/10 text-xs text-slate-400">
                     <p>
@@ -306,8 +445,8 @@ export default function ExplorerPage() {
             </motion.div>
           )}
 
-          {/* Info */}
-          {!searched && (
+          {/* Info (no search) */}
+          {!searched && !globalStats && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -323,6 +462,162 @@ export default function ExplorerPage() {
               </p>
             </motion.div>
           )}
+
+          {/* Recent Events Table */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mt-8"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-violet-400" />
+                <h2 className="text-lg font-semibold text-white">Recent Activity</h2>
+              </div>
+              <div className="flex gap-1">
+                {(['all', 'subscriptions', 'tips'] as const).map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => { setEventFilter(filter); setEventsPage(0) }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      eventFilter === filter
+                        ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300'
+                        : 'bg-white/5 border border-white/10 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-white/[0.02] border border-white/[0.06] overflow-hidden">
+              {/* Table Header */}
+              <div className="grid grid-cols-[1fr_auto_auto_1.5fr_auto] gap-4 px-4 py-3 border-b border-white/[0.06] text-xs text-slate-500 font-medium">
+                <span>Time</span>
+                <span>Tier</span>
+                <span>Amount</span>
+                <span>Transaction ID</span>
+                <span>Verify</span>
+              </div>
+
+              {/* Loading State */}
+              {eventsLoading ? (
+                <div className="space-y-0">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="grid grid-cols-[1fr_auto_auto_1.5fr_auto] gap-4 px-4 py-3 border-b border-white/[0.04]">
+                      <div className="h-4 bg-white/[0.04] rounded animate-pulse w-16" />
+                      <div className="h-4 bg-white/[0.04] rounded animate-pulse w-16" />
+                      <div className="h-4 bg-white/[0.04] rounded animate-pulse w-12" />
+                      <div className="h-4 bg-white/[0.04] rounded animate-pulse w-32" />
+                      <div className="h-4 bg-white/[0.04] rounded animate-pulse w-12" />
+                    </div>
+                  ))}
+                </div>
+              ) : paginatedEvents.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-sm text-slate-500">No events found</p>
+                </div>
+              ) : (
+                <div>
+                  {paginatedEvents.map((event, i) => {
+                    const tier = TIER_LABELS[event.tier] || { name: 'Tip', color: 'bg-pink-500/20 text-pink-300 border-pink-500/30' }
+                    const txShort = event.tx_id ? `${event.tx_id.slice(0, 12)}...${event.tx_id.slice(-6)}` : '—'
+
+                    return (
+                      <div
+                        key={`${event.tx_id || i}-${i}`}
+                        className="grid grid-cols-[1fr_auto_auto_1.5fr_auto] gap-4 px-4 py-3 border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors items-center"
+                      >
+                        <span className="text-xs text-slate-400">{timeAgo(event.created_at)}</span>
+                        <span className={`px-2 py-0.5 rounded-md text-xs font-medium border ${tier.color}`}>
+                          {tier.name}
+                        </span>
+                        <span className="text-xs text-white font-medium">
+                          {formatCredits(event.amount_microcredits)}
+                        </span>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <code className="text-xs text-slate-400 font-mono truncate">{txShort}</code>
+                          {event.tx_id && (
+                            <>
+                              <button
+                                onClick={() => copyTxId(event.tx_id!)}
+                                className="shrink-0 p-1 rounded hover:bg-white/10 text-slate-500 hover:text-white transition-colors"
+                                aria-label="Copy transaction ID"
+                              >
+                                {copiedTxId === event.tx_id ? (
+                                  <Check className="w-3 h-3 text-green-400" />
+                                ) : (
+                                  <Copy className="w-3 h-3" />
+                                )}
+                              </button>
+                              <a
+                                href={`https://explorer.provable.com/testnet/transaction/${event.tx_id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="shrink-0 p-1 rounded hover:bg-white/10 text-slate-500 hover:text-white transition-colors"
+                                aria-label="View on explorer"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            </>
+                          )}
+                        </div>
+                        <a
+                          href={event.tx_id ? `https://explorer.provable.com/testnet/transaction/${event.tx_id}` : '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`px-2 py-1 rounded-md text-xs font-medium transition-all ${
+                            event.tx_id
+                              ? 'bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20'
+                              : 'bg-white/5 border border-white/10 text-slate-500 cursor-default'
+                          }`}
+                        >
+                          Verify
+                        </a>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between px-4 py-3 border-t border-white/[0.06]">
+                  <button
+                    onClick={() => setEventsPage(Math.max(0, eventsPage - 1))}
+                    disabled={eventsPage === 0}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 border border-white/10 text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    <ChevronLeft className="w-3 h-3" /> Prev
+                  </button>
+                  <div className="flex gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setEventsPage(i)}
+                        className={`w-7 h-7 rounded-lg text-xs font-medium transition-all ${
+                          eventsPage === i
+                            ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300'
+                            : 'bg-white/5 border border-white/10 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setEventsPage(Math.min(totalPages - 1, eventsPage + 1))}
+                    disabled={eventsPage >= totalPages - 1}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 border border-white/10 text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    Next <ChevronRight className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </motion.div>
         </div>
       </div>
     </PageTransition>

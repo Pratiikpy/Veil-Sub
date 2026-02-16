@@ -103,7 +103,7 @@ export function useTransactionPoller() {
         if (aborted.current) return
 
         if (attempts >= maxAttempts) {
-          onStatus({ status: 'failed', strategy: 'fallback' })
+          onStatus({ status: 'pending', strategy: 'fallback' })
           return
         }
 
