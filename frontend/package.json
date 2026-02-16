@@ -13,6 +13,7 @@
     "@provablehq/aleo-wallet-adaptor-leo": "^0.3.0-alpha.3",
     "@provablehq/aleo-wallet-adaptor-react": "^0.3.0-alpha.3",
     "@provablehq/aleo-wallet-adaptor-react-ui": "^0.3.0-alpha.3",
+    "@provablehq/aleo-wallet-adaptor-shield": "^0.3.0-alpha.3",
     "@supabase/supabase-js": "^2.95.3",
     "@upstash/redis": "^1.36.2",
     "@yudiel/react-qr-scanner": "^2.5.1",

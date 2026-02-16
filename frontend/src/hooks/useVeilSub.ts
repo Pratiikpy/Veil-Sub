@@ -215,17 +215,23 @@ export function useVeilSub() {
     [execute]
   )
 
-  // New API: requestRecords(program, includePlaintext?) replaces requestRecordPlaintexts
+  // Extract plaintext from a record object (handles both string and object shapes)
+  const getPlaintext = (r: unknown): string => {
+    if (typeof r === 'string') return r
+    if (r && typeof r === 'object') {
+      // Skip spent records
+      if ('spent' in r && (r as { spent: boolean }).spent) return ''
+      if ('plaintext' in r) return (r as { plaintext: string }).plaintext
+    }
+    return ''
+  }
+
+  // NullPay pattern: requestRecords(program, false) fetches all records, then filter manually
   const getTokenRecords = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      const records = await requestRecords('token_registry.aleo', true)
-      const plaintexts = records.map((r: unknown) => {
-        if (typeof r === 'string') return r
-        if (r && typeof r === 'object' && 'plaintext' in r)
-          return (r as { plaintext: string }).plaintext
-        return ''
-      }).filter(Boolean)
+      const records = await requestRecords('token_registry.aleo', false)
+      const plaintexts = records.map(getPlaintext).filter(Boolean)
 
       const parseAmount = (plaintext: string): number => {
         const match = plaintext.match(/amount\s*:\s*(\d+)u128/)
@@ -244,13 +250,8 @@ export function useVeilSub() {
   const getCreditsRecords = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      const records = await requestRecords('credits.aleo', true)
-      const plaintexts = records.map((r: unknown) => {
-        if (typeof r === 'string') return r
-        if (r && typeof r === 'object' && 'plaintext' in r)
-          return (r as { plaintext: string }).plaintext
-        return ''
-      }).filter(Boolean)
+      const records = await requestRecords('credits.aleo', false)
+      const plaintexts = records.map(getPlaintext).filter(Boolean)
 
       const parseMicrocredits = (plaintext: string): number => {
         const match = plaintext.match(/microcredits\s*:\s*(\d+)u64/)
@@ -269,13 +270,8 @@ export function useVeilSub() {
   const getAccessPasses = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      const records = await requestRecords(PROGRAM_ID, true)
-      return records.map((r: unknown) => {
-        if (typeof r === 'string') return r
-        if (r && typeof r === 'object' && 'plaintext' in r)
-          return (r as { plaintext: string }).plaintext
-        return ''
-      }).filter(Boolean)
+      const records = await requestRecords(PROGRAM_ID, false)
+      return records.map(getPlaintext).filter(Boolean)
     } catch (err) {
       console.error('[VeilSub] Failed to fetch access passes:', err)
       return []
