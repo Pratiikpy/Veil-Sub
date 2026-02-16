@@ -18,7 +18,7 @@ Any Aleo dApp can verify AccessPass ownership via `verify_access` — a zero-foo
 
 ## What Makes VeilSub Unique
 
-| Differentiator | Details |
+| Differentiator | Details | 
 |----------------|---------|
 | **Zero-Footprint Access Verification** | `verify_access` has NO finalize — when proving access, zero public state changes occur. No mapping writes, no counters, no on-chain evidence. No other Aleo project has this. |
 | **Subscriber Never in Finalize** | `self.caller` (subscriber) is NEVER passed to any finalize function. Identity has no code path to public state. |
