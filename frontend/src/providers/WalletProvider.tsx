@@ -5,7 +5,7 @@ import { AleoWalletProvider } from '@provablehq/aleo-wallet-adaptor-react'
 import { WalletModalProvider } from '@provablehq/aleo-wallet-adaptor-react-ui'
 import { DecryptPermission } from '@provablehq/aleo-wallet-adaptor-core'
 import { Network } from '@provablehq/aleo-types'
-import { LeoWalletAdapter } from '@provablehq/aleo-wallet-adaptor-leo'
+import { PatchedLeoWalletAdapter } from '@/lib/PatchedLeoWalletAdapter'
 import '@provablehq/aleo-wallet-adaptor-react-ui/dist/styles.css'
 import { APP_NAME, PROGRAM_ID } from '@/lib/config'
 
@@ -16,7 +16,7 @@ interface Props {
 export const WalletProvider: FC<Props> = ({ children }) => {
   const wallets = useMemo(
     () => [
-      new LeoWalletAdapter({ appName: APP_NAME }),
+      new PatchedLeoWalletAdapter({ appName: APP_NAME }),
     ],
     []
   )
