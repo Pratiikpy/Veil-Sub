@@ -9,7 +9,7 @@ import {
 } from '@demox-labs/aleo-wallet-adapter-base'
 import { LeoWalletAdapter, FoxWalletAdapter } from 'aleo-adapters'
 import '@demox-labs/aleo-wallet-adapter-reactui/styles.css'
-import { APP_NAME, PROGRAM_ID } from '@/lib/config'
+import { APP_NAME } from '@/lib/config'
 
 interface Props {
   children: ReactNode
@@ -29,7 +29,7 @@ export const WalletProvider: FC<Props> = ({ children }) => {
       wallets={wallets}
       network={WalletAdapterNetwork.Testnet}
       decryptPermission={DecryptPermission.UponRequest}
-      programs={['credits.aleo', PROGRAM_ID]}
+      programs={['credits.aleo']}
       autoConnect={false}
     >
       <WalletModalProvider>{children}</WalletModalProvider>
