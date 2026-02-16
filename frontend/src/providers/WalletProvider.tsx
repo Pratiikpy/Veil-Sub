@@ -6,7 +6,6 @@ import { WalletModalProvider } from '@provablehq/aleo-wallet-adaptor-react-ui'
 import { DecryptPermission } from '@provablehq/aleo-wallet-adaptor-core'
 import { Network } from '@provablehq/aleo-types'
 import { ShieldWalletAdapter } from '@provablehq/aleo-wallet-adaptor-shield'
-import { LeoWalletAdapter } from '@provablehq/aleo-wallet-adaptor-leo'
 import '@provablehq/aleo-wallet-adaptor-react-ui/dist/styles.css'
 import { APP_NAME, PROGRAM_ID } from '@/lib/config'
 
@@ -17,7 +16,6 @@ interface Props {
 export const WalletProvider: FC<Props> = ({ children }) => {
   const wallets = useMemo(
     () => [
-      new LeoWalletAdapter({ appName: APP_NAME }),
       new ShieldWalletAdapter({ appName: APP_NAME }),
     ],
     []
@@ -26,10 +24,10 @@ export const WalletProvider: FC<Props> = ({ children }) => {
   return (
     <AleoWalletProvider
       wallets={wallets}
-      network={Network.TESTNET}
       decryptPermission={DecryptPermission.AutoDecrypt}
-      programs={[PROGRAM_ID, 'credits.aleo']}
+      network={Network.TESTNET}
       autoConnect
+      programs={[PROGRAM_ID, 'credits.aleo']}
     >
       <WalletModalProvider>{children}</WalletModalProvider>
     </AleoWalletProvider>
