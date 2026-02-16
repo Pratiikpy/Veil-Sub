@@ -27,7 +27,7 @@ export default function RenewModal({
   pass,
   basePrice,
 }: Props) {
-  const { renew, getCreditsRecords, connected } = useVeilSub()
+  const { renew, getCreditsRecords, splitCredits, pollTxStatus: pollTx, connected } = useVeilSub()
   const { blockHeight } = useBlockHeight()
   const { startPolling, stopPolling } = useTransactionPoller()
   const [selectedTier, setSelectedTier] = useState<SubscriptionTier>(
@@ -37,6 +37,7 @@ export default function RenewModal({
   const [txId, setTxId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [insufficientBalance, setInsufficientBalance] = useState(false)
+  const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const submittingRef = useRef(false)
   const txStatusRef = useRef(txStatus)
   txStatusRef.current = txStatus
@@ -70,6 +71,11 @@ export default function RenewModal({
   const blocksRemaining = blockHeight !== null ? Math.max(0, pass.expiresAt - blockHeight) : null
   const daysRemaining = blocksRemaining !== null ? Math.round((blocksRemaining * 3) / 86400) : null
 
+  const parseMicrocredits = (plaintext: string): number => {
+    const m = plaintext.match(/microcredits\s*:\s*(\d+)u64/)
+    return m ? parseInt(m[1], 10) : 0
+  }
+
   const handleRenew = async () => {
     if (submittingRef.current) return
     if (!connected) {
@@ -83,6 +89,7 @@ export default function RenewModal({
 
     submittingRef.current = true
     setError(null)
+    setStatusMessage(null)
     setTxStatus('signing')
 
     try {
@@ -97,8 +104,7 @@ export default function RenewModal({
         return
       }
 
-      const match = records[0].match(/microcredits\s*:\s*(\d+)u64/)
-      const available = match ? parseInt(match[1], 10) : 0
+      const available = parseMicrocredits(records[0])
       if (available < totalPrice) {
         setInsufficientBalance(true)
         setError(`Insufficient private balance. You have ${formatCredits(available)} ALEO but need ${formatCredits(totalPrice)} ALEO.`)
@@ -107,14 +113,58 @@ export default function RenewModal({
         return
       }
 
+      let rec1 = records[0]
+      let rec2 = records.length >= 2 ? records[1] : null
+
+      // Auto-split: if only 1 record, split it via credits.aleo/split
+      if (!rec2) {
+        setStatusMessage('Splitting credit record (1 of 2)...')
+        const splitAmount = Math.ceil(totalPrice * 0.96)
+        const splitTxId = await splitCredits(records[0], splitAmount)
+        if (!splitTxId) {
+          setTxStatus('failed')
+          setError('Record split was rejected by wallet.')
+          submittingRef.current = false
+          return
+        }
+
+        setStatusMessage('Waiting for split to confirm...')
+        await new Promise<void>((resolve, reject) => {
+          let attempts = 0
+          const poll = setInterval(async () => {
+            attempts++
+            try {
+              const status = await pollTx(splitTxId)
+              if (status === 'Finalized' || status === 'confirmed') { clearInterval(poll); resolve() }
+              else if (status === 'Rejected' || status === 'failed') { clearInterval(poll); reject(new Error('Split failed')) }
+            } catch { /* continue */ }
+            if (attempts > 60) { clearInterval(poll); reject(new Error('Split timed out.')) }
+          }, 1000)
+        })
+
+        setStatusMessage('Fetching updated records...')
+        await new Promise(r => setTimeout(r, 2000))
+        const newRecords = await getCreditsRecords()
+        const deduped = newRecords.filter(r => { const s = new Set<string>(); return !s.has(r) && s.add(r) })
+        if (deduped.length < 2) {
+          setTxStatus('failed')
+          setError('Split completed but records not yet synced. Please try again in a few seconds.')
+          submittingRef.current = false
+          return
+        }
+        rec1 = deduped[0]
+        rec2 = deduped[1]
+      }
+
       const newPassId = generatePassId()
       const newExpiresAt = blockHeight + SUBSCRIPTION_DURATION_BLOCKS
 
+      setStatusMessage(null)
       setTxStatus('proving')
-      // v6: Single record — contract chains transfers internally
       const id = await renew(
         pass.rawPlaintext,
-        records[0],
+        rec1,
+        rec2,
         selectedTier.id,
         totalPrice,
         newPassId,
@@ -153,6 +203,7 @@ export default function RenewModal({
     setTxId(null)
     setError(null)
     setInsufficientBalance(false)
+    setStatusMessage(null)
     submittingRef.current = false
     onClose()
   }
@@ -305,6 +356,11 @@ export default function RenewModal({
               </>
             ) : (
               <div className="py-2">
+                {statusMessage && (
+                  <div className="mb-3 p-3 rounded-lg bg-violet-500/10 border border-violet-500/20">
+                    <p className="text-xs text-violet-300 animate-pulse">{statusMessage}</p>
+                  </div>
+                )}
                 <TransactionStatus status={txStatus} txId={txId} />
                 {txStatus === 'confirmed' && (
                   <motion.div
@@ -328,7 +384,7 @@ export default function RenewModal({
                   <div className="mt-4 text-center">
                     {error && <p className="text-xs text-red-400 mb-3">{error}</p>}
                     <button
-                      onClick={() => { setTxStatus('idle'); setError(null) }}
+                      onClick={() => { setTxStatus('idle'); setError(null); setStatusMessage(null) }}
                       className="px-6 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors"
                     >
                       Try Again

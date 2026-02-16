@@ -18,14 +18,15 @@ export function useVeilSub() {
     async (
       functionName: string,
       inputs: string[],
-      fee: number
+      fee: number,
+      program?: string
     ): Promise<string | null> => {
       if (!address || !executeTransaction) {
         throw new Error('Wallet not connected')
       }
 
       const result = await executeTransaction({
-        program: PROGRAM_ID,
+        program: program || PROGRAM_ID,
         function: functionName,
         inputs,
         fee,
@@ -48,10 +49,10 @@ export function useVeilSub() {
     [execute]
   )
 
-  // v6: Single payment record — contract chains transfers internally
   const subscribe = useCallback(
     async (
-      creditsRecord: string,
+      creditsRecordCreator: string,
+      creditsRecordPlatform: string,
       creatorAddress: string,
       tier: number,
       amountMicrocredits: number,
@@ -61,7 +62,8 @@ export function useVeilSub() {
       return execute(
         'subscribe',
         [
-          creditsRecord,
+          creditsRecordCreator,
+          creditsRecordPlatform,
           creatorAddress,
           `${tier}u8`,
           `${amountMicrocredits}u64`,
@@ -74,17 +76,18 @@ export function useVeilSub() {
     [execute]
   )
 
-  // v6: Single payment record
   const tip = useCallback(
     async (
-      creditsRecord: string,
+      creditsRecordCreator: string,
+      creditsRecordPlatform: string,
       creatorAddress: string,
       amountMicrocredits: number
     ) => {
       return execute(
         'tip',
         [
-          creditsRecord,
+          creditsRecordCreator,
+          creditsRecordPlatform,
           creatorAddress,
           `${amountMicrocredits}u64`,
         ],
@@ -105,11 +108,11 @@ export function useVeilSub() {
     [execute]
   )
 
-  // v6: old_pass + single payment record
   const renew = useCallback(
     async (
       accessPassPlaintext: string,
-      creditsRecord: string,
+      creditsRecordCreator: string,
+      creditsRecordPlatform: string,
       newTier: number,
       amountMicrocredits: number,
       newPassId: string,
@@ -119,7 +122,8 @@ export function useVeilSub() {
         'renew',
         [
           accessPassPlaintext,
-          creditsRecord,
+          creditsRecordCreator,
+          creditsRecordPlatform,
           `${newTier}u8`,
           `${amountMicrocredits}u64`,
           `${newPassId}field`,
@@ -146,7 +150,7 @@ export function useVeilSub() {
   )
 
   // =========================================
-  // v6 Token Transitions (single record)
+  // v5 Token Transitions
   // =========================================
 
   const setTokenPrice = useCallback(
@@ -160,10 +164,10 @@ export function useVeilSub() {
     [execute]
   )
 
-  // v6: Single token record
   const subscribeToken = useCallback(
     async (
-      tokenRecord: string,
+      tokenRecCreator: string,
+      tokenRecPlatform: string,
       creatorAddress: string,
       tier: number,
       amount: number,
@@ -174,7 +178,8 @@ export function useVeilSub() {
       return execute(
         'subscribe_token',
         [
-          tokenRecord,
+          tokenRecCreator,
+          tokenRecPlatform,
           creatorAddress,
           `${tier}u8`,
           `${amount}u128`,
@@ -188,10 +193,10 @@ export function useVeilSub() {
     [execute]
   )
 
-  // v6: Single token record
   const tipToken = useCallback(
     async (
-      tokenRecord: string,
+      tokenRecCreator: string,
+      tokenRecPlatform: string,
       creatorAddress: string,
       amount: number,
       tokenId: string
@@ -199,12 +204,27 @@ export function useVeilSub() {
       return execute(
         'tip_token',
         [
-          tokenRecord,
+          tokenRecCreator,
+          tokenRecPlatform,
           creatorAddress,
           `${amount}u128`,
           `${tokenId}field`,
         ],
         TOKEN_FEES.TIP_TOKEN
+      )
+    },
+    [execute]
+  )
+
+  // Split a single credits record into two via credits.aleo/split.
+  // Used when user has only 1 record but needs 2 for subscribe/tip/renew.
+  const splitCredits = useCallback(
+    async (record: string, splitAmount: number): Promise<string | null> => {
+      return execute(
+        'split',
+        [record, `${splitAmount}u64`],
+        0, // split has no on-chain fee beyond base tx fee
+        'credits.aleo'
       )
     },
     [execute]
@@ -298,6 +318,7 @@ export function useVeilSub() {
     setTokenPrice,
     subscribeToken,
     tipToken,
+    splitCredits,
     getTokenRecords,
     getCreditsRecords,
     getAccessPasses,
