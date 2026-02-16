@@ -146,7 +146,7 @@ function ContractTab() {
         <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/20 flex items-center justify-between">
           <code className="text-violet-300 text-sm font-mono">veilsub_v5.aleo</code>
           <a
-            href="https://explorer.provable.com/testnet/program/veilsub_v5.aleo"
+            href="https://testnet.explorer.provable.com/program/veilsub_v5.aleo"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1"

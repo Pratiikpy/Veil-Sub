@@ -676,7 +676,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex flex-wrap gap-3">
                 <a
-                  href={`https://explorer.provable.com/testnet/program/${PROGRAM_ID}`}
+                  href={`https://testnet.explorer.provable.com/program/${PROGRAM_ID}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-xs text-slate-300 hover:text-white hover:border-green-500/30 transition-all"
@@ -685,7 +685,7 @@ export default function DashboardPage() {
                   View on Provable Explorer
                 </a>
                 <a
-                  href={`https://aleoscan.io/program/${PROGRAM_ID}`}
+                  href={`https://testnet.aleoscan.io/program?id=${PROGRAM_ID}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-xs text-slate-300 hover:text-white hover:border-green-500/30 transition-all"
@@ -695,7 +695,7 @@ export default function DashboardPage() {
                 </a>
                 {publicKey && (
                   <a
-                    href={`https://explorer.provable.com/testnet/program/${PROGRAM_ID}/mapping/tier_prices/${publicKey}`}
+                    href={`https://testnet.explorer.provable.com/program/${PROGRAM_ID}/mapping/tier_prices/${publicKey}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-xs text-slate-300 hover:text-white hover:border-green-500/30 transition-all"

@@ -177,7 +177,7 @@ export default function CreatorPage({
                 <p className="text-sm text-slate-400 mb-1">{bio}</p>
               )}
               <a
-                href={`https://explorer.provable.com/testnet/address/${address}`}
+                href={`https://testnet.explorer.provable.com/address/${address}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-sm text-violet-400 hover:text-violet-300"

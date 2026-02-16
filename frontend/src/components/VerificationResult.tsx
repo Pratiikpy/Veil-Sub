@@ -71,7 +71,7 @@ export default function VerificationResult({
 
       {txId && (
         <a
-          href={`https://explorer.provable.com/testnet/transaction/${txId}`}
+          href={`https://testnet.explorer.provable.com/transaction/${txId}`}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300"

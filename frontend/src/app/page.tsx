@@ -804,8 +804,8 @@ export default function HomePage() {
               <div className="space-y-2">
                 {[
                   { href: 'https://github.com/Pratiikpy/Veil-Sub', label: 'GitHub', icon: true },
-                  { href: 'https://explorer.provable.com/testnet/program/veilsub_v5.aleo', label: 'Provable Explorer', icon: false },
-                  { href: 'https://aleoscan.io/program/veilsub_v5.aleo', label: 'Aleoscan', icon: false },
+                  { href: 'https://testnet.explorer.provable.com/program/veilsub_v5.aleo', label: 'Provable Explorer', icon: false },
+                  { href: 'https://testnet.aleoscan.io/program?id=veilsub_v5.aleo', label: 'Aleoscan', icon: false },
                   { href: 'https://www.leo.app/', label: 'Leo Wallet', icon: false },
                 ].map((link) => (
                   <a

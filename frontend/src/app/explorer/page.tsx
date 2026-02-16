@@ -324,7 +324,7 @@ export default function ExplorerPage() {
                 </div>
                 <div className="flex gap-2">
                   <a
-                    href={`https://explorer.provable.com/testnet/address/${result.address}`}
+                    href={`https://testnet.explorer.provable.com/address/${result.address}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors"
@@ -553,7 +553,7 @@ export default function ExplorerPage() {
                                 )}
                               </button>
                               <a
-                                href={`https://explorer.provable.com/testnet/transaction/${event.tx_id}`}
+                                href={`https://testnet.explorer.provable.com/transaction/${event.tx_id}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="shrink-0 p-1 rounded hover:bg-white/10 text-slate-500 hover:text-white transition-colors"
@@ -565,7 +565,7 @@ export default function ExplorerPage() {
                           )}
                         </div>
                         <a
-                          href={event.tx_id ? `https://explorer.provable.com/testnet/transaction/${event.tx_id}` : '#'}
+                          href={event.tx_id ? `https://testnet.explorer.provable.com/transaction/${event.tx_id}` : '#'}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={`px-2 py-1 rounded-md text-xs font-medium transition-all ${

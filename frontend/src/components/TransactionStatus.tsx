@@ -202,7 +202,7 @@ export default function TransactionStatus({ status, txId }: Props) {
         >
           <p className="text-xs text-slate-500 mb-2">Transaction ID</p>
           <a
-            href={`https://explorer.provable.com/testnet/transaction/${txId}`}
+            href={`https://testnet.explorer.provable.com/transaction/${txId}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-violet-500/30 hover:bg-violet-500/5 transition-all group"
