@@ -17,8 +17,8 @@ interface Props {
 export const WalletProvider: FC<Props> = ({ children }) => {
   const wallets = useMemo(
     () => [
-      new ShieldWalletAdapter({ appName: APP_NAME }),
       new LeoWalletAdapter({ appName: APP_NAME }),
+      new ShieldWalletAdapter({ appName: APP_NAME }),
     ],
     []
   )
