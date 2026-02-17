@@ -1,4 +1,4 @@
-export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v5.aleo'
+export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v6.aleo'
 // API calls use Next.js rewrite proxy (/api/aleo/*) to avoid leaking user interest to third parties
 // The actual endpoint is configured in next.config.ts rewrites
 export const APP_NAME = 'VeilSub'

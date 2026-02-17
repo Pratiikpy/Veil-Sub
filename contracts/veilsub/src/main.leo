@@ -2,7 +2,7 @@ import credits.aleo;
 import token_registry.aleo;
 
 // =============================================================================
-// VeilSub v5 — Private Creator Subscriptions on Aleo (Multi-Token Support)
+// VeilSub v6 — Private Creator Subscriptions on Aleo (Hardened Payments)
 //
 // PRIVACY ARCHITECTURE:
 // - Subscriber address (self.caller) is used ONLY to set AccessPass.owner
@@ -34,7 +34,7 @@ import token_registry.aleo;
 // Content BODY is off-chain. Only existence and tier requirement is on-chain.
 // =============================================================================
 
-program veilsub_v5.aleo {
+program veilsub_v6.aleo {
 
     // Constructor — required for deployment on current Aleo consensus.
     // @noupgrade prevents future program modifications (immutable contract).
@@ -76,7 +76,6 @@ program veilsub_v5.aleo {
     mapping platform_revenue: u8 => u64;       // key 0 = total platform earnings
     mapping content_count: address => u64;
     mapping content_meta: field => u8;          // hashed content_id => min tier required
-    mapping sub_created: field => u32;          // hashed pass_id => block.height at creation
 
     // Token-specific mappings
     mapping tier_prices_token: field => u128;       // hash(creator, token_id) => price in token units
@@ -137,13 +136,12 @@ program veilsub_v5.aleo {
             expires_at: expires_at,
         };
 
-        return (pass, change_creator, to_creator, change_platform, to_platform, finalize_subscribe(creator, amount, tier, pass_id, expires_at));
+        return (pass, change_creator, to_creator, change_platform, to_platform, finalize_subscribe(creator, amount, tier, expires_at));
     }
     async function finalize_subscribe(
         creator: address,
         amount: u64,
         tier: u8,
-        pass_id: field,
         expires_at: u32,
     ) {
         let base_price: u64 = Mapping::get(tier_prices, creator);
@@ -153,9 +151,6 @@ program veilsub_v5.aleo {
 
         assert(expires_at > block.height);
         assert(expires_at <= block.height + 1_200_000u32);
-
-        let hashed_pass_id: field = BHP256::hash_to_field(pass_id);
-        Mapping::set(sub_created, hashed_pass_id, block.height);
 
         let count: u64 = Mapping::get_or_use(subscriber_count, creator, 0u64);
         Mapping::set(subscriber_count, creator, count + 1u64);
@@ -190,6 +185,7 @@ program veilsub_v5.aleo {
         creator: address,
         amount: u64,
     ) -> (credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, Future) {
+        assert(amount > 0u64);
         let platform_cut: u64 = amount / 20u64;
         let creator_cut: u64 = amount - platform_cut;
 
@@ -245,13 +241,12 @@ program veilsub_v5.aleo {
             expires_at: new_expires_at,
         };
 
-        return (new_pass, change_creator, to_creator, change_platform, to_platform, finalize_renew(creator, amount, new_tier, new_pass_id, new_expires_at));
+        return (new_pass, change_creator, to_creator, change_platform, to_platform, finalize_renew(creator, amount, new_tier, new_expires_at));
     }
     async function finalize_renew(
         creator: address,
         amount: u64,
         new_tier: u8,
-        new_pass_id: field,
         new_expires_at: u32,
     ) {
         let base_price: u64 = Mapping::get(tier_prices, creator);
@@ -261,9 +256,6 @@ program veilsub_v5.aleo {
 
         assert(new_expires_at > block.height);
         assert(new_expires_at <= block.height + 1_200_000u32);
-
-        let hashed_pass_id: field = BHP256::hash_to_field(new_pass_id);
-        Mapping::set(sub_created, hashed_pass_id, block.height);
 
         let revenue: u64 = Mapping::get_or_use(total_revenue, creator, 0u64);
         Mapping::set(total_revenue, creator, revenue + amount);
@@ -352,7 +344,7 @@ program veilsub_v5.aleo {
             expires_at: expires_at,
         };
 
-        return (pass, to_creator, change_creator, to_platform, change_platform, finalize_subscribe_token(f_creator, f_platform, creator, amount, tier, token_id, pass_id, expires_at));
+        return (pass, to_creator, change_creator, to_platform, change_platform, finalize_subscribe_token(f_creator, f_platform, creator, amount, tier, token_id, expires_at));
     }
     async function finalize_subscribe_token(
         f_creator: Future,
@@ -361,7 +353,6 @@ program veilsub_v5.aleo {
         amount: u128,
         tier: u8,
         token_id: field,
-        pass_id: field,
         expires_at: u32,
     ) {
         f_creator.await();
@@ -375,9 +366,6 @@ program veilsub_v5.aleo {
 
         assert(expires_at > block.height);
         assert(expires_at <= block.height + 1_200_000u32);
-
-        let hashed_pass_id: field = BHP256::hash_to_field(pass_id);
-        Mapping::set(sub_created, hashed_pass_id, block.height);
 
         let count: u64 = Mapping::get_or_use(subscriber_count, creator, 0u64);
         Mapping::set(subscriber_count, creator, count + 1u64);
@@ -400,6 +388,7 @@ program veilsub_v5.aleo {
         amount: u128,
         token_id: field,
     ) -> (token_registry.aleo/Token, token_registry.aleo/Token, token_registry.aleo/Token, token_registry.aleo/Token, Future) {
+        assert(amount > 0u128);
         let platform_cut: u128 = amount / 20u128;
         let creator_cut: u128 = amount - platform_cut;
 

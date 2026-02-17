@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
       totalCreators: Math.max(uniqueCreators, 1),
       totalSubscriptions: totalSubscriptions || 0,
       totalRevenue,
-      activePrograms: 1, // veilsub_v5.aleo
+      activePrograms: 1, // veilsub_v6.aleo
     })
   }
 

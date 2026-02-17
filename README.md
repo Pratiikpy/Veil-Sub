@@ -46,7 +46,7 @@ As a content creator with 6,400+ followers, this is **my problem**. My audience 
 ```
 ┌──────────────┐     ┌──────────────────┐     ┌───────────────────┐
 │  Subscriber   │────>│     VeilSub      │────>│   Aleo Network    │
-│ (Leo Wallet)  │    │   v5 Program     │     │                   │
+│ (Leo Wallet)  │    │   v6 Program     │     │                   │
 │               │    │                  │     │  PRIVATE:          │
 │ 1. Pick tier  │    │ subscribe()      │     │  - AccessPass      │
 │ 2. Pay ALEO   │    │ subscribe_token()│     │  - Payment details │
@@ -270,6 +270,9 @@ mapping platform_revenue_token: field => u128;   // hash(token_id, 0field) => pl
 | v5 register_creator | `at14ga9mnven3ps90s95adp5tl5nanxqeu97f2jd78dld2rsppymqrqr32l0g` | [View](https://testnet.explorer.provable.com/transaction/at14ga9mnven3ps90s95adp5tl5nanxqeu97f2jd78dld2rsppymqrqr32l0g) |
 | v5 publish_content | `at1htp8d9syshs4ka7aw3u2d29rqw6kt0yxyw5apf4x23nzxyewrqxq725um7` | [View](https://testnet.explorer.provable.com/transaction/at1htp8d9syshs4ka7aw3u2d29rqw6kt0yxyw5apf4x23nzxyewrqxq725um7) |
 | v5 set_token_price | `at1ckdnk7z8w05gs5s3yav2kh25rnr5shq2f8q7up6tfdqtta98rc9sa9zj00` | [View](https://testnet.explorer.provable.com/transaction/at1ckdnk7z8w05gs5s3yav2kh25rnr5shq2f8q7up6tfdqtta98rc9sa9zj00) |
+| **v6 Deployment** | `at1zcwsmxv2crsp6mf6q6s60303987ch0hzgw9kqpnwwhnsugvadgrsy50njl` | [View](https://testnet.explorer.provable.com/transaction/at1zcwsmxv2crsp6mf6q6s60303987ch0hzgw9kqpnwwhnsugvadgrsy50njl) |
+| v6 register_creator | `at13tyxms5stjer3ex5s2j8rj0mh05v7vdzs24znzqd5r7ppc98uvxqan8hyh` | [View](https://testnet.explorer.provable.com/transaction/at13tyxms5stjer3ex5s2j8rj0mh05v7vdzs24znzqd5r7ppc98uvxqan8hyh) |
+| v6 publish_content | `at1gqhupcwhdwy4rzphvhg2vtxswg4arelp924hfxpt5mrwwn5qvyqqqtegew` | [View](https://testnet.explorer.provable.com/transaction/at1gqhupcwhdwy4rzphvhg2vtxswg4arelp924hfxpt5mrwwn5qvyqqqtegew) |
 
 ## How to Test
 
