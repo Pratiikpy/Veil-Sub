@@ -173,19 +173,43 @@ export default function RenewModal({
         setStatusMessage('Waiting for split to confirm...')
         await new Promise<void>((resolve, reject) => {
           let attempts = 0
+          let sawAccepted = false
           const poll = setInterval(async () => {
             attempts++
             try {
               const status = (await pollTx(splitTxId)).toLowerCase()
-              if (status.includes('finalize') || status.includes('confirm') || status.includes('accept') || status.includes('complete')) { clearInterval(poll); resolve() }
-              else if (status.includes('fail') || status.includes('reject')) { clearInterval(poll); reject(new Error('Split failed')) }
+              console.log(`[RenewModal] Split poll #${attempts}: "${status}"`)
+              if (status.includes('finalize') || status.includes('confirm') || status.includes('complete')) {
+                clearInterval(poll)
+                resolve()
+              } else if (status.includes('accept')) {
+                sawAccepted = true
+              } else if (status.includes('fail') || status.includes('reject')) {
+                clearInterval(poll)
+                reject(new Error('Split failed'))
+              }
             } catch { /* continue */ }
-            if (attempts > 60) { clearInterval(poll); reject(new Error('Split timed out.')) }
+            if (sawAccepted && attempts >= 30) { clearInterval(poll); resolve() }
+            if (attempts > 90) { clearInterval(poll); reject(new Error('Split timed out.')) }
           }, 1000)
         })
 
+        setStatusMessage('Waiting for on-chain finalization...')
+        await new Promise(r => setTimeout(r, 15000))
+
         setStatusMessage('Fetching updated records...')
         const synced = await waitForRecordSync(getCreditsRecords, setStatusMessage, new Set([consumedNonce]))
+
+        const n1 = extractNonce(synced[0])
+        const n2 = extractNonce(synced[1])
+        console.log('[RenewModal] rec1 nonce:', n1, 'rec2 nonce:', n2, 'consumed nonce:', consumedNonce)
+        if (n1 === n2) {
+          throw new Error('Both records have the same nonce — wallet returned duplicate. Please try again.')
+        }
+        if (n1 === consumedNonce || n2 === consumedNonce) {
+          throw new Error('Wallet returned the pre-split record. Please wait a moment and try again.')
+        }
+
         rec1 = synced[0]
         rec2 = synced[1]
       }

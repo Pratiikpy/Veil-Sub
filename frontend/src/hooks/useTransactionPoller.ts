@@ -22,7 +22,10 @@ export function useTransactionPoller() {
       if (!transactionStatus) throw new Error('No wallet transactionStatus')
       const result = await transactionStatus(txId)
       const s = (typeof result === 'string' ? result : result?.status || '').toLowerCase()
-      if (s.includes('finalize') || s.includes('confirm') || s.includes('accept')) {
+      console.log(`[TxPoller] wallet status for ${txId}: "${s}"`)
+      // Only treat 'finalize'/'confirm'/'complete' as confirmed.
+      // 'accept' means mempool admission — NOT on-chain finalization.
+      if (s.includes('finalize') || s.includes('confirm') || s.includes('complete')) {
         return { status: 'confirmed', strategy: 'wallet' }
       }
       if (s.includes('fail') || s.includes('reject')) {

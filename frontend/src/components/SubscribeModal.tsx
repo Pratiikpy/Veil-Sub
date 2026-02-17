@@ -174,32 +174,63 @@ export default function SubscribeModal({
           return
         }
 
-        // Wait for split to confirm
+        // Wait for split to finalize on-chain.
+        // Shield Wallet returns "Accepted" for mempool admission — NOT finalization.
+        // We must wait for 'finalize'/'confirm'/'complete', or fall back to a
+        // generous timeout so the transaction has time to be included in a block.
         setStatusMessage('Waiting for split to confirm...')
         await new Promise<void>((resolve, reject) => {
           let attempts = 0
+          let sawAccepted = false
           const poll = setInterval(async () => {
             attempts++
             try {
               const status = (await pollTxStatus(splitTxId)).toLowerCase()
-              if (status.includes('finalize') || status.includes('confirm') || status.includes('accept') || status.includes('complete')) {
+              console.log(`[SubscribeModal] Split poll #${attempts}: "${status}"`)
+              if (status.includes('finalize') || status.includes('confirm') || status.includes('complete')) {
                 clearInterval(poll)
                 resolve()
+              } else if (status.includes('accept')) {
+                // "Accepted" = mempool, not finalized. Wait for finalization.
+                sawAccepted = true
               } else if (status.includes('fail') || status.includes('reject')) {
                 clearInterval(poll)
                 reject(new Error('Split transaction failed on-chain'))
               }
             } catch { /* continue polling */ }
-            if (attempts > 60) { // ~60 seconds
+            // If we saw "accepted" and have waited 30+ seconds, treat as finalized
+            // (Aleo blocks are ~15s, so 30s ≈ 2 blocks — safe margin)
+            if (sawAccepted && attempts >= 30) {
+              clearInterval(poll)
+              resolve()
+            }
+            if (attempts > 90) {
               clearInterval(poll)
               reject(new Error('Split transaction timed out. Please try again.'))
             }
           }, 1000)
         })
 
+        // Extra buffer: even after "confirmed", give the wallet and network time
+        // to fully propagate the split outputs before we try to spend them.
+        setStatusMessage('Waiting for on-chain finalization...')
+        await new Promise(r => setTimeout(r, 15000))
+
         // Re-fetch records after split with retry loop, excluding the consumed record
         setStatusMessage('Fetching updated records...')
         const synced = await waitForRecordSync(getCreditsRecords, setStatusMessage, new Set([consumedNonce]))
+
+        // Validate: rec1 and rec2 must have different nonces (never the same record)
+        const n1 = extractNonce(synced[0])
+        const n2 = extractNonce(synced[1])
+        console.log('[SubscribeModal] rec1 nonce:', n1, 'rec2 nonce:', n2, 'consumed nonce:', consumedNonce)
+        if (n1 === n2) {
+          throw new Error('Both records have the same nonce — wallet returned duplicate. Please try again.')
+        }
+        if (n1 === consumedNonce || n2 === consumedNonce) {
+          throw new Error('Wallet returned the pre-split record. Please wait a moment and try again.')
+        }
+
         rec1 = synced[0]
         rec2 = synced[1]
       }
