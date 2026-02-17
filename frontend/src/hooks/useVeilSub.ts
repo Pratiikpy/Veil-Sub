@@ -31,7 +31,7 @@ export function useVeilSub() {
         function: functionName,
         inputs,
         fee,
-        privateFee: true,
+        privateFee: false,
       })
 
       return result?.transactionId ?? null
@@ -224,7 +224,7 @@ export function useVeilSub() {
       return execute(
         'split',
         [record, `${splitAmount}u64`],
-        0, // split has no on-chain fee beyond base tx fee
+        500_000, // 0.5 credits base fee for split tx
         'credits.aleo'
       )
     },
@@ -373,7 +373,7 @@ export function useVeilSub() {
       if (!transactionStatus) return 'unknown'
       try {
         const result = await transactionStatus(txId)
-        return result?.status ?? 'unknown'
+        return typeof result === 'string' ? result : result?.status ?? 'unknown'
       } catch {
         return 'unknown'
       }

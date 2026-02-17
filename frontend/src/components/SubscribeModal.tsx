@@ -131,7 +131,7 @@ export default function SubscribeModal({
       // Auto-split: if only 1 record, split it via credits.aleo/split
       if (!rec2) {
         setStatusMessage('Splitting credit record (1 of 2)...')
-        const splitAmount = Math.ceil(totalPrice * 0.96) // ~96% for creator (95%) + buffer
+        const splitAmount = creatorCut // 95% for creator payment, remainder covers 5% platform fee
         const splitTxId = await splitCredits(records[0], splitAmount)
         if (!splitTxId) {
           setTxStatus('failed')

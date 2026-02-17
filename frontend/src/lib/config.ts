@@ -6,19 +6,19 @@ export const APP_DESCRIPTION = 'Private Creator Subscriptions on Aleo'
 
 // Fee estimates in microcredits
 export const FEES = {
-  REGISTER: 500_000,       // 0.5 credits
-  SUBSCRIBE: 5_000_000,    // 5 credits (two transfer_private calls + finalize)
-  TIP: 3_000_000,          // 3 credits (two transfer_private calls + finalize)
-  VERIFY: 350_000,         // 0.35 credits (no finalize)
-  RENEW: 5_000_000,        // 5 credits (same as subscribe)
-  PUBLISH: 500_000,        // 0.5 credits (finalize only)
+  REGISTER: 300_000,       // 0.3 credits
+  SUBSCRIBE: 1_000_000,    // 1.0 credits (two transfer_private calls + finalize)
+  TIP: 500_000,            // 0.5 credits (two transfer_private calls + finalize)
+  VERIFY: 200_000,         // 0.2 credits (no finalize)
+  RENEW: 1_000_000,        // 1.0 credits (same as subscribe)
+  PUBLISH: 300_000,        // 0.3 credits (finalize only)
 } as const
 
 // Fee estimates for token-based transitions (v5)
 export const TOKEN_FEES = {
-  SUBSCRIBE_TOKEN: 5_000_000,
-  TIP_TOKEN: 3_000_000,
-  SET_TOKEN_PRICE: 500_000,
+  SUBSCRIBE_TOKEN: 1_000_000,
+  TIP_TOKEN: 500_000,
+  SET_TOKEN_PRICE: 300_000,
 } as const
 
 // 1 ALEO credit = 1,000,000 microcredits

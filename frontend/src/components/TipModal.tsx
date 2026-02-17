@@ -124,7 +124,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
       // Auto-split if only 1 record
       if (!rec2) {
         setStatusMessage('Splitting credit record (1 of 2)...')
-        const splitAmount = Math.ceil(tipMicrocredits * 0.96)
+        const splitAmount = tipMicrocredits - Math.floor(tipMicrocredits / 20) // 95% for creator, remainder covers 5% platform fee
         const splitTxId = await splitCredits(records[0], splitAmount)
         if (!splitTxId) {
           setTxStatus('failed')
@@ -302,7 +302,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
                 {insufficientBalance && (
                   <div className="mb-4">
-                    <BalanceConverter requiredAmount={creditsToMicrocredits(selectedAmount)} />
+                    <BalanceConverter requiredAmount={creditsToMicrocredits(parseFloat(customAmount) || selectedAmount)} />
                   </div>
                 )}
 

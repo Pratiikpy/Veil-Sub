@@ -34,7 +34,7 @@ export default function OnChainVerify({
         setState(displayedValue === 0 ? 'verified' : 'mismatch')
         return
       }
-      const cleaned = text.replace(/"/g, '').replace('u64', '').trim()
+      const cleaned = text.replace(/"/g, '').replace(/u(8|16|32|64|128)$/, '').trim()
       const onChainValue = parseInt(cleaned, 10)
       if (isNaN(onChainValue)) {
         setState('error')
