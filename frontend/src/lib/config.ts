@@ -4,14 +4,17 @@ export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v6.aleo
 export const APP_NAME = 'VeilSub'
 export const APP_DESCRIPTION = 'Private Creator Subscriptions on Aleo'
 
-// Fee estimates in microcredits
+// Fee estimates in microcredits — matched to NullPay baseline (100K = 0.1 ALEO)
+// NullPay uses 100K for a single transfer_private + finalize.
+// VeilSub does 2x transfer_private + finalize, so ~2-3x NullPay's fee.
 export const FEES = {
-  REGISTER: 300_000,       // 0.3 credits
-  SUBSCRIBE: 1_000_000,    // 1.0 credits (two transfer_private calls + finalize)
-  TIP: 500_000,            // 0.5 credits (two transfer_private calls + finalize)
-  VERIFY: 200_000,         // 0.2 credits (no finalize)
-  RENEW: 1_000_000,        // 1.0 credits (same as subscribe)
-  PUBLISH: 300_000,        // 0.3 credits (finalize only)
+  REGISTER: 150_000,       // 0.15 credits (finalize only)
+  SUBSCRIBE: 300_000,      // 0.3 credits (two transfer_private + finalize)
+  TIP: 250_000,            // 0.25 credits (two transfer_private + finalize)
+  VERIFY: 100_000,         // 0.1 credits (no finalize)
+  RENEW: 300_000,          // 0.3 credits (same as subscribe)
+  PUBLISH: 150_000,        // 0.15 credits (finalize only)
+  SPLIT: 150_000,          // 0.15 credits (credits.aleo/split)
 } as const
 
 // Fee estimates for token-based transitions (v5)

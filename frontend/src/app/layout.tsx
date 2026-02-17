@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
 import './globals.css'
-import { WalletProvider } from '@/providers/WalletProvider'
+import { ClientProviders } from '@/providers/ClientProviders'
 import Header from '@/components/Header'
 import { Toaster } from 'sonner'
 import { APP_NAME, APP_DESCRIPTION } from '@/lib/config'
@@ -40,7 +40,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${spaceGrotesk.variable} font-sans bg-[#0a0a0f] text-white min-h-screen antialiased`}
       >
-        <WalletProvider>
+        <ClientProviders>
           <Header />
           <main className="pt-16">{children}</main>
           <Toaster
@@ -54,7 +54,7 @@ export default function RootLayout({
               },
             }}
           />
-        </WalletProvider>
+        </ClientProviders>
       </body>
     </html>
   )

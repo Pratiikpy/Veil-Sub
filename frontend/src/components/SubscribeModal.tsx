@@ -90,11 +90,25 @@ export default function SubscribeModal({
 
     try {
       // Fetch user's credits records with retry (NullPay pattern)
-      let rawRecords = await getCreditsRecords()
-      if (rawRecords.length === 0) {
-        // Retry after brief sync delay
-        await new Promise(r => setTimeout(r, 2000))
+      console.log('[SubscribeModal] Fetching credits records...')
+      let rawRecords: string[]
+      try {
         rawRecords = await getCreditsRecords()
+      } catch (fetchErr) {
+        console.error('[SubscribeModal] First fetch failed:', fetchErr)
+        // Retry once after brief sync delay
+        await new Promise(r => setTimeout(r, 2000))
+        try {
+          rawRecords = await getCreditsRecords()
+        } catch (retryErr) {
+          throw new Error(`Could not load wallet records: ${retryErr instanceof Error ? retryErr.message : 'Unknown error'}. Check browser console for details.`)
+        }
+      }
+      if (rawRecords.length === 0) {
+        await new Promise(r => setTimeout(r, 2000))
+        try {
+          rawRecords = await getCreditsRecords()
+        } catch { rawRecords = [] }
       }
       const seen = new Set<string>()
       const records = rawRecords.filter(r => { if (seen.has(r)) return false; seen.add(r); return true })
@@ -220,7 +234,7 @@ export default function SubscribeModal({
   }
 
   const handleClose = () => {
-    if (txStatus === 'signing' || txStatus === 'proving') return
+    // Allow close in ANY state — never trap the user in a hung modal
     stopPolling()
     setTxStatus('idle')
     setTxId(null)
@@ -237,8 +251,7 @@ export default function SubscribeModal({
   useEffect(() => {
     if (!isOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && (txStatusRef.current === 'idle' || txStatusRef.current === 'failed' || txStatusRef.current === 'confirmed'))
-        handleCloseRef.current()
+      if (e.key === 'Escape') handleCloseRef.current()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)

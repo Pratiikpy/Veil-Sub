@@ -85,10 +85,24 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
       const tipMicrocredits = creditsToMicrocredits(tipAmount)
 
       // Fetch with retry (NullPay pattern)
-      let rawRecords = await getCreditsRecords()
+      console.log('[TipModal] Fetching credits records...')
+      let rawRecords: string[]
+      try {
+        rawRecords = await getCreditsRecords()
+      } catch (fetchErr) {
+        console.error('[TipModal] First fetch failed:', fetchErr)
+        await new Promise(r => setTimeout(r, 2000))
+        try {
+          rawRecords = await getCreditsRecords()
+        } catch (retryErr) {
+          throw new Error(`Could not load wallet records: ${retryErr instanceof Error ? retryErr.message : 'Unknown error'}. Check browser console.`)
+        }
+      }
       if (rawRecords.length === 0) {
         await new Promise(r => setTimeout(r, 2000))
-        rawRecords = await getCreditsRecords()
+        try {
+          rawRecords = await getCreditsRecords()
+        } catch { rawRecords = [] }
       }
       const seen = new Set<string>()
       const records = rawRecords.filter(r => { if (seen.has(r)) return false; seen.add(r); return true })
@@ -197,7 +211,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
   }
 
   const handleClose = () => {
-    if (txStatus === 'signing' || txStatus === 'proving') return
+    // Allow close in ANY state — never trap the user
     stopPolling()
     setTxStatus('idle')
     setTxId(null)
@@ -214,8 +228,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
   useEffect(() => {
     if (!isOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && (txStatusRef.current === 'idle' || txStatusRef.current === 'failed' || txStatusRef.current === 'confirmed'))
-        handleCloseRef.current()
+      if (e.key === 'Escape') handleCloseRef.current()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)

@@ -5,7 +5,6 @@ import { AleoWalletProvider } from '@provablehq/aleo-wallet-adaptor-react'
 import { WalletModalProvider } from '@provablehq/aleo-wallet-adaptor-react-ui'
 import { DecryptPermission } from '@provablehq/aleo-wallet-adaptor-core'
 import { Network } from '@provablehq/aleo-types'
-import { PatchedLeoWalletAdapter } from '@/lib/PatchedLeoWalletAdapter'
 import { ShieldWalletAdapter } from '@provablehq/aleo-wallet-adaptor-shield'
 import '@provablehq/aleo-wallet-adaptor-react-ui/dist/styles.css'
 import { APP_NAME, PROGRAM_ID } from '@/lib/config'
@@ -14,13 +13,14 @@ interface Props {
   children: ReactNode
 }
 
+// Matches NullPay's working pattern exactly:
+// - Only ShieldWalletAdapter (NullPay doesn't use LeoWalletAdapter)
+// - Only program + credits.aleo in programs list
+// - AutoDecrypt, TESTNET, autoConnect
 export const WalletProvider: FC<Props> = ({ children }) => {
-  // Shield first, Leo second — matches NullPay's wallet order
-  // PatchedLeoWalletAdapter fixes race condition where extension injects after constructor
   const wallets = useMemo(
     () => [
       new ShieldWalletAdapter({ appName: APP_NAME }),
-      new PatchedLeoWalletAdapter({ appName: APP_NAME }),
     ],
     []
   )
@@ -31,7 +31,7 @@ export const WalletProvider: FC<Props> = ({ children }) => {
       decryptPermission={DecryptPermission.AutoDecrypt}
       network={Network.TESTNET}
       autoConnect
-      programs={[PROGRAM_ID, 'credits.aleo', 'token_registry.aleo']}
+      programs={[PROGRAM_ID, 'credits.aleo']}
     >
       <WalletModalProvider>{children}</WalletModalProvider>
     </AleoWalletProvider>

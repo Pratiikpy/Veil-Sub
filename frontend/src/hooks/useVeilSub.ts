@@ -4,13 +4,24 @@ import { useCallback } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { PROGRAM_ID, FEES, TOKEN_FEES } from '@/lib/config'
 
+// Timeout wrapper: prevents requestRecords from hanging forever.
+// Shield Wallet can silently hang on INVALID_PARAMS — this ensures we always get a result.
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms / 1000}s`)), ms)
+    ),
+  ])
+}
+
 export function useVeilSub() {
   const {
     address,
     connected,
     executeTransaction,
     requestRecords,
-    transactionStatus,
+    wallet,
     decrypt,
   } = useWallet()
 
@@ -26,6 +37,8 @@ export function useVeilSub() {
         throw new Error('Wallet not connected')
       }
 
+      console.log(`[VeilSub] execute ${program || PROGRAM_ID}/${functionName}`, { inputs, fee })
+
       const result = await executeTransaction({
         program: program || PROGRAM_ID,
         function: functionName,
@@ -34,6 +47,7 @@ export function useVeilSub() {
         privateFee: false,
       })
 
+      console.log(`[VeilSub] execute result:`, result)
       return result?.transactionId ?? null
     },
     [address, executeTransaction]
@@ -218,13 +232,12 @@ export function useVeilSub() {
   )
 
   // Split a single credits record into two via credits.aleo/split.
-  // Used when user has only 1 record but needs 2 for subscribe/tip/renew.
   const splitCredits = useCallback(
     async (record: string, splitAmount: number): Promise<string | null> => {
       return execute(
         'split',
         [record, `${splitAmount}u64`],
-        500_000, // 0.5 credits base fee for split tx
+        FEES.SPLIT,
         'credits.aleo'
       )
     },
@@ -234,11 +247,9 @@ export function useVeilSub() {
   // Extract microcredits from any record format (mirrors NullPay's getMicrocredits)
   const getMicrocredits = (record: any): number => {
     try {
-      // Format 1: object with data.microcredits (e.g. { data: { microcredits: "1000000u64" } })
       if (record?.data?.microcredits) {
         return parseInt(String(record.data.microcredits).replace(/_/g, '').replace('u64', ''), 10)
       }
-      // Format 2: plaintext string with microcredits field
       const text = typeof record === 'string' ? record : record?.plaintext
       if (text) {
         const match = text.match(/microcredits\s*:\s*([\d_]+)u64/)
@@ -248,15 +259,12 @@ export function useVeilSub() {
     } catch { return 0 }
   }
 
-  // Process a single record: try all formats, lazy-decrypt if needed (mirrors NullPay's processRecord)
+  // Process a single record: try all formats, lazy-decrypt if needed
   const processRecord = async (r: any): Promise<{ plaintext: string; microcredits: number } | null> => {
-    // Skip spent records
     if (r?.spent) return null
 
-    // Try getting value from known formats first
     let val = getMicrocredits(r)
 
-    // Lazy decryption: if value is 0 and there's a ciphertext, try decrypting
     if (val === 0 && r?.recordCiphertext && !r?.plaintext && decrypt) {
       try {
         const decrypted = await decrypt(r.recordCiphertext)
@@ -264,20 +272,17 @@ export function useVeilSub() {
           r.plaintext = decrypted
           val = getMicrocredits(r)
         }
-      } catch { /* decryption failed, continue */ }
+      } catch { /* decryption failed */ }
     }
 
     if (val <= 0) return null
 
-    // Get or build the plaintext string for transaction input
     let plaintext = ''
-
     if (typeof r === 'string') {
       plaintext = r
     } else if (r?.plaintext) {
       plaintext = r.plaintext
     } else {
-      // Reconstruct plaintext from component fields (NullPay pattern)
       const nonce = r?.nonce || r?._nonce || r?.data?._nonce
       const owner = r?.owner
       if (nonce && owner) {
@@ -291,7 +296,6 @@ export function useVeilSub() {
     return { plaintext, microcredits: val }
   }
 
-  // Extract plaintext from a record, with lazy decryption for non-credits records
   const extractPlaintext = async (r: any): Promise<string> => {
     if (r?.spent) return ''
     if (typeof r === 'string') return r
@@ -305,11 +309,16 @@ export function useVeilSub() {
     return ''
   }
 
-  // Fetch records from wallet — matches NullPay's working pattern: always pass false
   const getTokenRecords = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      const records = await requestRecords('token_registry.aleo', false)
+      console.log('[VeilSub] Fetching token_registry.aleo records...')
+      const records = await withTimeout(
+        requestRecords('token_registry.aleo', false),
+        15000,
+        'requestRecords(token_registry.aleo)'
+      )
+      console.log('[VeilSub] Token records received:', (records as any[]).length)
       const results: { plaintext: string; amount: number }[] = []
 
       for (const r of records as any[]) {
@@ -328,10 +337,20 @@ export function useVeilSub() {
     }
   }, [connected, requestRecords, decrypt])
 
+  // Fetch credits records with timeout — NullPay pattern: requestRecords('credits.aleo', false)
   const getCreditsRecords = useCallback(async (): Promise<string[]> => {
-    if (!connected || !requestRecords) return []
+    if (!connected || !requestRecords) {
+      console.warn('[VeilSub] getCreditsRecords: not connected or requestRecords unavailable')
+      return []
+    }
     try {
-      const records = await requestRecords('credits.aleo', false)
+      console.log('[VeilSub] Fetching credits.aleo records...')
+      const records = await withTimeout(
+        requestRecords('credits.aleo', false),
+        15000,
+        'requestRecords(credits.aleo)'
+      )
+      console.log('[VeilSub] Credits records received:', (records as any[]).length)
       const results: { plaintext: string; microcredits: number }[] = []
 
       for (const r of records as any[]) {
@@ -339,20 +358,26 @@ export function useVeilSub() {
         if (processed) results.push(processed)
       }
 
-      // Sort by balance descending, return plaintext strings
+      console.log('[VeilSub] Processed credits records:', results.length, results.map(r => r.microcredits))
       return results
         .sort((a, b) => b.microcredits - a.microcredits)
         .map((r) => r.plaintext)
     } catch (err) {
       console.error('[VeilSub] Failed to fetch credits records:', err)
-      return []
+      throw err // Re-throw so callers can show the error to user
     }
   }, [connected, requestRecords, decrypt])
 
   const getAccessPasses = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      const records = await requestRecords(PROGRAM_ID, false)
+      console.log('[VeilSub] Fetching access passes...')
+      const records = await withTimeout(
+        requestRecords(PROGRAM_ID, false),
+        15000,
+        `requestRecords(${PROGRAM_ID})`
+      )
+      console.log('[VeilSub] Access passes received:', (records as any[]).length)
       const results: string[] = []
 
       for (const r of records as any[]) {
@@ -368,17 +393,24 @@ export function useVeilSub() {
     }
   }, [connected, requestRecords, decrypt])
 
+  // Poll transaction status using wallet.adapter (NullPay pattern)
   const pollTxStatus = useCallback(
     async (txId: string): Promise<string> => {
-      if (!transactionStatus) return 'unknown'
       try {
-        const result = await transactionStatus(txId)
-        return typeof result === 'string' ? result : result?.status ?? 'unknown'
+        // NullPay pattern: wallet.adapter.transactionStatus()
+        if (wallet?.adapter?.transactionStatus) {
+          const result = await wallet.adapter.transactionStatus(txId)
+          const status = typeof result === 'string'
+            ? result
+            : (result as any)?.status ?? 'unknown'
+          return status
+        }
+        return 'unknown'
       } catch {
         return 'unknown'
       }
     },
-    [transactionStatus]
+    [wallet]
   )
 
   return {
