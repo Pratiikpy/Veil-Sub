@@ -201,7 +201,7 @@ export default function TransactionStatus({ status, txId }: Props) {
           className="mt-3"
         >
           <p className="text-xs text-slate-500 mb-2">Transaction ID</p>
-          {txId.startsWith('shield_') ? (
+          {!txId.startsWith('at1') ? (
             <>
               <div className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
                 <span className="text-xs text-slate-500 break-all flex-1 font-mono">
@@ -209,7 +209,7 @@ export default function TransactionStatus({ status, txId }: Props) {
                 </span>
               </div>
               <p className="text-[11px] text-slate-600 mt-1.5">
-                Shield Wallet uses temporary IDs. Your transaction is confirmed on-chain.
+                Wallet returned a temporary ID. Your transaction is confirmed on-chain.
               </p>
               <a
                 href={`https://testnet.explorer.provable.com/program/veilsub_v7.aleo`}

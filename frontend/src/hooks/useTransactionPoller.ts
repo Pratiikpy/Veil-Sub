@@ -13,13 +13,11 @@ interface PollResult {
 }
 
 // Best-effort attempt to find the real at1... transaction ID.
-// Shield Wallet returns temporary shield_* IDs that don't exist on the explorer.
-// We try querying the Provable API for the transaction; if the wallet eventually
-// maps the temp ID to a real one, the API will resolve it.
+// Shield Wallet returns shield_* IDs, Leo Wallet returns UUIDs — neither
+// is a real explorer ID. Try the Provable API as a best-effort resolution.
 async function resolveRealTxId(tempId: string): Promise<string | null> {
-  if (!tempId.startsWith('shield_')) return tempId // already a real ID
+  if (tempId.startsWith('at1')) return tempId // already a real ID
   try {
-    // Try the Provable transaction endpoint — some wallets map temp IDs server-side
     const res = await fetch(`/api/aleo/transaction/${tempId}`)
     if (res.ok) {
       const data = await res.json()
@@ -61,7 +59,7 @@ export function useTransactionPoller() {
     ) => {
       const aborted = { current: false }
       let attempts = 0
-      let acceptedSince = 0 // track how many polls returned "accepted"
+      let nonFailureSince = 0 // polls without any failure signal
       let timeoutId: ReturnType<typeof setTimeout> | null = null
 
       const abort = () => {
@@ -90,22 +88,28 @@ export function useTransactionPoller() {
             return
           }
 
-          // Shield Wallet returns "accepted" for mempool transactions.
-          // After enough time with "accepted", treat as confirmed for UI purposes.
-          // (The transaction is unlikely to be reversed once accepted.)
+          // Both Shield Wallet and Leo Wallet have quirks:
+          // - Shield: returns "accepted" but never "finalized"
+          // - Leo: returns "pending" forever but internally shows "Completed"
+          // After enough non-failure polls, treat as confirmed.
           if (result.status === 'pending') {
-            // Check raw status from the wallet to detect "accepted"
             const rawResult = await transactionStatus?.(txId)
             const rawS = (typeof rawResult === 'string' ? rawResult : (rawResult as any)?.status || '').toLowerCase()
-            if (rawS.includes('accept')) {
-              acceptedSince++
-              // After 10 polls (~30s) with "accepted", report as confirmed
-              if (acceptedSince >= 10) {
-                // Try to resolve real at1... tx ID from the network
-                const realId = await resolveRealTxId(txId)
-                onStatus({ status: 'confirmed', strategy: 'wallet', resolvedTxId: realId || undefined })
-                return
-              }
+
+            // Count any non-failure response (pending, accepted, etc.)
+            if (!rawS.includes('fail') && !rawS.includes('reject')) {
+              nonFailureSince++
+            } else {
+              nonFailureSince = 0
+            }
+
+            // "accepted" = in mempool → confirm after 10 polls (~30s)
+            // "pending" with no failure → confirm after 20 polls (~60s)
+            const threshold = rawS.includes('accept') ? 10 : 20
+            if (nonFailureSince >= threshold) {
+              const realId = await resolveRealTxId(txId)
+              onStatus({ status: 'confirmed', strategy: 'wallet', resolvedTxId: realId || undefined })
+              return
             }
           }
 
