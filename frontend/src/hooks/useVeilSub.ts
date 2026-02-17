@@ -382,69 +382,88 @@ export function useVeilSub() {
     }
   }, [connected, requestRecords, decrypt])
 
-  // Fetch credits records with plaintext included (includePlaintext: true)
-  // Shield Wallet needs `true` to return .plaintext on record objects.
-  // With `false`, records come back without plaintext and getMicrocredits can't parse them.
+  // Fetch credits records — tries includePlaintext: true first (Shield Wallet),
+  // falls back to false + decrypt (Leo Wallet throws NOT_GRANTED on true).
   const getCreditsRecords = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) {
       console.warn('[VeilSub] getCreditsRecords: not connected or requestRecords unavailable')
       return []
     }
+
+    const results: { plaintext: string; microcredits: number }[] = []
+
+    // Strategy 1: includePlaintext: true (works with Shield Wallet)
+    let recordsArr: any[] = []
     try {
       console.log('[VeilSub] Fetching credits.aleo records (includePlaintext: true)...')
       const records = await withTimeout(
         requestRecords('credits.aleo', true),
         15000,
-        'requestRecords(credits.aleo)'
+        'requestRecords(credits.aleo, true)'
       )
-      const recordsArr = records as any[]
-      console.log('[VeilSub] Credits records received:', recordsArr.length)
-
-      // Log first record shape for debugging
-      if (recordsArr.length > 0) {
-        const r0 = recordsArr[0]
-        console.log('[VeilSub] First record shape:', {
-          type: typeof r0,
-          keys: typeof r0 === 'object' ? Object.keys(r0) : 'N/A',
-          hasPlaintext: !!r0?.plaintext,
-          hasData: !!r0?.data,
-          spent: r0?.spent,
-        })
-      }
-
-      const results: { plaintext: string; microcredits: number }[] = []
-
-      for (const r of recordsArr) {
-        const processed = await processRecord(r)
-        if (processed) results.push(processed)
-      }
-
-      // If includePlaintext: true didn't help, try with false + decrypt as fallback
-      if (results.length === 0 && recordsArr.length > 0) {
-        console.warn('[VeilSub] includePlaintext: true returned records but none processed. Trying with false + decrypt...')
-        try {
-          const fallbackRecords = await withTimeout(
-            requestRecords('credits.aleo', false),
-            15000,
-            'requestRecords(credits.aleo, false)'
-          )
-          for (const r of fallbackRecords as any[]) {
-            const processed = await processRecord(r)
-            if (processed) results.push(processed)
-          }
-        } catch (fallbackErr) {
-          console.error('[VeilSub] Fallback fetch also failed:', fallbackErr)
-        }
-      }
-
-      console.log('[VeilSub] Processed credits records:', results.length, results.map(r => r.microcredits))
-      return results
-        .sort((a, b) => b.microcredits - a.microcredits)
-        .map((r) => r.plaintext)
-    } catch (err) {
-      console.error('[VeilSub] Failed to fetch credits records:', err)
-      throw err
+      recordsArr = records as any[]
+      console.log('[VeilSub] Credits records received (true):', recordsArr.length)
+    } catch (trueErr) {
+      // Leo Wallet throws NOT_GRANTED when includePlaintext is true
+      console.warn('[VeilSub] includePlaintext: true failed (likely Leo Wallet):', trueErr)
     }
+
+    // Strategy 2: fallback to includePlaintext: false (Leo Wallet path)
+    if (recordsArr.length === 0) {
+      try {
+        console.log('[VeilSub] Falling back to includePlaintext: false...')
+        const records = await withTimeout(
+          requestRecords('credits.aleo', false),
+          15000,
+          'requestRecords(credits.aleo, false)'
+        )
+        recordsArr = records as any[]
+        console.log('[VeilSub] Credits records received (false):', recordsArr.length)
+      } catch (falseErr) {
+        console.error('[VeilSub] Both includePlaintext modes failed:', falseErr)
+        throw falseErr
+      }
+    }
+
+    // Log first record shape for debugging
+    if (recordsArr.length > 0) {
+      const r0 = recordsArr[0]
+      console.log('[VeilSub] First record shape:', {
+        type: typeof r0,
+        keys: typeof r0 === 'object' ? Object.keys(r0) : 'N/A',
+        hasPlaintext: !!r0?.plaintext,
+        hasData: !!r0?.data,
+        spent: r0?.spent,
+      })
+    }
+
+    for (const r of recordsArr) {
+      const processed = await processRecord(r)
+      if (processed) results.push(processed)
+    }
+
+    // If we got records but none processed, retry with the other mode + decrypt
+    if (results.length === 0 && recordsArr.length > 0) {
+      console.warn('[VeilSub] Records received but none processed. Trying opposite mode + decrypt...')
+      try {
+        const fallbackRecords = await withTimeout(
+          requestRecords('credits.aleo', false),
+          15000,
+          'requestRecords(credits.aleo, false fallback)'
+        )
+        for (const r of fallbackRecords as any[]) {
+          const processed = await processRecord(r)
+          if (processed) results.push(processed)
+        }
+      } catch (fallbackErr) {
+        console.error('[VeilSub] Fallback fetch also failed:', fallbackErr)
+      }
+    }
+
+    console.log('[VeilSub] Processed credits records:', results.length, results.map(r => r.microcredits))
+    return results
+      .sort((a, b) => b.microcredits - a.microcredits)
+      .map((r) => r.plaintext)
   }, [connected, requestRecords, decrypt])
 
   const getAccessPasses = useCallback(async (): Promise<string[]> => {

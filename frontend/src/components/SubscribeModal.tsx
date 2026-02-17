@@ -157,6 +157,13 @@ export default function SubscribeModal({
 
       // Auto-split: if only 1 record, split it via credits.aleo/split
       if (!rec2) {
+        // Save the nonce of the record being consumed by the split — after
+        // the split confirms, the wallet cache may still return this record
+        // as "unspent". We must exclude it to avoid "input ID already exists
+        // in the ledger" rejections.
+        const consumedNonce = extractNonce(records[0])
+        console.log('[SubscribeModal] Consumed record nonce for exclusion:', consumedNonce)
+
         setStatusMessage('Splitting credit record (1 of 2)...')
         const splitAmount = creatorCut // 95% for creator payment, remainder covers 5% platform fee
         const splitTxId = await splitCredits(records[0], splitAmount)
@@ -190,9 +197,9 @@ export default function SubscribeModal({
           }, 1000)
         })
 
-        // Re-fetch records after split with retry loop
+        // Re-fetch records after split with retry loop, excluding the consumed record
         setStatusMessage('Fetching updated records...')
-        const synced = await waitForRecordSync(getCreditsRecords, setStatusMessage)
+        const synced = await waitForRecordSync(getCreditsRecords, setStatusMessage, new Set([consumedNonce]))
         rec1 = synced[0]
         rec2 = synced[1]
       }

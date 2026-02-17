@@ -150,6 +150,10 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
       // Auto-split if only 1 record
       if (!rec2) {
+        // Save consumed record nonce to exclude stale cache entries after split
+        const consumedNonce = extractNonce(records[0])
+        console.log('[TipModal] Consumed record nonce for exclusion:', consumedNonce)
+
         setStatusMessage('Splitting credit record (1 of 2)...')
         const splitAmount = tipMicrocredits - Math.floor(tipMicrocredits / 20) // 95% for creator, remainder covers 5% platform fee
         const splitTxId = await splitCredits(records[0], splitAmount)
@@ -175,7 +179,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         })
 
         setStatusMessage('Fetching updated records...')
-        const synced = await waitForRecordSync(getCreditsRecords, setStatusMessage)
+        const synced = await waitForRecordSync(getCreditsRecords, setStatusMessage, new Set([consumedNonce]))
         rec1 = synced[0]
         rec2 = synced[1]
       }

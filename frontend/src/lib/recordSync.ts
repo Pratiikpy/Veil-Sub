@@ -20,16 +20,37 @@ export function dedupeRecords(records: string[]): string[] {
   })
 }
 
+/**
+ * Wait for the wallet to sync new records after a split.
+ *
+ * @param getCreditsRecords  Fetches all credit records from the wallet
+ * @param setStatusMessage   UI status callback
+ * @param excludeNonces      Nonces of records consumed by the split — these may
+ *                           still appear "unspent" in the wallet's local cache,
+ *                           but are already spent on-chain. MUST be excluded to
+ *                           avoid "input ID already exists in the ledger" errors.
+ */
 export async function waitForRecordSync(
   getCreditsRecords: () => Promise<string[]>,
   setStatusMessage: (msg: string | null) => void,
+  excludeNonces?: Set<string>,
 ): Promise<string[]> {
   for (let i = 0; i < RETRY_DELAYS.length; i++) {
     await new Promise((r) => setTimeout(r, RETRY_DELAYS[i]))
     setStatusMessage(`Syncing new records (attempt ${i + 2} of ${RETRY_DELAYS.length + 1})...`)
     try {
       const raw = await getCreditsRecords()
-      const deduped = dedupeRecords(raw)
+      let deduped = dedupeRecords(raw)
+
+      // Exclude records that were consumed by the split but the wallet
+      // hasn't marked as spent yet
+      if (excludeNonces && excludeNonces.size > 0) {
+        deduped = deduped.filter((r) => {
+          const nonce = extractNonce(r)
+          return !excludeNonces.has(nonce)
+        })
+      }
+
       if (deduped.length >= 2) return deduped
     } catch {
       // retry on next iteration
