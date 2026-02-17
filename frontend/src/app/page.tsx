@@ -185,7 +185,7 @@ export default function HomePage() {
             WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)',
           }}
         />
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24">
           <motion.div
             {...fadeUp}
             transition={{ duration: 0.6 }}
@@ -200,7 +200,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <h1 className="text-5xl sm:text-7xl font-bold tracking-tight mb-6">
+            <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight mb-6">
               <span className="bg-gradient-to-r from-white via-violet-200 to-purple-300 bg-clip-text text-transparent animate-gradient-text">
                 Subscribe Privately.
               </span>
@@ -210,19 +210,19 @@ export default function HomePage() {
               </span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-6">
+            <p className="text-lg sm:text-xl text-slate-500 max-w-2xl mx-auto mb-6">
               The private access layer for the creator economy. Zero-footprint verification. Multi-token payments. Built on Aleo.
             </p>
 
             {/* Proof badges */}
             <div className="flex items-center justify-center gap-3 flex-wrap mb-10">
-              <div className="px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300">
+              <div className="px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/10 text-xs text-violet-300">
                 <span className="font-semibold">9</span> Transitions
               </div>
-              <div className="px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-300">
+              <div className="px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/10 text-xs text-indigo-300">
                 <span className="font-semibold">10</span> Mappings
               </div>
-              <div className="px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-xs text-green-300">
+              <div className="px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/10 text-xs text-green-300">
                 <span className="font-semibold">Multi-Token</span>
                 <span className="text-green-400/60 ml-1">ALEO + USDCx</span>
               </div>

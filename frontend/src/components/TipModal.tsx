@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { creditsToMicrocredits } from '@/lib/utils'
+import { extractNonce, dedupeRecords, waitForRecordSync } from '@/lib/recordSync'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
 import type { TxStatus } from '@/types'
@@ -105,14 +106,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         } catch { rawRecords = [] }
       }
       // Nonce-based deduplication (CLAUDE.md: NEVER deduplicate by full plaintext string)
-      const extractNonce = (r: string) => { const m = r.match(/_nonce:\s*(\S+?)\.public/); return m?.[1] ?? r }
-      const seenNonces = new Set<string>()
-      const records = rawRecords.filter(r => {
-        const nonce = extractNonce(r)
-        if (seenNonces.has(nonce)) return false
-        seenNonces.add(nonce)
-        return true
-      })
+      const records = dedupeRecords(rawRecords)
       console.log('[TipModal] Deduped records:', records.length)
 
       if (records.length < 1) {
@@ -181,18 +175,9 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         })
 
         setStatusMessage('Fetching updated records...')
-        await new Promise(r => setTimeout(r, 2000))
-        const newRecords = await getCreditsRecords()
-        const dedupNonces = new Set<string>()
-        const deduped = newRecords.filter(r => { const n = extractNonce(r); if (dedupNonces.has(n)) return false; dedupNonces.add(n); return true })
-        if (deduped.length < 2) {
-          setTxStatus('failed')
-          setError('Split completed but records not yet synced. Please try again in a few seconds.')
-          submittingRef.current = false
-          return
-        }
-        rec1 = deduped[0]
-        rec2 = deduped[1]
+        const synced = await waitForRecordSync(getCreditsRecords, setStatusMessage)
+        rec1 = synced[0]
+        rec2 = synced[1]
       }
 
       setStatusMessage(null)
@@ -271,7 +256,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
             role="dialog"
             aria-modal="true"
             aria-label="Send a private tip"
-            className="w-full max-w-sm rounded-2xl bg-[#13111c] border border-white/10 p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-sm rounded-2xl bg-[#0a0a0f] border border-white/10 p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">

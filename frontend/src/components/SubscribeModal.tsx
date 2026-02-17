@@ -8,6 +8,7 @@ import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { generatePassId, formatCredits } from '@/lib/utils'
+import { extractNonce, dedupeRecords, waitForRecordSync } from '@/lib/recordSync'
 import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT } from '@/lib/config'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
@@ -111,14 +112,7 @@ export default function SubscribeModal({
         } catch { rawRecords = [] }
       }
       // Nonce-based deduplication (CLAUDE.md: NEVER deduplicate by full plaintext string)
-      const extractNonce = (r: string) => { const m = r.match(/_nonce:\s*(\S+?)\.public/); return m?.[1] ?? r }
-      const seenNonces = new Set<string>()
-      const records = rawRecords.filter(r => {
-        const nonce = extractNonce(r)
-        if (seenNonces.has(nonce)) return false
-        seenNonces.add(nonce)
-        return true
-      })
+      const records = dedupeRecords(rawRecords)
       console.log('[SubscribeModal] Deduped records:', records.length)
 
       if (records.length < 1) {
@@ -196,20 +190,11 @@ export default function SubscribeModal({
           }, 1000)
         })
 
-        // Re-fetch records after split
+        // Re-fetch records after split with retry loop
         setStatusMessage('Fetching updated records...')
-        await new Promise(r => setTimeout(r, 2000)) // brief wait for wallet sync
-        const newRecords = await getCreditsRecords()
-        const dedupNonces = new Set<string>()
-        const deduped = newRecords.filter(r => { const n = extractNonce(r); if (dedupNonces.has(n)) return false; dedupNonces.add(n); return true })
-        if (deduped.length < 2) {
-          setTxStatus('failed')
-          setError('Split completed but records not yet synced. Please close and try again in a few seconds.')
-          submittingRef.current = false
-          return
-        }
-        rec1 = deduped[0]
-        rec2 = deduped[1]
+        const synced = await waitForRecordSync(getCreditsRecords, setStatusMessage)
+        rec1 = synced[0]
+        rec2 = synced[1]
       }
 
       const passId = generatePassId()
@@ -294,7 +279,7 @@ export default function SubscribeModal({
             role="dialog"
             aria-modal="true"
             aria-label="Subscribe to creator"
-            className="w-full max-w-md rounded-2xl bg-[#13111c] border border-white/10 p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-md rounded-2xl bg-[#0a0a0f] border border-white/10 p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">

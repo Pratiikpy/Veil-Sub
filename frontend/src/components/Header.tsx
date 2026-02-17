@@ -35,7 +35,7 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5">
-      <div className="backdrop-blur-xl bg-[#0a0a0f]/80">
+      <div className="backdrop-blur-xl bg-[#050507]/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2 group">
@@ -47,33 +47,35 @@ export default function Header() {
               </span>
             </Link>
 
-            {/* Desktop nav */}
-            <nav className="hidden md:flex items-center gap-1">
-              {visibleItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`relative px-3 py-2 text-sm rounded-lg transition-colors ${
-                    isActive(item.href)
-                      ? 'text-white'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  {item.label}
-                  {isActive(item.href) && (
-                    <motion.div
-                      layoutId="nav-indicator"
-                      className="absolute inset-0 rounded-lg bg-white/[0.06] border border-white/[0.08]"
-                      style={{ zIndex: -1 }}
-                      transition={{
-                        type: 'spring',
-                        stiffness: 350,
-                        damping: 30,
-                      }}
-                    />
-                  )}
-                </Link>
-              ))}
+            {/* Desktop nav — floating pill */}
+            <nav className="hidden md:block">
+              <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-full p-1 flex items-center">
+                {visibleItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`relative px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      isActive(item.href)
+                        ? 'text-white'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {item.label}
+                    {isActive(item.href) && (
+                      <motion.div
+                        layoutId="nav-indicator"
+                        className="absolute inset-0 rounded-full bg-white/10 border border-white/[0.15]"
+                        style={{ zIndex: -1 }}
+                        transition={{
+                          type: 'spring',
+                          stiffness: 350,
+                          damping: 30,
+                        }}
+                      />
+                    )}
+                  </Link>
+                ))}
+              </div>
             </nav>
 
             <div className="flex items-center gap-3">
@@ -104,7 +106,7 @@ export default function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-b border-white/5 bg-[#0a0a0f]/95 backdrop-blur-xl overflow-hidden"
+            className="md:hidden border-b border-white/5 bg-[#050507]/95 backdrop-blur-xl overflow-hidden"
           >
             <nav className="px-4 py-3 space-y-1">
               {visibleItems.map((item) => (

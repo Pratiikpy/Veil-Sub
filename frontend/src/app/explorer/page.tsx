@@ -62,10 +62,10 @@ function MiniSparkline({ data }: { data: number[] }) {
   )
 }
 
-const TIER_LABELS: Record<number, { name: string; color: string }> = {
-  1: { name: 'Supporter', color: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
-  2: { name: 'Premium', color: 'bg-violet-500/20 text-violet-300 border-violet-500/30' },
-  3: { name: 'VIP', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
+const TIER_LABELS: Record<number, { name: string; color: string; dot: string }> = {
+  1: { name: 'Supporter', color: 'bg-blue-500/20 text-blue-300 border-blue-500/30', dot: 'bg-blue-400' },
+  2: { name: 'Premium', color: 'bg-violet-500/20 text-violet-300 border-violet-500/30', dot: 'bg-violet-400' },
+  3: { name: 'VIP', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30', dot: 'bg-amber-400' },
 }
 
 const SEARCH_PLACEHOLDERS = [
@@ -219,7 +219,7 @@ export default function ExplorerPage() {
                   <Users className="w-4 h-4 text-violet-400" />
                   <span className="text-xs text-slate-400">Total Creators</span>
                 </div>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-3xl font-bold font-display text-white">
                   <AnimatedCounter target={globalStats.totalCreators} />
                 </p>
               </GlassCard>
@@ -228,7 +228,7 @@ export default function ExplorerPage() {
                   <Activity className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-slate-400">Total Subscriptions</span>
                 </div>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-3xl font-bold font-display text-white">
                   <AnimatedCounter target={globalStats.totalSubscriptions} />
                 </p>
               </GlassCard>
@@ -237,7 +237,7 @@ export default function ExplorerPage() {
                   <Coins className="w-4 h-4 text-amber-400" />
                   <span className="text-xs text-slate-400">Platform Revenue</span>
                 </div>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-3xl font-bold font-display text-white">
                   {formatCredits(globalStats.totalRevenue)} <span className="text-sm text-slate-400">ALEO</span>
                 </p>
               </GlassCard>
@@ -246,7 +246,7 @@ export default function ExplorerPage() {
                   <Shield className="w-4 h-4 text-blue-400" />
                   <span className="text-xs text-slate-400">Active Programs</span>
                 </div>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-3xl font-bold font-display text-white">
                   <AnimatedCounter target={globalStats.activePrograms} />
                 </p>
               </GlassCard>
@@ -316,7 +316,7 @@ export default function ExplorerPage() {
                     <Shield className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-white font-medium">{shortenAddress(result.address)}</p>
+                    <p className="text-white font-medium font-mono">{shortenAddress(result.address)}</p>
                     <p className="text-xs text-slate-500">
                       {isRegistered ? 'Registered Creator' : 'Not Registered'}
                     </p>
@@ -359,7 +359,7 @@ export default function ExplorerPage() {
                         />
                       </div>
                       <div className="flex items-center justify-between">
-                        <p className="text-2xl font-bold text-white">
+                        <p className="text-3xl font-bold font-display text-white">
                           {result.subscriberCount}
                         </p>
                         {sparkData.length > 0 && (
@@ -386,7 +386,7 @@ export default function ExplorerPage() {
                           displayedValue={result.totalRevenue}
                         />
                       </div>
-                      <p className="text-2xl font-bold text-white">
+                      <p className="text-3xl font-bold font-display text-white">
                         {formatCredits(result.totalRevenue)} <span className="text-sm text-slate-400">ALEO</span>
                       </p>
                       <p className="text-xs text-slate-500 mt-1">
@@ -406,7 +406,7 @@ export default function ExplorerPage() {
                           displayedValue={result.tierPrice ?? 0}
                         />
                       </div>
-                      <p className="text-2xl font-bold text-white">
+                      <p className="text-3xl font-bold font-display text-white">
                         {formatCredits(result.tierPrice ?? 0)} <span className="text-sm text-slate-400">ALEO</span>
                       </p>
                       <p className="text-xs text-slate-500 mt-1">
@@ -516,22 +516,25 @@ export default function ExplorerPage() {
                   ))}
                 </div>
               ) : paginatedEvents.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-sm text-slate-500">No events found</p>
+                <div className="text-center py-12">
+                  <Activity className="w-8 h-8 text-slate-700 mx-auto mb-3" />
+                  <p className="text-sm text-slate-500 mb-1">No events found</p>
+                  <p className="text-xs text-slate-600">Subscription and tip activity will appear here once transactions are confirmed on-chain.</p>
                 </div>
               ) : (
                 <div>
                   {paginatedEvents.map((event, i) => {
-                    const tier = TIER_LABELS[event.tier] || { name: 'Tip', color: 'bg-pink-500/20 text-pink-300 border-pink-500/30' }
+                    const tier = TIER_LABELS[event.tier] || { name: 'Tip', color: 'bg-pink-500/20 text-pink-300 border-pink-500/30', dot: 'bg-pink-400' }
                     const txShort = event.tx_id ? `${event.tx_id.slice(0, 12)}...${event.tx_id.slice(-6)}` : '—'
 
                     return (
                       <div
                         key={`${event.tx_id || i}-${i}`}
-                        className="grid grid-cols-[1fr_auto_auto_1.5fr_auto] gap-4 px-4 py-3 border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors items-center"
+                        className="grid grid-cols-[1fr_auto_auto_1.5fr_auto] gap-4 px-4 py-3 border-b border-white/[0.04] hover:bg-white/[0.04] transition-colors items-center"
                       >
                         <span className="text-xs text-slate-400">{timeAgo(event.created_at)}</span>
-                        <span className={`px-2 py-0.5 rounded-md text-xs font-medium border ${tier.color}`}>
+                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium border ${tier.color}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${tier.dot}`} />
                           {tier.name}
                         </span>
                         <span className="text-xs text-white font-medium">
