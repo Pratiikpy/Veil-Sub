@@ -86,13 +86,10 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
       const tipMicrocredits = creditsToMicrocredits(tipAmount)
 
-      // Fetch with retry (NullPay pattern)
-      console.log('[TipModal] Fetching credits records...')
       let rawRecords: string[]
       try {
         rawRecords = await getCreditsRecords()
-      } catch (fetchErr) {
-        console.error('[TipModal] First fetch failed:', fetchErr)
+      } catch {
         await new Promise(r => setTimeout(r, 2000))
         try {
           rawRecords = await getCreditsRecords()
@@ -106,9 +103,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
           rawRecords = await getCreditsRecords()
         } catch { rawRecords = [] }
       }
-      // Nonce-based deduplication (CLAUDE.md: NEVER deduplicate by full plaintext string)
       const records = dedupeRecords(rawRecords)
-      console.log('[TipModal] Deduped records:', records.length)
 
       if (records.length < 1) {
         setInsufficientBalance(true)
@@ -137,7 +132,6 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
       // v7: Single-record tip — contract handles both creator and platform payments
       const paymentRecord = records[0]
-      console.log('[TipModal] Using single record with', parseMicrocredits(paymentRecord), 'microcredits')
 
       setStatusMessage(null)
       setTxStatus('proving')

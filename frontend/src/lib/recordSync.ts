@@ -48,7 +48,6 @@ export async function waitForRecordSync(
     setStatusMessage(`Syncing new records (attempt ${i + 1} of ${RETRY_DELAYS.length})...`)
     try {
       const raw = await getCreditsRecords()
-      console.log(`[recordSync] Attempt ${i + 1}: got ${raw.length} raw records`)
       let deduped = dedupeRecords(raw)
 
       // Exclude records that were consumed by the split but the wallet
@@ -56,13 +55,9 @@ export async function waitForRecordSync(
       if (excludeNonces && excludeNonces.size > 0) {
         deduped = deduped.filter((r) => {
           const nonce = extractNonce(r)
-          const excluded = excludeNonces.has(nonce)
-          if (excluded) console.log('[recordSync] Excluding stale record with nonce:', nonce)
-          return !excluded
+          return !excludeNonces.has(nonce)
         })
       }
-
-      console.log(`[recordSync] After dedup+exclude: ${deduped.length} records`)
 
       // Need at least 2 distinct records for the follow-up transaction
       if (deduped.length >= 2) {
@@ -70,13 +65,11 @@ export async function waitForRecordSync(
         const n0 = extractNonce(deduped[0])
         const n1 = extractNonce(deduped[1])
         if (n0 !== n1) {
-          console.log('[recordSync] Found 2 valid records with nonces:', n0, n1)
           return deduped
         }
-        console.warn('[recordSync] First two records share nonce, retrying...')
       }
-    } catch (err) {
-      console.warn(`[recordSync] Attempt ${i + 1} failed:`, err)
+    } catch {
+      // Retry on next attempt
     }
   }
   throw new Error('Wallet has not synced new records after split. Please close and try again in a minute.')

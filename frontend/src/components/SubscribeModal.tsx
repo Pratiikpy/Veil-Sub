@@ -91,13 +91,10 @@ export default function SubscribeModal({
     setTxStatus('signing')
 
     try {
-      // Fetch user's credits records with retry (NullPay pattern)
-      console.log('[SubscribeModal] Fetching credits records...')
       let rawRecords: string[]
       try {
         rawRecords = await getCreditsRecords()
-      } catch (fetchErr) {
-        console.error('[SubscribeModal] First fetch failed:', fetchErr)
+      } catch {
         // Retry once after brief sync delay
         await new Promise(r => setTimeout(r, 2000))
         try {
@@ -112,9 +109,7 @@ export default function SubscribeModal({
           rawRecords = await getCreditsRecords()
         } catch { rawRecords = [] }
       }
-      // Nonce-based deduplication (CLAUDE.md: NEVER deduplicate by full plaintext string)
       const records = dedupeRecords(rawRecords)
-      console.log('[SubscribeModal] Deduped records:', records.length)
 
       if (records.length < 1) {
         setInsufficientBalance(true)
@@ -143,7 +138,6 @@ export default function SubscribeModal({
 
       // v7: Single-record subscribe — contract handles both creator and platform payments
       const paymentRecord = records[0]
-      console.log('[SubscribeModal] Using single record with', parseMicrocredits(paymentRecord), 'microcredits')
 
       const passId = generatePassId()
       const expiresAt = blockHeight + SUBSCRIPTION_DURATION_BLOCKS

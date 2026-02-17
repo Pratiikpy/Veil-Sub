@@ -95,13 +95,10 @@ export default function RenewModal({
     setTxStatus('signing')
 
     try {
-      // Fetch with retry (NullPay pattern)
-      console.log('[RenewModal] Fetching credits records...')
       let rawRecords: string[]
       try {
         rawRecords = await getCreditsRecords()
-      } catch (fetchErr) {
-        console.error('[RenewModal] First fetch failed:', fetchErr)
+      } catch {
         await new Promise(r => setTimeout(r, 2000))
         try {
           rawRecords = await getCreditsRecords()
@@ -145,7 +142,6 @@ export default function RenewModal({
 
       // v7: Single-record renew — contract handles both creator and platform payments
       const paymentRecord = records[0]
-      console.log('[RenewModal] Using single record with', parseMicrocredits(paymentRecord), 'microcredits')
 
       const newPassId = generatePassId()
       const newExpiresAt = blockHeight + SUBSCRIPTION_DURATION_BLOCKS

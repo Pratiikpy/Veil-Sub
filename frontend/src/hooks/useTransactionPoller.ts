@@ -17,6 +17,8 @@ interface PollResult {
 // is a real explorer ID. Try the Provable API as a best-effort resolution.
 async function resolveRealTxId(tempId: string): Promise<string | null> {
   if (tempId.startsWith('at1')) return tempId // already a real ID
+  // UUIDs (Leo Wallet) and shield_* IDs won't resolve on the Provable API — skip fetch
+  if (tempId.includes('-') || tempId.startsWith('shield_')) return null
   try {
     const res = await fetch(`/api/aleo/transaction/${tempId}`)
     if (res.ok) {
@@ -37,8 +39,6 @@ export function useTransactionPoller() {
       if (!transactionStatus) throw new Error('No wallet transactionStatus')
       const result = await transactionStatus(txId)
       const s = (typeof result === 'string' ? result : result?.status || '').toLowerCase()
-      console.log(`[TxPoller] wallet status for ${txId}: "${s}"`)
-
       if (s.includes('finalize') || s.includes('confirm') || s.includes('complete')) {
         return { status: 'confirmed', strategy: 'wallet' }
       }

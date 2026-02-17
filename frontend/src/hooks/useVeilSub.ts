@@ -37,8 +37,6 @@ export function useVeilSub() {
         throw new Error('Wallet not connected')
       }
 
-      console.log(`[VeilSub] execute ${program || PROGRAM_ID}/${functionName}`, { inputs, fee })
-
       const result = await executeTransaction({
         program: program || PROGRAM_ID,
         function: functionName,
@@ -46,8 +44,6 @@ export function useVeilSub() {
         fee,
         privateFee: false,
       })
-
-      console.log(`[VeilSub] execute result:`, result)
       return result?.transactionId ?? null
     },
     [address, executeTransaction]
@@ -290,7 +286,7 @@ export function useVeilSub() {
           if (val === 0) val = getMicrocredits(r)
         }
       } catch (decryptErr) {
-        console.error('[VeilSub] Decrypt FAILED:', decryptErr)
+        // Decrypt failed — record may be from another program
       }
     }
 
@@ -318,7 +314,7 @@ export function useVeilSub() {
     }
 
     if (!plaintext) {
-      console.warn('[VeilSub] Record has value', val, 'but no plaintext. Keys:', typeof r === 'object' ? Object.keys(r).join(', ') : 'N/A')
+      // Record has value but no plaintext — skip
       return null
     }
     return { plaintext, microcredits: val }
@@ -341,13 +337,11 @@ export function useVeilSub() {
   const getTokenRecords = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      console.log('[VeilSub] Fetching token_registry.aleo records...')
       const records = await withTimeout(
         requestRecords('token_registry.aleo', false),
         15000,
         'requestRecords(token_registry.aleo)'
       )
-      console.log('[VeilSub] Token records received:', (records as any[]).length)
       const results: { plaintext: string; amount: number }[] = []
 
       for (const r of records as any[]) {
@@ -361,7 +355,6 @@ export function useVeilSub() {
 
       return results.sort((a, b) => b.amount - a.amount).map((r) => r.plaintext)
     } catch (err) {
-      console.error('[VeilSub] Failed to fetch token records:', err)
       return []
     }
   }, [connected, requestRecords, decrypt])
@@ -370,7 +363,6 @@ export function useVeilSub() {
   // falls back to false + decrypt (Leo Wallet throws NOT_GRANTED on true).
   const getCreditsRecords = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) {
-      console.warn('[VeilSub] getCreditsRecords: not connected or requestRecords unavailable')
       return []
     }
 
@@ -380,33 +372,27 @@ export function useVeilSub() {
     // Strategy 1: includePlaintext: true (works with Shield Wallet)
     let recordsArr: any[] = []
     try {
-      console.log('[VeilSub] Fetching credits.aleo records (includePlaintext: true)...')
       const records = await withTimeout(
         requestRecords('credits.aleo', true),
         15000,
         'requestRecords(credits.aleo, true)'
       )
       recordsArr = records as any[]
-      console.log('[VeilSub] Credits records received (true):', recordsArr.length)
-    } catch (trueErr) {
+    } catch {
       // Leo Wallet throws NOT_GRANTED when includePlaintext is true
-      console.warn('[VeilSub] includePlaintext: true failed (likely Leo Wallet):', trueErr)
     }
 
     // Strategy 2: fallback to includePlaintext: false (Leo Wallet path)
     if (recordsArr.length === 0) {
       usedFalseMode = true
       try {
-        console.log('[VeilSub] Falling back to includePlaintext: false...')
         const records = await withTimeout(
           requestRecords('credits.aleo', false),
           15000,
           'requestRecords(credits.aleo, false)'
         )
         recordsArr = records as any[]
-        console.log('[VeilSub] Credits records received (false):', recordsArr.length)
       } catch (falseErr) {
-        console.error('[VeilSub] Both includePlaintext modes failed:', falseErr)
         throw falseErr
       }
     }
@@ -434,7 +420,6 @@ export function useVeilSub() {
       }
     }
 
-    console.log('[VeilSub] Processed credits records:', results.length, results.map(r => r.microcredits))
     return results
       .sort((a, b) => b.microcredits - a.microcredits)
       .map((r) => r.plaintext)
@@ -443,13 +428,11 @@ export function useVeilSub() {
   const getAccessPasses = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      console.log('[VeilSub] Fetching access passes...')
       const records = await withTimeout(
         requestRecords(PROGRAM_ID, false),
         15000,
         `requestRecords(${PROGRAM_ID})`
       )
-      console.log('[VeilSub] Access passes received:', (records as any[]).length)
       const results: string[] = []
 
       for (const r of records as any[]) {
@@ -460,7 +443,6 @@ export function useVeilSub() {
 
       return results
     } catch (err) {
-      console.error('[VeilSub] Failed to fetch access passes:', err)
       return []
     }
   }, [connected, requestRecords, decrypt])
