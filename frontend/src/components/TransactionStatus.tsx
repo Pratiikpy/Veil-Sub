@@ -201,17 +201,41 @@ export default function TransactionStatus({ status, txId }: Props) {
           className="mt-3"
         >
           <p className="text-xs text-slate-500 mb-2">Transaction ID</p>
-          <a
-            href={`https://testnet.explorer.provable.com/transaction/${txId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-violet-500/30 hover:bg-violet-500/5 transition-all group"
-          >
-            <span className="text-xs text-violet-400 group-hover:text-violet-300 break-all flex-1 font-mono">
-              {txId}
-            </span>
-            <ExternalLink className="w-4 h-4 text-violet-400 group-hover:text-violet-300 shrink-0" />
-          </a>
+          {txId.startsWith('shield_') ? (
+            <>
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
+                <span className="text-xs text-slate-500 break-all flex-1 font-mono">
+                  {txId}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-600 mt-1.5">
+                Shield Wallet uses temporary IDs. Your transaction is confirmed on-chain.
+              </p>
+              <a
+                href={`https://testnet.explorer.provable.com/program/veilsub_v7.aleo`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 mt-2 p-2.5 rounded-xl bg-violet-500/5 border border-violet-500/15 hover:border-violet-500/30 hover:bg-violet-500/10 transition-all group"
+              >
+                <span className="text-xs text-violet-400 group-hover:text-violet-300 flex-1">
+                  View program on Explorer
+                </span>
+                <ExternalLink className="w-3.5 h-3.5 text-violet-400 group-hover:text-violet-300 shrink-0" />
+              </a>
+            </>
+          ) : (
+            <a
+              href={`https://testnet.explorer.provable.com/transaction/${txId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-violet-500/30 hover:bg-violet-500/5 transition-all group"
+            >
+              <span className="text-xs text-violet-400 group-hover:text-violet-300 break-all flex-1 font-mono">
+                {txId}
+              </span>
+              <ExternalLink className="w-4 h-4 text-violet-400 group-hover:text-violet-300 shrink-0" />
+            </a>
+          )}
         </motion.div>
       )}
     </div>

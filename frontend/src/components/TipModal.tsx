@@ -151,6 +151,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         setTxStatus('broadcasting')
         startPolling(id, (result) => {
           if (result.status === 'confirmed') {
+            if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
             toast.success('Tip sent!')
           } else if (result.status === 'failed') {

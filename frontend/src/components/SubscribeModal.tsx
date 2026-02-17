@@ -163,6 +163,7 @@ export default function SubscribeModal({
         setTxStatus('broadcasting')
         startPolling(id, (result) => {
           if (result.status === 'confirmed') {
+            if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
             toast.success('Subscribed!')
           } else if (result.status === 'failed') {

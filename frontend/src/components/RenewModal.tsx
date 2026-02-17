@@ -165,6 +165,7 @@ export default function RenewModal({
         setTxStatus('broadcasting')
         startPolling(id, (result) => {
           if (result.status === 'confirmed') {
+            if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
             toast.success('Subscription renewed!')
           } else if (result.status === 'failed') {

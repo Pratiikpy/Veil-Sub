@@ -9,6 +9,25 @@ type PollStatus = 'pending' | 'confirmed' | 'failed' | 'unknown'
 interface PollResult {
   status: PollStatus
   strategy: PollingStrategy
+  resolvedTxId?: string
+}
+
+// Best-effort attempt to find the real at1... transaction ID.
+// Shield Wallet returns temporary shield_* IDs that don't exist on the explorer.
+// We try querying the Provable API for the transaction; if the wallet eventually
+// maps the temp ID to a real one, the API will resolve it.
+async function resolveRealTxId(tempId: string): Promise<string | null> {
+  if (!tempId.startsWith('shield_')) return tempId // already a real ID
+  try {
+    // Try the Provable transaction endpoint — some wallets map temp IDs server-side
+    const res = await fetch(`/api/aleo/transaction/${tempId}`)
+    if (res.ok) {
+      const data = await res.json()
+      const id = data?.id || data?.transaction?.id
+      if (id && typeof id === 'string' && id.startsWith('at1')) return id
+    }
+  } catch { /* best effort */ }
+  return null
 }
 
 export function useTransactionPoller() {
@@ -82,7 +101,9 @@ export function useTransactionPoller() {
               acceptedSince++
               // After 10 polls (~30s) with "accepted", report as confirmed
               if (acceptedSince >= 10) {
-                onStatus({ status: 'confirmed', strategy: 'wallet' })
+                // Try to resolve real at1... tx ID from the network
+                const realId = await resolveRealTxId(txId)
+                onStatus({ status: 'confirmed', strategy: 'wallet', resolvedTxId: realId || undefined })
                 return
               }
             }
