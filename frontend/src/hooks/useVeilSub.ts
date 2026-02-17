@@ -309,7 +309,12 @@ export function useVeilSub() {
   const getTokenRecords = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      const records = await requestRecords('token_registry.aleo', false)
+      let records: unknown[]
+      try {
+        records = await requestRecords('token_registry.aleo', true)
+      } catch {
+        records = await (requestRecords as any)('token_registry.aleo')
+      }
       const results: { plaintext: string; amount: number }[] = []
 
       for (const r of records as any[]) {
@@ -331,7 +336,13 @@ export function useVeilSub() {
   const getCreditsRecords = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      const records = await requestRecords('credits.aleo', false)
+      // Try with plaintext first, fall back without if wallet rejects the param
+      let records: unknown[]
+      try {
+        records = await requestRecords('credits.aleo', true)
+      } catch {
+        records = await (requestRecords as any)('credits.aleo')
+      }
       const results: { plaintext: string; microcredits: number }[] = []
 
       for (const r of records as any[]) {
@@ -352,7 +363,12 @@ export function useVeilSub() {
   const getAccessPasses = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      const records = await requestRecords(PROGRAM_ID, false)
+      let records: unknown[]
+      try {
+        records = await requestRecords(PROGRAM_ID, true)
+      } catch {
+        records = await (requestRecords as any)(PROGRAM_ID)
+      }
       const results: string[] = []
 
       for (const r of records as any[]) {
