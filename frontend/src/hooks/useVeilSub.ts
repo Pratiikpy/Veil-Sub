@@ -283,35 +283,32 @@ export function useVeilSub() {
       dataKeys: r?.data ? Object.keys(r.data) : [],
       hasPlaintext: !!r?.plaintext,
       hasCiphertext: !!r?.recordCiphertext,
+      hasCiphertextAlt: !!r?.ciphertext,
       hasNonce: !!(r?.nonce || r?._nonce || r?.data?._nonce),
+      owner: r?.owner || r?.data?.owner || 'none',
       spent: r?.spent,
     })
 
     let val = getMicrocredits(r)
     console.log('[VeilSub] getMicrocredits initial:', val)
 
-    // If value is 0, try to decrypt the record to get plaintext
-    if (val === 0 && r?.recordCiphertext && !r?.plaintext && decrypt) {
+    // Try to decrypt the record to get plaintext — needed when:
+    // 1. val === 0 (can't parse structured data)
+    // 2. val > 0 but no plaintext available (Leo Wallet with includePlaintext: false)
+    if (r?.recordCiphertext && !r?.plaintext && decrypt) {
       try {
         console.log('[VeilSub] Attempting decrypt...')
         const decrypted = await decrypt(r.recordCiphertext)
         if (decrypted) {
           console.log('[VeilSub] Decrypt succeeded, plaintext length:', decrypted.length)
           r.plaintext = decrypted
-          val = getMicrocredits(r)
-          console.log('[VeilSub] getMicrocredits after decrypt:', val)
+          if (val === 0) {
+            val = getMicrocredits(r)
+            console.log('[VeilSub] getMicrocredits after decrypt:', val)
+          }
         }
       } catch (decryptErr) {
         console.error('[VeilSub] Decrypt FAILED:', decryptErr)
-      }
-    }
-
-    // If still no value, try to extract from any nested structure
-    if (val === 0) {
-      // Last resort: check if we have plaintext but regex didn't match
-      const text = typeof r === 'string' ? r : r?.plaintext
-      if (text) {
-        console.warn('[VeilSub] Has plaintext but getMicrocredits returned 0. Plaintext preview:', text.slice(0, 200))
       }
     }
 
@@ -324,18 +321,23 @@ export function useVeilSub() {
     } else if (r?.plaintext) {
       plaintext = r.plaintext
     } else {
-      // Reconstruct plaintext from structured data
+      // Reconstruct plaintext from structured data (NullPay pattern)
       const nonce = r?.nonce || r?._nonce || r?.data?._nonce
-      const owner = r?.owner
+      const owner = r?.owner || r?.data?.owner
+      console.log('[VeilSub] Reconstruction attempt:', { nonce, owner, val })
       if (nonce && owner) {
-        plaintext = `{ owner: ${owner}.private, microcredits: ${val}u64.private, _nonce: ${nonce}.public }`
+        // Strip existing suffixes to avoid double .private/.public
+        const cleanOwner = String(owner).replace(/\.private$/, '')
+        const cleanNonce = String(nonce).replace(/\.public$/, '')
+        plaintext = `{ owner: ${cleanOwner}.private, microcredits: ${val}u64.private, _nonce: ${cleanNonce}.public }`
+        console.log('[VeilSub] Reconstructed plaintext:', plaintext)
       } else if (r?.ciphertext) {
         plaintext = r.ciphertext
       }
     }
 
     if (!plaintext) {
-      console.warn('[VeilSub] Record has value', val, 'but could not extract plaintext')
+      console.warn('[VeilSub] Record has value', val, 'but could not extract plaintext. Record keys:', typeof r === 'object' ? Object.keys(r) : 'N/A')
       return null
     }
     return { plaintext, microcredits: val }
