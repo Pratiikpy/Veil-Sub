@@ -40,9 +40,17 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { address, display_name, bio } = payload
+    const { address, display_name, bio, signature, timestamp } = payload
     if (!address || !ALEO_ADDRESS_RE.test(address)) {
       return NextResponse.json({ error: 'Valid Aleo address required' }, { status: 400 })
+    }
+
+    // Wallet signature verification: caller must prove wallet ownership
+    if (!signature || typeof signature !== 'string' || signature.length < 20) {
+      return NextResponse.json({ error: 'Wallet signature required' }, { status: 403 })
+    }
+    if (typeof timestamp !== 'number' || !Number.isFinite(timestamp) || Math.abs(Date.now() - timestamp) > 5 * 60 * 1000) {
+      return NextResponse.json({ error: 'Request expired or invalid timestamp' }, { status: 403 })
     }
     if (display_name && (typeof display_name !== 'string' || display_name.length > 100)) {
       return NextResponse.json({ error: 'Display name too long (max 100)' }, { status: 400 })

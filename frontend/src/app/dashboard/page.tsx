@@ -194,6 +194,7 @@ function PostsList({ address }: { address: string }) {
 }
 
 function ProfileEditor({ address }: { address: string }) {
+  const { signMessage } = useWallet()
   const { getCreatorProfile, upsertCreatorProfile } = useSupabase()
   const [name, setName] = useState('')
   const [bio, setBio] = useState('')
@@ -217,7 +218,14 @@ function ProfileEditor({ address }: { address: string }) {
   }, [address, getCreatorProfile])
 
   const handleSave = async () => {
-    const result = await upsertCreatorProfile(address, name || undefined, bio || undefined)
+    const wrappedSign = signMessage
+      ? async (msg: Uint8Array) => {
+          const result = await signMessage(msg)
+          if (!result) throw new Error('Signing cancelled')
+          return result
+        }
+      : null
+    const result = await upsertCreatorProfile(address, name || undefined, bio || undefined, wrappedSign)
     if (result) {
       setSaved(true)
       toast.success('Profile saved!')
@@ -275,7 +283,7 @@ function ProfileEditor({ address }: { address: string }) {
 }
 
 export default function DashboardPage() {
-  const { address: publicKey, connected } = useWallet()
+  const { address: publicKey, connected, signMessage } = useWallet()
   const { registerCreator } = useVeilSub()
   const { fetchCreatorStats } = useCreatorStats()
   const { startPolling, stopPolling } = useTransactionPoller()
@@ -352,7 +360,14 @@ export default function DashboardPage() {
             toast.success('Registered on-chain!')
             // Save profile (best-effort, non-blocking)
             if (publicKey) {
-              upsertCreatorProfile(publicKey, displayName || undefined, bioText || undefined)
+              const wrappedSign = signMessage
+                ? async (msg: Uint8Array) => {
+                    const r = await signMessage(msg)
+                    if (!r) throw new Error('Signing cancelled')
+                    return r
+                  }
+                : null
+              upsertCreatorProfile(publicKey, displayName || undefined, bioText || undefined, wrappedSign)
             }
             setShowCelebration(true)
             celebrationTimerRef.current = setTimeout(() => {

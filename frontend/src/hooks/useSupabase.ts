@@ -29,12 +29,28 @@ export function useSupabase() {
   }, [])
 
   const upsertCreatorProfile = useCallback(
-    async (address: string, displayName?: string, bio?: string): Promise<SupabaseCreatorProfile | null> => {
+    async (
+      address: string,
+      displayName?: string,
+      bio?: string,
+      signMessage?: ((msg: Uint8Array) => Promise<Uint8Array>) | null
+    ): Promise<SupabaseCreatorProfile | null> => {
       try {
+        const timestamp = Date.now()
+        let signature: string | undefined
+        if (signMessage) {
+          try {
+            const msg = new TextEncoder().encode(`veilsub:profile:${timestamp}`)
+            const sig = await signMessage(msg)
+            signature = btoa(String.fromCharCode(...sig))
+          } catch {
+            // If signing fails, try without (will fail server-side with 403)
+          }
+        }
         const res = await fetch('/api/creators', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ address, display_name: displayName, bio }),
+          body: JSON.stringify({ address, display_name: displayName, bio, signature, timestamp }),
         })
         if (!res.ok) return null
         const { profile } = await res.json()
@@ -47,8 +63,25 @@ export function useSupabase() {
   )
 
   const recordSubscriptionEvent = useCallback(
-    async (creatorAddress: string, tier: number, amountMicrocredits: number, txId?: string) => {
+    async (
+      creatorAddress: string,
+      tier: number,
+      amountMicrocredits: number,
+      txId?: string,
+      signMessage?: ((msg: Uint8Array) => Promise<Uint8Array>) | null
+    ) => {
       try {
+        const timestamp = Date.now()
+        let signature: string | undefined
+        if (signMessage) {
+          try {
+            const msg = new TextEncoder().encode(`veilsub:analytics:${timestamp}`)
+            const sig = await signMessage(msg)
+            signature = btoa(String.fromCharCode(...sig))
+          } catch {
+            // Analytics is best-effort
+          }
+        }
         await fetch('/api/analytics', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -57,6 +90,8 @@ export function useSupabase() {
             tier,
             amount_microcredits: amountMicrocredits,
             tx_id: txId,
+            signature,
+            timestamp,
           }),
         })
       } catch {

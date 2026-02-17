@@ -96,6 +96,19 @@ These are non-negotiable. Missing ANY ONE of these = automatic failure:
 
 ### Payment Anti-Patterns
 - **NEVER** use fake payment records instead of real `credits.aleo` transfers
+- **NEVER** use `privateFee: true` — fees must come from public balance (privateFee: false), otherwise users need a 3rd unused record
+- **NEVER** hardcode split ratios (e.g., `* 0.96`) — always compute from the actual `creatorCut` / `platformCut` so the math matches the contract's `amount / 20`
+- **NEVER** set fee estimates above 1.5 ALEO (1_500_000 microcredits) without justification — compare to NullPay baseline of 0.1 ALEO
+- **NEVER** pass `fee: 0` to any transaction including `credits.aleo/split`
+
+### Wallet Integration Anti-Patterns
+- **NEVER** assume `transactionStatus()` returns an object — it can return a plain string OR `{status: string}`, always handle both
+- **NEVER** deduplicate records by full plaintext string comparison — use nonce extraction instead
+- **NEVER** skip checking that `rec1 !== rec2` before submitting two records to a transaction
+
+### Reference Audit Rule
+- **ALWAYS** compare payment/record/fee code against `C:\Users\prate\NullPay-audit\frontend\src\hooks\usePayment.ts` before committing
+- NullPay is the working reference — any pattern difference is a potential bug until proven otherwise
 
 ### ZK Anti-Patterns
 - **NEVER** do manual nullifier/ZK proof verification (Aleo handles this natively)

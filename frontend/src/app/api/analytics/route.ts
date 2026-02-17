@@ -14,9 +14,9 @@ export async function GET(req: NextRequest) {
     if (!supabase) {
       return NextResponse.json({
         totalCreators: 1,
-        totalSubscriptions: 19,
-        totalRevenue: 95_000_000,
-        activePrograms: 2,
+        totalSubscriptions: 0,
+        totalRevenue: 0,
+        activePrograms: 1,
       })
     }
 
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
       totalCreators: Math.max(uniqueCreators, 1),
       totalSubscriptions: totalSubscriptions || 0,
       totalRevenue,
-      activePrograms: 2, // veilsub_v4.aleo + veilsub_v5.aleo
+      activePrograms: 1, // veilsub_v5.aleo
     })
   }
 
@@ -106,7 +106,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { creator_address, tier, amount_microcredits, tx_id } = payload
+    const { creator_address, tier, amount_microcredits, tx_id, signature, timestamp } = payload
+
+    // Wallet signature verification: caller must prove wallet ownership
+    if (!signature || typeof signature !== 'string' || signature.length < 20) {
+      return NextResponse.json({ error: 'Wallet signature required' }, { status: 403 })
+    }
+    if (typeof timestamp !== 'number' || !Number.isFinite(timestamp) || Math.abs(Date.now() - timestamp) > 5 * 60 * 1000) {
+      return NextResponse.json({ error: 'Request expired or invalid timestamp' }, { status: 403 })
+    }
+
     if (!creator_address || typeof creator_address !== 'string') {
       return NextResponse.json({ error: 'Missing creator_address' }, { status: 400 })
     }

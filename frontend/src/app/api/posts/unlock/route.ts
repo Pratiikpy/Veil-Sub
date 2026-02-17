@@ -83,8 +83,9 @@ export async function POST(req: NextRequest) {
     // Fetch current block height for server-side expiry validation
     let currentHeight = 0
     try {
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
       const heightRes = await fetch(
-        'https://api.explorer.provable.com/v1/testnet/latest/height',
+        `${baseUrl}/api/aleo/testnet/latest/height`,
         { next: { revalidate: 15 } }
       )
       if (heightRes.ok) {

@@ -42,6 +42,15 @@ export default function VerifyPage() {
     return () => stopPolling()
   }, [stopPolling])
 
+  // Detect wallet disconnect during verification
+  useEffect(() => {
+    if (!connected && (verifyTxStatus === 'signing' || verifyTxStatus === 'broadcasting')) {
+      setVerifyTxStatus('failed')
+      setVerifyResult('failed')
+      stopPolling()
+    }
+  }, [connected, verifyTxStatus, stopPolling])
+
   const loadPasses = useCallback(async () => {
     setLoading(true)
     try {

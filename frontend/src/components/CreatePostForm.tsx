@@ -18,7 +18,7 @@ interface Props {
 }
 
 export default function CreatePostForm({ creatorAddress, onPostCreated }: Props) {
-  const { signMessage } = useWallet()
+  const { signMessage, connected } = useWallet()
   const { publishContent } = useVeilSub()
   const { createPost } = useContentFeed()
   const { startPolling, stopPolling } = useTransactionPoller()
@@ -34,6 +34,16 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
   useEffect(() => {
     return () => stopPolling()
   }, [stopPolling])
+
+  // Detect wallet disconnect during transaction
+  useEffect(() => {
+    if (!connected && (txStatus === 'signing' || txStatus === 'proving' || txStatus === 'broadcasting')) {
+      setTxStatus('failed')
+      setError('Wallet disconnected. Please reconnect and try again.')
+      stopPolling()
+      submittingRef.current = false
+    }
+  }, [connected, txStatus, stopPolling])
 
   const handlePublish = async () => {
     if (submittingRef.current) return

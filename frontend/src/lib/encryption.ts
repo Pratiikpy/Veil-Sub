@@ -100,12 +100,13 @@ export async function hashAddress(address: string): Promise<string> {
   const enc = new TextEncoder()
   if (typeof crypto === 'undefined' || !crypto.subtle) {
     // Fallback for non-secure contexts (HTTP dev environments)
+    // Must produce 64-char hex to pass API validation (/^[a-f0-9]{64}$/)
     let hash = 0
     for (let i = 0; i < address.length; i++) {
       hash = ((hash << 5) - hash) + address.charCodeAt(i)
       hash |= 0
     }
-    return Math.abs(hash).toString(16).padStart(16, '0')
+    return Math.abs(hash).toString(16).padStart(64, '0')
   }
   const hash = await crypto.subtle.digest('SHA-256', enc.encode(address))
   return Array.from(new Uint8Array(hash))
