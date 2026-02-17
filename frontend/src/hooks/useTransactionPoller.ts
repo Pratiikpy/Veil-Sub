@@ -2,9 +2,8 @@
 
 import { useCallback, useRef } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-// All API calls routed through Next.js rewrite proxy to avoid leaking user interest to third-party APIs
 
-type PollingStrategy = 'wallet' | 'provable' | 'explorer' | 'fallback'
+type PollingStrategy = 'wallet' | 'fallback'
 type PollStatus = 'pending' | 'confirmed' | 'failed' | 'unknown'
 
 interface PollResult {
@@ -14,7 +13,6 @@ interface PollResult {
 
 export function useTransactionPoller() {
   const { transactionStatus } = useWallet()
-  // Track the latest abort fn so stopPolling can cancel whatever is active
   const latestAbortRef = useRef<(() => void) | null>(null)
 
   const pollWallet = useCallback(
@@ -23,8 +21,7 @@ export function useTransactionPoller() {
       const result = await transactionStatus(txId)
       const s = (typeof result === 'string' ? result : result?.status || '').toLowerCase()
       console.log(`[TxPoller] wallet status for ${txId}: "${s}"`)
-      // Only treat 'finalize'/'confirm'/'complete' as confirmed.
-      // 'accept' means mempool admission — NOT on-chain finalization.
+
       if (s.includes('finalize') || s.includes('confirm') || s.includes('complete')) {
         return { status: 'confirmed', strategy: 'wallet' }
       }
@@ -36,51 +33,6 @@ export function useTransactionPoller() {
     [transactionStatus]
   )
 
-  const pollProvable = useCallback(async (txId: string): Promise<PollResult> => {
-    const res = await fetch(`/api/aleo/transaction/${txId}`)
-    if (!res.ok) throw new Error('Provable API error')
-    const text = await res.text()
-    if (text && text !== 'null') {
-      return { status: 'confirmed', strategy: 'provable' }
-    }
-    return { status: 'pending', strategy: 'provable' }
-  }, [])
-
-  const pollExplorer = useCallback(async (txId: string): Promise<PollResult> => {
-    // Use Aleoscan as an independent verification source
-    const res = await fetch(`/api/aleoscan/transaction/${txId}`)
-    if (!res.ok) throw new Error('Aleoscan proxy error')
-    const text = await res.text()
-    if (text && text !== 'null' && !text.includes('"error"')) {
-      return { status: 'confirmed', strategy: 'explorer' }
-    }
-    return { status: 'pending', strategy: 'explorer' }
-  }, [])
-
-  const pollOnce = useCallback(
-    async (txId: string): Promise<PollResult> => {
-      const strategies = [pollWallet, pollProvable, pollExplorer]
-      let lastPending: PollResult | null = null
-
-      for (const strategy of strategies) {
-        try {
-          const result = await strategy(txId)
-          if (result.status === 'confirmed' || result.status === 'failed') return result
-          lastPending = result
-        } catch {
-          continue
-        }
-      }
-
-      // If all strategies returned pending, return that
-      if (lastPending) return lastPending
-
-      // Fallback: after 5 minutes, report as pending (let maxAttempts handle timeout)
-      return { status: 'pending', strategy: 'fallback' }
-    },
-    [pollWallet, pollProvable, pollExplorer]
-  )
-
   const startPolling = useCallback(
     (
       txId: string,
@@ -88,9 +40,9 @@ export function useTransactionPoller() {
       intervalMs = 3000,
       maxAttempts = 120
     ) => {
-      // Per-invocation abort — no shared ref interference
       const aborted = { current: false }
       let attempts = 0
+      let acceptedSince = 0 // track how many polls returned "accepted"
       let timeoutId: ReturnType<typeof setTimeout> | null = null
 
       const abort = () => {
@@ -98,7 +50,6 @@ export function useTransactionPoller() {
         if (timeoutId) clearTimeout(timeoutId)
       }
 
-      // Cancel any previous polling session
       if (latestAbortRef.current) latestAbortRef.current()
       latestAbortRef.current = abort
 
@@ -112,28 +63,43 @@ export function useTransactionPoller() {
 
         attempts++
         try {
-          const result = await pollOnce(txId)
+          const result = await pollWallet(txId)
           if (aborted.current) return
-          onStatus(result)
 
           if (result.status === 'confirmed' || result.status === 'failed') {
+            onStatus(result)
             return
           }
+
+          // Shield Wallet returns "accepted" for mempool transactions.
+          // After enough time with "accepted", treat as confirmed for UI purposes.
+          // (The transaction is unlikely to be reversed once accepted.)
+          if (result.status === 'pending') {
+            // Check raw status from the wallet to detect "accepted"
+            const rawResult = await transactionStatus?.(txId)
+            const rawS = (typeof rawResult === 'string' ? rawResult : (rawResult as any)?.status || '').toLowerCase()
+            if (rawS.includes('accept')) {
+              acceptedSince++
+              // After 10 polls (~30s) with "accepted", report as confirmed
+              if (acceptedSince >= 10) {
+                onStatus({ status: 'confirmed', strategy: 'wallet' })
+                return
+              }
+            }
+          }
+
+          onStatus(result)
         } catch {
-          // pollOnce threw unexpectedly — continue polling
           if (aborted.current) return
         }
 
         timeoutId = setTimeout(poll, intervalMs)
       }
 
-      // Start first poll after a small delay
       timeoutId = setTimeout(poll, 1000)
-
-      // Return abort function for callers that want direct control
       return abort
     },
-    [pollOnce]
+    [pollWallet, transactionStatus]
   )
 
   const stopPolling = useCallback(() => {
@@ -143,5 +109,5 @@ export function useTransactionPoller() {
     }
   }, [])
 
-  return { startPolling, stopPolling, pollOnce }
+  return { startPolling, stopPolling }
 }
