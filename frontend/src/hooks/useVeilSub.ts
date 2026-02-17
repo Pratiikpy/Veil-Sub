@@ -276,31 +276,25 @@ export function useVeilSub() {
       return null
     }
 
-    // Log the raw record shape so we can debug format issues
-    console.log('[VeilSub] processRecord raw:', {
-      type: typeof r,
-      hasData: !!r?.data,
-      dataKeys: r?.data ? Object.keys(r.data) : [],
-      hasPlaintext: !!r?.plaintext,
-      hasCiphertext: !!r?.recordCiphertext,
-      hasCiphertextAlt: !!r?.ciphertext,
-      hasNonce: !!(r?.nonce || r?._nonce || r?.data?._nonce),
-      owner: r?.owner || r?.data?.owner || 'none',
-      spent: r?.spent,
-    })
+    // CRITICAL: dump full record as JSON so we can see actual keys/values in production
+    try {
+      console.log('[VeilSub] processRecord FULL DUMP:', JSON.stringify(r, null, 2)?.slice(0, 1500))
+    } catch { console.log('[VeilSub] processRecord (non-serializable):', typeof r) }
+
+    console.log('[VeilSub] processRecord keys:', typeof r === 'object' && r ? Object.keys(r).join(', ') : 'N/A')
 
     let val = getMicrocredits(r)
     console.log('[VeilSub] getMicrocredits initial:', val)
 
-    // Try to decrypt the record to get plaintext — needed when:
-    // 1. val === 0 (can't parse structured data)
-    // 2. val > 0 but no plaintext available (Leo Wallet with includePlaintext: false)
-    if (r?.recordCiphertext && !r?.plaintext && decrypt) {
+    // Try to decrypt the record to get plaintext.
+    // Leo Wallet uses `ciphertext` instead of `recordCiphertext` — check both.
+    const cipher = r?.recordCiphertext || r?.ciphertext
+    if (cipher && !r?.plaintext && decrypt) {
       try {
-        console.log('[VeilSub] Attempting decrypt...')
-        const decrypted = await decrypt(r.recordCiphertext)
+        console.log('[VeilSub] Attempting decrypt with cipher key:', r?.recordCiphertext ? 'recordCiphertext' : 'ciphertext')
+        const decrypted = await decrypt(cipher)
         if (decrypted) {
-          console.log('[VeilSub] Decrypt succeeded, plaintext length:', decrypted.length)
+          console.log('[VeilSub] Decrypt succeeded, plaintext:', decrypted.slice(0, 200))
           r.plaintext = decrypted
           if (val === 0) {
             val = getMicrocredits(r)
@@ -322,9 +316,10 @@ export function useVeilSub() {
       plaintext = r.plaintext
     } else {
       // Reconstruct plaintext from structured data (NullPay pattern)
+      // Check all possible locations for nonce and owner
       const nonce = r?.nonce || r?._nonce || r?.data?._nonce
       const owner = r?.owner || r?.data?.owner
-      console.log('[VeilSub] Reconstruction attempt:', { nonce, owner, val })
+      console.log('[VeilSub] Reconstruction attempt — nonce:', JSON.stringify(nonce), 'owner:', JSON.stringify(owner))
       if (nonce && owner) {
         // Strip existing suffixes to avoid double .private/.public
         const cleanOwner = String(owner).replace(/\.private$/, '')
@@ -332,12 +327,14 @@ export function useVeilSub() {
         plaintext = `{ owner: ${cleanOwner}.private, microcredits: ${val}u64.private, _nonce: ${cleanNonce}.public }`
         console.log('[VeilSub] Reconstructed plaintext:', plaintext)
       } else if (r?.ciphertext) {
+        // Last resort: pass the ciphertext itself (wallet adapter may accept it)
         plaintext = r.ciphertext
+        console.log('[VeilSub] Using ciphertext as plaintext fallback')
       }
     }
 
     if (!plaintext) {
-      console.warn('[VeilSub] Record has value', val, 'but could not extract plaintext. Record keys:', typeof r === 'object' ? Object.keys(r) : 'N/A')
+      console.warn('[VeilSub] Record has value', val, 'but could not extract plaintext. Keys:', typeof r === 'object' ? Object.keys(r).join(', ') : 'N/A')
       return null
     }
     return { plaintext, microcredits: val }
