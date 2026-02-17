@@ -110,8 +110,16 @@ export default function SubscribeModal({
           rawRecords = await getCreditsRecords()
         } catch { rawRecords = [] }
       }
-      const seen = new Set<string>()
-      const records = rawRecords.filter(r => { if (seen.has(r)) return false; seen.add(r); return true })
+      // Nonce-based deduplication (CLAUDE.md: NEVER deduplicate by full plaintext string)
+      const extractNonce = (r: string) => { const m = r.match(/_nonce:\s*(\S+?)\.public/); return m?.[1] ?? r }
+      const seenNonces = new Set<string>()
+      const records = rawRecords.filter(r => {
+        const nonce = extractNonce(r)
+        if (seenNonces.has(nonce)) return false
+        seenNonces.add(nonce)
+        return true
+      })
+      console.log('[SubscribeModal] Deduped records:', records.length)
 
       if (records.length < 1) {
         setInsufficientBalance(true)
@@ -121,7 +129,6 @@ export default function SubscribeModal({
         return
       }
 
-      // Check total available balance across ALL records (not just first)
       const totalAvailable = records.reduce((sum, r) => sum + parseMicrocredits(r), 0)
       const largestRecord = parseMicrocredits(records[0])
       if (totalAvailable < totalPrice) {
@@ -141,6 +148,18 @@ export default function SubscribeModal({
 
       let rec1 = records[0]
       let rec2 = records.length >= 2 ? records[1] : null
+
+      // Validate rec2 has enough for platform cut (5%) and rec1 !== rec2
+      if (rec2) {
+        if (extractNonce(rec1) === extractNonce(rec2)) {
+          console.error('[SubscribeModal] rec1 and rec2 have same nonce — same record!')
+          rec2 = records.length >= 3 ? records[2] : null
+        }
+        if (rec2 && parseMicrocredits(rec2) < platformCut) {
+          console.warn('[SubscribeModal] rec2 too small for platform cut, will auto-split instead')
+          rec2 = null // Force auto-split path
+        }
+      }
 
       // Auto-split: if only 1 record, split it via credits.aleo/split
       if (!rec2) {
@@ -181,8 +200,8 @@ export default function SubscribeModal({
         setStatusMessage('Fetching updated records...')
         await new Promise(r => setTimeout(r, 2000)) // brief wait for wallet sync
         const newRecords = await getCreditsRecords()
-        const dedupSet = new Set<string>()
-        const deduped = newRecords.filter(r => { if (dedupSet.has(r)) return false; dedupSet.add(r); return true })
+        const dedupNonces = new Set<string>()
+        const deduped = newRecords.filter(r => { const n = extractNonce(r); if (dedupNonces.has(n)) return false; dedupNonces.add(n); return true })
         if (deduped.length < 2) {
           setTxStatus('failed')
           setError('Split completed but records not yet synced. Please close and try again in a few seconds.')

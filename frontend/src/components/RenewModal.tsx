@@ -113,8 +113,16 @@ export default function RenewModal({
           rawRecords = await getCreditsRecords()
         } catch { rawRecords = [] }
       }
-      const seen = new Set<string>()
-      const records = rawRecords.filter(r => { if (seen.has(r)) return false; seen.add(r); return true })
+      // Nonce-based deduplication
+      const extractNonce = (r: string) => { const m = r.match(/_nonce:\s*(\S+?)\.public/); return m?.[1] ?? r }
+      const seenNonces = new Set<string>()
+      const records = rawRecords.filter(r => {
+        const nonce = extractNonce(r)
+        if (seenNonces.has(nonce)) return false
+        seenNonces.add(nonce)
+        return true
+      })
+
       if (records.length < 1) {
         setInsufficientBalance(true)
         setError('No private credit records found. Convert public credits to private or get testnet credits.')
@@ -142,6 +150,15 @@ export default function RenewModal({
 
       let rec1 = records[0]
       let rec2 = records.length >= 2 ? records[1] : null
+
+      if (rec2) {
+        if (extractNonce(rec1) === extractNonce(rec2)) {
+          rec2 = records.length >= 3 ? records[2] : null
+        }
+        if (rec2 && parseMicrocredits(rec2) < platformCut) {
+          rec2 = null
+        }
+      }
 
       // Auto-split: if only 1 record, split it via credits.aleo/split
       if (!rec2) {
@@ -172,8 +189,8 @@ export default function RenewModal({
         setStatusMessage('Fetching updated records...')
         await new Promise(r => setTimeout(r, 2000))
         const newRecords = await getCreditsRecords()
-        const dedupSet = new Set<string>()
-        const deduped = newRecords.filter(r => { if (dedupSet.has(r)) return false; dedupSet.add(r); return true })
+        const dedupNonces = new Set<string>()
+        const deduped = newRecords.filter(r => { const n = extractNonce(r); if (dedupNonces.has(n)) return false; dedupNonces.add(n); return true })
         if (deduped.length < 2) {
           setTxStatus('failed')
           setError('Split completed but records not yet synced. Please try again in a few seconds.')

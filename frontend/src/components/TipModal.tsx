@@ -104,8 +104,16 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
           rawRecords = await getCreditsRecords()
         } catch { rawRecords = [] }
       }
-      const seen = new Set<string>()
-      const records = rawRecords.filter(r => { if (seen.has(r)) return false; seen.add(r); return true })
+      // Nonce-based deduplication (CLAUDE.md: NEVER deduplicate by full plaintext string)
+      const extractNonce = (r: string) => { const m = r.match(/_nonce:\s*(\S+?)\.public/); return m?.[1] ?? r }
+      const seenNonces = new Set<string>()
+      const records = rawRecords.filter(r => {
+        const nonce = extractNonce(r)
+        if (seenNonces.has(nonce)) return false
+        seenNonces.add(nonce)
+        return true
+      })
+      console.log('[TipModal] Deduped records:', records.length)
 
       if (records.length < 1) {
         setInsufficientBalance(true)
@@ -132,8 +140,19 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         return
       }
 
+      const tipPlatformCut = Math.floor(tipMicrocredits / 20)
       let rec1 = records[0]
       let rec2 = records.length >= 2 ? records[1] : null
+
+      // Validate rec2 has enough for platform cut (5%) and rec1 !== rec2
+      if (rec2) {
+        if (extractNonce(rec1) === extractNonce(rec2)) {
+          rec2 = records.length >= 3 ? records[2] : null
+        }
+        if (rec2 && parseMicrocredits(rec2) < tipPlatformCut) {
+          rec2 = null // Force auto-split path
+        }
+      }
 
       // Auto-split if only 1 record
       if (!rec2) {
@@ -164,8 +183,8 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         setStatusMessage('Fetching updated records...')
         await new Promise(r => setTimeout(r, 2000))
         const newRecords = await getCreditsRecords()
-        const dedupSet = new Set<string>()
-        const deduped = newRecords.filter(r => { if (dedupSet.has(r)) return false; dedupSet.add(r); return true })
+        const dedupNonces = new Set<string>()
+        const deduped = newRecords.filter(r => { const n = extractNonce(r); if (dedupNonces.has(n)) return false; dedupNonces.add(n); return true })
         if (deduped.length < 2) {
           setTxStatus('failed')
           setError('Split completed but records not yet synced. Please try again in a few seconds.')
