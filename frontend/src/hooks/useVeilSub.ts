@@ -305,53 +305,11 @@ export function useVeilSub() {
     return ''
   }
 
-  // Try multiple strategies to fetch records from wallet
-  const fetchRecords = useCallback(async (program: string): Promise<unknown[]> => {
-    // Strategy 1: adapter requestRecords with plaintext
-    try {
-      const r = await requestRecords!(program, true)
-      if (r && r.length > 0) return r
-    } catch { /* try next */ }
-
-    // Strategy 2: adapter requestRecords without plaintext
-    try {
-      const r = await requestRecords!(program, false)
-      if (r && r.length > 0) return r
-    } catch { /* try next */ }
-
-    // Strategy 3: direct window.shield access (bypasses adapter param issue)
-    try {
-      const win = window as any
-      const shield = win.shield
-      if (shield?.requestRecords) {
-        const r = await shield.requestRecords(program)
-        if (Array.isArray(r) && r.length > 0) return r
-        if (r?.records && Array.isArray(r.records)) return r.records
-      }
-    } catch { /* try next */ }
-
-    // Strategy 4: direct window.leoWallet access
-    try {
-      const win = window as any
-      const leo = win.leoWallet || win.leo
-      if (leo?.requestRecordPlaintexts) {
-        const r = await leo.requestRecordPlaintexts(program)
-        if (r?.records && Array.isArray(r.records)) return r.records
-      }
-      if (leo?.requestRecords) {
-        const r = await leo.requestRecords(program)
-        if (r?.records && Array.isArray(r.records)) return r.records
-      }
-    } catch { /* all strategies exhausted */ }
-
-    return []
-  }, [requestRecords])
-
-  // Fetch all records (including spent), then filter for valid ones with positive balance
+  // Fetch records from wallet — matches NullPay's working pattern: always pass false
   const getTokenRecords = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      const records = await fetchRecords('token_registry.aleo')
+      const records = await requestRecords('token_registry.aleo', false)
       const results: { plaintext: string; amount: number }[] = []
 
       for (const r of records as any[]) {
@@ -368,12 +326,12 @@ export function useVeilSub() {
       console.error('[VeilSub] Failed to fetch token records:', err)
       return []
     }
-  }, [connected, requestRecords, fetchRecords, decrypt])
+  }, [connected, requestRecords, decrypt])
 
   const getCreditsRecords = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      const records = await fetchRecords('credits.aleo')
+      const records = await requestRecords('credits.aleo', false)
       const results: { plaintext: string; microcredits: number }[] = []
 
       for (const r of records as any[]) {
@@ -389,12 +347,12 @@ export function useVeilSub() {
       console.error('[VeilSub] Failed to fetch credits records:', err)
       return []
     }
-  }, [connected, requestRecords, fetchRecords, decrypt])
+  }, [connected, requestRecords, decrypt])
 
   const getAccessPasses = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      const records = await fetchRecords(PROGRAM_ID)
+      const records = await requestRecords(PROGRAM_ID, false)
       const results: string[] = []
 
       for (const r of records as any[]) {
@@ -408,7 +366,7 @@ export function useVeilSub() {
       console.error('[VeilSub] Failed to fetch access passes:', err)
       return []
     }
-  }, [connected, requestRecords, fetchRecords, decrypt])
+  }, [connected, requestRecords, decrypt])
 
   const pollTxStatus = useCallback(
     async (txId: string): Promise<string> => {
