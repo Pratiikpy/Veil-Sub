@@ -8,6 +8,7 @@ import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { creditsToMicrocredits } from '@/lib/utils'
 import { dedupeRecords } from '@/lib/recordSync'
+import { logSubscriptionEvent } from '@/lib/logEvent'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
 import type { TxStatus } from '@/types'
@@ -153,6 +154,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
           if (result.status === 'confirmed') {
             if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
+            logSubscriptionEvent(creatorAddress, 0, tipMicrocredits, result.resolvedTxId || id)
             toast.success('Tip sent!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')

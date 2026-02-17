@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   if (globalStats === 'true') {
     if (!supabase) {
       return NextResponse.json({
-        totalCreators: 1,
+        totalCreators: 0,
         totalSubscriptions: 0,
         totalRevenue: 0,
         activePrograms: 1,
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     const uniqueCreators = new Set((creatorData || []).map(e => e.creator_address_hash)).size
 
     return NextResponse.json({
-      totalCreators: Math.max(uniqueCreators, 1),
+      totalCreators: uniqueCreators,
       totalSubscriptions: totalSubscriptions || 0,
       totalRevenue,
       activePrograms: 1, // veilsub_v7.aleo
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
   // Recent events across ALL creators
   if (recent === 'true') {
     if (!supabase) {
-      return NextResponse.json({ events: generateMockRecentEvents() })
+      return NextResponse.json({ events: [] })
     }
 
     const { data } = await supabase
@@ -78,22 +78,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ events: data || [] })
 }
 
-function generateMockRecentEvents() {
-  const tiers = [1, 2, 3]
-  const events = []
-  for (let i = 0; i < 10; i++) {
-    const tier = tiers[Math.floor(Math.random() * tiers.length)]
-    const multiplier = tier === 3 ? 5 : tier === 2 ? 2 : 1
-    events.push({
-      tier,
-      amount_microcredits: 1_000_000 * multiplier,
-      tx_id: `at1mock${i}${Math.random().toString(36).slice(2, 10)}`,
-      created_at: new Date(Date.now() - i * 3_600_000).toISOString(),
-    })
-  }
-  return events
-}
-
 export async function POST(req: NextRequest) {
   const supabase = getServerSupabase()
   if (!supabase) {
@@ -106,21 +90,13 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { creator_address, tier, amount_microcredits, tx_id, signature, timestamp } = payload
-
-    // Wallet signature verification: caller must prove wallet ownership
-    if (!signature || typeof signature !== 'string' || signature.length < 20) {
-      return NextResponse.json({ error: 'Wallet signature required' }, { status: 403 })
-    }
-    if (typeof timestamp !== 'number' || !Number.isFinite(timestamp) || Math.abs(Date.now() - timestamp) > 5 * 60 * 1000) {
-      return NextResponse.json({ error: 'Request expired or invalid timestamp' }, { status: 403 })
-    }
+    const { creator_address, tier, amount_microcredits, tx_id } = payload
 
     if (!creator_address || typeof creator_address !== 'string') {
       return NextResponse.json({ error: 'Missing creator_address' }, { status: 400 })
     }
-    if (typeof tier !== 'number' || !Number.isInteger(tier) || tier < 1 || tier > 3) {
-      return NextResponse.json({ error: 'Invalid tier (must be 1-3)' }, { status: 400 })
+    if (typeof tier !== 'number' || !Number.isInteger(tier) || tier < 0 || tier > 3) {
+      return NextResponse.json({ error: 'Invalid tier (must be 0-3)' }, { status: 400 })
     }
     if (typeof amount_microcredits !== 'number' || amount_microcredits < 0 || amount_microcredits > 1_000_000_000_000) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 })

@@ -10,6 +10,7 @@ import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { generatePassId, formatCredits } from '@/lib/utils'
 import { dedupeRecords } from '@/lib/recordSync'
 import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT } from '@/lib/config'
+import { logSubscriptionEvent } from '@/lib/logEvent'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
 import type { SubscriptionTier, TxStatus } from '@/types'
@@ -165,6 +166,7 @@ export default function SubscribeModal({
           if (result.status === 'confirmed') {
             if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
+            logSubscriptionEvent(creatorAddress, tier.id, totalPrice, result.resolvedTxId || id)
             toast.success('Subscribed!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')

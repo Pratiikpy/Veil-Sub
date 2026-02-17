@@ -10,6 +10,7 @@ import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { generatePassId, formatCredits } from '@/lib/utils'
 import { dedupeRecords } from '@/lib/recordSync'
 import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT } from '@/lib/config'
+import { logSubscriptionEvent } from '@/lib/logEvent'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
 import type { AccessPass, SubscriptionTier, TxStatus } from '@/types'
@@ -167,6 +168,7 @@ export default function RenewModal({
           if (result.status === 'confirmed') {
             if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
+            logSubscriptionEvent(pass.creator, selectedTier?.id || 1, totalPrice, result.resolvedTxId || id)
             toast.success('Subscription renewed!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
