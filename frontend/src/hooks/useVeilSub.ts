@@ -305,16 +305,53 @@ export function useVeilSub() {
     return ''
   }
 
+  // Try multiple strategies to fetch records from wallet
+  const fetchRecords = useCallback(async (program: string): Promise<unknown[]> => {
+    // Strategy 1: adapter requestRecords with plaintext
+    try {
+      const r = await requestRecords!(program, true)
+      if (r && r.length > 0) return r
+    } catch { /* try next */ }
+
+    // Strategy 2: adapter requestRecords without plaintext
+    try {
+      const r = await requestRecords!(program, false)
+      if (r && r.length > 0) return r
+    } catch { /* try next */ }
+
+    // Strategy 3: direct window.shield access (bypasses adapter param issue)
+    try {
+      const win = window as any
+      const shield = win.shield
+      if (shield?.requestRecords) {
+        const r = await shield.requestRecords(program)
+        if (Array.isArray(r) && r.length > 0) return r
+        if (r?.records && Array.isArray(r.records)) return r.records
+      }
+    } catch { /* try next */ }
+
+    // Strategy 4: direct window.leoWallet access
+    try {
+      const win = window as any
+      const leo = win.leoWallet || win.leo
+      if (leo?.requestRecordPlaintexts) {
+        const r = await leo.requestRecordPlaintexts(program)
+        if (r?.records && Array.isArray(r.records)) return r.records
+      }
+      if (leo?.requestRecords) {
+        const r = await leo.requestRecords(program)
+        if (r?.records && Array.isArray(r.records)) return r.records
+      }
+    } catch { /* all strategies exhausted */ }
+
+    return []
+  }, [requestRecords])
+
   // Fetch all records (including spent), then filter for valid ones with positive balance
   const getTokenRecords = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      let records: unknown[]
-      try {
-        records = await requestRecords('token_registry.aleo', true)
-      } catch {
-        records = await (requestRecords as any)('token_registry.aleo')
-      }
+      const records = await fetchRecords('token_registry.aleo')
       const results: { plaintext: string; amount: number }[] = []
 
       for (const r of records as any[]) {
@@ -331,18 +368,12 @@ export function useVeilSub() {
       console.error('[VeilSub] Failed to fetch token records:', err)
       return []
     }
-  }, [connected, requestRecords, decrypt])
+  }, [connected, requestRecords, fetchRecords, decrypt])
 
   const getCreditsRecords = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      // Try with plaintext first, fall back without if wallet rejects the param
-      let records: unknown[]
-      try {
-        records = await requestRecords('credits.aleo', true)
-      } catch {
-        records = await (requestRecords as any)('credits.aleo')
-      }
+      const records = await fetchRecords('credits.aleo')
       const results: { plaintext: string; microcredits: number }[] = []
 
       for (const r of records as any[]) {
@@ -358,17 +389,12 @@ export function useVeilSub() {
       console.error('[VeilSub] Failed to fetch credits records:', err)
       return []
     }
-  }, [connected, requestRecords, decrypt])
+  }, [connected, requestRecords, fetchRecords, decrypt])
 
   const getAccessPasses = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
-      let records: unknown[]
-      try {
-        records = await requestRecords(PROGRAM_ID, true)
-      } catch {
-        records = await (requestRecords as any)(PROGRAM_ID)
-      }
+      const records = await fetchRecords(PROGRAM_ID)
       const results: string[] = []
 
       for (const r of records as any[]) {
@@ -382,7 +408,7 @@ export function useVeilSub() {
       console.error('[VeilSub] Failed to fetch access passes:', err)
       return []
     }
-  }, [connected, requestRecords, decrypt])
+  }, [connected, requestRecords, fetchRecords, decrypt])
 
   const pollTxStatus = useCallback(
     async (txId: string): Promise<string> => {
