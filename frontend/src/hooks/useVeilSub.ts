@@ -390,6 +390,7 @@ export function useVeilSub() {
     }
 
     const results: { plaintext: string; microcredits: number }[] = []
+    let usedFalseMode = false
 
     // Strategy 1: includePlaintext: true (works with Shield Wallet)
     let recordsArr: any[] = []
@@ -409,6 +410,7 @@ export function useVeilSub() {
 
     // Strategy 2: fallback to includePlaintext: false (Leo Wallet path)
     if (recordsArr.length === 0) {
+      usedFalseMode = true
       try {
         console.log('[VeilSub] Falling back to includePlaintext: false...')
         const records = await withTimeout(
@@ -424,38 +426,26 @@ export function useVeilSub() {
       }
     }
 
-    // Log first record shape for debugging
-    if (recordsArr.length > 0) {
-      const r0 = recordsArr[0]
-      console.log('[VeilSub] First record shape:', {
-        type: typeof r0,
-        keys: typeof r0 === 'object' ? Object.keys(r0) : 'N/A',
-        hasPlaintext: !!r0?.plaintext,
-        hasData: !!r0?.data,
-        spent: r0?.spent,
-      })
-    }
-
     for (const r of recordsArr) {
       const processed = await processRecord(r)
       if (processed) results.push(processed)
     }
 
-    // If we got records but none processed, retry with the other mode + decrypt
-    if (results.length === 0 && recordsArr.length > 0) {
-      console.warn('[VeilSub] Records received but none processed. Trying opposite mode + decrypt...')
-      try {
-        const fallbackRecords = await withTimeout(
-          requestRecords('credits.aleo', false),
-          15000,
-          'requestRecords(credits.aleo, false fallback)'
+    // Detect Leo Wallet stripped records: wallet returned records with
+    // microcredits value but no plaintext/nonce/ciphertext.
+    // Leo Wallet doesn't support requestRecordPlaintexts — transactions
+    // require Shield Wallet.
+    if (results.length === 0 && recordsArr.length > 0 && usedFalseMode) {
+      const r0 = recordsArr[0]
+      const hasValue = getMicrocredits(r0) > 0
+      const hasPlaintext = !!(r0?.plaintext)
+      const hasNonce = !!(r0?.nonce || r0?._nonce || r0?.data?._nonce)
+      const hasCipher = !!(r0?.recordCiphertext || r0?.ciphertext)
+      if (hasValue && !hasPlaintext && !hasNonce && !hasCipher) {
+        throw new Error(
+          'Leo Wallet does not support record plaintext access. ' +
+          'Please disconnect and reconnect with Shield Wallet (leo.app) to subscribe, tip, or renew.'
         )
-        for (const r of fallbackRecords as any[]) {
-          const processed = await processRecord(r)
-          if (processed) results.push(processed)
-        }
-      } catch (fallbackErr) {
-        console.error('[VeilSub] Fallback fetch also failed:', fallbackErr)
       }
     }
 
