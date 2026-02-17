@@ -8,7 +8,7 @@ import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { generatePassId, formatCredits } from '@/lib/utils'
-import { extractNonce, dedupeRecords, waitForRecordSync } from '@/lib/recordSync'
+import { dedupeRecords } from '@/lib/recordSync'
 import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT } from '@/lib/config'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
@@ -34,7 +34,7 @@ export default function SubscribeModal({
   creatorAddress,
   basePrice,
 }: Props) {
-  const { subscribe, getCreditsRecords, splitCredits, pollTxStatus, connected } = useVeilSub()
+  const { subscribe, getCreditsRecords, connected } = useVeilSub()
   const { blockHeight } = useBlockHeight()
   const { startPolling, stopPolling } = useTransactionPoller()
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
@@ -140,100 +140,9 @@ export default function SubscribeModal({
         return
       }
 
-      let rec1 = records[0]
-      let rec2 = records.length >= 2 ? records[1] : null
-
-      // Validate rec2 has enough for platform cut (5%) and rec1 !== rec2
-      if (rec2) {
-        if (extractNonce(rec1) === extractNonce(rec2)) {
-          console.error('[SubscribeModal] rec1 and rec2 have same nonce — same record!')
-          rec2 = records.length >= 3 ? records[2] : null
-        }
-        if (rec2 && parseMicrocredits(rec2) < platformCut) {
-          console.warn('[SubscribeModal] rec2 too small for platform cut, will auto-split instead')
-          rec2 = null // Force auto-split path
-        }
-      }
-
-      // Auto-split: if only 1 record, split it via credits.aleo/split
-      if (!rec2) {
-        // Save the nonce of the record being consumed by the split — after
-        // the split confirms, the wallet cache may still return this record
-        // as "unspent". We must exclude it to avoid "input ID already exists
-        // in the ledger" rejections.
-        const consumedNonce = extractNonce(records[0])
-        console.log('[SubscribeModal] Consumed record nonce for exclusion:', consumedNonce)
-
-        setStatusMessage('Splitting credit record (1 of 2)...')
-        const splitAmount = creatorCut // 95% for creator payment, remainder covers 5% platform fee
-        const splitTxId = await splitCredits(records[0], splitAmount)
-        if (!splitTxId) {
-          setTxStatus('failed')
-          setError('Record split was rejected by wallet.')
-          submittingRef.current = false
-          return
-        }
-
-        // Wait for split to finalize on-chain.
-        // Shield Wallet returns "Accepted" for mempool admission — NOT finalization.
-        // We must wait for 'finalize'/'confirm'/'complete', or fall back to a
-        // generous timeout so the transaction has time to be included in a block.
-        setStatusMessage('Waiting for split to confirm...')
-        await new Promise<void>((resolve, reject) => {
-          let attempts = 0
-          let sawAccepted = false
-          const poll = setInterval(async () => {
-            attempts++
-            try {
-              const status = (await pollTxStatus(splitTxId)).toLowerCase()
-              console.log(`[SubscribeModal] Split poll #${attempts}: "${status}"`)
-              if (status.includes('finalize') || status.includes('confirm') || status.includes('complete')) {
-                clearInterval(poll)
-                resolve()
-              } else if (status.includes('accept')) {
-                // "Accepted" = mempool, not finalized. Wait for finalization.
-                sawAccepted = true
-              } else if (status.includes('fail') || status.includes('reject')) {
-                clearInterval(poll)
-                reject(new Error('Split transaction failed on-chain'))
-              }
-            } catch { /* continue polling */ }
-            // If we saw "accepted" and have waited 30+ seconds, treat as finalized
-            // (Aleo blocks are ~15s, so 30s ≈ 2 blocks — safe margin)
-            if (sawAccepted && attempts >= 30) {
-              clearInterval(poll)
-              resolve()
-            }
-            if (attempts > 90) {
-              clearInterval(poll)
-              reject(new Error('Split transaction timed out. Please try again.'))
-            }
-          }, 1000)
-        })
-
-        // Extra buffer: even after "confirmed", give the wallet and network time
-        // to fully propagate the split outputs before we try to spend them.
-        setStatusMessage('Waiting for on-chain finalization...')
-        await new Promise(r => setTimeout(r, 15000))
-
-        // Re-fetch records after split with retry loop, excluding the consumed record
-        setStatusMessage('Fetching updated records...')
-        const synced = await waitForRecordSync(getCreditsRecords, setStatusMessage, new Set([consumedNonce]))
-
-        // Validate: rec1 and rec2 must have different nonces (never the same record)
-        const n1 = extractNonce(synced[0])
-        const n2 = extractNonce(synced[1])
-        console.log('[SubscribeModal] rec1 nonce:', n1, 'rec2 nonce:', n2, 'consumed nonce:', consumedNonce)
-        if (n1 === n2) {
-          throw new Error('Both records have the same nonce — wallet returned duplicate. Please try again.')
-        }
-        if (n1 === consumedNonce || n2 === consumedNonce) {
-          throw new Error('Wallet returned the pre-split record. Please wait a moment and try again.')
-        }
-
-        rec1 = synced[0]
-        rec2 = synced[1]
-      }
+      // v7: Single-record subscribe — contract handles both creator and platform payments
+      const paymentRecord = records[0]
+      console.log('[SubscribeModal] Using single record with', parseMicrocredits(paymentRecord), 'microcredits')
 
       const passId = generatePassId()
       const expiresAt = blockHeight + SUBSCRIPTION_DURATION_BLOCKS
@@ -241,8 +150,7 @@ export default function SubscribeModal({
       setStatusMessage(null)
       setTxStatus('proving')
       const id = await subscribe(
-        rec1,
-        rec2,
+        paymentRecord,
         creatorAddress,
         tier.id,
         totalPrice,

@@ -2,16 +2,27 @@ import credits.aleo;
 import token_registry.aleo;
 
 // =============================================================================
-// VeilSub v6 — Private Creator Subscriptions on Aleo (Hardened Payments)
+// VeilSub v7 — Private Creator Subscriptions on Aleo (Single-Record Payments)
+//
+// v7 CHANGE: subscribe, tip, and renew now take a SINGLE credits.aleo/credits
+// record. One transfer_private sends the FULL amount to the creator. The 5%
+// platform fee is tracked in the platform_revenue mapping for deferred
+// settlement — the platform can collect owed fees from creators off-chain or
+// via a future claim transition.
+//
+// WHY: snarkVM cannot synthesize proving keys for transitions that chain the
+// output record of one external call as input to another. Splitting the
+// payment into two transfer_private calls within one transition causes
+// "Input record must belong to the signer" during deployment synthesis.
+// Single transfer_private avoids this entirely.
 //
 // PRIVACY ARCHITECTURE:
 // - Subscriber address (self.caller) is used ONLY to set AccessPass.owner
 // - self.caller is NEVER passed to any finalize function
 // - finalize_subscribe receives only: creator (public), amount (public), tier (public),
-//   pass_id (public), expires_at (public) — the subscriber's identity has NO code path to public state
+//   expires_at (public) — the subscriber's identity has NO code path to public state
 // - verify_access has NO finalize — zero public footprint on access checks
-// - All payments use credits.aleo/transfer_private or token_registry.aleo/transfer_private (not transfer_public)
-// - Both creator payment and platform fee use private transfers
+// - All payments use credits.aleo/transfer_private (not transfer_public)
 //
 // MULTI-TOKEN SUPPORT (v5):
 // - subscribe_token() and tip_token() accept ANY ARC-20 token via token_registry.aleo
@@ -20,8 +31,10 @@ import token_registry.aleo;
 // - Token-specific revenue tracking in separate mappings
 //
 // PLATFORM FEE:
-// 5% platform fee on subscriptions and tips. Both transfers are private —
-// subscriber identity stays hidden from both creator and platform.
+// 5% platform fee tracked in mappings. Creator receives the full payment
+// privately; the platform_revenue mapping records how much has been earned.
+// Settlement is deferred — platform and creator settle off-chain.
+// Subscriber identity stays hidden from both creator and platform.
 //
 // SUBSCRIPTION EXPIRY:
 // expires_at (block height) is stored in the private AccessPass record.
@@ -34,14 +47,12 @@ import token_registry.aleo;
 // Content BODY is off-chain. Only existence and tier requirement is on-chain.
 // =============================================================================
 
-program veilsub_v6.aleo {
+program veilsub_v7.aleo {
 
-    // Constructor — required for deployment on current Aleo consensus.
-    // @noupgrade prevents future program modifications (immutable contract).
     @noupgrade
     async constructor() {}
 
-    // Platform treasury address — receives 5% fee on subscriptions and tips.
+    // Platform treasury address — platform fee is tracked in mappings.
     const PLATFORM_ADDR: address = aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk;
 
     // =========================================
@@ -69,24 +80,22 @@ program veilsub_v6.aleo {
     // MAPPINGS (Public — aggregate data only)
     // =========================================
 
-    // Core mappings
     mapping tier_prices: address => u64;
     mapping subscriber_count: address => u64;
     mapping total_revenue: address => u64;
-    mapping platform_revenue: u8 => u64;       // key 0 = total platform earnings
+    mapping platform_revenue: u8 => u64;
     mapping content_count: address => u64;
-    mapping content_meta: field => u8;          // hashed content_id => min tier required
+    mapping content_meta: field => u8;
 
     // Token-specific mappings
-    mapping tier_prices_token: field => u128;       // hash(creator, token_id) => price in token units
-    mapping total_revenue_token: field => u128;     // hash(creator, token_id) => total earned in token
-    mapping platform_revenue_token: field => u128;  // hash(token_id, 0field) => platform earnings in token
+    mapping tier_prices_token: field => u128;
+    mapping total_revenue_token: field => u128;
+    mapping platform_revenue_token: field => u128;
 
     // =========================================
     // TRANSITIONS — ALEO CREDITS
     // =========================================
 
-    // Creator registers and sets their subscription price
     async transition register_creator(
         public price: u64,
     ) -> Future {
@@ -104,29 +113,23 @@ program veilsub_v6.aleo {
         Mapping::set(total_revenue, creator, 0u64);
     }
 
-    // Subscriber pays real ALEO and gets private AccessPass with expiry.
-    // Two payment records: one for creator (95%), one for platform fee (5%).
-    // Frontend auto-splits a single record if user only has one.
+    // v7: Single-record subscribe — ONE transfer_private to creator.
+    // Platform fee tracked in mapping only (deferred settlement).
     async transition subscribe(
-        payment_creator: credits.aleo/credits,
-        payment_platform: credits.aleo/credits,
+        payment: credits.aleo/credits,
         creator: address,
         tier: u8,
         amount: u64,
         pass_id: field,
         expires_at: u32,
-    ) -> (AccessPass, credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, Future) {
+    ) -> (AccessPass, credits.aleo/credits, credits.aleo/credits, Future) {
         assert(tier >= 1u8);
         assert(tier <= 3u8);
 
-        let platform_cut: u64 = amount / 20u64;
-        let creator_cut: u64 = amount - platform_cut;
-
-        let (change_creator, to_creator): (credits.aleo/credits, credits.aleo/credits) =
-            credits.aleo/transfer_private(payment_creator, creator, creator_cut);
-
-        let (change_platform, to_platform): (credits.aleo/credits, credits.aleo/credits) =
-            credits.aleo/transfer_private(payment_platform, PLATFORM_ADDR, platform_cut);
+        // Full amount goes to creator via private transfer.
+        // Platform fee is tracked in finalize (deferred settlement).
+        let (change, to_creator): (credits.aleo/credits, credits.aleo/credits) =
+            credits.aleo/transfer_private(payment, creator, amount);
 
         let pass: AccessPass = AccessPass {
             owner: self.caller,
@@ -136,7 +139,7 @@ program veilsub_v6.aleo {
             expires_at: expires_at,
         };
 
-        return (pass, change_creator, to_creator, change_platform, to_platform, finalize_subscribe(creator, amount, tier, expires_at));
+        return (pass, change, to_creator, finalize_subscribe(creator, amount, tier, expires_at));
     }
     async function finalize_subscribe(
         creator: address,
@@ -178,24 +181,18 @@ program veilsub_v6.aleo {
         };
     }
 
-    // Tip with ALEO credits — two records for creator + platform split
+    // v7: Single-record tip — ONE transfer_private to creator.
     async transition tip(
-        payment_creator: credits.aleo/credits,
-        payment_platform: credits.aleo/credits,
+        payment: credits.aleo/credits,
         creator: address,
         amount: u64,
-    ) -> (credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, Future) {
+    ) -> (credits.aleo/credits, credits.aleo/credits, Future) {
         assert(amount > 0u64);
-        let platform_cut: u64 = amount / 20u64;
-        let creator_cut: u64 = amount - platform_cut;
 
-        let (change_creator, to_creator): (credits.aleo/credits, credits.aleo/credits) =
-            credits.aleo/transfer_private(payment_creator, creator, creator_cut);
+        let (change, to_creator): (credits.aleo/credits, credits.aleo/credits) =
+            credits.aleo/transfer_private(payment, creator, amount);
 
-        let (change_platform, to_platform): (credits.aleo/credits, credits.aleo/credits) =
-            credits.aleo/transfer_private(payment_platform, PLATFORM_ADDR, platform_cut);
-
-        return (change_creator, to_creator, change_platform, to_platform, finalize_tip(creator, amount));
+        return (change, to_creator, finalize_tip(creator, amount));
     }
     async function finalize_tip(
         creator: address,
@@ -209,29 +206,22 @@ program veilsub_v6.aleo {
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
     }
 
-    // Renew subscription — consumes old pass, pays again, gets fresh AccessPass
+    // v7: Single-record renew — ONE transfer_private to creator.
     async transition renew(
         old_pass: AccessPass,
-        payment_creator: credits.aleo/credits,
-        payment_platform: credits.aleo/credits,
+        payment: credits.aleo/credits,
         new_tier: u8,
         amount: u64,
         new_pass_id: field,
         new_expires_at: u32,
-    ) -> (AccessPass, credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, credits.aleo/credits, Future) {
+    ) -> (AccessPass, credits.aleo/credits, credits.aleo/credits, Future) {
         assert(new_tier >= 1u8);
         assert(new_tier <= 3u8);
 
         let creator: address = old_pass.creator;
 
-        let platform_cut: u64 = amount / 20u64;
-        let creator_cut: u64 = amount - platform_cut;
-
-        let (change_creator, to_creator): (credits.aleo/credits, credits.aleo/credits) =
-            credits.aleo/transfer_private(payment_creator, creator, creator_cut);
-
-        let (change_platform, to_platform): (credits.aleo/credits, credits.aleo/credits) =
-            credits.aleo/transfer_private(payment_platform, PLATFORM_ADDR, platform_cut);
+        let (change, to_creator): (credits.aleo/credits, credits.aleo/credits) =
+            credits.aleo/transfer_private(payment, creator, amount);
 
         let new_pass: AccessPass = AccessPass {
             owner: self.caller,
@@ -241,7 +231,7 @@ program veilsub_v6.aleo {
             expires_at: new_expires_at,
         };
 
-        return (new_pass, change_creator, to_creator, change_platform, to_platform, finalize_renew(creator, amount, new_tier, new_expires_at));
+        return (new_pass, change, to_creator, finalize_renew(creator, amount, new_tier, new_expires_at));
     }
     async function finalize_renew(
         creator: address,
@@ -293,7 +283,6 @@ program veilsub_v6.aleo {
     // TRANSITIONS — ARC-20 TOKENS
     // =========================================
 
-    // Creator sets their subscription price in a specific token
     async transition set_token_price(
         public token_id: field,
         public price: u128,
@@ -313,28 +302,21 @@ program veilsub_v6.aleo {
         Mapping::set(tier_prices_token, key, price);
     }
 
-    // Subscribe with any ARC-20 token — two records for creator + platform split
+    // v7: Single-record token subscribe — ONE transfer_private to creator.
     async transition subscribe_token(
-        payment_creator: token_registry.aleo/Token,
-        payment_platform: token_registry.aleo/Token,
+        payment: token_registry.aleo/Token,
         creator: address,
         tier: u8,
         amount: u128,
         token_id: field,
         pass_id: field,
         expires_at: u32,
-    ) -> (AccessPass, token_registry.aleo/Token, token_registry.aleo/Token, token_registry.aleo/Token, token_registry.aleo/Token, Future) {
+    ) -> (AccessPass, token_registry.aleo/Token, token_registry.aleo/Token, Future) {
         assert(tier >= 1u8);
         assert(tier <= 3u8);
 
-        let platform_cut: u128 = amount / 20u128;
-        let creator_cut: u128 = amount - platform_cut;
-
-        let (to_creator, change_creator, f_creator): (token_registry.aleo/Token, token_registry.aleo/Token, Future) =
-            token_registry.aleo/transfer_private(creator, creator_cut, payment_creator);
-
-        let (to_platform, change_platform, f_platform): (token_registry.aleo/Token, token_registry.aleo/Token, Future) =
-            token_registry.aleo/transfer_private(PLATFORM_ADDR, platform_cut, payment_platform);
+        let (to_creator, change, f_creator): (token_registry.aleo/Token, token_registry.aleo/Token, Future) =
+            token_registry.aleo/transfer_private(creator, amount, payment);
 
         let pass: AccessPass = AccessPass {
             owner: self.caller,
@@ -344,11 +326,10 @@ program veilsub_v6.aleo {
             expires_at: expires_at,
         };
 
-        return (pass, to_creator, change_creator, to_platform, change_platform, finalize_subscribe_token(f_creator, f_platform, creator, amount, tier, token_id, expires_at));
+        return (pass, change, to_creator, finalize_subscribe_token(f_creator, creator, amount, tier, token_id, expires_at));
     }
     async function finalize_subscribe_token(
         f_creator: Future,
-        f_platform: Future,
         creator: address,
         amount: u128,
         tier: u8,
@@ -356,7 +337,6 @@ program veilsub_v6.aleo {
         expires_at: u32,
     ) {
         f_creator.await();
-        f_platform.await();
 
         let price_key: field = BHP256::hash_to_field(TokenKey { addr: creator, token_id: token_id });
         let base_price: u128 = Mapping::get(tier_prices_token, price_key);
@@ -380,35 +360,27 @@ program veilsub_v6.aleo {
         Mapping::set(platform_revenue_token, plat_key, plat_rev + platform_cut);
     }
 
-    // Tip with any ARC-20 token — two records for creator + platform split
+    // v7: Single-record token tip — ONE transfer_private to creator.
     async transition tip_token(
-        payment_creator: token_registry.aleo/Token,
-        payment_platform: token_registry.aleo/Token,
+        payment: token_registry.aleo/Token,
         creator: address,
         amount: u128,
         token_id: field,
-    ) -> (token_registry.aleo/Token, token_registry.aleo/Token, token_registry.aleo/Token, token_registry.aleo/Token, Future) {
+    ) -> (token_registry.aleo/Token, token_registry.aleo/Token, Future) {
         assert(amount > 0u128);
-        let platform_cut: u128 = amount / 20u128;
-        let creator_cut: u128 = amount - platform_cut;
 
-        let (to_creator, change_creator, f_creator): (token_registry.aleo/Token, token_registry.aleo/Token, Future) =
-            token_registry.aleo/transfer_private(creator, creator_cut, payment_creator);
+        let (to_creator, change, f_creator): (token_registry.aleo/Token, token_registry.aleo/Token, Future) =
+            token_registry.aleo/transfer_private(creator, amount, payment);
 
-        let (to_platform, change_platform, f_platform): (token_registry.aleo/Token, token_registry.aleo/Token, Future) =
-            token_registry.aleo/transfer_private(PLATFORM_ADDR, platform_cut, payment_platform);
-
-        return (to_creator, change_creator, to_platform, change_platform, finalize_tip_token(f_creator, f_platform, creator, amount, token_id));
+        return (change, to_creator, finalize_tip_token(f_creator, creator, amount, token_id));
     }
     async function finalize_tip_token(
         f_creator: Future,
-        f_platform: Future,
         creator: address,
         amount: u128,
         token_id: field,
     ) {
         f_creator.await();
-        f_platform.await();
 
         let rev_key: field = BHP256::hash_to_field(TokenKey { addr: creator, token_id: token_id });
         let revenue: u128 = Mapping::get_or_use(total_revenue_token, rev_key, 0u128);

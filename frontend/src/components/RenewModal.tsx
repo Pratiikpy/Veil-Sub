@@ -8,7 +8,7 @@ import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { generatePassId, formatCredits } from '@/lib/utils'
-import { extractNonce, dedupeRecords, waitForRecordSync } from '@/lib/recordSync'
+import { dedupeRecords } from '@/lib/recordSync'
 import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT } from '@/lib/config'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
@@ -28,7 +28,7 @@ export default function RenewModal({
   pass,
   basePrice,
 }: Props) {
-  const { renew, getCreditsRecords, splitCredits, pollTxStatus: pollTx, connected } = useVeilSub()
+  const { renew, getCreditsRecords, connected } = useVeilSub()
   const { blockHeight } = useBlockHeight()
   const { startPolling, stopPolling } = useTransactionPoller()
   const [selectedTier, setSelectedTier] = useState<SubscriptionTier>(
@@ -142,77 +142,9 @@ export default function RenewModal({
         return
       }
 
-      let rec1 = records[0]
-      let rec2 = records.length >= 2 ? records[1] : null
-
-      if (rec2) {
-        if (extractNonce(rec1) === extractNonce(rec2)) {
-          rec2 = records.length >= 3 ? records[2] : null
-        }
-        if (rec2 && parseMicrocredits(rec2) < platformCut) {
-          rec2 = null
-        }
-      }
-
-      // Auto-split: if only 1 record, split it via credits.aleo/split
-      if (!rec2) {
-        // Save consumed record nonce to exclude stale cache entries after split
-        const consumedNonce = extractNonce(records[0])
-        console.log('[RenewModal] Consumed record nonce for exclusion:', consumedNonce)
-
-        setStatusMessage('Splitting credit record (1 of 2)...')
-        const splitAmount = creatorCut // 95% for creator payment, remainder covers 5% platform fee
-        const splitTxId = await splitCredits(records[0], splitAmount)
-        if (!splitTxId) {
-          setTxStatus('failed')
-          setError('Record split was rejected by wallet.')
-          submittingRef.current = false
-          return
-        }
-
-        setStatusMessage('Waiting for split to confirm...')
-        await new Promise<void>((resolve, reject) => {
-          let attempts = 0
-          let sawAccepted = false
-          const poll = setInterval(async () => {
-            attempts++
-            try {
-              const status = (await pollTx(splitTxId)).toLowerCase()
-              console.log(`[RenewModal] Split poll #${attempts}: "${status}"`)
-              if (status.includes('finalize') || status.includes('confirm') || status.includes('complete')) {
-                clearInterval(poll)
-                resolve()
-              } else if (status.includes('accept')) {
-                sawAccepted = true
-              } else if (status.includes('fail') || status.includes('reject')) {
-                clearInterval(poll)
-                reject(new Error('Split failed'))
-              }
-            } catch { /* continue */ }
-            if (sawAccepted && attempts >= 30) { clearInterval(poll); resolve() }
-            if (attempts > 90) { clearInterval(poll); reject(new Error('Split timed out.')) }
-          }, 1000)
-        })
-
-        setStatusMessage('Waiting for on-chain finalization...')
-        await new Promise(r => setTimeout(r, 15000))
-
-        setStatusMessage('Fetching updated records...')
-        const synced = await waitForRecordSync(getCreditsRecords, setStatusMessage, new Set([consumedNonce]))
-
-        const n1 = extractNonce(synced[0])
-        const n2 = extractNonce(synced[1])
-        console.log('[RenewModal] rec1 nonce:', n1, 'rec2 nonce:', n2, 'consumed nonce:', consumedNonce)
-        if (n1 === n2) {
-          throw new Error('Both records have the same nonce — wallet returned duplicate. Please try again.')
-        }
-        if (n1 === consumedNonce || n2 === consumedNonce) {
-          throw new Error('Wallet returned the pre-split record. Please wait a moment and try again.')
-        }
-
-        rec1 = synced[0]
-        rec2 = synced[1]
-      }
+      // v7: Single-record renew — contract handles both creator and platform payments
+      const paymentRecord = records[0]
+      console.log('[RenewModal] Using single record with', parseMicrocredits(paymentRecord), 'microcredits')
 
       const newPassId = generatePassId()
       const newExpiresAt = blockHeight + SUBSCRIPTION_DURATION_BLOCKS
@@ -221,8 +153,7 @@ export default function RenewModal({
       setTxStatus('proving')
       const id = await renew(
         pass.rawPlaintext,
-        rec1,
-        rec2,
+        paymentRecord,
         selectedTier.id,
         totalPrice,
         newPassId,

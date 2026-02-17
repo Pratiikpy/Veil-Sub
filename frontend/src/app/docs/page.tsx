@@ -144,9 +144,9 @@ function ContractTab() {
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Program ID</h3>
         <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/20 flex items-center justify-between">
-          <code className="text-violet-300 text-sm font-mono">veilsub_v6.aleo</code>
+          <code className="text-violet-300 text-sm font-mono">veilsub_v7.aleo</code>
           <a
-            href="https://testnet.explorer.provable.com/program/veilsub_v6.aleo"
+            href="https://testnet.explorer.provable.com/program/veilsub_v7.aleo"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1"
@@ -181,8 +181,6 @@ mapping total_revenue: address => u64;         // creator => total earned
 mapping platform_revenue: u8 => u64;          // key 0 = total platform earnings
 mapping content_count: address => u64;         // creator => number of posts
 mapping content_meta: field => u8;             // hashed content_id => min tier required
-mapping sub_created: field => u32;             // hashed pass_id => block.height at creation
-
 // Token-specific mappings (v5 — ARC-20 multi-token)
 mapping tier_prices_token: field => u128;      // hash(creator, token_id) => price in token
 mapping total_revenue_token: field => u128;    // hash(creator, token_id) => total earned
@@ -361,13 +359,13 @@ function ApiTab() {
         <CodeBlock
           lang="bash"
           code={`# Get creator's tier price
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v6.aleo/mapping/tier_prices/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v7.aleo/mapping/tier_prices/<creator_address>
 
 # Get subscriber count
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v6.aleo/mapping/subscriber_count/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v7.aleo/mapping/subscriber_count/<creator_address>
 
 # Get total revenue
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v6.aleo/mapping/total_revenue/<creator_address>`}
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v7.aleo/mapping/total_revenue/<creator_address>`}
         />
       </div>
 
@@ -382,21 +380,20 @@ curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v6.aleo/mappin
 
 const { executeTransaction } = useWallet()
 
-// Execute a subscribe transaction (v5)
+// Execute a subscribe transaction (v7 — single record)
 const result = await executeTransaction({
-  program: 'veilsub_v6.aleo',
+  program: 'veilsub_v7.aleo',
   function: 'subscribe',
   inputs: [
-    creatorPaymentRecord,       // credits record for creator (95%)
-    platformPaymentRecord,      // credits record for platform fee (5%)
+    paymentRecord,              // single credits record (must have >= amount)
     creatorAddress,             // creator's address
     '1u8',                      // tier (1=Supporter, 2=Premium, 3=VIP)
     '5000000u64',               // amount in microcredits (5 ALEO)
     passIdField,                // unique pass_id (field)
     expiresAtU32,               // expiry block height (u32)
   ],
-  fee: 5_000_000,              // fee in microcredits
-  privateFee: true,
+  fee: 300_000,                // fee in microcredits
+  privateFee: false,
 })
 
 const txId = result?.transactionId`}

@@ -46,7 +46,7 @@ As a content creator with 6,400+ followers, this is **my problem**. My audience 
 ```
 ┌──────────────┐     ┌──────────────────┐     ┌───────────────────┐
 │  Subscriber   │────>│     VeilSub      │────>│   Aleo Network    │
-│ (Leo Wallet)  │    │   v6 Program     │     │                   │
+│ (Leo Wallet)  │    │   v7 Program     │     │                   │
 │               │    │                  │     │  PRIVATE:          │
 │ 1. Pick tier  │    │ subscribe()      │     │  - AccessPass      │
 │ 2. Pay ALEO   │    │ subscribe_token()│     │  - Payment details │
@@ -178,9 +178,9 @@ We document what an adversary *could* learn, because honest threat modeling demo
 
 ## Smart Contract
 
-**Deployed Program:** `veilsub_v6.aleo` (v6 hardened payments — [view on explorer](https://testnet.explorer.provable.com/program/veilsub_v6.aleo))
+**Deployed Program:** `veilsub_v7.aleo` (v7 single-record payments — [view on explorer](https://testnet.explorer.provable.com/program/veilsub_v7.aleo))
 
-**Previous Versions:** `veilsub_v5.aleo` ([explorer](https://testnet.explorer.provable.com/program/veilsub_v5.aleo)), `veilsub_v4.aleo` ([explorer](https://testnet.explorer.provable.com/program/veilsub_v4.aleo))
+**Previous Versions:** `veilsub_v6.aleo` ([explorer](https://testnet.explorer.provable.com/program/veilsub_v6.aleo)), `veilsub_v5.aleo` ([explorer](https://testnet.explorer.provable.com/program/veilsub_v5.aleo)), `veilsub_v4.aleo` ([explorer](https://testnet.explorer.provable.com/program/veilsub_v4.aleo))
 
 **Imports:** `credits.aleo`, `token_registry.aleo`
 
@@ -223,14 +223,14 @@ mapping platform_revenue_token: field => u128;   // hash(token_id, 0field) => pl
 | Function | Type | Description |
 |----------|------|-------------|
 | `register_creator(price)` | async | Creator sets tier price, initializes counters |
-| `subscribe(payment, creator, tier, amount, pass_id, expires_at)` | async | Pay with ALEO credits (95% creator, 5% platform), get private AccessPass |
+| `subscribe(payment, creator, tier, amount, pass_id, expires_at)` | async | Pay with single ALEO credits record, get private AccessPass. Platform fee tracked in mapping (deferred settlement). |
 | `verify_access(pass, creator)` | sync | Consume + re-create pass to prove access (zero public footprint) |
-| `tip(payment, creator, amount)` | async | Private tip in ALEO credits (95% creator, 5% platform) |
-| `renew(old_pass, payment, new_tier, amount, new_pass_id, new_expires_at)` | async | Consume old pass, pay again, get fresh AccessPass |
+| `tip(payment, creator, amount)` | async | Private tip with single credits record. Platform fee tracked in mapping. |
+| `renew(old_pass, payment, new_tier, amount, new_pass_id, new_expires_at)` | async | Consume old pass, pay with single record, get fresh AccessPass |
 | `publish_content(content_id, min_tier)` | async | Register content metadata on-chain (BHP256-hashed ID + min tier) |
 | `set_token_price(token_id, price)` | async | Creator sets subscription price for a specific ARC-20 token |
-| `subscribe_token(payment_creator, payment_platform, creator, tier, amount, token_id, pass_id, expires_at)` | async | Pay with any ARC-20 token via token_registry.aleo |
-| `tip_token(payment_creator, payment_platform, creator, amount, token_id)` | async | Tip with any ARC-20 token via token_registry.aleo |
+| `subscribe_token(payment, creator, tier, amount, token_id, pass_id, expires_at)` | async | Pay with single ARC-20 token record via token_registry.aleo |
+| `tip_token(payment, creator, amount, token_id)` | async | Tip with single ARC-20 token record via token_registry.aleo |
 
 ### Privacy Guarantees in Code
 - `subscribe`, `subscribe_token`, and `renew` finalize receive only `creator`, `amount`, `tier`, `pass_id`, `expires_at` — subscriber address is **never passed**
@@ -248,10 +248,10 @@ mapping platform_revenue_token: field => u128;   // hash(token_id, 0field) => pl
 | Resource | Link |
 |----------|------|
 | Frontend | [https://veilsub.vercel.app](https://veilsub.vercel.app) |
-| Contract (v4 — live) on Explorer | [explorer.provable.com/testnet/program/veilsub_v4.aleo](https://testnet.explorer.provable.com/program/veilsub_v4.aleo) |
-| Contract (v4) on Aleoscan | [testnet.aleoscan.io/program?id=veilsub_v4.aleo](https://testnet.aleoscan.io/program?id=veilsub_v4.aleo) |
-| Contract v5 on Explorer | [explorer.provable.com/testnet/program/veilsub_v5.aleo](https://testnet.explorer.provable.com/program/veilsub_v5.aleo) |
+| Contract v7 (live) on Explorer | [explorer.provable.com/testnet/program/veilsub_v7.aleo](https://testnet.explorer.provable.com/program/veilsub_v7.aleo) |
+| Contract v7 on Aleoscan | [testnet.aleoscan.io/program?id=veilsub_v7.aleo](https://testnet.aleoscan.io/program?id=veilsub_v7.aleo) |
 | Contract v6 on Explorer | [explorer.provable.com/testnet/program/veilsub_v6.aleo](https://testnet.explorer.provable.com/program/veilsub_v6.aleo) |
+| Contract v5 on Explorer | [explorer.provable.com/testnet/program/veilsub_v5.aleo](https://testnet.explorer.provable.com/program/veilsub_v5.aleo) |
 | Video Demo | _(link to be added before submission)_ |
 | GitHub Repository | [github.com/Pratiikpy/Veil-Sub](https://github.com/Pratiikpy/Veil-Sub) |
 
@@ -276,6 +276,8 @@ mapping platform_revenue_token: field => u128;   // hash(token_id, 0field) => pl
 | v6 subscribe | `at1k0fk98ftwup7na72dymy6k3hd6dt4fu5pvp0m3fpvtfx76js4u9qsxdhcj` | [View](https://testnet.explorer.provable.com/transaction/at1k0fk98ftwup7na72dymy6k3hd6dt4fu5pvp0m3fpvtfx76js4u9qsxdhcj) |
 | v6 tip | `at1t0rsz48h7su7z570mufr3d68p69khvtele2cjavphqpq30ru2gps5cwn8a` | [View](https://testnet.explorer.provable.com/transaction/at1t0rsz48h7su7z570mufr3d68p69khvtele2cjavphqpq30ru2gps5cwn8a) |
 | v6 verify_access | `at12c3nkef0wmrx4f7h56z9n7fjqd4hrafcfl6dzhvfchpfq5zm5ggqwfwuen` | [View](https://testnet.explorer.provable.com/transaction/at12c3nkef0wmrx4f7h56z9n7fjqd4hrafcfl6dzhvfchpfq5zm5ggqwfwuen) |
+| **v7 Deployment** | `at1kmtndjvgzv9ct8ejf4t9dkq2wj2eqsj6efe56rxa9628wuhglqzs8z5zj2` | [View](https://testnet.explorer.provable.com/transaction/at1kmtndjvgzv9ct8ejf4t9dkq2wj2eqsj6efe56rxa9628wuhglqzs8z5zj2) |
+| v7 register_creator | `at10j6xjssrl3ly7h5jt43d744ggzvfety3xwkzt7utvk84xq9w7cxsw5e48k` | [View](https://testnet.explorer.provable.com/transaction/at10j6xjssrl3ly7h5jt43d744ggzvfety3xwkzt7utvk84xq9w7cxsw5e48k) |
 
 ## How to Test
 
@@ -325,7 +327,7 @@ frontend/ (Next.js App Router)
 │   ├── useBlockHeight.ts               ← Current block height for expiry checks
 │   ├── useContentFeed.ts               ← Content CRUD via Redis API + server-gated unlock
 │   ├── useSupabase.ts                  ← Encrypted Supabase operations
-│   ├── useTransactionPoller.ts         ← 4-strategy tx confirmation polling
+│   ├── useTransactionPoller.ts         ← Wallet-based tx confirmation polling
 │   └── useCyclingPlaceholder.ts        ← UX helper
 ├── app/
 │   ├── page.tsx                        ← Landing page with featured creators + QR scanner
@@ -406,12 +408,13 @@ contracts/veilsub/ (Leo Program)
 - [x] Wave 2 (enhanced): Explorer dashboard, Vision page, zero-footprint hero, flexible tipping, Leo tests, privacy comparison
 - [x] Wave 2 (v5 deployed): v5 testnet deployment with 4 verified on-chain transactions
 - [x] Wave 2 (v6): Hardened payments — zero-amount tip guard, dead mapping removal (9 mappings), 7 verified v6 transactions
+- [x] Wave 2 (v7): Single-record payments — eliminated split requirement, deferred platform fee settlement, 2 verified v7 transactions
 - [ ] Wave 4: Batch subscription support, creator discovery marketplace
 - [ ] Wave 5+: Mainnet deployment, SDK for third-party integration
 
 ## Future Roadmap
 
-- **Mainnet deployment** — Deploy veilsub_v6.aleo to Aleo mainnet with real credits and stablecoin payments. Zero code changes required — the contract is production-ready.
+- **Mainnet deployment** — Deploy veilsub_v7.aleo to Aleo mainnet with real credits and stablecoin payments. Zero code changes required — the contract is production-ready.
 - **TypeScript SDK** — Publish an open-source SDK so any Aleo dApp can verify AccessPass ownership and gate content behind VeilSub subscriptions — turning VeilSub into a composable privacy primitive.
 - **DAO governance** — On-chain governance where AccessPass holders vote on platform parameters (fee percentages, subscription durations) using private ballots — no voter identity leakage.
 - **Mobile wallet support** — Deep-link integration with Leo Wallet mobile (iOS/Android) for one-tap subscription and renewal from any device.
@@ -455,12 +458,26 @@ contracts/veilsub/ (Leo Program)
 
 **v5 Token Transitions Wired**:
 - `setTokenPrice`, `subscribeToken`, `tipToken`, `getTokenRecords` added to `useVeilSub` hook
-- WalletProvider now requests programs for `credits.aleo`, `veilsub_v5.aleo`, and `token_registry.aleo`
+- WalletProvider now requests programs for `credits.aleo`, `veilsub_v7.aleo`, and `token_registry.aleo`
 - TOKEN_FEES config for token-based transitions
 
 **Leo Tests**:
 - New `contracts/veilsub/tests/test_veilsub.leo` with 5 test transitions
 - Tests: tier multipliers (1x/2x/5x), fee splits (5%/95%), BHP256 hash consistency, expiry bounds, token fee split (u128)
+
+### Wave 2 — v7 Single-Record Payments
+
+**Smart Contract v7** (`veilsub_v7.aleo`):
+- **Single-record payments**: `subscribe`, `tip`, and `renew` now take a SINGLE credits.aleo/credits record — no more frontend record-splitting
+- **snarkVM workaround**: Chaining two `transfer_private` calls within one transition causes "Input record must belong to the signer" during deployment synthesis — solved by using one `transfer_private` for the full amount to creator
+- **Deferred platform fee**: 5% platform fee tracked in `platform_revenue` mapping. Creator receives full payment privately; settlement is deferred
+- **Frontend simplification**: Removed ~300 lines of split/poll/sync/nonce-validation code from all 3 payment modals
+- **2 verified transactions**: deployment, register_creator — confirmed on testnet
+
+**Frontend Overhaul**:
+- **Eliminated split race condition**: The v6 "input ID already exists in the ledger" bug was caused by Shield Wallet returning stale records after `credits.aleo/split`. v7 removes the split entirely.
+- **Wallet-only polling**: Removed broken Provable/Explorer API polling routes (404 errors with Shield Wallet temp IDs). Transaction status now uses wallet adapter only.
+- **Accepted→confirmed fallback**: Shield Wallet never reports "finalized" — after 30s of "accepted" status, treat as confirmed for UI
 
 ### Wave 2 — v6 Hardened Payments
 
@@ -562,7 +579,7 @@ contracts/veilsub/ (Leo Program)
 - On-chain payment validation: `finalize_subscribe` enforces `amount >= tier_prices[creator]`
 - Re-registration guard: `finalize_register` prevents accidental stat wipe
 - Built full Next.js 16 frontend with 7 pages: Home, Privacy, Docs, Explorer, Dashboard, Creator, Verify
-- 4-strategy real transaction polling (wallet → Provable API → Explorer → fallback)
+- Wallet-based transaction polling with accepted→confirmed fallback
 - QR code sharing, animated counters, floating orb backgrounds, on-chain verification buttons
 - Privacy model: subscriber identity never enters finalize scope
 - AccessPass record for private access proof (UTXO consume/re-create pattern)

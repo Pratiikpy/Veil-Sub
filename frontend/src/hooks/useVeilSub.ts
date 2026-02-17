@@ -64,10 +64,10 @@ export function useVeilSub() {
     [execute]
   )
 
+  // v7: Single-record subscribe — no split needed
   const subscribe = useCallback(
     async (
-      creditsRecordCreator: string,
-      creditsRecordPlatform: string,
+      paymentRecord: string,
       creatorAddress: string,
       tier: number,
       amountMicrocredits: number,
@@ -77,8 +77,7 @@ export function useVeilSub() {
       return execute(
         'subscribe',
         [
-          creditsRecordCreator,
-          creditsRecordPlatform,
+          paymentRecord,
           creatorAddress,
           `${tier}u8`,
           `${amountMicrocredits}u64`,
@@ -91,18 +90,17 @@ export function useVeilSub() {
     [execute]
   )
 
+  // v7: Single-record tip — no split needed
   const tip = useCallback(
     async (
-      creditsRecordCreator: string,
-      creditsRecordPlatform: string,
+      paymentRecord: string,
       creatorAddress: string,
       amountMicrocredits: number
     ) => {
       return execute(
         'tip',
         [
-          creditsRecordCreator,
-          creditsRecordPlatform,
+          paymentRecord,
           creatorAddress,
           `${amountMicrocredits}u64`,
         ],
@@ -123,11 +121,11 @@ export function useVeilSub() {
     [execute]
   )
 
+  // v7: Single-record renew — no split needed
   const renew = useCallback(
     async (
       accessPassPlaintext: string,
-      creditsRecordCreator: string,
-      creditsRecordPlatform: string,
+      paymentRecord: string,
       newTier: number,
       amountMicrocredits: number,
       newPassId: string,
@@ -137,8 +135,7 @@ export function useVeilSub() {
         'renew',
         [
           accessPassPlaintext,
-          creditsRecordCreator,
-          creditsRecordPlatform,
+          paymentRecord,
           `${newTier}u8`,
           `${amountMicrocredits}u64`,
           `${newPassId}field`,

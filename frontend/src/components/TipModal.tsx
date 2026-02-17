@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { creditsToMicrocredits } from '@/lib/utils'
-import { extractNonce, dedupeRecords, waitForRecordSync } from '@/lib/recordSync'
+import { dedupeRecords } from '@/lib/recordSync'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
 import type { TxStatus } from '@/types'
@@ -26,7 +26,7 @@ const parseMicrocredits = (plaintext: string): number => {
 }
 
 export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
-  const { tip, getCreditsRecords, splitCredits, pollTxStatus, connected } = useVeilSub()
+  const { tip, getCreditsRecords, connected } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
   const [selectedAmount, setSelectedAmount] = useState(5)
   const [customAmount, setCustomAmount] = useState('')
@@ -134,85 +134,14 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         return
       }
 
-      const tipPlatformCut = Math.floor(tipMicrocredits / 20)
-      let rec1 = records[0]
-      let rec2 = records.length >= 2 ? records[1] : null
-
-      // Validate rec2 has enough for platform cut (5%) and rec1 !== rec2
-      if (rec2) {
-        if (extractNonce(rec1) === extractNonce(rec2)) {
-          rec2 = records.length >= 3 ? records[2] : null
-        }
-        if (rec2 && parseMicrocredits(rec2) < tipPlatformCut) {
-          rec2 = null // Force auto-split path
-        }
-      }
-
-      // Auto-split if only 1 record
-      if (!rec2) {
-        // Save consumed record nonce to exclude stale cache entries after split
-        const consumedNonce = extractNonce(records[0])
-        console.log('[TipModal] Consumed record nonce for exclusion:', consumedNonce)
-
-        setStatusMessage('Splitting credit record (1 of 2)...')
-        const splitAmount = tipMicrocredits - Math.floor(tipMicrocredits / 20) // 95% for creator, remainder covers 5% platform fee
-        const splitTxId = await splitCredits(records[0], splitAmount)
-        if (!splitTxId) {
-          setTxStatus('failed')
-          setError('Record split was rejected by wallet.')
-          submittingRef.current = false
-          return
-        }
-
-        setStatusMessage('Waiting for split to confirm...')
-        await new Promise<void>((resolve, reject) => {
-          let attempts = 0
-          let sawAccepted = false
-          const poll = setInterval(async () => {
-            attempts++
-            try {
-              const status = (await pollTxStatus(splitTxId)).toLowerCase()
-              console.log(`[TipModal] Split poll #${attempts}: "${status}"`)
-              if (status.includes('finalize') || status.includes('confirm') || status.includes('complete')) {
-                clearInterval(poll)
-                resolve()
-              } else if (status.includes('accept')) {
-                sawAccepted = true
-              } else if (status.includes('fail') || status.includes('reject')) {
-                clearInterval(poll)
-                reject(new Error('Split failed'))
-              }
-            } catch { /* continue */ }
-            if (sawAccepted && attempts >= 30) { clearInterval(poll); resolve() }
-            if (attempts > 90) { clearInterval(poll); reject(new Error('Split timed out.')) }
-          }, 1000)
-        })
-
-        setStatusMessage('Waiting for on-chain finalization...')
-        await new Promise(r => setTimeout(r, 15000))
-
-        setStatusMessage('Fetching updated records...')
-        const synced = await waitForRecordSync(getCreditsRecords, setStatusMessage, new Set([consumedNonce]))
-
-        const n1 = extractNonce(synced[0])
-        const n2 = extractNonce(synced[1])
-        console.log('[TipModal] rec1 nonce:', n1, 'rec2 nonce:', n2, 'consumed nonce:', consumedNonce)
-        if (n1 === n2) {
-          throw new Error('Both records have the same nonce — wallet returned duplicate. Please try again.')
-        }
-        if (n1 === consumedNonce || n2 === consumedNonce) {
-          throw new Error('Wallet returned the pre-split record. Please wait a moment and try again.')
-        }
-
-        rec1 = synced[0]
-        rec2 = synced[1]
-      }
+      // v7: Single-record tip — contract handles both creator and platform payments
+      const paymentRecord = records[0]
+      console.log('[TipModal] Using single record with', parseMicrocredits(paymentRecord), 'microcredits')
 
       setStatusMessage(null)
       setTxStatus('proving')
       const id = await tip(
-        rec1,
-        rec2,
+        paymentRecord,
         creatorAddress,
         tipMicrocredits
       )
