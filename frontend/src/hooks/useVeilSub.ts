@@ -247,13 +247,23 @@ export function useVeilSub() {
   // Extract microcredits from any record format (mirrors NullPay's getMicrocredits)
   const getMicrocredits = (record: any): number => {
     try {
+      // Path 1: structured data field (Shield Wallet format)
       if (record?.data?.microcredits) {
-        return parseInt(String(record.data.microcredits).replace(/_/g, '').replace('u64', ''), 10)
+        const raw = String(record.data.microcredits).replace(/_/g, '').replace('.private', '').replace('u64', '')
+        const val = parseInt(raw, 10)
+        if (val > 0) return val
       }
+      // Path 2: plaintext string (contains "microcredits: Xu64")
       const text = typeof record === 'string' ? record : record?.plaintext
       if (text) {
         const match = text.match(/microcredits\s*:\s*([\d_]+)u64/)
         if (match?.[1]) return parseInt(match[1].replace(/_/g, ''), 10)
+      }
+      // Path 3: if record itself is the data object (nested call)
+      if (record?.microcredits) {
+        const raw = String(record.microcredits).replace(/_/g, '').replace('.private', '').replace('u64', '')
+        const val = parseInt(raw, 10)
+        if (val > 0) return val
       }
       return 0
     } catch { return 0 }
@@ -261,28 +271,60 @@ export function useVeilSub() {
 
   // Process a single record: try all formats, lazy-decrypt if needed
   const processRecord = async (r: any): Promise<{ plaintext: string; microcredits: number } | null> => {
-    if (r?.spent) return null
+    if (r?.spent) {
+      console.log('[VeilSub] Skipping spent record')
+      return null
+    }
+
+    // Log the raw record shape so we can debug format issues
+    console.log('[VeilSub] processRecord raw:', {
+      type: typeof r,
+      hasData: !!r?.data,
+      dataKeys: r?.data ? Object.keys(r.data) : [],
+      hasPlaintext: !!r?.plaintext,
+      hasCiphertext: !!r?.recordCiphertext,
+      hasNonce: !!(r?.nonce || r?._nonce || r?.data?._nonce),
+      spent: r?.spent,
+    })
 
     let val = getMicrocredits(r)
+    console.log('[VeilSub] getMicrocredits initial:', val)
 
+    // If value is 0, try to decrypt the record to get plaintext
     if (val === 0 && r?.recordCiphertext && !r?.plaintext && decrypt) {
       try {
+        console.log('[VeilSub] Attempting decrypt...')
         const decrypted = await decrypt(r.recordCiphertext)
         if (decrypted) {
+          console.log('[VeilSub] Decrypt succeeded, plaintext length:', decrypted.length)
           r.plaintext = decrypted
           val = getMicrocredits(r)
+          console.log('[VeilSub] getMicrocredits after decrypt:', val)
         }
-      } catch { /* decryption failed */ }
+      } catch (decryptErr) {
+        console.error('[VeilSub] Decrypt FAILED:', decryptErr)
+      }
+    }
+
+    // If still no value, try to extract from any nested structure
+    if (val === 0) {
+      // Last resort: check if we have plaintext but regex didn't match
+      const text = typeof r === 'string' ? r : r?.plaintext
+      if (text) {
+        console.warn('[VeilSub] Has plaintext but getMicrocredits returned 0. Plaintext preview:', text.slice(0, 200))
+      }
     }
 
     if (val <= 0) return null
 
+    // Extract plaintext string for transaction input
     let plaintext = ''
     if (typeof r === 'string') {
       plaintext = r
     } else if (r?.plaintext) {
       plaintext = r.plaintext
     } else {
+      // Reconstruct plaintext from structured data
       const nonce = r?.nonce || r?._nonce || r?.data?._nonce
       const owner = r?.owner
       if (nonce && owner) {
@@ -292,7 +334,10 @@ export function useVeilSub() {
       }
     }
 
-    if (!plaintext) return null
+    if (!plaintext) {
+      console.warn('[VeilSub] Record has value', val, 'but could not extract plaintext')
+      return null
+    }
     return { plaintext, microcredits: val }
   }
 
@@ -337,25 +382,59 @@ export function useVeilSub() {
     }
   }, [connected, requestRecords, decrypt])
 
-  // Fetch credits records with timeout — NullPay pattern: requestRecords('credits.aleo', false)
+  // Fetch credits records with plaintext included (includePlaintext: true)
+  // Shield Wallet needs `true` to return .plaintext on record objects.
+  // With `false`, records come back without plaintext and getMicrocredits can't parse them.
   const getCreditsRecords = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) {
       console.warn('[VeilSub] getCreditsRecords: not connected or requestRecords unavailable')
       return []
     }
     try {
-      console.log('[VeilSub] Fetching credits.aleo records...')
+      console.log('[VeilSub] Fetching credits.aleo records (includePlaintext: true)...')
       const records = await withTimeout(
-        requestRecords('credits.aleo', false),
+        requestRecords('credits.aleo', true),
         15000,
         'requestRecords(credits.aleo)'
       )
-      console.log('[VeilSub] Credits records received:', (records as any[]).length)
+      const recordsArr = records as any[]
+      console.log('[VeilSub] Credits records received:', recordsArr.length)
+
+      // Log first record shape for debugging
+      if (recordsArr.length > 0) {
+        const r0 = recordsArr[0]
+        console.log('[VeilSub] First record shape:', {
+          type: typeof r0,
+          keys: typeof r0 === 'object' ? Object.keys(r0) : 'N/A',
+          hasPlaintext: !!r0?.plaintext,
+          hasData: !!r0?.data,
+          spent: r0?.spent,
+        })
+      }
+
       const results: { plaintext: string; microcredits: number }[] = []
 
-      for (const r of records as any[]) {
+      for (const r of recordsArr) {
         const processed = await processRecord(r)
         if (processed) results.push(processed)
+      }
+
+      // If includePlaintext: true didn't help, try with false + decrypt as fallback
+      if (results.length === 0 && recordsArr.length > 0) {
+        console.warn('[VeilSub] includePlaintext: true returned records but none processed. Trying with false + decrypt...')
+        try {
+          const fallbackRecords = await withTimeout(
+            requestRecords('credits.aleo', false),
+            15000,
+            'requestRecords(credits.aleo, false)'
+          )
+          for (const r of fallbackRecords as any[]) {
+            const processed = await processRecord(r)
+            if (processed) results.push(processed)
+          }
+        } catch (fallbackErr) {
+          console.error('[VeilSub] Fallback fetch also failed:', fallbackErr)
+        }
       }
 
       console.log('[VeilSub] Processed credits records:', results.length, results.map(r => r.microcredits))
@@ -364,7 +443,7 @@ export function useVeilSub() {
         .map((r) => r.plaintext)
     } catch (err) {
       console.error('[VeilSub] Failed to fetch credits records:', err)
-      throw err // Re-throw so callers can show the error to user
+      throw err
     }
   }, [connected, requestRecords, decrypt])
 
