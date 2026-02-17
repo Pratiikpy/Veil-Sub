@@ -72,8 +72,8 @@ export default function RenewModal({
   const daysRemaining = blocksRemaining !== null ? Math.round((blocksRemaining * 3) / 86400) : null
 
   const parseMicrocredits = (plaintext: string): number => {
-    const m = plaintext.match(/microcredits\s*:\s*(\d+)u64/)
-    return m ? parseInt(m[1], 10) : 0
+    const m = plaintext.match(/microcredits\s*:\s*([\d_]+)u64/)
+    return m ? parseInt(m[1].replace(/_/g, ''), 10) : 0
   }
 
   const handleRenew = async () => {
@@ -93,7 +93,12 @@ export default function RenewModal({
     setTxStatus('signing')
 
     try {
-      const rawRecords = await getCreditsRecords()
+      // Fetch with retry (NullPay pattern)
+      let rawRecords = await getCreditsRecords()
+      if (rawRecords.length === 0) {
+        await new Promise(r => setTimeout(r, 2000))
+        rawRecords = await getCreditsRecords()
+      }
       const seen = new Set<string>()
       const records = rawRecords.filter(r => { if (seen.has(r)) return false; seen.add(r); return true })
       if (records.length < 1) {
@@ -104,10 +109,18 @@ export default function RenewModal({
         return
       }
 
-      const available = parseMicrocredits(records[0])
-      if (available < totalPrice) {
+      const totalAvailable = records.reduce((sum, r) => sum + parseMicrocredits(r), 0)
+      const largestRecord = parseMicrocredits(records[0])
+      if (totalAvailable < totalPrice) {
         setInsufficientBalance(true)
-        setError(`Insufficient private balance. You have ${formatCredits(available)} ALEO but need ${formatCredits(totalPrice)} ALEO.`)
+        setError(`Insufficient private balance. You have ${formatCredits(totalAvailable)} ALEO but need ${formatCredits(totalPrice)} ALEO.`)
+        setTxStatus('idle')
+        submittingRef.current = false
+        return
+      }
+      if (largestRecord < totalPrice) {
+        setInsufficientBalance(true)
+        setError(`Your largest record has ${formatCredits(largestRecord)} ALEO but you need ${formatCredits(totalPrice)} in a single record. Convert public credits to private to create a larger record.`)
         setTxStatus('idle')
         submittingRef.current = false
         return
@@ -134,9 +147,9 @@ export default function RenewModal({
           const poll = setInterval(async () => {
             attempts++
             try {
-              const status = await pollTx(splitTxId)
-              if (status === 'Finalized' || status === 'confirmed') { clearInterval(poll); resolve() }
-              else if (status === 'Rejected' || status === 'failed') { clearInterval(poll); reject(new Error('Split failed')) }
+              const status = (await pollTx(splitTxId)).toLowerCase()
+              if (status.includes('finalize') || status.includes('confirm') || status.includes('accept') || status.includes('complete')) { clearInterval(poll); resolve() }
+              else if (status.includes('fail') || status.includes('reject')) { clearInterval(poll); reject(new Error('Split failed')) }
             } catch { /* continue */ }
             if (attempts > 60) { clearInterval(poll); reject(new Error('Split timed out.')) }
           }, 1000)

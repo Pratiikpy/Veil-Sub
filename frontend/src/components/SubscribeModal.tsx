@@ -22,8 +22,8 @@ interface Props {
 }
 
 const parseMicrocredits = (plaintext: string): number => {
-  const match = plaintext.match(/microcredits\s*:\s*(\d+)u64/)
-  return match ? parseInt(match[1], 10) : 0
+  const match = plaintext.match(/microcredits\s*:\s*([\d_]+)u64/)
+  return match ? parseInt(match[1].replace(/_/g, ''), 10) : 0
 }
 
 export default function SubscribeModal({
@@ -89,8 +89,13 @@ export default function SubscribeModal({
     setTxStatus('signing')
 
     try {
-      // Fetch user's credits records and deduplicate
-      const rawRecords = await getCreditsRecords()
+      // Fetch user's credits records with retry (NullPay pattern)
+      let rawRecords = await getCreditsRecords()
+      if (rawRecords.length === 0) {
+        // Retry after brief sync delay
+        await new Promise(r => setTimeout(r, 2000))
+        rawRecords = await getCreditsRecords()
+      }
       const seen = new Set<string>()
       const records = rawRecords.filter(r => { if (seen.has(r)) return false; seen.add(r); return true })
 
@@ -102,11 +107,19 @@ export default function SubscribeModal({
         return
       }
 
-      // Check total available balance across all records
-      const available = parseMicrocredits(records[0])
-      if (available < totalPrice) {
+      // Check total available balance across ALL records (not just first)
+      const totalAvailable = records.reduce((sum, r) => sum + parseMicrocredits(r), 0)
+      const largestRecord = parseMicrocredits(records[0])
+      if (totalAvailable < totalPrice) {
         setInsufficientBalance(true)
-        setError(`Insufficient private balance. You have ${formatCredits(available)} ALEO but need ${formatCredits(totalPrice)} ALEO.`)
+        setError(`Insufficient private balance. You have ${formatCredits(totalAvailable)} ALEO but need ${formatCredits(totalPrice)} ALEO.`)
+        setTxStatus('idle')
+        submittingRef.current = false
+        return
+      }
+      if (largestRecord < totalPrice) {
+        setInsufficientBalance(true)
+        setError(`Your largest record has ${formatCredits(largestRecord)} ALEO but you need ${formatCredits(totalPrice)} in a single record. Convert public credits to private to create a larger record.`)
         setTxStatus('idle')
         submittingRef.current = false
         return
@@ -134,11 +147,11 @@ export default function SubscribeModal({
           const poll = setInterval(async () => {
             attempts++
             try {
-              const status = await pollTxStatus(splitTxId)
-              if (status === 'Finalized' || status === 'confirmed') {
+              const status = (await pollTxStatus(splitTxId)).toLowerCase()
+              if (status.includes('finalize') || status.includes('confirm') || status.includes('accept') || status.includes('complete')) {
                 clearInterval(poll)
                 resolve()
-              } else if (status === 'Rejected' || status === 'failed') {
+              } else if (status.includes('fail') || status.includes('reject')) {
                 clearInterval(poll)
                 reject(new Error('Split transaction failed on-chain'))
               }

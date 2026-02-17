@@ -11,6 +11,7 @@ export function useVeilSub() {
     executeTransaction,
     requestRecords,
     transactionStatus,
+    decrypt,
   } = useWallet()
 
   // Generic execute helper — uses new @provablehq executeTransaction API
@@ -230,13 +231,76 @@ export function useVeilSub() {
     [execute]
   )
 
-  // Extract plaintext from a record object (handles both string and object shapes)
-  const getPlaintext = (r: unknown): string => {
+  // Extract microcredits from any record format (mirrors NullPay's getMicrocredits)
+  const getMicrocredits = (record: any): number => {
+    try {
+      // Format 1: object with data.microcredits (e.g. { data: { microcredits: "1000000u64" } })
+      if (record?.data?.microcredits) {
+        return parseInt(String(record.data.microcredits).replace(/_/g, '').replace('u64', ''), 10)
+      }
+      // Format 2: plaintext string with microcredits field
+      const text = typeof record === 'string' ? record : record?.plaintext
+      if (text) {
+        const match = text.match(/microcredits\s*:\s*([\d_]+)u64/)
+        if (match?.[1]) return parseInt(match[1].replace(/_/g, ''), 10)
+      }
+      return 0
+    } catch { return 0 }
+  }
+
+  // Process a single record: try all formats, lazy-decrypt if needed (mirrors NullPay's processRecord)
+  const processRecord = async (r: any): Promise<{ plaintext: string; microcredits: number } | null> => {
+    // Skip spent records
+    if (r?.spent) return null
+
+    // Try getting value from known formats first
+    let val = getMicrocredits(r)
+
+    // Lazy decryption: if value is 0 and there's a ciphertext, try decrypting
+    if (val === 0 && r?.recordCiphertext && !r?.plaintext && decrypt) {
+      try {
+        const decrypted = await decrypt(r.recordCiphertext)
+        if (decrypted) {
+          r.plaintext = decrypted
+          val = getMicrocredits(r)
+        }
+      } catch { /* decryption failed, continue */ }
+    }
+
+    if (val <= 0) return null
+
+    // Get or build the plaintext string for transaction input
+    let plaintext = ''
+
+    if (typeof r === 'string') {
+      plaintext = r
+    } else if (r?.plaintext) {
+      plaintext = r.plaintext
+    } else {
+      // Reconstruct plaintext from component fields (NullPay pattern)
+      const nonce = r?.nonce || r?._nonce || r?.data?._nonce
+      const owner = r?.owner
+      if (nonce && owner) {
+        plaintext = `{ owner: ${owner}.private, microcredits: ${val}u64.private, _nonce: ${nonce}.public }`
+      } else if (r?.ciphertext) {
+        plaintext = r.ciphertext
+      }
+    }
+
+    if (!plaintext) return null
+    return { plaintext, microcredits: val }
+  }
+
+  // Extract plaintext from a record, with lazy decryption for non-credits records
+  const extractPlaintext = async (r: any): Promise<string> => {
+    if (r?.spent) return ''
     if (typeof r === 'string') return r
-    if (r && typeof r === 'object') {
-      // Skip spent records
-      if ('spent' in r && (r as { spent: boolean }).spent) return ''
-      if ('plaintext' in r) return (r as { plaintext: string }).plaintext
+    if (r?.plaintext) return r.plaintext
+    if (r?.recordCiphertext && decrypt) {
+      try {
+        const decrypted = await decrypt(r.recordCiphertext)
+        if (decrypted) return decrypted
+      } catch { /* skip */ }
     }
     return ''
   }
@@ -246,52 +310,63 @@ export function useVeilSub() {
     if (!connected || !requestRecords) return []
     try {
       const records = await requestRecords('token_registry.aleo', false)
-      const plaintexts = records.map(getPlaintext).filter(Boolean)
+      const results: { plaintext: string; amount: number }[] = []
 
-      const parseAmount = (plaintext: string): number => {
-        const match = plaintext.match(/amount\s*:\s*(\d+)u128/)
-        return match ? parseInt(match[1], 10) : 0
+      for (const r of records as any[]) {
+        if ((r as any)?.spent) continue
+        const text = await extractPlaintext(r)
+        if (!text) continue
+        const match = text.match(/amount\s*:\s*([\d_]+)u128/)
+        const amount = match?.[1] ? parseInt(match[1].replace(/_/g, ''), 10) : 0
+        if (amount > 0) results.push({ plaintext: text, amount })
       }
 
-      return plaintexts
-        .filter((p) => parseAmount(p) > 0)
-        .sort((a, b) => parseAmount(b) - parseAmount(a))
+      return results.sort((a, b) => b.amount - a.amount).map((r) => r.plaintext)
     } catch (err) {
       console.error('[VeilSub] Failed to fetch token records:', err)
       return []
     }
-  }, [connected, requestRecords])
+  }, [connected, requestRecords, decrypt])
 
   const getCreditsRecords = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
       const records = await requestRecords('credits.aleo', false)
-      const plaintexts = records.map(getPlaintext).filter(Boolean)
+      const results: { plaintext: string; microcredits: number }[] = []
 
-      const parseMicrocredits = (plaintext: string): number => {
-        const match = plaintext.match(/microcredits\s*:\s*(\d+)u64/)
-        return match ? parseInt(match[1], 10) : 0
+      for (const r of records as any[]) {
+        const processed = await processRecord(r)
+        if (processed) results.push(processed)
       }
 
-      return plaintexts
-        .filter((p) => parseMicrocredits(p) > 0)
-        .sort((a, b) => parseMicrocredits(b) - parseMicrocredits(a))
+      // Sort by balance descending, return plaintext strings
+      return results
+        .sort((a, b) => b.microcredits - a.microcredits)
+        .map((r) => r.plaintext)
     } catch (err) {
       console.error('[VeilSub] Failed to fetch credits records:', err)
       return []
     }
-  }, [connected, requestRecords])
+  }, [connected, requestRecords, decrypt])
 
   const getAccessPasses = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
     try {
       const records = await requestRecords(PROGRAM_ID, false)
-      return records.map(getPlaintext).filter(Boolean)
+      const results: string[] = []
+
+      for (const r of records as any[]) {
+        if ((r as any)?.spent) continue
+        const text = await extractPlaintext(r)
+        if (text) results.push(text)
+      }
+
+      return results
     } catch (err) {
       console.error('[VeilSub] Failed to fetch access passes:', err)
       return []
     }
-  }, [connected, requestRecords])
+  }, [connected, requestRecords, decrypt])
 
   const pollTxStatus = useCallback(
     async (txId: string): Promise<string> => {

@@ -20,8 +20,8 @@ interface Props {
 const TIP_AMOUNTS = [1, 5, 10, 25]
 
 const parseMicrocredits = (plaintext: string): number => {
-  const match = plaintext.match(/microcredits\s*:\s*(\d+)u64/)
-  return match ? parseInt(match[1], 10) : 0
+  const match = plaintext.match(/microcredits\s*:\s*([\d_]+)u64/)
+  return match ? parseInt(match[1].replace(/_/g, ''), 10) : 0
 }
 
 export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
@@ -84,7 +84,12 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
       const tipMicrocredits = creditsToMicrocredits(tipAmount)
 
-      const rawRecords = await getCreditsRecords()
+      // Fetch with retry (NullPay pattern)
+      let rawRecords = await getCreditsRecords()
+      if (rawRecords.length === 0) {
+        await new Promise(r => setTimeout(r, 2000))
+        rawRecords = await getCreditsRecords()
+      }
       const seen = new Set<string>()
       const records = rawRecords.filter(r => { if (seen.has(r)) return false; seen.add(r); return true })
 
@@ -96,10 +101,18 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         return
       }
 
-      const available = parseMicrocredits(records[0])
-      if (available < tipMicrocredits) {
+      const totalAvailable = records.reduce((sum, r) => sum + parseMicrocredits(r), 0)
+      const largestRecord = parseMicrocredits(records[0])
+      if (totalAvailable < tipMicrocredits) {
         setInsufficientBalance(true)
-        setError(`Insufficient private balance. You have ${(available / 1_000_000).toFixed(2)} ALEO but need ${tipAmount} ALEO.`)
+        setError(`Insufficient private balance. You have ${(totalAvailable / 1_000_000).toFixed(2)} ALEO but need ${tipAmount} ALEO.`)
+        setTxStatus('idle')
+        submittingRef.current = false
+        return
+      }
+      if (largestRecord < tipMicrocredits) {
+        setInsufficientBalance(true)
+        setError(`Your largest record has ${(largestRecord / 1_000_000).toFixed(2)} ALEO but you need ${tipAmount} in a single record. Convert public credits to private to create a larger record.`)
         setTxStatus('idle')
         submittingRef.current = false
         return
@@ -126,9 +139,9 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
           const poll = setInterval(async () => {
             attempts++
             try {
-              const status = await pollTxStatus(splitTxId)
-              if (status === 'Finalized' || status === 'confirmed') { clearInterval(poll); resolve() }
-              else if (status === 'Rejected' || status === 'failed') { clearInterval(poll); reject(new Error('Split failed')) }
+              const status = (await pollTxStatus(splitTxId)).toLowerCase()
+              if (status.includes('finalize') || status.includes('confirm') || status.includes('accept') || status.includes('complete')) { clearInterval(poll); resolve() }
+              else if (status.includes('fail') || status.includes('reject')) { clearInterval(poll); reject(new Error('Split failed')) }
             } catch { /* continue */ }
             if (attempts > 60) { clearInterval(poll); reject(new Error('Split timed out.')) }
           }, 1000)
