@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Lock, Unlock, Star, MessageSquare, Crown, Shield, RefreshCw, Loader2, FileText, ArrowRight } from 'lucide-react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
@@ -119,37 +119,43 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
     fetchPosts()
   }, [fetchPosts, refreshKey])
 
-  const activePasses = blockHeight != null
-    ? userPasses.filter(p => p.expiresAt === 0 || p.expiresAt > blockHeight)
-    : userPasses
-  const highestTier = activePasses.reduce(
-    (max, p) => Math.max(max, p.tier),
-    0
-  )
+  // Memoize activePasses to prevent new array reference on every render
+  const activePasses = useMemo(() => {
+    return blockHeight != null
+      ? userPasses.filter(p => p.expiresAt === 0 || p.expiresAt > blockHeight)
+      : userPasses
+  }, [userPasses, blockHeight])
 
-  // Auto-unlock gated posts when user has valid passes.
-  // Uses refs for signMessage and unlockedBodies to prevent re-triggering
-  // the effect when Shield Wallet recreates signMessage or when bodies update.
+  const highestTier = useMemo(() => {
+    return activePasses.reduce((max, p) => Math.max(max, p.tier), 0)
+  }, [activePasses])
+
+  // Keep refs in sync for the unlock function
+  const activePassesRef = useRef(activePasses)
+  activePassesRef.current = activePasses
+
+  // One-shot auto-unlock: runs once when posts load and user has passes.
+  // Does NOT re-run on signMessage/unlockedBodies/activePasses changes.
+  // Always processes results even if component re-renders mid-sign.
   useEffect(() => {
-    if (!walletAddress || activePasses.length === 0) return
-    // Prevent concurrent unlock runs (Shield Wallet can only handle one sign popup at a time)
+    if (!walletAddress || highestTier === 0 || posts.length === 0) return
     if (unlockRunningRef.current) return
 
     const gatedPosts = posts.filter(
       (p) => p.gated && p.body === null && highestTier >= p.minTier &&
         !unlockedBodiesRef.current[p.id] && !unlockingRef.current.has(p.id) && !failedUnlocksRef.current.has(p.id)
     )
-
     if (gatedPosts.length === 0) return
 
-    let cancelled = false
     unlockRunningRef.current = true
 
     ;(async () => {
       for (const post of gatedPosts) {
-        if (cancelled) break
+        // Skip if already resolved while we were waiting
+        if (unlockedBodiesRef.current[post.id] || failedUnlocksRef.current.has(post.id)) continue
         unlockingRef.current.add(post.id)
         setUnlockingIds((prev) => new Set(prev).add(post.id))
+
         const currentSign = signMessageRef.current
         const wrappedSign = currentSign
           ? async (msg: Uint8Array) => {
@@ -158,17 +164,16 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
               return result
             }
           : null
-        const body = await unlockPost(post.id, creatorAddress, walletAddress, activePasses, wrappedSign)
 
-        // Always clean up unlocking state, even if cancelled
+        const body = await unlockPost(post.id, creatorAddress, walletAddress, activePassesRef.current, wrappedSign)
+
+        // Always clean up and process result — never discard a completed sign
         unlockingRef.current.delete(post.id)
         setUnlockingIds((prev) => {
           const next = new Set(prev)
           next.delete(post.id)
           return next
         })
-
-        if (cancelled) break
 
         if (body) {
           setUnlockedBodies((prev) => ({ ...prev, [post.id]: body }))
@@ -179,13 +184,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       unlockRunningRef.current = false
     })()
 
-    return () => {
-      cancelled = true
-      unlockRunningRef.current = false
-    }
-    // Only re-run when posts load or passes change — NOT on signMessage/unlockedBodies changes
+    // No cleanup that sets cancelled — we WANT in-flight unlocks to complete
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [posts, activePasses, highestTier, walletAddress, creatorAddress, unlockPost])
+  }, [posts, highestTier, walletAddress, creatorAddress])
 
   return (
     <div>
