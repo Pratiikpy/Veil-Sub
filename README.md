@@ -178,11 +178,11 @@ We document what an adversary *could* learn, because honest threat modeling demo
 
 ## Smart Contract
 
-**Deployed Program:** `veilsub_v5.aleo` (v5 multi-token — [view on explorer](https://testnet.explorer.provable.com/program/veilsub_v5.aleo))
+**Deployed Program:** `veilsub_v6.aleo` (v6 hardened payments — [view on explorer](https://testnet.explorer.provable.com/program/veilsub_v6.aleo))
 
-**Previous Version:** `veilsub_v4.aleo` (live on testnet — [view on explorer](https://testnet.explorer.provable.com/program/veilsub_v4.aleo))
+**Previous Versions:** `veilsub_v5.aleo` ([explorer](https://testnet.explorer.provable.com/program/veilsub_v5.aleo)), `veilsub_v4.aleo` ([explorer](https://testnet.explorer.provable.com/program/veilsub_v4.aleo))
 
-**Imports:** `credits.aleo`, `token_registry.aleo` (v5)
+**Imports:** `credits.aleo`, `token_registry.aleo`
 
 ### Record Types (Private)
 ```
@@ -212,9 +212,8 @@ mapping total_revenue: address => u64;           // creator => revenue in ALEO
 mapping platform_revenue: u8 => u64;             // key 0 => total platform earnings in ALEO
 mapping content_count: address => u64;           // creator => number of posts
 mapping content_meta: field => u8;               // BHP256(content_id) => minimum tier required
-mapping sub_created: field => u32;               // BHP256(pass_id) => block.height at creation
 
-// Token-specific mappings (v5)
+// Token-specific mappings (v5+)
 mapping tier_prices_token: field => u128;        // hash(creator, token_id) => price in token
 mapping total_revenue_token: field => u128;      // hash(creator, token_id) => total earned in token
 mapping platform_revenue_token: field => u128;   // hash(token_id, 0field) => platform earnings in token
@@ -252,6 +251,7 @@ mapping platform_revenue_token: field => u128;   // hash(token_id, 0field) => pl
 | Contract (v4 — live) on Explorer | [explorer.provable.com/testnet/program/veilsub_v4.aleo](https://testnet.explorer.provable.com/program/veilsub_v4.aleo) |
 | Contract (v4) on Aleoscan | [testnet.aleoscan.io/program?id=veilsub_v4.aleo](https://testnet.aleoscan.io/program?id=veilsub_v4.aleo) |
 | Contract v5 on Explorer | [explorer.provable.com/testnet/program/veilsub_v5.aleo](https://testnet.explorer.provable.com/program/veilsub_v5.aleo) |
+| Contract v6 on Explorer | [explorer.provable.com/testnet/program/veilsub_v6.aleo](https://testnet.explorer.provable.com/program/veilsub_v6.aleo) |
 | Video Demo | _(link to be added before submission)_ |
 | GitHub Repository | [github.com/Pratiikpy/Veil-Sub](https://github.com/Pratiikpy/Veil-Sub) |
 
@@ -273,6 +273,9 @@ mapping platform_revenue_token: field => u128;   // hash(token_id, 0field) => pl
 | **v6 Deployment** | `at1zcwsmxv2crsp6mf6q6s60303987ch0hzgw9kqpnwwhnsugvadgrsy50njl` | [View](https://testnet.explorer.provable.com/transaction/at1zcwsmxv2crsp6mf6q6s60303987ch0hzgw9kqpnwwhnsugvadgrsy50njl) |
 | v6 register_creator | `at13tyxms5stjer3ex5s2j8rj0mh05v7vdzs24znzqd5r7ppc98uvxqan8hyh` | [View](https://testnet.explorer.provable.com/transaction/at13tyxms5stjer3ex5s2j8rj0mh05v7vdzs24znzqd5r7ppc98uvxqan8hyh) |
 | v6 publish_content | `at1gqhupcwhdwy4rzphvhg2vtxswg4arelp924hfxpt5mrwwn5qvyqqqtegew` | [View](https://testnet.explorer.provable.com/transaction/at1gqhupcwhdwy4rzphvhg2vtxswg4arelp924hfxpt5mrwwn5qvyqqqtegew) |
+| v6 subscribe | `at1k0fk98ftwup7na72dymy6k3hd6dt4fu5pvp0m3fpvtfx76js4u9qsxdhcj` | [View](https://testnet.explorer.provable.com/transaction/at1k0fk98ftwup7na72dymy6k3hd6dt4fu5pvp0m3fpvtfx76js4u9qsxdhcj) |
+| v6 tip | `at1t0rsz48h7su7z570mufr3d68p69khvtele2cjavphqpq30ru2gps5cwn8a` | [View](https://testnet.explorer.provable.com/transaction/at1t0rsz48h7su7z570mufr3d68p69khvtele2cjavphqpq30ru2gps5cwn8a) |
+| v6 verify_access | `at12c3nkef0wmrx4f7h56z9n7fjqd4hrafcfl6dzhvfchpfq5zm5ggqwfwuen` | [View](https://testnet.explorer.provable.com/transaction/at12c3nkef0wmrx4f7h56z9n7fjqd4hrafcfl6dzhvfchpfq5zm5ggqwfwuen) |
 
 ## How to Test
 
@@ -329,7 +332,7 @@ frontend/ (Next.js App Router)
 │   ├── dashboard/page.tsx              ← Creator registration + stats + analytics charts + content publishing
 │   ├── creator/[address]/page.tsx      ← Subscribe + tip + renew + server-gated content feed
 │   ├── privacy/page.tsx                ← Privacy architecture docs (incl. multi-token privacy)
-│   ├── docs/page.tsx                   ← Technical documentation (9 transitions, 10 mappings)
+│   ├── docs/page.tsx                   ← Technical documentation (9 transitions, 9 mappings)
 │   ├── explorer/page.tsx               ← On-chain explorer with global stats, activity chart, events table
 │   ├── vision/page.tsx                ← Vision & use cases (6 cards + roadmap)
 │   ├── verify/page.tsx                 ← Access verification
@@ -359,7 +362,7 @@ frontend/ (Next.js App Router)
     └── utils.ts                        ← Helpers (passId generation, formatting)
 
 contracts/veilsub/ (Leo Program)
-├── src/main.leo                        ← 1 record, 1 struct, 10 mappings, 9 transitions, 2 imports, BHP256 hashing
+├── src/main.leo                        ← 1 record, 1 struct, 9 mappings, 9 transitions, 2 imports, BHP256 hashing
 └── tests/test_veilsub.leo              ← Unit tests: tier multipliers, fee splits, hash consistency, expiry bounds
 ```
 
@@ -399,15 +402,16 @@ contracts/veilsub/ (Leo Program)
 - [x] Wave 2→3: v3 contract upgrade (6 transitions, 7 mappings, platform fee, subscription expiry, content publishing, renewal)
 - [x] Wave 2→3: Persistent content backend (Upstash Redis), featured creators, loading skeletons
 - [x] Wave 2 (v4): BHP256 hashing, real PLATFORM_ADDR, encrypted Supabase backend, dual wallet, COOP/COEP headers
-- [x] Wave 2 (v5): Multi-token support via token_registry.aleo (9 transitions, 10 mappings), server-gated content, analytics dashboard, QR scanning
+- [x] Wave 2 (v5): Multi-token support via token_registry.aleo (9 transitions, 9 mappings), server-gated content, analytics dashboard, QR scanning
 - [x] Wave 2 (enhanced): Explorer dashboard, Vision page, zero-footprint hero, flexible tipping, Leo tests, privacy comparison
 - [x] Wave 2 (v5 deployed): v5 testnet deployment with 4 verified on-chain transactions
+- [x] Wave 2 (v6): Hardened payments — zero-amount tip guard, dead mapping removal (9 mappings), 7 verified v6 transactions
 - [ ] Wave 4: Batch subscription support, creator discovery marketplace
 - [ ] Wave 5+: Mainnet deployment, SDK for third-party integration
 
 ## Future Roadmap
 
-- **Mainnet deployment** — Deploy veilsub_v5.aleo to Aleo mainnet with real credits and stablecoin payments. Zero code changes required — the contract is production-ready.
+- **Mainnet deployment** — Deploy veilsub_v6.aleo to Aleo mainnet with real credits and stablecoin payments. Zero code changes required — the contract is production-ready.
 - **TypeScript SDK** — Publish an open-source SDK so any Aleo dApp can verify AccessPass ownership and gate content behind VeilSub subscriptions — turning VeilSub into a composable privacy primitive.
 - **DAO governance** — On-chain governance where AccessPass holders vote on platform parameters (fee percentages, subscription durations) using private ballots — no voter identity leakage.
 - **Mobile wallet support** — Deep-link integration with Leo Wallet mobile (iOS/Android) for one-tap subscription and renewal from any device.
@@ -436,7 +440,7 @@ contracts/veilsub/ (Leo Program)
 **Vision & Roadmap Page**:
 - New `/vision` page with 6 use-case cards: Anonymous Journalism, Private Creator Monetization, Research Access, DAO Membership, Event Ticketing, Developer SDK
 - Composable privacy primitive section with code snippet
-- Platform stats (9 transitions, 10 mappings, 0 identity leaks)
+- Platform stats (9 transitions, 9 mappings, 0 identity leaks)
 - Roadmap timeline from Wave 2 to Mainnet
 
 **Privacy Page Enhancements**:
@@ -458,12 +462,27 @@ contracts/veilsub/ (Leo Program)
 - New `contracts/veilsub/tests/test_veilsub.leo` with 5 test transitions
 - Tests: tier multipliers (1x/2x/5x), fee splits (5%/95%), BHP256 hash consistency, expiry bounds, token fee split (u128)
 
+### Wave 2 — v6 Hardened Payments
+
+**Smart Contract v6** (`veilsub_v6.aleo`):
+- **Zero-amount tip guard**: `assert(amount > 0u64)` in `tip()` and `assert(amount > 0u128)` in `tip_token()` — prevents gas-wasting zero-value tips
+- **Dead mapping removal**: Removed write-only `sub_created` mapping (was never read) — 10→9 mappings, cleaner attack surface
+- **Finalize cleanup**: Removed unused `pass_id` parameters from `finalize_subscribe`, `finalize_renew`, `finalize_subscribe_token`
+- **7 verified transactions**: deployment, register_creator, publish_content, subscribe, tip, verify_access — all confirmed on testnet
+
+**Frontend & API Hardening**:
+- **Wallet signature auth**: All POST APIs (creators, analytics) now require wallet-signed timestamps — prevents unauthenticated writes
+- **COOP header fix**: Changed `same-origin` → `same-origin-allow-popups` for wallet extension compatibility
+- **Wallet disconnect detection**: CreatePostForm and verify page detect mid-transaction wallet disconnects
+- **Hash length fix**: `hashAddress` fallback now produces 64-char hex (was 16-char, failing API validation)
+- **Mock data cleanup**: Removed inflated mock stats (was returning fake 19 subscriptions, 95M revenue)
+
 ### Wave 2 — v5 Strategic Upgrade
 
 **Smart Contract v5** (`veilsub_v5.aleo`):
 - **Multi-token support**: Added `token_registry.aleo` import — any ARC-20 token (USDCx, USAD, future tokens) now supported
 - **3 new transitions**: `set_token_price`, `subscribe_token`, `tip_token` — total 9 transitions
-- **3 new mappings**: `tier_prices_token`, `total_revenue_token`, `platform_revenue_token` — total 10 mappings
+- **3 new mappings**: `tier_prices_token`, `total_revenue_token`, `platform_revenue_token` — total 9 mappings
 - **TokenKey struct**: Composite mapping key using `BHP256::hash_to_field(TokenKey { addr, token_id })`
 - **Same privacy model**: Subscriber address never enters finalize for token payments — identical guarantees to ALEO credit payments
 - Token payments use `token_registry.aleo/transfer_private` (same privacy as `credits.aleo/transfer_private`)
