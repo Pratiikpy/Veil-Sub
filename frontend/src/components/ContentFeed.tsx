@@ -94,8 +94,15 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   const [unlockingIds, setUnlockingIds] = useState<Set<string>>(new Set())
   const unlockingRef = useRef(new Set<string>())
   const failedUnlocksRef = useRef(new Set<string>())
+  const unlockedBodiesRef = useRef<Record<string, string>>({})
+  const signMessageRef = useRef(signMessage)
+  const unlockRunningRef = useRef(false)
   const [error, setError] = useState(false)
   const [initialLoad, setInitialLoad] = useState(true)
+
+  // Keep refs in sync without triggering effects
+  signMessageRef.current = signMessage
+  unlockedBodiesRef.current = unlockedBodies
 
   const fetchPosts = useCallback(async () => {
     setError(false)
@@ -120,26 +127,33 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
     0
   )
 
-  // Auto-unlock gated posts when user has valid passes
+  // Auto-unlock gated posts when user has valid passes.
+  // Uses refs for signMessage and unlockedBodies to prevent re-triggering
+  // the effect when Shield Wallet recreates signMessage or when bodies update.
   useEffect(() => {
     if (!walletAddress || activePasses.length === 0) return
+    // Prevent concurrent unlock runs (Shield Wallet can only handle one sign popup at a time)
+    if (unlockRunningRef.current) return
 
     const gatedPosts = posts.filter(
-      (p) => p.gated && p.body === null && highestTier >= p.minTier && !unlockedBodies[p.id] && !unlockingRef.current.has(p.id) && !failedUnlocksRef.current.has(p.id)
+      (p) => p.gated && p.body === null && highestTier >= p.minTier &&
+        !unlockedBodiesRef.current[p.id] && !unlockingRef.current.has(p.id) && !failedUnlocksRef.current.has(p.id)
     )
 
     if (gatedPosts.length === 0) return
 
     let cancelled = false
+    unlockRunningRef.current = true
 
     ;(async () => {
       for (const post of gatedPosts) {
         if (cancelled) break
         unlockingRef.current.add(post.id)
         setUnlockingIds((prev) => new Set(prev).add(post.id))
-        const wrappedSign = signMessage
+        const currentSign = signMessageRef.current
+        const wrappedSign = currentSign
           ? async (msg: Uint8Array) => {
-              const result = await signMessage(msg)
+              const result = await currentSign(msg)
               if (!result) throw new Error('Signing cancelled')
               return result
             }
@@ -162,11 +176,16 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
           failedUnlocksRef.current.add(post.id)
         }
       }
+      unlockRunningRef.current = false
     })()
 
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+      unlockRunningRef.current = false
+    }
+    // Only re-run when posts load or passes change — NOT on signMessage/unlockedBodies changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [posts, activePasses, highestTier, walletAddress, creatorAddress, unlockPost, unlockedBodies, signMessage])
+  }, [posts, activePasses, highestTier, walletAddress, creatorAddress, unlockPost])
 
   return (
     <div>

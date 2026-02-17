@@ -80,12 +80,12 @@ export async function POST(req: NextRequest) {
         Number.isFinite((p as Record<string, unknown>).tier)
     )
 
-    // Fetch current block height for server-side expiry validation
+    // Fetch current block height for server-side expiry validation.
+    // Call the Provable API directly (server-side, no need for rewrite proxy).
     let currentHeight = 0
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
       const heightRes = await fetch(
-        `${baseUrl}/api/aleo/testnet/latest/height`,
+        'https://api.explorer.provable.com/v1/testnet/latest/height',
         { next: { revalidate: 15 } }
       )
       if (heightRes.ok) {
