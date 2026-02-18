@@ -226,7 +226,7 @@ export default function RenewModal({
             role="dialog"
             aria-modal="true"
             aria-label="Renew subscription"
-            className="w-full max-w-md rounded-2xl bg-[#0a0a0f] border border-white/10 p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-md rounded-2xl bg-[#0a0a0f]/95 backdrop-blur-2xl border border-white/[0.12] p-6 shadow-[0_8px_40px_rgba(0,0,0,0.6)] max-h-[90vh] overflow-y-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
@@ -329,7 +329,14 @@ export default function RenewModal({
 
                 {insufficientBalance && (
                   <div className="mb-4">
-                    <BalanceConverter requiredAmount={totalPrice} />
+                    <BalanceConverter
+                      requiredAmount={totalPrice}
+                      onConverted={() => {
+                        setInsufficientBalance(false)
+                        setError(null)
+                        handleRenew()
+                      }}
+                    />
                   </div>
                 )}
 

@@ -356,6 +356,7 @@ export default function DashboardPage() {
         setTxStatus('broadcasting')
         startPolling(id, (result) => {
           if (result.status === 'confirmed') {
+            if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
             toast.success('Registered on-chain!')
             // Save profile (best-effort, non-blocking)

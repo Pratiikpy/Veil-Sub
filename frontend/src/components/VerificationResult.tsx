@@ -70,15 +70,27 @@ export default function VerificationResult({
       )}
 
       {txId && (
-        <a
-          href={`https://testnet.explorer.provable.com/transaction/${txId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300"
-        >
-          View on Explorer
-          <ExternalLink className="w-3 h-3" />
-        </a>
+        txId.startsWith('at1') ? (
+          <a
+            href={`https://testnet.explorer.provable.com/transaction/${txId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300"
+          >
+            View on Explorer
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        ) : (
+          <a
+            href="https://testnet.explorer.provable.com/program/veilsub_v7.aleo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300"
+          >
+            View program on Explorer
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        )
       )}
     </motion.div>
   )

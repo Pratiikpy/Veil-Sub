@@ -556,7 +556,7 @@ export default function ExplorerPage() {
                                 )}
                               </button>
                               <a
-                                href={`https://testnet.explorer.provable.com/transaction/${event.tx_id}`}
+                                href={event.tx_id?.startsWith('at1') ? `https://testnet.explorer.provable.com/transaction/${event.tx_id}` : `https://testnet.explorer.provable.com/program/veilsub_v7.aleo`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="shrink-0 p-1 rounded hover:bg-white/10 text-slate-500 hover:text-white transition-colors"
@@ -568,7 +568,7 @@ export default function ExplorerPage() {
                           )}
                         </div>
                         <a
-                          href={event.tx_id ? `https://testnet.explorer.provable.com/transaction/${event.tx_id}` : '#'}
+                          href={event.tx_id ? (event.tx_id.startsWith('at1') ? `https://testnet.explorer.provable.com/transaction/${event.tx_id}` : `https://testnet.explorer.provable.com/program/veilsub_v7.aleo`) : '#'}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={`px-2 py-1 rounded-md text-xs font-medium transition-all ${

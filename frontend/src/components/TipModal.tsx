@@ -210,7 +210,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
             role="dialog"
             aria-modal="true"
             aria-label="Send a private tip"
-            className="w-full max-w-sm rounded-2xl bg-[#0a0a0f] border border-white/10 p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-sm rounded-2xl bg-[#0a0a0f]/95 backdrop-blur-2xl border border-white/[0.12] p-6 shadow-[0_8px_40px_rgba(0,0,0,0.6)] max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
@@ -273,7 +273,14 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
                 {insufficientBalance && (
                   <div className="mb-4">
-                    <BalanceConverter requiredAmount={creditsToMicrocredits(parseFloat(customAmount) || selectedAmount)} />
+                    <BalanceConverter
+                      requiredAmount={creditsToMicrocredits(parseFloat(customAmount) || selectedAmount)}
+                      onConverted={() => {
+                        setInsufficientBalance(false)
+                        setError(null)
+                        handleTip()
+                      }}
+                    />
                   </div>
                 )}
 

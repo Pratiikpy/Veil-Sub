@@ -86,6 +86,7 @@ export default function VerifyPage() {
         setVerifyTxStatus('broadcasting')
         startPolling(txId, (result) => {
           if (result.status === 'confirmed') {
+            if (result.resolvedTxId) setVerifyTxId(result.resolvedTxId)
             setVerifyTxStatus('confirmed')
             setVerifyResult('success')
           } else if (result.status === 'failed') {

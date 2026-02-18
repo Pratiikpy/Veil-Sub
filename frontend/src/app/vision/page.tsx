@@ -153,7 +153,7 @@ transition verify_access(pass: AccessPass, creator: address) -> AccessPass {
             <div className="grid md:grid-cols-3 gap-4 mt-8">
               {[
                 { stat: '9', label: 'Transitions', desc: 'Complete subscription lifecycle' },
-                { stat: '10', label: 'Mappings', desc: 'Aggregate-only public state' },
+                { stat: '9', label: 'Mappings', desc: 'Aggregate-only public state' },
                 { stat: '0', label: 'Identity Leaks', desc: 'Subscriber addresses never in finalize' },
               ].map((item, i) => (
                 <motion.div

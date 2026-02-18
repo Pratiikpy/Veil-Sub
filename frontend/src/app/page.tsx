@@ -220,7 +220,7 @@ export default function HomePage() {
                 <span className="font-semibold">9</span> Transitions
               </div>
               <div className="px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/10 text-xs text-indigo-300">
-                <span className="font-semibold">10</span> Mappings
+                <span className="font-semibold">9</span> Mappings
               </div>
               <div className="px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/10 text-xs text-green-300">
                 <span className="font-semibold">Multi-Token</span>
@@ -828,7 +828,7 @@ export default function HomePage() {
               Built on Aleo by Prateek
             </p>
             <span className="text-xs text-slate-600 px-2.5 py-1 rounded-full bg-white/[0.02] border border-white/5">
-              v5.0 — Wave 2
+              v7.0 — Wave 2
             </span>
           </div>
         </div>

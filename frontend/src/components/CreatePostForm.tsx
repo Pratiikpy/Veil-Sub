@@ -73,6 +73,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
 
         startPolling(id, async (result) => {
           if (result.status === 'confirmed') {
+            if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
             // Save to Redis AFTER on-chain confirmation to avoid orphan posts
             const wrappedSign = signMessage

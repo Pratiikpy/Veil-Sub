@@ -237,6 +237,21 @@ export function useVeilSub() {
     [execute]
   )
 
+  // Convert public credits to a private record via credits.aleo/transfer_public_to_private.
+  // This creates a new private record owned by the caller with the specified amount.
+  const convertPublicToPrivate = useCallback(
+    async (amountMicrocredits: number): Promise<string | null> => {
+      if (!address) throw new Error('Wallet not connected')
+      return execute(
+        'transfer_public_to_private',
+        [address, `${amountMicrocredits}u64`],
+        FEES.CONVERT,
+        'credits.aleo'
+      )
+    },
+    [execute, address]
+  )
+
   // Extract microcredits from any record format (mirrors NullPay's getMicrocredits)
   const getMicrocredits = (record: any): number => {
     try {
@@ -480,6 +495,7 @@ export function useVeilSub() {
     subscribeToken,
     tipToken,
     splitCredits,
+    convertPublicToPrivate,
     getTokenRecords,
     getCreditsRecords,
     getAccessPasses,

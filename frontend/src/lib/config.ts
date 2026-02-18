@@ -15,6 +15,7 @@ export const FEES = {
   RENEW: 300_000,          // 0.3 credits (same as subscribe)
   PUBLISH: 150_000,        // 0.15 credits (finalize only)
   SPLIT: 150_000,          // 0.15 credits (credits.aleo/split)
+  CONVERT: 150_000,        // 0.15 credits (transfer_public_to_private)
 } as const
 
 // Fee estimates for token-based transitions (v5)
