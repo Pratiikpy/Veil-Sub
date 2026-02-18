@@ -261,9 +261,14 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-500">ALEO</span>
                 </div>
-                <p className="text-center text-sm text-slate-400 mb-4">
+                <p className="text-center text-sm text-slate-400 mb-3">
                   {customAmount ? `${customAmount} ALEO credits` : `${selectedAmount} ALEO credits`}
                 </p>
+                <div className="p-2.5 rounded-lg bg-green-500/5 border border-green-500/10 mb-4">
+                  <p className="text-[11px] text-green-400/80">
+                    Your identity stays private. The creator receives payment but never knows who tipped.
+                  </p>
+                </div>
 
                 {error && (
                   <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 mb-4">

@@ -286,11 +286,14 @@ export default function SubscribeModal({
                 </div>
 
                 {/* Privacy Notice */}
-                <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/10 mb-6">
-                  <p className="text-xs text-green-400">
-                    Your identity stays private. The creator will receive payment
-                    but will never know who you are. Payment uses credits.aleo/transfer_private.
-                  </p>
+                <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/10 mb-6 space-y-1.5">
+                  <p className="text-xs text-green-400 font-medium">Zero-Knowledge Privacy</p>
+                  <ul className="text-[11px] text-green-400/80 space-y-1 list-none">
+                    <li>Your address is never published on-chain</li>
+                    <li>Only aggregate totals update in public mappings</li>
+                    <li>AccessPass stored privately in your wallet</li>
+                    <li>Payment via credits.aleo/transfer_private</li>
+                  </ul>
                 </div>
 
                 {error && (
