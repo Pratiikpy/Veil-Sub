@@ -12,6 +12,16 @@ const WalletProvider = dynamic(
   { ssr: false }
 )
 
+const WelcomeOverlay = dynamic(
+  () => import('@/components/WelcomeOverlay'),
+  { ssr: false }
+)
+
 export function ClientProviders({ children }: { children: ReactNode }) {
-  return <WalletProvider>{children}</WalletProvider>
+  return (
+    <WalletProvider>
+      {children}
+      <WelcomeOverlay />
+    </WalletProvider>
+  )
 }

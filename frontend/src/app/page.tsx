@@ -250,7 +250,7 @@ export default function HomePage() {
                 <div className="flex flex-col items-center gap-3">
                   <Link
                     href={`/creator/${FEATURED_CREATORS[0]?.address || ''}`}
-                    className="inline-flex items-center gap-2 px-10 py-4 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold text-lg hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_40px_rgba(139,92,246,0.35)] hover:-translate-y-0.5 active:scale-[0.98] pulse-glow"
+                    className="inline-flex items-center gap-2 px-10 py-4 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold text-lg hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_40px_rgba(139,92,246,0.35)] hover:-translate-y-0.5 active:scale-[0.98] cta-glow btn-shimmer"
                   >
                     Try Live Demo
                     <ArrowRight className="w-5 h-5" />

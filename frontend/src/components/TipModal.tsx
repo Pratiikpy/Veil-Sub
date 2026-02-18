@@ -63,6 +63,24 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
     }
   }, [connected, txStatus, stopPolling])
 
+  // Cycling status messages during proving/broadcasting
+  useEffect(() => {
+    if (txStatus !== 'proving' && txStatus !== 'broadcasting') {
+      setStatusMessage(null)
+      return
+    }
+    const messages = txStatus === 'proving'
+      ? ['Generating zero-knowledge proof...', 'Wallet is computing the ZK circuit...', 'This may take 30-60 seconds...']
+      : ['Broadcasting tip to Aleo network...', 'Waiting for block confirmation...', 'Validators are verifying the proof...']
+    let idx = 0
+    setStatusMessage(messages[0])
+    const interval = setInterval(() => {
+      idx = (idx + 1) % messages.length
+      setStatusMessage(messages[idx])
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [txStatus])
+
   const handleTip = async () => {
     if (submittingRef.current) return
     if (!connected) {

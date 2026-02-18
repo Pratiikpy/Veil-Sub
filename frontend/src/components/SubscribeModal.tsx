@@ -74,6 +74,24 @@ export default function SubscribeModal({
   const creatorCut = totalPrice - Math.floor(totalPrice / 20)
   const platformCut = Math.floor(totalPrice / 20)
 
+  // Cycling status messages during proving/broadcasting
+  useEffect(() => {
+    if (txStatus !== 'proving' && txStatus !== 'broadcasting') {
+      setStatusMessage(null)
+      return
+    }
+    const messages = txStatus === 'proving'
+      ? ['Generating zero-knowledge proof...', 'Wallet is computing the ZK circuit...', 'This may take 30-60 seconds...', 'Almost there — proof nearly complete...']
+      : ['Broadcasting transaction to Aleo network...', 'Waiting for block confirmation...', 'Validators are verifying the proof...', 'Finalizing on-chain state...']
+    let idx = 0
+    setStatusMessage(messages[0])
+    const interval = setInterval(() => {
+      idx = (idx + 1) % messages.length
+      setStatusMessage(messages[idx])
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [txStatus])
+
   const handleSubscribe = async () => {
     if (submittingRef.current) return
     if (!connected) {

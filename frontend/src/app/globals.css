@@ -174,3 +174,57 @@ body {
 .nav-indicator {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Space Grotesk for headings — premium fintech typography */
+h1, h2, h3 {
+  font-family: var(--font-space-grotesk), var(--font-inter), system-ui, sans-serif;
+}
+
+/* Input focus glow line — subtle bottom glow on focus */
+.input-glow {
+  position: relative;
+}
+.input-glow::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 1rem;
+  right: 1rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0) 0%, transparent);
+  transition: background 0.5s;
+  pointer-events: none;
+}
+.input-glow:focus-within::after {
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+}
+
+/* CTA button glow — pulsing shadow on primary actions */
+@keyframes cta-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(139, 92, 246, 0.1); }
+  50% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.15); }
+}
+.cta-glow {
+  animation: cta-glow 2.5s ease-in-out infinite alternate;
+}
+
+/* Button shimmer sweep on hover */
+@keyframes btn-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+.btn-shimmer:hover::after {
+  animation: btn-shimmer 0.6s ease-out;
+}
