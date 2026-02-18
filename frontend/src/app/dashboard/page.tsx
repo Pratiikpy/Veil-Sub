@@ -747,30 +747,26 @@ export default function DashboardPage() {
 
                 {/* 30-Day Overview Summary */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                    <p className="text-xs text-slate-500 mb-1">Subscribers</p>
-                    <p className="text-lg font-semibold text-white">
-                      {stats?.subscriberCount ?? 0}
-                    </p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                    <p className="text-xs text-slate-500 mb-1">Total Revenue</p>
-                    <p className="text-lg font-semibold text-white">
-                      {stats?.totalRevenue ? formatCredits(stats.totalRevenue) : '0'} <span className="text-xs font-normal text-slate-500">ALEO</span>
-                    </p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                    <p className="text-xs text-slate-500 mb-1">Posts Published</p>
-                    <p className="text-lg font-semibold text-white">
-                      {stats?.contentCount ?? 0}
-                    </p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                    <p className="text-xs text-slate-500 mb-1">Base Price</p>
-                    <p className="text-lg font-semibold text-white">
-                      {stats?.tierPrice ? formatCredits(stats.tierPrice) : '0'} <span className="text-xs font-normal text-slate-500">ALEO</span>
-                    </p>
-                  </div>
+                  {[
+                    { label: 'Subscribers', value: stats?.subscriberCount ?? 0, suffix: '' },
+                    { label: 'Total Revenue', value: stats?.totalRevenue ? formatCredits(stats.totalRevenue) : '0', suffix: 'ALEO' },
+                    { label: 'Posts Published', value: stats?.contentCount ?? 0, suffix: '' },
+                    { label: 'Base Price', value: stats?.tierPrice ? formatCredits(stats.tierPrice) : '0', suffix: 'ALEO' },
+                  ].map((stat, i) => (
+                    <motion.div
+                      key={stat.label}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.16 + i * 0.04 }}
+                      className="p-4 rounded-xl bg-[#0a0a10]/60 backdrop-blur-xl border border-white/[0.10] shadow-[0_4px_16px_rgba(0,0,0,0.2)] hover:border-white/[0.16] transition-all"
+                    >
+                      <p className="text-[11px] text-slate-500 uppercase tracking-wider mb-1.5">{stat.label}</p>
+                      <p className="text-2xl font-bold text-white tabular-nums">
+                        {stat.value}
+                        {stat.suffix && <span className="text-xs font-normal text-slate-500 ml-1">{stat.suffix}</span>}
+                      </p>
+                    </motion.div>
+                  ))}
                 </div>
 
                 <div className="grid lg:grid-cols-2 gap-4">

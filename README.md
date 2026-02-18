@@ -75,6 +75,112 @@ As a content creator with 6,400+ followers, this is **my problem**. My audience 
 7. **Subscriber renews** — `renew` consumes expired pass, pays again, gets fresh AccessPass with new expiry
 8. **Creator publishes content** — `publish_content` registers content metadata on-chain; body is stored off-chain, server-gated by tier
 
+## System Architecture
+
+```mermaid
+graph TB
+    subgraph User["👤 User (Browser)"]
+        W["Shield / Leo Wallet"]
+    end
+
+    subgraph Frontend["Next.js Frontend (Vercel)"]
+        direction TB
+        UI["React UI<br/>Tailwind + Framer Motion"]
+        Hooks["useVeilSub Hook<br/>9 transition wrappers"]
+        Poller["Transaction Poller<br/>wallet-agnostic polling"]
+        API["API Routes<br/>/api/creators, /posts, /analytics"]
+        Proxy["Aleo API Proxy<br/>/api/aleo/* → Provable API"]
+    end
+
+    subgraph Aleo["Aleo Testnet"]
+        direction TB
+        VS["veilsub_v7.aleo<br/>395 lines · 9 transitions · 9 mappings"]
+        CR["credits.aleo<br/>transfer_private"]
+        TR["token_registry.aleo<br/>ARC-20 tokens"]
+        AP["AccessPass Record<br/>owner · creator · tier · expires_at"]
+    end
+
+    subgraph DB["Supabase (PostgreSQL)"]
+        ENC["AES-256-GCM Encrypted<br/>creator profiles · content bodies · analytics"]
+    end
+
+    W -->|"sign transactions"| Hooks
+    UI --> Hooks
+    Hooks -->|"executeTransaction"| VS
+    VS -->|"transfer_private"| CR
+    VS -->|"transfer_private"| TR
+    VS -->|"mint AccessPass"| AP
+    Poller -->|"poll status"| W
+    API -->|"encrypted read/write"| ENC
+    Proxy -->|"mapping lookups"| Aleo
+    UI -->|"unlock content"| API
+
+    style User fill:#1a1a2e,stroke:#8b5cf6,color:#fff
+    style Frontend fill:#0a0a10,stroke:#6366f1,color:#fff
+    style Aleo fill:#0a0a10,stroke:#22c55e,color:#fff
+    style DB fill:#0a0a10,stroke:#f59e0b,color:#fff
+```
+
+### Subscribe Flow (End-to-End)
+
+```mermaid
+sequenceDiagram
+    participant S as Subscriber
+    participant W as Wallet
+    participant V as VeilSub Frontend
+    participant A as veilsub_v7.aleo
+    participant C as credits.aleo
+
+    S->>V: Click "Subscribe" (pick tier)
+    V->>W: Request credit records
+    W-->>V: Private records (deduplicated)
+
+    alt Insufficient balance
+        V->>W: transfer_public_to_private
+        W-->>V: Conversion confirmed
+        V->>W: Re-fetch records
+    end
+
+    V->>W: Sign subscribe_aleo tx
+    W->>A: Execute transition
+    A->>C: transfer_private (95% to creator)
+    A-->>S: AccessPass record (private)
+    A->>A: finalize: update counts (subscriber address NOT included)
+
+    V->>W: Poll transaction status
+    W-->>V: Confirmed
+    V->>S: Show success + explorer link
+```
+
+### Privacy Data Flow
+
+```mermaid
+graph LR
+    subgraph Private["🔒 PRIVATE (ZK Records)"]
+        A1["Subscriber identity"]
+        A2["Who subscribes to whom"]
+        A3["Payment amounts"]
+        A4["AccessPass records"]
+        A5["Content bodies (AES-256)"]
+    end
+
+    subgraph Public["📊 PUBLIC (Mappings)"]
+        B1["Creator addresses"]
+        B2["Subscriber counts"]
+        B3["Revenue totals"]
+        B4["Content hash → tier"]
+        B5["Platform fee totals"]
+    end
+
+    subgraph Zero["⚡ ZERO FOOTPRINT"]
+        C1["verify_access<br/>No finalize · No mapping writes<br/>No on-chain evidence"]
+    end
+
+    style Private fill:#0a2e0a,stroke:#22c55e,color:#fff
+    style Public fill:#2e1a0a,stroke:#f59e0b,color:#fff
+    style Zero fill:#1a0a2e,stroke:#8b5cf6,color:#fff
+```
+
 ## Privacy Architecture
 
 ### What's Private (ZK Records — only the owner can see)
