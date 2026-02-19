@@ -43,8 +43,8 @@ export default function PrivacyPage() {
                 </span>
               </h1>
               <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-                Built on Aleo&apos;s zero-knowledge proof system. Your subscription
-                identity is mathematically impossible to expose.
+                Built on Aleo&apos;s zero-knowledge proof system. Subscriber addresses
+                never enter the finalize scope — enforced by the Leo compiler.
               </p>
             </motion.div>
           </div>
@@ -91,8 +91,8 @@ export default function PrivacyPage() {
                 </div>
                 <h3 className="text-white font-semibold mb-2">Mathematically Guaranteed</h3>
                 <p className="text-sm text-slate-400">
-                  Privacy isn&apos;t a policy — it&apos;s enforced by cryptographic math.
-                  The Leo program physically cannot leak your identity. There&apos;s no backdoor.
+                  The Leo compiler rejects any code path where subscriber addresses
+                  reach finalize scope. No runtime policy — compile-time enforcement.
                 </p>
               </GlassCard>
             </div>
@@ -124,7 +124,7 @@ export default function PrivacyPage() {
                           'verify_access has NO finalize block — zero public state changes when proving access',
                           'No mapping writes, no counter increments, no on-chain evidence of verification',
                           'Prevents timing correlation attacks — observers cannot track when access is checked',
-                          'Subscriber identity never touches any public scope, even during verification',
+                          'Access checks leave zero on-chain evidence — no mapping writes, no counters',
                         ].map((point, idx) => (
                           <div key={idx} className="flex items-start gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0 mt-1.5" />
@@ -310,7 +310,7 @@ export default function PrivacyPage() {
                 </div>
                 <h3 className="text-white font-semibold mb-2">Same Privacy Guarantees</h3>
                 <p className="text-sm text-slate-400">
-                  Whether paying with ALEO credits or stablecoins, the subscriber&apos;s identity never enters finalize. The AccessPass record is identical — token type doesn&apos;t affect privacy.
+                  Whether paying with ALEO credits or stablecoins, the same privacy model applies. The AccessPass record is identical regardless of token type.
                 </p>
               </GlassCard>
             </div>
@@ -332,62 +332,6 @@ export default function PrivacyPage() {
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Trust Model */}
-        <div className="gradient-divider" />
-        <section className="py-16">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-white mb-4">Trust Model</h2>
-              <p className="text-slate-400">Who trusts what, and why it works.</p>
-            </motion.div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              <GlassCard delay={0}>
-                <div className="text-center mb-4">
-                  <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-3">
-                    <EyeOff className="w-7 h-7 text-green-400" />
-                  </div>
-                  <h3 className="text-white font-semibold">Subscribers Trust</h3>
-                </div>
-                <p className="text-sm text-slate-400 text-center">
-                  Aleo&apos;s ZK proving system ensures your identity never leaks. The Leo
-                  program has no pathway for subscriber addresses to enter finalize
-                  scope or public mappings. This is verified in the source code.
-                </p>
-              </GlassCard>
-
-              <GlassCard delay={0.1}>
-                <div className="text-center mb-4">
-                  <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center mx-auto mb-3">
-                    <ShieldCheck className="w-7 h-7 text-blue-400" />
-                  </div>
-                  <h3 className="text-white font-semibold">Creators Trust</h3>
-                </div>
-                <p className="text-sm text-slate-400 text-center">
-                  Real <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300 text-xs">credits.aleo/transfer_private</code> and{' '}
-                  <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300 text-xs">token_registry.aleo/transfer_private</code> transfers
-                  guarantee payment arrives. Aggregate stats are provably correct via
-                  on-chain mappings.
-                </p>
-              </GlassCard>
-
-              <GlassCard delay={0.2}>
-                <div className="text-center mb-4">
-                  <div className="w-14 h-14 rounded-2xl bg-violet-500/10 flex items-center justify-center mx-auto mb-3">
-                    <FileCode className="w-7 h-7 text-violet-400" />
-                  </div>
-                  <h3 className="text-white font-semibold">Auditors Verify</h3>
-                </div>
-                <p className="text-sm text-slate-400 text-center">
-                  All code is open-source. The deployed program is visible on the Aleo
-                  explorer. Transactions are verifiable. No private data appears in any
-                  public scope.
-                </p>
-              </GlassCard>
             </div>
           </div>
         </section>
@@ -445,7 +389,7 @@ export default function PrivacyPage() {
                   {[
                     {
                       title: 'Subscriber Identity',
-                      desc: 'Wallet addresses never enter finalize scope. The Leo compiler enforces this — there is no code path to leak identity.',
+                      desc: 'No code path exists for wallet addresses to reach public state — verified by auditing the Leo source.',
                     },
                     {
                       title: 'Subscription Relationships',
@@ -538,25 +482,6 @@ export default function PrivacyPage() {
               <p className="text-slate-400">How each transition protects your identity.</p>
             </motion.div>
 
-            {/* verify_access Code Snippet */}
-            <div className="mb-8 p-5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-              <h3 className="text-sm font-medium text-white mb-3">Zero-Footprint Access Proof</h3>
-              <pre className="text-xs text-slate-300 font-mono leading-relaxed overflow-x-auto">
-                <code>{`// Zero-footprint — no finalize function exists
-transition verify_access(pass: AccessPass, creator: address) -> AccessPass {
-    assert_eq(pass.creator, creator);
-    return AccessPass {
-        owner: pass.owner,
-        creator: pass.creator,
-        tier: pass.tier,
-        pass_id: pass.pass_id,
-        expires_at: pass.expires_at,
-    };
-}
-// No finalize_verify_access. Zero public state change. No on-chain trace.`}</code>
-              </pre>
-            </div>
-
             {/* Data Flow Diagram */}
             <div className="mb-8 grid md:grid-cols-2 gap-4">
               <div className="p-5 rounded-xl bg-violet-500/5 border border-violet-500/15">
@@ -576,7 +501,7 @@ transition verify_access(pass: AccessPass, creator: address) -> AccessPass {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
-                    <span>Subscriber address never enters finalize scope</span>
+                    <span>Only creator address and amount reach finalize</span>
                   </div>
                 </div>
               </div>
@@ -619,7 +544,7 @@ transition verify_access(pass: AccessPass, creator: address) -> AccessPass {
                 },
                 {
                   fn: 'renew()',
-                  guarantee: 'Same privacy model as subscribe — self.caller never reaches finalize. Consumes old pass, creates new one with extended expiry.',
+                  guarantee: 'Consumes the old pass, issues a fresh one with extended expiry. Same privacy model as subscribe.',
                 },
                 {
                   fn: 'publish_content()',
@@ -627,7 +552,7 @@ transition verify_access(pass: AccessPass, creator: address) -> AccessPass {
                 },
                 {
                   fn: 'subscribe_token()',
-                  guarantee: 'Same privacy model as subscribe — pays with any ARC-20 token via token_registry.aleo/transfer_private. Subscriber address never reaches finalize.',
+                  guarantee: 'Pays with any ARC-20 token via token_registry.aleo/transfer_private. Same privacy guarantees as ALEO credit payments.',
                 },
                 {
                   fn: 'tip_token()',
@@ -695,47 +620,6 @@ transition verify_access(pass: AccessPass, creator: address) -> AccessPass {
           </div>
         </section>
 
-        {/* Extended Privacy Comparison */}
-        <div className="gradient-divider" />
-        <section className="py-16">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-white mb-4">Privacy Comparison</h2>
-              <p className="text-slate-400">How VeilSub compares to traditional platforms and other blockchain payment protocols.</p>
-            </motion.div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-slate-400 font-medium">Feature</th>
-                    <th className="text-center py-3 px-4 text-red-400 font-medium">Patreon / Substack</th>
-                    <th className="text-center py-3 px-4 text-amber-400 font-medium">Payment Protocol</th>
-                    <th className="text-center py-3 px-4 text-green-400 font-medium">VeilSub</th>
-                  </tr>
-                </thead>
-                <tbody className="text-slate-300">
-                  {[
-                    ['Subscriber identity', 'Public', 'In receipt records', 'Never on-chain'],
-                    ['Access check evidence', 'Logged server-side', 'N/A', 'Zero footprint'],
-                    ['Content delivery', 'Server-only', 'N/A', 'ZK + server hybrid'],
-                    ['Payment privacy', 'None (bank-linked)', 'Private transfers', 'Private transfers'],
-                    ['Off-chain storage', 'Plaintext DB', 'Encrypted DB', 'AES-256-GCM encrypted'],
-                    ['Multi-token support', 'Card/bank only', 'Token-specific', 'Any ARC-20 token'],
-                    ['Censorship resistance', 'Platform-controlled', 'On-chain', 'On-chain + immutable'],
-                  ].map(([feature, trad, protocol, veilsub]) => (
-                    <tr key={feature} className="border-b border-white/5">
-                      <td className="py-3 px-4 text-white">{feature}</td>
-                      <td className="py-3 px-4 text-center text-red-300/70">{trad}</td>
-                      <td className="py-3 px-4 text-center text-amber-300/70">{protocol}</td>
-                      <td className="py-3 px-4 text-center text-green-300">{veilsub}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
       </div>
     </PageTransition>
   )

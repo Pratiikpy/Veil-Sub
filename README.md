@@ -486,17 +486,9 @@ contracts/veilsub/ (Leo Program)
 | Multi-token support | Card/bank only | Token-specific | Any ARC-20 token |
 | Censorship resistance | Platform-controlled | On-chain | On-chain + immutable |
 
-## Use Cases
-
-- **Adult content creators** — fans need anonymity to support without social risk
-- **Political commentators** — supporters face potential backlash
-- **Investigative journalists** — sources must remain anonymous
-- **Independent creators** — fair monetization without platform surveillance
-- **Privacy-conscious fans** — anyone who doesn't want financial behavior public
-
 ## Product-Market Fit & Go-To-Market
 
-**PMF**: The creator economy is $250B+. Privacy is the #1 unmet need — no existing platform offers private subscriptions. VeilSub solves this with Aleo's zero-knowledge architecture.
+**PMF**: No existing subscription platform offers private subscriptions. Patreon, Ko-fi, and YouTube Memberships all expose who supports whom. VeilSub fills this gap using Aleo's zero-knowledge architecture.
 
 **GTM**:
 1. Launch with creator's own audience (6.4K followers) for initial traction

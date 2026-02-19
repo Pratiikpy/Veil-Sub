@@ -889,8 +889,8 @@ export default function DashboardPage() {
                   cryptographically. Access checks have zero public footprint.
                 </p>
                 <p>
-                  You see total subscribers and revenue. You never see individual
-                  subscriber identities. That&apos;s the power of zero-knowledge proofs.
+                  You see total subscribers and revenue — never individual
+                  subscriber identities.
                 </p>
               </div>
             </motion.div>

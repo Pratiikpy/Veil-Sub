@@ -131,26 +131,7 @@ export default function VisionPage() {
               </p>
             </motion.div>
 
-            <div className="p-5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-              <pre className="text-xs text-slate-300 font-mono leading-relaxed overflow-x-auto">
-                <code>{`// Any Aleo dApp can gate features behind AccessPass ownership
-// verify_access has NO finalize — zero on-chain trace
-
-transition verify_access(pass: AccessPass, creator: address) -> AccessPass {
-    assert_eq(pass.creator, creator);
-    return AccessPass {
-        owner: pass.owner,
-        creator: pass.creator,
-        tier: pass.tier,
-        pass_id: pass.pass_id,
-        expires_at: pass.expires_at,
-    };
-}
-// No finalize. No mapping writes. No counters. No evidence.`}</code>
-              </pre>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-4 mt-8">
+            <div className="grid md:grid-cols-3 gap-4">
               {[
                 { stat: '9', label: 'Transitions', desc: 'Complete subscription lifecycle' },
                 { stat: '9', label: 'Mappings', desc: 'Aggregate-only public state' },

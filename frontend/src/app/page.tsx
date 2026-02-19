@@ -27,7 +27,6 @@ import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import PageTransition from '@/components/PageTransition'
 import FloatingOrbs from '@/components/FloatingOrbs'
 import AnimatedCounter from '@/components/AnimatedCounter'
-import UseCaseCard from '@/components/UseCaseCard'
 import QRScanner from '@/components/QRScanner'
 import { FEATURED_CREATORS } from '@/lib/config'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
@@ -580,58 +579,6 @@ export default function HomePage() {
       <div className="gradient-divider" />
       <ExploreCreatorSection />
 
-      {/* Who Uses VeilSub? */}
-      <div className="gradient-divider" />
-      <section className="py-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            {...fadeUp}
-            viewport={{ once: true }}
-            whileInView="animate"
-            initial="initial"
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Who Uses VeilSub?
-            </h2>
-            <p className="text-slate-400">
-              Privacy matters for everyone — from creators to supporters.
-            </p>
-          </motion.div>
-
-          <div className="grid sm:grid-cols-2 gap-6">
-            <UseCaseCard
-              persona="The Whistleblower"
-              avatar="W"
-              quote="I support investigative journalists without fear of retaliation."
-              useCase="Anonymously funds watchdog creators."
-              delay={0}
-            />
-            <UseCaseCard
-              persona="The Digital Artist"
-              avatar="A"
-              quote="My fans subscribe without their boss knowing what art they enjoy."
-              useCase="NSFW-safe creator monetization."
-              delay={0.1}
-            />
-            <UseCaseCard
-              persona="The Researcher"
-              avatar="R"
-              quote="I share paid analysis without revealing who funds my work."
-              useCase="Independent research funding."
-              delay={0.2}
-            />
-            <UseCaseCard
-              persona="The Activist"
-              avatar="X"
-              quote="Supporting human rights organizations in restrictive regimes."
-              useCase="Censorship-resistant donations."
-              delay={0.3}
-            />
-          </div>
-        </div>
-      </section>
-
       {/* CTA */}
       <div className="gradient-divider" />
       <section className="py-20">
@@ -668,68 +615,6 @@ export default function HomePage() {
               </a>
             </div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* Why This Matters */}
-      <div className="gradient-divider" />
-      <section className="py-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            {...fadeUp}
-            viewport={{ once: true }}
-            whileInView="animate"
-            initial="initial"
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Why This Matters
-            </h2>
-            <p className="text-slate-400">
-              Privacy isn&apos;t a feature — it&apos;s a fundamental right.
-            </p>
-          </motion.div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              {
-                icon: Shield,
-                persona: 'Political dissident',
-                scenario: 'Support independent journalism without your government knowing.',
-              },
-              {
-                icon: EyeOff,
-                persona: 'Investigative journalist',
-                scenario: 'Accept tips from sources who must stay anonymous.',
-              },
-              {
-                icon: Lock,
-                persona: 'DAO governance',
-                scenario: 'Vote with your wallet without revealing your identity to other members.',
-              },
-              {
-                icon: UserCheck,
-                persona: 'Research supporter',
-                scenario: 'Fund controversial research without professional backlash.',
-              },
-            ].map((item, i) => {
-              const Icon = item.icon
-              return (
-                <motion.div
-                  key={item.persona}
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08 }}
-                  className="p-5 rounded-xl bg-white/[0.02] border border-white/5 hover:border-violet-500/20 transition-all"
-                >
-                  <Icon className="w-5 h-5 text-violet-400 mb-3" />
-                  <p className="text-sm font-medium text-white mb-1.5">{item.persona}</p>
-                  <p className="text-xs text-slate-400 leading-relaxed">{item.scenario}</p>
-                </motion.div>
-              )
-            })}
-          </div>
         </div>
       </section>
 
