@@ -7,6 +7,9 @@ import { DecryptPermission } from '@provablehq/aleo-wallet-adaptor-core'
 import { Network } from '@provablehq/aleo-types'
 import { ShieldWalletAdapter } from '@provablehq/aleo-wallet-adaptor-shield'
 import { PatchedLeoWalletAdapter } from '@/lib/PatchedLeoWalletAdapter'
+import { FoxWalletAdapter } from '@provablehq/aleo-wallet-adaptor-fox'
+import { PuzzleWalletAdapter } from '@provablehq/aleo-wallet-adaptor-puzzle'
+import { SoterWalletAdapter } from '@provablehq/aleo-wallet-adaptor-soter'
 import '@provablehq/aleo-wallet-adaptor-react-ui/dist/styles.css'
 import { APP_NAME, PROGRAM_ID } from '@/lib/config'
 
@@ -19,6 +22,9 @@ export const WalletProvider: FC<Props> = ({ children }) => {
     () => [
       new ShieldWalletAdapter({ appName: APP_NAME }),
       new PatchedLeoWalletAdapter({ appName: APP_NAME }),
+      new FoxWalletAdapter({ appName: APP_NAME }),
+      new PuzzleWalletAdapter({ appName: APP_NAME }),
+      new SoterWalletAdapter({ appName: APP_NAME }),
     ],
     []
   )
