@@ -1,6 +1,6 @@
 # VeilSub — Private Creator Subscriptions on Aleo
 
-> **Subscribe privately. Prove access. Nobody sees who you support.**
+> **Subscribe privately. Prove access. Nobody sees who you support.** 
 
 VeilSub is a privacy-first creator subscription platform built on the Aleo blockchain. Subscribers pay with real ALEO credits **or any ARC-20 token** (USDCx, USAD, and future stablecoins) and receive a private AccessPass record — their identity is never exposed on-chain. Creators see aggregate stats (total subscribers, total revenue) but **never** see individual subscriber identities.
 
