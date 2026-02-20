@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 import { ClientProviders } from '@/providers/ClientProviders'
 import Header from '@/components/Header'
+import MobileBottomNav from '@/components/MobileBottomNav'
 import { Toaster } from 'sonner'
 import { APP_NAME, APP_DESCRIPTION } from '@/lib/config'
 
@@ -42,7 +43,8 @@ export default function RootLayout({
       >
         <ClientProviders>
           <Header />
-          <main className="pt-16">{children}</main>
+          <main className="pt-16 pb-20 md:pb-0">{children}</main>
+          <MobileBottomNav />
           <Toaster
             theme="dark"
             position="bottom-right"

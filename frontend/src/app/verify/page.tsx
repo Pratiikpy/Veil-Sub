@@ -9,11 +9,21 @@ import {
   Fingerprint,
   RefreshCw,
   Zap,
+  Search,
+  Globe,
+  Database,
+  FileText,
+  Users,
+  Coins,
+  CheckCircle2,
+  XCircle,
+  Loader2,
 } from 'lucide-react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { parseAccessPass, shortenAddress } from '@/lib/utils'
+import { PROGRAM_ID } from '@/lib/config'
 import { TIERS } from '@/types'
 import type { AccessPass, TxStatus } from '@/types'
 import GlassCard from '@/components/GlassCard'
@@ -22,6 +32,34 @@ import FloatingOrbs from '@/components/FloatingOrbs'
 import StatusBadge from '@/components/StatusBadge'
 import VerificationResult from '@/components/VerificationResult'
 import TransactionStatus from '@/components/TransactionStatus'
+
+const ALEO_API = process.env.NEXT_PUBLIC_ALEO_API_URL || 'https://api.explorer.provable.com/v1/testnet'
+
+async function queryMapping(mappingName: string, key: string): Promise<string | null> {
+  try {
+    const res = await fetch(`${ALEO_API}/program/${PROGRAM_ID}/mapping/${mappingName}/${key}`)
+    if (!res.ok) return null
+    const data = await res.json()
+    if (data === null || data === 'null') return null
+    return String(data).replace(/"/g, '')
+  } catch {
+    return null
+  }
+}
+
+interface CreatorStats {
+  registered: boolean
+  basePrice: number | null
+  subscriberCount: number | null
+  totalRevenue: number | null
+  contentCount: number | null
+}
+
+interface ContentInfo {
+  found: boolean
+  minTier: number | null
+  contentHash: string | null
+}
 
 export default function VerifyPage() {
   const { connected } = useWallet()
@@ -102,6 +140,265 @@ export default function VerifyPage() {
       setVerifyTxStatus('failed')
       setVerifyResult('failed')
     }
+  }
+
+  // On-Chain Explorer component — no wallet needed
+  function OnChainExplorer() {
+    const [creatorAddr, setCreatorAddr] = useState('')
+    const [creatorStats, setCreatorStats] = useState<CreatorStats | null>(null)
+    const [creatorLoading, setCreatorLoading] = useState(false)
+
+    const [contentId, setContentId] = useState('')
+    const [contentInfo, setContentInfo] = useState<ContentInfo | null>(null)
+    const [contentLoading, setContentLoading] = useState(false)
+
+    const [programDeployed, setProgramDeployed] = useState<boolean | null>(null)
+    const [deployLoading, setDeployLoading] = useState(false)
+
+    const lookupCreator = async () => {
+      if (!creatorAddr.startsWith('aleo1')) return
+      setCreatorLoading(true)
+      setCreatorStats(null)
+      try {
+        const [price, subs, rev, content] = await Promise.all([
+          queryMapping('tier_prices', creatorAddr),
+          queryMapping('subscriber_count', creatorAddr),
+          queryMapping('total_revenue', creatorAddr),
+          queryMapping('content_count', creatorAddr),
+        ])
+        setCreatorStats({
+          registered: price !== null,
+          basePrice: price ? parseInt(price.replace('u64', '')) : null,
+          subscriberCount: subs ? parseInt(subs.replace('u64', '')) : null,
+          totalRevenue: rev ? parseInt(rev.replace('u64', '')) : null,
+          contentCount: content ? parseInt(content.replace('u64', '')) : null,
+        })
+      } catch {
+        setCreatorStats({ registered: false, basePrice: null, subscriberCount: null, totalRevenue: null, contentCount: null })
+      }
+      setCreatorLoading(false)
+    }
+
+    const lookupContent = async () => {
+      if (!contentId) return
+      setContentLoading(true)
+      setContentInfo(null)
+      try {
+        // Content IDs are hashed on-chain with BHP256. We query with the raw field value
+        // since the API accepts the mapping key directly
+        const [tier, hash] = await Promise.all([
+          queryMapping('content_meta', contentId),
+          queryMapping('content_hashes', contentId),
+        ])
+        setContentInfo({
+          found: tier !== null,
+          minTier: tier ? parseInt(tier.replace('u8', '')) : null,
+          contentHash: hash || null,
+        })
+      } catch {
+        setContentInfo({ found: false, minTier: null, contentHash: null })
+      }
+      setContentLoading(false)
+    }
+
+    const checkDeployment = async () => {
+      setDeployLoading(true)
+      setProgramDeployed(null)
+      try {
+        const res = await fetch(`${ALEO_API}/program/${PROGRAM_ID}`)
+        setProgramDeployed(res.ok)
+      } catch {
+        setProgramDeployed(false)
+      }
+      setDeployLoading(false)
+    }
+
+    return (
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-white/5">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-6">
+            <Globe className="w-4 h-4 text-emerald-400" />
+            <span className="text-sm text-emerald-300">
+              No Wallet Required
+            </span>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-3">
+            On-Chain Explorer
+          </h2>
+          <p className="text-slate-400 text-sm max-w-xl mx-auto">
+            Query on-chain data directly from Aleo testnet. No wallet connection needed.
+            Verify creator registrations, content metadata, and program deployment.
+          </p>
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Creator Lookup */}
+          <GlassCard hover={false}>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="w-5 h-5 text-violet-400" />
+                <h3 className="text-white font-semibold">Creator Lookup</h3>
+              </div>
+              <div>
+                <input
+                  type="text"
+                  value={creatorAddr}
+                  onChange={(e) => setCreatorAddr(e.target.value)}
+                  placeholder="aleo1..."
+                  className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/50"
+                />
+              </div>
+              <button
+                onClick={lookupCreator}
+                disabled={creatorLoading || !creatorAddr.startsWith('aleo1')}
+                className="w-full py-2.5 rounded-lg bg-violet-600/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-600/30 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+              >
+                {creatorLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                Query On-Chain
+              </button>
+              {creatorStats && (
+                <div className="space-y-2 pt-2 border-t border-white/5">
+                  <div className="flex items-center gap-2 text-sm">
+                    {creatorStats.registered ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    ) : (
+                      <XCircle className="w-4 h-4 text-red-400" />
+                    )}
+                    <span className={creatorStats.registered ? 'text-emerald-300' : 'text-red-300'}>
+                      {creatorStats.registered ? 'Registered Creator' : 'Not Registered'}
+                    </span>
+                  </div>
+                  {creatorStats.registered && (
+                    <>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-400">Base Price</span>
+                        <span className="text-white font-mono">
+                          {creatorStats.basePrice !== null ? `${(creatorStats.basePrice / 1_000_000).toFixed(2)} ALEO` : '—'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-400">Subscribers</span>
+                        <span className="text-white font-mono">{creatorStats.subscriberCount ?? '—'}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-400">Total Revenue</span>
+                        <span className="text-white font-mono">
+                          {creatorStats.totalRevenue !== null ? `${(creatorStats.totalRevenue / 1_000_000).toFixed(2)} ALEO` : '—'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-400">Content Published</span>
+                        <span className="text-white font-mono">{creatorStats.contentCount ?? '—'}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </GlassCard>
+
+          {/* Right Column: Content + Deployment */}
+          <div className="space-y-6">
+            {/* Content Lookup */}
+            <GlassCard hover={false}>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <FileText className="w-5 h-5 text-violet-400" />
+                  <h3 className="text-white font-semibold">Content Verification</h3>
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    value={contentId}
+                    onChange={(e) => setContentId(e.target.value)}
+                    placeholder="Content hash (field value)"
+                    className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/50"
+                  />
+                </div>
+                <button
+                  onClick={lookupContent}
+                  disabled={contentLoading || !contentId}
+                  className="w-full py-2.5 rounded-lg bg-violet-600/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-600/30 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+                >
+                  {contentLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                  Verify Content
+                </button>
+                {contentInfo && (
+                  <div className="space-y-2 pt-2 border-t border-white/5">
+                    <div className="flex items-center gap-2 text-sm">
+                      {contentInfo.found ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-red-400" />
+                      )}
+                      <span className={contentInfo.found ? 'text-emerald-300' : 'text-red-300'}>
+                        {contentInfo.found ? 'Content Found On-Chain' : 'Not Found'}
+                      </span>
+                    </div>
+                    {contentInfo.found && (
+                      <>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-400">Min Tier Required</span>
+                          <span className="text-white">{TIERS.find(t => t.id === contentInfo.minTier)?.name || `Tier ${contentInfo.minTier}`}</span>
+                        </div>
+                        {contentInfo.contentHash && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-slate-400">Integrity Hash</span>
+                            <span className="text-white font-mono text-xs truncate max-w-[160px]">{contentInfo.contentHash}</span>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            </GlassCard>
+
+            {/* Deployment Status */}
+            <GlassCard hover={false}>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Database className="w-5 h-5 text-violet-400" />
+                  <h3 className="text-white font-semibold">Program Deployment</h3>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-slate-400">
+                  <Coins className="w-4 h-4" />
+                  <span className="font-mono text-xs">{PROGRAM_ID}</span>
+                </div>
+                <button
+                  onClick={checkDeployment}
+                  disabled={deployLoading}
+                  className="w-full py-2.5 rounded-lg bg-violet-600/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-600/30 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+                >
+                  {deployLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                  Check Deployment
+                </button>
+                {programDeployed !== null && (
+                  <div className="flex items-center gap-2 text-sm pt-2 border-t border-white/5">
+                    {programDeployed ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        <span className="text-emerald-300">Deployed on Aleo Testnet</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="w-4 h-4 text-red-400" />
+                        <span className="text-red-300">Not Found on Testnet</span>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            </GlassCard>
+          </div>
+        </div>
+      </section>
+    )
   }
 
   return (
@@ -317,6 +614,9 @@ export default function VerifyPage() {
             </div>
           )}
         </section>
+
+        {/* On-Chain Explorer — Walletless Verification */}
+        <OnChainExplorer />
 
         {/* How It Works */}
         <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-white/5">

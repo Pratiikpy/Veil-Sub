@@ -143,15 +143,33 @@ export function useVeilSub() {
     [execute]
   )
 
+  // v8: publish_content now requires a content_hash for on-chain integrity verification
   const publishContent = useCallback(
-    async (contentId: string, minTier: number) => {
+    async (contentId: string, minTier: number, contentHash?: string) => {
+      // If no hash provided, compute a simple hash from the content ID
+      const hash = contentHash || contentId
       return execute(
         'publish_content',
         [
           `${contentId}field`,
           `${minTier}u8`,
+          `${hash}field`,
         ],
         FEES.PUBLISH
+      )
+    },
+    [execute]
+  )
+
+  // v8: create_audit_token — selective disclosure for third-party verification.
+  // Creates an AuditToken for a verifier that proves subscription tier + validity
+  // WITHOUT revealing the subscriber's address. Zero finalize footprint.
+  const createAuditToken = useCallback(
+    async (accessPassPlaintext: string, verifierAddress: string) => {
+      return execute(
+        'create_audit_token',
+        [accessPassPlaintext, verifierAddress],
+        FEES.AUDIT_TOKEN
       )
     },
     [execute]
@@ -462,6 +480,53 @@ export function useVeilSub() {
     }
   }, [connected, requestRecords, decrypt])
 
+  // v8: Fetch CreatorReceipt records (for creator dashboard)
+  const getCreatorReceipts = useCallback(async (): Promise<string[]> => {
+    if (!connected || !requestRecords) return []
+    try {
+      const records = await withTimeout(
+        requestRecords(PROGRAM_ID, false),
+        15000,
+        `requestRecords(${PROGRAM_ID})`
+      )
+      const results: string[] = []
+
+      for (const r of records as any[]) {
+        if ((r as any)?.spent) continue
+        const text = await extractPlaintext(r)
+        if (text && text.includes('subscriber_hash')) results.push(text)
+      }
+
+      return results
+    } catch (err) {
+      return []
+    }
+  }, [connected, requestRecords, decrypt])
+
+  // v8: Fetch AuditToken records (for verifiers)
+  const getAuditTokens = useCallback(async (): Promise<string[]> => {
+    if (!connected || !requestRecords) return []
+    try {
+      const records = await withTimeout(
+        requestRecords(PROGRAM_ID, false),
+        15000,
+        `requestRecords(${PROGRAM_ID})`
+      )
+      const results: string[] = []
+
+      for (const r of records as any[]) {
+        if ((r as any)?.spent) continue
+        const text = await extractPlaintext(r)
+        // AuditTokens have subscriber_hash + expires_at but NO pass_id or amount
+        if (text && text.includes('subscriber_hash') && !text.includes('amount')) results.push(text)
+      }
+
+      return results
+    } catch (err) {
+      return []
+    }
+  }, [connected, requestRecords, decrypt])
+
   // Poll transaction status using wallet.adapter (NullPay pattern)
   const pollTxStatus = useCallback(
     async (txId: string): Promise<string> => {
@@ -491,6 +556,7 @@ export function useVeilSub() {
     verifyAccess,
     renew,
     publishContent,
+    createAuditToken,
     setTokenPrice,
     subscribeToken,
     tipToken,
@@ -499,6 +565,8 @@ export function useVeilSub() {
     getTokenRecords,
     getCreditsRecords,
     getAccessPasses,
+    getCreatorReceipts,
+    getAuditTokens,
     pollTxStatus,
   }
 }

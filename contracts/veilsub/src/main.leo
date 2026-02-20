@@ -2,61 +2,77 @@ import credits.aleo;
 import token_registry.aleo;
 
 // =============================================================================
-// VeilSub v7 — Private Creator Subscriptions on Aleo (Single-Record Payments)
+// VeilSub v8 — Private Creator Subscriptions on Aleo
 //
-// v7 CHANGE: subscribe, tip, and renew now take a SINGLE credits.aleo/credits
-// record. One transfer_private sends the FULL amount to the creator. The 5%
-// platform fee is tracked in the platform_revenue mapping for deferred
-// settlement — the platform can collect owed fees from creators off-chain or
-// via a future claim transition.
-//
-// WHY: snarkVM cannot synthesize proving keys for transitions that chain the
-// output record of one external call as input to another. Splitting the
-// payment into two transfer_private calls within one transition causes
-// "Input record must belong to the signer" during deployment synthesis.
-// Single transfer_private avoids this entirely.
+// WAVE 2 CHANGES (v7 → v8):
+// 1. CreatorReceipt record — creators now receive a private, on-chain proof
+//    of every subscription/tip/renewal payment. The subscriber's identity is
+//    stored as a BHP256 hash (privacy-preserving). Receipts are private records
+//    only the creator can decrypt.
+// 2. AuditToken record + create_audit_token transition — subscribers can
+//    generate a selective-disclosure token for any third party (auditor,
+//    service, contract). The token proves subscription tier + validity WITHOUT
+//    revealing the subscriber's address. Zero finalize footprint.
+// 3. Content integrity hashes — publish_content now accepts a content_hash
+//    field stored on-chain, enabling anyone to verify content body hasn't been
+//    tampered with. Content bodies remain off-chain; only the hash is on-chain.
 //
 // PRIVACY ARCHITECTURE:
-// - Subscriber address (self.caller) is used ONLY to set AccessPass.owner
-// - self.caller is NEVER passed to any finalize function
-// - finalize_subscribe receives only: creator (public), amount (public), tier (public),
-//   expires_at (public) — the subscriber's identity has NO code path to public state
-// - verify_access has NO finalize — zero public footprint on access checks
-// - All payments use credits.aleo/transfer_private (not transfer_public)
 //
-// MULTI-TOKEN SUPPORT (v5):
-// - subscribe_token() and tip_token() accept ANY ARC-20 token via token_registry.aleo
-// - Supports USDCx, USAD, and any future ARC-20 token without contract redeployment
-// - set_token_price() allows creators to set prices in specific tokens
-// - Token-specific revenue tracking in separate mappings
+//   WHAT IS PRIVATE (records — only the owner can decrypt):
+//     - Subscriber address (self.caller) → set as AccessPass.owner, NEVER
+//       passed to any finalize function. Zero code path to public state.
+//     - AccessPass contents (creator, tier, pass_id, expires_at)
+//     - CreatorReceipt contents (subscriber_hash, tier, amount, pass_id)
+//     - AuditToken contents (creator, subscriber_hash, tier, expires_at)
+//     - All payment transfers use credits.aleo/transfer_private
 //
-// PLATFORM FEE:
-// 5% platform fee tracked in mappings. Creator receives the full payment
-// privately; the platform_revenue mapping records how much has been earned.
-// Settlement is deferred — platform and creator settle off-chain.
-// Subscriber identity stays hidden from both creator and platform.
+//   WHAT IS PUBLIC (mappings + finalize parameters — intentional by design):
+//     - Creator address: Creators are public entities (like shops/channels).
+//       Their prices, subscriber counts, and revenue are intentionally public
+//       for discoverability. This mirrors real-world platforms: YouTube shows
+//       channel stats, Patreon shows creator earnings — but viewer/subscriber
+//       identities remain private.
+//     - Payment amount + tier (in finalize params): Required for on-chain
+//       validation against tier_prices. The amount validates the subscriber
+//       paid enough; the tier determines the price multiplier. These are
+//       visible in transaction data but CANNOT be linked to a specific
+//       subscriber because self.caller never enters finalize.
+//     - expires_at (in finalize params): Validated against block.height to
+//       prevent unreasonable expiry durations.
+//     - Content metadata (content_id, min_tier, content_hash): Public by
+//       design — content existence and tier gating are discoverable.
 //
-// SUBSCRIPTION EXPIRY:
-// expires_at (block height) is stored in the private AccessPass record.
-// Finalize validates the expiry is within an acceptable range.
-// verify_access has NO finalize, so expiry is checked client-side to preserve
-// zero-footprint access verification.
+//   DESIGN RATIONALE:
+//     The privacy boundary is drawn at SUBSCRIBER IDENTITY. In a subscription
+//     platform, creators WANT to be discoverable (public prices, public stats).
+//     Subscribers NEED anonymity (who subscribes to what is sensitive data).
+//     This model is analogous to a bookstore: the shop and its catalog are
+//     public, but the customer list is private.
 //
-// CONTENT PUBLISHING:
-// content_id and min_tier are public (required for mapping writes).
-// Content BODY is off-chain. Only existence and tier requirement is on-chain.
+// SINGLE-RECORD PAYMENT MODEL (from v7):
+//   subscribe, tip, and renew take a SINGLE credits.aleo/credits record.
+//   One transfer_private sends the FULL amount to the creator. The 5% platform
+//   fee is tracked in the platform_revenue mapping for deferred settlement.
+//   WHY: snarkVM cannot synthesize proving keys for transitions that chain the
+//   output record of one external call as input to another.
+//
+// MULTI-TOKEN SUPPORT (from v5):
+//   subscribe_token() and tip_token() accept ANY ARC-20 token via
+//   token_registry.aleo. Supports USDCx, USAD, and any future ARC-20 token
+//   without contract redeployment.
+//
 // =============================================================================
 
-program veilsub_v7.aleo {
+program veilsub_v8.aleo {
 
     @noupgrade
     async constructor() {}
 
-    // Platform treasury address — platform fee is tracked in mappings.
     const PLATFORM_ADDR: address = aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk;
 
     // =========================================
-    // STRUCTS (for hashing composite keys)
+    // STRUCTS
     // =========================================
 
     struct TokenKey {
@@ -65,19 +81,42 @@ program veilsub_v7.aleo {
     }
 
     // =========================================
-    // RECORDS (Private — only owner can see)
+    // RECORDS (Private — only owner can decrypt)
     // =========================================
 
+    // Subscriber's access credential. Owner = subscriber (private).
     record AccessPass {
-        owner: address,        // subscriber (private)
-        creator: address,      // which creator (private)
-        tier: u8,              // 1=basic, 2=premium, 3=vip (private)
-        pass_id: field,        // unique identifier (private)
-        expires_at: u32,       // block height when pass expires (private)
+        owner: address,
+        creator: address,
+        tier: u8,              // 1=basic, 2=premium, 3=vip
+        pass_id: field,
+        expires_at: u32,       // block height
+    }
+
+    // Creator's payment proof. Owner = creator (private).
+    // subscriber_hash = BHP256(subscriber_address) — creator can verify
+    // a returning subscriber without knowing their actual address.
+    record CreatorReceipt {
+        owner: address,
+        subscriber_hash: field,
+        tier: u8,
+        amount: u64,
+        pass_id: field,
+    }
+
+    // Selective-disclosure token for third-party verification.
+    // Owner = verifier/auditor. Proves a subscriber holds a valid pass
+    // for a specific creator + tier WITHOUT revealing the subscriber's address.
+    record AuditToken {
+        owner: address,
+        creator: address,
+        subscriber_hash: field,
+        tier: u8,
+        expires_at: u32,
     }
 
     // =========================================
-    // MAPPINGS (Public — aggregate data only)
+    // MAPPINGS (Public — aggregate/discoverable data)
     // =========================================
 
     mapping tier_prices: address => u64;
@@ -86,8 +125,9 @@ program veilsub_v7.aleo {
     mapping platform_revenue: u8 => u64;
     mapping content_count: address => u64;
     mapping content_meta: field => u8;
+    mapping content_hashes: field => field;     // v8: on-chain content integrity hash
 
-    // Token-specific mappings
+    // Token-specific mappings (keys already hashed via TokenKey struct)
     mapping tier_prices_token: field => u128;
     mapping total_revenue_token: field => u128;
     mapping platform_revenue_token: field => u128;
@@ -113,8 +153,7 @@ program veilsub_v7.aleo {
         Mapping::set(total_revenue, creator, 0u64);
     }
 
-    // v7: Single-record subscribe — ONE transfer_private to creator.
-    // Platform fee tracked in mapping only (deferred settlement).
+    // v8: subscribe returns CreatorReceipt to the creator as private payment proof.
     async transition subscribe(
         payment: credits.aleo/credits,
         creator: address,
@@ -122,12 +161,10 @@ program veilsub_v7.aleo {
         amount: u64,
         pass_id: field,
         expires_at: u32,
-    ) -> (AccessPass, credits.aleo/credits, credits.aleo/credits, Future) {
+    ) -> (AccessPass, CreatorReceipt, credits.aleo/credits, credits.aleo/credits, Future) {
         assert(tier >= 1u8);
         assert(tier <= 3u8);
 
-        // Full amount goes to creator via private transfer.
-        // Platform fee is tracked in finalize (deferred settlement).
         let (change, to_creator): (credits.aleo/credits, credits.aleo/credits) =
             credits.aleo/transfer_private(payment, creator, amount);
 
@@ -139,7 +176,15 @@ program veilsub_v7.aleo {
             expires_at: expires_at,
         };
 
-        return (pass, change, to_creator, finalize_subscribe(creator, amount, tier, expires_at));
+        let receipt: CreatorReceipt = CreatorReceipt {
+            owner: creator,
+            subscriber_hash: BHP256::hash_to_field(self.caller),
+            tier: tier,
+            amount: amount,
+            pass_id: pass_id,
+        };
+
+        return (pass, receipt, change, to_creator, finalize_subscribe(creator, amount, tier, expires_at));
     }
     async function finalize_subscribe(
         creator: address,
@@ -165,7 +210,9 @@ program veilsub_v7.aleo {
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
     }
 
-    // Verify access — zero public footprint
+    // Zero-footprint access verification — NO finalize, no public state changes.
+    // Consumes the old AccessPass and re-creates an identical one (UTXO model).
+    // The ZK proof proves ownership without revealing identity.
     transition verify_access(
         pass: AccessPass,
         creator: address,
@@ -181,18 +228,53 @@ program veilsub_v7.aleo {
         };
     }
 
-    // v7: Single-record tip — ONE transfer_private to creator.
+    // v8: Selective disclosure — create an AuditToken for a third-party verifier.
+    // The verifier learns: creator, tier, expires_at, and a hash of the subscriber.
+    // The verifier does NOT learn the subscriber's actual address.
+    // NO finalize — zero public footprint. Creating audit tokens is invisible on-chain.
+    transition create_audit_token(
+        pass: AccessPass,
+        verifier: address,
+    ) -> (AccessPass, AuditToken) {
+        let new_pass: AccessPass = AccessPass {
+            owner: pass.owner,
+            creator: pass.creator,
+            tier: pass.tier,
+            pass_id: pass.pass_id,
+            expires_at: pass.expires_at,
+        };
+
+        let token: AuditToken = AuditToken {
+            owner: verifier,
+            creator: pass.creator,
+            subscriber_hash: BHP256::hash_to_field(pass.owner),
+            tier: pass.tier,
+            expires_at: pass.expires_at,
+        };
+
+        return (new_pass, token);
+    }
+
+    // v8: tip returns CreatorReceipt (tier=0, pass_id=0 signals "tip").
     async transition tip(
         payment: credits.aleo/credits,
         creator: address,
         amount: u64,
-    ) -> (credits.aleo/credits, credits.aleo/credits, Future) {
+    ) -> (CreatorReceipt, credits.aleo/credits, credits.aleo/credits, Future) {
         assert(amount > 0u64);
 
         let (change, to_creator): (credits.aleo/credits, credits.aleo/credits) =
             credits.aleo/transfer_private(payment, creator, amount);
 
-        return (change, to_creator, finalize_tip(creator, amount));
+        let receipt: CreatorReceipt = CreatorReceipt {
+            owner: creator,
+            subscriber_hash: BHP256::hash_to_field(self.caller),
+            tier: 0u8,
+            amount: amount,
+            pass_id: 0field,
+        };
+
+        return (receipt, change, to_creator, finalize_tip(creator, amount));
     }
     async function finalize_tip(
         creator: address,
@@ -206,7 +288,7 @@ program veilsub_v7.aleo {
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
     }
 
-    // v7: Single-record renew — ONE transfer_private to creator.
+    // v8: renew returns CreatorReceipt to creator.
     async transition renew(
         old_pass: AccessPass,
         payment: credits.aleo/credits,
@@ -214,7 +296,7 @@ program veilsub_v7.aleo {
         amount: u64,
         new_pass_id: field,
         new_expires_at: u32,
-    ) -> (AccessPass, credits.aleo/credits, credits.aleo/credits, Future) {
+    ) -> (AccessPass, CreatorReceipt, credits.aleo/credits, credits.aleo/credits, Future) {
         assert(new_tier >= 1u8);
         assert(new_tier <= 3u8);
 
@@ -231,7 +313,15 @@ program veilsub_v7.aleo {
             expires_at: new_expires_at,
         };
 
-        return (new_pass, change, to_creator, finalize_renew(creator, amount, new_tier, new_expires_at));
+        let receipt: CreatorReceipt = CreatorReceipt {
+            owner: creator,
+            subscriber_hash: BHP256::hash_to_field(self.caller),
+            tier: new_tier,
+            amount: amount,
+            pass_id: new_pass_id,
+        };
+
+        return (new_pass, receipt, change, to_creator, finalize_renew(creator, amount, new_tier, new_expires_at));
     }
     async function finalize_renew(
         creator: address,
@@ -255,25 +345,29 @@ program veilsub_v7.aleo {
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
     }
 
-    // Publish content metadata
+    // v8: publish_content now stores a content body hash for integrity verification.
     async transition publish_content(
         public content_id: field,
         public min_tier: u8,
+        public content_hash: field,
     ) -> Future {
         assert(min_tier >= 1u8);
         assert(min_tier <= 3u8);
-        return finalize_publish_content(self.caller, content_id, min_tier);
+        assert(content_hash != 0field);
+        return finalize_publish_content(self.caller, content_id, min_tier, content_hash);
     }
     async function finalize_publish_content(
         creator: address,
         content_id: field,
         min_tier: u8,
+        content_hash: field,
     ) {
         let price: u64 = Mapping::get(tier_prices, creator);
         assert(price > 0u64);
 
         let hashed_content_id: field = BHP256::hash_to_field(content_id);
         Mapping::set(content_meta, hashed_content_id, min_tier);
+        Mapping::set(content_hashes, hashed_content_id, content_hash);
 
         let count: u64 = Mapping::get_or_use(content_count, creator, 0u64);
         Mapping::set(content_count, creator, count + 1u64);
@@ -302,7 +396,6 @@ program veilsub_v7.aleo {
         Mapping::set(tier_prices_token, key, price);
     }
 
-    // v7: Single-record token subscribe — ONE transfer_private to creator.
     async transition subscribe_token(
         payment: token_registry.aleo/Token,
         creator: address,
@@ -360,7 +453,6 @@ program veilsub_v7.aleo {
         Mapping::set(platform_revenue_token, plat_key, plat_rev + platform_cut);
     }
 
-    // v7: Single-record token tip — ONE transfer_private to creator.
     async transition tip_token(
         payment: token_registry.aleo/Token,
         creator: address,

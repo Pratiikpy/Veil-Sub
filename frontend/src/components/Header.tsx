@@ -15,7 +15,7 @@ const NAV_ITEMS = [
   { href: '/docs', label: 'Docs', requiresWallet: false },
   { href: '/vision', label: 'Vision', requiresWallet: false },
   { href: '/explorer', label: 'Explorer', requiresWallet: false },
-  { href: '/verify', label: 'Verify', requiresWallet: true },
+  { href: '/verify', label: 'Verify', requiresWallet: false },
   { href: '/dashboard', label: 'Dashboard', requiresWallet: true },
 ]
 

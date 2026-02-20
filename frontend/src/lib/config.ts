@@ -1,4 +1,4 @@
-export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v7.aleo'
+export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v8.aleo'
 // API calls use Next.js rewrite proxy (/api/aleo/*) to avoid leaking user interest to third parties
 // The actual endpoint is configured in next.config.ts rewrites
 export const APP_NAME = 'VeilSub'
@@ -6,16 +6,17 @@ export const APP_DESCRIPTION = 'Private Creator Subscriptions on Aleo'
 
 // Fee estimates in microcredits — matched to NullPay baseline (100K = 0.1 ALEO)
 // NullPay uses 100K for a single transfer_private + finalize.
-// VeilSub does 2x transfer_private + finalize, so ~2-3x NullPay's fee.
+// VeilSub v8 uses single transfer_private + finalize + record creation.
 export const FEES = {
   REGISTER: 150_000,       // 0.15 credits (finalize only)
-  SUBSCRIBE: 300_000,      // 0.3 credits (two transfer_private + finalize)
-  TIP: 250_000,            // 0.25 credits (two transfer_private + finalize)
-  VERIFY: 100_000,         // 0.1 credits (no finalize)
+  SUBSCRIBE: 300_000,      // 0.3 credits (transfer_private + AccessPass + CreatorReceipt + finalize)
+  TIP: 250_000,            // 0.25 credits (transfer_private + CreatorReceipt + finalize)
+  VERIFY: 100_000,         // 0.1 credits (no finalize — zero footprint)
   RENEW: 300_000,          // 0.3 credits (same as subscribe)
   PUBLISH: 150_000,        // 0.15 credits (finalize only)
   SPLIT: 150_000,          // 0.15 credits (credits.aleo/split)
   CONVERT: 150_000,        // 0.15 credits (transfer_public_to_private)
+  AUDIT_TOKEN: 100_000,    // 0.1 credits (no finalize — zero footprint)
 } as const
 
 // Fee estimates for token-based transitions (v5)

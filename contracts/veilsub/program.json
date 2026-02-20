@@ -1,7 +1,7 @@
 {
-  "program": "veilsub_v7.aleo",
-  "version": "0.1.0",
-  "description": "VeilSub - Private Creator Subscriptions on Aleo (Hardened Payments)",
+  "program": "veilsub_v8.aleo",
+  "version": "0.2.0",
+  "description": "VeilSub v8 - Private Creator Subscriptions on Aleo (CreatorReceipts, AuditTokens, Content Integrity)",
   "license": "MIT",
   "leo": "3.4.0",
   "dependencies": [
