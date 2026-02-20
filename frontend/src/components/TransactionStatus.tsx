@@ -212,7 +212,7 @@ export default function TransactionStatus({ status, txId }: Props) {
                 Wallet returned a temporary ID. Your transaction is confirmed on-chain.
               </p>
               <a
-                href={`https://testnet.explorer.provable.com/program/veilsub_v7.aleo`}
+                href={`https://testnet.explorer.provable.com/program/veilsub_v8.aleo`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 mt-2 p-2.5 rounded-xl bg-violet-500/5 border border-violet-500/15 hover:border-violet-500/30 hover:bg-violet-500/10 transition-all group"

@@ -144,9 +144,9 @@ function ContractTab() {
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Program ID</h3>
         <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/20 flex items-center justify-between">
-          <code className="text-violet-300 text-sm font-mono">veilsub_v7.aleo</code>
+          <code className="text-violet-300 text-sm font-mono">veilsub_v8.aleo</code>
           <a
-            href="https://testnet.explorer.provable.com/program/veilsub_v7.aleo"
+            href="https://testnet.explorer.provable.com/program/veilsub_v8.aleo"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1"
@@ -359,13 +359,13 @@ function ApiTab() {
         <CodeBlock
           lang="bash"
           code={`# Get creator's tier price
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v7.aleo/mapping/tier_prices/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v8.aleo/mapping/tier_prices/<creator_address>
 
 # Get subscriber count
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v7.aleo/mapping/subscriber_count/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v8.aleo/mapping/subscriber_count/<creator_address>
 
 # Get total revenue
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v7.aleo/mapping/total_revenue/<creator_address>`}
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v8.aleo/mapping/total_revenue/<creator_address>`}
         />
       </div>
 
@@ -380,9 +380,9 @@ curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v7.aleo/mappin
 
 const { executeTransaction } = useWallet()
 
-// Execute a subscribe transaction (v7 — single record)
+// Execute a subscribe transaction (v8 — returns AccessPass + CreatorReceipt)
 const result = await executeTransaction({
-  program: 'veilsub_v7.aleo',
+  program: 'veilsub_v8.aleo',
   function: 'subscribe',
   inputs: [
     paymentRecord,              // single credits record (must have >= amount)
