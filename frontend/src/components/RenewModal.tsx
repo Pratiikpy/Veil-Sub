@@ -158,7 +158,7 @@ export default function RenewModal({
         return
       }
 
-      // v7: Single-record renew — contract handles both creator and platform payments
+      // v8: Single-record renew — contract handles both creator and platform payments
       const paymentRecord = records[0]
 
       const newPassId = generatePassId()

@@ -154,7 +154,7 @@ export default function SubscribeModal({
         return
       }
 
-      // v7: Single-record subscribe — contract handles both creator and platform payments
+      // v8: Single-record subscribe — contract handles both creator and platform payments
       const paymentRecord = records[0]
 
       const passId = generatePassId()

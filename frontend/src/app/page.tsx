@@ -713,7 +713,7 @@ export default function HomePage() {
               Built on Aleo by Prateek
             </p>
             <span className="text-xs text-slate-600 px-2.5 py-1 rounded-full bg-white/[0.02] border border-white/5">
-              v7.0 — Wave 2
+              v8.0 — Wave 2
             </span>
           </div>
         </div>

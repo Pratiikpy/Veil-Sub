@@ -60,7 +60,7 @@ export function useVeilSub() {
     [execute]
   )
 
-  // v7: Single-record subscribe — no split needed
+  // v8: Single-record subscribe — returns AccessPass + CreatorReceipt
   const subscribe = useCallback(
     async (
       paymentRecord: string,
@@ -86,7 +86,7 @@ export function useVeilSub() {
     [execute]
   )
 
-  // v7: Single-record tip — no split needed
+  // v8: Single-record tip — returns CreatorReceipt
   const tip = useCallback(
     async (
       paymentRecord: string,
@@ -117,7 +117,7 @@ export function useVeilSub() {
     [execute]
   )
 
-  // v7: Single-record renew — no split needed
+  // v8: Single-record renew — returns AccessPass + CreatorReceipt
   const renew = useCallback(
     async (
       accessPassPlaintext: string,

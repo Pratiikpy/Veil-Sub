@@ -148,7 +148,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         return
       }
 
-      // v7: Single-record tip — contract handles both creator and platform payments
+      // v8: Single-record tip — contract handles both creator and platform payments
       const paymentRecord = records[0]
 
       setStatusMessage(null)
