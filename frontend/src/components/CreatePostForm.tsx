@@ -125,10 +125,10 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 rounded-xl bg-white/[0.02] border border-white/10"
+      className="p-6 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)]"
     >
       <div className="flex items-center gap-2 mb-4">
-        <FileText className="w-5 h-5 text-violet-400" />
+        <FileText className="w-5 h-5 text-[#a1a1aa]" />
         <h2 className="text-lg font-semibold text-white">Create Post</h2>
       </div>
 
@@ -136,27 +136,27 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
         <>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-slate-400 mb-1.5">Title</label>
+              <label className="block text-sm text-[#a1a1aa] mb-1.5">Title</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Post title..."
-                className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm"
+                className="w-full px-4 py-2.5 rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm"
               />
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-1.5">Content</label>
+              <label className="block text-sm text-[#a1a1aa] mb-1.5">Content</label>
               <textarea
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Write your exclusive content..."
                 rows={4}
-                className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm resize-none"
+                className="w-full px-4 py-2.5 rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm resize-none"
               />
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-1.5">Minimum tier required</label>
+              <label className="block text-sm text-[#a1a1aa] mb-1.5">Minimum tier required</label>
               <div className="grid grid-cols-3 gap-2">
                 {[1, 2, 3].map((tier) => (
                   <button
@@ -164,8 +164,8 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                     onClick={() => setMinTier(tier)}
                     className={`py-2 px-3 rounded-lg text-xs font-medium transition-all ${
                       minTier === tier
-                        ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300'
-                        : 'bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10'
+                        ? 'bg-violet-500/20 border border-violet-500/40 text-[#a1a1aa]'
+                        : 'bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-[#a1a1aa] hover:bg-white/[0.08]'
                     }`}
                   >
                     {tierLabels[tier - 1]}
@@ -181,14 +181,14 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
             </div>
           )}
 
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-3 text-xs text-[#71717a]">
             Publishing registers content metadata on-chain (content ID + minimum tier). The post body is stored off-chain and persists across devices.
           </p>
 
           <button
             onClick={handlePublish}
             disabled={!title.trim() || !body.trim() || (txStatus !== 'idle' && txStatus !== 'failed')}
-            className="mt-4 w-full py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium text-sm hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="mt-4 w-full py-2.5 rounded-[8px] bg-[#8b5cf6] text-white font-medium text-sm hover:bg-[#7c3aed] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <Send className="w-4 h-4" />
             Publish
@@ -204,10 +204,10 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
               className="mt-4 text-center"
             >
               <p className="text-green-400 font-medium mb-1">Published!</p>
-              <p className="text-xs text-slate-400">Content metadata is now on-chain.</p>
+              <p className="text-xs text-[#a1a1aa]">Content metadata is now on-chain.</p>
               <button
                 onClick={handleReset}
-                className="mt-3 px-6 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors"
+                className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-white hover:bg-white/[0.08] transition-colors"
               >
                 Create Another
               </button>

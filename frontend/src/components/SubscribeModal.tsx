@@ -240,12 +240,12 @@ export default function SubscribeModal({
             role="dialog"
             aria-modal="true"
             aria-label="Subscribe to creator"
-            className="w-full max-w-md rounded-2xl bg-[#0a0a0f]/95 backdrop-blur-2xl border border-white/[0.12] p-6 shadow-[0_8px_40px_rgba(0,0,0,0.6)] max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-md rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.08)] shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-violet-400" />
+                <Shield className="w-5 h-5 text-[#a1a1aa]" />
                 <h3 className="text-lg font-semibold text-white">
                   Private Subscription
                 </h3>
@@ -253,7 +253,7 @@ export default function SubscribeModal({
               <button
                 onClick={handleClose}
                 aria-label="Close subscription dialog"
-                className="p-1 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+                className="p-1 rounded-lg hover:bg-white/5 text-[#a1a1aa] hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -262,23 +262,23 @@ export default function SubscribeModal({
             {txStatus === 'idle' ? (
               <>
                 {/* Tier Info */}
-                <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-purple-500/10 border border-violet-500/20 mb-4">
+                <div className="p-4 rounded-[8px] bg-[#18181b] border border-[rgba(255,255,255,0.06)] mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-violet-300 font-medium">
+                    <span className="text-[#a1a1aa] font-medium">
                       {tier.name}
                     </span>
                     <span className="text-white font-bold">
                       {formatCredits(totalPrice)} ALEO
                     </span>
                   </div>
-                  <p className="text-sm text-slate-400">{tier.description}</p>
+                  <p className="text-sm text-[#a1a1aa]">{tier.description}</p>
                   <ul className="mt-3 space-y-1">
                     {tier.features.map((f) => (
                       <li
                         key={f}
-                        className="text-xs text-slate-400 flex items-center gap-2"
+                        className="text-xs text-[#a1a1aa] flex items-center gap-2"
                       >
-                        <Sparkles className="w-3 h-3 text-violet-400" />
+                        <Sparkles className="w-3 h-3 text-[#a1a1aa]" />
                         {f}
                       </li>
                     ))}
@@ -286,17 +286,17 @@ export default function SubscribeModal({
                 </div>
 
                 {/* Fee Breakdown */}
-                <div className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06] mb-4">
-                  <div className="text-xs text-slate-500 space-y-1">
+                <div className="p-3 rounded-[8px] bg-[#18181b] border border-[rgba(255,255,255,0.06)] mb-4">
+                  <div className="text-xs text-[#71717a] space-y-1">
                     <div className="flex justify-between">
                       <span>Creator ({100 - PLATFORM_FEE_PCT}%)</span>
-                      <span className="text-slate-300">{formatCredits(creatorCut)} ALEO</span>
+                      <span className="text-[#a1a1aa]">{formatCredits(creatorCut)} ALEO</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Platform fee ({PLATFORM_FEE_PCT}%)</span>
-                      <span className="text-slate-300">{formatCredits(platformCut)} ALEO</span>
+                      <span className="text-[#a1a1aa]">{formatCredits(platformCut)} ALEO</span>
                     </div>
-                    <div className="pt-1.5 mt-1.5 border-t border-white/5 flex justify-between text-slate-400">
+                    <div className="pt-1.5 mt-1.5 border-t border-white/5 flex justify-between text-[#a1a1aa]">
                       <span>Duration</span>
                       <span>~30 days ({SUBSCRIPTION_DURATION_BLOCKS.toLocaleString()} blocks)</span>
                     </div>
@@ -304,7 +304,7 @@ export default function SubscribeModal({
                 </div>
 
                 {/* Privacy Notice */}
-                <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/10 mb-6 space-y-1.5">
+                <div className="p-3 rounded-[8px] bg-[#18181b] border border-[rgba(255,255,255,0.06)] mb-6 space-y-1.5">
                   <p className="text-xs text-green-400 font-medium">Zero-Knowledge Privacy</p>
                   <ul className="text-[11px] text-green-400/80 space-y-1 list-none">
                     <li>Your address is never published on-chain</li>
@@ -315,7 +315,7 @@ export default function SubscribeModal({
                 </div>
 
                 {error && (
-                  <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 mb-4">
+                  <div className="p-3 rounded-[8px] bg-red-500/10 border border-red-500/15 mb-4">
                     <p className="text-xs text-red-400">{error}</p>
                   </div>
                 )}
@@ -337,7 +337,7 @@ export default function SubscribeModal({
                 <button
                   onClick={handleSubscribe}
                   disabled={txStatus !== 'idle'}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#a78bfa] text-white font-medium hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {txStatus !== 'idle' ? 'Processing...' : 'Subscribe Privately'}
                 </button>
@@ -345,8 +345,8 @@ export default function SubscribeModal({
             ) : (
               <div className="py-2">
                 {statusMessage && (
-                  <div className="mb-3 p-3 rounded-lg bg-violet-500/10 border border-violet-500/20">
-                    <p className="text-xs text-violet-300 animate-pulse">{statusMessage}</p>
+                  <div className="mb-3 p-3 rounded-[8px] bg-[#18181b] border border-[rgba(255,255,255,0.06)]">
+                    <p className="text-xs text-[#a1a1aa] animate-pulse">{statusMessage}</p>
                   </div>
                 )}
                 <TransactionStatus status={txStatus} txId={txId} />
@@ -359,12 +359,12 @@ export default function SubscribeModal({
                     <p className="text-green-400 font-medium mb-1">
                       Subscribed!
                     </p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-[#a1a1aa]">
                       Your AccessPass is now in your wallet. Access for ~30 days.
                     </p>
                     <button
                       onClick={handleClose}
-                      className="mt-4 px-6 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors"
+                      className="mt-4 px-6 py-2 rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
                     >
                       Done
                     </button>
@@ -381,7 +381,7 @@ export default function SubscribeModal({
                         setError(null)
                         setStatusMessage(null)
                       }}
-                      className="px-6 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors"
+                      className="px-6 py-2 rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
                     >
                       Try Again
                     </button>

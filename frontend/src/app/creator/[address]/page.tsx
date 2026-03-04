@@ -25,6 +25,7 @@ import { useSupabase } from '@/hooks/useSupabase'
 import SubscribeModal from '@/components/SubscribeModal'
 import TipModal from '@/components/TipModal'
 import RenewModal from '@/components/RenewModal'
+import GiftSubscriptionFlow from '@/components/GiftSubscriptionFlow'
 import ContentFeed from '@/components/ContentFeed'
 import CreatorQRCode from '@/components/CreatorQRCode'
 import PageTransition from '@/components/PageTransition'
@@ -59,6 +60,8 @@ export default function CreatorPage({
   const [showTip, setShowTip] = useState(false)
   const [userPasses, setUserPasses] = useState<AccessPass[]>([])
   const [renewPass, setRenewPass] = useState<AccessPass | null>(null)
+  const [showGift, setShowGift] = useState(false)
+  const [giftTier, setGiftTier] = useState<{ id: number; name: string; price: number } | null>(null)
 
   // Fetch creator stats and profile
   useEffect(() => {
@@ -111,13 +114,13 @@ export default function CreatorPage({
     return (
       <PageTransition className="min-h-screen">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="p-8 rounded-xl border border-red-500/20 bg-red-500/5 text-center">
+          <div className="p-8 rounded-[12px] border border-red-500/15 bg-red-500/5 text-center">
             <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
-            <h2 className="text-xl font-bold text-white mb-2">Failed to Load Creator</h2>
-            <p className="text-sm text-slate-400 mb-4">Could not fetch creator data. Please check your connection and try again.</p>
+            <h2 className="text-xl font-semibold text-[#fafafa] mb-2">Failed to Load Creator</h2>
+            <p className="text-sm text-[#a1a1aa] mb-4">Could not fetch creator data. Please check your connection and try again.</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-medium text-sm hover:bg-white/10 transition-colors inline-flex items-center gap-2"
+              className="px-6 py-2.5 rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-[#fafafa] font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 inline-flex items-center gap-2"
             >
               <RefreshCw className="w-4 h-4" />
               Retry
@@ -161,15 +164,15 @@ export default function CreatorPage({
           className="mb-10"
         >
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
-              <Shield className="w-8 h-8 text-white" />
+            <div className="w-14 h-14 rounded-[12px] bg-[#8b5cf6]/10 flex items-center justify-center">
+              <Shield className="w-7 h-7 text-[#8b5cf6]" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white mb-1">
+              <h1 className="text-2xl font-semibold text-[#fafafa] mb-1">
                 {displayName || shortenAddress(address)}
               </h1>
               {displayName && (
-                <p className="text-xs text-slate-500 font-mono mb-1">
+                <p className="text-base text-slate-500 font-mono mb-1">
                   {shortenAddress(address)}
                 </p>
               )}
@@ -180,7 +183,7 @@ export default function CreatorPage({
                 href={`https://testnet.explorer.provable.com/address/${address}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-sm text-violet-400 hover:text-violet-300"
+                className="inline-flex items-center gap-1 text-sm text-[#a1a1aa] hover:text-[#fafafa]"
               >
                 View on Explorer
                 <ExternalLink className="w-3 h-3" />
@@ -213,29 +216,29 @@ export default function CreatorPage({
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-20"
           >
-            <div className="w-20 h-20 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center mx-auto mb-6">
-              <Shield className="w-10 h-10 text-slate-600" />
+            <div className="w-16 h-16 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)] flex items-center justify-center mx-auto mb-6">
+              <Shield className="w-8 h-8 text-[#71717a]" />
             </div>
-            <h2 className="text-2xl font-bold text-white mb-3">
+            <h2 className="text-2xl font-semibold text-[#fafafa] mb-3">
               Creator Not Found
             </h2>
             <p className="text-slate-400 max-w-md mx-auto mb-2">
               This address hasn&apos;t registered as a creator on VeilSub yet.
             </p>
-            <p className="text-xs text-slate-500 font-mono mb-8">
+            <p className="text-base text-slate-500 font-mono mb-8">
               {shortenAddress(address)}
             </p>
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <Link
                 href="/#featured"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium text-sm hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] active:scale-[0.98]"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#a78bfa] text-white font-medium text-sm hover:from-[#7c4fe0] hover:to-[#9b7ae8] transition-all duration-300 active:scale-[0.98]"
               >
                 <Search className="w-4 h-4" />
                 Browse Featured Creators
               </Link>
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-sm hover:bg-white/10 transition-colors active:scale-[0.98]"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-[#a1a1aa] text-sm hover:bg-white/[0.08] transition-all duration-300"
               >
                 Register as a Creator
                 <ArrowRight className="w-4 h-4" />
@@ -293,7 +296,7 @@ export default function CreatorPage({
                                 </span>
                                 <button
                                   onClick={() => setRenewPass(pass)}
-                                  className="px-2.5 py-1 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-colors flex items-center gap-1 active:scale-[0.98]"
+                                  className="px-2.5 py-1 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
                                 >
                                   <RefreshCw className="w-3 h-3" />
                                   Renew
@@ -345,15 +348,15 @@ export default function CreatorPage({
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
-                      className={`relative p-6 rounded-xl border transition-all ${
+                      className={`relative p-6 rounded-xl border shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.4),0_8px_32px_rgba(0,0,0,0.3)] hover:-translate-y-0.5 transition-all duration-300 ${
                         tier.id === 3
-                          ? 'bg-gradient-to-b from-violet-500/10 to-purple-500/5 border-violet-500/30'
-                          : 'bg-white/[0.02] border-white/10 hover:border-white/20'
+                          ? 'bg-[#111113] border-[rgba(139,92,246,0.2)] hover:border-[rgba(139,92,246,0.35)]'
+                          : 'bg-[#111113] border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.1)]'
                       }`}
                     >
                       {tier.id === 3 && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-violet-500/20 border border-violet-500/30 pulse-glow">
-                          <span className="text-xs font-medium text-violet-300">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#8b5cf6]/10 border border-[#8b5cf6]/20">
+                          <span className="text-xs font-medium text-[#8b5cf6]">
                             Popular
                           </span>
                         </div>
@@ -392,11 +395,11 @@ export default function CreatorPage({
                         <button
                           onClick={() => setSelectedTier(tier)}
                           disabled={!connected}
-                          className={`w-full py-2.5 rounded-lg font-medium text-sm transition-all active:scale-[0.98] ${
+                          className={`w-full py-2.5 rounded-lg font-medium text-sm transition-all duration-300 active:scale-[0.98] ${
                             tier.id === 3
-                              ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:shadow-[0_0_20px_rgba(139,92,246,0.3)]'
-                              : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
-                          } disabled:opacity-50 disabled:cursor-not-allowed`}
+                              ? 'bg-gradient-to-r from-[#8b5cf6] to-[#a78bfa] text-white hover:from-[#7c4fe0] hover:to-[#9b7ae8]'
+                              : 'bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-[#fafafa] hover:bg-white/[0.08]'
+                          } disabled:opacity-40 disabled:cursor-not-allowed`}
                         >
                           {connected ? 'Subscribe' : 'Connect wallet'}
                         </button>
@@ -416,12 +419,12 @@ export default function CreatorPage({
               blockHeight={blockHeight}
             />
 
-            {/* Tip Section */}
+            {/* Tip & Gift Section */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="p-6 rounded-xl bg-white/[0.02] border border-white/5"
+              className="p-6 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)]"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -433,14 +436,27 @@ export default function CreatorPage({
                     receives 95% via private transfer — 5% platform fee.
                   </p>
                 </div>
-                <button
-                  onClick={() => setShowTip(true)}
-                  disabled={!connected}
-                  className="px-6 py-2.5 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-300 font-medium text-sm hover:bg-pink-500/20 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
-                >
-                  <Heart className="w-4 h-4" />
-                  Tip
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setGiftTier({ id: 1, name: 'Supporter', price: basePrice })
+                      setShowGift(true)
+                    }}
+                    disabled={!connected}
+                    className="px-4 py-2.5 rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-[#a1a1aa] font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Gift
+                  </button>
+                  <button
+                    onClick={() => setShowTip(true)}
+                    disabled={!connected}
+                    className="px-4 py-2.5 rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-[#a1a1aa] font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <Heart className="w-4 h-4" />
+                    Tip
+                  </button>
+                </div>
               </div>
             </motion.div>
 
@@ -454,7 +470,7 @@ export default function CreatorPage({
             </motion.div>
 
             {/* Privacy Notice */}
-            <div className="p-4 rounded-xl bg-violet-500/5 border border-violet-500/10">
+            <div className="p-4 rounded-[8px] bg-[#111113] border border-[rgba(255,255,255,0.06)]">
               <div className="flex items-start gap-3">
                 <Shield className="w-5 h-5 text-violet-400 mt-0.5 shrink-0" />
                 <div className="text-xs text-slate-400 space-y-1">
@@ -499,6 +515,16 @@ export default function CreatorPage({
           onClose={() => setRenewPass(null)}
           pass={renewPass}
           basePrice={basePrice}
+        />
+      )}
+      {giftTier && (
+        <GiftSubscriptionFlow
+          isOpen={showGift}
+          onClose={() => { setShowGift(false); setGiftTier(null) }}
+          creatorAddress={address}
+          tierPrice={giftTier.price}
+          tierId={giftTier.id}
+          tierName={giftTier.name}
         />
       )}
     </PageTransition>

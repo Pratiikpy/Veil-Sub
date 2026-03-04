@@ -1,4 +1,4 @@
-export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v8.aleo'
+export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v15.aleo'
 // API calls use Next.js rewrite proxy (/api/aleo/*) to avoid leaking user interest to third parties
 // The actual endpoint is configured in next.config.ts rewrites
 export const APP_NAME = 'VeilSub'
@@ -17,6 +17,27 @@ export const FEES = {
   SPLIT: 150_000,          // 0.15 credits (credits.aleo/split)
   CONVERT: 150_000,        // 0.15 credits (transfer_public_to_private)
   AUDIT_TOKEN: 100_000,    // 0.1 credits (no finalize — zero footprint)
+  // v9: Dynamic tier management
+  CREATE_TIER: 200_000,    // 0.2 credits (finalize: set tier mapping)
+  UPDATE_TIER: 150_000,    // 0.15 credits (finalize: update tier mapping)
+  DEPRECATE_TIER: 150_000, // 0.15 credits (finalize: mark deprecated)
+  UPDATE_CONTENT: 150_000, // 0.15 credits (finalize: update content_meta)
+  DELETE_CONTENT: 150_000, // 0.15 credits (finalize: mark deleted + ContentDeletion record)
+  // v10: Gifting, escrow, fee withdrawal
+  GIFT_SUBSCRIPTION: 400_000, // 0.4 credits (transfer_private + GiftToken + AccessPass + finalize)
+  REDEEM_GIFT: 200_000,       // 0.2 credits (consumes GiftToken, returns AccessPass)
+  SUBSCRIBE_ESCROW: 350_000,  // 0.35 credits (transfer + AccessPass + RefundEscrow + finalize)
+  CLAIM_REFUND: 250_000,      // 0.25 credits (consumes escrow + pass, returns credits)
+  WITHDRAW_PLATFORM: 200_000, // 0.2 credits (platform fee withdrawal)
+  WITHDRAW_CREATOR: 200_000,  // 0.2 credits (creator revenue withdrawal)
+  // v11: Blind renewal (novel privacy)
+  SUBSCRIBE_BLIND: 350_000,   // 0.35 credits (nonce-based identity rotation)
+  RENEW_BLIND: 350_000,       // 0.35 credits (blind renewal + nonce check)
+  VERIFY_TIER: 100_000,       // 0.1 credits (no finalize — zero footprint)
+  // v12: Encrypted content + disputes
+  PUBLISH_ENCRYPTED: 200_000, // 0.2 credits (finalize: content + encryption commitment)
+  REVOKE_ACCESS: 150_000,     // 0.15 credits (finalize: mark revoked)
+  DISPUTE_CONTENT: 150_000,   // 0.15 credits (finalize: increment disputes)
 } as const
 
 // Fee estimates for token-based transitions (v5)
@@ -36,6 +57,9 @@ export const PLATFORM_FEE_PCT = 5 // 5% display value
 
 // ~30 days at ~3s/block (864K blocks)
 export const SUBSCRIPTION_DURATION_BLOCKS = 864_000
+
+// v10: Refund escrow window (~25 minutes at ~3s/block)
+export const ESCROW_WINDOW_BLOCKS = 500
 
 // Seed content for content feed demo
 export interface SeedContent {
@@ -72,13 +96,36 @@ export const SEED_CONTENT: SeedContent[] = [
     createdAt: '2026-02-05T09:00:00Z',
     contentId: 'seed',
   },
+  {
+    id: 'seed-4',
+    title: 'Weekly Update: v15 Contract Deployed',
+    body: 'VeilSub v15 is live on testnet! This version adds subscription transfer, revocation enforcement, blind renewal with nonce rotation, encrypted content delivery, subscription gifting, refund escrow, and dispute resolution. 28 transitions, 7 record types, 22 mappings. Try it out and share feedback.',
+    minTier: 1,
+    createdAt: '2026-03-01T10:00:00Z',
+    contentId: 'seed',
+  },
+  {
+    id: 'seed-5',
+    title: 'Deep Dive: Blind Renewal Privacy Technique',
+    body: 'In this premium post, we explain how blind renewal works: each renew_blind() call generates a unique subscriber hash via BHP256(caller, nonce). The creator sees "different" subscribers each time — they cannot link renewals to the same person. This is equivalent to lasagna\'s DAR technique but for subscriber identity.',
+    minTier: 2,
+    createdAt: '2026-03-02T14:00:00Z',
+    contentId: 'seed',
+  },
+  {
+    id: 'seed-6',
+    title: 'VIP: Mainnet Roadmap & Token Strategy',
+    body: 'Exclusive VIP briefing on mainnet plans. Topics: production deployment timeline, multi-token stablecoin strategy (USDCx, USAD), DAO governance model, SDK for third-party integrations, and partnership discussions with Aleo ecosystem projects.',
+    minTier: 3,
+    createdAt: '2026-03-03T16:00:00Z',
+    contentId: 'seed',
+  },
 ]
 
 // Featured creators shown on the landing page for discovery.
 // Populated after v3 deployment with real testnet addresses.
 export const FEATURED_CREATORS: { address: string; label: string }[] = [
   { address: 'aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk', label: 'Prateek (VeilSub Creator)' },
-  // Demo creators — populate addresses after v5 testnet registration
-  // { address: '<demo_address_2>', label: 'Privacy Advocate' },
-  // { address: '<demo_address_3>', label: 'ZK Researcher' },
+  { address: 'aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fez7pqgys4x7s3m', label: 'Privacy Research Lab' },
+  { address: 'aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8', label: 'ZK Developer Academy' },
 ]

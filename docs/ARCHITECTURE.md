@@ -7,11 +7,15 @@ VeilSub is a privacy-preserving content subscription platform built on Aleo. It 
 ```
 +-------------------+       +--------------------+       +------------------+
 |   Frontend        |       |   Aleo Testnet     |       |   Off-Chain      |
-|   (Next.js 16)    |<----->|   (veilsub_v8)     |       |   Services       |
+|   (Next.js 16)    |<----->|   (veilsub_v15)    |       |   Services       |
 |                   |       |                    |       |                  |
 | - Dashboard       |       | - AccessPass       |       | - Supabase (DB)  |
 | - Explore         |       | - CreatorReceipt   |       | - Upstash Redis  |
 | - Verify          |       | - AuditToken       |       | - Vercel (CDN)   |
+| - Create Tiers    |       | - SubscriptionTier |       |                  |
+| - Gated Content   |       | - ContentDeletion  |       |                  |
+| - Gift Subs       |       | - GiftToken        |       |                  |
+| - Manage Access   |       | - RefundEscrow     |       |                  |
 | - Creator Pages   |       | - credits.aleo     |       |                  |
 | - On-Chain Verify |       | - token_registry   |       |                  |
 +-------------------+       +--------------------+       +------------------+
@@ -30,7 +34,7 @@ VeilSub is a privacy-preserving content subscription platform built on Aleo. It 
 
 ## Layer Architecture
 
-### Layer 1: Smart Contract (`veilsub_v8.aleo`)
+### Layer 1: Smart Contract (`veilsub_v15.aleo`)
 
 The Leo smart contract is the trust foundation. All financial operations and access control happen on-chain.
 
@@ -40,6 +44,10 @@ The Leo smart contract is the trust foundation. All financial operations and acc
 | `AccessPass` | Subscriber | Proves subscription access (tier, expiry, creator) |
 | `CreatorReceipt` | Creator | Private proof of payment received (hashed subscriber ID) |
 | `AuditToken` | Verifier | Selective disclosure token for third-party verification |
+| `SubscriptionTier` | Creator | Proof of custom tier creation (tier_id, price, name_hash) |
+| `ContentDeletion` | Creator | Proof of content deletion (content_id, reason_hash) |
+| `GiftToken` | Recipient | Gift subscription pending redemption (creator, tier, expires_at) |
+| `RefundEscrow` | Subscriber | Refund claim within escrow window (creator, amount, escrow_expiry) |
 
 **Mappings (Public State):**
 | Mapping | Key | Value | Purpose |
@@ -51,6 +59,20 @@ The Leo smart contract is the trust foundation. All financial operations and acc
 | `content_count` | creator address | u64 | Published content count |
 | `content_meta` | BHP256(content_id) | u8 | Content tier requirement |
 | `content_hashes` | BHP256(content_id) | field | Content body integrity hash |
+| `creator_tiers` | BHP256(TierKey) | u64 | Custom tier pricing |
+| `tier_count` | creator address | u64 | Number of tiers per creator |
+| `tier_deprecated` | BHP256(TierKey) | bool | Deprecated tier flag |
+| `content_deleted` | BHP256(content_id) | bool | Content deletion flag |
+| `gift_redeemed` | gift_id (field) | bool | Gift redemption tracking |
+| `refund_claimed` | pass_id (field) | bool | Refund claim tracking |
+| `escrow_data` | pass_id (field) | u32 | Escrow expiry block height |
+| `nonce_used` | BHP256(nonce) | bool | Blind renewal nonce replay prevention |
+| `encryption_commits` | BHP256(content_id) | field | Encrypted content commitment |
+| `access_revoked` | pass_id (field) | bool | Access revocation flag |
+| `content_disputes` | BHP256(content_id) | u64 | Content dispute counter |
+| `tier_prices_token` | creator address | u64 | Token tier pricing |
+| `total_revenue_token` | creator address | u64 | Token revenue tracking |
+| `platform_revenue_token` | u8 (constant) | u64 | Platform token fee accumulator |
 
 **Transitions (Functions):**
 | Transition | Privacy | Finalize? | Purpose |
@@ -65,6 +87,23 @@ The Leo smart contract is the trust foundation. All financial operations and acc
 | `set_token_price` | Creator = public | Yes | Set ARC-20 token pricing |
 | `subscribe_token` | Subscriber = private | Yes | Subscribe with ARC-20 tokens |
 | `tip_token` | Tipper = private | Yes | Tip with ARC-20 tokens |
+| `create_custom_tier` | Creator = public | Yes | Create custom subscription tier |
+| `update_tier_price` | Creator = public | Yes | Update tier price |
+| `deprecate_tier` | Creator = public | Yes | Mark tier as deprecated |
+| `update_content` | Creator = public | Yes | Update content tier/hash |
+| `delete_content` | Creator = public | Yes | Delete content (returns ContentDeletion) |
+| `gift_subscription` | Gifter = private | Yes | Gift a subscription to another address |
+| `redeem_gift` | Recipient = private | Yes | Redeem a GiftToken for AccessPass |
+| `subscribe_with_escrow` | Subscriber = private | Yes | Subscribe with refund window |
+| `claim_refund` | Subscriber = private | Yes | Claim refund within escrow window |
+| `withdraw_platform_fees` | Platform = public | Yes | Withdraw accumulated platform fees |
+| `withdraw_creator_revenue` | Creator = public | Yes | Withdraw creator revenue |
+| `subscribe_blind` | Subscriber = private | Yes | Subscribe with nonce-based identity rotation |
+| `renew_blind` | Subscriber = private | Yes | Blind renewal (different hash each time) |
+| `verify_tier_access` | Full private | **No** | Zero-footprint dynamic tier verification |
+| `publish_encrypted_content` | Creator = public | Yes | Publish with encryption commitment |
+| `revoke_access` | Creator = public | Yes | Revoke subscriber access |
+| `dispute_content` | Any = public | Yes | Dispute content integrity |
 
 ### Layer 2: Frontend (Next.js 16 + React 19)
 
@@ -111,7 +150,7 @@ Five wallet adapters via `@provablehq/aleo-wallet-adaptor-react`:
 1. Subscriber connects wallet (Shield/Leo/Fox/Puzzle/Soter)
 2. Frontend fetches credits.aleo records via requestRecords()
 3. User selects creator + tier → frontend computes amount
-4. executeTransaction() calls veilsub_v8.aleo/subscribe:
+4. executeTransaction() calls veilsub_v15.aleo/subscribe:
    a. credits.aleo/transfer_private sends payment to creator
    b. AccessPass record created (owned by subscriber)
    c. CreatorReceipt record created (owned by creator)

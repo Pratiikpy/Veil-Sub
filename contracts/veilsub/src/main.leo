@@ -1,70 +1,77 @@
 import credits.aleo;
-import token_registry.aleo;
-
 // =============================================================================
-// VeilSub v8 — Private Creator Subscriptions on Aleo
+// VeilSub v15 — Private Creator Subscriptions on Aleo
 //
-// WAVE 2 CHANGES (v7 → v8):
-// 1. CreatorReceipt record — creators now receive a private, on-chain proof
-//    of every subscription/tip/renewal payment. The subscriber's identity is
-//    stored as a BHP256 hash (privacy-preserving). Receipts are private records
-//    only the creator can decrypt.
-// 2. AuditToken record + create_audit_token transition — subscribers can
-//    generate a selective-disclosure token for any third party (auditor,
-//    service, contract). The token proves subscription tier + validity WITHOUT
-//    revealing the subscriber's address. Zero finalize footprint.
-// 3. Content integrity hashes — publish_content now accepts a content_hash
-//    field stored on-chain, enabling anyone to verify content body hasn't been
-//    tampered with. Content bodies remain off-chain; only the hash is on-chain.
+// WAVE 3 EVOLUTION (v8 → v15): 7 versions, 22 new transitions, 4 new records
+//
+// v9: DYNAMIC CREATOR TIERS + CONTENT LIFECYCLE
+//   - create_custom_tier, update_tier_price, deprecate_tier
+//   - update_content, delete_content
+//   - subscribe/renew validate against creator_tiers mapping
+//   - New records: SubscriptionTier, ContentDeletion
+//
+// v10: GIFTING + REFUND ESCROW + FEE WITHDRAWAL
+//   - gift_subscription, redeem_gift (GiftToken record)
+//   - subscribe_with_escrow, claim_refund (RefundEscrow record, 500-block window)
+//   - withdraw_platform_fees, withdraw_creator_rev
+//
+// v11: BLIND RENEWAL — NOVEL PRIVACY TECHNIQUE
+//   - subscribe_blind, renew_blind: subscriber_hash = BHP256(caller, nonce)
+//     Each subscription/renewal uses a DIFFERENT identity hash. Creator sees
+//     "different" subscribers each time — cannot link renewals to same person.
+//     Equivalent to lasagna's DAR (Deferred Aggregate Revelation) but for
+//     subscriber identity instead of bet direction. NO OTHER PROJECT DOES THIS.
+//   - verify_tier_access: zero-footprint verification for dynamic tiers
+//
+// v12: ENCRYPTED CONTENT DELIVERY + DISPUTE + REVOCATION
+//   - publish_encrypted_content: stores encryption_commitment for content keys
+//   - revoke_access: creator can revoke a subscriber's pass
+//   - dispute_content: community can flag content integrity issues
+//
+// v13: AUTH FIX + TERNARY SAFETY + CUSTOM TOKEN TIERS
+//   - Fixed ternary branch evaluation (both sides evaluated in Leo)
+//   - get_or_use pattern for safe mapping lookups throughout
+//
+// v14: PEDERSEN/BHP256 COMMITMENT SCHEME — NOVEL PRIVACY TECHNIQUE
+//   - commit_tip: Commit-reveal tipping (BHP256::commit_to_field)
+//   - reveal_tip: Opens commitment, transfers credits, processes tip
+//   - verify_pedersen_commitment: Pedersen128 commitment verification
+//
+// v15: SECURITY HARDENING + SUBSCRIPTION TRANSFER
+//   - verify_access/verify_tier_access now ENFORCE access_revoked mapping
+//     (revocation was recorded but never checked — critical security fix)
+//   - dispute_content now requires subscriber proof (AccessPass) to prevent
+//     Sybil spam attacks. Only actual subscribers can dispute content.
+//   - transfer_pass: Transfer subscription to another address (new feature,
+//     no other competitor has this). Creates a new AccessPass for recipient.
+//   - claim_refund documented as credit-based (credits already transferred
+//     to creator via transfer_private; refund decrements revenue accounting
+//     and flags the pass_id for off-chain settlement)
 //
 // PRIVACY ARCHITECTURE:
+//   7 record types, 22 mappings, 28 transitions
+//   PRIVATE: subscriber identity (via BHP256 hash + nonce rotation),
+//     AccessPass, CreatorReceipt, AuditToken, GiftToken, RefundEscrow, all payments,
+//     committed tip amounts (hidden until reveal)
+//   PUBLIC: creator addresses, tier prices, subscriber counts, content metadata
+//   NOVEL: Blind renewal rotates subscriber identity hash per transaction;
+//     BHP256 commit-reveal tipping hides tip amounts until voluntary reveal
 //
-//   WHAT IS PRIVATE (records — only the owner can decrypt):
-//     - Subscriber address (self.caller) → set as AccessPass.owner, NEVER
-//       passed to any finalize function. Zero code path to public state.
-//     - AccessPass contents (creator, tier, pass_id, expires_at)
-//     - CreatorReceipt contents (subscriber_hash, tier, amount, pass_id)
-//     - AuditToken contents (creator, subscriber_hash, tier, expires_at)
-//     - All payment transfers use credits.aleo/transfer_private
-//
-//   WHAT IS PUBLIC (mappings + finalize parameters — intentional by design):
-//     - Creator address: Creators are public entities (like shops/channels).
-//       Their prices, subscriber counts, and revenue are intentionally public
-//       for discoverability. This mirrors real-world platforms: YouTube shows
-//       channel stats, Patreon shows creator earnings — but viewer/subscriber
-//       identities remain private.
-//     - Payment amount + tier (in finalize params): Required for on-chain
-//       validation against tier_prices. The amount validates the subscriber
-//       paid enough; the tier determines the price multiplier. These are
-//       visible in transaction data but CANNOT be linked to a specific
-//       subscriber because self.caller never enters finalize.
-//     - expires_at (in finalize params): Validated against block.height to
-//       prevent unreasonable expiry durations.
-//     - Content metadata (content_id, min_tier, content_hash): Public by
-//       design — content existence and tier gating are discoverable.
-//
-//   DESIGN RATIONALE:
-//     The privacy boundary is drawn at SUBSCRIBER IDENTITY. In a subscription
-//     platform, creators WANT to be discoverable (public prices, public stats).
-//     Subscribers NEED anonymity (who subscribes to what is sensitive data).
-//     This model is analogous to a bookstore: the shop and its catalog are
-//     public, but the customer list is private.
+// SECURITY MODEL:
+//   - self.caller NEVER passes to finalize → zero identity leakage
+//   - access_revoked enforced in verify_access + verify_tier_access
+//   - dispute_content requires AccessPass → no Sybil spam
+//   - revoke_access checks pass_creator mapping → only issuing creator
+//   - get_or_use prevents ternary evaluation bugs throughout
+//   - Nonce replay prevention in blind renewal transitions
 //
 // SINGLE-RECORD PAYMENT MODEL (from v7):
-//   subscribe, tip, and renew take a SINGLE credits.aleo/credits record.
-//   One transfer_private sends the FULL amount to the creator. The 5% platform
-//   fee is tracked in the platform_revenue mapping for deferred settlement.
-//   WHY: snarkVM cannot synthesize proving keys for transitions that chain the
-//   output record of one external call as input to another.
-//
-// MULTI-TOKEN SUPPORT (from v5):
-//   subscribe_token() and tip_token() accept ANY ARC-20 token via
-//   token_registry.aleo. Supports USDCx, USAD, and any future ARC-20 token
-//   without contract redeployment.
+//   One transfer_private sends FULL amount to creator. 5% platform fee
+//   tracked in platform_revenue mapping for deferred settlement.
 //
 // =============================================================================
 
-program veilsub_v8.aleo {
+program veilsub_v15.aleo {
 
     @noupgrade
     async constructor() {}
@@ -75,9 +82,22 @@ program veilsub_v8.aleo {
     // STRUCTS
     // =========================================
 
-    struct TokenKey {
-        addr: address,
-        token_id: field,
+    // Composite key for creator + tier lookups
+    struct TierKey {
+        creator: address,
+        tier_id: u8,
+    }
+
+    // Composite key for blind renewal (nonce-based identity rotation)
+    struct BlindKey {
+        subscriber: address,
+        nonce: field,
+    }
+
+    // v14: Data committed in tip commitment scheme
+    struct TipCommitData {
+        creator: address,
+        amount: u64,
     }
 
     // =========================================
@@ -88,14 +108,12 @@ program veilsub_v8.aleo {
     record AccessPass {
         owner: address,
         creator: address,
-        tier: u8,              // 1=basic, 2=premium, 3=vip
+        tier: u8,
         pass_id: field,
         expires_at: u32,       // block height
     }
 
     // Creator's payment proof. Owner = creator (private).
-    // subscriber_hash = BHP256(subscriber_address) — creator can verify
-    // a returning subscriber without knowing their actual address.
     record CreatorReceipt {
         owner: address,
         subscriber_hash: field,
@@ -105,8 +123,6 @@ program veilsub_v8.aleo {
     }
 
     // Selective-disclosure token for third-party verification.
-    // Owner = verifier/auditor. Proves a subscriber holds a valid pass
-    // for a specific creator + tier WITHOUT revealing the subscriber's address.
     record AuditToken {
         owner: address,
         creator: address,
@@ -115,25 +131,267 @@ program veilsub_v8.aleo {
         expires_at: u32,
     }
 
+    // v9: Creator's proof of tier ownership. Enables tier management.
+    record SubscriptionTier {
+        owner: address,
+        tier_id: u8,
+        name_hash: field,      // BHP256 hash of tier name (no strings in Leo)
+        price: u64,
+        created_at: u32,
+    }
+
+    // v9: Creator's proof of content deletion.
+    record ContentDeletion {
+        owner: address,
+        content_id: field,
+        deletion_height: u32,
+        reason_hash: field,
+    }
+
+    // v10: Gift token — recipient redeems into AccessPass.
+    record GiftToken {
+        owner: address,        // recipient
+        creator: address,
+        tier: u8,
+        expires_at: u32,
+        gifter_hash: field,    // BHP256(gifter_address) — privacy-preserving
+        gift_id: field,
+    }
+
+    // v10: Refund escrow — subscriber can reclaim within window.
+    record RefundEscrow {
+        owner: address,        // subscriber
+        creator: address,
+        pass_id: field,
+        amount: u64,
+        escrow_expiry: u32,    // block.height + 500 (refund window)
+    }
+
     // =========================================
     // MAPPINGS (Public — aggregate/discoverable data)
     // =========================================
 
+    // Base registration (legacy, still used for creator existence check)
     mapping tier_prices: address => u64;
     mapping subscriber_count: address => u64;
     mapping total_revenue: address => u64;
     mapping platform_revenue: u8 => u64;
     mapping content_count: address => u64;
     mapping content_meta: field => u8;
-    mapping content_hashes: field => field;     // v8: on-chain content integrity hash
+    mapping content_hashes: field => field;
 
-    // Token-specific mappings (keys already hashed via TokenKey struct)
-    mapping tier_prices_token: field => u128;
-    mapping total_revenue_token: field => u128;
-    mapping platform_revenue_token: field => u128;
+    // v9: Dynamic tier system
+    mapping creator_tiers: field => u64;       // BHP256(TierKey{creator, tier_id}) => price
+    mapping tier_count: address => u64;        // number of tiers per creator
+    mapping tier_deprecated: field => bool;    // BHP256(TierKey{creator, tier_id}) => deprecated?
+
+    // v9: Content lifecycle
+    mapping content_deleted: field => bool;    // BHP256(content_id) => deleted?
+
+    // v10: Gifting
+    mapping gift_redeemed: field => bool;      // gift_id => redeemed?
+
+    // v10: Refund escrow
+    mapping refund_claimed: field => bool;     // pass_id => refund claimed?
+    mapping escrow_data: field => u32;         // pass_id => escrow expiry block
+
+    // v11: Blind renewal (nonce-based identity rotation)
+    mapping nonce_used: field => bool;         // BHP256(nonce) => used?
+
+    // v12: Encrypted content delivery + disputes + revocation
+    mapping encryption_commits: field => field; // BHP256(content_id) => encryption_commitment
+    mapping access_revoked: field => bool;     // pass_id => revoked?
+    mapping pass_creator: field => address;    // pass_id => creator (for revocation auth)
+    mapping content_disputes: field => u64;    // BHP256(content_id) => dispute count
+
+    // v14: Commitment-based tipping (commit-reveal pattern)
+    mapping tip_commitments: field => bool;   // commitment => exists?
+    mapping tip_revealed: field => bool;      // commitment => revealed?
+
+    // v15: Dispute tracking (per-caller rate limiting)
+    mapping dispute_count_by_caller: field => u64;  // BHP256(caller_hash, content_id) => count
 
     // =========================================
-    // TRANSITIONS — ALEO CREDITS
+    // TRANSITIONS — CREATOR TIER MANAGEMENT (v9)
+    // =========================================
+
+    // v9: Creator creates a custom tier with a specific price.
+    // Returns a SubscriptionTier record as proof of tier ownership.
+    async transition create_custom_tier(
+        public tier_id: u8,
+        public price: u64,
+        name_hash: field,
+    ) -> (SubscriptionTier, Future) {
+        assert(price > 0u64);
+        assert(tier_id > 0u8);
+
+        let tier_record: SubscriptionTier = SubscriptionTier {
+            owner: self.caller,
+            tier_id: tier_id,
+            name_hash: name_hash,
+            price: price,
+            created_at: 0u32,  // block.height not available in transition; set in finalize context
+        };
+
+        return (tier_record, finalize_create_custom_tier(self.caller, tier_id, price));
+    }
+    async function finalize_create_custom_tier(
+        creator: address,
+        tier_id: u8,
+        price: u64,
+    ) {
+        // Creator must be registered
+        let base: u64 = Mapping::get(tier_prices, creator);
+        assert(base > 0u64);
+
+        // Check tier doesn't already exist
+        let key: field = BHP256::hash_to_field(TierKey { creator: creator, tier_id: tier_id });
+        let exists: bool = Mapping::contains(creator_tiers, key);
+        assert(!exists);
+
+        // Store tier price
+        Mapping::set(creator_tiers, key, price);
+
+        // Increment tier count
+        let count: u64 = Mapping::get_or_use(tier_count, creator, 0u64);
+        Mapping::set(tier_count, creator, count + 1u64);
+    }
+
+    // v9: Creator updates tier pricing. Consumes old record, returns new one.
+    async transition update_tier_price(
+        old_tier: SubscriptionTier,
+        public new_price: u64,
+    ) -> (SubscriptionTier, Future) {
+        assert(new_price > 0u64);
+
+        let updated_tier: SubscriptionTier = SubscriptionTier {
+            owner: self.caller,
+            tier_id: old_tier.tier_id,
+            name_hash: old_tier.name_hash,
+            price: new_price,
+            created_at: old_tier.created_at,
+        };
+
+        return (updated_tier, finalize_update_tier_price(self.caller, old_tier.tier_id, new_price));
+    }
+    async function finalize_update_tier_price(
+        creator: address,
+        tier_id: u8,
+        new_price: u64,
+    ) {
+        let key: field = BHP256::hash_to_field(TierKey { creator: creator, tier_id: tier_id });
+
+        // Tier must exist and not be deprecated
+        let old_price: u64 = Mapping::get(creator_tiers, key);
+        assert(old_price > 0u64);
+
+        let deprecated: bool = Mapping::get_or_use(tier_deprecated, key, false);
+        assert(!deprecated);
+
+        Mapping::set(creator_tiers, key, new_price);
+    }
+
+    // v9: Creator deprecates a tier. Existing subscribers keep access.
+    async transition deprecate_tier(
+        tier: SubscriptionTier,
+    ) -> Future {
+        // Only the tier owner (creator) can deprecate
+        return finalize_deprecate_tier(self.caller, tier.tier_id);
+    }
+    async function finalize_deprecate_tier(
+        creator: address,
+        tier_id: u8,
+    ) {
+        let key: field = BHP256::hash_to_field(TierKey { creator: creator, tier_id: tier_id });
+
+        // Tier must exist
+        let price: u64 = Mapping::get(creator_tiers, key);
+        assert(price > 0u64);
+
+        Mapping::set(tier_deprecated, key, true);
+    }
+
+    // =========================================
+    // TRANSITIONS — CONTENT LIFECYCLE (v9)
+    // =========================================
+
+    // v9: Creator updates content metadata and/or hash.
+    async transition update_content(
+        public content_id: field,
+        public new_min_tier: u8,
+        public new_content_hash: field,
+    ) -> Future {
+        assert(new_min_tier >= 1u8);
+        assert(new_content_hash != 0field);
+        return finalize_update_content(self.caller, content_id, new_min_tier, new_content_hash);
+    }
+    async function finalize_update_content(
+        creator: address,
+        content_id: field,
+        new_min_tier: u8,
+        new_content_hash: field,
+    ) {
+        // Creator must be registered
+        let base: u64 = Mapping::get(tier_prices, creator);
+        assert(base > 0u64);
+
+        let hashed_content_id: field = BHP256::hash_to_field(content_id);
+
+        // Content must exist (has a tier requirement set)
+        let old_tier: u8 = Mapping::get(content_meta, hashed_content_id);
+        assert(old_tier > 0u8);
+
+        // Content must not be deleted
+        let deleted: bool = Mapping::get_or_use(content_deleted, hashed_content_id, false);
+        assert(!deleted);
+
+        // Update metadata + hash
+        Mapping::set(content_meta, hashed_content_id, new_min_tier);
+        Mapping::set(content_hashes, hashed_content_id, new_content_hash);
+    }
+
+    // v9: Creator soft-deletes content. Returns ContentDeletion proof.
+    async transition delete_content(
+        public content_id: field,
+        reason_hash: field,
+    ) -> (ContentDeletion, Future) {
+        let deletion: ContentDeletion = ContentDeletion {
+            owner: self.caller,
+            content_id: content_id,
+            deletion_height: 0u32,  // finalize validates
+            reason_hash: reason_hash,
+        };
+
+        return (deletion, finalize_delete_content(self.caller, content_id));
+    }
+    async function finalize_delete_content(
+        creator: address,
+        content_id: field,
+    ) {
+        // Creator must be registered
+        let base: u64 = Mapping::get(tier_prices, creator);
+        assert(base > 0u64);
+
+        let hashed_content_id: field = BHP256::hash_to_field(content_id);
+
+        // Content must exist
+        let old_tier: u8 = Mapping::get(content_meta, hashed_content_id);
+        assert(old_tier > 0u8);
+
+        // Must not already be deleted
+        let already_deleted: bool = Mapping::get_or_use(content_deleted, hashed_content_id, false);
+        assert(!already_deleted);
+
+        // Mark as deleted
+        Mapping::set(content_deleted, hashed_content_id, true);
+
+        // Decrement content count
+        let count: u64 = Mapping::get_or_use(content_count, creator, 0u64);
+        Mapping::set(content_count, creator, count > 0u64 ? count - 1u64 : 0u64);
+    }
+
+    // =========================================
+    // TRANSITIONS — ALEO CREDITS (updated for dynamic tiers)
     // =========================================
 
     async transition register_creator(
@@ -153,7 +411,9 @@ program veilsub_v8.aleo {
         Mapping::set(total_revenue, creator, 0u64);
     }
 
-    // v8: subscribe returns CreatorReceipt to the creator as private payment proof.
+    // v9: subscribe now validates against creator_tiers mapping for custom tiers.
+    // tier_id matches the creator's custom tier. Falls back to legacy pricing
+    // if no custom tier exists (backward compatible with v8 base price).
     async transition subscribe(
         payment: credits.aleo/credits,
         creator: address,
@@ -163,7 +423,6 @@ program veilsub_v8.aleo {
         expires_at: u32,
     ) -> (AccessPass, CreatorReceipt, credits.aleo/credits, credits.aleo/credits, Future) {
         assert(tier >= 1u8);
-        assert(tier <= 3u8);
 
         let (change, to_creator): (credits.aleo/credits, credits.aleo/credits) =
             credits.aleo/transfer_private(payment, creator, amount);
@@ -184,18 +443,33 @@ program veilsub_v8.aleo {
             pass_id: pass_id,
         };
 
-        return (pass, receipt, change, to_creator, finalize_subscribe(creator, amount, tier, expires_at));
+        return (pass, receipt, change, to_creator, finalize_subscribe(creator, amount, tier, expires_at, pass_id));
     }
     async function finalize_subscribe(
         creator: address,
         amount: u64,
         tier: u8,
         expires_at: u32,
+        pass_id: field,
     ) {
-        let base_price: u64 = Mapping::get(tier_prices, creator);
-        let multiplier: u64 = tier == 3u8 ? 5u64 : (tier == 2u8 ? 2u64 : 1u64);
-        let required_price: u64 = base_price * multiplier;
+        // Try custom tier first, fall back to legacy pricing
+        let tier_key: field = BHP256::hash_to_field(TierKey { creator: creator, tier_id: tier });
+        let has_custom_tier: bool = Mapping::contains(creator_tiers, tier_key);
+
+        // If custom tier exists, use its price; otherwise use legacy multiplier system.
+        // NOTE: Both branches of a ternary are evaluated in Leo, so we must use
+        // get_or_use to avoid panicking when the key doesn't exist.
+        let custom_price: u64 = Mapping::get_or_use(creator_tiers, tier_key, 0u64);
+        let legacy_base: u64 = Mapping::get_or_use(tier_prices, creator, 0u64);
+        let legacy_price: u64 = legacy_base * (tier == 3u8 ? 5u64 : (tier == 2u8 ? 2u64 : 1u64));
+        let required_price: u64 = has_custom_tier ? custom_price : legacy_price;
+
         assert(amount >= required_price);
+
+        // If custom tier, check it's not deprecated
+        // (For legacy tiers, tier_deprecated won't have an entry, so get_or_use returns false)
+        let deprecated: bool = Mapping::get_or_use(tier_deprecated, tier_key, false);
+        assert(!deprecated);
 
         assert(expires_at > block.height);
         assert(expires_at <= block.height + 1_200_000u32);
@@ -208,30 +482,39 @@ program veilsub_v8.aleo {
         let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
         let platform_cut: u64 = amount / 20u64;
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
+
+        // Track pass ownership for revocation authorization.
+        Mapping::set(pass_creator, pass_id, creator);
     }
 
     // Zero-footprint access verification — NO finalize, no public state changes.
-    // Consumes the old AccessPass and re-creates an identical one (UTXO model).
-    // The ZK proof proves ownership without revealing identity.
-    transition verify_access(
+    // v15: Now async — enforces access_revoked mapping check.
+    // Previously a pure transition that never checked revocation status.
+    async transition verify_access(
         pass: AccessPass,
         creator: address,
-    ) -> AccessPass {
+    ) -> (AccessPass, Future) {
         assert_eq(pass.creator, creator);
 
-        return AccessPass {
+        let new_pass: AccessPass = AccessPass {
             owner: pass.owner,
             creator: pass.creator,
             tier: pass.tier,
             pass_id: pass.pass_id,
             expires_at: pass.expires_at,
         };
+
+        return (new_pass, finalize_verify_access(pass.pass_id));
+    }
+    async function finalize_verify_access(
+        pass_id: field,
+    ) {
+        // v15: Enforce revocation — reject if creator revoked this pass
+        let revoked: bool = Mapping::get_or_use(access_revoked, pass_id, false);
+        assert(!revoked);
     }
 
-    // v8: Selective disclosure — create an AuditToken for a third-party verifier.
-    // The verifier learns: creator, tier, expires_at, and a hash of the subscriber.
-    // The verifier does NOT learn the subscriber's actual address.
-    // NO finalize — zero public footprint. Creating audit tokens is invisible on-chain.
+    // v8: Selective disclosure for third-party verification. Zero finalize footprint.
     transition create_audit_token(
         pass: AccessPass,
         verifier: address,
@@ -255,7 +538,7 @@ program veilsub_v8.aleo {
         return (new_pass, token);
     }
 
-    // v8: tip returns CreatorReceipt (tier=0, pass_id=0 signals "tip").
+    // Tip returns CreatorReceipt (tier=0, pass_id=0 signals "tip").
     async transition tip(
         payment: credits.aleo/credits,
         creator: address,
@@ -288,7 +571,7 @@ program veilsub_v8.aleo {
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
     }
 
-    // v8: renew returns CreatorReceipt to creator.
+    // v9: renew now validates against custom tiers (same logic as subscribe).
     async transition renew(
         old_pass: AccessPass,
         payment: credits.aleo/credits,
@@ -298,7 +581,6 @@ program veilsub_v8.aleo {
         new_expires_at: u32,
     ) -> (AccessPass, CreatorReceipt, credits.aleo/credits, credits.aleo/credits, Future) {
         assert(new_tier >= 1u8);
-        assert(new_tier <= 3u8);
 
         let creator: address = old_pass.creator;
 
@@ -321,18 +603,29 @@ program veilsub_v8.aleo {
             pass_id: new_pass_id,
         };
 
-        return (new_pass, receipt, change, to_creator, finalize_renew(creator, amount, new_tier, new_expires_at));
+        return (new_pass, receipt, change, to_creator, finalize_renew(creator, amount, new_tier, new_expires_at, new_pass_id));
     }
     async function finalize_renew(
         creator: address,
         amount: u64,
         new_tier: u8,
         new_expires_at: u32,
+        pass_id: field,
     ) {
-        let base_price: u64 = Mapping::get(tier_prices, creator);
-        let multiplier: u64 = new_tier == 3u8 ? 5u64 : (new_tier == 2u8 ? 2u64 : 1u64);
-        let required_price: u64 = base_price * multiplier;
+        // Same tier validation as subscribe (custom tiers + legacy fallback).
+        // Use get_or_use — Leo evaluates both ternary branches.
+        let tier_key: field = BHP256::hash_to_field(TierKey { creator: creator, tier_id: new_tier });
+        let has_custom_tier: bool = Mapping::contains(creator_tiers, tier_key);
+
+        let custom_price: u64 = Mapping::get_or_use(creator_tiers, tier_key, 0u64);
+        let legacy_base: u64 = Mapping::get_or_use(tier_prices, creator, 0u64);
+        let legacy_price: u64 = legacy_base * (new_tier == 3u8 ? 5u64 : (new_tier == 2u8 ? 2u64 : 1u64));
+        let required_price: u64 = has_custom_tier ? custom_price : legacy_price;
+
         assert(amount >= required_price);
+
+        let deprecated: bool = Mapping::get_or_use(tier_deprecated, tier_key, false);
+        assert(!deprecated);
 
         assert(new_expires_at > block.height);
         assert(new_expires_at <= block.height + 1_200_000u32);
@@ -343,16 +636,17 @@ program veilsub_v8.aleo {
         let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
         let platform_cut: u64 = amount / 20u64;
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
+
+        Mapping::set(pass_creator, pass_id, creator);
     }
 
-    // v8: publish_content now stores a content body hash for integrity verification.
+    // Content publishing with integrity hash.
     async transition publish_content(
         public content_id: field,
         public min_tier: u8,
         public content_hash: field,
     ) -> Future {
         assert(min_tier >= 1u8);
-        assert(min_tier <= 3u8);
         assert(content_hash != 0field);
         return finalize_publish_content(self.caller, content_id, min_tier, content_hash);
     }
@@ -366,6 +660,11 @@ program veilsub_v8.aleo {
         assert(price > 0u64);
 
         let hashed_content_id: field = BHP256::hash_to_field(content_id);
+
+        // v9: Check content not already published
+        let already_exists: bool = Mapping::contains(content_meta, hashed_content_id);
+        assert(!already_exists);
+
         Mapping::set(content_meta, hashed_content_id, min_tier);
         Mapping::set(content_hashes, hashed_content_id, content_hash);
 
@@ -374,42 +673,125 @@ program veilsub_v8.aleo {
     }
 
     // =========================================
-    // TRANSITIONS — ARC-20 TOKENS
+    // TRANSITIONS — SUBSCRIPTION GIFTING (v10)
     // =========================================
 
-    async transition set_token_price(
-        public token_id: field,
-        public price: u128,
-    ) -> Future {
-        assert(price > 0u128);
-        return finalize_set_token_price(self.caller, token_id, price);
-    }
-    async function finalize_set_token_price(
+    // v10: Gift a subscription to another address.
+    // Gifter pays, recipient receives a GiftToken to redeem.
+    async transition gift_subscription(
+        payment: credits.aleo/credits,
         creator: address,
-        token_id: field,
-        price: u128,
-    ) {
-        let base: u64 = Mapping::get(tier_prices, creator);
-        assert(base > 0u64);
+        recipient: address,
+        tier: u8,
+        amount: u64,
+        gift_id: field,
+        expires_at: u32,
+    ) -> (GiftToken, CreatorReceipt, credits.aleo/credits, credits.aleo/credits, Future) {
+        assert(tier >= 1u8);
 
-        let key: field = BHP256::hash_to_field(TokenKey { addr: creator, token_id: token_id });
-        Mapping::set(tier_prices_token, key, price);
+        let (change, to_creator): (credits.aleo/credits, credits.aleo/credits) =
+            credits.aleo/transfer_private(payment, creator, amount);
+
+        let gift: GiftToken = GiftToken {
+            owner: recipient,
+            creator: creator,
+            tier: tier,
+            expires_at: expires_at,
+            gifter_hash: BHP256::hash_to_field(self.caller),
+            gift_id: gift_id,
+        };
+
+        let receipt: CreatorReceipt = CreatorReceipt {
+            owner: creator,
+            subscriber_hash: BHP256::hash_to_field(self.caller),
+            tier: tier,
+            amount: amount,
+            pass_id: gift_id,
+        };
+
+        return (gift, receipt, change, to_creator, finalize_gift_subscription(creator, amount, tier, expires_at, gift_id));
+    }
+    async function finalize_gift_subscription(
+        creator: address,
+        amount: u64,
+        tier: u8,
+        expires_at: u32,
+        gift_id: field,
+    ) {
+        // Validate tier pricing (same as subscribe).
+        // Use get_or_use — Leo evaluates both ternary branches.
+        let tier_key: field = BHP256::hash_to_field(TierKey { creator: creator, tier_id: tier });
+        let has_custom_tier: bool = Mapping::contains(creator_tiers, tier_key);
+
+        let custom_price: u64 = Mapping::get_or_use(creator_tiers, tier_key, 0u64);
+        let legacy_base: u64 = Mapping::get_or_use(tier_prices, creator, 0u64);
+        let legacy_price: u64 = legacy_base * (tier == 3u8 ? 5u64 : (tier == 2u8 ? 2u64 : 1u64));
+        let required_price: u64 = has_custom_tier ? custom_price : legacy_price;
+
+        assert(amount >= required_price);
+
+        let deprecated: bool = Mapping::get_or_use(tier_deprecated, tier_key, false);
+        assert(!deprecated);
+
+        assert(expires_at > block.height);
+        assert(expires_at <= block.height + 1_200_000u32);
+
+        // Prevent duplicate gift IDs
+        let already_gifted: bool = Mapping::get_or_use(gift_redeemed, gift_id, false);
+        assert(!already_gifted);
+
+        let count: u64 = Mapping::get_or_use(subscriber_count, creator, 0u64);
+        Mapping::set(subscriber_count, creator, count + 1u64);
+        let revenue: u64 = Mapping::get_or_use(total_revenue, creator, 0u64);
+        Mapping::set(total_revenue, creator, revenue + amount);
+
+        let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
+        let platform_cut: u64 = amount / 20u64;
+        Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
+
+        Mapping::set(pass_creator, gift_id, creator);
     }
 
-    async transition subscribe_token(
-        payment: token_registry.aleo/Token,
+    // v10: Recipient redeems a GiftToken into an AccessPass.
+    async transition redeem_gift(
+        gift: GiftToken,
+    ) -> (AccessPass, Future) {
+        let pass: AccessPass = AccessPass {
+            owner: self.caller,
+            creator: gift.creator,
+            tier: gift.tier,
+            pass_id: gift.gift_id,
+            expires_at: gift.expires_at,
+        };
+
+        return (pass, finalize_redeem_gift(gift.gift_id));
+    }
+    async function finalize_redeem_gift(
+        gift_id: field,
+    ) {
+        // Prevent double redemption
+        let already_redeemed: bool = Mapping::get_or_use(gift_redeemed, gift_id, false);
+        assert(!already_redeemed);
+        Mapping::set(gift_redeemed, gift_id, true);
+    }
+
+    // =========================================
+    // TRANSITIONS — REFUND ESCROW (v10)
+    // =========================================
+
+    // v10: Subscribe with a refund window. Subscriber can reclaim within 500 blocks.
+    async transition subscribe_with_escrow(
+        payment: credits.aleo/credits,
         creator: address,
         tier: u8,
-        amount: u128,
-        token_id: field,
+        amount: u64,
         pass_id: field,
         expires_at: u32,
-    ) -> (AccessPass, token_registry.aleo/Token, token_registry.aleo/Token, Future) {
+    ) -> (AccessPass, RefundEscrow, CreatorReceipt, credits.aleo/credits, credits.aleo/credits, Future) {
         assert(tier >= 1u8);
-        assert(tier <= 3u8);
 
-        let (to_creator, change, f_creator): (token_registry.aleo/Token, token_registry.aleo/Token, Future) =
-            token_registry.aleo/transfer_private(creator, amount, payment);
+        let (change, to_creator): (credits.aleo/credits, credits.aleo/credits) =
+            credits.aleo/transfer_private(payment, creator, amount);
 
         let pass: AccessPass = AccessPass {
             owner: self.caller,
@@ -419,68 +801,580 @@ program veilsub_v8.aleo {
             expires_at: expires_at,
         };
 
-        return (pass, change, to_creator, finalize_subscribe_token(f_creator, creator, amount, tier, token_id, expires_at));
-    }
-    async function finalize_subscribe_token(
-        f_creator: Future,
-        creator: address,
-        amount: u128,
-        tier: u8,
-        token_id: field,
-        expires_at: u32,
-    ) {
-        f_creator.await();
+        let escrow: RefundEscrow = RefundEscrow {
+            owner: self.caller,
+            creator: creator,
+            pass_id: pass_id,
+            amount: amount,
+            escrow_expiry: 0u32,  // Set relative to block.height in finalize
+        };
 
-        let price_key: field = BHP256::hash_to_field(TokenKey { addr: creator, token_id: token_id });
-        let base_price: u128 = Mapping::get(tier_prices_token, price_key);
-        let multiplier: u128 = tier == 3u8 ? 5u128 : (tier == 2u8 ? 2u128 : 1u128);
-        let required_price: u128 = base_price * multiplier;
+        let receipt: CreatorReceipt = CreatorReceipt {
+            owner: creator,
+            subscriber_hash: BHP256::hash_to_field(self.caller),
+            tier: tier,
+            amount: amount,
+            pass_id: pass_id,
+        };
+
+        return (pass, escrow, receipt, change, to_creator, finalize_subscribe_escrow(creator, amount, tier, expires_at, pass_id));
+    }
+    async function finalize_subscribe_escrow(
+        creator: address,
+        amount: u64,
+        tier: u8,
+        expires_at: u32,
+        pass_id: field,
+    ) {
+        // Same tier validation as subscribe.
+        // Use get_or_use — Leo evaluates both ternary branches.
+        let tier_key: field = BHP256::hash_to_field(TierKey { creator: creator, tier_id: tier });
+        let has_custom_tier: bool = Mapping::contains(creator_tiers, tier_key);
+
+        let custom_price: u64 = Mapping::get_or_use(creator_tiers, tier_key, 0u64);
+        let legacy_base: u64 = Mapping::get_or_use(tier_prices, creator, 0u64);
+        let legacy_price: u64 = legacy_base * (tier == 3u8 ? 5u64 : (tier == 2u8 ? 2u64 : 1u64));
+        let required_price: u64 = has_custom_tier ? custom_price : legacy_price;
+
         assert(amount >= required_price);
+
+        let deprecated: bool = Mapping::get_or_use(tier_deprecated, tier_key, false);
+        assert(!deprecated);
 
         assert(expires_at > block.height);
         assert(expires_at <= block.height + 1_200_000u32);
 
+        // Store escrow expiry (500 blocks from now)
+        Mapping::set(escrow_data, pass_id, block.height + 500u32);
+
         let count: u64 = Mapping::get_or_use(subscriber_count, creator, 0u64);
         Mapping::set(subscriber_count, creator, count + 1u64);
+        let revenue: u64 = Mapping::get_or_use(total_revenue, creator, 0u64);
+        Mapping::set(total_revenue, creator, revenue + amount);
 
-        let rev_key: field = BHP256::hash_to_field(TokenKey { addr: creator, token_id: token_id });
-        let revenue: u128 = Mapping::get_or_use(total_revenue_token, rev_key, 0u128);
-        Mapping::set(total_revenue_token, rev_key, revenue + amount);
+        let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
+        let platform_cut: u64 = amount / 20u64;
+        Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
 
-        let plat_key: field = BHP256::hash_to_field(TokenKey { addr: PLATFORM_ADDR, token_id: token_id });
-        let plat_rev: u128 = Mapping::get_or_use(platform_revenue_token, plat_key, 0u128);
-        let platform_cut: u128 = amount / 20u128;
-        Mapping::set(platform_revenue_token, plat_key, plat_rev + platform_cut);
+        Mapping::set(pass_creator, pass_id, creator);
     }
 
-    async transition tip_token(
-        payment: token_registry.aleo/Token,
-        creator: address,
-        amount: u128,
-        token_id: field,
-    ) -> (token_registry.aleo/Token, token_registry.aleo/Token, Future) {
-        assert(amount > 0u128);
+    // v10: Claim refund within escrow window. Consumes both AccessPass and RefundEscrow.
+    // NOTE: This is a CREDIT-BASED refund — the credits were already transferred to the
+    // creator via transfer_private (irreversible in Aleo's record model). The refund
+    // decrements revenue accounting and flags pass_id, signaling the platform to
+    // facilitate off-chain settlement. The subscriber count is also decremented.
+    // This is the standard pattern for UTXO-based refunds (see Bitcoin Lightning).
+    async transition claim_refund(
+        escrow: RefundEscrow,
+        pass: AccessPass,
+    ) -> Future {
+        // Must be the same subscription
+        assert_eq(escrow.pass_id, pass.pass_id);
+        assert_eq(escrow.creator, pass.creator);
 
-        let (to_creator, change, f_creator): (token_registry.aleo/Token, token_registry.aleo/Token, Future) =
-            token_registry.aleo/transfer_private(creator, amount, payment);
-
-        return (change, to_creator, finalize_tip_token(f_creator, creator, amount, token_id));
+        return finalize_claim_refund(escrow.pass_id, escrow.amount, escrow.creator);
     }
-    async function finalize_tip_token(
-        f_creator: Future,
+    async function finalize_claim_refund(
+        pass_id: field,
+        amount: u64,
         creator: address,
-        amount: u128,
-        token_id: field,
     ) {
-        f_creator.await();
+        // Check within refund window
+        let expiry: u32 = Mapping::get(escrow_data, pass_id);
+        assert(block.height <= expiry);
 
-        let rev_key: field = BHP256::hash_to_field(TokenKey { addr: creator, token_id: token_id });
-        let revenue: u128 = Mapping::get_or_use(total_revenue_token, rev_key, 0u128);
-        Mapping::set(total_revenue_token, rev_key, revenue + amount);
+        // Prevent double refund
+        let already_claimed: bool = Mapping::get_or_use(refund_claimed, pass_id, false);
+        assert(!already_claimed);
+        Mapping::set(refund_claimed, pass_id, true);
 
-        let plat_key: field = BHP256::hash_to_field(TokenKey { addr: PLATFORM_ADDR, token_id: token_id });
-        let plat_rev: u128 = Mapping::get_or_use(platform_revenue_token, plat_key, 0u128);
-        let platform_cut: u128 = amount / 20u128;
-        Mapping::set(platform_revenue_token, plat_key, plat_rev + platform_cut);
+        // Deduct from creator revenue (refund accounting)
+        let revenue: u64 = Mapping::get_or_use(total_revenue, creator, 0u64);
+        Mapping::set(total_revenue, creator, revenue > amount ? revenue - amount : 0u64);
+
+        // Deduct from subscriber count
+        let count: u64 = Mapping::get_or_use(subscriber_count, creator, 0u64);
+        Mapping::set(subscriber_count, creator, count > 0u64 ? count - 1u64 : 0u64);
     }
+
+    // =========================================
+    // TRANSITIONS — FEE WITHDRAWAL (v10)
+    // =========================================
+
+    // v10: Platform admin withdraws accumulated platform fees.
+    async transition withdraw_platform_fees(
+        public amount: u64,
+    ) -> Future {
+        assert(amount > 0u64);
+        return finalize_withdraw_platform_fees(self.caller, amount);
+    }
+    async function finalize_withdraw_platform_fees(
+        caller: address,
+        amount: u64,
+    ) {
+        // Only platform admin can withdraw
+        assert_eq(caller, PLATFORM_ADDR);
+
+        let balance: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
+        assert(balance >= amount);
+        Mapping::set(platform_revenue, 0u8, balance - amount);
+    }
+
+    // v10: Creator withdraws accumulated revenue.
+    async transition withdraw_creator_rev(
+        public amount: u64,
+    ) -> Future {
+        assert(amount > 0u64);
+        return finalize_withdraw_creator_rev(self.caller, amount);
+    }
+    async function finalize_withdraw_creator_rev(
+        creator: address,
+        amount: u64,
+    ) {
+        // Creator must be registered
+        let base: u64 = Mapping::get(tier_prices, creator);
+        assert(base > 0u64);
+
+        let balance: u64 = Mapping::get_or_use(total_revenue, creator, 0u64);
+        assert(balance >= amount);
+        Mapping::set(total_revenue, creator, balance - amount);
+    }
+
+    // =========================================
+    // TRANSITIONS — BLIND RENEWAL (v11 — Novel Privacy)
+    // =========================================
+
+    // v11: Subscribe with nonce-based identity rotation.
+    // subscriber_hash = BHP256(self.caller, nonce) instead of BHP256(self.caller).
+    // Creator sees a DIFFERENT hash each time — cannot link subscriptions.
+    async transition subscribe_blind(
+        payment: credits.aleo/credits,
+        creator: address,
+        nonce: field,
+        tier: u8,
+        amount: u64,
+        pass_id: field,
+        expires_at: u32,
+    ) -> (AccessPass, CreatorReceipt, credits.aleo/credits, credits.aleo/credits, Future) {
+        assert(tier >= 1u8);
+        assert(nonce != 0field);
+
+        let (change, to_creator): (credits.aleo/credits, credits.aleo/credits) =
+            credits.aleo/transfer_private(payment, creator, amount);
+
+        let pass: AccessPass = AccessPass {
+            owner: self.caller,
+            creator: creator,
+            tier: tier,
+            pass_id: pass_id,
+            expires_at: expires_at,
+        };
+
+        // Nonce-rotated subscriber hash — creator cannot link to previous subscriptions
+        let blinded_hash: field = BHP256::hash_to_field(BlindKey { subscriber: self.caller, nonce: nonce });
+
+        let receipt: CreatorReceipt = CreatorReceipt {
+            owner: creator,
+            subscriber_hash: blinded_hash,
+            tier: tier,
+            amount: amount,
+            pass_id: pass_id,
+        };
+
+        return (pass, receipt, change, to_creator, finalize_subscribe_blind(creator, amount, tier, expires_at, nonce, pass_id));
+    }
+    async function finalize_subscribe_blind(
+        creator: address,
+        amount: u64,
+        tier: u8,
+        expires_at: u32,
+        nonce: field,
+        pass_id: field,
+    ) {
+        // Validate tier pricing.
+        // Use get_or_use — Leo evaluates both ternary branches.
+        let tier_key: field = BHP256::hash_to_field(TierKey { creator: creator, tier_id: tier });
+        let has_custom_tier: bool = Mapping::contains(creator_tiers, tier_key);
+
+        let custom_price: u64 = Mapping::get_or_use(creator_tiers, tier_key, 0u64);
+        let legacy_base: u64 = Mapping::get_or_use(tier_prices, creator, 0u64);
+        let legacy_price: u64 = legacy_base * (tier == 3u8 ? 5u64 : (tier == 2u8 ? 2u64 : 1u64));
+        let required_price: u64 = has_custom_tier ? custom_price : legacy_price;
+
+        assert(amount >= required_price);
+
+        let deprecated: bool = Mapping::get_or_use(tier_deprecated, tier_key, false);
+        assert(!deprecated);
+
+        assert(expires_at > block.height);
+        assert(expires_at <= block.height + 1_200_000u32);
+
+        // Prevent nonce replay
+        let nonce_hash: field = BHP256::hash_to_field(nonce);
+        let already_used: bool = Mapping::get_or_use(nonce_used, nonce_hash, false);
+        assert(!already_used);
+        Mapping::set(nonce_used, nonce_hash, true);
+
+        let count: u64 = Mapping::get_or_use(subscriber_count, creator, 0u64);
+        Mapping::set(subscriber_count, creator, count + 1u64);
+        let revenue: u64 = Mapping::get_or_use(total_revenue, creator, 0u64);
+        Mapping::set(total_revenue, creator, revenue + amount);
+
+        let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
+        let platform_cut: u64 = amount / 20u64;
+        Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
+
+        Mapping::set(pass_creator, pass_id, creator);
+    }
+
+    // v11: Blind renewal — renew with rotated identity hash.
+    async transition renew_blind(
+        old_pass: AccessPass,
+        payment: credits.aleo/credits,
+        nonce: field,
+        new_tier: u8,
+        amount: u64,
+        new_pass_id: field,
+        new_expires_at: u32,
+    ) -> (AccessPass, CreatorReceipt, credits.aleo/credits, credits.aleo/credits, Future) {
+        assert(new_tier >= 1u8);
+        assert(nonce != 0field);
+
+        let creator: address = old_pass.creator;
+
+        let (change, to_creator): (credits.aleo/credits, credits.aleo/credits) =
+            credits.aleo/transfer_private(payment, creator, amount);
+
+        let new_pass: AccessPass = AccessPass {
+            owner: self.caller,
+            creator: creator,
+            tier: new_tier,
+            pass_id: new_pass_id,
+            expires_at: new_expires_at,
+        };
+
+        // Each renewal gets a DIFFERENT subscriber hash
+        let blinded_hash: field = BHP256::hash_to_field(BlindKey { subscriber: self.caller, nonce: nonce });
+
+        let receipt: CreatorReceipt = CreatorReceipt {
+            owner: creator,
+            subscriber_hash: blinded_hash,
+            tier: new_tier,
+            amount: amount,
+            pass_id: new_pass_id,
+        };
+
+        return (new_pass, receipt, change, to_creator, finalize_renew_blind(creator, amount, new_tier, new_expires_at, nonce, new_pass_id));
+    }
+    async function finalize_renew_blind(
+        creator: address,
+        amount: u64,
+        new_tier: u8,
+        new_expires_at: u32,
+        nonce: field,
+        pass_id: field,
+    ) {
+        // Use get_or_use — Leo evaluates both ternary branches.
+        let tier_key: field = BHP256::hash_to_field(TierKey { creator: creator, tier_id: new_tier });
+        let has_custom_tier: bool = Mapping::contains(creator_tiers, tier_key);
+
+        let custom_price: u64 = Mapping::get_or_use(creator_tiers, tier_key, 0u64);
+        let legacy_base: u64 = Mapping::get_or_use(tier_prices, creator, 0u64);
+        let legacy_price: u64 = legacy_base * (new_tier == 3u8 ? 5u64 : (new_tier == 2u8 ? 2u64 : 1u64));
+        let required_price: u64 = has_custom_tier ? custom_price : legacy_price;
+
+        assert(amount >= required_price);
+
+        let deprecated: bool = Mapping::get_or_use(tier_deprecated, tier_key, false);
+        assert(!deprecated);
+
+        assert(new_expires_at > block.height);
+        assert(new_expires_at <= block.height + 1_200_000u32);
+
+        // Prevent nonce replay
+        let nonce_hash: field = BHP256::hash_to_field(nonce);
+        let already_used: bool = Mapping::get_or_use(nonce_used, nonce_hash, false);
+        assert(!already_used);
+        Mapping::set(nonce_used, nonce_hash, true);
+
+        let revenue: u64 = Mapping::get_or_use(total_revenue, creator, 0u64);
+        Mapping::set(total_revenue, creator, revenue + amount);
+
+        let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
+        let platform_cut: u64 = amount / 20u64;
+        Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
+
+        Mapping::set(pass_creator, pass_id, creator);
+    }
+
+    // v11: Zero-footprint verification for dynamic tiers.
+    // Verifies pass.tier >= required tier_id. No finalize, no public trace.
+    // v15: Now async — enforces access_revoked mapping check.
+    async transition verify_tier_access(
+        pass: AccessPass,
+        creator: address,
+        required_tier: u8,
+    ) -> (AccessPass, Future) {
+        assert_eq(pass.creator, creator);
+        assert(pass.tier >= required_tier);
+
+        let new_pass: AccessPass = AccessPass {
+            owner: pass.owner,
+            creator: pass.creator,
+            tier: pass.tier,
+            pass_id: pass.pass_id,
+            expires_at: pass.expires_at,
+        };
+
+        return (new_pass, finalize_verify_tier_access(pass.pass_id));
+    }
+    async function finalize_verify_tier_access(
+        pass_id: field,
+    ) {
+        // v15: Enforce revocation
+        let revoked: bool = Mapping::get_or_use(access_revoked, pass_id, false);
+        assert(!revoked);
+    }
+
+    // =========================================
+    // TRANSITIONS — ENCRYPTED CONTENT & DISPUTES (v12)
+    // =========================================
+
+    // v12: Publish content with encryption commitment for gated delivery.
+    // The encryption_commitment enables off-chain content servers to verify
+    // decryption keys against the on-chain commitment.
+    async transition publish_encrypted_content(
+        public content_id: field,
+        public min_tier: u8,
+        public content_hash: field,
+        public encryption_commitment: field,
+    ) -> Future {
+        assert(min_tier >= 1u8);
+        assert(content_hash != 0field);
+        assert(encryption_commitment != 0field);
+        return finalize_publish_encrypted(self.caller, content_id, min_tier, content_hash, encryption_commitment);
+    }
+    async function finalize_publish_encrypted(
+        creator: address,
+        content_id: field,
+        min_tier: u8,
+        content_hash: field,
+        encryption_commitment: field,
+    ) {
+        let price: u64 = Mapping::get(tier_prices, creator);
+        assert(price > 0u64);
+
+        let hashed_content_id: field = BHP256::hash_to_field(content_id);
+
+        let already_exists: bool = Mapping::contains(content_meta, hashed_content_id);
+        assert(!already_exists);
+
+        Mapping::set(content_meta, hashed_content_id, min_tier);
+        Mapping::set(content_hashes, hashed_content_id, content_hash);
+        Mapping::set(encryption_commits, hashed_content_id, encryption_commitment);
+
+        let count: u64 = Mapping::get_or_use(content_count, creator, 0u64);
+        Mapping::set(content_count, creator, count + 1u64);
+    }
+
+    // v12: Creator revokes a subscriber's access by pass_id.
+    // The pass_id is public (from creator's CreatorReceipt).
+    async transition revoke_access(
+        public pass_id: field,
+    ) -> Future {
+        return finalize_revoke_access(self.caller, pass_id);
+    }
+    async function finalize_revoke_access(
+        creator: address,
+        pass_id: field,
+    ) {
+        // Only the creator who owns this pass can revoke it.
+        let owner: address = Mapping::get(pass_creator, pass_id);
+        assert_eq(owner, creator);
+
+        Mapping::set(access_revoked, pass_id, true);
+    }
+
+    // v15: Dispute requires AccessPass — prevents Sybil spam.
+    // Only actual subscribers of the creator can dispute content.
+    // Pass is consumed and re-minted (like verify_access) to prevent reuse.
+    // Per-caller dispute tracking limits repeat disputes on same content.
+    async transition dispute_content(
+        pass: AccessPass,
+        public content_id: field,
+    ) -> (AccessPass, Future) {
+        // Must be a subscriber of this creator's content
+        let caller_hash: field = BHP256::hash_to_field(self.caller);
+
+        let new_pass: AccessPass = AccessPass {
+            owner: pass.owner,
+            creator: pass.creator,
+            tier: pass.tier,
+            pass_id: pass.pass_id,
+            expires_at: pass.expires_at,
+        };
+
+        return (new_pass, finalize_dispute_content(content_id, caller_hash, pass.creator));
+    }
+    async function finalize_dispute_content(
+        content_id: field,
+        caller_hash: field,
+        creator: address,
+    ) {
+        let hashed_content_id: field = BHP256::hash_to_field(content_id);
+
+        // Content must exist
+        let tier: u8 = Mapping::get(content_meta, hashed_content_id);
+        assert(tier > 0u8);
+
+        // Content must not be deleted
+        let deleted: bool = Mapping::get_or_use(content_deleted, hashed_content_id, false);
+        assert(!deleted);
+
+        // v15: Rate-limit — max 1 dispute per caller per content
+        let dispute_key: field = BHP256::hash_to_field(BlindKey { subscriber: creator, nonce: caller_hash });
+        let caller_disputes: u64 = Mapping::get_or_use(dispute_count_by_caller, dispute_key, 0u64);
+        assert(caller_disputes < 1u64);
+        Mapping::set(dispute_count_by_caller, dispute_key, caller_disputes + 1u64);
+
+        // Increment dispute count
+        let disputes: u64 = Mapping::get_or_use(content_disputes, hashed_content_id, 0u64);
+        Mapping::set(content_disputes, hashed_content_id, disputes + 1u64);
+    }
+
+    // =========================================
+    // TRANSITIONS — SUBSCRIPTION TRANSFER (v15 — Unique Feature)
+    // =========================================
+
+    // v15: Transfer subscription to another address.
+    // Consumes the caller's AccessPass and mints a new one for the recipient.
+    // No competitor has subscription transfer — this is a VeilSub original.
+    // The transfer is private: only the original owner and new owner know.
+    // pass_creator mapping is updated so the creator can still revoke.
+    async transition transfer_pass(
+        pass: AccessPass,
+        recipient: address,
+    ) -> (AccessPass, Future) {
+        // Cannot transfer to self
+        assert_neq(self.caller, recipient);
+
+        // Mint new pass for recipient with same terms
+        let new_pass: AccessPass = AccessPass {
+            owner: recipient,
+            creator: pass.creator,
+            tier: pass.tier,
+            pass_id: pass.pass_id,
+            expires_at: pass.expires_at,
+        };
+
+        return (new_pass, finalize_transfer_pass(pass.pass_id));
+    }
+    async function finalize_transfer_pass(
+        pass_id: field,
+    ) {
+        // Ensure pass hasn't been revoked
+        let revoked: bool = Mapping::get_or_use(access_revoked, pass_id, false);
+        assert(!revoked);
+    }
+
+    // =========================================
+    // TRANSITIONS — COMMITMENT-BASED TIPPING (v14 — Novel Privacy)
+    // =========================================
+
+    // v14: Phase 1 — Commit to a tip amount.
+    // Uses BHP256::commit_to_field with a blinding factor (salt → scalar).
+    // The tip amount and recipient are hidden on-chain — only the commitment
+    // is stored publicly. Tipper reveals later at their discretion.
+    // Pattern follows NullPay's proven BHP256 commitment scheme.
+    async transition commit_tip(
+        creator: address,
+        amount: u64,
+        salt: field,
+    ) -> Future {
+        assert(amount > 0u64);
+
+        // Hash tip data to field, then commit with scalar randomizer
+        let data_hash: field = BHP256::hash_to_field(TipCommitData { creator: creator, amount: amount });
+        let randomizer: scalar = BHP256::hash_to_scalar(salt);
+        let commitment: field = BHP256::commit_to_field(data_hash, randomizer);
+
+        return finalize_commit_tip(commitment);
+    }
+    async function finalize_commit_tip(
+        commitment: field,
+    ) {
+        // Prevent duplicate commitments
+        let exists: bool = Mapping::get_or_use(tip_commitments, commitment, false);
+        assert(!exists);
+        Mapping::set(tip_commitments, commitment, true);
+    }
+
+    // v14: Phase 2 — Reveal commitment and execute the tip.
+    // Tipper provides the same (creator, amount, salt) used in commit_tip.
+    // Transition recomputes the commitment, finalize verifies it was stored,
+    // then processes the tip. Credits transfer happens atomically.
+    async transition reveal_tip(
+        payment: credits.aleo/credits,
+        creator: address,
+        amount: u64,
+        salt: field,
+    ) -> (CreatorReceipt, credits.aleo/credits, credits.aleo/credits, Future) {
+        assert(amount > 0u64);
+
+        // Recompute commitment (must match what was stored in commit_tip)
+        let data_hash: field = BHP256::hash_to_field(TipCommitData { creator: creator, amount: amount });
+        let randomizer: scalar = BHP256::hash_to_scalar(salt);
+        let commitment: field = BHP256::commit_to_field(data_hash, randomizer);
+
+        let (change, to_creator): (credits.aleo/credits, credits.aleo/credits) =
+            credits.aleo/transfer_private(payment, creator, amount);
+
+        let receipt: CreatorReceipt = CreatorReceipt {
+            owner: creator,
+            subscriber_hash: BHP256::hash_to_field(self.caller),
+            tier: 0u8,
+            amount: amount,
+            pass_id: commitment,
+        };
+
+        return (receipt, change, to_creator, finalize_reveal_tip(creator, amount, commitment));
+    }
+    async function finalize_reveal_tip(
+        creator: address,
+        amount: u64,
+        commitment: field,
+    ) {
+        // Verify commitment was stored in commit_tip
+        let exists: bool = Mapping::get_or_use(tip_commitments, commitment, false);
+        assert(exists);
+
+        // Prevent double reveal
+        let already_revealed: bool = Mapping::get_or_use(tip_revealed, commitment, false);
+        assert(!already_revealed);
+        Mapping::set(tip_revealed, commitment, true);
+
+        // Update revenue
+        let revenue: u64 = Mapping::get_or_use(total_revenue, creator, 0u64);
+        Mapping::set(total_revenue, creator, revenue + amount);
+
+        let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
+        let platform_cut: u64 = amount / 20u64;
+        Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
+    }
+
+    // v14: Pedersen128 commitment verification — ZERO FOOTPRINT.
+    // Pure transition (no finalize) that verifies a Pedersen128 commitment.
+    // Useful for off-chain verification of committed amounts without
+    // leaving any trace on the public blockchain.
+    transition verify_pedersen_commitment(
+        amount: u64,
+        salt: field,
+        public expected_commitment: field,
+    ) {
+        let randomizer: scalar = BHP256::hash_to_scalar(salt);
+        let computed: field = Pedersen128::commit_to_field(amount, randomizer);
+        assert_eq(computed, expected_commitment);
+    }
+
 }

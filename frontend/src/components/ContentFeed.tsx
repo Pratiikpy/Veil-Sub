@@ -69,16 +69,16 @@ function LoadingSkeleton() {
       {[1, 2, 3].map((i) => (
         <div
           key={i}
-          className="rounded-xl border border-white/5 bg-white/[0.01] p-5 animate-pulse"
+          className="rounded-[12px] border border-white/[0.05] bg-white/[0.01] p-5 animate-pulse"
         >
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-white/5" />
-            <div className="flex-1 h-4 rounded bg-white/5" />
-            <div className="w-16 h-5 rounded-full bg-white/5" />
+            <div className="w-8 h-8 rounded-lg bg-white/[0.05]" />
+            <div className="flex-1 h-4 rounded bg-white/[0.05]" />
+            <div className="w-16 h-5 rounded-full bg-white/[0.05]" />
           </div>
           <div className="space-y-2">
-            <div className="h-3 rounded bg-white/[0.03] w-full" />
-            <div className="h-3 rounded bg-white/[0.03] w-3/4" />
+            <div className="h-3 rounded bg-[#111113] w-full" />
+            <div className="h-3 rounded bg-[#111113] w-3/4" />
           </div>
         </div>
       ))}
@@ -193,18 +193,18 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       <h2 className="text-lg font-semibold text-white mb-2">
         Exclusive Content
       </h2>
-      <p className="text-xs text-slate-500 mb-4">
+      <p className="text-xs text-[#71717a] mb-4">
         Content is server-gated — locked posts are never sent to your browser until your AccessPass is verified.
       </p>
 
       {initialLoad && loading ? (
         <LoadingSkeleton />
       ) : error ? (
-        <div className="p-6 rounded-xl border border-red-500/20 bg-red-500/5 text-center">
+        <div className="p-6 rounded-[12px] border border-red-500/20 bg-red-500/5 text-center">
           <p className="text-sm text-red-400 mb-3">Failed to load posts</p>
           <button
             onClick={fetchPosts}
-            className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors inline-flex items-center gap-2"
+            className="px-4 py-2 rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-white hover:bg-white/[0.08] transition-colors inline-flex items-center gap-2"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Retry
@@ -213,10 +213,10 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       ) : (
         <div className="space-y-4">
           {posts.length === 0 && (
-            <div className="p-8 rounded-xl bg-white/[0.02] border border-white/5 text-center">
+            <div className="p-8 rounded-[12px] bg-[#111113] border border-white/[0.05] text-center">
               <FileText className="w-10 h-10 text-slate-700 mx-auto mb-3" />
               <h3 className="text-white font-medium mb-1">No Posts Yet</h3>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[#71717a]">
                 This creator hasn&apos;t published any exclusive content yet. Check back soon!
               </p>
             </div>
@@ -236,7 +236,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
-                className={`relative rounded-xl border overflow-hidden ${
+                className={`relative rounded-[12px] border overflow-hidden ${
                   unlocked
                     ? `${tier.border} ${tier.bg}`
                     : 'border-white/5 bg-white/[0.01]'
@@ -246,13 +246,13 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                   <div className="flex items-center gap-3 mb-3">
                     <div
                       className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                        unlocked ? tier.lockBg : 'bg-white/5'
+                        unlocked ? tier.lockBg : 'bg-white/[0.05]'
                       }`}
                     >
                       {unlocked ? (
                         <Icon className={`w-4 h-4 ${tier.text}`} />
                       ) : isUnlocking ? (
-                        <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
+                        <Loader2 className="w-4 h-4 text-[#a1a1aa] animate-spin" />
                       ) : (
                         <Lock className="w-4 h-4 text-slate-600" />
                       )}
@@ -260,7 +260,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <h3
                         className={`font-medium truncate ${
-                          unlocked ? 'text-white' : 'text-slate-500'
+                          unlocked ? 'text-white' : 'text-[#71717a]'
                         }`}
                       >
                         {post.title}
@@ -269,7 +269,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                         className={`px-2 py-0.5 rounded-full text-xs border shrink-0 ${
                           unlocked
                             ? `${tier.text} ${tier.lockBg} ${tier.border}`
-                            : 'text-slate-600 bg-white/[0.03] border-white/[0.06]'
+                            : 'text-slate-600 bg-[#111113] border-[rgba(255,255,255,0.06)]'
                         }`}
                       >
                         {tier.name}
@@ -281,13 +281,13 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                   </div>
 
                   {unlocked && displayBody ? (
-                    <p className="text-sm text-slate-300 leading-relaxed">
+                    <p className="text-sm text-[#a1a1aa] leading-relaxed">
                       {displayBody}
                     </p>
                   ) : isUnlocking ? (
                     <div className="flex items-center gap-2 py-3">
                       <Loader2 className="w-4 h-4 text-violet-400 animate-spin" />
-                      <p className="text-sm text-slate-400">Verifying access pass...</p>
+                      <p className="text-sm text-[#a1a1aa]">Verifying access pass...</p>
                     </div>
                   ) : (
                     <div className="py-3">
@@ -307,7 +307,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                           <Lock className={`w-4.5 h-4.5 ${tier.text}`} />
                         </motion.div>
                         <button
-                          className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${tier.lockBg} ${tier.text} border ${tier.border} hover:brightness-125 active:scale-[0.98]`}
+                          className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${tier.lockBg} ${tier.text} border ${tier.border} hover:brightness-125`}
                           disabled
                         >
                           {connected
@@ -342,8 +342,8 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       )}
       <div className="mt-4 p-3 rounded-lg bg-violet-500/5 border border-violet-500/10">
         <div className="flex items-center gap-2">
-          <Shield className="w-3.5 h-3.5 text-violet-400 shrink-0" />
-          <p className="text-xs text-slate-500">
+          <Shield className="w-3.5 h-3.5 text-[#a1a1aa] shrink-0" />
+          <p className="text-xs text-[#71717a]">
             Gated content is server-protected. Bodies are only delivered after AccessPass verification — never exposed in network requests.
           </p>
         </div>

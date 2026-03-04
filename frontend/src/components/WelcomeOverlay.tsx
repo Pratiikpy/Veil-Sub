@@ -72,22 +72,22 @@ export default function WelcomeOverlay() {
             exit={{ scale: 0.9, opacity: 0, filter: 'blur(10px)' }}
             transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg rounded-2xl bg-[#0a0a0f]/95 backdrop-blur-2xl border border-white/[0.12] p-6 shadow-[0_8px_60px_rgba(0,0,0,0.8)]"
+            className="w-full max-w-lg rounded-[12px] bg-[rgb(2,0,5)]/95 border border-white/[0.12] p-6 shadow-[0_8px_60px_rgba(0,0,0,0.8)]"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.3)]">
+                <div className="w-10 h-10 rounded-[8px] bg-[#8b5cf6] flex items-center justify-center">
                   <Shield className="w-5 h-5 text-white" />
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-white">Welcome to VeilSub</h2>
-                  <p className="text-xs text-slate-500">v8.0 — Private Creator Subscriptions</p>
+                  <p className="text-xs text-[#71717a]">v15.0 — Private Creator Subscriptions</p>
                 </div>
               </div>
               <button
                 onClick={() => dismiss(false)}
-                className="p-1.5 rounded-lg hover:bg-white/5 text-slate-500 hover:text-white transition-colors"
+                className="p-1.5 rounded-lg hover:bg-white/[0.05] text-[#71717a] hover:text-white transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -107,14 +107,14 @@ export default function WelcomeOverlay() {
                       bounce: 0.3,
                       delay: 0.15 + i * 0.1,
                     }}
-                    className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.12] transition-colors"
+                    className="flex items-start gap-3 p-3 rounded-[8px] bg-[#111113] border border-[rgba(255,255,255,0.06)] hover:border-white/[0.12] transition-colors"
                   >
                     <div className={`shrink-0 w-9 h-9 rounded-lg ${item.bg} flex items-center justify-center`}>
                       <Icon className={`w-4 h-4 ${item.color}`} />
                     </div>
                     <div>
                       <p className="text-sm font-medium text-white">{item.title}</p>
-                      <p className="text-xs text-slate-400 leading-relaxed">{item.desc}</p>
+                      <p className="text-xs text-[#a1a1aa] leading-relaxed">{item.desc}</p>
                     </div>
                   </motion.div>
                 )
@@ -125,13 +125,13 @@ export default function WelcomeOverlay() {
             <div className="flex gap-3">
               <button
                 onClick={() => dismiss(false)}
-                className="flex-1 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                className="flex-1 py-2.5 rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-[#a1a1aa] hover:text-white hover:bg-white/[0.08] transition-all"
               >
                 Remind Me Later
               </button>
               <button
                 onClick={() => dismiss(true)}
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-sm text-white font-medium hover:from-violet-500 hover:to-purple-500 transition-all btn-shimmer"
+                className="flex-1 py-2.5 rounded-[8px] bg-[#8b5cf6] text-sm text-white font-medium hover:bg-[#7c3aed] transition-all btn-shimmer"
               >
                 Got it!
               </button>

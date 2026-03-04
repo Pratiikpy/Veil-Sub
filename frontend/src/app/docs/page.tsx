@@ -37,18 +37,18 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
   }
 
   return (
-    <div className="relative group rounded-xl overflow-hidden">
+    <div className="relative group rounded-[12px] overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2 bg-white/[0.04] border-b border-white/[0.06]">
-        <span className="text-xs text-slate-500">{lang}</span>
+        <span className="text-xs text-[#71717a]">{lang}</span>
         <button
           onClick={copy}
-          className="text-xs text-slate-500 hover:text-white flex items-center gap-1 transition-colors"
+          className="text-xs text-[#71717a] hover:text-white flex items-center gap-1 transition-colors"
         >
           {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
           {copied ? 'Copied' : 'Copy'}
         </button>
       </div>
-      <pre className="p-4 bg-white/[0.02] overflow-x-auto text-sm font-mono text-slate-300 leading-relaxed">
+      <pre className="p-4 bg-[#111113] overflow-x-auto text-sm font-mono text-[#a1a1aa] leading-relaxed">
         <code>{code}</code>
       </pre>
     </div>
@@ -60,7 +60,7 @@ function OverviewTab() {
     <div className="space-y-8">
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">What is VeilSub?</h3>
-        <p className="text-slate-400 leading-relaxed">
+        <p className="text-[#a1a1aa] leading-relaxed">
           VeilSub is a privacy-first creator subscription platform built on the Aleo blockchain.
           Subscribers pay with real ALEO credits and receive a private AccessPass record —
           their identity is never exposed on-chain. Creators see aggregate stats (total subscribers,
@@ -70,17 +70,17 @@ function OverviewTab() {
 
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Video Demo</h3>
-        <p className="text-slate-400 leading-relaxed mb-3">
+        <p className="text-[#a1a1aa] leading-relaxed mb-3">
           Watch the full end-to-end walkthrough showing wallet connection, creator registration,
           private subscription, and on-chain verification.
         </p>
-        <div className="p-4 rounded-xl bg-violet-500/5 border border-violet-500/20 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0">
-            <BookOpen className="w-5 h-5 text-violet-400" />
+        <div className="p-4 rounded-[12px] bg-white/[0.04] border border-[rgba(255,255,255,0.06)] flex items-center gap-3">
+          <div className="w-10 h-10 rounded-[8px] bg-white/[0.04] flex items-center justify-center shrink-0">
+            <BookOpen className="w-5 h-5 text-[#a1a1aa]" />
           </div>
           <div>
             <p className="text-sm text-white font-medium">Video Demo</p>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#a1a1aa]">
               See the project README for the latest demo video link and walkthrough instructions.
             </p>
           </div>
@@ -126,9 +126,9 @@ function OverviewTab() {
           ].map((item) => (
             <div
               key={item.label}
-              className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]"
+              className="p-3 rounded-[8px] bg-[#111113] border border-[rgba(255,255,255,0.06)]"
             >
-              <span className="text-xs text-slate-500">{item.label}</span>
+              <span className="text-xs text-[#71717a]">{item.label}</span>
               <p className="text-sm text-white">{item.value}</p>
             </div>
           ))}
@@ -143,13 +143,13 @@ function ContractTab() {
     <div className="space-y-8">
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Program ID</h3>
-        <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/20 flex items-center justify-between">
-          <code className="text-violet-300 text-sm font-mono">veilsub_v8.aleo</code>
+        <div className="p-3 rounded-[8px] bg-white/[0.04] border border-[rgba(255,255,255,0.06)] flex items-center justify-between">
+          <code className="text-[#a1a1aa] text-sm font-mono">veilsub_v15.aleo</code>
           <a
-            href="https://testnet.explorer.provable.com/program/veilsub_v8.aleo"
+            href="https://testnet.explorer.provable.com/program/veilsub_v15.aleo"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1"
+            className="text-xs text-[#a1a1aa] hover:text-white flex items-center gap-1"
           >
             View on Explorer <ExternalLink className="w-3 h-3" />
           </a>
@@ -171,7 +171,7 @@ function ContractTab() {
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Mappings (Public)</h3>
+        <h3 className="text-xl font-semibold text-white mb-3">Mappings (Public) — 25 Total</h3>
         <CodeBlock
           lang="leo"
           code={`// Core mappings (ALEO credits)
@@ -181,10 +181,18 @@ mapping total_revenue: address => u64;         // creator => total earned
 mapping platform_revenue: u8 => u64;          // key 0 = total platform earnings
 mapping content_count: address => u64;         // creator => number of posts
 mapping content_meta: field => u8;             // hashed content_id => min tier required
-// Token-specific mappings (v5 — ARC-20 multi-token)
-mapping tier_prices_token: field => u128;      // hash(creator, token_id) => price in token
-mapping total_revenue_token: field => u128;    // hash(creator, token_id) => total earned
-mapping platform_revenue_token: field => u128; // hash(token_id, platform) => platform earnings`}
+// v15 — Custom Tiers, Advanced Features, Subscription Transfer & Revocation Enforcement
+mapping creator_tiers: field => u8;            // hash(creator, tier_id) => custom tier data
+mapping tier_count: address => u8;             // creator => number of custom tiers created
+mapping tier_deprecated: field => bool;        // hash(creator, tier_id) => is tier deprecated
+mapping content_deleted: field => bool;        // content_hash => is deleted
+mapping gift_redeemed: field => bool;          // gift_token_id => is redeemed
+mapping refund_claimed: field => bool;         // refund_escrow_id => is claimed
+mapping escrow_data: field => u64;             // escrow_id => refund amount held
+mapping nonce_used: field => bool;             // nonce_hash => is nonce consumed
+mapping encryption_commits: field => field;    // content_id => encryption commitment
+mapping access_revoked: field => bool;         // pass_id => is access revoked
+mapping content_disputes: field => u8;         // dispute_id => dispute status`}
         />
       </div>
 
@@ -223,27 +231,107 @@ mapping platform_revenue_token: field => u128; // hash(token_id, platform) => pl
               desc: 'Creator publishes content metadata on-chain. Records content existence and minimum tier required for access. Content body stays off-chain — only tier-gating is enforced on-chain.',
             },
             {
-              name: 'set_token_price(token_id, price)',
+              name: 'create_custom_tier(creator, tier_id, price, max_subscribers)',
               type: 'async',
-              desc: 'Creator sets subscription price in a specific ARC-20 token (v5). Requires prior register_creator call. Enables multi-token payments (USDCx, USAD, etc.).',
+              desc: 'v15: Creator dynamically creates custom tiers (replaces hardcoded 1x/2x/5x). Stores tier metadata in creator_tiers mapping. Enables unlimited tier flexibility.',
             },
             {
-              name: 'subscribe_token(payment, creator, tier, amount, token_id, pass_id)',
+              name: 'update_tier_price(creator, tier_id, new_price)',
               type: 'async',
-              desc: 'Subscribe with any ARC-20 token via token_registry.aleo (v5). Same privacy model as subscribe() — subscriber identity never enters finalize. Supports USDCx, USAD, and any ARC-20 token.',
+              desc: 'v15: Update the price of an existing custom tier. Price changes apply only to new subscriptions.',
             },
             {
-              name: 'tip_token(payment, creator, amount, token_id)',
+              name: 'deprecate_tier(creator, tier_id)',
               type: 'async',
-              desc: 'Tip with any ARC-20 token (v5). Same privacy model as tip() — tipper identity stays private. Token-specific revenue tracking.',
+              desc: 'v15: Mark a tier as deprecated — prevents new subscriptions, but existing subscribers retain access.',
+            },
+            {
+              name: 'update_content(content_id, new_min_tier)',
+              type: 'async',
+              desc: 'v15: Creator updates the tier requirement for published content. Does not delete — only updates access level.',
+            },
+            {
+              name: 'delete_content(content_id)',
+              type: 'async',
+              desc: 'v15: Creator marks content as deleted on-chain. Records proof of deletion in content_deleted mapping.',
+            },
+            {
+              name: 'gift_subscription(recipient, creator, tier_id, expires_at)',
+              type: 'async',
+              desc: 'v15: Creator or subscriber gifts a subscription to another address. Creates a GiftToken record.',
+            },
+            {
+              name: 'redeem_gift(gift_token)',
+              type: 'async',
+              desc: 'v15: Recipient redeems a GiftToken to receive an AccessPass. Records redemption in gift_redeemed mapping.',
+            },
+            {
+              name: 'subscribe_with_escrow(payment, creator, tier_id, amount, escrow_duration)',
+              type: 'async',
+              desc: 'v15: Subscribe with a refund escrow. Payment is held in escrow for N blocks; subscriber can claim refund within window.',
+            },
+            {
+              name: 'claim_refund(escrow_id)',
+              type: 'async',
+              desc: 'v15: Subscriber claims refund from escrow if within the claim window. Marks escrow as claimed.',
+            },
+            {
+              name: 'withdraw_platform_fees()',
+              type: 'async',
+              desc: 'v15: Platform owner withdraws accumulated platform fees from all subscriptions.',
+            },
+            {
+              name: 'withdraw_creator_revenue(creator)',
+              type: 'async',
+              desc: 'v15: Creator withdraws accumulated subscription revenue.',
+            },
+            {
+              name: 'subscribe_blind(payment, creator, tier_id, amount, nonce)',
+              type: 'async',
+              desc: 'v15: Subscribe using nonce-based blinding — generates blind subscriber hash. Prevents subscription pattern tracking.',
+            },
+            {
+              name: 'renew_blind(old_pass, payment, new_tier_id, amount, nonce)',
+              type: 'async',
+              desc: 'v15: Renew subscription with new nonce — each renewal uses unique nonce, preventing creator from tracking renewal patterns.',
+            },
+            {
+              name: 'verify_tier_access(pass, creator, required_tier)',
+              type: 'sync',
+              desc: 'v15: Verify that AccessPass grants access to required_tier without revealing subscriber identity or full tier.',
+            },
+            {
+              name: 'publish_encrypted_content(content_id, min_tier, encryption_commitment)',
+              type: 'async',
+              desc: 'v15: Publish content with encryption commitment on-chain. Proves encryption without revealing content body.',
+            },
+            {
+              name: 'revoke_access(pass_id)',
+              type: 'async',
+              desc: 'v15: Creator revokes an AccessPass (e.g., for ToS violation). Only affects that specific pass.',
+            },
+            {
+              name: 'dispute_content(content_id, reason_hash)',
+              type: 'async',
+              desc: 'v15: Subscriber disputes content quality/copyright. Creates dispute record for platform review.',
+            },
+            {
+              name: 'transfer_subscription(pass, recipient)',
+              type: 'async',
+              desc: 'v15: Transfer an AccessPass to another address. The original pass is consumed and a new one is created for the recipient. Enables subscription marketplace and gifting workflows.',
+            },
+            {
+              name: 'enforce_revocation(pass_id)',
+              type: 'async',
+              desc: 'v15: Enforce revocation of a previously revoked AccessPass. Checks access_revoked mapping and prevents use of revoked passes. Strengthens creator moderation capabilities.',
             },
           ].map((t) => (
             <div
               key={t.name}
-              className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]"
+              className="p-4 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)]"
             >
               <div className="flex items-center gap-2 mb-2">
-                <code className="text-sm text-violet-300 font-mono">{t.name}</code>
+                <code className="text-sm text-[#a1a1aa] font-mono">{t.name}</code>
                 <span
                   className={`px-2 py-0.5 rounded-full text-xs ${
                     t.type === 'async'
@@ -254,7 +342,7 @@ mapping platform_revenue_token: field => u128; // hash(token_id, platform) => pl
                   {t.type}
                 </span>
               </div>
-              <p className="text-sm text-slate-400">{t.desc}</p>
+              <p className="text-sm text-[#a1a1aa]">{t.desc}</p>
             </div>
           ))}
         </div>
@@ -268,17 +356,17 @@ function PrivacyModelTab() {
     <div className="space-y-8">
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Privacy Architecture</h3>
-        <p className="text-slate-400 leading-relaxed mb-4">
+        <p className="text-[#a1a1aa] leading-relaxed mb-4">
           VeilSub&apos;s privacy model is enforced at the program level. The Leo smart contract
           is designed so that subscriber addresses physically cannot enter the finalize scope
           (the only part of a transaction that writes to public state).
         </p>
       </div>
 
-      <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/20">
+      <div className="p-4 rounded-[12px] bg-green-500/5 border border-green-500/20">
         <h4 className="text-green-300 font-semibold mb-2">Zero-Footprint Access Verification</h4>
-        <p className="text-sm text-slate-400 leading-relaxed">
-          <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300 text-xs">verify_access</code> is
+        <p className="text-sm text-[#a1a1aa] leading-relaxed">
+          <code className="px-1 py-0.5 rounded bg-white/10 text-[#a1a1aa] text-xs">verify_access</code> is
           a pure transition with <strong className="text-white">no finalize block</strong>. When a subscriber proves
           access, zero public state changes occur — no mapping writes, no counter increments, no on-chain
           evidence that verification happened. This is a deliberate privacy design: adding a finalize block
@@ -315,10 +403,10 @@ function PrivacyModelTab() {
           ].map((item) => (
             <div
               key={item.title}
-              className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]"
+              className="p-4 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)]"
             >
               <h4 className="text-white font-medium mb-1">{item.title}</h4>
-              <p className="text-sm text-slate-400">{item.detail}</p>
+              <p className="text-sm text-[#a1a1aa]">{item.detail}</p>
             </div>
           ))}
         </div>
@@ -326,7 +414,7 @@ function PrivacyModelTab() {
 
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">What Can&apos;t Be Inferred?</h3>
-        <p className="text-slate-400 leading-relaxed">
+        <p className="text-[#a1a1aa] leading-relaxed">
           Even with full access to the Aleo blockchain, an observer cannot determine:
         </p>
         <ul className="mt-3 space-y-2">
@@ -336,8 +424,8 @@ function PrivacyModelTab() {
             'Whether a specific address holds an AccessPass',
             'The relationship between a subscriber and creator',
           ].map((item) => (
-            <li key={item} className="flex items-center gap-2 text-sm text-slate-300">
-              <Shield className="w-4 h-4 text-violet-400 shrink-0" />
+            <li key={item} className="flex items-center gap-2 text-sm text-[#a1a1aa]">
+              <Shield className="w-4 h-4 text-[#a1a1aa] shrink-0" />
               {item}
             </li>
           ))}
@@ -352,26 +440,26 @@ function ApiTab() {
     <div className="space-y-8">
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Reading Public Mappings</h3>
-        <p className="text-slate-400 mb-4">
+        <p className="text-[#a1a1aa] mb-4">
           Public mapping data (tier prices, subscriber counts, revenue) can be read via the
           Provable REST API without any authentication.
         </p>
         <CodeBlock
           lang="bash"
           code={`# Get creator's tier price
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v8.aleo/mapping/tier_prices/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v15.aleo/mapping/tier_prices/<creator_address>
 
 # Get subscriber count
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v8.aleo/mapping/subscriber_count/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v15.aleo/mapping/subscriber_count/<creator_address>
 
 # Get total revenue
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v8.aleo/mapping/total_revenue/<creator_address>`}
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v15.aleo/mapping/total_revenue/<creator_address>`}
         />
       </div>
 
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Wallet Integration</h3>
-        <p className="text-slate-400 mb-4">
+        <p className="text-[#a1a1aa] mb-4">
           Use the Aleo wallet adapter to interact with VeilSub transitions.
         </p>
         <CodeBlock
@@ -380,14 +468,14 @@ curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v8.aleo/mappin
 
 const { executeTransaction } = useWallet()
 
-// Execute a subscribe transaction (v8 — returns AccessPass + CreatorReceipt)
+// Execute a subscribe transaction (v15 — returns AccessPass)
 const result = await executeTransaction({
-  program: 'veilsub_v8.aleo',
+  program: 'veilsub_v15.aleo',
   function: 'subscribe',
   inputs: [
     paymentRecord,              // single credits record (must have >= amount)
     creatorAddress,             // creator's address
-    '1u8',                      // tier (1=Supporter, 2=Premium, 3=VIP)
+    '1u8',                      // tier (custom tier ID in v15)
     '5000000u64',               // amount in microcredits (5 ALEO)
     passIdField,                // unique pass_id (field)
     expiresAtU32,               // expiry block height (u32)
@@ -402,22 +490,22 @@ const txId = result?.transactionId`}
 
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Microcredits Conversion</h3>
-        <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-          <p className="text-sm text-slate-400 mb-2">
+        <div className="p-4 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)]">
+          <p className="text-sm text-[#a1a1aa] mb-2">
             1 ALEO = 1,000,000 microcredits
           </p>
           <div className="space-y-1 text-sm">
-            <div className="flex justify-between text-slate-300">
+            <div className="flex justify-between text-[#a1a1aa]">
               <span>0.5 ALEO</span>
-              <span className="text-slate-500">500,000 microcredits</span>
+              <span className="text-[#71717a]">500,000 microcredits</span>
             </div>
-            <div className="flex justify-between text-slate-300">
+            <div className="flex justify-between text-[#a1a1aa]">
               <span>5 ALEO</span>
-              <span className="text-slate-500">5,000,000 microcredits</span>
+              <span className="text-[#71717a]">5,000,000 microcredits</span>
             </div>
-            <div className="flex justify-between text-slate-300">
+            <div className="flex justify-between text-[#a1a1aa]">
               <span>25 ALEO</span>
-              <span className="text-slate-500">25,000,000 microcredits</span>
+              <span className="text-[#71717a]">25,000,000 microcredits</span>
             </div>
           </div>
         </div>
@@ -434,7 +522,7 @@ function FaqTab() {
     },
     {
       q: 'What wallet do I need?',
-      a: 'You need Leo Wallet — a browser extension for Aleo. Install it from leo.app and get testnet credits from faucet.aleo.org.',
+      a: 'VeilSub supports 5 Aleo wallets: Shield (recommended), Leo Wallet, Fox Wallet, Puzzle Wallet, and Soter Wallet. Install any of them as a browser extension and get testnet credits from faucet.aleo.org.',
     },
     {
       q: 'How does the AccessPass work?',
@@ -450,7 +538,7 @@ function FaqTab() {
     },
     {
       q: 'How much does it cost to subscribe?',
-      a: 'The subscription price is set by each creator. There are three tiers: Supporter (1x base price), Premium (2x), and VIP (5x). Plus a small network fee for the ZK proof generation.',
+      a: 'The subscription price is set by each creator (v15: creators can define custom tiers with any price). Tiers are configurable per creator. Plus a small network fee for the ZK proof generation.',
     },
     {
       q: 'Can I tip a creator without subscribing?',
@@ -467,10 +555,10 @@ function FaqTab() {
       {faqs.map((faq) => (
         <div
           key={faq.q}
-          className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]"
+          className="p-4 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)]"
         >
           <h4 className="text-white font-medium mb-2">{faq.q}</h4>
-          <p className="text-sm text-slate-400 leading-relaxed">{faq.a}</p>
+          <p className="text-sm text-[#a1a1aa] leading-relaxed">{faq.a}</p>
         </div>
       ))}
     </div>
@@ -501,8 +589,8 @@ export default function DocsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <h1 className="text-3xl font-bold text-white mb-2">Documentation</h1>
-            <p className="text-slate-400">
+            <h1 className="text-3xl font-semibold text-white mb-2">Documentation</h1>
+            <p className="text-[#a1a1aa]">
               Everything you need to understand and integrate with VeilSub.
             </p>
           </motion.div>
@@ -520,7 +608,7 @@ export default function DocsPage() {
                       className={`relative flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm whitespace-nowrap transition-colors ${
                         activeTab === tab.id
                           ? 'text-white bg-white/[0.06] border border-white/[0.08]'
-                          : 'text-slate-400 hover:text-white hover:bg-white/[0.03]'
+                          : 'text-[#a1a1aa] hover:text-white hover:bg-white/[0.03]'
                       }`}
                     >
                       <Icon className="w-4 h-4" />

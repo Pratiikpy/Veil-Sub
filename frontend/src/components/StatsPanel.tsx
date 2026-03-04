@@ -30,7 +30,7 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="p-4 rounded-xl bg-white/5 border border-white/5 animate-pulse"
+            className="p-4 rounded-[8px] bg-white/[0.05] border border-white/[0.05] animate-pulse"
           >
             <div className="h-4 w-16 bg-white/10 rounded mb-2" />
             <div className="h-8 w-20 bg-white/10 rounded" />
@@ -47,7 +47,7 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
       label: 'Subscribers',
       value: stats.subscriberCount.toString(),
       icon: Users,
-      color: 'text-violet-400',
+      color: 'text-[#a1a1aa]',
     },
     {
       label: 'Revenue',
@@ -75,11 +75,11 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors"
+            className="p-4 rounded-[8px] bg-[#111113] border border-white/[0.05] hover:border-white/10 transition-colors"
           >
             <div className="flex items-center gap-2 mb-2">
               <Icon className={`w-4 h-4 ${item.color}`} />
-              <span className="text-xs text-slate-400">{item.label}</span>
+              <span className="text-xs text-[#a1a1aa]">{item.label}</span>
             </div>
             <p className="text-xl font-bold text-white">{item.value}</p>
           </motion.div>

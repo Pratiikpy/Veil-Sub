@@ -1,18 +1,12 @@
 {
-  "program": "veilsub_v8.aleo",
-  "version": "0.2.0",
-  "description": "VeilSub v8 - Private Creator Subscriptions on Aleo (CreatorReceipts, AuditTokens, Content Integrity)",
+  "program": "veilsub_v15.aleo",
+  "version": "0.7.0",
+  "description": "VeilSub v15 - Security Hardening, Subscription Transfer, Revocation Enforcement, Sybil-Resistant Disputes, 32 transitions on Aleo",
   "license": "MIT",
   "leo": "3.4.0",
   "dependencies": [
     {
       "name": "credits.aleo",
-      "location": "network",
-      "path": null,
-      "edition": null
-    },
-    {
-      "name": "token_registry.aleo",
       "location": "network",
       "path": null,
       "edition": null

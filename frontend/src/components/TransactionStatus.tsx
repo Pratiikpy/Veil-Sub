@@ -78,7 +78,7 @@ export default function TransactionStatus({ status, txId }: Props) {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20"
+        className="flex items-center gap-3 p-4 rounded-[8px] bg-red-500/10 border border-red-500/20"
       >
         <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
           <X className="w-5 h-5 text-red-400" />
@@ -98,7 +98,7 @@ export default function TransactionStatus({ status, txId }: Props) {
   return (
     <div className="space-y-2">
       {/* Progress bar */}
-      <div className="h-1 rounded-full bg-white/5 overflow-hidden mb-4">
+      <div className="h-1 rounded-full bg-white/[0.05] overflow-hidden mb-4">
         <motion.div
           className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full"
           initial={{ width: '0%' }}
@@ -132,7 +132,7 @@ export default function TransactionStatus({ status, txId }: Props) {
               delay: i * 0.08,
               scale: isConfirmedStep ? { duration: 0.4, ease: 'easeOut' } : undefined,
             }}
-            className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
+            className={`flex items-center gap-3 p-3 rounded-[8px] transition-all ${
               isActive
                 ? 'bg-violet-500/10 border border-violet-500/25 animate-pulse'
                 : isDone
@@ -148,7 +148,7 @@ export default function TransactionStatus({ status, txId }: Props) {
                   ? 'bg-violet-500/20'
                   : isDone
                   ? 'bg-green-500/15'
-                  : 'bg-white/5'
+                  : 'bg-white/[0.05]'
               }`}
             >
               {isActive ? (
@@ -158,7 +158,7 @@ export default function TransactionStatus({ status, txId }: Props) {
               ) : (
                 <Icon
                   className={`w-4 h-4 ${
-                    isPending ? 'text-slate-700' : 'text-slate-400'
+                    isPending ? 'text-slate-700' : 'text-[#a1a1aa]'
                   }`}
                 />
               )}
@@ -167,7 +167,7 @@ export default function TransactionStatus({ status, txId }: Props) {
               <p
                 className={`text-sm font-medium ${
                   isActive
-                    ? 'text-violet-300'
+                    ? 'text-[#a1a1aa]'
                     : isDone
                     ? 'text-green-400'
                     : 'text-slate-600'
@@ -180,7 +180,7 @@ export default function TransactionStatus({ status, txId }: Props) {
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="text-xs text-slate-500 mt-0.5"
+                  className="text-xs text-[#71717a] mt-0.5"
                 >
                   {step.activeMsg}
                   {status === 'proving' && elapsed > 0 && (
@@ -200,11 +200,11 @@ export default function TransactionStatus({ status, txId }: Props) {
           animate={{ opacity: 1, y: 0 }}
           className="mt-3"
         >
-          <p className="text-xs text-slate-500 mb-2">Transaction ID</p>
+          <p className="text-xs text-[#71717a] mb-2">Transaction ID</p>
           {!txId.startsWith('at1') ? (
             <>
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
-                <span className="text-xs text-slate-500 break-all flex-1 font-mono">
+              <div className="flex items-center gap-2 p-3 rounded-[8px] bg-[#111113] border border-white/[0.08]">
+                <span className="text-xs text-[#71717a] break-all flex-1 font-mono">
                   {txId}
                 </span>
               </div>
@@ -212,15 +212,15 @@ export default function TransactionStatus({ status, txId }: Props) {
                 Wallet returned a temporary ID. Your transaction is confirmed on-chain.
               </p>
               <a
-                href={`https://testnet.explorer.provable.com/program/veilsub_v8.aleo`}
+                href={`https://testnet.explorer.provable.com/program/veilsub_v15.aleo`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 mt-2 p-2.5 rounded-xl bg-violet-500/5 border border-violet-500/15 hover:border-violet-500/30 hover:bg-violet-500/10 transition-all group"
+                className="flex items-center gap-2 mt-2 p-2.5 rounded-[8px] bg-violet-500/5 border border-violet-500/15 hover:border-violet-500/30 hover:bg-violet-500/10 transition-all group"
               >
-                <span className="text-xs text-violet-400 group-hover:text-violet-300 flex-1">
+                <span className="text-xs text-[#a1a1aa] group-hover:text-white flex-1">
                   View program on Explorer
                 </span>
-                <ExternalLink className="w-3.5 h-3.5 text-violet-400 group-hover:text-violet-300 shrink-0" />
+                <ExternalLink className="w-3.5 h-3.5 text-[#a1a1aa] group-hover:text-white shrink-0" />
               </a>
             </>
           ) : (
@@ -228,12 +228,12 @@ export default function TransactionStatus({ status, txId }: Props) {
               href={`https://testnet.explorer.provable.com/transaction/${txId}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-violet-500/30 hover:bg-violet-500/5 transition-all group"
+              className="flex items-center gap-2 p-3 rounded-[8px] bg-[#111113] border border-white/[0.08] hover:border-violet-500/30 hover:bg-violet-500/5 transition-all group"
             >
-              <span className="text-xs text-violet-400 group-hover:text-violet-300 break-all flex-1 font-mono">
+              <span className="text-xs text-[#a1a1aa] group-hover:text-white break-all flex-1 font-mono">
                 {txId}
               </span>
-              <ExternalLink className="w-4 h-4 text-violet-400 group-hover:text-violet-300 shrink-0" />
+              <ExternalLink className="w-4 h-4 text-[#a1a1aa] group-hover:text-white shrink-0" />
             </a>
           )}
         </motion.div>

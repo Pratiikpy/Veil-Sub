@@ -8,7 +8,7 @@ VeilSub draws a clear privacy boundary: **creators are public entities; subscrib
 
 ### PRIVATE (Records — Zero Knowledge)
 
-| Data | How Protected | Record Type |
+| Data | How Protected | Record type |
 |------|--------------|-------------|
 | Subscriber wallet address | `self.caller` NEVER passed to finalize | AccessPass |
 | Subscription details (tier, expiry) | Encrypted in AccessPass record | AccessPass |
@@ -18,6 +18,11 @@ VeilSub draws a clear privacy boundary: **creators are public entities; subscrib
 | Audit disclosure tokens | Private record, subscriber = hashed | AuditToken |
 | Access verification | `verify_access` has NO finalize — zero on-chain footprint | AccessPass |
 | Audit token creation | `create_audit_token` has NO finalize — invisible | AuditToken |
+| Custom tier records | Private SubscriptionTier record | SubscriptionTier |
+| Content deletion proof | Private deletion record with reason_hash | ContentDeletion |
+| Gift subscription tokens | GiftToken visible only to recipient, gifter identity is hashed | GiftToken |
+| Refund escrow records | Private escrow with amount + expiry, subscriber = private | RefundEscrow |
+| Blind subscriber identity | Nonce-based identity rotation: `BHP256(caller + nonce)` creates different hash per renewal | AccessPass + CreatorReceipt |
 
 ### PUBLIC (Mappings — Intentionally Discoverable)
 
@@ -30,6 +35,14 @@ VeilSub draws a clear privacy boundary: **creators are public entities; subscrib
 | Content count per creator | Public metric | `content_count` |
 | Content tier requirements | Users need to see what tier unlocks what | `content_meta` |
 | Content integrity hashes | Enables tamper-proof verification | `content_hashes` |
+| Custom tier prices | Creators set custom tiers publicly | `creator_tiers` |
+| Tier count per creator | Public metadata | `tier_count` |
+| Gift redemption status | Prevents double-redemption | `gift_redeemed` |
+| Refund claim status | Prevents double-refund | `refund_claimed` |
+| Nonce replay prevention | Prevents nonce reuse in blind renewal | `nonce_used` |
+| Encryption commitments | Verifies content decryption keys | `encryption_commits` |
+| Access revocation | Creator can revoke access | `access_revoked` |
+| Content disputes | Community dispute counter | `content_disputes` |
 
 ### VISIBLE IN FINALIZE PARAMETERS (Transaction-Level)
 
@@ -41,12 +54,16 @@ These values appear in transaction data because Aleo's finalize scope is public:
 | `amount` (u64) | subscribe, tip, renew | Validated against `tier_prices * multiplier` |
 | `tier` (u8) | subscribe, renew | Determines price multiplier (1x/2x/5x) |
 | `expires_at` (u32) | subscribe, renew | Validated against `block.height` bounds |
+| `tier_id` (u8) | create_custom_tier, subscribe | Custom tier identification |
+| `nonce` (field) | subscribe_blind, renew_blind | Identity rotation (NEVER reveals subscriber) |
+| `gift_id` (field) | gift_subscription, redeem_gift | Gift tracking |
+| `pass_id` (field) | claim_refund, revoke_access | Access/refund tracking |
 
 **Critical invariant:** While `amount`, `tier`, and `creator` appear in finalize parameters, `self.caller` (the subscriber's address) NEVER appears. An observer can see "someone paid 2 ALEO for tier 2 to creator X" but CANNOT determine WHO paid.
 
 ## Privacy Comparison with Competitors
 
-| Feature | VeilSub | NullPay | Alpaca Invoice |
+| Feature | VeilSub v12 | NullPay | Alpaca Invoice |
 |---------|---------|---------|----------------|
 | User identity in finalize | NEVER | NEVER | Seller address leaks |
 | Payment method | credits.aleo/transfer_private (atomic) | credits.aleo/transfer_private (atomic) | credits.aleo NOT called (trust-based mark_as_paid) |
@@ -54,6 +71,31 @@ These values appear in transaction data because Aleo's finalize scope is public:
 | Zero-footprint verification | verify_access (no finalize) | get_invoice_status (mapping read) | No equivalent |
 | Selective disclosure | AuditToken record | No | Field-level commitments |
 | Creator receipts | CreatorReceipt (private record) | MerchantReceipt (private record) | Dual InvoiceRecord |
+| Blind renewal (nonce-based) | BHP256(caller + nonce) per renewal | No | No |
+| Subscription gifting | GiftToken (recipient-only) | No | No |
+| Access revocation | Creator can revoke, prevents double-access | No | No |
+| Refund escrow | Private escrow with expiry | No | No |
+
+## Blind Renewal — Novel Privacy Technique
+
+VeilSub v12 introduces **Blind Renewal**, a privacy technique unique in the Aleo ecosystem.
+
+**The Problem:** In standard renewals, the subscriber hash `BHP256(self.caller)` is deterministic. A creator receiving CreatorReceipts can track renewal patterns — same hash = same subscriber.
+
+**The Solution:** Blind Renewal uses a caller-supplied nonce:
+```
+subscriber_hash = BHP256(self.caller as field + nonce)
+```
+Each renewal generates a DIFFERENT hash. The creator sees what looks like a brand new subscriber every time. Nonces are tracked on-chain (`nonce_used` mapping) to prevent replay.
+
+**Comparison:**
+| Project | Privacy Technique | What It Hides |
+|---------|-------------------|---------------|
+| VeilSub | Blind Renewal (nonce-based identity rotation) | Subscriber renewal patterns |
+| lasagna | Delayed Attribute Reveal (DAR) | Bet direction in prediction markets |
+| NullPay | Dual-record invoice system | Invoice linkability |
+
+This is the subscription-domain equivalent of lasagna's DAR — hiding temporal patterns that would otherwise allow behavioral profiling.
 
 ## Why Creator Addresses Are Public
 

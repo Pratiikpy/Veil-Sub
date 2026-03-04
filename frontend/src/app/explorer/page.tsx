@@ -199,8 +199,8 @@ export default function ExplorerPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-10"
           >
-            <h1 className="text-3xl font-bold text-white mb-2">On-Chain Explorer</h1>
-            <p className="text-slate-400">
+            <h1 className="text-3xl font-semibold text-[#fafafa] mb-2">On-Chain Explorer</h1>
+            <p className="text-[#a1a1aa]">
               Look up any creator&apos;s public stats directly from the Aleo blockchain.
               Only aggregate data is visible — subscriber identities are always private.
             </p>
@@ -219,7 +219,7 @@ export default function ExplorerPage() {
                   <Users className="w-4 h-4 text-violet-400" />
                   <span className="text-xs text-slate-400">Total Creators</span>
                 </div>
-                <p className="text-3xl font-bold font-display text-white">
+                <p className="text-3xl font-semibold text-white">
                   <AnimatedCounter target={globalStats.totalCreators} />
                 </p>
               </GlassCard>
@@ -228,7 +228,7 @@ export default function ExplorerPage() {
                   <Activity className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-slate-400">Total Subscriptions</span>
                 </div>
-                <p className="text-3xl font-bold font-display text-white">
+                <p className="text-3xl font-semibold text-white">
                   <AnimatedCounter target={globalStats.totalSubscriptions} />
                 </p>
               </GlassCard>
@@ -237,7 +237,7 @@ export default function ExplorerPage() {
                   <Coins className="w-4 h-4 text-amber-400" />
                   <span className="text-xs text-slate-400">Platform Revenue</span>
                 </div>
-                <p className="text-3xl font-bold font-display text-white">
+                <p className="text-3xl font-semibold text-white">
                   {formatCredits(globalStats.totalRevenue)} <span className="text-sm text-slate-400">ALEO</span>
                 </p>
               </GlassCard>
@@ -246,7 +246,7 @@ export default function ExplorerPage() {
                   <Shield className="w-4 h-4 text-blue-400" />
                   <span className="text-xs text-slate-400">Active Programs</span>
                 </div>
-                <p className="text-3xl font-bold font-display text-white">
+                <p className="text-3xl font-semibold text-white">
                   <AnimatedCounter target={globalStats.activePrograms} />
                 </p>
               </GlassCard>
@@ -270,13 +270,13 @@ export default function ExplorerPage() {
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   placeholder={placeholder}
                   aria-label="Creator Aleo address"
-                  className={`w-full pl-12 pr-4 py-3.5 rounded-xl bg-white/[0.03] border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm ${isAnimating ? 'placeholder-opacity-0' : 'placeholder-opacity-100'}`}
+                  className={`w-full pl-12 pr-4 py-3.5 rounded-[8px] bg-[#111113] border border-[rgba(255,255,255,0.06)] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-[rgba(255,255,255,0.12)] transition-colors text-sm ${isAnimating ? 'placeholder-opacity-0' : 'placeholder-opacity-100'}`}
                 />
               </div>
               <button
                 onClick={handleSearch}
                 disabled={loading || !address.trim()}
-                className="px-6 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium text-sm hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-6 rounded-[8px] bg-[#8b5cf6] text-white font-medium text-sm hover:bg-[#7c4fe0] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {loading ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -310,10 +310,10 @@ export default function ExplorerPage() {
               className="space-y-6 mb-12"
             >
               {/* Creator Header */}
-              <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+              <div className="flex items-center justify-between p-4 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)]">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-                    <Shield className="w-6 h-6 text-white" />
+                  <div className="w-12 h-12 rounded-[8px] bg-[#8b5cf6]/10 flex items-center justify-center">
+                    <Shield className="w-6 h-6 text-[#8b5cf6]" />
                   </div>
                   <div>
                     <p className="text-white font-medium font-mono">{shortenAddress(result.address)}</p>
@@ -327,14 +327,14 @@ export default function ExplorerPage() {
                     href={`https://testnet.explorer.provable.com/address/${result.address}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors"
+                    className="px-3 py-2 rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-xs text-[#71717a] hover:text-[#fafafa] flex items-center gap-1 transition-colors"
                   >
                     Aleo Explorer <ExternalLink className="w-3 h-3" />
                   </a>
                   {isRegistered && (
                     <a
                       href={`/creator/${result.address}`}
-                      className="px-3 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:text-white flex items-center gap-1 transition-colors"
+                      className="px-3 py-2 rounded-[8px] bg-[#8b5cf6]/10 border border-[#8b5cf6]/20 text-xs text-[#8b5cf6] hover:text-[#fafafa] flex items-center gap-1 transition-colors"
                     >
                       Subscribe <ArrowRight className="w-3 h-3" />
                     </a>
@@ -359,7 +359,7 @@ export default function ExplorerPage() {
                         />
                       </div>
                       <div className="flex items-center justify-between">
-                        <p className="text-3xl font-bold font-display text-white">
+                        <p className="text-3xl font-semibold text-white">
                           {result.subscriberCount}
                         </p>
                         {sparkData.length > 0 && (
@@ -386,7 +386,7 @@ export default function ExplorerPage() {
                           displayedValue={result.totalRevenue}
                         />
                       </div>
-                      <p className="text-3xl font-bold font-display text-white">
+                      <p className="text-3xl font-semibold text-white">
                         {formatCredits(result.totalRevenue)} <span className="text-sm text-slate-400">ALEO</span>
                       </p>
                       <p className="text-xs text-slate-500 mt-1">
@@ -406,7 +406,7 @@ export default function ExplorerPage() {
                           displayedValue={result.tierPrice ?? 0}
                         />
                       </div>
-                      <p className="text-3xl font-bold font-display text-white">
+                      <p className="text-3xl font-semibold text-white">
                         {formatCredits(result.tierPrice ?? 0)} <span className="text-sm text-slate-400">ALEO</span>
                       </p>
                       <p className="text-xs text-slate-500 mt-1">
@@ -419,7 +419,7 @@ export default function ExplorerPage() {
                   <ActivityChart creatorAddress={result.address} />
 
                   {/* Data Source */}
-                  <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/10 text-xs text-slate-400">
+                  <div className="p-3 rounded-[8px] bg-[#111113] border border-[rgba(255,255,255,0.06)] text-xs text-[#71717a]">
                     <p>
                       Data fetched from on-chain mappings via{' '}
                       <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300">
@@ -480,10 +480,10 @@ export default function ExplorerPage() {
                   <button
                     key={filter}
                     onClick={() => { setEventFilter(filter); setEventsPage(0) }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`px-3 py-1.5 rounded-[4px] text-xs font-medium transition-colors ${
                       eventFilter === filter
-                        ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300'
-                        : 'bg-white/5 border border-white/10 text-slate-400 hover:text-white'
+                        ? 'bg-white/[0.08] text-[#fafafa]'
+                        : 'text-[#71717a] hover:text-[#a1a1aa]'
                     }`}
                   >
                     {filter.charAt(0).toUpperCase() + filter.slice(1)}
@@ -492,7 +492,7 @@ export default function ExplorerPage() {
               </div>
             </div>
 
-            <div className="rounded-xl bg-white/[0.02] border border-white/[0.06] overflow-hidden">
+            <div className="rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)] overflow-hidden">
               {/* Table Header */}
               <div className="grid grid-cols-[1fr_auto_auto_1.5fr_auto] gap-4 px-4 py-3 border-b border-white/[0.06] text-xs text-slate-500 font-medium">
                 <span>Time</span>
@@ -556,7 +556,7 @@ export default function ExplorerPage() {
                                 )}
                               </button>
                               <a
-                                href={event.tx_id?.startsWith('at1') ? `https://testnet.explorer.provable.com/transaction/${event.tx_id}` : `https://testnet.explorer.provable.com/program/veilsub_v8.aleo`}
+                                href={event.tx_id?.startsWith('at1') ? `https://testnet.explorer.provable.com/transaction/${event.tx_id}` : `https://testnet.explorer.provable.com/program/veilsub_v15.aleo`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="shrink-0 p-1 rounded hover:bg-white/10 text-slate-500 hover:text-white transition-colors"
@@ -568,7 +568,7 @@ export default function ExplorerPage() {
                           )}
                         </div>
                         <a
-                          href={event.tx_id ? (event.tx_id.startsWith('at1') ? `https://testnet.explorer.provable.com/transaction/${event.tx_id}` : `https://testnet.explorer.provable.com/program/veilsub_v8.aleo`) : '#'}
+                          href={event.tx_id ? (event.tx_id.startsWith('at1') ? `https://testnet.explorer.provable.com/transaction/${event.tx_id}` : `https://testnet.explorer.provable.com/program/veilsub_v15.aleo`) : '#'}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={`px-2 py-1 rounded-md text-xs font-medium transition-all ${
@@ -591,7 +591,7 @@ export default function ExplorerPage() {
                   <button
                     onClick={() => setEventsPage(Math.max(0, eventsPage - 1))}
                     disabled={eventsPage === 0}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 border border-white/10 text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-[4px] text-xs font-medium text-[#71717a] hover:text-[#fafafa] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
                     <ChevronLeft className="w-3 h-3" /> Prev
                   </button>
@@ -600,10 +600,10 @@ export default function ExplorerPage() {
                       <button
                         key={i}
                         onClick={() => setEventsPage(i)}
-                        className={`w-7 h-7 rounded-lg text-xs font-medium transition-all ${
+                        className={`w-7 h-7 rounded-[4px] text-xs font-medium transition-colors ${
                           eventsPage === i
-                            ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300'
-                            : 'bg-white/5 border border-white/10 text-slate-400 hover:text-white'
+                            ? 'bg-white/[0.08] text-[#fafafa]'
+                            : 'text-[#71717a] hover:text-[#a1a1aa]'
                         }`}
                       >
                         {i + 1}
@@ -613,7 +613,7 @@ export default function ExplorerPage() {
                   <button
                     onClick={() => setEventsPage(Math.min(totalPages - 1, eventsPage + 1))}
                     disabled={eventsPage >= totalPages - 1}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 border border-white/10 text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-[4px] text-xs font-medium text-[#71717a] hover:text-[#fafafa] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
                     Next <ChevronRight className="w-3 h-3" />
                   </button>

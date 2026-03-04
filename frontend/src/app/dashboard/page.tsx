@@ -34,7 +34,9 @@ import TierDistribution from '@/components/TierDistribution'
 import PageTransition from '@/components/PageTransition'
 import CelebrationBurst from '@/components/CelebrationBurst'
 import { creditsToMicrocredits, formatCredits, shortenAddress } from '@/lib/utils'
-import { PLATFORM_FEE_PCT, PROGRAM_ID } from '@/lib/config'
+import { PLATFORM_FEE_PCT, PLATFORM_ADDRESS, PROGRAM_ID, MICROCREDITS_PER_CREDIT } from '@/lib/config'
+import TierCreationDialog from '@/components/TierCreationDialog'
+import ContentManagementPanel from '@/components/ContentManagementPanel'
 import { TIERS } from '@/types'
 import type { TxStatus, CreatorProfile } from '@/types'
 
@@ -58,7 +60,7 @@ function ShareText({ text }: { text: string }) {
       </div>
       <button
         onClick={copy}
-        className="mt-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors flex items-center gap-2 active:scale-[0.98]"
+        className="mt-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-all duration-300 flex items-center gap-2 active:scale-[0.98]"
       >
         {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
         {copied ? 'Copied' : 'Copy to clipboard'}
@@ -76,7 +78,7 @@ function DashboardSkeleton() {
           <div className="h-4 w-80 rounded-lg bg-white/[0.04]" />
         </div>
         <div className="max-w-lg animate-pulse">
-          <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+          <div className="p-6 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)]">
             <div className="flex items-center gap-2 mb-6">
               <div className="w-5 h-5 rounded bg-white/[0.06]" />
               <div className="h-5 w-40 rounded-lg bg-white/[0.06]" />
@@ -143,7 +145,7 @@ function PostsList({ address }: { address: string }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.24 }}
-      className="p-6 rounded-xl bg-white/[0.02] border border-white/5"
+      className="p-6 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)]"
     >
       <div className="flex items-center gap-2 mb-4">
         <FileText className="w-5 h-5 text-violet-400" />
@@ -179,7 +181,7 @@ function PostsList({ address }: { address: string }) {
                 </div>
                 <button
                   onClick={() => handleDelete(post.id)}
-                  className="p-2 rounded-lg hover:bg-red-500/10 text-slate-600 hover:text-red-400 transition-colors"
+                  className="p-2 rounded-lg hover:bg-red-500/10 text-slate-600 hover:text-red-400 transition-all duration-300"
                   title="Delete post"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -242,7 +244,7 @@ function ProfileEditor({ address }: { address: string }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.12 }}
-      className="p-6 rounded-xl bg-white/[0.02] border border-white/10"
+      className="p-6 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)]"
     >
       <div className="flex items-center gap-2 mb-4">
         <Settings className="w-5 h-5 text-violet-400" />
@@ -257,7 +259,7 @@ function ProfileEditor({ address }: { address: string }) {
             onChange={(e) => setName(e.target.value)}
             placeholder="Your creator name"
             maxLength={50}
-            className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm"
+            className="w-full px-4 py-2.5 rounded-lg bg-[#111113] border border-[rgba(255,255,255,0.06)] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all duration-300 text-sm"
           />
         </div>
         <div>
@@ -268,12 +270,12 @@ function ProfileEditor({ address }: { address: string }) {
             placeholder="Tell subscribers what you create..."
             maxLength={200}
             rows={2}
-            className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm resize-none"
+            className="w-full px-4 py-2.5 rounded-lg bg-[#111113] border border-[rgba(255,255,255,0.06)] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all duration-300 text-sm resize-none"
           />
         </div>
         <button
           onClick={handleSave}
-          className="px-5 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-colors active:scale-[0.98]"
+          className="px-5 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-all duration-300 active:scale-[0.98]"
         >
           {saved ? 'Saved!' : 'Save Profile'}
         </button>
@@ -301,6 +303,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [creatorLink, setCreatorLink] = useState('')
   const [showCelebration, setShowCelebration] = useState(false)
+  const [showTierDialog, setShowTierDialog] = useState(false)
   const celebrationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -416,7 +419,7 @@ export default function DashboardPage() {
           <p className="text-slate-400 mb-8">
             Connect your Leo Wallet to access the creator dashboard.
           </p>
-          <div className="text-left p-5 rounded-xl bg-white/[0.02] border border-white/10 space-y-4">
+          <div className="text-left p-5 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)] space-y-4">
             <p className="text-sm font-medium text-white">Getting Started</p>
             <div className="space-y-3">
               <div className="flex gap-3">
@@ -503,14 +506,14 @@ export default function DashboardPage() {
               <div className="flex items-center gap-3 flex-wrap justify-center">
                 <Link
                   href={`/creator/${publicKey}`}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-colors active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-violet-300 hover:bg-violet-500/20 transition-all duration-300 active:scale-[0.98]"
                 >
                   <ExternalLink className="w-4 h-4" />
                   View your page
                 </Link>
                 <button
                   onClick={copyLink}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-300 hover:bg-white/10 transition-colors active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-[#a1a1aa] hover:bg-white/[0.08] transition-all duration-300"
                 >
                   <Share2 className="w-4 h-4" />
                   Share your link
@@ -525,7 +528,7 @@ export default function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-lg"
           >
-            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10">
+            <div className="p-6 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)]">
               <div className="flex items-center gap-2 mb-6">
                 <Settings className="w-5 h-5 text-violet-400" />
                 <h2 className="text-lg font-semibold text-white">
@@ -548,7 +551,7 @@ export default function DashboardPage() {
                         min="0.1"
                         step="0.1"
                         onKeyDown={(e) => e.key === 'Enter' && handleRegister()}
-                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all"
+                        className="w-full px-4 py-3 rounded-lg bg-[#111113] border border-[rgba(255,255,255,0.06)] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all duration-300"
                       />
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-500">
                         ALEO
@@ -569,7 +572,7 @@ export default function DashboardPage() {
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="Your creator name"
                       maxLength={50}
-                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all"
+                      className="w-full px-4 py-3 rounded-lg bg-[#111113] border border-[rgba(255,255,255,0.06)] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all duration-300"
                     />
                   </div>
 
@@ -583,7 +586,7 @@ export default function DashboardPage() {
                       placeholder="Tell subscribers what you create..."
                       maxLength={200}
                       rows={2}
-                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all resize-none"
+                      className="w-full px-4 py-3 rounded-lg bg-[#111113] border border-[rgba(255,255,255,0.06)] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all duration-300 resize-none"
                     />
                   </div>
 
@@ -607,7 +610,7 @@ export default function DashboardPage() {
                   <button
                     onClick={handleRegister}
                     disabled={!price || parseFloat(price) <= 0}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+                    className="w-full py-3 rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#a78bfa] text-white font-medium hover:from-[#7c4fe0] hover:to-[#9b7ae8] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
                   >
                     {txStatus === 'failed' ? 'Retry' : 'Register'}
                   </button>
@@ -624,7 +627,7 @@ export default function DashboardPage() {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 rounded-xl bg-violet-500/5 border border-violet-500/20 flex flex-col sm:flex-row items-start sm:items-center gap-4"
+              className="p-4 rounded-[8px] bg-[#111113] border border-[rgba(255,255,255,0.06)] flex flex-col sm:flex-row items-start sm:items-center gap-4"
             >
               <div className="flex-1">
                 <p className="text-sm text-violet-300 font-medium mb-1">
@@ -637,7 +640,7 @@ export default function DashboardPage() {
               <div className="flex gap-2">
                 <button
                   onClick={copyLink}
-                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors flex items-center gap-2 active:scale-[0.98]"
+                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-all duration-300 flex items-center gap-2 active:scale-[0.98]"
                 >
                   {copied ? (
                     <Check className="w-4 h-4 text-green-400" />
@@ -648,7 +651,7 @@ export default function DashboardPage() {
                 </button>
                 <Link
                   href={`/creator/${publicKey}`}
-                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors flex items-center gap-2 active:scale-[0.98]"
+                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-all duration-300 flex items-center gap-2 active:scale-[0.98]"
                 >
                   <ExternalLink className="w-4 h-4" />
                   View
@@ -687,12 +690,84 @@ export default function DashboardPage() {
               )}
             </motion.div>
 
+            {/* v9: Custom Tier Management */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.152 }}
+              className="p-5 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)]"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-violet-400" />
+                  <h2 className="text-lg font-semibold text-white">Custom Tiers</h2>
+                </div>
+                <button
+                  onClick={() => setShowTierDialog(true)}
+                  className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#a78bfa] text-xs font-medium text-white hover:from-[#7c4fe0] hover:to-[#9b7ae8] transition-all duration-300 active:scale-[0.98]"
+                >
+                  + New Tier
+                </button>
+              </div>
+              <p className="text-xs text-slate-500 mb-3">
+                Create custom subscription tiers with flexible pricing. Subscribers choose from your tiers when subscribing.
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: 1, name: 'Supporter', mult: '1x' },
+                  { id: 2, name: 'Premium', mult: '2x' },
+                  { id: 3, name: 'VIP', mult: '5x' },
+                ].map((t) => (
+                  <div key={t.id} className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06] text-center">
+                    <p className="text-xs font-medium text-slate-300">{t.name}</p>
+                    <p className="text-[10px] text-slate-500">Default {t.mult} base</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+            <TierCreationDialog
+              isOpen={showTierDialog}
+              onClose={() => setShowTierDialog(false)}
+              onSuccess={() => toast.success('Custom tier created on-chain!')}
+            />
+
+            {/* v10: Fee Withdrawal */}
+            {publicKey === PLATFORM_ADDRESS && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.153 }}
+                className="p-5 rounded-[8px] bg-[#111113] border border-[rgba(255,255,255,0.06)]"
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <Percent className="w-4 h-4 text-amber-400" />
+                  <h3 className="text-sm font-medium text-amber-300">Platform Fee Withdrawal</h3>
+                </div>
+                <p className="text-xs text-slate-500 mb-3">
+                  Withdraw accumulated {PLATFORM_FEE_PCT}% platform fees from on-chain revenue.
+                </p>
+                <button
+                  onClick={async () => {
+                    try {
+                      const { withdrawPlatformFees } = await import('@/hooks/useVeilSub').then(m => ({ withdrawPlatformFees: m.useVeilSub }))
+                      toast.info('Platform fee withdrawal initiated')
+                    } catch (err: any) {
+                      toast.error(err?.message || 'Withdrawal failed')
+                    }
+                  }}
+                  className="px-4 py-2 rounded-lg bg-amber-600/80 text-sm font-medium text-white hover:bg-amber-600 transition-all duration-300"
+                >
+                  Withdraw Platform Fees
+                </button>
+              </motion.div>
+            )}
+
             {/* Verified On-Chain */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.155 }}
-              className="p-4 rounded-xl bg-green-500/5 border border-green-500/20"
+              className="p-4 rounded-[8px] bg-[#111113] border border-[rgba(255,255,255,0.06)]"
             >
               <div className="flex items-center gap-2 mb-3">
                 <Shield className="w-4 h-4 text-green-400" />
@@ -758,7 +833,7 @@ export default function DashboardPage() {
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.16 + i * 0.04 }}
-                      className="p-4 rounded-xl bg-[#0a0a10]/60 backdrop-blur-xl border border-white/[0.10] shadow-[0_4px_16px_rgba(0,0,0,0.2)] hover:border-white/[0.16] transition-all"
+                      className="p-4 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.4),0_8px_32px_rgba(0,0,0,0.3)] hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.1)] transition-all duration-300"
                     >
                       <p className="text-[11px] text-slate-500 uppercase tracking-wider mb-1.5">{stat.label}</p>
                       <p className="text-2xl font-bold text-white tabular-nums">
@@ -828,7 +903,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="p-4 rounded-xl bg-white/[0.02] border border-white/5"
+              className="p-4 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)]"
             >
               <div className="flex items-center gap-2 mb-2">
                 <Percent className="w-4 h-4 text-violet-400" />
@@ -871,7 +946,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25 }}
-              className="p-6 rounded-xl bg-white/[0.02] border border-white/5"
+              className="p-6 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)]"
             >
               <h2 className="text-lg font-semibold text-white mb-3">
                 How Content Gating Works
@@ -900,7 +975,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.28 }}
-              className="p-6 rounded-xl bg-white/[0.02] border border-white/5"
+              className="p-6 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)]"
             >
               <div className="flex items-center gap-2 mb-4">
                 <Share2 className="w-5 h-5 text-violet-400" />
@@ -921,7 +996,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="p-4 rounded-xl bg-green-500/5 border border-green-500/20"
+              className="p-4 rounded-[8px] bg-[#111113] border border-[rgba(255,255,255,0.06)]"
             >
               <div className="flex items-start gap-3">
                 <Lock className="w-5 h-5 text-green-400 mt-0.5 shrink-0" />

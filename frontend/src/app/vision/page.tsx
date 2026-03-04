@@ -11,7 +11,6 @@ import {
 } from 'lucide-react'
 import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
-import FloatingOrbs from '@/components/FloatingOrbs'
 
 const USE_CASES = [
   {
@@ -75,19 +74,18 @@ export default function VisionPage() {
       <div className="min-h-screen">
         {/* Hero */}
         <section className="relative overflow-hidden">
-          <FloatingOrbs />
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
             <motion.div {...fadeUp} transition={{ duration: 0.6 }} className="text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 mb-6">
-                <Code2 className="w-4 h-4 text-violet-400" />
-                <span className="text-sm text-violet-300">Beyond Subscriptions</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-[rgba(255,255,255,0.06)] mb-6">
+                <Code2 className="w-4 h-4 text-[#a1a1aa]" />
+                <span className="text-sm text-[#a1a1aa]">Beyond Subscriptions</span>
               </div>
-              <h1 className="text-4xl sm:text-6xl font-bold tracking-tight mb-6">
-                <span className="bg-gradient-to-r from-white via-violet-200 to-purple-300 bg-clip-text text-transparent">
+              <h1 className="text-4xl sm:text-6xl font-semibold tracking-tight mb-6">
+                <span className="text-white">
                   Vision & Use Cases
                 </span>
               </h1>
-              <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+              <p className="text-lg text-[#a1a1aa] max-w-2xl mx-auto">
                 VeilSub is more than a subscription platform — it&apos;s a reusable
                 zero-knowledge access control primitive. The AccessPass record can gate
                 anything.
@@ -97,7 +95,6 @@ export default function VisionPage() {
         </section>
 
         {/* Use Cases Grid */}
-        <div className="gradient-divider" />
         <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -105,11 +102,11 @@ export default function VisionPage() {
                 const Icon = useCase.icon
                 return (
                   <GlassCard key={useCase.title} shimmer delay={i * 0.08}>
-                    <div className={`w-12 h-12 rounded-xl ${useCase.bg} flex items-center justify-center mb-4`}>
+                    <div className={`w-12 h-12 rounded-[12px] ${useCase.bg} flex items-center justify-center mb-4`}>
                       <Icon className={`w-6 h-6 ${useCase.color}`} />
                     </div>
                     <h3 className="text-white font-semibold mb-2">{useCase.title}</h3>
-                    <p className="text-sm text-slate-400 leading-relaxed">
+                    <p className="text-sm text-[#a1a1aa] leading-relaxed">
                       {useCase.description}
                     </p>
                   </GlassCard>
@@ -120,21 +117,20 @@ export default function VisionPage() {
         </section>
 
         {/* Composability Section */}
-        <div className="gradient-divider" />
         <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-white mb-4">Composable Privacy Primitive</h2>
-              <p className="text-slate-400 max-w-2xl mx-auto">
-                Any Aleo program can verify AccessPass ownership via <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300 text-xs">verify_access</code> —
+              <h2 className="text-3xl font-semibold text-white mb-4">Composable Privacy Primitive</h2>
+              <p className="text-[#a1a1aa] max-w-2xl mx-auto">
+                Any Aleo program can verify AccessPass ownership via <code className="px-1 py-0.5 rounded bg-white/10 text-[#a1a1aa] text-xs">verify_access</code> —
                 a zero-footprint transition with no finalize, no public state change, and no on-chain evidence.
               </p>
             </motion.div>
 
             <div className="grid md:grid-cols-3 gap-4">
               {[
-                { stat: '9', label: 'Transitions', desc: 'Complete subscription lifecycle' },
-                { stat: '9', label: 'Mappings', desc: 'Aggregate-only public state' },
+                { stat: '31', label: 'Transitions', desc: 'Complete subscription lifecycle' },
+                { stat: '25', label: 'Mappings', desc: 'Aggregate-only public state' },
                 { stat: '0', label: 'Identity Leaks', desc: 'Subscriber addresses never in finalize' },
               ].map((item, i) => (
                 <motion.div
@@ -143,13 +139,13 @@ export default function VisionPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="text-center p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]"
+                  className="text-center p-4 rounded-[12px] bg-[#111113] border border-white/[0.06]"
                 >
-                  <p className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">
+                  <p className="text-3xl font-bold text-white">
                     {item.stat}
                   </p>
                   <p className="text-sm font-medium text-white mt-1">{item.label}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{item.desc}</p>
+                  <p className="text-xs text-[#71717a] mt-0.5">{item.desc}</p>
                 </motion.div>
               ))}
             </div>
@@ -157,19 +153,18 @@ export default function VisionPage() {
         </section>
 
         {/* Roadmap */}
-        <div className="gradient-divider" />
         <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-white mb-4">Roadmap</h2>
-              <p className="text-slate-400">From buildathon to production.</p>
+              <h2 className="text-3xl font-semibold text-white mb-4">Roadmap</h2>
+              <p className="text-[#a1a1aa]">From buildathon to production.</p>
             </motion.div>
 
             <div className="space-y-4">
               {[
-                { phase: 'Wave 2', status: 'done', items: 'v5 multi-token, 9 transitions, server-gated content, analytics, Explorer, flexible tipping' },
-                { phase: 'Wave 3', status: 'current', items: 'v5 testnet deployment, video demo, Vercel deploy, Leo tests, vision page' },
-                { phase: 'Wave 4', status: 'next', items: 'Batch subscriptions, creator discovery marketplace, SDK documentation' },
+                { phase: 'Wave 2', status: 'done', items: 'v8 multi-token, CreatorReceipt, AuditToken, content hashes, walletless explorer, mobile nav' },
+                { phase: 'Wave 3', status: 'current', items: 'v15 deployed — 28 transitions, 7 records, custom tiers, gifting, escrow, blind renewal, encrypted content, subscription transfer, revocation enforcement, full UI redesign' },
+                { phase: 'Wave 4', status: 'next', items: 'Batch subscriptions, creator discovery marketplace, SDK documentation, subscription transfer' },
                 { phase: 'Mainnet', status: 'future', items: 'Production deployment, TypeScript SDK, DAO governance, mobile wallet support' },
               ].map((item, i) => (
                 <motion.div
@@ -178,7 +173,7 @@ export default function VisionPage() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="flex items-start gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]"
+                  className="flex items-start gap-4 p-4 rounded-[12px] bg-[#111113] border border-white/[0.06]"
                 >
                   <div className={`shrink-0 mt-0.5 w-3 h-3 rounded-full ${
                     item.status === 'done' ? 'bg-green-400' :
@@ -187,7 +182,7 @@ export default function VisionPage() {
                   }`} />
                   <div>
                     <p className="text-sm font-medium text-white">{item.phase}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{item.items}</p>
+                    <p className="text-xs text-[#a1a1aa] mt-0.5">{item.items}</p>
                   </div>
                 </motion.div>
               ))}

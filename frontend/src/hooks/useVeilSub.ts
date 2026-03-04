@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import { PROGRAM_ID, FEES, TOKEN_FEES } from '@/lib/config'
+import { PROGRAM_ID, FEES, ESCROW_WINDOW_BLOCKS } from '@/lib/config'
 
 // Timeout wrapper: prevents requestRecords from hanging forever.
 // Shield Wallet can silently hang on INVALID_PARAMS — this ensures we always get a result.
@@ -176,71 +176,336 @@ export function useVeilSub() {
   )
 
   // =========================================
-  // v5 Token Transitions
+  // v9: Dynamic Tier Management
   // =========================================
 
-  const setTokenPrice = useCallback(
-    async (tokenId: string, price: number) => {
+  const createCustomTier = useCallback(
+    async (tierId: number, price: number, nameHash: string) => {
       return execute(
-        'set_token_price',
-        [`${tokenId}field`, `${price}u128`],
-        TOKEN_FEES.SET_TOKEN_PRICE
+        'create_custom_tier',
+        [`${tierId}u8`, `${price}u64`, `${nameHash}field`],
+        FEES.CREATE_TIER
       )
     },
     [execute]
   )
 
-  const subscribeToken = useCallback(
+  const updateTierPrice = useCallback(
+    async (tierRecordPlaintext: string, newPrice: number) => {
+      return execute(
+        'update_tier_price',
+        [tierRecordPlaintext, `${newPrice}u64`],
+        FEES.UPDATE_TIER
+      )
+    },
+    [execute]
+  )
+
+  const deprecateTier = useCallback(
+    async (tierRecordPlaintext: string) => {
+      return execute(
+        'deprecate_tier',
+        [tierRecordPlaintext],
+        FEES.DEPRECATE_TIER
+      )
+    },
+    [execute]
+  )
+
+  // v9: Content Lifecycle
+  const updateContent = useCallback(
+    async (contentId: string, newMinTier: number, newContentHash: string) => {
+      return execute(
+        'update_content',
+        [`${contentId}field`, `${newMinTier}u8`, `${newContentHash}field`],
+        FEES.UPDATE_CONTENT
+      )
+    },
+    [execute]
+  )
+
+  const deleteContent = useCallback(
+    async (contentId: string, reasonHash: string) => {
+      return execute(
+        'delete_content',
+        [`${contentId}field`, `${reasonHash}field`],
+        FEES.DELETE_CONTENT
+      )
+    },
+    [execute]
+  )
+
+  // =========================================
+  // v10: Gifting + Escrow + Fee Withdrawal
+  // =========================================
+
+  const giftSubscription = useCallback(
     async (
-      tokenRecCreator: string,
-      tokenRecPlatform: string,
+      paymentRecord: string,
+      creatorAddress: string,
+      recipientAddress: string,
+      tier: number,
+      amount: number,
+      giftId: string,
+      expiresAt: number
+    ) => {
+      return execute(
+        'gift_subscription',
+        [
+          paymentRecord,
+          creatorAddress,
+          recipientAddress,
+          `${tier}u8`,
+          `${amount}u64`,
+          `${giftId}field`,
+          `${expiresAt}u32`,
+        ],
+        FEES.GIFT_SUBSCRIPTION
+      )
+    },
+    [execute]
+  )
+
+  const redeemGift = useCallback(
+    async (giftTokenPlaintext: string) => {
+      return execute(
+        'redeem_gift',
+        [giftTokenPlaintext],
+        FEES.REDEEM_GIFT
+      )
+    },
+    [execute]
+  )
+
+  const subscribeWithEscrow = useCallback(
+    async (
+      paymentRecord: string,
       creatorAddress: string,
       tier: number,
       amount: number,
-      tokenId: string,
       passId: string,
       expiresAt: number
     ) => {
       return execute(
-        'subscribe_token',
+        'subscribe_with_escrow',
         [
-          tokenRecCreator,
-          tokenRecPlatform,
+          paymentRecord,
           creatorAddress,
           `${tier}u8`,
-          `${amount}u128`,
-          `${tokenId}field`,
+          `${amount}u64`,
           `${passId}field`,
           `${expiresAt}u32`,
         ],
-        TOKEN_FEES.SUBSCRIBE_TOKEN
+        FEES.SUBSCRIBE_ESCROW
       )
     },
     [execute]
   )
 
-  const tipToken = useCallback(
-    async (
-      tokenRecCreator: string,
-      tokenRecPlatform: string,
-      creatorAddress: string,
-      amount: number,
-      tokenId: string
-    ) => {
+  const claimRefund = useCallback(
+    async (escrowPlaintext: string, accessPassPlaintext: string) => {
       return execute(
-        'tip_token',
-        [
-          tokenRecCreator,
-          tokenRecPlatform,
-          creatorAddress,
-          `${amount}u128`,
-          `${tokenId}field`,
-        ],
-        TOKEN_FEES.TIP_TOKEN
+        'claim_refund',
+        [escrowPlaintext, accessPassPlaintext],
+        FEES.CLAIM_REFUND
       )
     },
     [execute]
   )
+
+  const withdrawPlatformFees = useCallback(
+    async (amount: number) => {
+      return execute(
+        'withdraw_platform_fees',
+        [`${amount}u64`],
+        FEES.WITHDRAW_PLATFORM
+      )
+    },
+    [execute]
+  )
+
+  const withdrawCreatorRevenue = useCallback(
+    async (amount: number) => {
+      return execute(
+        'withdraw_creator_revenue',
+        [`${amount}u64`],
+        FEES.WITHDRAW_CREATOR
+      )
+    },
+    [execute]
+  )
+
+  // =========================================
+  // v11: Blind Renewal (Novel Privacy)
+  // =========================================
+
+  const subscribeBlind = useCallback(
+    async (
+      paymentRecord: string,
+      creatorAddress: string,
+      nonce: string,
+      tier: number,
+      amount: number,
+      passId: string,
+      expiresAt: number
+    ) => {
+      return execute(
+        'subscribe_blind',
+        [
+          paymentRecord,
+          creatorAddress,
+          `${nonce}field`,
+          `${tier}u8`,
+          `${amount}u64`,
+          `${passId}field`,
+          `${expiresAt}u32`,
+        ],
+        FEES.SUBSCRIBE_BLIND
+      )
+    },
+    [execute]
+  )
+
+  const renewBlind = useCallback(
+    async (
+      accessPassPlaintext: string,
+      paymentRecord: string,
+      nonce: string,
+      newTier: number,
+      amount: number,
+      newPassId: string,
+      newExpiresAt: number
+    ) => {
+      return execute(
+        'renew_blind',
+        [
+          accessPassPlaintext,
+          paymentRecord,
+          `${nonce}field`,
+          `${newTier}u8`,
+          `${amount}u64`,
+          `${newPassId}field`,
+          `${newExpiresAt}u32`,
+        ],
+        FEES.RENEW_BLIND
+      )
+    },
+    [execute]
+  )
+
+  const verifyTierAccess = useCallback(
+    async (accessPassPlaintext: string, creatorAddress: string, requiredTier: number) => {
+      return execute(
+        'verify_tier_access',
+        [accessPassPlaintext, creatorAddress, `${requiredTier}u8`],
+        FEES.VERIFY_TIER
+      )
+    },
+    [execute]
+  )
+
+  // =========================================
+  // v12: Encrypted Content + Disputes
+  // =========================================
+
+  const publishEncryptedContent = useCallback(
+    async (contentId: string, minTier: number, contentHash: string, encryptionCommitment: string) => {
+      return execute(
+        'publish_encrypted_content',
+        [
+          `${contentId}field`,
+          `${minTier}u8`,
+          `${contentHash}field`,
+          `${encryptionCommitment}field`,
+        ],
+        FEES.PUBLISH_ENCRYPTED
+      )
+    },
+    [execute]
+  )
+
+  const revokeAccess = useCallback(
+    async (passId: string) => {
+      return execute(
+        'revoke_access',
+        [`${passId}field`],
+        FEES.REVOKE_ACCESS
+      )
+    },
+    [execute]
+  )
+
+  const disputeContent = useCallback(
+    async (contentId: string) => {
+      return execute(
+        'dispute_content',
+        [`${contentId}field`],
+        FEES.DISPUTE_CONTENT
+      )
+    },
+    [execute]
+  )
+
+  // =========================================
+  // Record Fetchers (v10+)
+  // =========================================
+
+  // Fetch SubscriptionTier records (for creator tier management)
+  const getTierRecords = useCallback(async (): Promise<string[]> => {
+    if (!connected || !requestRecords) return []
+    try {
+      const records = await withTimeout(
+        requestRecords(PROGRAM_ID, false),
+        15000,
+        `requestRecords(${PROGRAM_ID})`
+      )
+      const results: string[] = []
+      for (const r of records as any[]) {
+        if ((r as any)?.spent) continue
+        const text = await extractPlaintext(r)
+        if (text && text.includes('tier_id') && text.includes('name_hash') && text.includes('price')) results.push(text)
+      }
+      return results
+    } catch { return [] }
+  }, [connected, requestRecords, decrypt])
+
+  // Fetch GiftToken records (for gift recipients)
+  const getGiftTokens = useCallback(async (): Promise<string[]> => {
+    if (!connected || !requestRecords) return []
+    try {
+      const records = await withTimeout(
+        requestRecords(PROGRAM_ID, false),
+        15000,
+        `requestRecords(${PROGRAM_ID})`
+      )
+      const results: string[] = []
+      for (const r of records as any[]) {
+        if ((r as any)?.spent) continue
+        const text = await extractPlaintext(r)
+        if (text && text.includes('gifter_hash')) results.push(text)
+      }
+      return results
+    } catch { return [] }
+  }, [connected, requestRecords, decrypt])
+
+  // Fetch RefundEscrow records (for refund claims)
+  const getEscrowRecords = useCallback(async (): Promise<string[]> => {
+    if (!connected || !requestRecords) return []
+    try {
+      const records = await withTimeout(
+        requestRecords(PROGRAM_ID, false),
+        15000,
+        `requestRecords(${PROGRAM_ID})`
+      )
+      const results: string[] = []
+      for (const r of records as any[]) {
+        if ((r as any)?.spent) continue
+        const text = await extractPlaintext(r)
+        if (text && text.includes('escrow_expiry')) results.push(text)
+      }
+      return results
+    } catch { return [] }
+  }, [connected, requestRecords, decrypt])
 
   // Split a single credits record into two via credits.aleo/split.
   const splitCredits = useCallback(
@@ -550,6 +815,7 @@ export function useVeilSub() {
   return {
     publicKey: address,
     connected,
+    // Core (v1-v8)
     registerCreator,
     subscribe,
     tip,
@@ -557,16 +823,39 @@ export function useVeilSub() {
     renew,
     publishContent,
     createAuditToken,
-    setTokenPrice,
-    subscribeToken,
-    tipToken,
+    // v9: Dynamic tiers + content lifecycle
+    createCustomTier,
+    updateTierPrice,
+    deprecateTier,
+    updateContent,
+    deleteContent,
+    // v10: Gifting + escrow + fee withdrawal
+    giftSubscription,
+    redeemGift,
+    subscribeWithEscrow,
+    claimRefund,
+    withdrawPlatformFees,
+    withdrawCreatorRevenue,
+    // v11: Blind renewal (novel privacy)
+    subscribeBlind,
+    renewBlind,
+    verifyTierAccess,
+    // v12: Encrypted content + disputes
+    publishEncryptedContent,
+    revokeAccess,
+    disputeContent,
+    // Utility
     splitCredits,
     convertPublicToPrivate,
+    // Record fetchers
     getTokenRecords,
     getCreditsRecords,
     getAccessPasses,
     getCreatorReceipts,
     getAuditTokens,
+    getTierRecords,
+    getGiftTokens,
+    getEscrowRecords,
     pollTxStatus,
   }
 }

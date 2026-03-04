@@ -80,13 +80,13 @@ export default function CreatorQRCode({ creatorAddress, delay = 0 }: Props) {
     <GlassCard delay={delay}>
       <div className="flex flex-col items-center gap-4">
         <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-violet-400" />
+          <Shield className="w-4 h-4 text-[#a1a1aa]" />
           <h3 className="text-white font-semibold text-sm">
             Share This Creator
           </h3>
         </div>
 
-        <div ref={qrRef} className="p-3 rounded-xl bg-white">
+        <div ref={qrRef} className="p-3 rounded-[8px] bg-white">
           <QRCodeSVG
             value={creatorUrl}
             size={160}
@@ -100,21 +100,21 @@ export default function CreatorQRCode({ creatorAddress, delay = 0 }: Props) {
         <div className="flex gap-2 w-full">
           <button
             onClick={handleDownload}
-            className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-white hover:bg-white/10 transition-colors flex items-center justify-center gap-1.5"
+            className="flex-1 px-3 py-2 rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-xs text-white hover:bg-white/[0.08] transition-colors flex items-center justify-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5" />
             Download
           </button>
           <button
             onClick={handleShare}
-            className="flex-1 px-3 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-colors flex items-center justify-center gap-1.5"
+            className="flex-1 px-3 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-[#a1a1aa] hover:bg-violet-500/20 transition-colors flex items-center justify-center gap-1.5"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Share2 className="w-3.5 h-3.5" />}
             {copied ? 'Copied' : 'Share'}
           </button>
         </div>
 
-        <p className="text-xs text-slate-500 text-center">
+        <p className="text-xs text-[#71717a] text-center">
           Scan to subscribe privately — zero identity exposure
         </p>
       </div>

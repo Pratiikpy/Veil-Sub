@@ -29,10 +29,10 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
     >
       <Link
         href={`/creator/${creator.address}`}
-        className="block p-5 rounded-xl bg-white/[0.02] border border-white/10 hover:border-violet-500/30 hover:-translate-y-0.5 transition-all group"
+        className="block p-5 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.4),0_8px_32px_rgba(0,0,0,0.3)] hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.1)] transition-all duration-300 group"
       >
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-[12px] bg-[#8b5cf6] flex items-center justify-center shrink-0">
             <Shield className="w-5 h-5 text-white" />
           </div>
           <div className="min-w-0">
@@ -40,22 +40,22 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
               {creator.display_name || shortenAddress(creator.address)}
             </p>
             {creator.display_name && (
-              <p className="text-xs text-slate-500 font-mono truncate">
+              <p className="text-xs text-[#71717a] font-mono truncate">
                 {shortenAddress(creator.address)}
               </p>
             )}
           </div>
         </div>
         {creator.bio && (
-          <p className="text-sm text-slate-400 mb-3 line-clamp-2">
+          <p className="text-sm text-[#a1a1aa] mb-3 line-clamp-2">
             {creator.bio}
           </p>
         )}
         <div className="flex items-center justify-between">
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-[#71717a]">
             Joined {new Date(creator.created_at).toLocaleDateString()}
           </span>
-          <span className="text-xs text-violet-400 group-hover:text-violet-300 flex items-center gap-1">
+          <span className="text-xs text-[#a1a1aa] group-hover:text-[#a1a1aa] flex items-center gap-1">
             View page <ArrowRight className="w-3 h-3" />
           </span>
         </div>
@@ -111,10 +111,10 @@ export default function ExplorePage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-10"
           >
-            <h1 className="text-3xl font-bold text-white mb-2">
+            <h1 className="text-3xl font-semibold text-white mb-2">
               Explore Creators
             </h1>
-            <p className="text-slate-400">
+            <p className="text-[#a1a1aa]">
               Discover creators and subscribe privately. Your identity stays hidden.
             </p>
           </motion.div>
@@ -127,13 +127,13 @@ export default function ExplorePage() {
             className="max-w-lg mx-auto mb-10"
           >
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717a]" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search creators by name..."
-                className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm"
+                className="w-full pl-11 pr-4 py-3 rounded-lg bg-[#111113] border border-[rgba(255,255,255,0.06)] text-white placeholder-[#71717a] focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all duration-300 text-sm"
               />
             </div>
           </motion.div>
@@ -143,10 +143,10 @@ export default function ExplorePage() {
             <div className="text-center py-16">
               <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
               <h3 className="text-white font-medium mb-1">Failed to Load Creators</h3>
-              <p className="text-sm text-slate-500 mb-4">Could not reach the server. Please try again.</p>
+              <p className="text-sm text-[#71717a] mb-4">Could not reach the server. Please try again.</p>
               <button
                 onClick={() => setRetryKey(k => k + 1)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-white hover:bg-white/10 transition-all duration-300"
               >
                 Retry
               </button>
@@ -156,10 +156,10 @@ export default function ExplorePage() {
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
-                  className="p-5 rounded-xl bg-white/[0.02] border border-white/[0.06] animate-pulse"
+                  className="p-5 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)] animate-pulse"
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/[0.06]" />
+                    <div className="w-10 h-10 rounded-[12px] bg-white/[0.06]" />
                     <div>
                       <div className="h-4 w-24 rounded bg-white/[0.06] mb-1" />
                       <div className="h-3 w-16 rounded bg-white/[0.04]" />
@@ -176,14 +176,14 @@ export default function ExplorePage() {
               <h3 className="text-white font-medium mb-1">
                 {search ? 'No Creators Found' : 'No Creators Yet'}
               </h3>
-              <p className="text-sm text-slate-500 mb-6">
+              <p className="text-sm text-[#71717a] mb-6">
                 {search
                   ? 'Try a different search term or browse all creators.'
                   : 'Be the first to register as a creator on VeilSub!'}
               </p>
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium text-sm hover:from-violet-500 hover:to-purple-500 transition-all active:scale-[0.98]"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#a78bfa] text-white font-medium text-sm hover:from-[#7c4fe0] hover:to-[#9b7ae8] transition-all duration-300 active:scale-[0.98]"
               >
                 Become a Creator
                 <ArrowRight className="w-4 h-4" />

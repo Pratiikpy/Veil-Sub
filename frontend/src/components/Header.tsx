@@ -4,29 +4,33 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { WalletMultiButton } from '@provablehq/aleo-wallet-adaptor-react-ui'
-import { Shield, Menu, X } from 'lucide-react'
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { Menu, X } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 
 const NAV_ITEMS = [
-  { href: '/', label: 'Home', requiresWallet: false },
-  { href: '/explore', label: 'Explore', requiresWallet: false },
-  { href: '/privacy', label: 'Privacy', requiresWallet: false },
-  { href: '/docs', label: 'Docs', requiresWallet: false },
-  { href: '/vision', label: 'Vision', requiresWallet: false },
-  { href: '/explorer', label: 'Explorer', requiresWallet: false },
-  { href: '/verify', label: 'Verify', requiresWallet: false },
-  { href: '/dashboard', label: 'Dashboard', requiresWallet: true },
+  { href: '/', label: 'Home' },
+  { href: '/explore', label: 'Explore' },
+  { href: '/verify', label: 'Verify' },
+  { href: '/docs', label: 'Docs' },
+  { href: '/analytics', label: 'Analytics' },
 ]
+
+const DASHBOARD_ITEM = { href: '/dashboard', label: 'Dashboard' }
 
 export default function Header() {
   const { connected } = useWallet()
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
 
-  const visibleItems = NAV_ITEMS.filter(
-    (item) => !item.requiresWallet || connected
-  )
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const allItems = connected ? [...NAV_ITEMS, DASHBOARD_ITEM] : NAV_ITEMS
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
@@ -34,65 +38,50 @@ export default function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5">
-      <div className="backdrop-blur-xl bg-[#050507]/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="fixed top-0 left-0 right-0 z-50">
+      <div
+        className={`transition-all duration-500 ${
+          scrolled
+            ? 'bg-[rgb(2,0,5)]/80 backdrop-blur-xl border-b border-[rgba(255,255,255,0.06)]'
+            : 'bg-transparent border-b border-transparent'
+        }`}
+      >
+        <div className="max-w-[1120px] mx-auto px-6">
           <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center group-hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-shadow">
-                <Shield className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-lg font-bold bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">
-                VeilSub
-              </span>
+            {/* Logo — plain text */}
+            <Link href="/" className="text-lg font-semibold text-white tracking-tight">
+              VeilSub
             </Link>
 
-            {/* Desktop nav — floating pill */}
-            <nav className="hidden md:block">
-              <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-full p-1 flex items-center">
-                {visibleItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`relative px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                      isActive(item.href)
-                        ? 'text-white'
-                        : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    {item.label}
-                    {isActive(item.href) && (
-                      <motion.div
-                        layoutId="nav-indicator"
-                        className="absolute inset-0 rounded-full bg-white/10 border border-white/[0.15]"
-                        style={{ zIndex: -1 }}
-                        transition={{
-                          type: 'spring',
-                          stiffness: 350,
-                          damping: 30,
-                        }}
-                      />
-                    )}
-                  </Link>
-                ))}
-              </div>
+            {/* Desktop nav */}
+            <nav className="hidden md:flex items-center gap-1">
+              {allItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`relative px-4 py-2 text-sm font-medium transition-colors ${
+                    isActive(item.href)
+                      ? 'text-white'
+                      : 'text-[#71717a] hover:text-[#a1a1aa]'
+                  }`}
+                >
+                  {item.label}
+                  {isActive(item.href) && (
+                    <span className="absolute bottom-0 left-4 right-4 h-px bg-white/40" />
+                  )}
+                </Link>
+              ))}
             </nav>
 
             <div className="flex items-center gap-3">
               <WalletMultiButton />
-
-              {/* Mobile menu button */}
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
                 aria-expanded={mobileOpen}
-                className="md:hidden p-2 rounded-lg hover:bg-white/5 text-slate-400"
+                className="md:hidden p-2 rounded-[8px] hover:bg-white/[0.04] text-[#71717a]"
               >
-                {mobileOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
+                {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
           </div>
@@ -106,18 +95,18 @@ export default function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-b border-white/5 bg-[#050507]/95 backdrop-blur-xl overflow-hidden"
+            className="md:hidden border-b border-[rgba(255,255,255,0.06)] bg-[rgb(2,0,5)]/95 backdrop-blur-xl overflow-hidden"
           >
-            <nav className="px-4 py-3 space-y-1">
-              {visibleItems.map((item) => (
+            <nav className="px-6 py-3 space-y-1">
+              {allItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`block px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                  className={`block px-3 py-2.5 rounded-[8px] text-sm transition-colors ${
                     isActive(item.href)
-                      ? 'text-white bg-white/[0.06]'
-                      : 'text-slate-400 hover:text-white hover:bg-white/[0.03]'
+                      ? 'text-white bg-white/[0.04]'
+                      : 'text-[#71717a] hover:text-[#a1a1aa] hover:bg-white/[0.02]'
                   }`}
                 >
                   {item.label}

@@ -28,7 +28,6 @@ import { TIERS } from '@/types'
 import type { AccessPass, TxStatus } from '@/types'
 import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
-import FloatingOrbs from '@/components/FloatingOrbs'
 import StatusBadge from '@/components/StatusBadge'
 import VerificationResult from '@/components/VerificationResult'
 import TransactionStatus from '@/components/TransactionStatus'
@@ -250,13 +249,13 @@ export default function VerifyPage() {
                   value={creatorAddr}
                   onChange={(e) => setCreatorAddr(e.target.value)}
                   placeholder="aleo1..."
-                  className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/50"
+                  className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all duration-300"
                 />
               </div>
               <button
                 onClick={lookupCreator}
                 disabled={creatorLoading || !creatorAddr.startsWith('aleo1')}
-                className="w-full py-2.5 rounded-lg bg-violet-600/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-600/30 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+                className="w-full py-2.5 rounded-lg bg-violet-600/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-600/30 transition-all duration-300 disabled:opacity-40 flex items-center justify-center gap-2"
               >
                 {creatorLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                 Query On-Chain
@@ -317,13 +316,13 @@ export default function VerifyPage() {
                     value={contentId}
                     onChange={(e) => setContentId(e.target.value)}
                     placeholder="Content hash (field value)"
-                    className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/50"
+                    className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all duration-300"
                   />
                 </div>
                 <button
                   onClick={lookupContent}
                   disabled={contentLoading || !contentId}
-                  className="w-full py-2.5 rounded-lg bg-violet-600/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-600/30 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+                  className="w-full py-2.5 rounded-lg bg-violet-600/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-600/30 transition-all duration-300 disabled:opacity-40 flex items-center justify-center gap-2"
                 >
                   {contentLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                   Verify Content
@@ -373,7 +372,7 @@ export default function VerifyPage() {
                 <button
                   onClick={checkDeployment}
                   disabled={deployLoading}
-                  className="w-full py-2.5 rounded-lg bg-violet-600/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-600/30 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+                  className="w-full py-2.5 rounded-lg bg-violet-600/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-600/30 transition-all duration-300 disabled:opacity-40 flex items-center justify-center gap-2"
                 >
                   {deployLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                   Check Deployment
@@ -406,25 +405,22 @@ export default function VerifyPage() {
       <div className="min-h-screen">
         {/* Hero */}
         <section className="relative overflow-hidden">
-          <FloatingOrbs />
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 mb-6">
-                <ShieldCheck className="w-4 h-4 text-violet-400" />
-                <span className="text-sm text-violet-300">
-                  Zero-Knowledge Proof Verification
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-[rgba(255,255,255,0.06)] mb-6">
+                <ShieldCheck className="w-4 h-4 text-[#a1a1aa]" />
+                <span className="text-xs font-medium tracking-wide uppercase text-[#a1a1aa]">
+                  Zero-Knowledge Verification
                 </span>
               </div>
-              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-                <span className="bg-gradient-to-r from-white via-violet-200 to-purple-300 bg-clip-text text-transparent">
-                  Verify Your Access
-                </span>
+              <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-[#fafafa] mb-4">
+                Verify Your Access
               </h1>
-              <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+              <p className="text-lg text-[#a1a1aa] max-w-2xl mx-auto">
                 Prove you hold a valid AccessPass using a zero-knowledge proof.
                 Your identity stays completely private.
               </p>
@@ -457,7 +453,7 @@ export default function VerifyPage() {
                     onClick={loadPasses}
                     disabled={loading}
                     aria-label="Refresh access passes"
-                    className="p-2 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                    className="p-2 rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-[#71717a] hover:text-[#fafafa] hover:bg-white/[0.08] transition-all duration-300"
                   >
                     <RefreshCw
                       className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
@@ -493,10 +489,10 @@ export default function VerifyPage() {
                             setVerifyResult('idle')
                             setVerifyTxStatus('idle')
                           }}
-                          className={`w-full text-left p-4 rounded-xl border transition-all ${
+                          className={`w-full text-left p-4 rounded-xl border shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)] transition-all duration-300 ${
                             isSelected
-                              ? 'bg-violet-500/10 border-violet-500/25'
-                              : 'bg-white/[0.02] border-white/[0.06] hover:border-white/10'
+                              ? 'bg-[#111113] border-[rgba(255,255,255,0.12)]'
+                              : 'bg-[#111113] border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.1)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.4),0_8px_32px_rgba(0,0,0,0.3)]'
                           }`}
                         >
                           <div className="flex items-center justify-between mb-2">
@@ -513,7 +509,7 @@ export default function VerifyPage() {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-12 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                  <div className="text-center py-12 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)]">
                     <Lock className="w-10 h-10 text-slate-700 mx-auto mb-3" />
                     <p className="text-slate-400 text-sm mb-1">
                       No Access Passes Found
@@ -561,7 +557,7 @@ export default function VerifyPage() {
                     {verifyResult === 'idle' && verifyTxStatus === 'idle' && (
                       <button
                         onClick={() => handleVerify(selectedPass)}
-                        className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium hover:from-violet-500 hover:to-purple-500 transition-all hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] active:scale-[0.98] flex items-center justify-center gap-2"
+                        className="w-full py-3 rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#a78bfa] text-white font-medium hover:from-[#7c4fe0] hover:to-[#9b7ae8] transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98]"
                       >
                         <Zap className="w-4 h-4" />
                         Verify with ZK Proof
@@ -596,14 +592,14 @@ export default function VerifyPage() {
                           setVerifyTxStatus('idle')
                           setVerifyTxId(null)
                         }}
-                        className="w-full py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition-colors"
+                        className="w-full py-2.5 rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-all duration-300 active:scale-[0.98]"
                       >
                         Verify Again
                       </button>
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-16 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                  <div className="text-center py-16 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)]">
                     <ShieldCheck className="w-10 h-10 text-slate-700 mx-auto mb-3" />
                     <p className="text-slate-400 text-sm">
                       Select a pass to begin verification
@@ -619,17 +615,17 @@ export default function VerifyPage() {
         <OnChainExplorer />
 
         {/* How It Works */}
-        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-white/5">
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-[rgba(255,255,255,0.06)]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-2xl font-bold text-white mb-3">
+            <h2 className="text-2xl font-semibold text-[#fafafa] mb-3">
               How ZK Verification Works
             </h2>
-            <p className="text-slate-400 text-sm">
+            <p className="text-[#a1a1aa] text-sm">
               Three steps, zero identity exposure.
             </p>
           </motion.div>
@@ -656,8 +652,8 @@ export default function VerifyPage() {
               return (
                 <GlassCard key={step.title} delay={i * 0.1}>
                   <div className="text-center">
-                    <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center mx-auto mb-4">
-                      <Icon className="w-6 h-6 text-violet-400" />
+                    <div className="w-12 h-12 rounded-[8px] bg-white/[0.04] flex items-center justify-center mx-auto mb-4">
+                      <Icon className="w-6 h-6 text-[#a1a1aa]" />
                     </div>
                     <h3 className="text-white font-semibold mb-2">
                       {step.title}
