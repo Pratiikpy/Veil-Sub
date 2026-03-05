@@ -192,6 +192,46 @@ export default function AnalyticsPage() {
             </div>
           </section>
 
+          {/* Privacy Modes */}
+          <section className="mb-16">
+            <h2 className="text-lg font-medium text-white mb-6">Privacy Modes</h2>
+            <div className="grid md:grid-cols-3 gap-4">
+              <GlassCard delay={0}>
+                <div className="flex items-center gap-2 mb-3">
+                  <ShieldCheck className="w-4 h-4 text-green-400" />
+                  <span className="text-sm font-medium text-white">Standard</span>
+                </div>
+                <p className="text-xs text-[#71717a] leading-relaxed mb-3">
+                  Private payment via transfer_private. Subscriber address never in finalize.
+                  Creator sees hashed subscriber ID.
+                </p>
+                <div className="text-xs text-[#52525b]">subscribe · renew</div>
+              </GlassCard>
+              <GlassCard delay={0.05} variant="accent">
+                <div className="flex items-center gap-2 mb-3">
+                  <EyeOff className="w-4 h-4 text-violet-400" />
+                  <span className="text-sm font-medium text-white">Blind</span>
+                </div>
+                <p className="text-xs text-[#71717a] leading-relaxed mb-3">
+                  Nonce-rotated identity — each renewal uses BHP256(caller, unique_nonce).
+                  Creator sees a different subscriber each time.
+                </p>
+                <div className="text-xs text-[#52525b]">subscribe_blind · renew_blind</div>
+              </GlassCard>
+              <GlassCard delay={0.1}>
+                <div className="flex items-center gap-2 mb-3">
+                  <Lock className="w-4 h-4 text-purple-400" />
+                  <span className="text-sm font-medium text-white">Maximum</span>
+                </div>
+                <p className="text-xs text-[#71717a] leading-relaxed mb-3">
+                  Pedersen commitment aggregate — no public subscriber count.
+                  Count stored as homomorphic group element.
+                </p>
+                <div className="text-xs text-[#52525b]">subscribe_private_count</div>
+              </GlassCard>
+            </div>
+          </section>
+
           {/* Contract Versions Timeline */}
           <section>
             <h2 className="text-lg font-medium text-white mb-6">Contract Versions</h2>
