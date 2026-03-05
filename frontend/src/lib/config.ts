@@ -98,8 +98,8 @@ export const SEED_CONTENT: SeedContent[] = [
   },
   {
     id: 'seed-4',
-    title: 'Weekly Update: v15 Contract Deployed',
-    body: 'VeilSub v15 is live on testnet! This version adds subscription transfer, revocation enforcement, blind renewal with nonce rotation, encrypted content delivery, subscription gifting, refund escrow, and dispute resolution. 28 transitions, 7 record types, 22 mappings. Try it out and share feedback.',
+    title: 'Weekly Update: v16 Contract Deployed',
+    body: 'VeilSub v16 is live on testnet! This version adds on-chain referrals, subscription transfer, revocation enforcement, blind renewal with nonce rotation, commit-reveal tipping, encrypted content delivery, subscription gifting, refund escrow, and dispute resolution. 29 transitions, 8 record types, 23 mappings. Try it out and share feedback.',
     minTier: 1,
     createdAt: '2026-03-01T10:00:00Z',
     contentId: 'seed',

@@ -33,7 +33,7 @@ VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pa
 │  Wallet-hash auth: SHA-256(address) → no plaintext   │
 ├─────────────────────────────────────────────────────┤
 │              Aleo Smart Contract (v16)               │
-│  30 transitions · 23 mappings · 8 record types       │
+│  29 transitions · 23 mappings · 8 record types       │
 │  1,507 lines of Leo · 5 structs                      │
 │  credits.aleo import                                 │
 └─────────────────────────────────────────────────────┘
@@ -65,7 +65,7 @@ VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pa
 7. **RefundEscrow** — time-locked refund claim
 8. **ReferralReward** — privacy-preserving referral reward proof
 
-### 30 Transitions (by category)
+### 29 Transitions (by category)
 
 **Creator Management (6)**
 - `register_creator` — set base price, join platform
@@ -248,7 +248,7 @@ UPSTASH_REDIS_REST_TOKEN=<your-redis-token>
 
 | Metric | VeilSub v16 | NullPay v13 | Veiled Markets | lasagna |
 |--------|-------------|-------------|----------------|---------|
-| Transitions | 30 | ~15 | ~32 | ~12 |
+| Transitions | 29 | ~15 | ~32 | ~12 |
 | Record Types | 8 | 4 | 3 | 3 |
 | Mappings | 23 | ~12 | ~18 | ~10 |
 | Lines of Leo | 1,507 | ~800 | ~2,576 | ~600 |
