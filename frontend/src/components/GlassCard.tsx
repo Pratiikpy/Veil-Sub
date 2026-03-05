@@ -15,12 +15,9 @@ interface Props {
 }
 
 const variantClasses: Record<Variant, string> = {
-  default:
-    'bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2),0_0_0_1px_rgba(255,255,255,0.03)]',
-  heavy:
-    'bg-[#0c0c0e] border border-[rgba(255,255,255,0.08)] shadow-[0_2px_4px_rgba(0,0,0,0.4),0_8px_24px_rgba(0,0,0,0.25),0_0_0_1px_rgba(255,255,255,0.04)]',
-  light:
-    'bg-[#18181b] border border-[rgba(255,255,255,0.05)] shadow-[0_1px_2px_rgba(0,0,0,0.2)]',
+  default: 'bg-[#0a0a0a] border border-white/[0.08]',
+  heavy:   'bg-[#080808] border border-white/[0.10]',
+  light:   'bg-[#0e0e0e] border border-white/[0.06]',
 }
 
 export default function GlassCard({
@@ -32,13 +29,13 @@ export default function GlassCard({
 }: Props) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ delay, duration: 0.4 }}
-      className={`rounded-[24px] ${variantClasses[variant]} p-8 h-full transition-all duration-300 ${
+      transition={{ delay, duration: 0.5 }}
+      className={`rounded-3xl ${variantClasses[variant]} p-8 h-full transition-all duration-300 ${
         hover
-          ? 'hover:border-[rgba(255,255,255,0.1)] hover:bg-[#151517] hover:shadow-[0_4px_8px_rgba(0,0,0,0.4),0_16px_48px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.06)] hover:-translate-y-1'
+          ? 'hover:border-white/[0.15] hover:-translate-y-0.5'
           : ''
       } ${className}`}
     >

@@ -83,7 +83,7 @@ export default function BalanceConverter({
         <div className="space-y-2">
           <button
             onClick={handleConvert}
-            className="w-full py-2.5 rounded-[8px] bg-[#8b5cf6] text-white text-sm font-medium hover:bg-[#7c3aed] transition-all flex items-center justify-center gap-2"
+            className="w-full py-2.5 rounded-[8px] bg-white/[0.06] text-white text-sm font-medium hover:bg-[#7c3aed] transition-all flex items-center justify-center gap-2"
           >
             <ArrowRight className="w-4 h-4" />
             Convert {(convertAmount / 1_000_000).toFixed(2)} ALEO to Private
@@ -123,7 +123,7 @@ export default function BalanceConverter({
         href="https://faucet.aleo.org"
         target="_blank"
         rel="noopener noreferrer"
-        className="block p-3 rounded-lg bg-[#111113] border border-[rgba(255,255,255,0.06)] hover:bg-white/[0.05] transition-colors"
+        className="block p-3 rounded-lg bg-[#0a0a0a] border border-white/[0.08] hover:bg-white/[0.05] transition-colors"
       >
         <div className="flex items-center justify-between mb-1">
           <span className="text-sm text-white font-medium">

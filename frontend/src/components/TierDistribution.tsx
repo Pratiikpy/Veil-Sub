@@ -39,14 +39,14 @@ export default function TierDistribution({ creatorAddress }: Props) {
 
   if (loading) {
     return (
-      <div className="h-36 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)] animate-pulse" />
+      <div className="h-36 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08] animate-pulse" />
     )
   }
 
   const maxCount = Math.max(...Object.values(distribution), 1)
 
   return (
-    <div className="rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)] p-5">
+    <div className="rounded-[12px] bg-[#0a0a0a] border border-white/[0.08] p-5">
       <div className="flex items-center gap-2 mb-4">
         <Users className="w-4 h-4 text-[#a1a1aa]" />
         <h3 className="text-sm font-medium text-white">Tier Breakdown</h3>
@@ -75,7 +75,7 @@ export default function TierDistribution({ creatorAddress }: Props) {
                 />
                 {/* Hover tooltip */}
                 <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block z-10">
-                  <div className="px-2.5 py-1.5 rounded bg-[#1a1825] border border-[rgba(255,255,255,0.06)] text-xs whitespace-nowrap shadow-lg">
+                  <div className="px-2.5 py-1.5 rounded bg-[#1a1825] border border-white/[0.08] text-xs whitespace-nowrap shadow-lg">
                     <p className="text-white font-medium">{count} subscribers</p>
                     <p className="text-[#a1a1aa]">{pct.toFixed(1)}% of total</p>
                   </div>

@@ -86,7 +86,7 @@ export default function AnalyticsPage() {
 
   return (
     <PageTransition>
-      <main className="min-h-screen bg-[rgb(2,0,5)] pt-28 pb-20">
+      <main className="min-h-screen bg-black pt-28 pb-20">
         <div className="max-w-[1120px] mx-auto px-6">
           {/* Hero */}
           <div className="mb-16">
@@ -144,8 +144,8 @@ export default function AnalyticsPage() {
             <div className="grid md:grid-cols-3 gap-4">
               <GlassCard delay={0}>
                 <div className="flex items-start gap-4">
-                  <div className="p-2 rounded-[8px] bg-[#8b5cf6]/10">
-                    <EyeOff className="w-5 h-5 text-[#8b5cf6]" />
+                  <div className="p-2 rounded-[8px] bg-white/[0.06]">
+                    <EyeOff className="w-5 h-5 text-white/40" />
                   </div>
                   <div>
                     <p className="text-2xl font-semibold text-white mb-1">0</p>
@@ -159,8 +159,8 @@ export default function AnalyticsPage() {
               </GlassCard>
               <GlassCard delay={0.05}>
                 <div className="flex items-start gap-4">
-                  <div className="p-2 rounded-[8px] bg-[#8b5cf6]/10">
-                    <ShieldCheck className="w-5 h-5 text-[#8b5cf6]" />
+                  <div className="p-2 rounded-[8px] bg-white/[0.06]">
+                    <ShieldCheck className="w-5 h-5 text-white/40" />
                   </div>
                   <div>
                     <p className="text-2xl font-semibold text-white mb-1">0</p>
@@ -176,8 +176,8 @@ export default function AnalyticsPage() {
               </GlassCard>
               <GlassCard delay={0.1}>
                 <div className="flex items-start gap-4">
-                  <div className="p-2 rounded-[8px] bg-[#8b5cf6]/10">
-                    <Lock className="w-5 h-5 text-[#8b5cf6]" />
+                  <div className="p-2 rounded-[8px] bg-white/[0.06]">
+                    <Lock className="w-5 h-5 text-white/40" />
                   </div>
                   <div>
                     <p className="text-2xl font-semibold text-white mb-1">100%</p>
@@ -206,7 +206,7 @@ export default function AnalyticsPage() {
                     transition={{ delay: i * 0.04, duration: 0.3 }}
                     className={`flex items-start gap-4 py-4 ${
                       i < CONTRACT_VERSIONS.length - 1
-                        ? 'border-b border-[rgba(255,255,255,0.06)]'
+                        ? 'border-b border-white/[0.08]'
                         : ''
                     }`}
                   >
@@ -214,7 +214,7 @@ export default function AnalyticsPage() {
                       <GitBranch className="w-4 h-4 text-[#71717a]" />
                       <span
                         className={`text-sm font-mono font-medium ${
-                          item.version === 'v15' ? 'text-[#8b5cf6]' : 'text-[#a1a1aa]'
+                          item.version === 'v15' ? 'text-white/40' : 'text-[#a1a1aa]'
                         }`}
                       >
                         {item.version}

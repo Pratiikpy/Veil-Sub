@@ -228,7 +228,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
             role="dialog"
             aria-modal="true"
             aria-label="Send a private tip"
-            className="w-full max-w-sm rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.08)] shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-sm rounded-xl bg-[#0a0a0a] border border-[rgba(255,255,255,0.08)] shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
@@ -275,14 +275,14 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                     min="0.1"
                     max="1000"
                     step="0.1"
-                    className="w-full px-4 py-2.5 rounded-lg bg-[#111113] border border-[rgba(255,255,255,0.06)] text-white placeholder-slate-500 focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all text-sm pr-16"
+                    className="w-full px-4 py-2.5 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-white placeholder-slate-500 focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-white/10 transition-all text-sm pr-16"
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#71717a]">ALEO</span>
                 </div>
                 <p className="text-center text-sm text-[#a1a1aa] mb-3">
                   {customAmount ? `${customAmount} ALEO credits` : `${selectedAmount} ALEO credits`}
                 </p>
-                <div className="p-2.5 rounded-[8px] bg-[#18181b] border border-[rgba(255,255,255,0.06)] mb-4">
+                <div className="p-2.5 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-4">
                   <p className="text-[11px] text-green-400/80">
                     Your identity stays private. The creator receives payment but never knows who tipped.
                   </p>
@@ -310,7 +310,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                 <button
                   onClick={handleTip}
                   disabled={txStatus !== 'idle'}
-                  className="w-full py-3 rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#a78bfa] text-white font-medium hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full py-3 rounded-lg bg-white text-black font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {txStatus !== 'idle' ? 'Processing...' : 'Tip Privately'}
                 </button>
@@ -318,7 +318,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
             ) : (
               <div className="py-2">
                 {statusMessage && (
-                  <div className="mb-3 p-3 rounded-[8px] bg-[#18181b] border border-[rgba(255,255,255,0.06)]">
+                  <div className="mb-3 p-3 rounded-[8px] bg-[#18181b] border border-white/[0.08]">
                     <p className="text-xs text-[#a1a1aa] animate-pulse">{statusMessage}</p>
                   </div>
                 )}
@@ -332,7 +332,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                     <p className="text-green-400 font-medium">Tip sent!</p>
                     <button
                       onClick={handleClose}
-                      className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
+                      className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
                     >
                       Done
                     </button>
@@ -349,7 +349,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                         setError(null)
                         setStatusMessage(null)
                       }}
-                      className="px-6 py-2 rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
+                      className="px-6 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
                     >
                       Try Again
                     </button>

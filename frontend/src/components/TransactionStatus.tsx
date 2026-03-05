@@ -203,7 +203,7 @@ export default function TransactionStatus({ status, txId }: Props) {
           <p className="text-xs text-[#71717a] mb-2">Transaction ID</p>
           {!txId.startsWith('at1') ? (
             <>
-              <div className="flex items-center gap-2 p-3 rounded-[8px] bg-[#111113] border border-white/[0.08]">
+              <div className="flex items-center gap-2 p-3 rounded-[8px] bg-[#0a0a0a] border border-white/[0.08]">
                 <span className="text-xs text-[#71717a] break-all flex-1 font-mono">
                   {txId}
                 </span>
@@ -228,7 +228,7 @@ export default function TransactionStatus({ status, txId }: Props) {
               href={`https://testnet.explorer.provable.com/transaction/${txId}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 p-3 rounded-[8px] bg-[#111113] border border-white/[0.08] hover:border-violet-500/30 hover:bg-violet-500/5 transition-all group"
+              className="flex items-center gap-2 p-3 rounded-[8px] bg-[#0a0a0a] border border-white/[0.08] hover:border-violet-500/30 hover:bg-violet-500/5 transition-all group"
             >
               <span className="text-xs text-[#a1a1aa] group-hover:text-white break-all flex-1 font-mono">
                 {txId}

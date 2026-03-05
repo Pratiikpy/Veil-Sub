@@ -42,18 +42,16 @@ export default function Header() {
       <div
         className={`transition-all duration-500 ${
           scrolled
-            ? 'bg-[rgb(2,0,5)]/80 backdrop-blur-xl border-b border-[rgba(255,255,255,0.06)]'
+            ? 'bg-black/80 backdrop-blur-xl border-b border-white/[0.06]'
             : 'bg-transparent border-b border-transparent'
         }`}
       >
         <div className="max-w-[1120px] mx-auto px-6">
           <div className="flex items-center justify-between h-16">
-            {/* Logo — plain text */}
-            <Link href="/" className="text-lg font-semibold text-white tracking-tight">
+            <Link href="/" className="text-xl font-serif italic text-white">
               VeilSub
             </Link>
 
-            {/* Desktop nav */}
             <nav className="hidden md:flex items-center gap-1">
               {allItems.map((item) => (
                 <Link
@@ -62,12 +60,12 @@ export default function Header() {
                   className={`relative px-4 py-2 text-sm font-medium transition-colors ${
                     isActive(item.href)
                       ? 'text-white'
-                      : 'text-[#71717a] hover:text-[#a1a1aa]'
+                      : 'text-[#525252] hover:text-[#a1a1aa]'
                   }`}
                 >
                   {item.label}
                   {isActive(item.href) && (
-                    <span className="absolute bottom-0 left-4 right-4 h-px bg-white/40" />
+                    <span className="absolute bottom-0 left-4 right-4 h-px bg-white/30" />
                   )}
                 </Link>
               ))}
@@ -79,7 +77,7 @@ export default function Header() {
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
                 aria-expanded={mobileOpen}
-                className="md:hidden p-2 rounded-[8px] hover:bg-white/[0.04] text-[#71717a]"
+                className="md:hidden p-2 rounded-lg hover:bg-white/[0.04] text-[#525252]"
               >
                 {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -88,14 +86,13 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile nav */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-b border-[rgba(255,255,255,0.06)] bg-[rgb(2,0,5)]/95 backdrop-blur-xl overflow-hidden"
+            className="md:hidden border-b border-white/[0.06] bg-black/95 backdrop-blur-xl overflow-hidden"
           >
             <nav className="px-6 py-3 space-y-1">
               {allItems.map((item) => (
@@ -103,10 +100,10 @@ export default function Header() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`block px-3 py-2.5 rounded-[8px] text-sm transition-colors ${
+                  className={`block px-3 py-2.5 rounded-lg text-sm transition-colors ${
                     isActive(item.href)
                       ? 'text-white bg-white/[0.04]'
-                      : 'text-[#71717a] hover:text-[#a1a1aa] hover:bg-white/[0.02]'
+                      : 'text-[#525252] hover:text-[#a1a1aa] hover:bg-white/[0.02]'
                   }`}
                 >
                   {item.label}

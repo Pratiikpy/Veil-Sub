@@ -82,7 +82,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
         >
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
           <motion.div
-            className="relative w-full max-w-md rounded-xl border border-[rgba(255,255,255,0.08)] bg-[#111113] shadow-2xl p-6"
+            className="relative w-full max-w-md rounded-xl border border-[rgba(255,255,255,0.08)] bg-[#0a0a0a] shadow-2xl p-6"
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
@@ -103,12 +103,12 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
 
             {status === 'success' ? (
               <div className="space-y-4">
-                <div className="rounded-[8px] bg-[#18181b] border border-[rgba(255,255,255,0.06)] p-4 text-center">
+                <div className="rounded-[8px] bg-[#18181b] border border-white/[0.08] p-4 text-center">
                   <Sparkles className="mx-auto mb-2 h-8 w-8 text-green-400" />
                   <p className="text-sm font-medium text-green-400">Tier #{tierId} created!</p>
                   {txId && <p className="mt-1 text-xs text-[#71717a] break-all">Tx: {txId.slice(0, 20)}...</p>}
                 </div>
-                <button onClick={handleClose} className="w-full rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] py-2.5 text-sm font-medium text-[#fafafa] hover:bg-white/[0.08]">
+                <button onClick={handleClose} className="w-full rounded-lg bg-white/[0.05] border border-white/[0.08] py-2.5 text-sm font-medium text-[#fafafa] hover:bg-white/[0.08]">
                   Close
                 </button>
               </div>
@@ -142,7 +142,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                     value={tierName}
                     onChange={(e) => setTierName(e.target.value)}
                     placeholder="e.g. Supporter, Premium, VIP"
-                    className="w-full rounded-lg bg-[#111113] border border-[rgba(255,255,255,0.06)] px-4 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:border-[rgba(255,255,255,0.12)] focus:outline-none focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all"
+                    className="w-full rounded-lg bg-[#0a0a0a] border border-white/[0.08] px-4 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:border-[rgba(255,255,255,0.12)] focus:outline-none focus:ring-2 focus:ring-white/10 transition-all"
                     maxLength={32}
                   />
                 </div>
@@ -157,7 +157,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                     placeholder="0.5"
                     step="0.1"
                     min="0.001"
-                    className="w-full rounded-lg bg-[#111113] border border-[rgba(255,255,255,0.06)] px-4 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:border-[rgba(255,255,255,0.12)] focus:outline-none focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all"
+                    className="w-full rounded-lg bg-[#0a0a0a] border border-white/[0.08] px-4 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:border-[rgba(255,255,255,0.12)] focus:outline-none focus:ring-2 focus:ring-white/10 transition-all"
                   />
                   {priceAleo && (
                     <p className="mt-1 text-xs text-[#71717a]">
@@ -167,7 +167,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                 </div>
 
                 {/* Privacy note */}
-                <div className="rounded-[8px] bg-[#18181b] border border-[rgba(255,255,255,0.06)] p-3">
+                <div className="rounded-[8px] bg-[#18181b] border border-white/[0.08] p-3">
                   <p className="text-xs text-green-400/80">
                     Tier price is stored on-chain. Tier name is hashed — only you know the real name.
                   </p>
@@ -185,7 +185,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                 <button
                   onClick={handleSubmit}
                   disabled={status === 'submitting' || tierId === 0 || !tierName.trim() || !priceAleo || !connected}
-                  className="w-full rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#a78bfa] py-3 text-sm font-semibold text-white transition-all hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="w-full rounded-lg bg-white py-3 text-sm font-semibold text-black transition-all hover:bg-white/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {status === 'submitting' ? (
                     <span className="flex items-center justify-center gap-2">

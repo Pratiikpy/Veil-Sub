@@ -249,7 +249,7 @@ export default function VerifyPage() {
                   value={creatorAddr}
                   onChange={(e) => setCreatorAddr(e.target.value)}
                   placeholder="aleo1..."
-                  className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all duration-300"
+                  className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-white/10 transition-all duration-300"
                 />
               </div>
               <button
@@ -316,7 +316,7 @@ export default function VerifyPage() {
                     value={contentId}
                     onChange={(e) => setContentId(e.target.value)}
                     placeholder="Content hash (field value)"
-                    className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all duration-300"
+                    className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-white/10 transition-all duration-300"
                   />
                 </div>
                 <button
@@ -411,7 +411,7 @@ export default function VerifyPage() {
               animate={{ opacity: 1, y: 0 }}
               className="text-center"
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-[rgba(255,255,255,0.06)] mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] mb-6">
                 <ShieldCheck className="w-4 h-4 text-[#a1a1aa]" />
                 <span className="text-xs font-medium tracking-wide uppercase text-[#a1a1aa]">
                   Zero-Knowledge Verification
@@ -453,7 +453,7 @@ export default function VerifyPage() {
                     onClick={loadPasses}
                     disabled={loading}
                     aria-label="Refresh access passes"
-                    className="p-2 rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-[#71717a] hover:text-[#fafafa] hover:bg-white/[0.08] transition-all duration-300"
+                    className="p-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-[#71717a] hover:text-[#fafafa] hover:bg-white/[0.08] transition-all duration-300"
                   >
                     <RefreshCw
                       className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
@@ -466,7 +466,7 @@ export default function VerifyPage() {
                     {[0, 1, 2].map((i) => (
                       <div
                         key={i}
-                        className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] animate-pulse"
+                        className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] animate-pulse"
                       >
                         <div className="h-4 w-24 bg-white/10 rounded mb-2" />
                         <div className="h-3 w-40 bg-white/5 rounded" />
@@ -489,10 +489,10 @@ export default function VerifyPage() {
                             setVerifyResult('idle')
                             setVerifyTxStatus('idle')
                           }}
-                          className={`w-full text-left p-4 rounded-xl border shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)] transition-all duration-300 ${
+                          className={`w-full text-left p-4 rounded-xl border transition-all duration-300 ${
                             isSelected
-                              ? 'bg-[#111113] border-[rgba(255,255,255,0.12)]'
-                              : 'bg-[#111113] border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.1)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.4),0_8px_32px_rgba(0,0,0,0.3)]'
+                              ? 'bg-[#0a0a0a] border-[rgba(255,255,255,0.12)]'
+                              : 'bg-[#0a0a0a] border-white/[0.08] hover:border-[rgba(255,255,255,0.1)]'
                           }`}
                         >
                           <div className="flex items-center justify-between mb-2">
@@ -509,7 +509,7 @@ export default function VerifyPage() {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-12 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)]">
+                  <div className="text-center py-12 rounded-xl bg-[#0a0a0a] border border-white/[0.08]">
                     <Lock className="w-10 h-10 text-slate-700 mx-auto mb-3" />
                     <p className="text-slate-400 text-sm mb-1">
                       No Access Passes Found
@@ -557,7 +557,7 @@ export default function VerifyPage() {
                     {verifyResult === 'idle' && verifyTxStatus === 'idle' && (
                       <button
                         onClick={() => handleVerify(selectedPass)}
-                        className="w-full py-3 rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#a78bfa] text-white font-medium hover:from-[#7c4fe0] hover:to-[#9b7ae8] transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98]"
+                        className="w-full py-3 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98]"
                       >
                         <Zap className="w-4 h-4" />
                         Verify with ZK Proof
@@ -592,14 +592,14 @@ export default function VerifyPage() {
                           setVerifyTxStatus('idle')
                           setVerifyTxId(null)
                         }}
-                        className="w-full py-2.5 rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-all duration-300 active:scale-[0.98]"
+                        className="w-full py-2.5 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-all duration-300 active:scale-[0.98]"
                       >
                         Verify Again
                       </button>
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-16 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)]">
+                  <div className="text-center py-16 rounded-xl bg-[#0a0a0a] border border-white/[0.08]">
                     <ShieldCheck className="w-10 h-10 text-slate-700 mx-auto mb-3" />
                     <p className="text-slate-400 text-sm">
                       Select a pass to begin verification
@@ -615,7 +615,7 @@ export default function VerifyPage() {
         <OnChainExplorer />
 
         {/* How It Works */}
-        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-[rgba(255,255,255,0.06)]">
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-white/[0.08]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

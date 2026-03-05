@@ -38,7 +38,7 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
 
   return (
     <div className="relative group rounded-[12px] overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2 bg-white/[0.04] border-b border-white/[0.06]">
+      <div className="flex items-center justify-between px-4 py-2 bg-white/[0.04] border-b border-white/[0.08]">
         <span className="text-xs text-[#71717a]">{lang}</span>
         <button
           onClick={copy}
@@ -48,7 +48,7 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
           {copied ? 'Copied' : 'Copy'}
         </button>
       </div>
-      <pre className="p-4 bg-[#111113] overflow-x-auto text-sm font-mono text-[#a1a1aa] leading-relaxed">
+      <pre className="p-4 bg-[#0a0a0a] overflow-x-auto text-sm font-mono text-[#a1a1aa] leading-relaxed">
         <code>{code}</code>
       </pre>
     </div>
@@ -74,7 +74,7 @@ function OverviewTab() {
           Watch the full end-to-end walkthrough showing wallet connection, creator registration,
           private subscription, and on-chain verification.
         </p>
-        <div className="p-4 rounded-[12px] bg-white/[0.04] border border-[rgba(255,255,255,0.06)] flex items-center gap-3">
+        <div className="p-4 rounded-[12px] bg-white/[0.04] border border-white/[0.08] flex items-center gap-3">
           <div className="w-10 h-10 rounded-[8px] bg-white/[0.04] flex items-center justify-center shrink-0">
             <BookOpen className="w-5 h-5 text-[#a1a1aa]" />
           </div>
@@ -126,7 +126,7 @@ function OverviewTab() {
           ].map((item) => (
             <div
               key={item.label}
-              className="p-3 rounded-[8px] bg-[#111113] border border-[rgba(255,255,255,0.06)]"
+              className="p-3 rounded-[8px] bg-[#0a0a0a] border border-white/[0.08]"
             >
               <span className="text-xs text-[#71717a]">{item.label}</span>
               <p className="text-sm text-white">{item.value}</p>
@@ -143,7 +143,7 @@ function ContractTab() {
     <div className="space-y-8">
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Program ID</h3>
-        <div className="p-3 rounded-[8px] bg-white/[0.04] border border-[rgba(255,255,255,0.06)] flex items-center justify-between">
+        <div className="p-3 rounded-[8px] bg-white/[0.04] border border-white/[0.08] flex items-center justify-between">
           <code className="text-[#a1a1aa] text-sm font-mono">veilsub_v15.aleo</code>
           <a
             href="https://testnet.explorer.provable.com/program/veilsub_v15.aleo"
@@ -328,7 +328,7 @@ mapping content_disputes: field => u8;         // dispute_id => dispute status`}
           ].map((t) => (
             <div
               key={t.name}
-              className="p-4 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)]"
+              className="p-4 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]"
             >
               <div className="flex items-center gap-2 mb-2">
                 <code className="text-sm text-[#a1a1aa] font-mono">{t.name}</code>
@@ -403,7 +403,7 @@ function PrivacyModelTab() {
           ].map((item) => (
             <div
               key={item.title}
-              className="p-4 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)]"
+              className="p-4 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]"
             >
               <h4 className="text-white font-medium mb-1">{item.title}</h4>
               <p className="text-sm text-[#a1a1aa]">{item.detail}</p>
@@ -490,7 +490,7 @@ const txId = result?.transactionId`}
 
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Microcredits Conversion</h3>
-        <div className="p-4 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)]">
+        <div className="p-4 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]">
           <p className="text-sm text-[#a1a1aa] mb-2">
             1 ALEO = 1,000,000 microcredits
           </p>
@@ -555,7 +555,7 @@ function FaqTab() {
       {faqs.map((faq) => (
         <div
           key={faq.q}
-          className="p-4 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)]"
+          className="p-4 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]"
         >
           <h4 className="text-white font-medium mb-2">{faq.q}</h4>
           <p className="text-sm text-[#a1a1aa] leading-relaxed">{faq.a}</p>

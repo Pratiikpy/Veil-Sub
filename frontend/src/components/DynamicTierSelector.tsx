@@ -36,7 +36,7 @@ export default function DynamicTierSelector({ tiers, selectedTierId, onSelect, l
     return (
       <div className="space-y-2">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-16 animate-pulse rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)]" />
+          <div key={i} className="h-16 animate-pulse rounded-[8px] bg-white/[0.05] border border-white/[0.08]" />
         ))}
       </div>
     )
@@ -46,7 +46,7 @@ export default function DynamicTierSelector({ tiers, selectedTierId, onSelect, l
 
   if (activeTiers.length === 0) {
     return (
-      <div className="rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)] p-4 text-center">
+      <div className="rounded-[8px] bg-white/[0.05] border border-white/[0.08] p-4 text-center">
         <Layers className="mx-auto mb-2 h-6 w-6 text-[#71717a]" />
         <p className="text-sm text-[#a1a1aa]">No tiers available</p>
         <p className="text-xs text-[#71717a]">Creator hasn&apos;t set up subscription tiers yet</p>
@@ -69,7 +69,7 @@ export default function DynamicTierSelector({ tiers, selectedTierId, onSelect, l
             className={`w-full rounded-[8px] border p-3 text-left transition-all ${
               isSelected
                 ? `bg-gradient-to-br ${colors}`
-                : 'bg-white/[0.05] border-[rgba(255,255,255,0.06)] hover:bg-white/[0.08]'
+                : 'bg-white/[0.05] border-white/[0.08] hover:bg-white/[0.08]'
             }`}
           >
             <div className="flex items-center justify-between">

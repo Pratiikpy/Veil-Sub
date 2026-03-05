@@ -100,7 +100,7 @@ export default function CreatorQRCode({ creatorAddress, delay = 0 }: Props) {
         <div className="flex gap-2 w-full">
           <button
             onClick={handleDownload}
-            className="flex-1 px-3 py-2 rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-xs text-white hover:bg-white/[0.08] transition-colors flex items-center justify-center gap-1.5"
+            className="flex-1 px-3 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-xs text-white hover:bg-white/[0.08] transition-colors flex items-center justify-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5" />
             Download

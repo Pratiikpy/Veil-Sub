@@ -75,7 +75,7 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="p-4 rounded-[8px] bg-[#111113] border border-white/[0.05] hover:border-white/10 transition-colors"
+            className="p-4 rounded-[8px] bg-[#0a0a0a] border border-white/[0.05] hover:border-white/10 transition-colors"
           >
             <div className="flex items-center gap-2 mb-2">
               <Icon className={`w-4 h-4 ${item.color}`} />

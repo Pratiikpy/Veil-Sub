@@ -76,7 +76,7 @@ export default function VisionPage() {
         <section className="relative overflow-hidden">
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
             <motion.div {...fadeUp} transition={{ duration: 0.6 }} className="text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-[rgba(255,255,255,0.06)] mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.08] mb-6">
                 <Code2 className="w-4 h-4 text-[#a1a1aa]" />
                 <span className="text-sm text-[#a1a1aa]">Beyond Subscriptions</span>
               </div>
@@ -139,7 +139,7 @@ export default function VisionPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="text-center p-4 rounded-[12px] bg-[#111113] border border-white/[0.06]"
+                  className="text-center p-4 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]"
                 >
                   <p className="text-3xl font-bold text-white">
                     {item.stat}
@@ -173,7 +173,7 @@ export default function VisionPage() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="flex items-start gap-4 p-4 rounded-[12px] bg-[#111113] border border-white/[0.06]"
+                  className="flex items-start gap-4 p-4 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]"
                 >
                   <div className={`shrink-0 mt-0.5 w-3 h-3 rounded-full ${
                     item.status === 'done' ? 'bg-green-400' :

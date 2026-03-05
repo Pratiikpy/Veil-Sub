@@ -55,7 +55,7 @@ export default function ContentManagementPanel({ contents, onRefresh }: ContentM
 
   if (contents.length === 0) {
     return (
-      <div className="rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)] p-6 text-center">
+      <div className="rounded-[12px] bg-[#0a0a0a] border border-white/[0.08] p-6 text-center">
         <Lock className="mx-auto mb-3 h-8 w-8 text-[#71717a]" />
         <p className="text-sm text-[#a1a1aa]">No published content yet</p>
         <p className="mt-1 text-xs text-[#71717a]">Use the publish button to add your first gated content</p>
@@ -73,7 +73,7 @@ export default function ContentManagementPanel({ contents, onRefresh }: ContentM
         return (
           <div
             key={content.contentId}
-            className="rounded-[8px] bg-[#111113] border border-[rgba(255,255,255,0.06)] p-4 transition-all hover:border-white/[0.12]"
+            className="rounded-[8px] bg-[#0a0a0a] border border-white/[0.08] p-4 transition-all hover:border-white/[0.12]"
           >
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
@@ -113,7 +113,7 @@ export default function ContentManagementPanel({ contents, onRefresh }: ContentM
 
             {/* Edit tier inline */}
             {isEditing && (
-              <div className="mt-3 flex items-center gap-2 pt-3 border-t border-[rgba(255,255,255,0.06)]">
+              <div className="mt-3 flex items-center gap-2 pt-3 border-t border-white/[0.08]">
                 <span className="text-xs text-[#71717a]">Min tier:</span>
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map((t) => (
@@ -123,7 +123,7 @@ export default function ContentManagementPanel({ contents, onRefresh }: ContentM
                       className={`rounded-md px-2 py-1 text-xs font-medium ${
                         newMinTier === t
                           ? 'bg-violet-500/20 border border-violet-500/40 text-[#a1a1aa]'
-                          : 'bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-[#a1a1aa]'
+                          : 'bg-white/[0.05] border border-white/[0.08] text-[#a1a1aa]'
                       }`}
                     >
                       {t}

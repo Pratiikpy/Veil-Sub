@@ -21,7 +21,7 @@ export default function BackgroundParticles() {
       {PARTICLES.map((p, i) => (
         <div
           key={i}
-          className="absolute rounded-full bg-[#8b5cf6]"
+          className="absolute rounded-full bg-white/[0.06]"
           style={{
             top: p.top,
             left: p.left,

@@ -56,14 +56,14 @@ export default function ActivityChart({ creatorAddress }: Props) {
 
   if (loading) {
     return (
-      <div className="h-48 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)] animate-pulse" />
+      <div className="h-48 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08] animate-pulse" />
     )
   }
 
   const maxSubs = Math.max(...data.map((d) => d.subscriptions), 1)
 
   return (
-    <div className="rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)] p-5">
+    <div className="rounded-[12px] bg-[#0a0a0a] border border-white/[0.08] p-5">
       <div className="flex items-center gap-2 mb-4">
         <BarChart3 className="w-4 h-4 text-[#a1a1aa]" />
         <h3 className="text-sm font-medium text-white">Subscription Activity</h3>
@@ -96,7 +96,7 @@ export default function ActivityChart({ creatorAddress }: Props) {
               />
               {/* Tooltip */}
               <div className="absolute bottom-full mb-2 hidden group-hover:block z-10">
-                <div className="px-2 py-1 rounded bg-[#1a1825] border border-[rgba(255,255,255,0.06)] text-xs whitespace-nowrap shadow-lg">
+                <div className="px-2 py-1 rounded bg-[#1a1825] border border-white/[0.08] text-xs whitespace-nowrap shadow-lg">
                   <p className="text-[#a1a1aa]">{day.date}</p>
                   <p className="text-white">{day.subscriptions} subs</p>
                 </div>
@@ -120,7 +120,7 @@ export default function ActivityChart({ creatorAddress }: Props) {
       </div>
 
       {/* Summary row */}
-      <div className="flex gap-6 mt-4 pt-3 border-t border-[rgba(255,255,255,0.06)]">
+      <div className="flex gap-6 mt-4 pt-3 border-t border-white/[0.08]">
         <div>
           <p className="text-xs text-[#71717a]">Total Subs (30d)</p>
           <p className="text-sm font-medium text-white">

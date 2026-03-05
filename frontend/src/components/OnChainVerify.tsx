@@ -51,7 +51,7 @@ export default function OnChainVerify({
       <button
         onClick={verify}
         aria-label={`Verify ${mappingName} on-chain`}
-        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-[#a1a1aa] hover:text-white hover:bg-white/[0.08] transition-all"
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-white/[0.05] border border-white/[0.08] text-[#a1a1aa] hover:text-white hover:bg-white/[0.08] transition-all"
       >
         <ShieldCheck className="w-3 h-3" />
         Verify

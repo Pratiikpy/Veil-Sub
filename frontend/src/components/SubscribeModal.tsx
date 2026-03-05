@@ -240,7 +240,7 @@ export default function SubscribeModal({
             role="dialog"
             aria-modal="true"
             aria-label="Subscribe to creator"
-            className="w-full max-w-md rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.08)] shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-md rounded-xl bg-[#0a0a0a] border border-[rgba(255,255,255,0.08)] shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
@@ -262,7 +262,7 @@ export default function SubscribeModal({
             {txStatus === 'idle' ? (
               <>
                 {/* Tier Info */}
-                <div className="p-4 rounded-[8px] bg-[#18181b] border border-[rgba(255,255,255,0.06)] mb-4">
+                <div className="p-4 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[#a1a1aa] font-medium">
                       {tier.name}
@@ -286,7 +286,7 @@ export default function SubscribeModal({
                 </div>
 
                 {/* Fee Breakdown */}
-                <div className="p-3 rounded-[8px] bg-[#18181b] border border-[rgba(255,255,255,0.06)] mb-4">
+                <div className="p-3 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-4">
                   <div className="text-xs text-[#71717a] space-y-1">
                     <div className="flex justify-between">
                       <span>Creator ({100 - PLATFORM_FEE_PCT}%)</span>
@@ -304,7 +304,7 @@ export default function SubscribeModal({
                 </div>
 
                 {/* Privacy Notice */}
-                <div className="p-3 rounded-[8px] bg-[#18181b] border border-[rgba(255,255,255,0.06)] mb-6 space-y-1.5">
+                <div className="p-3 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-6 space-y-1.5">
                   <p className="text-xs text-green-400 font-medium">Zero-Knowledge Privacy</p>
                   <ul className="text-[11px] text-green-400/80 space-y-1 list-none">
                     <li>Your address is never published on-chain</li>
@@ -337,7 +337,7 @@ export default function SubscribeModal({
                 <button
                   onClick={handleSubscribe}
                   disabled={txStatus !== 'idle'}
-                  className="w-full py-3 rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#a78bfa] text-white font-medium hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full py-3 rounded-lg bg-white text-black font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {txStatus !== 'idle' ? 'Processing...' : 'Subscribe Privately'}
                 </button>
@@ -345,7 +345,7 @@ export default function SubscribeModal({
             ) : (
               <div className="py-2">
                 {statusMessage && (
-                  <div className="mb-3 p-3 rounded-[8px] bg-[#18181b] border border-[rgba(255,255,255,0.06)]">
+                  <div className="mb-3 p-3 rounded-[8px] bg-[#18181b] border border-white/[0.08]">
                     <p className="text-xs text-[#a1a1aa] animate-pulse">{statusMessage}</p>
                   </div>
                 )}
@@ -364,7 +364,7 @@ export default function SubscribeModal({
                     </p>
                     <button
                       onClick={handleClose}
-                      className="mt-4 px-6 py-2 rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
+                      className="mt-4 px-6 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
                     >
                       Done
                     </button>
@@ -381,7 +381,7 @@ export default function SubscribeModal({
                         setError(null)
                         setStatusMessage(null)
                       }}
-                      className="px-6 py-2 rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
+                      className="px-6 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
                     >
                       Try Again
                     </button>

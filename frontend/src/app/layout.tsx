@@ -1,16 +1,22 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Instrument_Serif } from 'next/font/google'
 import './globals.css'
 import { ClientProviders } from '@/providers/ClientProviders'
 import Header from '@/components/Header'
 import MobileBottomNav from '@/components/MobileBottomNav'
-import SmokeBackground from '@/components/SmokeBackground'
 import { Toaster } from 'sonner'
 import { APP_NAME, APP_DESCRIPTION } from '@/lib/config'
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
+})
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  weight: '400',
+  style: ['normal', 'italic'],
+  variable: '--font-instrument-serif',
 })
 
 export const metadata: Metadata = {
@@ -35,10 +41,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${inter.variable} font-sans bg-[rgb(2,0,5)] text-[#fafafa] min-h-screen antialiased`}
+        className={`${inter.variable} ${instrumentSerif.variable} font-sans bg-black text-white min-h-screen antialiased`}
       >
         <ClientProviders>
-          <SmokeBackground />
           <Header />
           <main className="pt-16 pb-20 md:pb-0">{children}</main>
           <MobileBottomNav />
@@ -47,10 +52,10 @@ export default function RootLayout({
             position="bottom-right"
             toastOptions={{
               style: {
-                background: '#111113',
-                border: '1px solid rgba(255,255,255,0.06)',
-                color: '#fafafa',
-                borderRadius: '8px',
+                background: '#0a0a0a',
+                border: '1px solid rgba(255,255,255,0.08)',
+                color: '#ffffff',
+                borderRadius: '16px',
               },
             }}
           />

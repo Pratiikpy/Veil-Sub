@@ -20,7 +20,7 @@ export default function CreatorSkeleton() {
         {/* Tier cards skeleton */}
         <div className="grid sm:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse p-6 rounded-[12px] border border-[rgba(255,255,255,0.06)] bg-[#111113]">
+            <div key={i} className="animate-pulse p-6 rounded-[12px] border border-white/[0.08] bg-[#0a0a0a]">
               <div className="h-5 w-24 rounded-lg bg-white/[0.06] mb-3" />
               <div className="h-8 w-20 rounded-lg bg-white/[0.06] mb-1" />
               <div className="h-3 w-36 rounded-lg bg-white/[0.04] mb-4" />

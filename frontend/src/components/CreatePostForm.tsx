@@ -125,7 +125,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)]"
+      className="p-6 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]"
     >
       <div className="flex items-center gap-2 mb-4">
         <FileText className="w-5 h-5 text-[#a1a1aa]" />
@@ -142,7 +142,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Post title..."
-                className="w-full px-4 py-2.5 rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm"
+                className="w-full px-4 py-2.5 rounded-[8px] bg-white/[0.05] border border-white/[0.08] text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm"
               />
             </div>
             <div>
@@ -152,7 +152,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Write your exclusive content..."
                 rows={4}
-                className="w-full px-4 py-2.5 rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm resize-none"
+                className="w-full px-4 py-2.5 rounded-[8px] bg-white/[0.05] border border-white/[0.08] text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm resize-none"
               />
             </div>
             <div>
@@ -165,7 +165,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                     className={`py-2 px-3 rounded-lg text-xs font-medium transition-all ${
                       minTier === tier
                         ? 'bg-violet-500/20 border border-violet-500/40 text-[#a1a1aa]'
-                        : 'bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-[#a1a1aa] hover:bg-white/[0.08]'
+                        : 'bg-white/[0.05] border border-white/[0.08] text-[#a1a1aa] hover:bg-white/[0.08]'
                     }`}
                   >
                     {tierLabels[tier - 1]}
@@ -188,7 +188,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
           <button
             onClick={handlePublish}
             disabled={!title.trim() || !body.trim() || (txStatus !== 'idle' && txStatus !== 'failed')}
-            className="mt-4 w-full py-2.5 rounded-[8px] bg-[#8b5cf6] text-white font-medium text-sm hover:bg-[#7c3aed] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="mt-4 w-full py-2.5 rounded-[8px] bg-white/[0.06] text-white font-medium text-sm hover:bg-[#7c3aed] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <Send className="w-4 h-4" />
             Publish
@@ -207,7 +207,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
               <p className="text-xs text-[#a1a1aa]">Content metadata is now on-chain.</p>
               <button
                 onClick={handleReset}
-                className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-white hover:bg-white/[0.08] transition-colors"
+                className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-white hover:bg-white/[0.08] transition-colors"
               >
                 Create Another
               </button>

@@ -29,10 +29,10 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
     >
       <Link
         href={`/creator/${creator.address}`}
-        className="block p-5 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.4),0_8px_32px_rgba(0,0,0,0.3)] hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.1)] transition-all duration-300 group"
+        className="block p-5 rounded-xl bg-[#0a0a0a] border border-white/[0.08] hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.1)] transition-all duration-300 group"
       >
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-[12px] bg-[#8b5cf6] flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-[12px] bg-white/[0.06] flex items-center justify-center shrink-0">
             <Shield className="w-5 h-5 text-white" />
           </div>
           <div className="min-w-0">
@@ -133,7 +133,7 @@ export default function ExplorePage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search creators by name..."
-                className="w-full pl-11 pr-4 py-3 rounded-lg bg-[#111113] border border-[rgba(255,255,255,0.06)] text-white placeholder-[#71717a] focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all duration-300 text-sm"
+                className="w-full pl-11 pr-4 py-3 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-white placeholder-[#71717a] focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-white/10 transition-all duration-300 text-sm"
               />
             </div>
           </motion.div>
@@ -146,7 +146,7 @@ export default function ExplorePage() {
               <p className="text-sm text-[#71717a] mb-4">Could not reach the server. Please try again.</p>
               <button
                 onClick={() => setRetryKey(k => k + 1)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px] bg-white/[0.05] border border-[rgba(255,255,255,0.06)] text-sm text-white hover:bg-white/10 transition-all duration-300"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px] bg-white/[0.05] border border-white/[0.08] text-sm text-white hover:bg-white/10 transition-all duration-300"
               >
                 Retry
               </button>
@@ -156,7 +156,7 @@ export default function ExplorePage() {
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
-                  className="p-5 rounded-xl bg-[#111113] border border-[rgba(255,255,255,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.3),0_4px_16px_rgba(0,0,0,0.2)] animate-pulse"
+                  className="p-5 rounded-xl bg-[#0a0a0a] border border-white/[0.08] animate-pulse"
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-10 h-10 rounded-[12px] bg-white/[0.06]" />
@@ -183,7 +183,7 @@ export default function ExplorePage() {
               </p>
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#a78bfa] text-white font-medium text-sm hover:from-[#7c4fe0] hover:to-[#9b7ae8] transition-all duration-300 active:scale-[0.98]"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 transition-all duration-300 active:scale-[0.98]"
               >
                 Become a Creator
                 <ArrowRight className="w-4 h-4" />

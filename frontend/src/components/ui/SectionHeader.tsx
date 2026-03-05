@@ -18,11 +18,14 @@ export default function SectionHeader({
   return (
     <div className={`${align === 'center' ? 'text-center' : 'text-left'} ${className}`}>
       {badge && (
-        <div className={`mb-4 ${align === 'center' ? 'flex justify-center' : ''}`}>
+        <div className={`mb-5 ${align === 'center' ? 'flex justify-center' : ''}`}>
           <Badge>{badge}</Badge>
         </div>
       )}
-      <h2 className="text-3xl sm:text-4xl font-semibold text-[#fafafa] tracking-tight">
+      <h2
+        className="text-3xl sm:text-4xl font-serif italic text-white"
+        style={{ letterSpacing: '-1px', lineHeight: 1.15 }}
+      >
         {title}
       </h2>
       {subtitle && (

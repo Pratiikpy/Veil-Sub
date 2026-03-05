@@ -29,7 +29,7 @@ export default function PrivacyPage() {
         <section className="relative overflow-hidden">
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
             <motion.div {...fadeUp} transition={{ duration: 0.6 }} className="text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-[rgba(255,255,255,0.06)] mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.08] mb-6">
                 <Shield className="w-4 h-4 text-[#a1a1aa]" />
                 <span className="text-sm text-[#a1a1aa]">Zero-Knowledge Privacy</span>
               </div>
@@ -126,7 +126,7 @@ export default function PrivacyPage() {
                           </div>
                         ))}
                       </div>
-                      <div className="p-4 rounded-[12px] bg-[#111113] border border-white/[0.06]">
+                      <div className="p-4 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]">
                         <pre className="text-xs text-[#a1a1aa] font-mono leading-relaxed overflow-x-auto">
                           <code>{`transition verify_access(pass: AccessPass, creator: address) -> AccessPass {
     assert_eq(pass.creator, creator);
@@ -218,7 +218,7 @@ export default function PrivacyPage() {
                     return (
                       <div
                         key={item.title}
-                        className="p-3 rounded-[12px] bg-white/[0.04] border border-[rgba(255,255,255,0.06)]"
+                        className="p-3 rounded-[12px] bg-white/[0.04] border border-white/[0.08]"
                       >
                         <div className="flex items-center gap-2 mb-1">
                           <Icon className="w-4 h-4 text-[#a1a1aa]" />
@@ -284,7 +284,7 @@ export default function PrivacyPage() {
                     return (
                       <div
                         key={item.title}
-                        className="p-3 rounded-[12px] bg-[#111113] border border-white/[0.06]"
+                        className="p-3 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]"
                       >
                         <div className="flex items-center gap-2 mb-1">
                           <Icon className="w-4 h-4 text-[#a1a1aa]" />
@@ -407,7 +407,7 @@ export default function PrivacyPage() {
                       desc: 'Each renewal generates a unique subscriber hash via nonce — creators cannot track renewal patterns. Every renew_blind() uses a fresh nonce, preventing correlation between consecutive renewals from the same subscriber.',
                     },
                   ].map((item) => (
-                    <div key={item.title} className="p-3 rounded-[12px] bg-white/[0.04] border border-[rgba(255,255,255,0.06)]">
+                    <div key={item.title} className="p-3 rounded-[12px] bg-white/[0.04] border border-white/[0.08]">
                       <p className="text-sm font-medium text-[#a1a1aa] mb-1">{item.title}</p>
                       <p className="text-xs text-[#a1a1aa] leading-relaxed">{item.desc}</p>
                     </div>
@@ -433,7 +433,7 @@ export default function PrivacyPage() {
                       desc: 'AccessPasses have an expires_at field (block height), but expiry is enforced client-side only. Adding finalize to verify_access would break its zero-public-footprint property. A sophisticated user could bypass expiry locally — but cannot forge payment or pass ownership.',
                     },
                   ].map((item) => (
-                    <div key={item.title} className="p-3 rounded-[12px] bg-[#111113] border border-white/[0.06]">
+                    <div key={item.title} className="p-3 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]">
                       <p className="text-sm font-medium text-[#a1a1aa] mb-1">{item.title}</p>
                       <p className="text-xs text-[#a1a1aa] leading-relaxed">{item.desc}</p>
                     </div>
@@ -454,7 +454,7 @@ export default function PrivacyPage() {
 
             {/* Data Flow Diagram */}
             <div className="mb-8 grid md:grid-cols-2 gap-4">
-              <div className="p-5 rounded-[12px] bg-white/[0.04] border border-[rgba(255,255,255,0.06)]">
+              <div className="p-5 rounded-[12px] bg-white/[0.04] border border-white/[0.08]">
                 <h4 className="text-sm font-medium text-[#a1a1aa] mb-3">Subscribe Flow</h4>
                 <div className="space-y-2 text-xs text-[#a1a1aa]">
                   <div className="flex items-center gap-2">
@@ -559,9 +559,9 @@ export default function PrivacyPage() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.08 }}
-                  className="flex items-start gap-4 p-4 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.1)] transition-colors"
+                  className="flex items-start gap-4 p-4 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08] hover:border-[rgba(255,255,255,0.1)] transition-colors"
                 >
-                  <code className="shrink-0 px-3 py-1.5 rounded-[8px] bg-white/[0.04] border border-[rgba(255,255,255,0.06)] text-[#a1a1aa] text-sm font-mono">
+                  <code className="shrink-0 px-3 py-1.5 rounded-[8px] bg-white/[0.04] border border-white/[0.08] text-[#a1a1aa] text-sm font-mono">
                     {item.fn}
                   </code>
                   <p className="text-sm text-[#a1a1aa] pt-1">{item.guarantee}</p>
@@ -581,7 +581,7 @@ export default function PrivacyPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[rgba(255,255,255,0.06)]">
+                  <tr className="border-b border-white/[0.08]">
                     <th className="text-left py-3 px-4 text-[#a1a1aa] font-medium">Feature</th>
                     <th className="text-center py-3 px-4 text-red-400 font-medium">Patreon / Ko-fi</th>
                     <th className="text-center py-3 px-4 text-green-400 font-medium">VeilSub</th>
@@ -596,7 +596,7 @@ export default function PrivacyPage() {
                     ['Third-party data access', 'Platform sells data', 'No data to sell'],
                     ['Censorship resistance', 'Platform can ban', 'On-chain, unstoppable'],
                   ].map(([feature, trad, veilsub]) => (
-                    <tr key={feature} className="border-b border-[rgba(255,255,255,0.06)]">
+                    <tr key={feature} className="border-b border-white/[0.08]">
                       <td className="py-3 px-4 text-white">{feature}</td>
                       <td className="py-3 px-4 text-center text-red-300/70">{trad}</td>
                       <td className="py-3 px-4 text-center text-green-300">{veilsub}</td>
