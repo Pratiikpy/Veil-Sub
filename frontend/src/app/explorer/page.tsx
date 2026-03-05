@@ -29,7 +29,7 @@ import PageTransition from '@/components/PageTransition'
 import OnChainVerify from '@/components/OnChainVerify'
 import AnimatedCounter from '@/components/AnimatedCounter'
 import ActivityChart from '@/components/ActivityChart'
-import { PROGRAM_ID, DEPLOYED_PROGRAM_ID, PLATFORM_ADDRESS } from '@/lib/config'
+import { DEPLOYED_PROGRAM_ID, PLATFORM_ADDRESS } from '@/lib/config'
 import type { CreatorProfile } from '@/types'
 
 interface GlobalStats {

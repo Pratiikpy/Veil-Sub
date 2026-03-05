@@ -11,7 +11,7 @@ import { FoxWalletAdapter } from '@provablehq/aleo-wallet-adaptor-fox'
 import { PuzzleWalletAdapter } from '@provablehq/aleo-wallet-adaptor-puzzle'
 import { SoterWalletAdapter } from '@provablehq/aleo-wallet-adaptor-soter'
 import '@provablehq/aleo-wallet-adaptor-react-ui/dist/styles.css'
-import { APP_NAME, PROGRAM_ID } from '@/lib/config'
+import { APP_NAME, DEPLOYED_PROGRAM_ID } from '@/lib/config'
 
 interface Props {
   children: ReactNode
@@ -35,7 +35,7 @@ export const WalletProvider: FC<Props> = ({ children }) => {
       decryptPermission={DecryptPermission.AutoDecrypt}
       network={Network.TESTNET}
       autoConnect
-      programs={[PROGRAM_ID, 'credits.aleo']}
+      programs={[DEPLOYED_PROGRAM_ID, 'credits.aleo']}
     >
       <WalletModalProvider>{children}</WalletModalProvider>
     </AleoWalletProvider>

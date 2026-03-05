@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Github, ExternalLink } from 'lucide-react'
-import { PROGRAM_ID, DEPLOYED_PROGRAM_ID } from '@/lib/config'
+import { DEPLOYED_PROGRAM_ID } from '@/lib/config'
 
 export default function Footer() {
   return (

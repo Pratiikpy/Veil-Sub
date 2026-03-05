@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import { PROGRAM_ID, FEES, ESCROW_WINDOW_BLOCKS } from '@/lib/config'
+import { DEPLOYED_PROGRAM_ID, FEES, ESCROW_WINDOW_BLOCKS } from '@/lib/config'
 
 // Timeout wrapper: prevents requestRecords from hanging forever.
 // Shield Wallet can silently hang on INVALID_PARAMS — this ensures we always get a result.
@@ -38,7 +38,7 @@ export function useVeilSub() {
       }
 
       const result = await executeTransaction({
-        program: program || PROGRAM_ID,
+        program: program || DEPLOYED_PROGRAM_ID,
         function: functionName,
         inputs,
         fee,
@@ -574,9 +574,9 @@ export function useVeilSub() {
     if (!connected || !requestRecords) return []
     try {
       const records = await withTimeout(
-        requestRecords(PROGRAM_ID, false),
+        requestRecords(DEPLOYED_PROGRAM_ID, false),
         15000,
-        `requestRecords(${PROGRAM_ID})`
+        `requestRecords(${DEPLOYED_PROGRAM_ID})`
       )
       const results: string[] = []
       for (const r of records as any[]) {
@@ -593,9 +593,9 @@ export function useVeilSub() {
     if (!connected || !requestRecords) return []
     try {
       const records = await withTimeout(
-        requestRecords(PROGRAM_ID, false),
+        requestRecords(DEPLOYED_PROGRAM_ID, false),
         15000,
-        `requestRecords(${PROGRAM_ID})`
+        `requestRecords(${DEPLOYED_PROGRAM_ID})`
       )
       const results: string[] = []
       for (const r of records as any[]) {
@@ -612,9 +612,9 @@ export function useVeilSub() {
     if (!connected || !requestRecords) return []
     try {
       const records = await withTimeout(
-        requestRecords(PROGRAM_ID, false),
+        requestRecords(DEPLOYED_PROGRAM_ID, false),
         15000,
-        `requestRecords(${PROGRAM_ID})`
+        `requestRecords(${DEPLOYED_PROGRAM_ID})`
       )
       const results: string[] = []
       for (const r of records as any[]) {
@@ -846,9 +846,9 @@ export function useVeilSub() {
     if (!connected || !requestRecords) return []
     try {
       const records = await withTimeout(
-        requestRecords(PROGRAM_ID, false),
+        requestRecords(DEPLOYED_PROGRAM_ID, false),
         15000,
-        `requestRecords(${PROGRAM_ID})`
+        `requestRecords(${DEPLOYED_PROGRAM_ID})`
       )
       const results: string[] = []
 
@@ -869,9 +869,9 @@ export function useVeilSub() {
     if (!connected || !requestRecords) return []
     try {
       const records = await withTimeout(
-        requestRecords(PROGRAM_ID, false),
+        requestRecords(DEPLOYED_PROGRAM_ID, false),
         15000,
-        `requestRecords(${PROGRAM_ID})`
+        `requestRecords(${DEPLOYED_PROGRAM_ID})`
       )
       const results: string[] = []
 
@@ -892,9 +892,9 @@ export function useVeilSub() {
     if (!connected || !requestRecords) return []
     try {
       const records = await withTimeout(
-        requestRecords(PROGRAM_ID, false),
+        requestRecords(DEPLOYED_PROGRAM_ID, false),
         15000,
-        `requestRecords(${PROGRAM_ID})`
+        `requestRecords(${DEPLOYED_PROGRAM_ID})`
       )
       const results: string[] = []
 
