@@ -249,7 +249,7 @@ export default function VerifyPage() {
                   value={creatorAddr}
                   onChange={(e) => setCreatorAddr(e.target.value)}
                   placeholder="aleo1..."
-                  className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-white/10 transition-all duration-300"
+                  className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300"
                 />
               </div>
               <button
@@ -316,7 +316,7 @@ export default function VerifyPage() {
                     value={contentId}
                     onChange={(e) => setContentId(e.target.value)}
                     placeholder="Content hash (field value)"
-                    className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-white/10 transition-all duration-300"
+                    className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300"
                   />
                 </div>
                 <button

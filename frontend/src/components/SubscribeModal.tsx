@@ -125,7 +125,7 @@ export default function SubscribeModal({
         try {
           rawRecords = await getCreditsRecords()
         } catch (retryErr) {
-          throw new Error(`Could not load wallet records: ${retryErr instanceof Error ? retryErr.message : 'Unknown error'}. Check browser console for details.`)
+          throw new Error(`Could not load wallet records: ${retryErr instanceof Error ? retryErr.message : 'Unknown error'}. Please ensure your wallet is synced and has sufficient balance.`)
         }
       }
       if (rawRecords.length === 0) {

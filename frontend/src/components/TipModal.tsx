@@ -115,7 +115,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         try {
           rawRecords = await getCreditsRecords()
         } catch (retryErr) {
-          throw new Error(`Could not load wallet records: ${retryErr instanceof Error ? retryErr.message : 'Unknown error'}. Check browser console.`)
+          throw new Error(`Could not load wallet records: ${retryErr instanceof Error ? retryErr.message : 'Unknown error'}. Please ensure your wallet is synced.`)
         }
       }
       if (rawRecords.length === 0) {

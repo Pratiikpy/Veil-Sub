@@ -183,8 +183,10 @@ export default function TransactionStatus({ status, txId }: Props) {
                   className="text-xs text-[#71717a] mt-0.5"
                 >
                   {step.activeMsg}
-                  {status === 'proving' && elapsed > 0 && (
-                    <span className="text-slate-600 ml-1">({elapsed}s)</span>
+                  {(status === 'proving' || status === 'broadcasting') && elapsed > 0 && (
+                    <span className="text-slate-600 ml-1">
+                      ({elapsed >= 60 ? `${Math.floor(elapsed / 60)}m ${elapsed % 60}s` : `${elapsed}s`})
+                    </span>
                   )}
                 </motion.p>
               )}

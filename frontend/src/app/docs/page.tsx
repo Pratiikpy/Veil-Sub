@@ -32,7 +32,7 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      alert('Clipboard not available — please copy manually.')
+      setCopied(false) // silently fail — text is still selectable
     }
   }
 

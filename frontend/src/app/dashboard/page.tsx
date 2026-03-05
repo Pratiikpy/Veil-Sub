@@ -260,7 +260,7 @@ function ProfileEditor({ address }: { address: string }) {
             onChange={(e) => setName(e.target.value)}
             placeholder="Your creator name"
             maxLength={50}
-            className="w-full px-4 py-2.5 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-white/10 transition-all duration-300 text-sm"
+            className="w-full px-4 py-2.5 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300 text-sm"
           />
         </div>
         <div>
@@ -271,7 +271,7 @@ function ProfileEditor({ address }: { address: string }) {
             placeholder="Tell subscribers what you create..."
             maxLength={200}
             rows={2}
-            className="w-full px-4 py-2.5 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-white/10 transition-all duration-300 text-sm resize-none"
+            className="w-full px-4 py-2.5 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300 text-sm resize-none"
           />
         </div>
         <button
@@ -552,7 +552,7 @@ export default function DashboardPage() {
                         min="0.1"
                         step="0.1"
                         onKeyDown={(e) => e.key === 'Enter' && handleRegister()}
-                        className="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-white/10 transition-all duration-300"
+                        className="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300"
                       />
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-500">
                         ALEO
@@ -573,7 +573,7 @@ export default function DashboardPage() {
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="Your creator name"
                       maxLength={50}
-                      className="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-white/10 transition-all duration-300"
+                      className="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300"
                     />
                   </div>
 
@@ -587,7 +587,7 @@ export default function DashboardPage() {
                       placeholder="Tell subscribers what you create..."
                       maxLength={200}
                       rows={2}
-                      className="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-white/10 transition-all duration-300 resize-none"
+                      className="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300 resize-none"
                     />
                   </div>
 

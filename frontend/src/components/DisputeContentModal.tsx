@@ -87,6 +87,9 @@ export default function DisputeContentModal({
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Dispute content"
           className="relative w-full max-w-md rounded-3xl bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/[0.08] p-8 shadow-2xl"
         >
           <button

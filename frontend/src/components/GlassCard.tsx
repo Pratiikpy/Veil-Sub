@@ -39,7 +39,7 @@ export default function GlassCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay, duration: 0.5 }}
-      className={`relative rounded-3xl ${variantClasses[variant]} p-8 h-full transition-all duration-300 ${
+      className={`group relative rounded-3xl ${variantClasses[variant]} p-8 h-full transition-all duration-300 ${
         hover ? 'hover:-translate-y-0.5' : ''
       } ${className}`}
     >

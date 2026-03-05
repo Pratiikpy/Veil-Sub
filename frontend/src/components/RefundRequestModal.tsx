@@ -61,6 +61,9 @@ export default function RefundRequestModal({
         >
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Request refund"
             className="relative w-full max-w-md rounded-xl border border-[rgba(255,255,255,0.08)] bg-[#0a0a0a] shadow-2xl p-6"
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}

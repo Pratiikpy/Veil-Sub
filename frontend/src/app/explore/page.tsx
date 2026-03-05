@@ -145,6 +145,7 @@ export default function ExplorePage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search creators by name..."
+                aria-label="Search creators by name"
                 className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] text-white placeholder-[#71717a] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300 text-sm"
               />
             </div>
