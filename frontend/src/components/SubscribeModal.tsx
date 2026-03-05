@@ -113,6 +113,7 @@ export default function SubscribeModal({
     setError(null)
     setStatusMessage(null)
     setTxStatus('signing')
+    toast.loading('Preparing your private subscription...', { id: 'subscribe-optimistic', duration: 5000 })
 
     try {
       let rawRecords: string[]
@@ -136,6 +137,7 @@ export default function SubscribeModal({
       const records = dedupeRecords(rawRecords)
 
       if (records.length < 1) {
+        toast.dismiss('subscribe-optimistic')
         setInsufficientBalance(true)
         setError('No private credit records found. Convert public credits to private or get testnet credits.')
         setTxStatus('idle')
@@ -146,6 +148,7 @@ export default function SubscribeModal({
       const totalAvailable = records.reduce((sum, r) => sum + parseMicrocredits(r), 0)
       const largestRecord = parseMicrocredits(records[0])
       if (totalAvailable < totalPrice) {
+        toast.dismiss('subscribe-optimistic')
         setInsufficientBalance(true)
         setError(`Insufficient private balance. You have ${formatCredits(totalAvailable)} ALEO but need ${formatCredits(totalPrice)} ALEO.`)
         setTxStatus('idle')
@@ -153,6 +156,7 @@ export default function SubscribeModal({
         return
       }
       if (largestRecord < totalPrice) {
+        toast.dismiss('subscribe-optimistic')
         setInsufficientBalance(true)
         setError(`Your largest record has ${formatCredits(largestRecord)} ALEO but you need ${formatCredits(totalPrice)} in a single record. Convert public credits to private to create a larger record.`)
         setTxStatus('idle')
@@ -165,6 +169,7 @@ export default function SubscribeModal({
 
       setStatusMessage(null)
       setTxStatus('proving')
+      toast.dismiss('subscribe-optimistic')
 
       let id: string | null
       if (isReferral && referrerAddress && records.length >= 2) {
@@ -213,6 +218,7 @@ export default function SubscribeModal({
         setError('Transaction was rejected by wallet.')
       }
     } catch (err) {
+      toast.dismiss('subscribe-optimistic')
       setTxStatus('failed')
       setError(err instanceof Error ? err.message : 'Transaction failed')
     } finally {

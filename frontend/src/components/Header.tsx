@@ -46,7 +46,7 @@ export default function Header() {
             : 'bg-transparent border-b border-transparent'
         }`}
       >
-        <div className="max-w-[1120px] mx-auto px-6">
+        <div className="max-w-[1120px] mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
             {/* Logo with subtle glow on hover */}
             <Link

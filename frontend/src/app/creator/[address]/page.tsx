@@ -295,20 +295,20 @@ export default function CreatorPage({
                     return (
                       <div
                         key={pass.passId || i}
-                        className="flex items-center gap-3 p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.08]"
+                        className="flex flex-wrap items-center gap-2 sm:gap-3 p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.08]"
                       >
                         <span
                           className={`px-2 py-0.5 rounded-full text-xs font-medium border ${tierColor}`}
                         >
                           {tierInfo?.name ?? `Tier ${pass.tier}`}
                         </span>
-                        <span className="text-xs text-slate-500 font-mono">
+                        <span className="text-xs text-slate-500 font-mono hidden sm:inline">
                           ID: {pass.passId.length > 16 ? `${pass.passId.slice(0, 8)}...${pass.passId.slice(-6)}` : pass.passId}
                         </span>
 
                         {/* Expiry display */}
                         {expiry !== null && (
-                          <span className="ml-auto flex items-center gap-2">
+                          <span className="ml-auto flex flex-wrap items-center gap-2">
                             {expiry.expired ? (
                               <>
                                 <span className="px-2 py-0.5 rounded-full text-xs font-medium border bg-gray-500/10 text-gray-400 border-gray-500/20">
@@ -460,7 +460,7 @@ export default function CreatorPage({
               transition={{ delay: 0.3 }}
               className="p-6 rounded-xl bg-[#0a0a0a] border border-white/[0.08]"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-lg font-semibold text-white mb-1">
                     Send a Private Tip
@@ -470,7 +470,7 @@ export default function CreatorPage({
                     receives 95% via private transfer — 5% platform fee.
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 shrink-0">
                   <button
                     onClick={() => {
                       setGiftTier({ id: 1, name: 'Supporter', price: basePrice })

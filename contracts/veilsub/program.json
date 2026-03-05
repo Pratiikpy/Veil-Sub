@@ -1,7 +1,7 @@
 {
-  "program": "veilsub_v17.aleo",
-  "version": "0.9.0",
-  "description": "VeilSub v17 - Homomorphic Pedersen Subscriber Commitments, Privacy Proofs, Named Constants, 8 Record Types, 33 transitions on Aleo",
+  "program": "veilsub_v20.aleo",
+  "version": "0.12.0",
+  "description": "VeilSub v20 - Analytics Epochs, Content Versioning, 8 Record Types, 31 transitions, 30 mappings on Aleo",
   "license": "MIT",
   "leo": "3.4.0",
   "dependencies": [

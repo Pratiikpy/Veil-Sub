@@ -76,9 +76,9 @@ export default function VisionPage() {
         <section className="relative overflow-hidden">
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
             <motion.div {...fadeUp} transition={{ duration: 0.6 }} className="text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.08] mb-6">
-                <Code2 className="w-4 h-4 text-[#a1a1aa]" />
-                <span className="text-sm text-[#a1a1aa]">Beyond Subscriptions</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-6">
+                <Code2 className="w-4 h-4 text-violet-400" />
+                <span className="text-sm text-violet-300/90">Beyond Subscriptions</span>
               </div>
               <h1 className="text-4xl sm:text-6xl font-semibold tracking-tight mb-6">
                 <span className="text-white">
@@ -130,7 +130,7 @@ export default function VisionPage() {
             <div className="grid md:grid-cols-3 gap-4">
               {[
                 { stat: '31', label: 'Transitions', desc: 'Complete subscription lifecycle' },
-                { stat: '25', label: 'Mappings', desc: 'Aggregate-only public state' },
+                { stat: '24', label: 'Mappings', desc: 'Aggregate-only public state' },
                 { stat: '0', label: 'Identity Leaks', desc: 'Subscriber addresses never in finalize' },
               ].map((item, i) => (
                 <motion.div
@@ -139,7 +139,7 @@ export default function VisionPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="text-center p-4 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]"
+                  className="text-center p-4 rounded-[12px] bg-[#0a0a0a]/70 backdrop-blur-xl border border-violet-500/[0.12] hover:border-violet-500/[0.25] transition-colors"
                 >
                   <p className="text-3xl font-bold text-white">
                     {item.stat}
@@ -163,8 +163,8 @@ export default function VisionPage() {
             <div className="space-y-4">
               {[
                 { phase: 'Wave 2', status: 'done', items: 'v8 multi-token, CreatorReceipt, AuditToken, content hashes, walletless explorer, mobile nav' },
-                { phase: 'Wave 3', status: 'current', items: 'v15 deployed — 28 transitions, 7 records, custom tiers, gifting, escrow, blind renewal, encrypted content, subscription transfer, revocation enforcement, full UI redesign' },
-                { phase: 'Wave 4', status: 'next', items: 'Batch subscriptions, creator discovery marketplace, SDK documentation, subscription transfer' },
+                { phase: 'Wave 3', status: 'current', items: 'v20 deployed — 31 transitions, 8 records, 30 mappings, deep Poseidon2 optimization, Pedersen commitments, zero-footprint proofs, referral system, analytics epochs, content versioning' },
+                { phase: 'Wave 4', status: 'next', items: 'Private tier selection, decoy subscriber hashes, creator analytics dashboard, batch subscriptions, TypeScript SDK' },
                 { phase: 'Mainnet', status: 'future', items: 'Production deployment, TypeScript SDK, DAO governance, mobile wallet support' },
               ].map((item, i) => (
                 <motion.div

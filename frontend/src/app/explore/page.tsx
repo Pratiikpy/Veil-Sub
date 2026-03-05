@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import PageTransition from '@/components/PageTransition'
 import { shortenAddress } from '@/lib/utils'
+import { FEATURED_CREATORS } from '@/lib/config'
 
 interface Creator {
   address: string
@@ -89,7 +90,18 @@ export default function ExplorePage() {
         return r.json()
       })
       .then((data) => {
-        setCreators(data.creators || [])
+        const apiCreators = data.creators || []
+        // Fallback: show featured creators when API returns empty (demo mode)
+        if (apiCreators.length === 0 && !debouncedSearch.trim()) {
+          setCreators(FEATURED_CREATORS.map(fc => ({
+            address: fc.address,
+            display_name: fc.label,
+            bio: null,
+            created_at: '2026-02-01T00:00:00Z',
+          })))
+        } else {
+          setCreators(apiCreators)
+        }
         setLoading(false)
       })
       .catch((err) => {

@@ -92,10 +92,13 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
     setError(null)
     setStatusMessage(null)
     setTxStatus('signing')
+    const tipDisplay = parseFloat(customAmount) || selectedAmount
+    toast.loading(`Sending ${tipDisplay} ALEO tip...`, { id: 'tip-optimistic', duration: 5000 })
 
     try {
       const tipAmount = parseFloat(customAmount) || selectedAmount
       if (tipAmount < 0.1 || tipAmount > 1000) {
+        toast.dismiss('tip-optimistic')
         setError('Tip amount must be between 0.1 and 1000 ALEO.')
         setTxStatus('idle')
         submittingRef.current = false
@@ -124,6 +127,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
       const records = dedupeRecords(rawRecords)
 
       if (records.length < 1) {
+        toast.dismiss('tip-optimistic')
         setInsufficientBalance(true)
         setError('No private credit records found. Convert public credits to private or get testnet credits.')
         setTxStatus('idle')
@@ -134,6 +138,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
       const totalAvailable = records.reduce((sum, r) => sum + parseMicrocredits(r), 0)
       const largestRecord = parseMicrocredits(records[0])
       if (totalAvailable < tipMicrocredits) {
+        toast.dismiss('tip-optimistic')
         setInsufficientBalance(true)
         setError(`Insufficient private balance. You have ${(totalAvailable / 1_000_000).toFixed(2)} ALEO but need ${tipAmount} ALEO.`)
         setTxStatus('idle')
@@ -141,6 +146,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         return
       }
       if (largestRecord < tipMicrocredits) {
+        toast.dismiss('tip-optimistic')
         setInsufficientBalance(true)
         setError(`Your largest record has ${(largestRecord / 1_000_000).toFixed(2)} ALEO but you need ${tipAmount} in a single record. Convert public credits to private to create a larger record.`)
         setTxStatus('idle')
@@ -153,6 +159,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
       setStatusMessage(null)
       setTxStatus('proving')
+      toast.dismiss('tip-optimistic')
       const id = await tip(
         paymentRecord,
         creatorAddress,
@@ -179,6 +186,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         setError('Transaction was rejected by wallet.')
       }
     } catch (err) {
+      toast.dismiss('tip-optimistic')
       setTxStatus('failed')
       setError(err instanceof Error ? err.message : 'Tip failed')
     } finally {

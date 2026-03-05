@@ -227,6 +227,11 @@ body {
   box-shadow: 0 0 30px rgba(139, 92, 246, 0.08);
 }
 
+/* ─── Safe area for mobile bottom nav ─── */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 /* ─── Nav indicator ─── */
 .nav-indicator {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

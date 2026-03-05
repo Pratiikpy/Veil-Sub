@@ -1,4 +1,4 @@
-export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v17.aleo'
+export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v20.aleo'
 // API calls use Next.js rewrite proxy (/api/aleo/*) to avoid leaking user interest to third parties
 // The actual endpoint is configured in next.config.ts rewrites
 export const APP_NAME = 'VeilSub'
@@ -106,8 +106,8 @@ export const SEED_CONTENT: SeedContent[] = [
   },
   {
     id: 'seed-4',
-    title: 'Weekly Update: v17 Contract Deployed',
-    body: 'VeilSub v17 is live on testnet! This version adds homomorphic Pedersen subscriber commitments, zero-footprint privacy proofs, revenue range proofs, plus on-chain referrals, subscription transfer, blind renewal, commit-reveal tipping, encrypted content delivery, gifting, escrow, disputes, and named constants. 31 transitions, 8 record types, 24 mappings — 1,677 lines of Leo.',
+    title: 'Weekly Update: v20 Contract Deployed',
+    body: 'VeilSub v20 is live on testnet! Analytics epochs, content versioning, 30 mappings, deep Poseidon2 optimization across all finalize functions. 31 transitions, 8 record types — 1,750+ lines of Leo, 972 statements. 12 version iterations in Wave 3 alone.',
     minTier: 1,
     createdAt: '2026-03-01T10:00:00Z',
     contentId: 'seed',
@@ -136,4 +136,6 @@ export const FEATURED_CREATORS: { address: string; label: string }[] = [
   { address: 'aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk', label: 'Prateek (VeilSub Creator)' },
   { address: 'aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fez7pqgys4x7s3m', label: 'Privacy Research Lab' },
   { address: 'aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8', label: 'ZK Developer Academy' },
+  { address: 'aleo1y9mnptjlkg5dqx3gm2s5fy3u8q5zax7c0fsmx0453a3y0fj59ypswzz9p0', label: 'Aleo Alpha Newsletter' },
+  { address: 'aleo1wyvu96dvv0auq9e4qme54kjuhzglyfcf576h0g3nrrmrmr0505pq9krwfd', label: 'DeFi Privacy Research' },
 ]

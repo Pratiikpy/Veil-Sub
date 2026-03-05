@@ -55,6 +55,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
     submittingRef.current = true
     setError(null)
     setTxStatus('signing')
+    toast.loading(`Publishing "${title.trim()}"...`, { id: 'post-optimistic', duration: 8000 })
 
     try {
       const contentId = generatePassId()
@@ -75,6 +76,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
           if (result.status === 'confirmed') {
             if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
+            toast.dismiss('post-optimistic')
             // Save to Redis AFTER on-chain confirmation to avoid orphan posts
             const wrappedSign = signMessage
               ? async (msg: Uint8Array) => {
@@ -96,6 +98,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
             onPostCreated?.()
           } else if (result.status === 'failed') {
             setTxStatus('failed')
+            toast.dismiss('post-optimistic')
             setError('Transaction failed on-chain.')
             toast.error('Publish failed')
           }
@@ -105,6 +108,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
         setError('Transaction was rejected by wallet.')
       }
     } catch (err) {
+      toast.dismiss('post-optimistic')
       setTxStatus('failed')
       setError(err instanceof Error ? err.message : 'Publish failed')
     } finally {

@@ -4,7 +4,7 @@
 
 VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pay with ALEO credits and receive an encrypted **AccessPass** record — their identity is never exposed on-chain. Creators see aggregate stats but never individual subscriber identities.
 
-**Live on Testnet:** [`veilsub_v17.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v17.aleo)
+**Live on Testnet:** [`veilsub_v20.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v20.aleo)
 
 ---
 
@@ -34,9 +34,9 @@ VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pa
 │  /api/posts (Upstash Redis) + /api/creators (Supabase)│
 │  Wallet-hash auth: SHA-256(address) → no plaintext   │
 ├─────────────────────────────────────────────────────┤
-│              Aleo Smart Contract (v17)               │
-│  31 transitions · 24 mappings · 8 record types       │
-│  1,677 lines of Leo · 5 structs                      │
+│              Aleo Smart Contract (v20)               │
+│  31 transitions · 30 mappings · 8 record types       │
+│  1,750+ lines of Leo · 5 structs                     │
 │  credits.aleo import                                 │
 └─────────────────────────────────────────────────────┘
 ```
@@ -55,7 +55,7 @@ VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pa
 
 ---
 
-## Smart Contract — `veilsub_v17.aleo`
+## Smart Contract — `veilsub_v20.aleo`
 
 ### 8 Record Types
 1. **AccessPass** — subscriber's encrypted credential
@@ -130,6 +130,9 @@ VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pa
 | v15 | **Security hardening** — revocation enforcement, Sybil-resistant disputes, subscription transfer |
 | v16 | **On-chain referral system** — privacy-preserving referral rewards, ReferralReward record, referral_count mapping |
 | v17 | **Homomorphic Pedersen commitments** — `subscribe_private_count` with `sub_count_commit` mapping, `prove_sub_count` and `prove_revenue_range` zero-footprint proofs, named constants replacing magic numbers |
+| v18 | **Version bump** — 25 mappings, 1,690+ lines, continued privacy hardening and contract refinements |
+| v19 | **Poseidon2 optimization** — all BHP256::hash_to_field replaced with Poseidon2 in finalize, 3 new mappings, MIN_PRICE/MAX_TIER validation, 954 statements, 28 mappings |
+| v20 | **Analytics epochs & content versioning** — subscription_epoch mapping, EPOCH_SIZE constant, content_version mapping, version tracking in publish/update, 30 mappings, 972 statements |
 
 ---
 
@@ -225,7 +228,7 @@ cd contracts/veilsub && leo build
 
 ### Environment Variables
 ```env
-NEXT_PUBLIC_PROGRAM_ID=veilsub_v17.aleo
+NEXT_PUBLIC_PROGRAM_ID=veilsub_v20.aleo
 NEXT_PUBLIC_ALEO_API=https://api.explorer.provable.com/v1
 NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-key>
@@ -237,7 +240,7 @@ UPSTASH_REDIS_REST_TOKEN=<your-redis-token>
 
 ## Testnet Deployment
 
-**Program:** [`veilsub_v17.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v17.aleo)
+**Program:** [`veilsub_v20.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v20.aleo)
 
 **Account:** `aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk`
 
@@ -262,20 +265,35 @@ UPSTASH_REDIS_REST_TOKEN=<your-redis-token>
 
 ## Competitive Positioning
 
-| Metric | VeilSub v17 | NullPay v13 | Veiled Markets | lasagna |
+| Metric | VeilSub v20 | NullPay v13 | Veiled Markets | lasagna |
 |--------|-------------|-------------|----------------|---------|
+| **Contract** | | | | |
 | Transitions | 31 | ~15 | ~32 | ~12 |
 | Record Types | 8 | 4 | 3 | 3 |
-| Mappings | 24 | ~12 | ~18 | ~10 |
-| Lines of Leo | 1,677 | ~800 | ~2,576 | ~600 |
-| Privacy Technique | Blind Renewal + Pedersen Commitments + Zero-Footprint Proofs | Dual-record | FPMM AMM | DAR |
-| Subscription Gifting | Yes | No | No | No |
+| Mappings | 30 | ~12 | ~18 | ~10 |
+| Lines of Leo | 1,750+ | ~800 | ~2,576 | ~600 |
+| Version Iterations | v20 (20 deploys) | v13 | ~3 | ~4 |
+| **Privacy** | | | | |
+| Subscriber Identity Hidden | Yes (never in finalize) | Yes (dual-record) | N/A (AMM) | N/A (prediction) |
+| Zero-Footprint Verification | Yes (no finalize) | No | No | No |
+| Blind Renewal (unlinkable) | Yes (nonce-based) | No | No | No |
+| Pedersen Commitments | Yes (homomorphic) | No | No | Yes (DAR) |
+| Zero-Footprint Proofs | 3 (verify, prove_sub, prove_revenue) | 0 | 0 | 0 |
+| Privacy Modes | 3 (standard/blind/max) | 1 | 1 | 1 |
+| **Features** | | | | |
+| Subscription Gifting | Yes (GiftToken record) | No | No | No |
 | Subscription Transfer | Yes | No | No | No |
 | Refund Escrow | Yes | No | No | No |
-| Content CRUD | Yes | No | No | No |
+| Content CRUD | Yes (publish/update/delete/encrypt) | No | No | No |
 | Sybil-Resistant Disputes | Yes | No | No | No |
 | Revocation Enforcement | Yes | No | No | No |
-| On-Chain Referrals | Yes | No | No | No |
+| On-Chain Referrals | Yes (10% reward) | No | No | No |
+| Custom Creator Tiers | Yes (dynamic) | No | N/A | N/A |
+| **Frontend** | | | | |
+| Pages/Routes | 22 | ~8 | ~6 | ~4 |
+| Wallet Support | 5 wallets | 1-2 | 1-2 | 1-2 |
+| Design System | Glassmorphism + violet | Basic | Basic | Basic |
+| Walletless Explorer | Yes | No | No | No |
 
 ---
 

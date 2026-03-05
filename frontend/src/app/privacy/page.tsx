@@ -29,9 +29,9 @@ export default function PrivacyPage() {
         <section className="relative overflow-hidden">
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
             <motion.div {...fadeUp} transition={{ duration: 0.6 }} className="text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.08] mb-6">
-                <Shield className="w-4 h-4 text-[#a1a1aa]" />
-                <span className="text-sm text-[#a1a1aa]">Zero-Knowledge Privacy</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-6">
+                <Shield className="w-4 h-4 text-violet-400" />
+                <span className="text-sm text-violet-300/90">Zero-Knowledge Privacy</span>
               </div>
               <h1 className="text-4xl sm:text-6xl font-semibold tracking-tight mb-6">
                 <span className="text-white">
@@ -59,8 +59,8 @@ export default function PrivacyPage() {
 
             <div className="grid md:grid-cols-3 gap-6">
               <GlassCard shimmer delay={0}>
-                <div className="w-12 h-12 rounded-[12px] bg-white/[0.04] flex items-center justify-center mb-4">
-                  <Fingerprint className="w-6 h-6 text-[#a1a1aa]" />
+                <div className="w-12 h-12 rounded-[12px] bg-violet-500/10 flex items-center justify-center mb-4">
+                  <Fingerprint className="w-6 h-6 text-violet-400" />
                 </div>
                 <h3 className="text-white font-semibold mb-2">Prove Without Revealing</h3>
                 <p className="text-sm text-[#a1a1aa]">
@@ -194,24 +194,34 @@ export default function PrivacyPage() {
                       icon: Shield,
                     },
                     {
-                      title: 'Subscription Tiers (v12)',
+                      title: 'Subscription Tiers (v17)',
                       desc: 'Creator-defined tier metadata is stored hashed. Only the creator can map tier_id back to tier details. Subscribers never leak which tier they purchased.',
                       icon: Lock,
                     },
                     {
-                      title: 'GiftToken Records (v12)',
+                      title: 'GiftToken Records (v17)',
                       desc: 'Gift records are encrypted and visible only to the recipient. Givers and creators cannot see gift details.',
                       icon: Shield,
                     },
                     {
-                      title: 'RefundEscrow Records (v12)',
+                      title: 'RefundEscrow Records (v17)',
                       desc: 'Escrow data is stored hashed in mappings. Subscribers can claim refunds privately without revealing amount or timing to creators.',
                       icon: Lock,
                     },
                     {
-                      title: 'Blind Subscriber Nonce (v12)',
+                      title: 'Blind Subscriber Nonce (v17)',
                       desc: 'Each renewal generates a unique nonce-based subscriber hash. Creators cannot correlate consecutive renewals from the same subscriber.',
                       icon: Fingerprint,
+                    },
+                    {
+                      title: 'Pedersen Subscriber Count (v17)',
+                      desc: 'Homomorphic Pedersen commitments hide individual subscription events. Creators prove aggregate counts via zero-footprint ZK proofs without revealing per-subscriber data.',
+                      icon: ShieldCheck,
+                    },
+                    {
+                      title: 'Revenue Range Proofs (v17)',
+                      desc: 'Prove revenue falls within a range without disclosing the exact amount. Uses Pedersen commitments with salt-derived randomizers for unlinkable proofs.',
+                      icon: Lock,
                     },
                   ].map((item) => {
                     const Icon = item.icon
@@ -260,19 +270,24 @@ export default function PrivacyPage() {
                       icon: Database,
                     },
                     {
-                      title: 'Creator Tier Metadata (v12)',
+                      title: 'Creator Tier Metadata (v17)',
                       desc: 'Public listing of available tiers per creator. Tier prices and limits are visible so subscribers can choose.',
                       icon: Database,
                     },
                     {
-                      title: 'Nonce Usage Tracking (v12)',
+                      title: 'Nonce Usage Tracking (v17)',
                       desc: 'Public mapping of consumed nonces — proves blind renewal anonymity without revealing identities.',
                       icon: Server,
                     },
                     {
-                      title: 'Content Existence & Updates (v12)',
+                      title: 'Content Existence & Updates (v17)',
                       desc: 'Hashed content IDs and deletion status are public. Content bodies and author identity remain off-chain.',
                       icon: Database,
+                    },
+                    {
+                      title: 'Pedersen Aggregate Commitments (v17)',
+                      desc: 'Aggregate Pedersen commitments in sub_count_commit mapping. Verifiable but reveals nothing about individual subscribers.',
+                      icon: Server,
                     },
                     {
                       title: 'Program Source Code',
@@ -403,7 +418,7 @@ export default function PrivacyPage() {
                       desc: 'verify_access has NO finalize block. When proving access, zero public state changes occur — no mapping writes, no counters, no on-chain evidence. This prevents timing correlation attacks from tracking when access was verified.',
                     },
                     {
-                      title: 'Blind Renewal (v12)',
+                      title: 'Blind Renewal (v17)',
                       desc: 'Each renewal generates a unique subscriber hash via nonce — creators cannot track renewal patterns. Every renew_blind() uses a fresh nonce, preventing correlation between consecutive renewals from the same subscriber.',
                     },
                   ].map((item) => (
@@ -521,32 +536,48 @@ export default function PrivacyPage() {
                   guarantee: 'Only content_id and min_tier enter finalize. Content body stays off-chain. Creator address is already public.',
                 },
                 {
-                  fn: 'subscribe_blind() (v12)',
+                  fn: 'subscribe_blind() (v17)',
                   guarantee: 'Subscriber nonce generates blind hash — creator cannot correlate subscriber identity across transactions.',
                 },
                 {
-                  fn: 'renew_blind() (v12)',
+                  fn: 'renew_blind() (v17)',
                   guarantee: 'Each renewal uses a unique nonce — consecutive renewals cannot be linked to the same subscriber.',
                 },
                 {
-                  fn: 'gift_subscription() (v12)',
+                  fn: 'gift_subscription() (v17)',
                   guarantee: 'GiftToken is encrypted to recipient. Giver identity stays private. Only recipient can decrypt and redeem.',
                 },
                 {
-                  fn: 'redeem_gift() (v12)',
+                  fn: 'redeem_gift() (v17)',
                   guarantee: 'Recipient redeems GiftToken to AccessPass. Only recipient address is used — giver remains unknown.',
                 },
                 {
-                  fn: 'subscribe_with_escrow() (v12)',
+                  fn: 'subscribe_with_escrow() (v17)',
                   guarantee: 'Payment held in escrow. Subscriber can claim refund privately. Amount and timing hidden from creator.',
                 },
                 {
-                  fn: 'claim_refund() (v12)',
+                  fn: 'claim_refund() (v17)',
                   guarantee: 'Refund claim is private. Subscriber address never reaches finalize. Only escrow status updated.',
                 },
                 {
-                  fn: 'verify_tier_access() (v12)',
+                  fn: 'verify_tier_access() (v17)',
                   guarantee: 'Proves tier access without revealing which tier subscriber holds or subscriber identity.',
+                },
+                {
+                  fn: 'subscribe_private_count() (v17)',
+                  guarantee: 'Maximum privacy mode — uses homomorphic Pedersen commitments instead of public counters. No subscriber_count increment, no public trace.',
+                },
+                {
+                  fn: 'prove_sub_count() (v17)',
+                  guarantee: 'Zero-footprint ZK proof — proves subscriber count matches Pedersen commitment. No finalize, no on-chain trace of the proof.',
+                },
+                {
+                  fn: 'prove_revenue_range() (v17)',
+                  guarantee: 'Zero-footprint range proof — proves revenue within bounds without revealing exact amount. No finalize, no state change.',
+                },
+                {
+                  fn: 'subscribe_referral() (v17)',
+                  guarantee: 'Referral subscription with 10% reward to referrer. Referrer identity stays private via ReferralReward record.',
                 },
                 {
                   fn: 'All payments',

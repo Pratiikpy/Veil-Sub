@@ -144,9 +144,9 @@ function ContractTab() {
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Program ID</h3>
         <div className="p-3 rounded-[8px] bg-white/[0.04] border border-white/[0.08] flex items-center justify-between">
-          <code className="text-[#a1a1aa] text-sm font-mono">veilsub_v17.aleo</code>
+          <code className="text-[#a1a1aa] text-sm font-mono">veilsub_v20.aleo</code>
           <a
-            href="https://testnet.explorer.provable.com/program/veilsub_v17.aleo"
+            href="https://testnet.explorer.provable.com/program/veilsub_v20.aleo"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-[#a1a1aa] hover:text-white flex items-center gap-1"
@@ -171,7 +171,7 @@ function ContractTab() {
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Mappings (Public) — 24 Total</h3>
+        <h3 className="text-xl font-semibold text-white mb-3">Mappings (Public) — 30 Total</h3>
         <CodeBlock
           lang="leo"
           code={`// Core mappings (ALEO credits)
@@ -181,7 +181,7 @@ mapping total_revenue: address => u64;         // creator => total earned
 mapping platform_revenue: u8 => u64;          // key 0 = total platform earnings
 mapping content_count: address => u64;         // creator => number of posts
 mapping content_meta: field => u8;             // hashed content_id => min tier required
-// v15 — Custom Tiers, Advanced Features, Subscription Transfer & Revocation Enforcement
+// v9-v20 — Dynamic Tiers, Gifting, Escrow, Blind Renewal, Referrals, Pedersen Proofs
 mapping creator_tiers: field => u8;            // hash(creator, tier_id) => custom tier data
 mapping tier_count: address => u8;             // creator => number of custom tiers created
 mapping tier_deprecated: field => bool;        // hash(creator, tier_id) => is tier deprecated
@@ -316,17 +316,32 @@ mapping content_disputes: field => u8;         // dispute_id => dispute status`}
               desc: 'v15: Subscriber disputes content quality/copyright. Creates dispute record for platform review.',
             },
             {
-              name: 'transfer_subscription(pass, recipient)',
+              name: 'transfer_pass(pass, recipient)',
               type: 'async',
-              desc: 'v15: Transfer an AccessPass to another address. The original pass is consumed and a new one is created for the recipient. Enables subscription marketplace and gifting workflows.',
+              desc: 'v15: Transfer an AccessPass to another address. The original pass is consumed and a new one is created for the recipient. Checks revocation before allowing transfer.',
             },
             {
-              name: 'enforce_revocation(pass_id)',
+              name: 'commit_tip(creator, amount, salt)',
               type: 'async',
-              desc: 'v15: Enforce revocation of a previously revoked AccessPass. Checks access_revoked mapping and prevents use of revoked passes. Strengthens creator moderation capabilities.',
+              desc: 'v14: Phase 1 of commit-reveal tipping. Commits to a tip amount using BHP256 commitment scheme. The tip value is hidden on-chain until voluntary reveal.',
             },
             {
-              name: 'subscribe_private_count(payment, creator, tier, amount, pass_id, expires_at)',
+              name: 'reveal_tip(payment, creator, amount, salt)',
+              type: 'async',
+              desc: 'v14: Phase 2 — reveals the committed tip and executes the transfer. Recomputes the commitment, verifies it matches, then transfers credits to the creator.',
+            },
+            {
+              name: 'create_audit_token(pass, verifier)',
+              type: 'sync',
+              desc: 'v8: Creates a selective-disclosure AuditToken for third-party verification. Zero finalize footprint — no public trace of who created the token.',
+            },
+            {
+              name: 'subscribe_referral(payment, creator, referrer, tier, amount, pass_id, expires_at)',
+              type: 'async',
+              desc: 'v17: Subscribe with a referral. Referrer receives 10% reward as a private ReferralReward record. Referrer identity stays private.',
+            },
+            {
+              name: 'subscribe_private_count(payment, creator, tier, amount, pass_id, expires_at, blinding)',
               type: 'async',
               desc: 'v17: Maximum-privacy subscription. Uses homomorphic Pedersen commitments to hide subscriber counts behind group elements. The subscriber count mapping stores a commitment instead of a plaintext number.',
             },
@@ -411,7 +426,7 @@ function PrivacyModelTab() {
           v17 also introduces named constants (<code className="px-1 py-0.5 rounded bg-white/10 text-[#a1a1aa] text-xs">PLATFORM_FEE_DIV</code>,{' '}
           <code className="px-1 py-0.5 rounded bg-white/10 text-[#a1a1aa] text-xs">ESCROW_BLOCKS</code>,{' '}
           <code className="px-1 py-0.5 rounded bg-white/10 text-[#a1a1aa] text-xs">MAX_EXPIRY</code>) for
-          auditability, bringing the contract to 1,677 lines, 31 transitions, 24 mappings, and 8 record types.
+          auditability, bringing the contract to 1,750+ lines, 31 transitions, 30 mappings, and 8 record types.
         </p>
       </div>
 
@@ -486,13 +501,13 @@ function ApiTab() {
         <CodeBlock
           lang="bash"
           code={`# Get creator's tier price
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v17.aleo/mapping/tier_prices/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v20.aleo/mapping/tier_prices/<creator_address>
 
 # Get subscriber count
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v17.aleo/mapping/subscriber_count/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v20.aleo/mapping/subscriber_count/<creator_address>
 
 # Get total revenue
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v17.aleo/mapping/total_revenue/<creator_address>`}
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v20.aleo/mapping/total_revenue/<creator_address>`}
         />
       </div>
 
@@ -509,7 +524,7 @@ const { executeTransaction } = useWallet()
 
 // Execute a subscribe transaction (v15 — returns AccessPass)
 const result = await executeTransaction({
-  program: 'veilsub_v17.aleo',
+  program: 'veilsub_v20.aleo',
   function: 'subscribe',
   inputs: [
     paymentRecord,              // single credits record (must have >= amount)
@@ -577,7 +592,7 @@ function FaqTab() {
     },
     {
       q: 'How much does it cost to subscribe?',
-      a: 'The subscription price is set by each creator (v15: creators can define custom tiers with any price). Tiers are configurable per creator. Plus a small network fee for the ZK proof generation.',
+      a: 'The subscription price is set by each creator. Creators define custom tiers with any price (minimum 100 microcredits). Plus a small network fee for ZK proof generation.',
     },
     {
       q: 'Can I tip a creator without subscribing?',
@@ -646,7 +661,7 @@ export default function DocsPage() {
                       onClick={() => setActiveTab(tab.id)}
                       className={`relative flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm whitespace-nowrap transition-colors ${
                         activeTab === tab.id
-                          ? 'text-white bg-white/[0.06] border border-white/[0.08]'
+                          ? 'text-white bg-violet-500/[0.08] border border-violet-500/[0.15]'
                           : 'text-[#a1a1aa] hover:text-white hover:bg-white/[0.03]'
                       }`}
                     >

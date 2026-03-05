@@ -540,6 +540,31 @@ export function useVeilSub() {
     [execute]
   )
 
+  // v14: Commit to a tip amount (phase 1 of commit-reveal tipping)
+  const commitTip = useCallback(
+    async (creatorAddress: string, amount: number, salt: string) => {
+      return execute('commit_tip', [
+        creatorAddress,
+        `${amount}u64`,
+        `${salt}field`,
+      ], FEES.TIP)
+    },
+    [execute]
+  )
+
+  // v14: Reveal committed tip and execute transfer (phase 2)
+  const revealTip = useCallback(
+    async (paymentRecord: string, creatorAddress: string, amount: number, salt: string) => {
+      return execute('reveal_tip', [
+        paymentRecord,
+        creatorAddress,
+        `${amount}u64`,
+        `${salt}field`,
+      ], FEES.TIP)
+    },
+    [execute]
+  )
+
   // =========================================
   // Record Fetchers (v10+)
   // =========================================
@@ -946,6 +971,9 @@ export function useVeilSub() {
     subscribePrivateCount,
     proveSubCount,
     proveRevenueRange,
+    // v14: Commit-reveal tipping
+    commitTip,
+    revealTip,
     // Utility
     splitCredits,
     convertPublicToPrivate,

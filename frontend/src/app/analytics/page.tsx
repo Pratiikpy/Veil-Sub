@@ -29,32 +29,32 @@ interface GlobalStats {
 
 const CONTRACT_VERSIONS = [
   {
-    version: 'v4',
-    description: 'Core subscriptions with AccessPass records and tier-based pricing',
+    version: 'v4-v8',
+    description: 'Core subscriptions, AccessPass, CreatorReceipt, AuditToken, content publishing',
   },
   {
-    version: 'v5',
-    description: 'Token-based payments and creator tipping support',
+    version: 'v9-v10',
+    description: 'Dynamic tiers, content CRUD, gifting, escrow, fee withdrawal',
   },
   {
-    version: 'v6',
-    description: 'Content publishing with on-chain metadata hashes',
+    version: 'v11-v12',
+    description: 'Blind renewal (novel privacy), encrypted content, disputes, revocation',
   },
   {
-    version: 'v7',
-    description: 'CreatorReceipt and AuditToken record types added',
+    version: 'v13-v14',
+    description: 'Ternary safety fixes, Pedersen commit-reveal tipping',
   },
   {
-    version: 'v8',
-    description: 'Walletless explorer, content hashes, mobile navigation',
+    version: 'v15-v16',
+    description: 'Security hardening, subscription transfer, on-chain referral system',
   },
   {
-    version: 'v12',
-    description: 'Encrypted content delivery, access revocation, dispute resolution',
+    version: 'v17-v18',
+    description: 'Homomorphic Pedersen commitments, zero-footprint proofs, Poseidon2 optimization, privacy levels',
   },
   {
-    version: 'v15',
-    description: 'Subscription transfer, revocation enforcement, 28 transitions, 22 mappings, 1380 lines',
+    version: 'v19-v20',
+    description: 'Deep Poseidon2 in finalize, analytics epochs, content versioning, 30 mappings, 972 statements',
   },
 ]
 
@@ -122,7 +122,7 @@ export default function AnalyticsPage() {
             <StatsCard
               icon={FileCode}
               label="Contract Version"
-              value="v15"
+              value="v20"
               delay={0.15}
             />
           </div>
@@ -132,9 +132,9 @@ export default function AnalyticsPage() {
             <h2 className="text-lg font-medium text-white mb-6">Protocol Stats</h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <ProtocolStat icon={Activity} value="31" label="Transitions" delay={0} />
-              <ProtocolStat icon={Layers} value="7" label="Record Types" delay={0.05} />
-              <ProtocolStat icon={Database} value="25" label="Mappings" delay={0.1} />
-              <ProtocolStat icon={Code} value="1,517" label="Lines of Leo" delay={0.15} />
+              <ProtocolStat icon={Layers} value="8" label="Record Types" delay={0.05} />
+              <ProtocolStat icon={Database} value="30" label="Mappings" delay={0.1} />
+              <ProtocolStat icon={Code} value="1,750+" label="Lines of Leo" delay={0.15} />
             </div>
           </section>
 

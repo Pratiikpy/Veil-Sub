@@ -70,7 +70,7 @@ These values appear in transaction data because Aleo's finalize scope is public:
 
 ## Privacy Comparison with Competitors
 
-| Feature | VeilSub v17 | NullPay | Alpaca Invoice |
+| Feature | VeilSub v19 | NullPay | Alpaca Invoice |
 |---------|---------|---------|----------------|
 | User identity in finalize | NEVER | NEVER | Seller address leaks |
 | Payment method | credits.aleo/transfer_private (atomic) | credits.aleo/transfer_private (atomic) | credits.aleo NOT called (trust-based mark_as_paid) |

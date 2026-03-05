@@ -7,7 +7,7 @@ VeilSub is a privacy-preserving content subscription platform built on Aleo. It 
 ```
 +-------------------+       +--------------------+       +------------------+
 |   Frontend        |       |   Aleo Testnet     |       |   Off-Chain      |
-|   (Next.js 16)    |<----->|   (veilsub_v17)    |       |   Services       |
+|   (Next.js 16)    |<----->|   (veilsub_v20)    |       |   Services       |
 |                   |       |                    |       |                  |
 | - Dashboard       |       | - AccessPass       |       | - Supabase (DB)  |
 | - Explore         |       | - CreatorReceipt   |       | - Upstash Redis  |
@@ -34,7 +34,7 @@ VeilSub is a privacy-preserving content subscription platform built on Aleo. It 
 
 ## Layer Architecture
 
-### Layer 1: Smart Contract (`veilsub_v17.aleo`)
+### Layer 1: Smart Contract (`veilsub_v20.aleo`)
 
 The Leo smart contract is the trust foundation. All financial operations and access control happen on-chain.
 
@@ -158,7 +158,7 @@ Five wallet adapters via `@provablehq/aleo-wallet-adaptor-react`:
 1. Subscriber connects wallet (Shield/Leo/Fox/Puzzle/Soter)
 2. Frontend fetches credits.aleo records via requestRecords()
 3. User selects creator + tier → frontend computes amount
-4. executeTransaction() calls veilsub_v17.aleo/subscribe:
+4. executeTransaction() calls veilsub_v20.aleo/subscribe:
    a. credits.aleo/transfer_private sends payment to creator
    b. AccessPass record created (owned by subscriber)
    c. CreatorReceipt record created (owned by creator)

@@ -242,7 +242,7 @@ export default function HomePage() {
           }}
         />
 
-        <Container className="relative pt-44 pb-36">
+        <Container className="relative pt-28 sm:pt-44 pb-20 sm:pb-36">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -311,7 +311,7 @@ export default function HomePage() {
             </div>
 
             <p className="mt-6 text-xs text-[#525252]">
-              Built on Aleo · Zero-Knowledge Proofs · v17 Deployed
+              Built on Aleo · Zero-Knowledge Proofs · v20 Deployed
             </p>
           </motion.div>
 
@@ -377,7 +377,7 @@ export default function HomePage() {
                     key={row.traditional}
                     className="rounded-2xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] overflow-hidden hover:border-white/[0.12] transition-colors duration-300"
                   >
-                    <div className="grid grid-cols-2 divide-x divide-white/[0.06]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.06]">
                       <div className="flex items-start gap-2.5 p-5">
                         <XIcon className="w-4 h-4 text-red-400/50 mt-0.5 shrink-0" />
                         <div>
@@ -499,7 +499,7 @@ export default function HomePage() {
         <Container>
           <ScrollReveal>
             <SectionHeader
-              badge="v8 → v17 Evolution"
+              badge="v8 → v20 Evolution"
               title="Ten versions of privacy innovation"
               subtitle="Each iteration adds novel cryptographic features. Built in public, deployed on testnet."
             />
@@ -538,9 +538,9 @@ export default function HomePage() {
       <section className="py-32">
         <Container>
           <ScrollReveal>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Quote card */}
-              <div className="col-span-2 row-span-2 rounded-3xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] p-10 flex flex-col justify-between hover:border-violet-500/[0.15] transition-all duration-300">
+              <div className="sm:col-span-2 sm:row-span-2 rounded-3xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] p-6 sm:p-10 flex flex-col justify-between hover:border-violet-500/[0.15] transition-all duration-300">
                 <div>
                   <Badge variant="accent">Protocol Stats</Badge>
                   <p
@@ -567,7 +567,7 @@ export default function HomePage() {
                 { value: 100, suffix: '%', label: 'Private', sublabel: 'Subscriber identity hidden' },
                 { value: 31, suffix: '', label: 'Transitions', sublabel: 'On-chain smart contract' },
                 { value: 8, suffix: '', label: 'Record Types', sublabel: 'Private data structures' },
-                { value: 17, suffix: '', label: 'Versions', sublabel: 'Iterative testnet deploys', prefix: 'v' },
+                { value: 20, suffix: '', label: 'Versions', sublabel: 'Iterative testnet deploys', prefix: 'v' },
               ].map((stat) => (
                 <div
                   key={stat.label}
@@ -629,8 +629,8 @@ export default function HomePage() {
       {/* ── Footer ── */}
       <footer className="border-t border-white/[0.06] pt-16 pb-12">
         <Container>
-          <div className="grid sm:grid-cols-4 gap-10 mb-14">
-            <div className="sm:col-span-1">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 mb-14">
+            <div className="col-span-2 md:col-span-1">
               <p className="font-serif italic text-white text-xl mb-2">VeilSub</p>
               <p className="text-sm text-[#71717a] leading-relaxed">
                 Private creator subscriptions on Aleo.
@@ -692,7 +692,7 @@ export default function HomePage() {
               <div className="space-y-2.5">
                 {[
                   { href: 'https://github.com/Pratiikpy/Veil-Sub', label: 'GitHub', icon: Github },
-                  { href: 'https://testnet.aleoscan.io/program?id=veilsub_v17.aleo', label: 'Aleoscan', icon: Code },
+                  { href: 'https://testnet.aleoscan.io/program?id=veilsub_v20.aleo', label: 'Aleoscan', icon: Code },
                 ].map((link) => (
                   <a
                     key={link.href}
@@ -714,12 +714,12 @@ export default function HomePage() {
               2026 VeilSub. Built on Aleo.
             </p>
             <a
-              href="https://testnet.explorer.provable.com/program/veilsub_v17.aleo"
+              href="https://testnet.explorer.provable.com/program/veilsub_v20.aleo"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-[#525252] font-mono hover:text-violet-300 transition-colors"
             >
-              veilsub_v17.aleo
+              veilsub_v20.aleo
             </a>
           </div>
         </Container>
