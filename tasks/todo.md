@@ -34,7 +34,7 @@
 - [x] F11: Featured creators fallback on explore page (demo mode)
 
 ### PHASE 3: Deployment & Demo — CRITICAL
-- [ ] D1: Deploy v20 to testnet — v18 broadcasting, will deploy v20 next
+- [ ] D1: Deploy v20 to testnet — tx at1x2dz... broadcasting with 5 ALEO priority fee, awaiting confirmation
 - [ ] D2: Execute 20+ transitions on testnet
 - [ ] D3: Pre-populate 3-5 test creators with content — featured creators added to config
 - [ ] D4: Video demo script + recording

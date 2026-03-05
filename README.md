@@ -173,6 +173,17 @@ sub_count_commit[creator] += Pedersen64::commit_to_group(1u64, rand_scalar)
 
 These are the subscription-domain equivalent of range proofs — proving properties about private data without disclosure.
 
+### 7. Deep Poseidon2 Optimization (v19)
+All `BHP256::hash_to_field` calls in finalize functions replaced with `Poseidon2::hash_to_field` — **2-8 constraints vs 256 per hash**. This applies to:
+- TierKey hashing (tier lookups, deprecation checks)
+- Content ID hashing (publish, update, delete, encrypt)
+- BlindKey hashing (blind subscriptions/renewals)
+- Nonce hashing (replay prevention)
+- TipCommitData hashing (commit-reveal tipping)
+- Epoch key hashing (analytics epochs)
+
+BHP256 is retained **only** for commitment operations (`commit_to_field`, `hash_to_scalar`) where algebraic properties are required.
+
 ---
 
 ## Security Model (v15)
