@@ -11,9 +11,9 @@ import { AnimatePresence, motion } from 'framer-motion'
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
   { href: '/explore', label: 'Explore' },
+  { href: '/explorer', label: 'On-Chain' },
   { href: '/verify', label: 'Verify' },
   { href: '/docs', label: 'Docs' },
-  { href: '/analytics', label: 'Analytics' },
 ]
 
 const DASHBOARD_ITEM = { href: '/dashboard', label: 'Dashboard' }
