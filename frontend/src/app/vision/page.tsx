@@ -163,7 +163,7 @@ export default function VisionPage() {
             <div className="space-y-4">
               {[
                 { phase: 'Wave 2', status: 'done', items: 'v8 multi-token, CreatorReceipt, AuditToken, content hashes, walletless explorer, mobile nav' },
-                { phase: 'Wave 3', status: 'current', items: 'v20 deployed — 31 transitions, 8 records, 30 mappings, deep Poseidon2 optimization, Pedersen commitments, zero-footprint proofs, referral system, analytics epochs, content versioning' },
+                { phase: 'Wave 3', status: 'current', items: 'v15 deployed on testnet (28 transitions), v20 source (31 transitions, 30 mappings, 8 records) — Pedersen commitments, zero-footprint proofs, referral system, Poseidon2 optimization, analytics epochs' },
                 { phase: 'Wave 4', status: 'next', items: 'Private tier selection, decoy subscriber hashes, creator analytics dashboard, batch subscriptions, TypeScript SDK' },
                 { phase: 'Mainnet', status: 'future', items: 'Production deployment, TypeScript SDK, DAO governance, mobile wallet support' },
               ].map((item, i) => (
