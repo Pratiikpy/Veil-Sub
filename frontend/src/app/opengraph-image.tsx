@@ -97,7 +97,7 @@ export default function OGImage() {
             { value: '31', label: 'Transitions' },
             { value: '30', label: 'Mappings' },
             { value: '8', label: 'Record Types' },
-            { value: 'v20', label: 'Deployed' },
+            { value: 'v15', label: 'On Testnet' },
           ].map((stat) => (
             <div key={stat.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div style={{ fontSize: 28, fontWeight: 700, color: '#c4b5fd' }}>{stat.value}</div>

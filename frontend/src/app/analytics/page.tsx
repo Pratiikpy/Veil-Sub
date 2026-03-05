@@ -123,7 +123,7 @@ export default function AnalyticsPage() {
             <StatsCard
               icon={FileCode}
               label="Contract Version"
-              value="v20"
+              value="v15 / v20"
               delay={0.15}
             />
           </div>
