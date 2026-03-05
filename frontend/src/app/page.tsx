@@ -315,7 +315,7 @@ export default function HomePage() {
             </div>
 
             <p className="mt-6 text-xs text-[#71717a]">
-              Built on Aleo · Zero-Knowledge Proofs · v20 Deployed
+              Built on Aleo · Zero-Knowledge Proofs · v15 on Testnet · v20 Source
             </p>
           </motion.div>
 
@@ -696,7 +696,7 @@ export default function HomePage() {
               <div className="space-y-2.5">
                 {[
                   { href: 'https://github.com/Pratiikpy/Veil-Sub', label: 'GitHub', icon: Github },
-                  { href: 'https://testnet.aleoscan.io/program?id=veilsub_v20.aleo', label: 'Aleoscan', icon: Code },
+                  { href: 'https://testnet.aleoscan.io/program?id=veilsub_v15.aleo', label: 'Aleoscan', icon: Code },
                 ].map((link) => (
                   <a
                     key={link.href}
@@ -718,12 +718,12 @@ export default function HomePage() {
               2026 VeilSub. Built on Aleo.
             </p>
             <a
-              href="https://testnet.explorer.provable.com/program/veilsub_v20.aleo"
+              href="https://testnet.aleoscan.io/program?id=veilsub_v15.aleo"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-[#71717a] font-mono hover:text-violet-300 transition-colors"
             >
-              veilsub_v20.aleo
+              veilsub_v15.aleo
             </a>
           </div>
         </Container>

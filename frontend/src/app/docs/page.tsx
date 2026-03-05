@@ -143,16 +143,28 @@ function ContractTab() {
     <div className="space-y-8">
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Program ID</h3>
-        <div className="p-3 rounded-[8px] bg-white/[0.04] border border-white/[0.08] flex items-center justify-between">
-          <code className="text-[#a1a1aa] text-sm font-mono">veilsub_v20.aleo</code>
-          <a
-            href="https://testnet.explorer.provable.com/program/veilsub_v20.aleo"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-[#a1a1aa] hover:text-white flex items-center gap-1"
-          >
-            View on Explorer <ExternalLink className="w-3 h-3" />
-          </a>
+        <div className="space-y-2">
+          <div className="p-3 rounded-[8px] bg-white/[0.04] border border-white/[0.08] flex items-center justify-between">
+            <div>
+              <span className="text-xs text-[#71717a]">Deployed (testnet)</span>
+              <code className="block text-[#a1a1aa] text-sm font-mono">veilsub_v15.aleo</code>
+            </div>
+            <a
+              href="https://testnet.aleoscan.io/program?id=veilsub_v15.aleo"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-[#a1a1aa] hover:text-white flex items-center gap-1"
+            >
+              View on Explorer <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+          <div className="p-3 rounded-[8px] bg-white/[0.04] border border-white/[0.08] flex items-center justify-between">
+            <div>
+              <span className="text-xs text-[#71717a]">Source (latest)</span>
+              <code className="block text-[#a1a1aa] text-sm font-mono">veilsub_v20.aleo</code>
+            </div>
+            <span className="text-xs text-[#71717a]">31 transitions · 30 mappings</span>
+          </div>
         </div>
       </div>
 
@@ -512,13 +524,13 @@ function ApiTab() {
         <CodeBlock
           lang="bash"
           code={`# Get creator's tier price
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v20.aleo/mapping/tier_prices/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v15.aleo/mapping/tier_prices/<creator_address>
 
 # Get subscriber count
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v20.aleo/mapping/subscriber_count/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v15.aleo/mapping/subscriber_count/<creator_address>
 
 # Get total revenue
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v20.aleo/mapping/total_revenue/<creator_address>`}
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v15.aleo/mapping/total_revenue/<creator_address>`}
         />
       </div>
 
@@ -535,7 +547,7 @@ const { executeTransaction } = useWallet()
 
 // Execute a subscribe transaction (v15 — returns AccessPass)
 const result = await executeTransaction({
-  program: 'veilsub_v20.aleo',
+  program: 'veilsub_v15.aleo',
   function: 'subscribe',
   inputs: [
     paymentRecord,              // single credits record (must have >= amount)
@@ -612,6 +624,14 @@ function FaqTab() {
     {
       q: 'How can I test subscribing?',
       a: 'Connect your Leo Wallet on the app, then visit a creator page. If no creator is registered yet, register yourself on the Dashboard page first (costs a small network fee). Then open the creator page in a different browser or wallet to test subscribing. You can also use the Verify page to check on-chain mapping data.',
+    },
+    {
+      q: 'Is there a pre-registered test creator?',
+      a: 'Yes! The platform account (aleo1hp9m...epyxsprk5wk) is registered with base price 1000 microcredits, 3 custom tiers (Supporter @ 500, Premium @ 2000, VIP @ 5000), and 5+ published content pieces. Visit the Explore page to find it, or use the On-Chain Explorer to query mappings directly.',
+    },
+    {
+      q: 'Why is v15 deployed instead of v20?',
+      a: 'Aleo testnet has a program size limit of ~2.1M variables. v20 (31 transitions, 972 statements) exceeds this at 2.3M variables. v15 (28 transitions) is deployed on testnet. The full v20 source code is in the repository and demonstrates all privacy innovations.',
     },
   ]
 

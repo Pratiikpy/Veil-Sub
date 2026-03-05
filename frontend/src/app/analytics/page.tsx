@@ -46,7 +46,8 @@ const CONTRACT_VERSIONS = [
   },
   {
     version: 'v15-v16',
-    description: 'Security hardening, subscription transfer, on-chain referral system',
+    description: 'Security hardening, subscription transfer, on-chain referral system — v15 deployed on testnet (28 transitions)',
+    deployed: true,
   },
   {
     version: 'v17-v18',
@@ -54,7 +55,7 @@ const CONTRACT_VERSIONS = [
   },
   {
     version: 'v19-v20',
-    description: 'Deep Poseidon2 in finalize, analytics epochs, content versioning, 30 mappings, 972 statements',
+    description: 'Deep Poseidon2 in finalize, analytics epochs, content versioning, 30 mappings, 972 statements — exceeds testnet variable limit (2.3M vs 2.1M), source in repo',
   },
 ]
 
@@ -251,14 +252,17 @@ export default function AnalyticsPage() {
                     }`}
                   >
                     <div className="flex items-center gap-3 shrink-0">
-                      <GitBranch className="w-4 h-4 text-[#71717a]" />
+                      <GitBranch className={`w-4 h-4 ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-[#71717a]'}`} />
                       <span
-                        className={`text-sm font-mono font-medium ${
-                          item.version === 'v15' ? 'text-white/40' : 'text-[#a1a1aa]'
-                        }`}
+                        className={`text-sm font-mono font-medium ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-[#a1a1aa]'}`}
                       >
                         {item.version}
                       </span>
+                      {'deployed' in item && item.deployed && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                          deployed
+                        </span>
+                      )}
                     </div>
                     <p className="text-sm text-[#71717a] leading-relaxed">{item.description}</p>
                   </motion.div>

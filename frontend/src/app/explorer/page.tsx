@@ -98,8 +98,8 @@ const MAPPING_QUERIES = [
   { mapping: 'total_revenue', key: PLATFORM_ADDRESS, label: 'Total Revenue', desc: 'Lifetime revenue in microcredits' },
   { mapping: 'tier_prices', key: PLATFORM_ADDRESS, label: 'Base Price', desc: 'Creator base subscription price' },
   { mapping: 'content_count', key: PLATFORM_ADDRESS, label: 'Content Count', desc: 'Published content pieces' },
+  { mapping: 'tier_count', key: PLATFORM_ADDRESS, label: 'Tier Count', desc: 'Custom tiers created by creator' },
   { mapping: 'referral_count', key: PLATFORM_ADDRESS, label: 'Referral Count', desc: 'On-chain referral activations' },
-  { mapping: 'creator_last_active', key: PLATFORM_ADDRESS, label: 'Last Active Block', desc: 'Most recent on-chain activity' },
 ]
 
 function QuickMappingQueries() {
@@ -652,7 +652,7 @@ export default function ExplorerPage() {
                                 )}
                               </button>
                               <a
-                                href={event.tx_id?.startsWith('at1') ? `https://testnet.explorer.provable.com/transaction/${event.tx_id}` : `https://testnet.explorer.provable.com/program/veilsub_v20.aleo`}
+                                href={event.tx_id?.startsWith('at1') ? `https://testnet.explorer.provable.com/transaction/${event.tx_id}` : `https://testnet.aleoscan.io/program?id=veilsub_v15.aleo`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="shrink-0 p-1 rounded hover:bg-white/10 text-slate-500 hover:text-white transition-colors"
@@ -664,7 +664,7 @@ export default function ExplorerPage() {
                           )}
                         </div>
                         <a
-                          href={event.tx_id ? (event.tx_id.startsWith('at1') ? `https://testnet.explorer.provable.com/transaction/${event.tx_id}` : `https://testnet.explorer.provable.com/program/veilsub_v20.aleo`) : '#'}
+                          href={event.tx_id ? (event.tx_id.startsWith('at1') ? `https://testnet.explorer.provable.com/transaction/${event.tx_id}` : `https://testnet.aleoscan.io/program?id=veilsub_v15.aleo`) : '#'}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={`px-2 py-1 rounded-md text-xs font-medium transition-all ${
