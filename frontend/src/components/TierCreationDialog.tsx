@@ -96,7 +96,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                 </div>
                 <h3 className="text-lg font-semibold text-white">Create Custom Tier</h3>
               </div>
-              <button onClick={handleClose} className="rounded-lg p-1 text-[#a1a1aa] hover:bg-white/10 hover:text-white">
+              <button onClick={handleClose} aria-label="Close tier creation dialog" className="rounded-lg p-1 text-[#a1a1aa] hover:bg-white/10 hover:text-white">
                 <X className="h-5 w-5" />
               </button>
             </div>

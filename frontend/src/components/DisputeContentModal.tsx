@@ -101,6 +101,7 @@ export default function DisputeContentModal({
         >
           <button
             onClick={onClose}
+            aria-label="Close dispute modal"
             className="absolute top-5 right-5 text-[#71717a] hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />

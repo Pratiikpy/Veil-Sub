@@ -74,6 +74,7 @@ export default function QRScanner({ isOpen, onClose }: Props) {
               </div>
               <button
                 onClick={onClose}
+                aria-label="Close QR scanner"
                 className="p-1 rounded-lg hover:bg-white/5 text-slate-400"
               >
                 <X className="w-5 h-5" />
