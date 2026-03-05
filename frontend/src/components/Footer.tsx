@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Github, ExternalLink } from 'lucide-react'
-import { PROGRAM_ID } from '@/lib/config'
+import { PROGRAM_ID, DEPLOYED_PROGRAM_ID } from '@/lib/config'
 
 export default function Footer() {
   return (
@@ -11,12 +11,12 @@ export default function Footer() {
             <span className="font-serif italic text-[#71717a]">VeilSub</span>
             <span>·</span>
             <a
-              href={`https://testnet.aleoscan.io/program?id=${PROGRAM_ID}`}
+              href={`https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 hover:text-[#a1a1aa] transition-colors"
             >
-              <code>{PROGRAM_ID}</code>
+              <code>{DEPLOYED_PROGRAM_ID}</code>
               <ExternalLink className="w-3 h-3" />
             </a>
           </div>

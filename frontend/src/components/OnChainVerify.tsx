@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { ShieldCheck, Loader2, Check, AlertCircle, WifiOff } from 'lucide-react'
-import { PROGRAM_ID } from '@/lib/config'
+import { DEPLOYED_PROGRAM_ID } from '@/lib/config'
 
 interface Props {
   creatorAddress: string
@@ -23,7 +23,7 @@ export default function OnChainVerify({
     setState('verifying')
     try {
       const res = await fetch(
-        `/api/aleo/program/${PROGRAM_ID}/mapping/${mappingName}/${creatorAddress}`
+        `/api/aleo/program/${DEPLOYED_PROGRAM_ID}/mapping/${mappingName}/${creatorAddress}`
       )
       if (!res.ok) {
         setState(res.status >= 500 ? 'error' : 'mismatch')

@@ -23,7 +23,7 @@ import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { parseAccessPass, shortenAddress } from '@/lib/utils'
-import { PROGRAM_ID } from '@/lib/config'
+import { DEPLOYED_PROGRAM_ID } from '@/lib/config'
 import { TIERS } from '@/types'
 import type { AccessPass, TxStatus } from '@/types'
 import GlassCard from '@/components/GlassCard'
@@ -36,7 +36,7 @@ const ALEO_API = process.env.NEXT_PUBLIC_ALEO_API_URL || 'https://api.explorer.p
 
 async function queryMapping(mappingName: string, key: string): Promise<string | null> {
   try {
-    const res = await fetch(`${ALEO_API}/program/${PROGRAM_ID}/mapping/${mappingName}/${key}`)
+    const res = await fetch(`${ALEO_API}/program/${DEPLOYED_PROGRAM_ID}/mapping/${mappingName}/${key}`)
     if (!res.ok) return null
     const data = await res.json()
     if (data === null || data === 'null') return null
@@ -204,7 +204,7 @@ export default function VerifyPage() {
       setDeployLoading(true)
       setProgramDeployed(null)
       try {
-        const res = await fetch(`${ALEO_API}/program/${PROGRAM_ID}`)
+        const res = await fetch(`${ALEO_API}/program/${DEPLOYED_PROGRAM_ID}`)
         setProgramDeployed(res.ok)
       } catch {
         setProgramDeployed(false)
@@ -367,7 +367,7 @@ export default function VerifyPage() {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-slate-400">
                   <Coins className="w-4 h-4" />
-                  <span className="font-mono text-xs">{PROGRAM_ID}</span>
+                  <span className="font-mono text-xs">{DEPLOYED_PROGRAM_ID}</span>
                 </div>
                 <button
                   onClick={checkDeployment}

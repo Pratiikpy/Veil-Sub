@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { PROGRAM_ID } from '@/lib/config'
+import { DEPLOYED_PROGRAM_ID } from '@/lib/config'
 import { CreatorProfile } from '@/types'
 
 async function fetchMapping(
@@ -10,7 +10,7 @@ async function fetchMapping(
 ): Promise<number | null> {
   try {
     const res = await fetch(
-      `/api/aleo/program/${encodeURIComponent(PROGRAM_ID)}/mapping/${encodeURIComponent(mapping)}/${encodeURIComponent(key)}`
+      `/api/aleo/program/${encodeURIComponent(DEPLOYED_PROGRAM_ID)}/mapping/${encodeURIComponent(mapping)}/${encodeURIComponent(key)}`
     )
     if (!res.ok) return null
     const text = await res.text()

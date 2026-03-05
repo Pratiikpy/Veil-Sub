@@ -29,7 +29,7 @@ import PageTransition from '@/components/PageTransition'
 import OnChainVerify from '@/components/OnChainVerify'
 import AnimatedCounter from '@/components/AnimatedCounter'
 import ActivityChart from '@/components/ActivityChart'
-import { PROGRAM_ID, PLATFORM_ADDRESS } from '@/lib/config'
+import { PROGRAM_ID, DEPLOYED_PROGRAM_ID, PLATFORM_ADDRESS } from '@/lib/config'
 import type { CreatorProfile } from '@/types'
 
 interface GlobalStats {
@@ -109,7 +109,7 @@ function QuickMappingQueries() {
   const queryMapping = async (mapping: string, key: string) => {
     setLoadingMap(prev => ({ ...prev, [mapping]: true }))
     try {
-      const res = await fetch(`${ALEO_API}/program/${PROGRAM_ID}/mapping/${mapping}/${key}`)
+      const res = await fetch(`${ALEO_API}/program/${DEPLOYED_PROGRAM_ID}/mapping/${mapping}/${key}`)
       if (!res.ok) {
         setResults(prev => ({ ...prev, [mapping]: null }))
       } else {

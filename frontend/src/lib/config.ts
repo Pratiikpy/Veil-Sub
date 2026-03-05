@@ -1,4 +1,6 @@
 export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v20.aleo'
+// Deployed on-chain version (v20 exceeds testnet variable limit; v15 is deployed)
+export const DEPLOYED_PROGRAM_ID = process.env.NEXT_PUBLIC_DEPLOYED_PROGRAM_ID || 'veilsub_v15.aleo'
 // API calls use Next.js rewrite proxy (/api/aleo/*) to avoid leaking user interest to third parties
 // The actual endpoint is configured in next.config.ts rewrites
 export const APP_NAME = 'VeilSub'

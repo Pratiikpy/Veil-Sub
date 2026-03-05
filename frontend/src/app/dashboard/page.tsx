@@ -34,7 +34,7 @@ import TierDistribution from '@/components/TierDistribution'
 import PageTransition from '@/components/PageTransition'
 import CelebrationBurst from '@/components/CelebrationBurst'
 import { creditsToMicrocredits, formatCredits, shortenAddress } from '@/lib/utils'
-import { PLATFORM_FEE_PCT, PLATFORM_ADDRESS, PROGRAM_ID, MICROCREDITS_PER_CREDIT } from '@/lib/config'
+import { PLATFORM_FEE_PCT, PLATFORM_ADDRESS, PROGRAM_ID, DEPLOYED_PROGRAM_ID, MICROCREDITS_PER_CREDIT } from '@/lib/config'
 import TierCreationDialog from '@/components/TierCreationDialog'
 import ContentManagementPanel from '@/components/ContentManagementPanel'
 import RevokeAccessPanel from '@/components/RevokeAccessPanel'
@@ -795,7 +795,7 @@ export default function DashboardPage() {
                 </a>
                 {publicKey && (
                   <a
-                    href={`https://testnet.explorer.provable.com/program/${PROGRAM_ID}/mapping/tier_prices/${publicKey}`}
+                    href={`https://testnet.explorer.provable.com/program/${DEPLOYED_PROGRAM_ID}/mapping/tier_prices/${publicKey}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs text-slate-300 hover:text-white hover:border-green-500/30 transition-all"
