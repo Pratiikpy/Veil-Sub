@@ -123,7 +123,7 @@ export default function CreatorPage({
   if (fetchError) {
     return (
       <PageTransition className="min-h-screen">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12">
           <div className="p-8 rounded-[12px] border border-red-500/15 bg-red-500/5 text-center">
             <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
             <h2 className="text-xl font-semibold text-[#fafafa] mb-2">Failed to Load Creator</h2>
@@ -166,7 +166,7 @@ export default function CreatorPage({
 
   return (
     <PageTransition className="min-h-screen">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12">
         {/* Creator Header */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}

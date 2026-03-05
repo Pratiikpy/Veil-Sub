@@ -131,15 +131,20 @@ export default function PrivacyPage() {
                           <code>{`transition verify_access(pass: AccessPass, creator: address) -> AccessPass {
     assert_eq(pass.creator, creator);
     return AccessPass { owner: pass.owner, creator: pass.creator,
-        tier: pass.tier, pass_id: pass.pass_id, expires_at: pass.expires_at };
+        tier: pass.tier, pass_id: pass.pass_id, expires_at: pass.expires_at }
+    then finalize(pass.pass_id);
 }
-// ↑ No finalize_verify_access. Zero public state change. No on-chain trace.`}</code>
+finalize verify_access(pass_id: field) {
+    let revoked: bool = access_revoked.get_or_use(pass_id, false);
+    assert_eq(revoked, false);  // Reject revoked passes
+}
+// ↑ Finalize only receives pass_id — never the subscriber address.
+// Revocation enforced, but zero identity exposure.`}</code>
                         </pre>
                       </div>
                       <p className="text-xs text-[#71717a] mt-3">
-                        No other Aleo subscription project has zero-footprint access verification.
-                        Most projects require on-chain reads or mapping lookups to check access — VeilSub proves
-                        it purely through record ownership, leaving no trace.
+                        Unique design: revocation enforcement + zero subscriber exposure. The finalize only checks
+                        a boolean mapping keyed by pass_id — no subscriber address ever reaches public state.
                       </p>
                     </div>
                   </div>
@@ -194,22 +199,22 @@ export default function PrivacyPage() {
                       icon: Shield,
                     },
                     {
-                      title: 'Subscription Tiers (v17)',
+                      title: 'Subscription Tiers (v9)',
                       desc: 'Creator-defined tier metadata is stored hashed. Only the creator can map tier_id back to tier details. Subscribers never leak which tier they purchased.',
                       icon: Lock,
                     },
                     {
-                      title: 'GiftToken Records (v17)',
+                      title: 'GiftToken Records (v10)',
                       desc: 'Gift records are encrypted and visible only to the recipient. Givers and creators cannot see gift details.',
                       icon: Shield,
                     },
                     {
-                      title: 'RefundEscrow Records (v17)',
+                      title: 'RefundEscrow Records (v10)',
                       desc: 'Escrow data is stored hashed in mappings. Subscribers can claim refunds privately without revealing amount or timing to creators.',
                       icon: Lock,
                     },
                     {
-                      title: 'Blind Subscriber Nonce (v17)',
+                      title: 'Blind Subscriber Nonce (v11)',
                       desc: 'Each renewal generates a unique nonce-based subscriber hash. Creators cannot correlate consecutive renewals from the same subscriber.',
                       icon: Fingerprint,
                     },
@@ -270,17 +275,17 @@ export default function PrivacyPage() {
                       icon: Database,
                     },
                     {
-                      title: 'Creator Tier Metadata (v17)',
+                      title: 'Creator Tier Metadata (v9)',
                       desc: 'Public listing of available tiers per creator. Tier prices and limits are visible so subscribers can choose.',
                       icon: Database,
                     },
                     {
-                      title: 'Nonce Usage Tracking (v17)',
+                      title: 'Nonce Usage Tracking (v11)',
                       desc: 'Public mapping of consumed nonces — proves blind renewal anonymity without revealing identities.',
                       icon: Server,
                     },
                     {
-                      title: 'Content Existence & Updates (v17)',
+                      title: 'Content Existence & Updates (v9)',
                       desc: 'Hashed content IDs and deletion status are public. Content bodies and author identity remain off-chain.',
                       icon: Database,
                     },
@@ -418,7 +423,7 @@ export default function PrivacyPage() {
                       desc: 'verify_access has NO finalize block. When proving access, zero public state changes occur — no mapping writes, no counters, no on-chain evidence. This prevents timing correlation attacks from tracking when access was verified.',
                     },
                     {
-                      title: 'Blind Renewal (v17)',
+                      title: 'Blind Renewal (v11)',
                       desc: 'Each renewal generates a unique subscriber hash via nonce — creators cannot track renewal patterns. Every renew_blind() uses a fresh nonce, preventing correlation between consecutive renewals from the same subscriber.',
                     },
                   ].map((item) => (
@@ -536,31 +541,31 @@ export default function PrivacyPage() {
                   guarantee: 'Only content_id and min_tier enter finalize. Content body stays off-chain. Creator address is already public.',
                 },
                 {
-                  fn: 'subscribe_blind() (v17)',
+                  fn: 'subscribe_blind() (v11)',
                   guarantee: 'Subscriber nonce generates blind hash — creator cannot correlate subscriber identity across transactions.',
                 },
                 {
-                  fn: 'renew_blind() (v17)',
+                  fn: 'renew_blind() (v11)',
                   guarantee: 'Each renewal uses a unique nonce — consecutive renewals cannot be linked to the same subscriber.',
                 },
                 {
-                  fn: 'gift_subscription() (v17)',
+                  fn: 'gift_subscription() (v10)',
                   guarantee: 'GiftToken is encrypted to recipient. Giver identity stays private. Only recipient can decrypt and redeem.',
                 },
                 {
-                  fn: 'redeem_gift() (v17)',
+                  fn: 'redeem_gift() (v10)',
                   guarantee: 'Recipient redeems GiftToken to AccessPass. Only recipient address is used — giver remains unknown.',
                 },
                 {
-                  fn: 'subscribe_with_escrow() (v17)',
+                  fn: 'subscribe_with_escrow() (v10)',
                   guarantee: 'Payment held in escrow. Subscriber can claim refund privately. Amount and timing hidden from creator.',
                 },
                 {
-                  fn: 'claim_refund() (v17)',
+                  fn: 'claim_refund() (v10)',
                   guarantee: 'Refund claim is private. Subscriber address never reaches finalize. Only escrow status updated.',
                 },
                 {
-                  fn: 'verify_tier_access() (v17)',
+                  fn: 'verify_tier_access() (v15)',
                   guarantee: 'Proves tier access without revealing which tier subscriber holds or subscriber identity.',
                 },
                 {
@@ -576,7 +581,7 @@ export default function PrivacyPage() {
                   guarantee: 'Zero-footprint range proof — proves revenue within bounds without revealing exact amount. No finalize, no state change.',
                 },
                 {
-                  fn: 'subscribe_referral() (v17)',
+                  fn: 'subscribe_referral() (v16)',
                   guarantee: 'Referral subscription with 10% reward to referrer. Referrer identity stays private via ReferralReward record.',
                 },
                 {
@@ -602,7 +607,7 @@ export default function PrivacyPage() {
           </div>
         </section>
 
-        {/* Comparison */}
+        {/* Comparison vs Traditional */}
         <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
@@ -636,6 +641,66 @@ export default function PrivacyPage() {
                 </tbody>
               </table>
             </div>
+          </div>
+        </section>
+
+        {/* Comparison vs Aleo Competitors */}
+        <section className="py-16">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+              <h2 className="text-3xl font-semibold text-white mb-4">Privacy Comparison: Aleo Ecosystem</h2>
+              <p className="text-[#a1a1aa]">
+                How VeilSub&apos;s privacy model compares to other projects in the Aleo Privacy Buildathon.
+              </p>
+            </motion.div>
+
+            <div className="overflow-x-auto rounded-[12px] border border-white/[0.08]">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-white/[0.02] border-b border-white/[0.08]">
+                    <th className="text-left py-3 px-4 text-[#a1a1aa] font-medium">Privacy Feature</th>
+                    <th className="text-center py-3 px-4 text-violet-400 font-medium">VeilSub</th>
+                    <th className="text-center py-3 px-4 text-[#71717a] font-medium">NullPay</th>
+                    <th className="text-center py-3 px-4 text-[#71717a] font-medium">Veiled Markets</th>
+                    <th className="text-center py-3 px-4 text-[#71717a] font-medium">lasagna</th>
+                  </tr>
+                </thead>
+                <tbody className="text-[#a1a1aa]">
+                  {[
+                    ['Subscriber never in finalize', true, true, 'N/A', 'N/A'],
+                    ['Zero-footprint verification', true, false, false, false],
+                    ['Blind renewal (unlinkable)', true, false, false, false],
+                    ['Pedersen commitments', true, false, false, true],
+                    ['Zero-footprint proofs', '3', '0', '0', '0'],
+                    ['Privacy modes', '3', '1', '1', '1'],
+                    ['Private tipping', true, false, false, false],
+                    ['Subscription transfer', true, false, false, false],
+                    ['Privacy-preserving referrals', true, false, false, false],
+                    ['Encrypted content delivery', true, false, false, false],
+                    ['Poseidon2 optimization', true, false, false, false],
+                  ].map(([feature, vs, np, vm, lg]) => (
+                    <tr key={feature as string} className="border-b border-white/[0.06]">
+                      <td className="py-2.5 px-4 text-white text-xs">{feature as string}</td>
+                      {[vs, np, vm, lg].map((val, i) => (
+                        <td key={i} className="py-2.5 px-4 text-center">
+                          {val === true ? (
+                            <span className={`text-xs font-medium ${i === 0 ? 'text-green-400' : 'text-green-400/60'}`}>Yes</span>
+                          ) : val === false ? (
+                            <span className="text-xs text-[#52525b]">No</span>
+                          ) : (
+                            <span className={`text-xs font-medium ${i === 0 ? 'text-violet-400' : 'text-[#71717a]'}`}>{val as string}</span>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-[#52525b] mt-4 text-center">
+              Comparison based on publicly available source code. NullPay v13, Veiled Markets v16, lasagna latest.
+              N/A = not applicable (different domain — AMM or prediction market).
+            </p>
           </div>
         </section>
 

@@ -73,7 +73,7 @@ function ShareText({ text }: { text: string }) {
 function DashboardSkeleton() {
   return (
     <div className="min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12">
         <div className="animate-pulse mb-8">
           <div className="h-8 w-52 rounded-lg bg-white/[0.06] mb-3" />
           <div className="h-4 w-80 rounded-lg bg-white/[0.04]" />
@@ -461,7 +461,7 @@ export default function DashboardPage() {
 
   return (
     <PageTransition className="min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
