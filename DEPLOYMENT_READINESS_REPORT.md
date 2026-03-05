@@ -22,13 +22,15 @@ VeilSub v20 is **deployment-ready** with a functioning Next.js frontend and comp
 ## 1. CONTRACT DEPLOYMENT
 
 ### Current Deployment Status
-- **Program ID**: `veilsub_v13.aleo`
-- **Version**: v0.5.0
+- **Target Program ID**: `veilsub_v20.aleo`
+- **Version**: v0.12.0
 - **Network**: Aleo Testnet (active)
-- **Size**: 1,309 lines of Leo code
+- **Size**: 1,750+ lines of Leo code, 972 statements
+- **Status**: Broadcasting (large contract requires higher priority fees)
+- **Previous Deployed Versions**: v14, v15 live on testnet
 - **Explorer Links**:
-  - v13: https://testnet.explorer.provable.com/program/veilsub_v13.aleo
-  - v13 on Aleoscan: https://testnet.aleoscan.io/program?id=veilsub_v13.aleo
+  - v15: https://testnet.explorer.provable.com/program/veilsub_v15.aleo
+  - v20 (pending): https://testnet.aleoscan.io/program?id=veilsub_v20.aleo
 
 ### Program Dependencies
 ```json
@@ -37,17 +39,13 @@ VeilSub v20 is **deployment-ready** with a functioning Next.js frontend and comp
     {
       "name": "credits.aleo",
       "location": "network"
-    },
-    {
-      "name": "token_registry.aleo",
-      "location": "network"
     }
   ]
 }
 ```
 
-### Contract Features Deployed
-- **27 Transitions**: register_creator, subscribe, verify_access, create_audit_token, tip, renew,
+### Contract Features (v20)
+- **31 Transitions**: register_creator, subscribe, verify_access, create_audit_token, tip, renew,
   publish_content, set_token_price, subscribe_token, tip_token, create_custom_tier, update_tier_price,
   deprecate_tier, update_content, delete_content, gift_subscription, redeem_gift, subscribe_with_escrow,
   claim_refund, withdraw_platform_fees, withdraw_creator_revenue, subscribe_blind, renew_blind,

@@ -17,7 +17,10 @@ snarkos developer execute $PROGRAM register_creator \
   1000u64 \
   --private-key "$PRIVATE_KEY" \
   --broadcast "$API" \
-  --wait --timeout 300
+  --query "https://api.explorer.provable.com/v1" \
+  --network 1 \
+  --priority-fee 500000 \
+  --broadcast "$API"
 
 # 2. Create custom tier 1 (Supporter - 500 microcredits)
 echo "[2/13] create_custom_tier(1, 500, name_hash)..."
@@ -25,7 +28,10 @@ snarkos developer execute $PROGRAM create_custom_tier \
   1u8 500u64 1234field \
   --private-key "$PRIVATE_KEY" \
   --broadcast "$API" \
-  --wait --timeout 300
+  --query "https://api.explorer.provable.com/v1" \
+  --network 1 \
+  --priority-fee 500000 \
+  --broadcast "$API"
 
 # 3. Create custom tier 2 (Premium - 2000 microcredits)
 echo "[3/13] create_custom_tier(2, 2000, name_hash)..."
@@ -33,7 +39,10 @@ snarkos developer execute $PROGRAM create_custom_tier \
   2u8 2000u64 5678field \
   --private-key "$PRIVATE_KEY" \
   --broadcast "$API" \
-  --wait --timeout 300
+  --query "https://api.explorer.provable.com/v1" \
+  --network 1 \
+  --priority-fee 500000 \
+  --broadcast "$API"
 
 # 4. Create custom tier 3 (VIP - 5000 microcredits)
 echo "[4/13] create_custom_tier(3, 5000, name_hash)..."
@@ -41,7 +50,10 @@ snarkos developer execute $PROGRAM create_custom_tier \
   3u8 5000u64 9012field \
   --private-key "$PRIVATE_KEY" \
   --broadcast "$API" \
-  --wait --timeout 300
+  --query "https://api.explorer.provable.com/v1" \
+  --network 1 \
+  --priority-fee 500000 \
+  --broadcast "$API"
 
 # 5. Publish content #1 (tier 1)
 echo "[5/13] publish_content(content_1, tier_1)..."
@@ -49,7 +61,10 @@ snarkos developer execute $PROGRAM publish_content \
   100field 1u8 111111field \
   --private-key "$PRIVATE_KEY" \
   --broadcast "$API" \
-  --wait --timeout 300
+  --query "https://api.explorer.provable.com/v1" \
+  --network 1 \
+  --priority-fee 500000 \
+  --broadcast "$API"
 
 # 6. Publish content #2 (tier 2)
 echo "[6/13] publish_content(content_2, tier_2)..."
@@ -57,7 +72,10 @@ snarkos developer execute $PROGRAM publish_content \
   200field 2u8 222222field \
   --private-key "$PRIVATE_KEY" \
   --broadcast "$API" \
-  --wait --timeout 300
+  --query "https://api.explorer.provable.com/v1" \
+  --network 1 \
+  --priority-fee 500000 \
+  --broadcast "$API"
 
 # 7. Publish encrypted content #3 (tier 1)
 echo "[7/13] publish_encrypted_content(content_3, tier_1, encryption)..."
@@ -65,7 +83,10 @@ snarkos developer execute $PROGRAM publish_encrypted_content \
   300field 1u8 333333field 444444field \
   --private-key "$PRIVATE_KEY" \
   --broadcast "$API" \
-  --wait --timeout 300
+  --query "https://api.explorer.provable.com/v1" \
+  --network 1 \
+  --priority-fee 500000 \
+  --broadcast "$API"
 
 # 8. Update content #1 (change tier to 2)
 echo "[8/13] update_content(content_1, new_tier_2)..."
@@ -73,7 +94,10 @@ snarkos developer execute $PROGRAM update_content \
   100field 2u8 555555field \
   --private-key "$PRIVATE_KEY" \
   --broadcast "$API" \
-  --wait --timeout 300
+  --query "https://api.explorer.provable.com/v1" \
+  --network 1 \
+  --priority-fee 500000 \
+  --broadcast "$API"
 
 # 9. Delete content #2
 echo "[9/13] delete_content(content_2, reason)..."
@@ -81,7 +105,10 @@ snarkos developer execute $PROGRAM delete_content \
   200field 666666field \
   --private-key "$PRIVATE_KEY" \
   --broadcast "$API" \
-  --wait --timeout 300
+  --query "https://api.explorer.provable.com/v1" \
+  --network 1 \
+  --priority-fee 500000 \
+  --broadcast "$API"
 
 # 10. Commit tip
 echo "[10/13] commit_tip(creator, 500, salt)..."
@@ -90,7 +117,10 @@ snarkos developer execute $PROGRAM commit_tip \
   500u64 777777field \
   --private-key "$PRIVATE_KEY" \
   --broadcast "$API" \
-  --wait --timeout 300
+  --query "https://api.explorer.provable.com/v1" \
+  --network 1 \
+  --priority-fee 500000 \
+  --broadcast "$API"
 
 # 11. Update tier price (tier 1 -> 750)
 echo "[11/13] update_tier_price(tier_1_record, 750)..."
@@ -107,7 +137,10 @@ snarkos developer execute $PROGRAM publish_content \
   400field 1u8 888888field \
   --private-key "$PRIVATE_KEY" \
   --broadcast "$API" \
-  --wait --timeout 300
+  --query "https://api.explorer.provable.com/v1" \
+  --network 1 \
+  --priority-fee 500000 \
+  --broadcast "$API"
 
 echo ""
 echo "=== Execution complete ==="
