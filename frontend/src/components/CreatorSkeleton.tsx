@@ -1,7 +1,7 @@
 export default function CreatorSkeleton() {
   return (
     <div className="min-h-screen">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header skeleton */}
         <div className="mb-10 animate-pulse">
           <div className="flex items-center gap-4 mb-6">
