@@ -84,6 +84,28 @@ export default function OGImage() {
           Private Creator Subscriptions on Aleo
         </div>
 
+        {/* Stats row */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 32,
+            marginBottom: 24,
+          }}
+        >
+          {[
+            { value: '31', label: 'Transitions' },
+            { value: '30', label: 'Mappings' },
+            { value: '8', label: 'Record Types' },
+            { value: 'v20', label: 'Deployed' },
+          ].map((stat) => (
+            <div key={stat.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#c4b5fd' }}>{stat.value}</div>
+              <div style={{ fontSize: 13, color: '#64748b' }}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
+
         {/* Badge */}
         <div
           style={{
@@ -102,7 +124,7 @@ export default function OGImage() {
               color: '#c4b5fd',
             }}
           >
-            Powered by Aleo ZK Proofs
+            Zero-Knowledge Privacy · 1,750+ Lines of Leo
           </div>
         </div>
       </div>

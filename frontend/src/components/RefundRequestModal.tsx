@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { RotateCcw, X, Clock, AlertCircle, Shield, CheckCircle } from 'lucide-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
@@ -23,6 +23,13 @@ export default function RefundRequestModal({
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [error, setError] = useState('')
   const [txId, setTxId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!isOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen, onClose])
 
   const blocksRemaining = Math.max(0, escrowExpiry - currentBlockHeight)
   const isExpired = blocksRemaining === 0

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Flag, Shield, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
@@ -40,6 +40,13 @@ export default function DisputeContentModal({
   const [txId, setTxId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const submittingRef = useRef(false)
+
+  useEffect(() => {
+    if (!isOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen, onClose])
 
   const handleDispute = async () => {
     if (!connected || submittingRef.current || !selectedReason) return

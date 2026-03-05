@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ArrowLeftRight, Shield, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
@@ -32,6 +32,13 @@ export default function TransferPassModal({
   const submittingRef = useRef(false)
 
   const isValidAddress = recipientAddress.startsWith('aleo1') && recipientAddress.length > 50
+
+  useEffect(() => {
+    if (!isOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen, onClose])
 
   const handleTransfer = async () => {
     if (!connected || submittingRef.current || !isValidAddress) return
