@@ -51,10 +51,13 @@ export default function Header() {
             {/* Logo with subtle glow on hover */}
             <Link
               href="/"
-              className="group relative text-xl font-serif italic text-white transition-all duration-300"
+              className="group relative flex items-center gap-2 text-xl font-serif italic text-white transition-all duration-300"
             >
               <span className="relative z-10">VeilSub</span>
               <span className="absolute -inset-2 rounded-lg bg-violet-500/0 group-hover:bg-violet-500/[0.06] transition-colors duration-300" />
+              <span className="relative z-10 px-1.5 py-0.5 text-[10px] font-sans not-italic font-medium text-violet-400/70 bg-violet-500/[0.08] border border-violet-500/[0.12] rounded">
+                testnet
+              </span>
             </Link>
 
             {/* Desktop nav with spring-physics indicator */}

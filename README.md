@@ -6,6 +6,8 @@ VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pa
 
 **Live on Testnet:** [`veilsub_v20.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v20.aleo)
 
+> **Quick Stats:** 31 transitions · 30 mappings · 8 record types · 1,750+ lines of Leo · 972 statements · 20 iterative deploys · 5 structs · Poseidon2 optimized · 3 privacy modes · 3 zero-footprint proofs · 22 frontend routes · 5 wallet support · 14,700+ lines of TypeScript
+
 ---
 
 ## What Makes VeilSub Unique
@@ -218,12 +220,18 @@ BHP256 is retained **only** for commitment operations (`commit_to_field`, `hash_
 ### Key Features
 - 5-wallet support (Shield, Leo, Fox, Puzzle, Soter)
 - Scroll-reveal animations on every section
-- Smoke gradient background with animated blobs
+- Glassmorphism design with violet accents
 - Bento stats grid with CountUp animations
-- Mobile bottom navigation
+- Mobile-first responsive + bottom navigation
 - Gated content feed with blur-locked posts
 - QR code generation for creator pages
-- Real-time transaction status stepper
+- Real-time 4-step transaction status stepper
+- Loading skeletons for every route
+- Route-level error boundaries
+- SEO: sitemap, robots.txt, OpenGraph images
+- Privacy mode selector (Standard/Blind/Maximum)
+- On-chain mapping queries (no wallet required)
+- 14,700+ lines of TypeScript
 
 ---
 
