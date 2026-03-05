@@ -235,8 +235,8 @@ mapping subscription_epoch: field => u64;       // hash(creator, epoch) => subs 
             },
             {
               name: 'verify_access(pass, creator)',
-              type: 'sync',
-              desc: 'Consume and re-create AccessPass to prove access. No finalize — zero public footprint.',
+              type: 'async',
+              desc: 'Consume and re-create AccessPass to prove access. Finalize only checks revocation via pass_id — subscriber address never reaches public state.',
             },
             {
               name: 'tip(payment, creator, amount)',

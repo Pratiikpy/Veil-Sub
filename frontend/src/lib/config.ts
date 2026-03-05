@@ -13,7 +13,7 @@ export const FEES = {
   REGISTER: 150_000,       // 0.15 credits (finalize only)
   SUBSCRIBE: 300_000,      // 0.3 credits (transfer_private + AccessPass + CreatorReceipt + finalize)
   TIP: 250_000,            // 0.25 credits (transfer_private + CreatorReceipt + finalize)
-  VERIFY: 100_000,         // 0.1 credits (no finalize — zero footprint)
+  VERIFY: 100_000,         // 0.1 credits (finalize checks revocation only via pass_id — subscriber identity never exposed)
   RENEW: 300_000,          // 0.3 credits (same as subscribe)
   PUBLISH: 150_000,        // 0.15 credits (finalize only)
   SPLIT: 150_000,          // 0.15 credits (credits.aleo/split)
@@ -108,8 +108,8 @@ export const SEED_CONTENT: SeedContent[] = [
   },
   {
     id: 'seed-4',
-    title: 'Weekly Update: v20 Contract Deployed',
-    body: 'VeilSub v20 is live on testnet! Analytics epochs, content versioning, 30 mappings, deep Poseidon2 optimization across all finalize functions. 31 transitions, 8 record types — 1,750+ lines of Leo, 972 statements. 12 version iterations in Wave 3 alone.',
+    title: 'Weekly Update: v15 Deployed, v20 Source Ready',
+    body: 'VeilSub v15 is deployed on testnet with 28 transitions and 13 on-chain transactions verified! Source code has evolved to v20 with 31 transitions, 30 mappings, 8 record types — 1,750+ lines of Leo, 972 statements. 12 version iterations in Wave 3 alone. v20 exceeds testnet variable limit (2.3M vs 2.1M max) — optimization planned for Wave 4.',
     minTier: 1,
     createdAt: '2026-03-01T10:00:00Z',
     contentId: 'seed',
