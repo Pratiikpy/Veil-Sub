@@ -76,7 +76,7 @@ export default function RevokeAccessPanel() {
           value={passId}
           onChange={(e) => setPassId(e.target.value)}
           placeholder="Enter pass_id (field value)"
-          className="flex-1 px-4 py-2.5 rounded-xl bg-black/40 border border-white/[0.08] text-white text-sm font-mono placeholder-[#525252] focus:outline-none focus:border-red-500/[0.2] transition-colors"
+          className="flex-1 px-4 py-2.5 rounded-xl bg-black/40 border border-white/[0.08] text-white text-sm font-mono placeholder-[#71717a] focus:outline-none focus:border-red-500/[0.2] transition-colors"
         />
         <Button
           onClick={handleRevoke}

@@ -6,7 +6,7 @@ export default function Footer() {
   return (
     <footer className="hidden md:block border-t border-white/[0.06] bg-black/80">
       <div className="max-w-[1120px] mx-auto px-6 py-6">
-        <div className="flex items-center justify-between text-xs text-[#525252]">
+        <div className="flex items-center justify-between text-xs text-[#71717a]">
           <div className="flex items-center gap-4">
             <span className="font-serif italic text-[#71717a]">VeilSub</span>
             <span>·</span>

@@ -95,7 +95,7 @@ export default function TransferPassModal({
           {/* Close */}
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 text-[#525252] hover:text-white transition-colors"
+            className="absolute top-5 right-5 text-[#71717a] hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -135,7 +135,7 @@ export default function TransferPassModal({
               value={recipientAddress}
               onChange={(e) => setRecipientAddress(e.target.value)}
               placeholder="aleo1..."
-              className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/[0.08] text-white text-sm font-mono placeholder-[#525252] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300"
+              className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/[0.08] text-white text-sm font-mono placeholder-[#71717a] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300"
             />
             {recipientAddress && !isValidAddress && (
               <p className="text-xs text-red-400/60 mt-2 flex items-center gap-1">

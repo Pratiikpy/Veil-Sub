@@ -35,6 +35,7 @@ export default function MobileBottomNav() {
             <Link
               key={item.href}
               href={item.href}
+              aria-label={item.label}
               className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-2 rounded-[8px] transition-colors ${
                 active
                   ? 'text-white'

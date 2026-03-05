@@ -164,7 +164,7 @@ function QuickMappingQueries() {
                 {loadingMap[q.mapping] ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Query'}
               </button>
             </div>
-            <p className="text-[10px] text-[#525252] mb-2">{q.desc}</p>
+            <p className="text-[10px] text-[#71717a] mb-2">{q.desc}</p>
             {results[q.mapping] !== undefined && (
               <div className="pt-2 border-t border-white/[0.06]">
                 <span className="text-sm font-mono text-white">

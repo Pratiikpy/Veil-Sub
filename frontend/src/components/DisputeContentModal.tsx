@@ -101,7 +101,7 @@ export default function DisputeContentModal({
         >
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 text-[#525252] hover:text-white transition-colors"
+            className="absolute top-5 right-5 text-[#71717a] hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>

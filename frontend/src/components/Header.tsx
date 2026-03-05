@@ -69,7 +69,7 @@ export default function Header() {
                   className={`relative px-4 py-1.5 text-sm font-medium transition-colors duration-200 rounded-full ${
                     isActive(item.href)
                       ? 'text-white'
-                      : 'text-[#525252] hover:text-[#a1a1aa]'
+                      : 'text-[#71717a] hover:text-[#a1a1aa]'
                   }`}
                 >
                   {isActive(item.href) && (
@@ -95,7 +95,7 @@ export default function Header() {
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
                 aria-expanded={mobileOpen}
-                className="md:hidden p-2 rounded-lg hover:bg-white/[0.04] text-[#525252] transition-colors"
+                className="md:hidden p-2 rounded-lg hover:bg-white/[0.04] text-[#71717a] transition-colors"
               >
                 {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -121,7 +121,7 @@ export default function Header() {
                   className={`block px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
                     isActive(item.href)
                       ? 'text-white bg-violet-500/[0.08] border border-violet-500/[0.12]'
-                      : 'text-[#525252] hover:text-[#a1a1aa] hover:bg-white/[0.02]'
+                      : 'text-[#71717a] hover:text-[#a1a1aa] hover:bg-white/[0.02]'
                   }`}
                 >
                   {item.label}

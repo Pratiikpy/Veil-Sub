@@ -95,11 +95,11 @@ function FeaturedCreatorCard({ address, label }: { address: string; label: strin
         </div>
         <div>
           <p className="text-white font-medium text-sm">{label}</p>
-          <p className="text-xs text-[#525252] font-mono">{shortenAddress(address)}</p>
+          <p className="text-xs text-[#71717a] font-mono">{shortenAddress(address)}</p>
         </div>
       </div>
       {stats && stats.tierPrice !== null && (
-        <div className="flex gap-4 text-xs text-[#525252]">
+        <div className="flex gap-4 text-xs text-[#71717a]">
           <span className="flex items-center gap-1">
             <Users className="w-3 h-3" />
             {stats.subscriberCount} subscribers
@@ -110,7 +110,7 @@ function FeaturedCreatorCard({ address, label }: { address: string; label: strin
           </span>
         </div>
       )}
-      <div className="mt-3 text-xs text-[#525252] group-hover:text-violet-300 flex items-center gap-1 transition-colors">
+      <div className="mt-3 text-xs text-[#71717a] group-hover:text-violet-300 flex items-center gap-1 transition-colors">
         View creator <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
       </div>
     </Link>
@@ -153,7 +153,7 @@ function ExploreCreatorSection() {
         <ScrollReveal delay={0.2} className="max-w-xl mx-auto mt-10">
           <div className="flex gap-2">
             <div className="relative flex-1 group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#525252] group-focus-within:text-violet-400 transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717a] group-focus-within:text-violet-400 transition-colors" />
               <input
                 type="text"
                 value={searchAddress}
@@ -161,7 +161,7 @@ function ExploreCreatorSection() {
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="Search by Aleo address..."
                 aria-label="Enter creator Aleo address"
-                className="w-full pl-11 pr-4 py-3 rounded-full bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] text-white placeholder-[#525252] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300 text-sm"
+                className="w-full pl-11 pr-4 py-3 rounded-full bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] text-white placeholder-[#71717a] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300 text-sm"
               />
             </div>
             <Button
@@ -172,7 +172,7 @@ function ExploreCreatorSection() {
               Go
             </Button>
           </div>
-          <p className="text-xs text-[#525252] mt-3 text-center">
+          <p className="text-xs text-[#71717a] mt-3 text-center">
             Know a creator&apos;s address? Paste it above to visit their page.
           </p>
         </ScrollReveal>
@@ -314,7 +314,7 @@ export default function HomePage() {
               )}
             </div>
 
-            <p className="mt-6 text-xs text-[#525252]">
+            <p className="mt-6 text-xs text-[#71717a]">
               Built on Aleo · Zero-Knowledge Proofs · v20 Deployed
             </p>
           </motion.div>
@@ -337,7 +337,7 @@ export default function HomePage() {
                 return (
                   <span
                     key={`${dupeIdx}-${item.text}`}
-                    className="inline-flex items-center gap-2 text-sm text-[#525252] font-medium tracking-wide"
+                    className="inline-flex items-center gap-2 text-sm text-[#71717a] font-medium tracking-wide"
                   >
                     <Icon className="w-3.5 h-3.5 text-violet-400/30" />
                     {item.text}
@@ -561,7 +561,7 @@ export default function HomePage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-white">VeilSub Protocol</p>
-                    <p className="text-xs text-[#525252]">Built on Aleo</p>
+                    <p className="text-xs text-[#71717a]">Built on Aleo</p>
                   </div>
                 </div>
               </div>
@@ -585,7 +585,7 @@ export default function HomePage() {
                   />
                   <div className="mt-4">
                     <p className="text-sm text-[#a1a1aa] font-medium">{stat.label}</p>
-                    <p className="text-xs text-[#525252] mt-0.5">{stat.sublabel}</p>
+                    <p className="text-xs text-[#71717a] mt-0.5">{stat.sublabel}</p>
                   </div>
                 </div>
               ))}
@@ -659,7 +659,7 @@ export default function HomePage() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="block text-sm text-[#525252] hover:text-violet-300 transition-colors"
+                    className="block text-sm text-[#71717a] hover:text-violet-300 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -681,7 +681,7 @@ export default function HomePage() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="block text-sm text-[#525252] hover:text-violet-300 transition-colors"
+                    className="block text-sm text-[#71717a] hover:text-violet-300 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -703,7 +703,7 @@ export default function HomePage() {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-sm text-[#525252] hover:text-violet-300 transition-colors"
+                    className="flex items-center gap-1.5 text-sm text-[#71717a] hover:text-violet-300 transition-colors"
                   >
                     <link.icon className="w-3.5 h-3.5" />
                     {link.label}
@@ -714,14 +714,14 @@ export default function HomePage() {
           </div>
 
           <div className="border-t border-white/[0.06] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-xs text-[#525252]">
+            <p className="text-xs text-[#71717a]">
               2026 VeilSub. Built on Aleo.
             </p>
             <a
               href="https://testnet.explorer.provable.com/program/veilsub_v20.aleo"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-[#525252] font-mono hover:text-violet-300 transition-colors"
+              className="text-xs text-[#71717a] font-mono hover:text-violet-300 transition-colors"
             >
               veilsub_v20.aleo
             </a>
