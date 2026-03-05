@@ -144,9 +144,9 @@ function ContractTab() {
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Program ID</h3>
         <div className="p-3 rounded-[8px] bg-white/[0.04] border border-white/[0.08] flex items-center justify-between">
-          <code className="text-[#a1a1aa] text-sm font-mono">veilsub_v15.aleo</code>
+          <code className="text-[#a1a1aa] text-sm font-mono">veilsub_v16.aleo</code>
           <a
-            href="https://testnet.explorer.provable.com/program/veilsub_v15.aleo"
+            href="https://testnet.explorer.provable.com/program/veilsub_v16.aleo"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-[#a1a1aa] hover:text-white flex items-center gap-1"
@@ -447,13 +447,13 @@ function ApiTab() {
         <CodeBlock
           lang="bash"
           code={`# Get creator's tier price
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v15.aleo/mapping/tier_prices/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v16.aleo/mapping/tier_prices/<creator_address>
 
 # Get subscriber count
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v15.aleo/mapping/subscriber_count/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v16.aleo/mapping/subscriber_count/<creator_address>
 
 # Get total revenue
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v15.aleo/mapping/total_revenue/<creator_address>`}
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v16.aleo/mapping/total_revenue/<creator_address>`}
         />
       </div>
 
@@ -470,7 +470,7 @@ const { executeTransaction } = useWallet()
 
 // Execute a subscribe transaction (v15 — returns AccessPass)
 const result = await executeTransaction({
-  program: 'veilsub_v15.aleo',
+  program: 'veilsub_v16.aleo',
   function: 'subscribe',
   inputs: [
     paymentRecord,              // single credits record (must have >= amount)

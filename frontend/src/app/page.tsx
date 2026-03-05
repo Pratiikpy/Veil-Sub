@@ -609,7 +609,7 @@ export default function HomePage() {
               <div className="space-y-2.5">
                 {[
                   { href: 'https://github.com/Pratiikpy/Veil-Sub', label: 'GitHub', icon: Github },
-                  { href: 'https://testnet.aleoscan.io/program?id=veilsub_v15.aleo', label: 'Aleoscan', icon: Code },
+                  { href: 'https://testnet.aleoscan.io/program?id=veilsub_v16.aleo', label: 'Aleoscan', icon: Code },
                 ].map((link) => (
                   <a
                     key={link.href}
@@ -631,12 +631,12 @@ export default function HomePage() {
               © 2026 VeilSub. Built on Aleo.
             </p>
             <a
-              href="https://testnet.explorer.provable.com/program/veilsub_v15.aleo"
+              href="https://testnet.explorer.provable.com/program/veilsub_v16.aleo"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-[#525252] font-mono hover:text-[#a1a1aa] transition-colors"
             >
-              veilsub_v15.aleo
+              veilsub_v16.aleo
             </a>
           </div>
         </Container>

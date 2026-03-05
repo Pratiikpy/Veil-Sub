@@ -23,6 +23,7 @@ VeilSub draws a clear privacy boundary: **creators are public entities; subscrib
 | Gift subscription tokens | GiftToken visible only to recipient, gifter identity is hashed | GiftToken |
 | Refund escrow records | Private escrow with amount + expiry, subscriber = private | RefundEscrow |
 | Blind subscriber identity | Nonce-based identity rotation: `BHP256(caller + nonce)` creates different hash per renewal | AccessPass + CreatorReceipt |
+| Referral reward proofs | ReferralReward private record, referred subscriber = BHP256 hashed | ReferralReward |
 
 ### PUBLIC (Mappings — Intentionally Discoverable)
 
@@ -43,6 +44,11 @@ VeilSub draws a clear privacy boundary: **creators are public entities; subscrib
 | Encryption commitments | Verifies content decryption keys | `encryption_commits` |
 | Access revocation | Creator can revoke access | `access_revoked` |
 | Content disputes | Community dispute counter | `content_disputes` |
+| Pass-to-creator mapping | Auth for revocation — only issuing creator can revoke | `pass_creator` |
+| Tip commitments | Commit-reveal tipping — amount hidden until reveal | `tip_commitments` |
+| Tip reveal status | Tracks which tips have been revealed | `tip_revealed` |
+| Per-caller dispute limit | Sybil-resistant: 1 dispute per caller per content | `dispute_count_by_caller` |
+| Referral count per creator | Public metric for referral activity | `referral_count` |
 
 ### VISIBLE IN FINALIZE PARAMETERS (Transaction-Level)
 
@@ -63,7 +69,7 @@ These values appear in transaction data because Aleo's finalize scope is public:
 
 ## Privacy Comparison with Competitors
 
-| Feature | VeilSub v12 | NullPay | Alpaca Invoice |
+| Feature | VeilSub v16 | NullPay | Alpaca Invoice |
 |---------|---------|---------|----------------|
 | User identity in finalize | NEVER | NEVER | Seller address leaks |
 | Payment method | credits.aleo/transfer_private (atomic) | credits.aleo/transfer_private (atomic) | credits.aleo NOT called (trust-based mark_as_paid) |
@@ -75,10 +81,11 @@ These values appear in transaction data because Aleo's finalize scope is public:
 | Subscription gifting | GiftToken (recipient-only) | No | No |
 | Access revocation | Creator can revoke, prevents double-access | No | No |
 | Refund escrow | Private escrow with expiry | No | No |
+| On-chain referrals | ReferralReward (private) | No | No |
 
 ## Blind Renewal — Novel Privacy Technique
 
-VeilSub v12 introduces **Blind Renewal**, a privacy technique unique in the Aleo ecosystem.
+VeilSub v11 introduces **Blind Renewal**, a privacy technique unique in the Aleo ecosystem.
 
 **The Problem:** In standard renewals, the subscriber hash `BHP256(self.caller)` is deterministic. A creator receiving CreatorReceipts can track renewal patterns — same hash = same subscriber.
 
@@ -156,6 +163,32 @@ Published content stores a `content_hash` on-chain:
 - `BHP256::hash_to_field(content_body)` is stored on-chain in `content_hashes` mapping
 - Anyone can verify content hasn't been tampered with by comparing the off-chain hash to the on-chain hash
 - This provides tamper-proof content integrity without revealing content to the blockchain
+
+## Pedersen Commit-Reveal Tipping (v14)
+
+VeilSub uses BHP256 commitment schemes for private tipping:
+
+```
+Phase 1 — Commit:  commitment = BHP256::commit_to_field(hash(creator, amount), hash_to_scalar(salt))
+Phase 2 — Reveal:  recompute commitment from original inputs, verify match, execute transfer
+```
+
+The tip amount remains hidden on-chain until the tipper voluntarily reveals it. This prevents creators from seeing individual tip amounts in real-time — they only see aggregate tips. Uses the same commitment pattern as NullPay's BHP256 approach.
+
+## Subscription Transfer (v15)
+
+`transfer_pass` allows a subscriber to transfer their AccessPass to another address. The transition checks the `access_revoked` mapping before allowing transfer — revoked passes cannot be transferred. The new owner receives a fresh AccessPass with their address, while the original is consumed.
+
+## Privacy-Preserving Referrals (v16)
+
+When a subscriber joins via referral (`subscribe_with_referral`), the referrer receives a `ReferralReward` private record. The referred subscriber's identity is protected via `BHP256::hash_to_field(subscriber_address)` — the referrer can prove they earned a reward but cannot identify who they referred. The `referral_count` public mapping only tracks aggregate referral counts per creator.
+
+## Security Hardening (v15)
+
+- **Revocation enforcement**: `verify_access` and `verify_tier_access` check `access_revoked` mapping — revoked passes are rejected
+- **Sybil-resistant disputes**: `dispute_content` requires an AccessPass (subscriber-only) + `dispute_count_by_caller` limits 1 dispute per caller per content
+- **Revocation auth**: `revoke_access` validates via `pass_creator` mapping — only the issuing creator can revoke
+- **Transfer safety**: `transfer_pass` checks revocation status before allowing transfer
 
 ## Aleo-Specific Privacy Features Used
 

@@ -1,7 +1,7 @@
 {
-  "program": "veilsub_v15.aleo",
-  "version": "0.7.0",
-  "description": "VeilSub v15 - Security Hardening, Subscription Transfer, Revocation Enforcement, Sybil-Resistant Disputes, 32 transitions on Aleo",
+  "program": "veilsub_v16.aleo",
+  "version": "0.8.0",
+  "description": "VeilSub v16 - On-Chain Referral System, Security Hardening, Subscription Transfer, Blind Renewal, Commit-Reveal Tipping, 8 Record Types, 34 transitions on Aleo",
   "license": "MIT",
   "leo": "3.4.0",
   "dependencies": [

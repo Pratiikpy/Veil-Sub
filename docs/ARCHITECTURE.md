@@ -7,7 +7,7 @@ VeilSub is a privacy-preserving content subscription platform built on Aleo. It 
 ```
 +-------------------+       +--------------------+       +------------------+
 |   Frontend        |       |   Aleo Testnet     |       |   Off-Chain      |
-|   (Next.js 16)    |<----->|   (veilsub_v15)    |       |   Services       |
+|   (Next.js 16)    |<----->|   (veilsub_v16)    |       |   Services       |
 |                   |       |                    |       |                  |
 | - Dashboard       |       | - AccessPass       |       | - Supabase (DB)  |
 | - Explore         |       | - CreatorReceipt   |       | - Upstash Redis  |
@@ -34,7 +34,7 @@ VeilSub is a privacy-preserving content subscription platform built on Aleo. It 
 
 ## Layer Architecture
 
-### Layer 1: Smart Contract (`veilsub_v15.aleo`)
+### Layer 1: Smart Contract (`veilsub_v16.aleo`)
 
 The Leo smart contract is the trust foundation. All financial operations and access control happen on-chain.
 
@@ -48,6 +48,7 @@ The Leo smart contract is the trust foundation. All financial operations and acc
 | `ContentDeletion` | Creator | Proof of content deletion (content_id, reason_hash) |
 | `GiftToken` | Recipient | Gift subscription pending redemption (creator, tier, expires_at) |
 | `RefundEscrow` | Subscriber | Refund claim within escrow window (creator, amount, escrow_expiry) |
+| `ReferralReward` | Referrer | Privacy-preserving referral reward proof (creator, amount, referred_hash) |
 
 **Mappings (Public State):**
 | Mapping | Key | Value | Purpose |
@@ -73,6 +74,11 @@ The Leo smart contract is the trust foundation. All financial operations and acc
 | `tier_prices_token` | creator address | u64 | Token tier pricing |
 | `total_revenue_token` | creator address | u64 | Token revenue tracking |
 | `platform_revenue_token` | u8 (constant) | u64 | Platform token fee accumulator |
+| `pass_creator` | pass_id (field) | address | Maps pass to its issuing creator (auth for revocation) |
+| `tip_commitments` | commitment (field) | field | Stores tip commitment hashes |
+| `tip_revealed` | commitment (field) | bool | Tracks revealed tips |
+| `dispute_count_by_caller` | BHP256(caller, content_id) | u64 | Per-caller dispute rate limiting |
+| `referral_count` | creator address | u64 | Total referrals received per creator |
 
 **Transitions (Functions):**
 | Transition | Privacy | Finalize? | Purpose |
@@ -104,6 +110,11 @@ The Leo smart contract is the trust foundation. All financial operations and acc
 | `publish_encrypted_content` | Creator = public | Yes | Publish with encryption commitment |
 | `revoke_access` | Creator = public | Yes | Revoke subscriber access |
 | `dispute_content` | Any = public | Yes | Dispute content integrity |
+| `commit_tip` | Tipper = private | Yes | Commit to tip amount (hidden via BHP256 commitment) |
+| `reveal_tip` | Tipper = private | Yes | Reveal committed tip and execute transfer |
+| `verify_pedersen_commitment` | Full private | Yes | Zero-footprint Pedersen128 commitment verification |
+| `transfer_pass` | Subscriber = private | Yes | Transfer subscription to another address (v15) |
+| `subscribe_with_referral` | Subscriber = private | Yes | Subscribe via referral with reward split (v16) |
 
 ### Layer 2: Frontend (Next.js 16 + React 19)
 
@@ -150,7 +161,7 @@ Five wallet adapters via `@provablehq/aleo-wallet-adaptor-react`:
 1. Subscriber connects wallet (Shield/Leo/Fox/Puzzle/Soter)
 2. Frontend fetches credits.aleo records via requestRecords()
 3. User selects creator + tier → frontend computes amount
-4. executeTransaction() calls veilsub_v15.aleo/subscribe:
+4. executeTransaction() calls veilsub_v16.aleo/subscribe:
    a. credits.aleo/transfer_private sends payment to creator
    b. AccessPass record created (owned by subscriber)
    c. CreatorReceipt record created (owned by creator)
