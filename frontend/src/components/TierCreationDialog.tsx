@@ -142,7 +142,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                     value={tierName}
                     onChange={(e) => setTierName(e.target.value)}
                     placeholder="e.g. Supporter, Premium, VIP"
-                    className="w-full rounded-lg bg-[#0a0a0a] border border-white/[0.08] px-4 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:border-[rgba(255,255,255,0.12)] focus:outline-none focus:ring-2 focus:ring-white/10 transition-all"
+                    className="w-full rounded-lg bg-[#0a0a0a] border border-white/[0.08] px-4 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:border-violet-500/[0.3] focus:outline-none focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all"
                     maxLength={32}
                   />
                 </div>
@@ -157,7 +157,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                     placeholder="0.5"
                     step="0.1"
                     min="0.001"
-                    className="w-full rounded-lg bg-[#0a0a0a] border border-white/[0.08] px-4 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:border-[rgba(255,255,255,0.12)] focus:outline-none focus:ring-2 focus:ring-white/10 transition-all"
+                    className="w-full rounded-lg bg-[#0a0a0a] border border-white/[0.08] px-4 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:border-violet-500/[0.3] focus:outline-none focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all"
                   />
                   {priceAleo && (
                     <p className="mt-1 text-xs text-[#71717a]">

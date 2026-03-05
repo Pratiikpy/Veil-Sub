@@ -125,7 +125,7 @@ export default function GiftSubscriptionFlow({
                     value={recipientAddress}
                     onChange={(e) => setRecipientAddress(e.target.value)}
                     placeholder="aleo1..."
-                    className="w-full rounded-lg bg-[#0a0a0a] border border-white/[0.08] px-4 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:border-[rgba(255,255,255,0.12)] focus:outline-none focus:ring-2 focus:ring-white/10 transition-all font-mono text-xs"
+                    className="w-full rounded-lg bg-[#0a0a0a] border border-white/[0.08] px-4 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:border-violet-500/[0.3] focus:outline-none focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all font-mono text-xs"
                   />
                 </div>
 
