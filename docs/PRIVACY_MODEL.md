@@ -49,6 +49,7 @@ VeilSub draws a clear privacy boundary: **creators are public entities; subscrib
 | Tip reveal status | Tracks which tips have been revealed | `tip_revealed` |
 | Per-caller dispute limit | Sybil-resistant: 1 dispute per caller per content | `dispute_count_by_caller` |
 | Referral count per creator | Public metric for referral activity | `referral_count` |
+| Pedersen subscriber commitment | Homomorphic aggregate — encodes count but unreadable without creator knowledge | `sub_count_commit` |
 
 ### VISIBLE IN FINALIZE PARAMETERS (Transaction-Level)
 
@@ -82,6 +83,8 @@ These values appear in transaction data because Aleo's finalize scope is public:
 | Access revocation | Creator can revoke, prevents double-access | No | No |
 | Refund escrow | Private escrow with expiry | No | No |
 | On-chain referrals | ReferralReward (private) | No | No |
+| Homomorphic subscriber commitments | Pedersen64 group aggregates (v17) | No | No |
+| Zero-footprint count/revenue proofs | prove_sub_count, prove_revenue_range (v17) | No | No |
 
 ## Blind Renewal — Novel Privacy Technique
 
@@ -216,6 +219,59 @@ These transitions have NO finalize — they leave zero on-chain trace, similar t
 4. **No finalize for verification**: `verify_access` and `create_audit_token` have no finalize scope — zero public footprint.
 5. **Automatic encryption**: Aleo encrypts all transition inputs automatically. Record fields marked as private are never visible.
 6. **Nullifiers**: Records are consumed (nullified) when spent. The nullifier system prevents double-use without revealing which record was spent.
+
+## Threat Model Matrix
+
+| Attack Vector | Severity | Mitigation | Residual Risk |
+|---------------|----------|------------|---------------|
+| **Timing correlation** (subscribe at same time as content unlock) | Medium | Blind renewal (nonce rotation), Pedersen count mode | Minimal — subscription time ≠ access time |
+| **Amount analysis** (infer tier from payment amount) | Low | Tier prices are intentionally public; amount ≠ identity | None — this is by design |
+| **Finalize parameter observation** (see creator + amount + tier) | Medium | `self.caller` NEVER in finalize; observer sees payment but not payer | Equivalent to seeing a cash register receipt |
+| **Graph analysis** (link credit records to subscribers) | Medium | `transfer_private` encrypts sender; blind renewal rotates hashes | UTXO model breaks simple graph analysis |
+| **Creator-side tracking** (CreatorReceipts link subscriber hashes) | Low | Blind renewal: each receipt has a DIFFERENT hash (BHP256(caller,nonce)) | Creator cannot link renewals |
+| **Metadata leaks** (IP, user-agent in API calls) | Medium | Content proxied through API routes; no direct Supabase calls from client | Backend logs minimized |
+| **Database compromise** (Supabase breach) | High | No subscriber addresses stored; all auth via SHA-256(address) with rotation | Attacker sees hashed addresses only |
+| **Mapping inference** (observe subscriber_count changes) | Medium | `subscribe_private_count` uses Pedersen — no public count increment | Full mitigation via Pedersen mode |
+| **Double-verification attack** (verify_access replay) | None | Record consumed+recreated per verification (UTXO model) | Zero — Aleo's nullifier system |
+| **Sybil dispute spam** | Low | AccessPass required + per-caller rate limit (1/content) | Full mitigation |
+| **Unauthorized revocation** | None | `pass_creator` mapping + `assert_eq(owner, creator)` | Zero — only issuing creator |
+| **Nonce replay** (reuse blind renewal nonce) | None | `nonce_used` mapping prevents reuse | Zero |
+
+## Formal Privacy Guarantees Per Transition
+
+| Transition | Observer Learns | Observer CANNOT Learn | Finalize? |
+|------------|----------------|----------------------|-----------|
+| `register_creator` | Creator address + base price | — | Yes |
+| `subscribe` | Creator, amount, tier, expiry | Subscriber identity | Yes |
+| `subscribe_blind` | Creator, amount, tier, expiry, nonce_hash | Subscriber identity; cannot link to previous subscriptions | Yes |
+| `subscribe_private_count` | Creator, amount, tier, expiry, Pedersen commitment | Subscriber identity; subscriber count | Yes |
+| `subscribe_with_escrow` | Creator, amount, tier, expiry | Subscriber identity | Yes |
+| `subscribe_referral` | Creator, tier, total amount, expiry | Subscriber identity; referrer identity | Yes |
+| `verify_access` | Pass was verified (revocation check) | Who verified, which pass, which creator | Yes (minimal) |
+| `verify_tier_access` | Pass was verified for a tier | Who verified, which tier, which pass | Yes (minimal) |
+| `create_audit_token` | Nothing | Everything (zero footprint) | No |
+| `tip` | Creator, amount | Tipper identity | Yes |
+| `commit_tip` | Commitment hash exists | Creator, amount, tipper | Yes |
+| `reveal_tip` | Creator, amount, commitment opened | Tipper identity | Yes |
+| `renew` | Creator, amount, tier, expiry | Subscriber identity | Yes |
+| `renew_blind` | Creator, amount, tier, nonce_hash | Subscriber identity; renewal pattern | Yes |
+| `publish_content` | Creator, content_id, min_tier, hash | — | Yes |
+| `publish_encrypted_content` | Creator, content_id, min_tier, hash, encryption commitment | — | Yes |
+| `gift_subscription` | Creator, amount, tier, expiry, gift_id | Gifter identity; recipient identity | Yes |
+| `redeem_gift` | Gift_id was redeemed | Who redeemed it | Yes |
+| `create_custom_tier` | Creator, tier_id, price | — | Yes |
+| `update_tier_price` | Creator, tier_id, new price | — | Yes |
+| `deprecate_tier` | Creator, tier_id deprecated | — | Yes |
+| `update_content` | Content_id, new tier/hash | Who updated | Yes |
+| `delete_content` | Content_id deleted | Who deleted | Yes |
+| `claim_refund` | Pass_id, amount, creator | Subscriber identity | Yes |
+| `withdraw_platform_fees` | Amount withdrawn | — | Yes |
+| `withdraw_creator_rev` | Creator, amount | — | Yes |
+| `revoke_access` | Pass_id revoked | Subscriber identity | Yes |
+| `dispute_content` | Content_id, caller_hash | Disputer identity (hashed) | Yes |
+| `transfer_pass` | Pass_id transferred | Original owner; new owner | Yes |
+| `prove_sub_count` | Nothing | Everything (zero footprint) | No |
+| `prove_revenue_range` | Nothing | Everything (zero footprint) | No |
 
 ## What We Do NOT Do (Anti-Patterns Avoided)
 
