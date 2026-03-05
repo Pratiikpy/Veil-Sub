@@ -4,7 +4,7 @@
 
 VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pay with ALEO credits and receive an encrypted **AccessPass** record — their identity is never exposed on-chain. Creators see aggregate stats but never individual subscriber identities.
 
-**Live on Testnet:** [`veilsub_v20.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v20.aleo)
+**Live on Testnet:** [`veilsub_v15.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v15.aleo) (28 transitions) | **Source:** `veilsub_v20.aleo` (31 transitions, 972 statements)
 
 > **Quick Stats:** 31 transitions · 30 mappings · 8 record types · 1,750+ lines of Leo · 972 statements · 20 iterative deploys · 5 structs · Poseidon2 optimized · 3 privacy modes · 3 zero-footprint proofs · 22 frontend routes · 5 wallet support · 14,700+ lines of TypeScript
 
@@ -259,11 +259,13 @@ UPSTASH_REDIS_REST_TOKEN=<your-redis-token>
 
 ## Testnet Deployment
 
-**Program:** [`veilsub_v20.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v20.aleo)
+**Deployed:** [`veilsub_v15.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v15.aleo) — 28 transitions, 23 mappings, 7 records
+
+**Source Code:** `veilsub_v20.aleo` — 31 transitions, 30 mappings, 8 records (exceeds testnet variable limit of 2.1M; full source in `contracts/veilsub/src/main.leo`)
 
 **Account:** `aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk`
 
-### On-Chain Transactions (v20)
+### On-Chain Transactions (v15)
 | # | Transition | Args | Purpose |
 |---|-----------|------|---------|
 | 1 | `register_creator` | base price 1000 | Creator registration |
