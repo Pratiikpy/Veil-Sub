@@ -446,6 +446,100 @@ export function useVeilSub() {
     [execute]
   )
 
+  // v17: Referral subscription
+  const subscribeReferral = useCallback(
+    async (
+      paymentToReferrer: string,
+      paymentToCreator: string,
+      creatorAddress: string,
+      referrerAddress: string,
+      tier: number,
+      referralAmount: number,
+      creatorAmount: number,
+      passId: string,
+      expiresAt: number
+    ) => {
+      return execute(
+        'subscribe_referral',
+        [
+          paymentToReferrer,
+          paymentToCreator,
+          creatorAddress,
+          referrerAddress,
+          `${tier}u8`,
+          `${referralAmount}u64`,
+          `${creatorAmount}u64`,
+          `${passId}field`,
+          `${expiresAt}u32`,
+        ],
+        FEES.SUBSCRIBE_REFERRAL
+      )
+    },
+    [execute]
+  )
+
+  // v15: Subscription transfer
+  const transferPass = useCallback(
+    async (accessPassPlaintext: string, recipientAddress: string) => {
+      return execute(
+        'transfer_pass',
+        [accessPassPlaintext, recipientAddress],
+        FEES.TRANSFER_PASS
+      )
+    },
+    [execute]
+  )
+
+  // v17: Subscribe with private Pedersen count (no public subscriber_count increment)
+  const subscribePrivateCount = useCallback(
+    async (
+      paymentRecord: string,
+      creatorAddress: string,
+      tier: number,
+      amount: number,
+      passId: string,
+      expiresAt: number,
+      blinding: string,
+    ) => {
+      return execute('subscribe_private_count', [
+        paymentRecord,
+        creatorAddress,
+        `${tier}u8`,
+        `${amount}u64`,
+        `${passId}field`,
+        `${expiresAt}u32`,
+        `${blinding}field`,
+      ], FEES.SUBSCRIBE_PRIVATE_COUNT)
+    },
+    [execute]
+  )
+
+  // v17: Zero-footprint proof of subscriber count (Pedersen decommitment)
+  const proveSubCount = useCallback(
+    async (claimedCount: number, sumBlinding: string, expectedCommit: string) => {
+      return execute('prove_sub_count', [
+        `${claimedCount}u64`,
+        `${sumBlinding}scalar`,
+        expectedCommit,
+      ], FEES.PROVE_SUB_COUNT)
+    },
+    [execute]
+  )
+
+  // v17: Zero-footprint range proof for revenue
+  const proveRevenueRange = useCallback(
+    async (actualRevenue: number, salt: string, commitment: string, lowerBound: number, upperBound: number) => {
+      return execute('prove_revenue_range', [
+        `${actualRevenue}u64`,
+        `${salt}field`,
+        commitment,
+        `${lowerBound}u64`,
+        `${upperBound}u64`,
+      ], FEES.PROVE_REVENUE_RANGE)
+    },
+    [execute]
+  )
+
   // =========================================
   // Record Fetchers (v10+)
   // =========================================
@@ -844,6 +938,14 @@ export function useVeilSub() {
     publishEncryptedContent,
     revokeAccess,
     disputeContent,
+    // v15: Transfer
+    transferPass,
+    // v17: Referrals
+    subscribeReferral,
+    // v17: Pedersen proofs
+    subscribePrivateCount,
+    proveSubCount,
+    proveRevenueRange,
     // Utility
     splitCredits,
     convertPublicToPrivate,

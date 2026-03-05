@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState, use } from 'react'
+import { useEffect, useState, use, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import {
   Shield,
   Heart,
@@ -16,6 +17,8 @@ import {
   AlertTriangle,
   ArrowRight,
   Search,
+  ArrowLeftRight,
+  Flag,
 } from 'lucide-react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
@@ -26,6 +29,7 @@ import SubscribeModal from '@/components/SubscribeModal'
 import TipModal from '@/components/TipModal'
 import RenewModal from '@/components/RenewModal'
 import GiftSubscriptionFlow from '@/components/GiftSubscriptionFlow'
+import TransferPassModal from '@/components/TransferPassModal'
 import ContentFeed from '@/components/ContentFeed'
 import CreatorQRCode from '@/components/CreatorQRCode'
 import PageTransition from '@/components/PageTransition'
@@ -45,6 +49,11 @@ export default function CreatorPage({
   params: Promise<{ address: string }>
 }) {
   const { address } = use(params)
+  const searchParams = useSearchParams()
+  const referrerAddress = useMemo(() => {
+    const ref = searchParams.get('ref')
+    return ref && ref.startsWith('aleo1') && ref.length > 50 ? ref : null
+  }, [searchParams])
   const { connected, address: publicKey } = useWallet()
   const { fetchCreatorStats } = useCreatorStats()
   const { getAccessPasses } = useVeilSub()
@@ -62,6 +71,7 @@ export default function CreatorPage({
   const [renewPass, setRenewPass] = useState<AccessPass | null>(null)
   const [showGift, setShowGift] = useState(false)
   const [giftTier, setGiftTier] = useState<{ id: number; name: string; price: number } | null>(null)
+  const [transferPass, setTransferPass] = useState<AccessPass | null>(null)
 
   // Fetch creator stats and profile
   useEffect(() => {
@@ -208,6 +218,16 @@ export default function CreatorPage({
               </div>
             </div>
           )}
+
+          {/* Referral Banner */}
+          {referrerAddress && isRegistered && (
+            <div className="p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.12] mb-4">
+              <p className="text-xs text-violet-300 flex items-center gap-2">
+                <Users className="w-3.5 h-3.5 shrink-0" />
+                Referred by {referrerAddress.slice(0, 10)}...{referrerAddress.slice(-6)} — 10% of your subscription goes to them as a private reward.
+              </p>
+            </div>
+          )}
         </motion.div>
 
         {!isRegistered ? (
@@ -301,6 +321,13 @@ export default function CreatorPage({
                                   <RefreshCw className="w-3 h-3" />
                                   Renew
                                 </button>
+                                <button
+                                  onClick={() => setTransferPass(pass)}
+                                  className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs text-[#a1a1aa] hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
+                                >
+                                  <ArrowLeftRight className="w-3 h-3" />
+                                  Transfer
+                                </button>
                               </>
                             ) : (() => {
                               const colors = getExpiryColor(expiry.daysLeft)
@@ -318,6 +345,13 @@ export default function CreatorPage({
                                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${colors.bg} ${colors.text} ${colors.border}`}>
                                     {expiry.daysLeft}d left
                                   </span>
+                                  <button
+                                    onClick={() => setTransferPass(pass)}
+                                    className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs text-[#a1a1aa] hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
+                                  >
+                                    <ArrowLeftRight className="w-3 h-3" />
+                                    Transfer
+                                  </button>
                                 </>
                               )
                             })()}
@@ -502,6 +536,7 @@ export default function CreatorPage({
           tier={selectedTier}
           creatorAddress={address}
           basePrice={basePrice}
+          referrerAddress={referrerAddress}
         />
       )}
       <TipModal
@@ -525,6 +560,14 @@ export default function CreatorPage({
           tierPrice={giftTier.price}
           tierId={giftTier.id}
           tierName={giftTier.name}
+        />
+      )}
+      {transferPass && (
+        <TransferPassModal
+          isOpen={!!transferPass}
+          onClose={() => setTransferPass(null)}
+          accessPassPlaintext={transferPass.rawPlaintext}
+          creatorAddress={address}
         />
       )}
     </PageTransition>

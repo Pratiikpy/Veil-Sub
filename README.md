@@ -4,7 +4,7 @@
 
 VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pay with ALEO credits and receive an encrypted **AccessPass** record — their identity is never exposed on-chain. Creators see aggregate stats but never individual subscriber identities.
 
-**Live on Testnet:** [`veilsub_v16.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v16.aleo)
+**Live on Testnet:** [`veilsub_v17.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v17.aleo)
 
 ---
 
@@ -17,6 +17,8 @@ VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pa
 | **Pedersen Commit-Reveal Tipping** | Tip amounts hidden on-chain via `BHP256::commit_to_field` until voluntary reveal |
 | **Subscriber Never in Finalize** | `self.caller` is NEVER passed to any finalize function. Zero code path to public state |
 | **Subscription Transfer** | Transfer AccessPass to another address — unique feature no competitor has |
+| **Homomorphic Pedersen Commitments** | `subscribe_private_count` stores group-element aggregates instead of public counters — subscriber count is hidden |
+| **Zero-Footprint Proofs** | `prove_sub_count` and `prove_revenue_range` prove properties without any on-chain trace |
 
 ---
 
@@ -32,9 +34,9 @@ VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pa
 │  /api/posts (Upstash Redis) + /api/creators (Supabase)│
 │  Wallet-hash auth: SHA-256(address) → no plaintext   │
 ├─────────────────────────────────────────────────────┤
-│              Aleo Smart Contract (v16)               │
-│  29 transitions · 23 mappings · 8 record types       │
-│  1,507 lines of Leo · 5 structs                      │
+│              Aleo Smart Contract (v17)               │
+│  31 transitions · 24 mappings · 8 record types       │
+│  1,677 lines of Leo · 5 structs                      │
 │  credits.aleo import                                 │
 └─────────────────────────────────────────────────────┘
 ```
@@ -53,7 +55,7 @@ VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pa
 
 ---
 
-## Smart Contract — `veilsub_v16.aleo`
+## Smart Contract — `veilsub_v17.aleo`
 
 ### 8 Record Types
 1. **AccessPass** — subscriber's encrypted credential
@@ -65,7 +67,7 @@ VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pa
 7. **RefundEscrow** — time-locked refund claim
 8. **ReferralReward** — privacy-preserving referral reward proof
 
-### 29 Transitions (by category)
+### 31 Transitions (by category)
 
 **Creator Management (6)**
 - `register_creator` — set base price, join platform
@@ -75,17 +77,20 @@ VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pa
 - `withdraw_platform_fees` — admin fee withdrawal
 - `withdraw_creator_rev` — creator revenue withdrawal
 
-**Subscriptions (5)**
+**Subscriptions (6)**
 - `subscribe` — pay and receive AccessPass
 - `renew` — extend existing subscription
 - `subscribe_blind` — nonce-rotated identity (Blind Renewal)
 - `renew_blind` — unlinkable renewal
 - `subscribe_with_escrow` — with refund window
+- `subscribe_private_count` — Pedersen commitment aggregate only, no public counter (v17)
 
-**Verification (3)**
+**Verification & Proofs (5)**
 - `verify_access` — prove access with revocation enforcement (v15)
 - `verify_tier_access` — tier-gated verification with revocation (v15)
 - `create_audit_token` — selective disclosure
+- `prove_sub_count` — zero-footprint proof of subscriber count (v17)
+- `prove_revenue_range` — zero-footprint revenue range proof (v17)
 
 **Content (4)**
 - `publish_content` — on-chain content metadata
@@ -98,20 +103,18 @@ VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pa
 - `redeem_gift` — recipient claims gift
 - `claim_refund` — credit-based refund within 500-block window
 
-**Tipping (4)**
+**Tipping (3)**
 - `tip` — direct private tip
 - `commit_tip` — commit to tip amount (hidden)
 - `reveal_tip` — reveal and execute tip
-- `verify_pedersen_commitment` — zero-footprint Pedersen128 verification
 
 **Transfer & Moderation (3)**
 - `transfer_pass` — transfer subscription to new owner (v15)
 - `revoke_access` — creator revokes a pass
 - `dispute_content` — subscriber-only disputes with rate limiting (v15)
 
-**Referral (2)**
-- `subscribe_with_referral` — subscribe via referral link, reward split between creator and referrer
-- Referral rewards tracked privately via ReferralReward records
+**Referral (1)**
+- `subscribe_referral` — subscribe via referral link, reward split between creator and referrer
 
 ### Version History
 
@@ -126,6 +129,7 @@ VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pa
 | v14 | **Pedersen/BHP256 commit-reveal tipping** — hidden tip amounts until reveal |
 | v15 | **Security hardening** — revocation enforcement, Sybil-resistant disputes, subscription transfer |
 | v16 | **On-chain referral system** — privacy-preserving referral rewards, ReferralReward record, referral_count mapping |
+| v17 | **Homomorphic Pedersen commitments** — `subscribe_private_count` with `sub_count_commit` mapping, `prove_sub_count` and `prove_revenue_range` zero-footprint proofs, named constants replacing magic numbers |
 
 ---
 
@@ -153,6 +157,18 @@ subscriber_hash = BHP256::hash_to_field(self.caller)
 referral_reward = ReferralReward { owner: referrer, creator, amount: 10% of subscription, referred_hash: subscriber_hash }
 ```
 Referrer receives a private ReferralReward record proving they referred someone — but the referred subscriber's identity is protected via BHP256 hash. The referrer knows they earned a reward but cannot identify who they referred.
+
+### 5. Homomorphic Pedersen Subscriber Commitments (v17)
+```
+sub_count_commit[creator] += Pedersen64::commit_to_group(1u64, rand_scalar)
+```
+`subscribe_private_count` updates a Pedersen commitment aggregate (`sub_count_commit` mapping) instead of the public `subscriber_count` counter. The aggregate is a group element that encodes the count homomorphically — it cannot be read without the creator's knowledge.
+
+### 6. Zero-Footprint Proofs (v17)
+- `prove_sub_count` — proves subscriber count matches a claimed value without revealing the count publicly (no finalize)
+- `prove_revenue_range` — proves revenue falls within a range without revealing the exact amount (no finalize)
+
+These are the subscription-domain equivalent of range proofs — proving properties about private data without disclosure.
 
 ---
 
@@ -209,7 +225,7 @@ cd contracts/veilsub && leo build
 
 ### Environment Variables
 ```env
-NEXT_PUBLIC_PROGRAM_ID=veilsub_v16.aleo
+NEXT_PUBLIC_PROGRAM_ID=veilsub_v17.aleo
 NEXT_PUBLIC_ALEO_API=https://api.explorer.provable.com/v1
 NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-key>
@@ -221,7 +237,7 @@ UPSTASH_REDIS_REST_TOKEN=<your-redis-token>
 
 ## Testnet Deployment
 
-**Program:** [`veilsub_v16.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v16.aleo)
+**Program:** [`veilsub_v17.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v17.aleo)
 
 **Account:** `aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk`
 
@@ -246,13 +262,13 @@ UPSTASH_REDIS_REST_TOKEN=<your-redis-token>
 
 ## Competitive Positioning
 
-| Metric | VeilSub v16 | NullPay v13 | Veiled Markets | lasagna |
+| Metric | VeilSub v17 | NullPay v13 | Veiled Markets | lasagna |
 |--------|-------------|-------------|----------------|---------|
-| Transitions | 29 | ~15 | ~32 | ~12 |
+| Transitions | 31 | ~15 | ~32 | ~12 |
 | Record Types | 8 | 4 | 3 | 3 |
-| Mappings | 23 | ~12 | ~18 | ~10 |
-| Lines of Leo | 1,507 | ~800 | ~2,576 | ~600 |
-| Privacy Technique | Blind Renewal + Pedersen Commit-Reveal | Dual-record | FPMM AMM | DAR |
+| Mappings | 24 | ~12 | ~18 | ~10 |
+| Lines of Leo | 1,677 | ~800 | ~2,576 | ~600 |
+| Privacy Technique | Blind Renewal + Pedersen Commitments + Zero-Footprint Proofs | Dual-record | FPMM AMM | DAR |
 | Subscription Gifting | Yes | No | No | No |
 | Subscription Transfer | Yes | No | No | No |
 | Refund Escrow | Yes | No | No | No |

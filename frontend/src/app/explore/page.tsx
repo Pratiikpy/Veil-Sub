@@ -29,11 +29,11 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
     >
       <Link
         href={`/creator/${creator.address}`}
-        className="block p-5 rounded-xl bg-[#0a0a0a] border border-white/[0.08] hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.1)] transition-all duration-300 group"
+        className="block p-5 rounded-xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] hover:-translate-y-0.5 hover:border-violet-500/[0.2] hover:shadow-[0_0_30px_rgba(139,92,246,0.06)] transition-all duration-300 group"
       >
         <div className="flex items-center gap-3 mb-3">
           <div className="w-10 h-10 rounded-[12px] bg-white/[0.06] flex items-center justify-center shrink-0">
-            <Shield className="w-5 h-5 text-white" />
+            <Shield className="w-5 h-5 text-violet-400/60 group-hover:text-violet-400 transition-colors" />
           </div>
           <div className="min-w-0">
             <p className="text-white font-medium text-sm truncate">
@@ -55,7 +55,7 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
           <span className="text-xs text-[#71717a]">
             Joined {new Date(creator.created_at).toLocaleDateString()}
           </span>
-          <span className="text-xs text-[#a1a1aa] group-hover:text-[#a1a1aa] flex items-center gap-1">
+          <span className="text-xs text-[#71717a] group-hover:text-violet-300 flex items-center gap-1 transition-colors">
             View page <ArrowRight className="w-3 h-3" />
           </span>
         </div>
@@ -133,7 +133,7 @@ export default function ExplorePage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search creators by name..."
-                className="w-full pl-11 pr-4 py-3 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-white placeholder-[#71717a] focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-white/10 transition-all duration-300 text-sm"
+                className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] text-white placeholder-[#71717a] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300 text-sm"
               />
             </div>
           </motion.div>

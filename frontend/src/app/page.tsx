@@ -24,6 +24,10 @@ import {
   FileText,
   Globe,
   ChevronDown,
+  Gift,
+  RefreshCw,
+  ArrowLeftRight,
+  Eye,
 } from 'lucide-react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import PageTransition from '@/components/PageTransition'
@@ -37,6 +41,35 @@ import CountUp from '@/components/CountUp'
 import { FEATURED_CREATORS } from '@/lib/config'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { shortenAddress, formatCredits } from '@/lib/utils'
+
+/* ─── Animated Background Orbs ─── */
+function BackgroundOrbs() {
+  return (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      {/* Violet orb — top right */}
+      <div
+        className="absolute -top-[300px] -right-[200px] w-[700px] h-[700px] rounded-full animate-float"
+        style={{
+          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.06) 0%, transparent 70%)',
+        }}
+      />
+      {/* White orb — top left */}
+      <div
+        className="absolute -top-[200px] -left-[300px] w-[600px] h-[600px] rounded-full animate-float-delayed"
+        style={{
+          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%)',
+        }}
+      />
+      {/* Subtle violet glow — center */}
+      <div
+        className="absolute top-[40%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full animate-float-slow"
+        style={{
+          background: 'radial-gradient(ellipse, rgba(139, 92, 246, 0.03) 0%, transparent 70%)',
+        }}
+      />
+    </div>
+  )
+}
 
 /* ─── Featured Creator Card ─── */
 function FeaturedCreatorCard({ address, label }: { address: string; label: string }) {
@@ -54,11 +87,11 @@ function FeaturedCreatorCard({ address, label }: { address: string; label: strin
   return (
     <Link
       href={`/creator/${address}`}
-      className="block p-6 rounded-3xl bg-[#0a0a0a] border border-white/[0.08] hover:border-white/[0.15] transition-all duration-300 group"
+      className="group block p-6 rounded-3xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] hover:border-violet-500/[0.2] transition-all duration-300 hover:shadow-[0_0_30px_rgba(139,92,246,0.06)]"
     >
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-10 h-10 rounded-2xl bg-white/[0.04] flex items-center justify-center">
-          <Shield className="w-4.5 h-4.5 text-white/40" />
+        <div className="w-10 h-10 rounded-2xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center group-hover:border-violet-500/[0.2] transition-colors">
+          <Shield className="w-4.5 h-4.5 text-violet-400/60" />
         </div>
         <div>
           <p className="text-white font-medium text-sm">{label}</p>
@@ -77,8 +110,8 @@ function FeaturedCreatorCard({ address, label }: { address: string; label: strin
           </span>
         </div>
       )}
-      <div className="mt-3 text-xs text-[#525252] group-hover:text-white flex items-center gap-1 transition-colors">
-        View creator <ArrowRight className="w-3 h-3" />
+      <div className="mt-3 text-xs text-[#525252] group-hover:text-violet-300 flex items-center gap-1 transition-colors">
+        View creator <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
       </div>
     </Link>
   )
@@ -119,8 +152,8 @@ function ExploreCreatorSection() {
 
         <ScrollReveal delay={0.2} className="max-w-xl mx-auto mt-10">
           <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#525252]" />
+            <div className="relative flex-1 group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#525252] group-focus-within:text-violet-400 transition-colors" />
               <input
                 type="text"
                 value={searchAddress}
@@ -128,7 +161,7 @@ function ExploreCreatorSection() {
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="Search by Aleo address..."
                 aria-label="Enter creator Aleo address"
-                className="w-full pl-11 pr-4 py-3 rounded-full bg-[#0a0a0a] border border-white/[0.08] text-white placeholder-[#525252] focus:outline-none focus:border-white/[0.15] transition-colors text-sm"
+                className="w-full pl-11 pr-4 py-3 rounded-full bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] text-white placeholder-[#525252] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300 text-sm"
               />
             </div>
             <Button
@@ -154,10 +187,10 @@ const TICKER_ITEMS = [
   { icon: Lock, text: 'Zero-Knowledge Proofs' },
   { icon: Zap, text: 'Testnet Live' },
   { icon: EyeOff, text: 'Private Subscriptions' },
-  { icon: Layers, text: '28 Transitions' },
+  { icon: Layers, text: '31 Transitions' },
   { icon: Shield, text: 'Zero Public Footprint' },
   { icon: Coins, text: 'Pedersen Commitments' },
-  { icon: Shield, text: '7 Record Types' },
+  { icon: Shield, text: '8 Record Types' },
 ]
 
 /* ─── Bento Features ─── */
@@ -181,18 +214,31 @@ const FEATURES_SMALL = [
   { icon: Globe, title: 'On-Chain Verification', desc: 'Verify proofs publicly, identity stays hidden' },
 ]
 
+/* ─── Contract Features Showcase ─── */
+const CONTRACT_FEATURES = [
+  { icon: EyeOff, title: 'Pedersen Subscriber Proofs', desc: 'Homomorphic commitments hide subscriber count', version: 'v17' },
+  { icon: Users, title: 'Privacy-Preserving Referrals', desc: 'Earn rewards without seeing who subscribed', version: 'v17' },
+  { icon: RefreshCw, title: 'Blind Renewal', desc: 'Unlinkable identity rotation per renewal', version: 'v11' },
+  { icon: ArrowLeftRight, title: 'Pass Transfer', desc: 'Transfer subscriptions on-chain', version: 'v15' },
+  { icon: Eye, title: 'Zero-Footprint Verify', desc: 'No finalize, no public trace', version: 'v8' },
+  { icon: Shield, title: 'Sybil-Protected Disputes', desc: 'Only subscribers can dispute', version: 'v15' },
+  { icon: Lock, title: 'Commit-Reveal Tipping', desc: 'BHP256 commitment hidden tip amounts', version: 'v14' },
+]
+
 /* ─── Home Page ─── */
 export default function HomePage() {
   const { connected } = useWallet()
 
   return (
     <PageTransition className="min-h-screen">
+      <BackgroundOrbs />
+
       {/* ── Hero ── */}
       <section className="relative overflow-hidden">
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] pointer-events-none"
           style={{
-            background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.03) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.04) 0%, transparent 70%)',
           }}
         />
 
@@ -204,7 +250,7 @@ export default function HomePage() {
             className="text-center"
           >
             <div className="flex justify-center mb-10">
-              <Badge>Privacy-First Protocol</Badge>
+              <Badge variant="accent">Privacy-First Protocol</Badge>
             </div>
 
             <h1 style={{ lineHeight: 1.05 }}>
@@ -265,12 +311,12 @@ export default function HomePage() {
             </div>
 
             <p className="mt-6 text-xs text-[#525252]">
-              Built on Aleo · Zero-Knowledge Proofs · v15 Deployed
+              Built on Aleo · Zero-Knowledge Proofs · v17 Deployed
             </p>
           </motion.div>
 
           <div className="flex justify-center mt-16">
-            <ChevronDown className="w-5 h-5 text-[#525252] animate-scroll-bounce" />
+            <ChevronDown className="w-5 h-5 text-violet-400/30 animate-scroll-bounce" />
           </div>
         </Container>
       </section>
@@ -289,7 +335,7 @@ export default function HomePage() {
                     key={`${dupeIdx}-${item.text}`}
                     className="inline-flex items-center gap-2 text-sm text-[#525252] font-medium tracking-wide"
                   >
-                    <Icon className="w-3.5 h-3.5" />
+                    <Icon className="w-3.5 h-3.5 text-violet-400/30" />
                     {item.text}
                   </span>
                 )
@@ -329,7 +375,7 @@ export default function HomePage() {
                 ].map((row) => (
                   <div
                     key={row.traditional}
-                    className="rounded-2xl bg-[#0a0a0a] border border-white/[0.08] overflow-hidden"
+                    className="rounded-2xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] overflow-hidden hover:border-white/[0.12] transition-colors duration-300"
                   >
                     <div className="grid grid-cols-2 divide-x divide-white/[0.06]">
                       <div className="flex items-start gap-2.5 p-5">
@@ -381,12 +427,12 @@ export default function HomePage() {
                 <motion.div
                   key={step.title}
                   variants={staggerItemVariants}
-                  className="relative p-8 rounded-3xl bg-[#0a0a0a] border border-white/[0.08] hover:border-white/[0.15] transition-colors duration-300"
+                  className="group relative p-8 rounded-3xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] hover:border-violet-500/[0.2] transition-all duration-300 hover:shadow-[0_0_30px_rgba(139,92,246,0.06)]"
                 >
-                  <span className="text-4xl font-bold text-white/[0.06] leading-none">
+                  <span className="text-4xl font-bold text-violet-500/[0.08] leading-none">
                     0{i + 1}
                   </span>
-                  <Icon className="w-6 h-6 text-white/30 mt-4 mb-3" />
+                  <Icon className="w-6 h-6 text-violet-400/40 mt-4 mb-3 group-hover:text-violet-400/60 transition-colors" />
                   <h3 className="text-white font-medium mb-2">{step.title}</h3>
                   <p className="text-sm text-[#71717a] leading-relaxed">{step.desc}</p>
                 </motion.div>
@@ -416,8 +462,8 @@ export default function HomePage() {
                   variants={staggerItemVariants}
                   className="sm:col-span-2"
                 >
-                  <div className="p-10 rounded-3xl bg-[#0a0a0a] border border-white/[0.08] h-full hover:border-white/[0.15] transition-colors duration-300">
-                    <Icon className="w-7 h-7 text-white/30 mb-6" />
+                  <div className="group p-10 rounded-3xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] h-full hover:border-violet-500/[0.2] transition-all duration-300 hover:shadow-[0_0_40px_rgba(139,92,246,0.06)]">
+                    <Icon className="w-7 h-7 text-violet-400/40 mb-6 group-hover:text-violet-400/60 transition-colors" />
                     <h3 className="text-xl font-medium text-white mb-3">
                       {feature.title}
                     </h3>
@@ -432,8 +478,45 @@ export default function HomePage() {
               const Icon = feature.icon
               return (
                 <motion.div key={feature.title} variants={staggerItemVariants}>
-                  <div className="p-7 rounded-3xl bg-[#0a0a0a] border border-white/[0.08] h-full hover:border-white/[0.15] transition-colors duration-300">
-                    <Icon className="w-5 h-5 text-white/30 mb-4" />
+                  <div className="group p-7 rounded-3xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] h-full hover:border-violet-500/[0.2] transition-all duration-300 hover:shadow-[0_0_30px_rgba(139,92,246,0.06)]">
+                    <Icon className="w-5 h-5 text-violet-400/40 mb-4 group-hover:text-violet-400/60 transition-colors" />
+                    <h3 className="text-sm font-medium text-white mb-1.5">
+                      {feature.title}
+                    </h3>
+                    <p className="text-xs text-[#71717a] leading-relaxed">
+                      {feature.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </StaggerContainer>
+        </Container>
+      </section>
+
+      {/* ── Contract Features Showcase (NEW — WOW factor) ── */}
+      <section className="py-32">
+        <Container>
+          <ScrollReveal>
+            <SectionHeader
+              badge="v8 → v17 Evolution"
+              title="Ten versions of privacy innovation"
+              subtitle="Each iteration adds novel cryptographic features. Built in public, deployed on testnet."
+            />
+          </ScrollReveal>
+
+          <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-14">
+            {CONTRACT_FEATURES.map((feature) => {
+              const Icon = feature.icon
+              return (
+                <motion.div key={feature.title} variants={staggerItemVariants}>
+                  <div className="group relative p-7 rounded-3xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] hover:border-violet-500/[0.2] transition-all duration-300 hover:shadow-[0_0_30px_rgba(139,92,246,0.06)]">
+                    <div className="flex items-center justify-between mb-4">
+                      <Icon className="w-5 h-5 text-violet-400/50 group-hover:text-violet-400/70 transition-colors" />
+                      <span className="text-[10px] font-mono text-violet-400/40 bg-violet-500/[0.06] px-2 py-0.5 rounded-full border border-violet-500/[0.1]">
+                        {feature.version}
+                      </span>
+                    </div>
                     <h3 className="text-sm font-medium text-white mb-1.5">
                       {feature.title}
                     </h3>
@@ -456,10 +539,10 @@ export default function HomePage() {
         <Container>
           <ScrollReveal>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Testimonial card */}
-              <div className="col-span-2 row-span-2 rounded-3xl bg-[#0a0a0a] border border-white/[0.08] p-10 flex flex-col justify-between">
+              {/* Quote card */}
+              <div className="col-span-2 row-span-2 rounded-3xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] p-10 flex flex-col justify-between hover:border-violet-500/[0.15] transition-all duration-300">
                 <div>
-                  <Badge>Protocol Stats</Badge>
+                  <Badge variant="accent">Protocol Stats</Badge>
                   <p
                     className="mt-6 text-2xl sm:text-3xl font-serif italic text-white leading-snug"
                     style={{ letterSpacing: '-0.5px' }}
@@ -469,8 +552,8 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className="mt-8 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-white/[0.04] flex items-center justify-center">
-                    <Shield className="w-5 h-5 text-white/40" />
+                  <div className="w-10 h-10 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.12] flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-violet-400/60" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-white">VeilSub Protocol</p>
@@ -482,13 +565,13 @@ export default function HomePage() {
               {/* Stat cards */}
               {[
                 { value: 100, suffix: '%', label: 'Private', sublabel: 'Subscriber identity hidden' },
-                { value: 28, suffix: '', label: 'Transitions', sublabel: 'On-chain smart contract' },
-                { value: 7, suffix: '', label: 'Record Types', sublabel: 'Private data structures' },
-                { value: 15, suffix: '', label: 'Versions', sublabel: 'Iterative testnet deploys', prefix: 'v' },
+                { value: 31, suffix: '', label: 'Transitions', sublabel: 'On-chain smart contract' },
+                { value: 8, suffix: '', label: 'Record Types', sublabel: 'Private data structures' },
+                { value: 17, suffix: '', label: 'Versions', sublabel: 'Iterative testnet deploys', prefix: 'v' },
               ].map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-3xl bg-[#0a0a0a] border border-white/[0.08] p-7 flex flex-col justify-between"
+                  className="rounded-3xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] p-7 flex flex-col justify-between hover:border-violet-500/[0.15] transition-all duration-300"
                 >
                   <CountUp
                     end={stat.value}
@@ -572,7 +655,7 @@ export default function HomePage() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="block text-sm text-[#525252] hover:text-white transition-colors"
+                    className="block text-sm text-[#525252] hover:text-violet-300 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -594,7 +677,7 @@ export default function HomePage() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="block text-sm text-[#525252] hover:text-white transition-colors"
+                    className="block text-sm text-[#525252] hover:text-violet-300 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -609,14 +692,14 @@ export default function HomePage() {
               <div className="space-y-2.5">
                 {[
                   { href: 'https://github.com/Pratiikpy/Veil-Sub', label: 'GitHub', icon: Github },
-                  { href: 'https://testnet.aleoscan.io/program?id=veilsub_v16.aleo', label: 'Aleoscan', icon: Code },
+                  { href: 'https://testnet.aleoscan.io/program?id=veilsub_v17.aleo', label: 'Aleoscan', icon: Code },
                 ].map((link) => (
                   <a
                     key={link.href}
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-sm text-[#525252] hover:text-white transition-colors"
+                    className="flex items-center gap-1.5 text-sm text-[#525252] hover:text-violet-300 transition-colors"
                   >
                     <link.icon className="w-3.5 h-3.5" />
                     {link.label}
@@ -628,15 +711,15 @@ export default function HomePage() {
 
           <div className="border-t border-white/[0.06] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-[#525252]">
-              © 2026 VeilSub. Built on Aleo.
+              2026 VeilSub. Built on Aleo.
             </p>
             <a
-              href="https://testnet.explorer.provable.com/program/veilsub_v16.aleo"
+              href="https://testnet.explorer.provable.com/program/veilsub_v17.aleo"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-[#525252] font-mono hover:text-[#a1a1aa] transition-colors"
+              className="text-xs text-[#525252] font-mono hover:text-violet-300 transition-colors"
             >
-              veilsub_v16.aleo
+              veilsub_v17.aleo
             </a>
           </div>
         </Container>

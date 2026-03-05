@@ -144,9 +144,9 @@ function ContractTab() {
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Program ID</h3>
         <div className="p-3 rounded-[8px] bg-white/[0.04] border border-white/[0.08] flex items-center justify-between">
-          <code className="text-[#a1a1aa] text-sm font-mono">veilsub_v16.aleo</code>
+          <code className="text-[#a1a1aa] text-sm font-mono">veilsub_v17.aleo</code>
           <a
-            href="https://testnet.explorer.provable.com/program/veilsub_v16.aleo"
+            href="https://testnet.explorer.provable.com/program/veilsub_v17.aleo"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-[#a1a1aa] hover:text-white flex items-center gap-1"
@@ -171,7 +171,7 @@ function ContractTab() {
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Mappings (Public) — 25 Total</h3>
+        <h3 className="text-xl font-semibold text-white mb-3">Mappings (Public) — 24 Total</h3>
         <CodeBlock
           lang="leo"
           code={`// Core mappings (ALEO credits)
@@ -325,6 +325,21 @@ mapping content_disputes: field => u8;         // dispute_id => dispute status`}
               type: 'async',
               desc: 'v15: Enforce revocation of a previously revoked AccessPass. Checks access_revoked mapping and prevents use of revoked passes. Strengthens creator moderation capabilities.',
             },
+            {
+              name: 'subscribe_private_count(payment, creator, tier, amount, pass_id, expires_at)',
+              type: 'async',
+              desc: 'v17: Maximum-privacy subscription. Uses homomorphic Pedersen commitments to hide subscriber counts behind group elements. The subscriber count mapping stores a commitment instead of a plaintext number.',
+            },
+            {
+              name: 'prove_sub_count(creator)',
+              type: 'sync',
+              desc: 'v17: Zero-footprint proof that a creator has at least N subscribers. Uses Pedersen commitment verification — proves a range without revealing the exact count. No finalize, no public trace.',
+            },
+            {
+              name: 'prove_revenue_range(creator, min_revenue)',
+              type: 'sync',
+              desc: 'v17: Zero-footprint proof that a creator\'s total revenue exceeds a threshold. Enables trust signals (e.g., "earned 100+ ALEO") without revealing exact amounts. No finalize block.',
+            },
           ].map((t) => (
             <div
               key={t.name}
@@ -373,6 +388,30 @@ function PrivacyModelTab() {
           (e.g., for tracking verification count) would create a public record of <em>when</em> access was
           verified, enabling timing correlation attacks. Access proof relies entirely on Aleo&apos;s native
           record ownership system — no manual nullifiers or ZK proof verification needed.
+        </p>
+      </div>
+
+      <div className="p-4 rounded-[12px] bg-violet-500/5 border border-violet-500/20">
+        <h4 className="text-violet-300 font-semibold mb-2">v17: Homomorphic Pedersen Subscriber Commitments</h4>
+        <p className="text-sm text-[#a1a1aa] leading-relaxed mb-3">
+          In v17, subscriber counts can be hidden behind Pedersen group element commitments. The{' '}
+          <code className="px-1 py-0.5 rounded bg-white/10 text-[#a1a1aa] text-xs">subscribe_private_count</code>{' '}
+          transition increments the subscriber count using a homomorphic commitment instead of a plaintext integer.
+          This means the on-chain mapping stores a group element that encodes the count, but an observer
+          cannot extract the actual number.
+        </p>
+        <p className="text-sm text-[#a1a1aa] leading-relaxed mb-3">
+          Two zero-footprint proof transitions enable privacy-preserving trust signals:{' '}
+          <code className="px-1 py-0.5 rounded bg-white/10 text-[#a1a1aa] text-xs">prove_sub_count</code>{' '}
+          proves a creator has at least N subscribers without revealing the exact count, and{' '}
+          <code className="px-1 py-0.5 rounded bg-white/10 text-[#a1a1aa] text-xs">prove_revenue_range</code>{' '}
+          proves total revenue exceeds a threshold. Both have no finalize block — zero public trace.
+        </p>
+        <p className="text-sm text-[#a1a1aa] leading-relaxed">
+          v17 also introduces named constants (<code className="px-1 py-0.5 rounded bg-white/10 text-[#a1a1aa] text-xs">PLATFORM_FEE_DIV</code>,{' '}
+          <code className="px-1 py-0.5 rounded bg-white/10 text-[#a1a1aa] text-xs">ESCROW_BLOCKS</code>,{' '}
+          <code className="px-1 py-0.5 rounded bg-white/10 text-[#a1a1aa] text-xs">MAX_EXPIRY</code>) for
+          auditability, bringing the contract to 1,677 lines, 31 transitions, 24 mappings, and 8 record types.
         </p>
       </div>
 
@@ -447,13 +486,13 @@ function ApiTab() {
         <CodeBlock
           lang="bash"
           code={`# Get creator's tier price
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v16.aleo/mapping/tier_prices/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v17.aleo/mapping/tier_prices/<creator_address>
 
 # Get subscriber count
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v16.aleo/mapping/subscriber_count/<creator_address>
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v17.aleo/mapping/subscriber_count/<creator_address>
 
 # Get total revenue
-curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v16.aleo/mapping/total_revenue/<creator_address>`}
+curl https://api.explorer.provable.com/v1/testnet/program/veilsub_v17.aleo/mapping/total_revenue/<creator_address>`}
         />
       </div>
 
@@ -470,7 +509,7 @@ const { executeTransaction } = useWallet()
 
 // Execute a subscribe transaction (v15 — returns AccessPass)
 const result = await executeTransaction({
-  program: 'veilsub_v16.aleo',
+  program: 'veilsub_v17.aleo',
   function: 'subscribe',
   inputs: [
     paymentRecord,              // single credits record (must have >= amount)

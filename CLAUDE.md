@@ -4,7 +4,7 @@
 
 VeilSub is a **privacy-first creator subscription platform** built on the Aleo blockchain. Creators register, set subscription tiers, and publish gated content. Subscribers pay with private Aleo credits, receive encrypted AccessPass records, and can verify access with **zero public footprint**. The platform is competing in the **Aleo Privacy Buildathon** (10 waves, $50K total pool).
 
-- **Current contract**: `veilsub_v16.aleo` — 1,507 lines, 29 transitions, 23 mappings, 8 records (contracts/veilsub/src/main.leo)
+- **Current contract**: `veilsub_v17.aleo` — 1,677 lines, 31 transitions, 24 mappings, 8 records (contracts/veilsub/src/main.leo)
 - **Frontend**: Next.js 16 + React 19 + TypeScript + Tailwind 4 (frontend/)
 - **Off-chain**: Supabase (profiles, analytics) + Upstash Redis (posts, rate limiting)
 - **Wallet support**: Shield, Leo (patched), Fox, Puzzle, Soter

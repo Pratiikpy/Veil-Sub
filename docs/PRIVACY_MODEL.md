@@ -69,11 +69,11 @@ These values appear in transaction data because Aleo's finalize scope is public:
 
 ## Privacy Comparison with Competitors
 
-| Feature | VeilSub v16 | NullPay | Alpaca Invoice |
+| Feature | VeilSub v17 | NullPay | Alpaca Invoice |
 |---------|---------|---------|----------------|
 | User identity in finalize | NEVER | NEVER | Seller address leaks |
 | Payment method | credits.aleo/transfer_private (atomic) | credits.aleo/transfer_private (atomic) | credits.aleo NOT called (trust-based mark_as_paid) |
-| Multi-token (ARC-20) | token_registry.aleo | test_usdcx only | No |
+| Multi-token (ARC-20) | Removed in v17 | test_usdcx only | No |
 | Zero-footprint verification | verify_access (no finalize) | get_invoice_status (mapping read) | No equivalent |
 | Selective disclosure | AuditToken record | No | Field-level commitments |
 | Creator receipts | CreatorReceipt (private record) | MerchantReceipt (private record) | Dual InvoiceRecord |
@@ -181,7 +181,25 @@ The tip amount remains hidden on-chain until the tipper voluntarily reveals it. 
 
 ## Privacy-Preserving Referrals (v16)
 
-When a subscriber joins via referral (`subscribe_with_referral`), the referrer receives a `ReferralReward` private record. The referred subscriber's identity is protected via `BHP256::hash_to_field(subscriber_address)` — the referrer can prove they earned a reward but cannot identify who they referred. The `referral_count` public mapping only tracks aggregate referral counts per creator.
+When a subscriber joins via referral (`subscribe_referral`), the referrer receives a `ReferralReward` private record. The referred subscriber's identity is protected via `BHP256::hash_to_field(subscriber_address)` — the referrer can prove they earned a reward but cannot identify who they referred. The `referral_count` public mapping only tracks aggregate referral counts per creator.
+
+## Homomorphic Pedersen Subscriber Commitments (v17)
+
+VeilSub v17 introduces **homomorphic Pedersen commitments** for subscriber counting — a novel privacy technique that eliminates the public `subscriber_count` mapping for privacy-conscious creators.
+
+**The Problem:** The public `subscriber_count` mapping reveals exact subscriber counts in real-time. While individual subscriber identities remain hidden, the count itself leaks business intelligence.
+
+**The Solution:** `subscribe_private_count` updates a Pedersen commitment aggregate (`sub_count_commit` mapping) instead of incrementing the public counter. Each subscription adds a group element to the aggregate commitment — the result is a group value that encodes the count but cannot be read without the creator's knowledge.
+
+```
+sub_count_commit[creator] += Pedersen64::commit_to_group(1u64, rand_scalar)
+```
+
+**Zero-Footprint Proofs (v17):**
+- `prove_sub_count` — proves the creator's subscriber count matches a claimed value without revealing the count publicly
+- `prove_revenue_range` — proves revenue falls within a range without revealing the exact amount
+
+These transitions have NO finalize — they leave zero on-chain trace, similar to `verify_access`.
 
 ## Security Hardening (v15)
 

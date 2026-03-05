@@ -82,7 +82,7 @@ export default function VerificationResult({
           </a>
         ) : (
           <a
-            href="https://testnet.explorer.provable.com/program/veilsub_v16.aleo"
+            href="https://testnet.explorer.provable.com/program/veilsub_v17.aleo"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-xs text-[#a1a1aa] hover:text-white"

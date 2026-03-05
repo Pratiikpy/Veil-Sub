@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Shield, Sparkles } from 'lucide-react'
+import { X, Shield, Sparkles, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
@@ -21,6 +21,7 @@ interface Props {
   tier: SubscriptionTier
   creatorAddress: string
   basePrice: number // microcredits
+  referrerAddress?: string | null
 }
 
 const parseMicrocredits = (plaintext: string): number => {
@@ -34,8 +35,9 @@ export default function SubscribeModal({
   tier,
   creatorAddress,
   basePrice,
+  referrerAddress,
 }: Props) {
-  const { subscribe, getCreditsRecords, connected } = useVeilSub()
+  const { subscribe, subscribeBlind, subscribeReferral, subscribePrivateCount, getCreditsRecords, connected } = useVeilSub()
   const { blockHeight } = useBlockHeight()
   const { startPolling, stopPolling } = useTransactionPoller()
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
@@ -43,6 +45,7 @@ export default function SubscribeModal({
   const [error, setError] = useState<string | null>(null)
   const [insufficientBalance, setInsufficientBalance] = useState(false)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
+  const [privacyMode, setPrivacyMode] = useState<'standard' | 'blind' | 'max'>('standard')
   const submittingRef = useRef(false)
   const txStatusRef = useRef(txStatus)
   txStatusRef.current = txStatus
@@ -71,6 +74,9 @@ export default function SubscribeModal({
   }, [connected, txStatus, stopPolling])
 
   const totalPrice = basePrice * tier.priceMultiplier
+  const isReferral = !!referrerAddress && referrerAddress.startsWith('aleo1') && referrerAddress !== creatorAddress
+  const referralAmount = isReferral ? Math.floor(totalPrice / 10) : 0 // 10% to referrer
+  const creatorAmount = totalPrice - referralAmount
   const creatorCut = totalPrice - Math.floor(totalPrice / 20)
   const platformCut = Math.floor(totalPrice / 20)
 
@@ -154,22 +160,38 @@ export default function SubscribeModal({
         return
       }
 
-      // v8: Single-record subscribe — contract handles both creator and platform payments
-      const paymentRecord = records[0]
-
       const passId = generatePassId()
       const expiresAt = blockHeight + SUBSCRIPTION_DURATION_BLOCKS
 
       setStatusMessage(null)
       setTxStatus('proving')
-      const id = await subscribe(
-        paymentRecord,
-        creatorAddress,
-        tier.id,
-        totalPrice,
-        passId,
-        expiresAt
-      )
+
+      let id: string | null
+      if (isReferral && referrerAddress && records.length >= 2) {
+        // v16: Referral subscribe — needs two credit records
+        id = await subscribeReferral(
+          records[0], records[1],
+          creatorAddress, referrerAddress,
+          tier.id, referralAmount, creatorAmount, passId, expiresAt
+        )
+      } else if (privacyMode === 'blind') {
+        // v11: Blind subscribe — nonce-rotated identity hash
+        const nonce = generatePassId() // random nonce
+        id = await subscribeBlind(
+          records[0], creatorAddress, nonce, tier.id, totalPrice, passId, expiresAt
+        )
+      } else if (privacyMode === 'max') {
+        // v17: Max privacy — Pedersen commitment, no public count
+        const blinding = generatePassId() // random blinding factor
+        id = await subscribePrivateCount(
+          records[0], creatorAddress, tier.id, totalPrice, passId, expiresAt, blinding
+        )
+      } else {
+        // Standard subscribe
+        id = await subscribe(
+          records[0], creatorAddress, tier.id, totalPrice, passId, expiresAt
+        )
+      }
 
       if (id) {
         setTxId(id)
@@ -285,17 +307,39 @@ export default function SubscribeModal({
                   </ul>
                 </div>
 
+                {/* Referral Notice */}
+                {isReferral && (
+                  <div className="p-3 rounded-[8px] bg-violet-500/[0.06] border border-violet-500/[0.12] mb-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Users className="w-3.5 h-3.5 text-violet-400" />
+                      <span className="text-xs font-medium text-violet-300">Referral Subscription</span>
+                    </div>
+                    <p className="text-[11px] text-[#a1a1aa]">
+                      10% ({formatCredits(referralAmount)} ALEO) goes to the referrer as a private reward.
+                      The referrer cannot see your identity.
+                    </p>
+                  </div>
+                )}
+
                 {/* Fee Breakdown */}
                 <div className="p-3 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-4">
                   <div className="text-xs text-[#71717a] space-y-1">
+                    {isReferral && (
+                      <div className="flex justify-between">
+                        <span>Referrer (10%)</span>
+                        <span className="text-violet-300">{formatCredits(referralAmount)} ALEO</span>
+                      </div>
+                    )}
                     <div className="flex justify-between">
-                      <span>Creator ({100 - PLATFORM_FEE_PCT}%)</span>
-                      <span className="text-[#a1a1aa]">{formatCredits(creatorCut)} ALEO</span>
+                      <span>Creator ({isReferral ? '90' : String(100 - PLATFORM_FEE_PCT)}%)</span>
+                      <span className="text-[#a1a1aa]">{formatCredits(isReferral ? creatorAmount : creatorCut)} ALEO</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Platform fee ({PLATFORM_FEE_PCT}%)</span>
-                      <span className="text-[#a1a1aa]">{formatCredits(platformCut)} ALEO</span>
-                    </div>
+                    {!isReferral && (
+                      <div className="flex justify-between">
+                        <span>Platform fee ({PLATFORM_FEE_PCT}%)</span>
+                        <span className="text-[#a1a1aa]">{formatCredits(platformCut)} ALEO</span>
+                      </div>
+                    )}
                     <div className="pt-1.5 mt-1.5 border-t border-white/5 flex justify-between text-[#a1a1aa]">
                       <span>Duration</span>
                       <span>~30 days ({SUBSCRIPTION_DURATION_BLOCKS.toLocaleString()} blocks)</span>
@@ -303,12 +347,51 @@ export default function SubscribeModal({
                   </div>
                 </div>
 
+                {/* Privacy Mode Selector (v17) */}
+                {!isReferral && (
+                  <div className="p-3 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-4">
+                    <p className="text-xs text-[#71717a] mb-2 font-medium">Privacy Level</p>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {([
+                        { key: 'standard' as const, label: 'Standard', desc: 'BHP256 hash' },
+                        { key: 'blind' as const, label: 'Blind', desc: 'Nonce rotation' },
+                        { key: 'max' as const, label: 'Maximum', desc: 'Pedersen commit' },
+                      ]).map((mode) => (
+                        <button
+                          key={mode.key}
+                          onClick={() => setPrivacyMode(mode.key)}
+                          className={`p-2 rounded-lg border text-center transition-all ${
+                            privacyMode === mode.key
+                              ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300'
+                              : 'border-white/[0.06] bg-transparent text-[#71717a] hover:border-white/[0.12]'
+                          }`}
+                        >
+                          <span className="text-[11px] font-medium block">{mode.label}</span>
+                          <span className="text-[9px] opacity-60 block">{mode.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                    {privacyMode === 'blind' && (
+                      <p className="text-[10px] text-violet-400/70 mt-2">
+                        Each subscription uses a unique identity hash. Creator cannot link renewals to the same person.
+                      </p>
+                    )}
+                    {privacyMode === 'max' && (
+                      <p className="text-[10px] text-violet-400/70 mt-2">
+                        Subscriber count hidden behind Pedersen commitment. No public counter increment.
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 {/* Privacy Notice */}
                 <div className="p-3 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-6 space-y-1.5">
                   <p className="text-xs text-green-400 font-medium">Zero-Knowledge Privacy</p>
                   <ul className="text-[11px] text-green-400/80 space-y-1 list-none">
                     <li>Your address is never published on-chain</li>
-                    <li>Only aggregate totals update in public mappings</li>
+                    {privacyMode === 'standard' && <li>Aggregate subscriber count updates publicly</li>}
+                    {privacyMode === 'blind' && <li>Identity hash rotated — unlinkable renewals</li>}
+                    {privacyMode === 'max' && <li>Subscriber count stays hidden (Pedersen commitment)</li>}
                     <li>AccessPass stored privately in your wallet</li>
                     <li>Payment via credits.aleo/transfer_private</li>
                   </ul>

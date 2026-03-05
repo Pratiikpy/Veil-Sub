@@ -48,25 +48,40 @@ export default function Header() {
       >
         <div className="max-w-[1120px] mx-auto px-6">
           <div className="flex items-center justify-between h-16">
-            <Link href="/" className="text-xl font-serif italic text-white">
-              VeilSub
+            {/* Logo with subtle glow on hover */}
+            <Link
+              href="/"
+              className="group relative text-xl font-serif italic text-white transition-all duration-300"
+            >
+              <span className="relative z-10">VeilSub</span>
+              <span className="absolute -inset-2 rounded-lg bg-violet-500/0 group-hover:bg-violet-500/[0.06] transition-colors duration-300" />
             </Link>
 
-            <nav className="hidden md:flex items-center gap-1">
+            {/* Desktop nav with spring-physics indicator */}
+            <nav className="hidden md:flex items-center gap-0.5 rounded-full bg-white/[0.03] border border-white/[0.06] px-1 py-1">
               {allItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative px-4 py-2 text-sm font-medium transition-colors ${
+                  className={`relative px-4 py-1.5 text-sm font-medium transition-colors duration-200 rounded-full ${
                     isActive(item.href)
                       ? 'text-white'
                       : 'text-[#525252] hover:text-[#a1a1aa]'
                   }`}
                 >
-                  {item.label}
                   {isActive(item.href) && (
-                    <span className="absolute bottom-0 left-4 right-4 h-px bg-white/30" />
+                    <motion.span
+                      layoutId="nav-active"
+                      className="absolute inset-0 rounded-full bg-white/[0.08] border border-white/[0.08]"
+                      style={{ boxShadow: '0 0 12px rgba(139, 92, 246, 0.1)' }}
+                      transition={{
+                        type: 'spring',
+                        stiffness: 400,
+                        damping: 30,
+                      }}
+                    />
                   )}
+                  <span className="relative z-10">{item.label}</span>
                 </Link>
               ))}
             </nav>
@@ -77,7 +92,7 @@ export default function Header() {
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
                 aria-expanded={mobileOpen}
-                className="md:hidden p-2 rounded-lg hover:bg-white/[0.04] text-[#525252]"
+                className="md:hidden p-2 rounded-lg hover:bg-white/[0.04] text-[#525252] transition-colors"
               >
                 {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -100,9 +115,9 @@ export default function Header() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`block px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                  className={`block px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
                     isActive(item.href)
-                      ? 'text-white bg-white/[0.04]'
+                      ? 'text-white bg-violet-500/[0.08] border border-violet-500/[0.12]'
                       : 'text-[#525252] hover:text-[#a1a1aa] hover:bg-white/[0.02]'
                   }`}
                 >

@@ -1,4 +1,4 @@
-export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v16.aleo'
+export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v17.aleo'
 // API calls use Next.js rewrite proxy (/api/aleo/*) to avoid leaking user interest to third parties
 // The actual endpoint is configured in next.config.ts rewrites
 export const APP_NAME = 'VeilSub'
@@ -38,6 +38,14 @@ export const FEES = {
   PUBLISH_ENCRYPTED: 200_000, // 0.2 credits (finalize: content + encryption commitment)
   REVOKE_ACCESS: 150_000,     // 0.15 credits (finalize: mark revoked)
   DISPUTE_CONTENT: 150_000,   // 0.15 credits (finalize: increment disputes)
+  // v15: Subscription transfer
+  TRANSFER_PASS: 300_000,     // 0.3 credits (consumes old pass, mints new for recipient + finalize)
+  // v16: Referral subscription
+  SUBSCRIBE_REFERRAL: 500_000, // 0.5 credits (2x transfer_private + AccessPass + CreatorReceipt + ReferralReward + finalize)
+  // v17: Private subscriber count + Pedersen proofs
+  SUBSCRIBE_PRIVATE_COUNT: 350_000, // 0.35 credits (subscribe + Pedersen commitment aggregation)
+  PROVE_SUB_COUNT: 100_000,         // 0.1 credits (zero-footprint Pedersen proof)
+  PROVE_REVENUE_RANGE: 100_000,     // 0.1 credits (zero-footprint range proof)
 } as const
 
 // Fee estimates for token-based transitions (v5)
@@ -98,8 +106,8 @@ export const SEED_CONTENT: SeedContent[] = [
   },
   {
     id: 'seed-4',
-    title: 'Weekly Update: v16 Contract Deployed',
-    body: 'VeilSub v16 is live on testnet! This version adds on-chain referrals, subscription transfer, revocation enforcement, blind renewal with nonce rotation, commit-reveal tipping, encrypted content delivery, subscription gifting, refund escrow, and dispute resolution. 29 transitions, 8 record types, 23 mappings. Try it out and share feedback.',
+    title: 'Weekly Update: v17 Contract Deployed',
+    body: 'VeilSub v17 is live on testnet! This version adds homomorphic Pedersen subscriber commitments, zero-footprint privacy proofs, revenue range proofs, plus on-chain referrals, subscription transfer, blind renewal, commit-reveal tipping, encrypted content delivery, gifting, escrow, disputes, and named constants. 31 transitions, 8 record types, 24 mappings — 1,677 lines of Leo.',
     minTier: 1,
     createdAt: '2026-03-01T10:00:00Z',
     contentId: 'seed',

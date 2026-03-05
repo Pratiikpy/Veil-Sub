@@ -1,7 +1,7 @@
 {
-  "program": "veilsub_v16.aleo",
-  "version": "0.8.0",
-  "description": "VeilSub v16 - On-Chain Referral System, Security Hardening, Subscription Transfer, Blind Renewal, Commit-Reveal Tipping, 8 Record Types, 29 transitions on Aleo",
+  "program": "veilsub_v17.aleo",
+  "version": "0.9.0",
+  "description": "VeilSub v17 - Homomorphic Pedersen Subscriber Commitments, Privacy Proofs, Named Constants, 8 Record Types, 33 transitions on Aleo",
   "license": "MIT",
   "leo": "3.4.0",
   "dependencies": [

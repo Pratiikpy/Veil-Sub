@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Lock, Unlock, Star, MessageSquare, Crown, Shield, RefreshCw, Loader2, FileText, ArrowRight } from 'lucide-react'
+import { Lock, Unlock, Star, MessageSquare, Crown, Shield, RefreshCw, Loader2, FileText, ArrowRight, Flag } from 'lucide-react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useContentFeed } from '@/hooks/useContentFeed'
+import DisputeContentModal from './DisputeContentModal'
 import type { AccessPass, ContentPost } from '@/types'
 
 interface Props {
@@ -99,6 +100,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   const unlockRunningRef = useRef(false)
   const [error, setError] = useState(false)
   const [initialLoad, setInitialLoad] = useState(true)
+  const [disputePost, setDisputePost] = useState<{ contentId: string; title: string } | null>(null)
 
   // Keep refs in sync without triggering effects
   signMessageRef.current = signMessage
@@ -328,11 +330,22 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                         Published on-chain
                       </p>
                     )}
-                    {post.createdAt && (
-                      <p className="text-xs text-slate-600 ml-auto">
-                        {timeAgo(post.createdAt)}
-                      </p>
-                    )}
+                    <div className="flex items-center gap-3 ml-auto">
+                      {unlocked && post.contentId !== 'seed' && (
+                        <button
+                          onClick={() => setDisputePost({ contentId: post.contentId, title: post.title })}
+                          className="text-xs text-slate-600 hover:text-red-400 transition-colors flex items-center gap-1"
+                        >
+                          <Flag className="w-3 h-3" />
+                          Dispute
+                        </button>
+                      )}
+                      {post.createdAt && (
+                        <p className="text-xs text-slate-600">
+                          {timeAgo(post.createdAt)}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -348,6 +361,16 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
           </p>
         </div>
       </div>
+
+      {disputePost && activePasses.length > 0 && (
+        <DisputeContentModal
+          isOpen={!!disputePost}
+          onClose={() => setDisputePost(null)}
+          contentId={disputePost.contentId}
+          contentTitle={disputePost.title}
+          accessPassPlaintext={activePasses[0].rawPlaintext}
+        />
+      )}
     </div>
   )
 }

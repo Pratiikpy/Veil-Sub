@@ -7,7 +7,7 @@ VeilSub is a privacy-preserving content subscription platform built on Aleo. It 
 ```
 +-------------------+       +--------------------+       +------------------+
 |   Frontend        |       |   Aleo Testnet     |       |   Off-Chain      |
-|   (Next.js 16)    |<----->|   (veilsub_v16)    |       |   Services       |
+|   (Next.js 16)    |<----->|   (veilsub_v17)    |       |   Services       |
 |                   |       |                    |       |                  |
 | - Dashboard       |       | - AccessPass       |       | - Supabase (DB)  |
 | - Explore         |       | - CreatorReceipt   |       | - Upstash Redis  |
@@ -17,7 +17,7 @@ VeilSub is a privacy-preserving content subscription platform built on Aleo. It 
 | - Gift Subs       |       | - GiftToken        |       |                  |
 | - Manage Access   |       | - RefundEscrow     |       |                  |
 | - Creator Pages   |       | - credits.aleo     |       |                  |
-| - On-Chain Verify |       | - token_registry   |       |                  |
+| - On-Chain Verify |       |                    |       |                  |
 +-------------------+       +--------------------+       +------------------+
         |                           |                           |
         v                           v                           v
@@ -34,7 +34,7 @@ VeilSub is a privacy-preserving content subscription platform built on Aleo. It 
 
 ## Layer Architecture
 
-### Layer 1: Smart Contract (`veilsub_v16.aleo`)
+### Layer 1: Smart Contract (`veilsub_v17.aleo`)
 
 The Leo smart contract is the trust foundation. All financial operations and access control happen on-chain.
 
@@ -71,14 +71,12 @@ The Leo smart contract is the trust foundation. All financial operations and acc
 | `encryption_commits` | BHP256(content_id) | field | Encrypted content commitment |
 | `access_revoked` | pass_id (field) | bool | Access revocation flag |
 | `content_disputes` | BHP256(content_id) | u64 | Content dispute counter |
-| `tier_prices_token` | creator address | u64 | Token tier pricing |
-| `total_revenue_token` | creator address | u64 | Token revenue tracking |
-| `platform_revenue_token` | u8 (constant) | u64 | Platform token fee accumulator |
 | `pass_creator` | pass_id (field) | address | Maps pass to its issuing creator (auth for revocation) |
 | `tip_commitments` | commitment (field) | field | Stores tip commitment hashes |
 | `tip_revealed` | commitment (field) | bool | Tracks revealed tips |
 | `dispute_count_by_caller` | BHP256(caller, content_id) | u64 | Per-caller dispute rate limiting |
 | `referral_count` | creator address | u64 | Total referrals received per creator |
+| `sub_count_commit` | creator address | group | Homomorphic Pedersen subscriber commitment aggregate |
 
 **Transitions (Functions):**
 | Transition | Privacy | Finalize? | Purpose |
@@ -90,9 +88,6 @@ The Leo smart contract is the trust foundation. All financial operations and acc
 | `tip` | Tipper = private | Yes | Send tip to creator |
 | `renew` | Subscriber = private | Yes | Renew subscription |
 | `publish_content` | Creator = public | Yes | Publish content metadata + hash |
-| `set_token_price` | Creator = public | Yes | Set ARC-20 token pricing |
-| `subscribe_token` | Subscriber = private | Yes | Subscribe with ARC-20 tokens |
-| `tip_token` | Tipper = private | Yes | Tip with ARC-20 tokens |
 | `create_custom_tier` | Creator = public | Yes | Create custom subscription tier |
 | `update_tier_price` | Creator = public | Yes | Update tier price |
 | `deprecate_tier` | Creator = public | Yes | Mark tier as deprecated |
@@ -103,7 +98,7 @@ The Leo smart contract is the trust foundation. All financial operations and acc
 | `subscribe_with_escrow` | Subscriber = private | Yes | Subscribe with refund window |
 | `claim_refund` | Subscriber = private | Yes | Claim refund within escrow window |
 | `withdraw_platform_fees` | Platform = public | Yes | Withdraw accumulated platform fees |
-| `withdraw_creator_revenue` | Creator = public | Yes | Withdraw creator revenue |
+| `withdraw_creator_rev` | Creator = public | Yes | Withdraw creator revenue |
 | `subscribe_blind` | Subscriber = private | Yes | Subscribe with nonce-based identity rotation |
 | `renew_blind` | Subscriber = private | Yes | Blind renewal (different hash each time) |
 | `verify_tier_access` | Full private | **No** | Zero-footprint dynamic tier verification |
@@ -112,9 +107,11 @@ The Leo smart contract is the trust foundation. All financial operations and acc
 | `dispute_content` | Any = public | Yes | Dispute content integrity |
 | `commit_tip` | Tipper = private | Yes | Commit to tip amount (hidden via BHP256 commitment) |
 | `reveal_tip` | Tipper = private | Yes | Reveal committed tip and execute transfer |
-| `verify_pedersen_commitment` | Full private | Yes | Zero-footprint Pedersen128 commitment verification |
 | `transfer_pass` | Subscriber = private | Yes | Transfer subscription to another address (v15) |
-| `subscribe_with_referral` | Subscriber = private | Yes | Subscribe via referral with reward split (v16) |
+| `subscribe_referral` | Subscriber = private | Yes | Subscribe via referral with reward split (v16) |
+| `subscribe_private_count` | Subscriber = private | Yes | Subscribe updating only Pedersen aggregate, NOT public counter (v17) |
+| `prove_sub_count` | Full private | **No** | Zero-footprint proof of subscriber count (v17) |
+| `prove_revenue_range` | Full private | **No** | Zero-footprint range proof for revenue (v17) |
 
 ### Layer 2: Frontend (Next.js 16 + React 19)
 
@@ -161,7 +158,7 @@ Five wallet adapters via `@provablehq/aleo-wallet-adaptor-react`:
 1. Subscriber connects wallet (Shield/Leo/Fox/Puzzle/Soter)
 2. Frontend fetches credits.aleo records via requestRecords()
 3. User selects creator + tier → frontend computes amount
-4. executeTransaction() calls veilsub_v16.aleo/subscribe:
+4. executeTransaction() calls veilsub_v17.aleo/subscribe:
    a. credits.aleo/transfer_private sends payment to creator
    b. AccessPass record created (owned by subscriber)
    c. CreatorReceipt record created (owned by creator)
@@ -200,7 +197,6 @@ Five wallet adapters via `@provablehq/aleo-wallet-adaptor-react`:
 
 ### Smart Contract
 - `credits.aleo` — Native Aleo credit transfers (transfer_private)
-- `token_registry.aleo` — ARC-20 multi-token support (USDCx, USAD, etc.)
 
 ### Frontend
 - Next.js 16.1.6 + React 19.2.3 + TypeScript 5

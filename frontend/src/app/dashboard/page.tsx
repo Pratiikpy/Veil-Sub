@@ -37,6 +37,7 @@ import { creditsToMicrocredits, formatCredits, shortenAddress } from '@/lib/util
 import { PLATFORM_FEE_PCT, PLATFORM_ADDRESS, PROGRAM_ID, MICROCREDITS_PER_CREDIT } from '@/lib/config'
 import TierCreationDialog from '@/components/TierCreationDialog'
 import ContentManagementPanel from '@/components/ContentManagementPanel'
+import RevokeAccessPanel from '@/components/RevokeAccessPanel'
 import { TIERS } from '@/types'
 import type { TxStatus, CreatorProfile } from '@/types'
 
@@ -627,7 +628,7 @@ export default function DashboardPage() {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 rounded-[8px] bg-[#0a0a0a] border border-white/[0.08] flex flex-col sm:flex-row items-start sm:items-center gap-4"
+              className="p-4 rounded-xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] flex flex-col sm:flex-row items-start sm:items-center gap-4"
             >
               <div className="flex-1">
                 <p className="text-sm text-violet-300 font-medium mb-1">
@@ -941,6 +942,15 @@ export default function DashboardPage() {
               </motion.div>
             )}
 
+            {/* Revoke Subscriber Access */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.245 }}
+            >
+              <RevokeAccessPanel />
+            </motion.div>
+
             {/* Content Gating Explainer */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -989,6 +999,15 @@ export default function DashboardPage() {
               <ShareText
                 text={`Support me privately on VeilSub — no one will know you subscribed. Powered by Aleo zero-knowledge proofs.\n${creatorLink || `/creator/${publicKey}`}`}
               />
+              <div className="mt-4 pt-4 border-t border-white/[0.06]">
+                <p className="text-xs text-violet-300 font-medium mb-2">Referral Link (v17)</p>
+                <p className="text-[11px] text-slate-500 mb-2">
+                  Share this link and earn 10% of every subscription. Referral rewards are private — you get a ReferralReward record but cannot see who subscribed.
+                </p>
+                <ShareText
+                  text={`${creatorLink || `/creator/${publicKey}`}?ref=${publicKey}`}
+                />
+              </div>
             </motion.div>
 
             {/* Active Gated Content Note */}

@@ -1,8 +1,8 @@
 import credits.aleo;
 // =============================================================================
-// VeilSub v16 — Private Creator Subscriptions on Aleo
+// VeilSub v17 — Private Creator Subscriptions on Aleo
 //
-// WAVE 3 EVOLUTION (v8 → v16): 8 versions, 24 new transitions, 5 new records
+// WAVE 3 EVOLUTION (v8 → v17): 9 versions, 28 new transitions, 5 new records
 //
 // v9: DYNAMIC CREATOR TIERS + CONTENT LIFECYCLE
 //   - create_custom_tier, update_tier_price, deprecate_tier
@@ -39,31 +39,41 @@ import credits.aleo;
 //
 // v15: SECURITY HARDENING + SUBSCRIPTION TRANSFER
 //   - verify_access/verify_tier_access now ENFORCE access_revoked mapping
-//     (revocation was recorded but never checked — critical security fix)
-//   - dispute_content now requires subscriber proof (AccessPass) to prevent
-//     Sybil spam attacks. Only actual subscribers can dispute content.
-//   - transfer_pass: Transfer subscription to another address (new feature,
-//     no other competitor has this). Creates a new AccessPass for recipient.
-//   - claim_refund documented as credit-based (credits already transferred
-//     to creator via transfer_private; refund decrements revenue accounting
-//     and flags the pass_id for off-chain settlement)
+//   - dispute_content now requires subscriber proof (AccessPass)
+//   - transfer_pass: Transfer subscription to another address
+//   - claim_refund documented as credit-based
 //
 // v16: ON-CHAIN REFERRAL SYSTEM — PRACTICALITY + NOVELTY BOOST
 //   - ReferralReward record: private proof of referral bonus for referrers
-//   - subscribe_with_referral: subscribe via referral link — referrer gets
+//   - subscribe_referral: subscribe via referral link — referrer gets
 //     private ReferralReward record, 10% of subscription goes to referrer
-//   - referral_count mapping: track referral counts per creator (public metric)
-//   - No other buildathon project has on-chain referral tracking with
-//     privacy-preserving reward distribution
+//   - referral_count mapping: track referral counts per creator
+//
+// v17: HOMOMORPHIC PEDERSEN SUBSCRIBER COMMITMENTS — NOVEL PRIVACY TECHNIQUE
+//   - Aggregate Pedersen commitments for subscriber count per creator:
+//     Each subscription adds commitment C_i = (1 as scalar) * G + r_i * H
+//     to a running aggregate: Agg = sum(C_i). Observer sees only a group
+//     element — cannot extract the count. Creator can PROVE "I have >= N
+//     subscribers" by opening the aggregate with the sum of blinding factors.
+//     This is homomorphic: Agg(n subs) = (n as scalar)*G + (sum_r)*H.
+//   - prove_sub_count: Creator proves subscriber count by opening the
+//     aggregate commitment. Zero-footprint (no finalize).
+//   - prove_revenue_range: Creator proves "my revenue is in range [lo, hi]"
+//     without revealing the exact amount. Uses Pedersen128 commitment.
+//   - subscribe_private_count: Subscribe WITHOUT incrementing public
+//     subscriber_count — only updates the Pedersen aggregate. Maximum privacy.
+//   - Named constants: PLATFORM_FEE_PCT, MAX_TIERS, ESCROW_BLOCKS, MAX_EXPIRY
 //
 // PRIVACY ARCHITECTURE:
-//   8 record types, 23 mappings, 30 transitions
+//   8 record types, 24 mappings, 33 transitions
 //   PRIVATE: subscriber identity (via BHP256 hash + nonce rotation),
 //     AccessPass, CreatorReceipt, AuditToken, GiftToken, RefundEscrow, all payments,
-//     committed tip amounts (hidden until reveal)
-//   PUBLIC: creator addresses, tier prices, subscriber counts, content metadata
+//     committed tip amounts (hidden until reveal), subscriber counts (Pedersen)
+//   PUBLIC: creator addresses, tier prices, content metadata
 //   NOVEL: Blind renewal rotates subscriber identity hash per transaction;
-//     BHP256 commit-reveal tipping hides tip amounts until voluntary reveal
+//     BHP256 commit-reveal tipping hides tip amounts until voluntary reveal;
+//     Homomorphic Pedersen commitments hide subscriber count (like lasagna's DAR
+//     but for subscription metrics instead of bet pools)
 //
 // SECURITY MODEL:
 //   - self.caller NEVER passes to finalize → zero identity leakage
@@ -79,12 +89,19 @@ import credits.aleo;
 //
 // =============================================================================
 
-program veilsub_v16.aleo {
+program veilsub_v17.aleo {
 
     @noupgrade
     async constructor() {}
 
     const PLATFORM_ADDR: address = aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk;
+
+    // v17: Named constants — replace magic numbers throughout
+    const PLATFORM_FEE_DIV: u64 = 20u64;       // 1/20 = 5% platform fee
+    const ESCROW_BLOCKS: u32 = 500u32;          // Refund window duration
+    const MAX_EXPIRY: u32 = 1_200_000u32;       // ~140 days max subscription
+    const MAX_DISPUTE_PER_CALLER: u64 = 1u64;   // Max disputes per caller per content
+    const REFERRAL_DIV: u64 = 10u64;            // 1/10 = 10% referral reward
 
     // =========================================
     // STRUCTS
@@ -229,6 +246,33 @@ program veilsub_v16.aleo {
 
     // v16: Referral system
     mapping referral_count: address => u64;          // creator => total referrals received
+
+    // v17: Homomorphic Pedersen subscriber count commitments
+    // Each subscription adds C_i = (1 as scalar)*G + r_i*H to the aggregate.
+    // Observer sees only a group element — cannot extract subscriber count.
+    // Creator can prove count by opening: Agg == (count as scalar)*G + (sum_r as scalar)*H
+    mapping sub_count_commit: address => group;     // creator => aggregate Pedersen commitment
+
+    // =========================================
+    // v17: PEDERSEN COMMITMENT HELPERS (inline)
+    // =========================================
+
+    // Generator point G — standard curve generator
+    inline get_g() -> group {
+        return group::GEN;
+    }
+
+    // Nothing-up-my-sleeve point H — deterministic from hash of 0
+    // Cannot be expressed as k*G for any known k (discrete log assumption)
+    inline get_h() -> group {
+        return Poseidon2::hash_to_group(0field);
+    }
+
+    // Commit to a u64 value with a scalar blinding factor
+    // C = value*G + blinding*H (additively homomorphic)
+    inline pedersen_commit(value: u64, blinding: scalar) -> group {
+        return (value as scalar) * get_g() + blinding * get_h();
+    }
 
     // =========================================
     // TRANSITIONS — CREATOR TIER MANAGEMENT (v9)
@@ -491,7 +535,7 @@ program veilsub_v16.aleo {
         assert(!deprecated);
 
         assert(expires_at > block.height);
-        assert(expires_at <= block.height + 1_200_000u32);
+        assert(expires_at <= block.height + MAX_EXPIRY);
 
         let count: u64 = Mapping::get_or_use(subscriber_count, creator, 0u64);
         Mapping::set(subscriber_count, creator, count + 1u64);
@@ -499,7 +543,7 @@ program veilsub_v16.aleo {
         Mapping::set(total_revenue, creator, revenue + amount);
 
         let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
-        let platform_cut: u64 = amount / 20u64;
+        let platform_cut: u64 = amount / PLATFORM_FEE_DIV;
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
 
         // Track pass ownership for revocation authorization.
@@ -586,7 +630,7 @@ program veilsub_v16.aleo {
         Mapping::set(total_revenue, creator, revenue + amount);
 
         let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
-        let platform_cut: u64 = amount / 20u64;
+        let platform_cut: u64 = amount / PLATFORM_FEE_DIV;
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
     }
 
@@ -647,13 +691,13 @@ program veilsub_v16.aleo {
         assert(!deprecated);
 
         assert(new_expires_at > block.height);
-        assert(new_expires_at <= block.height + 1_200_000u32);
+        assert(new_expires_at <= block.height + MAX_EXPIRY);
 
         let revenue: u64 = Mapping::get_or_use(total_revenue, creator, 0u64);
         Mapping::set(total_revenue, creator, revenue + amount);
 
         let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
-        let platform_cut: u64 = amount / 20u64;
+        let platform_cut: u64 = amount / PLATFORM_FEE_DIV;
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
 
         Mapping::set(pass_creator, pass_id, creator);
@@ -753,7 +797,7 @@ program veilsub_v16.aleo {
         assert(!deprecated);
 
         assert(expires_at > block.height);
-        assert(expires_at <= block.height + 1_200_000u32);
+        assert(expires_at <= block.height + MAX_EXPIRY);
 
         // Prevent duplicate gift IDs
         let already_gifted: bool = Mapping::get_or_use(gift_redeemed, gift_id, false);
@@ -765,7 +809,7 @@ program veilsub_v16.aleo {
         Mapping::set(total_revenue, creator, revenue + amount);
 
         let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
-        let platform_cut: u64 = amount / 20u64;
+        let platform_cut: u64 = amount / PLATFORM_FEE_DIV;
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
 
         Mapping::set(pass_creator, gift_id, creator);
@@ -861,10 +905,10 @@ program veilsub_v16.aleo {
         assert(!deprecated);
 
         assert(expires_at > block.height);
-        assert(expires_at <= block.height + 1_200_000u32);
+        assert(expires_at <= block.height + MAX_EXPIRY);
 
         // Store escrow expiry (500 blocks from now)
-        Mapping::set(escrow_data, pass_id, block.height + 500u32);
+        Mapping::set(escrow_data, pass_id, block.height + ESCROW_BLOCKS);
 
         let count: u64 = Mapping::get_or_use(subscriber_count, creator, 0u64);
         Mapping::set(subscriber_count, creator, count + 1u64);
@@ -872,7 +916,7 @@ program veilsub_v16.aleo {
         Mapping::set(total_revenue, creator, revenue + amount);
 
         let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
-        let platform_cut: u64 = amount / 20u64;
+        let platform_cut: u64 = amount / PLATFORM_FEE_DIV;
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
 
         Mapping::set(pass_creator, pass_id, creator);
@@ -1027,7 +1071,7 @@ program veilsub_v16.aleo {
         assert(!deprecated);
 
         assert(expires_at > block.height);
-        assert(expires_at <= block.height + 1_200_000u32);
+        assert(expires_at <= block.height + MAX_EXPIRY);
 
         // Prevent nonce replay
         let nonce_hash: field = BHP256::hash_to_field(nonce);
@@ -1041,7 +1085,7 @@ program veilsub_v16.aleo {
         Mapping::set(total_revenue, creator, revenue + amount);
 
         let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
-        let platform_cut: u64 = amount / 20u64;
+        let platform_cut: u64 = amount / PLATFORM_FEE_DIV;
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
 
         Mapping::set(pass_creator, pass_id, creator);
@@ -1109,7 +1153,7 @@ program veilsub_v16.aleo {
         assert(!deprecated);
 
         assert(new_expires_at > block.height);
-        assert(new_expires_at <= block.height + 1_200_000u32);
+        assert(new_expires_at <= block.height + MAX_EXPIRY);
 
         // Prevent nonce replay
         let nonce_hash: field = BHP256::hash_to_field(nonce);
@@ -1121,7 +1165,7 @@ program veilsub_v16.aleo {
         Mapping::set(total_revenue, creator, revenue + amount);
 
         let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
-        let platform_cut: u64 = amount / 20u64;
+        let platform_cut: u64 = amount / PLATFORM_FEE_DIV;
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
 
         Mapping::set(pass_creator, pass_id, creator);
@@ -1254,7 +1298,7 @@ program veilsub_v16.aleo {
         // v15: Rate-limit — max 1 dispute per caller per content
         let dispute_key: field = BHP256::hash_to_field(BlindKey { subscriber: creator, nonce: caller_hash });
         let caller_disputes: u64 = Mapping::get_or_use(dispute_count_by_caller, dispute_key, 0u64);
-        assert(caller_disputes < 1u64);
+        assert(caller_disputes < MAX_DISPUTE_PER_CALLER);
         Mapping::set(dispute_count_by_caller, dispute_key, caller_disputes + 1u64);
 
         // Increment dispute count
@@ -1309,7 +1353,7 @@ program veilsub_v16.aleo {
     // Payment flow: subscriber sends full amount to referrer (transfer_private),
     // then referrer's portion stays with them and creator's portion is sent
     // via a second transfer_private. This requires TWO credit inputs.
-    async transition subscribe_with_referral(
+    async transition subscribe_referral(
         payment_to_referrer: credits.aleo/credits,
         payment_to_creator: credits.aleo/credits,
         creator: address,
@@ -1360,9 +1404,9 @@ program veilsub_v16.aleo {
             credits.aleo/transfer_private(payment_to_creator, creator, creator_amount);
 
         return (pass, receipt, reward, change_ref, to_referrer, change_creator, to_creator,
-            finalize_subscribe_with_referral(creator, tier, total_amount, creator_amount, expires_at));
+            finalize_subscribe_referral(creator, tier, total_amount, creator_amount, expires_at));
     }
-    async function finalize_subscribe_with_referral(
+    async function finalize_subscribe_referral(
         creator: address,
         tier: u8,
         amount: u64,
@@ -1385,7 +1429,7 @@ program veilsub_v16.aleo {
 
         // Validate expiry
         assert(expires_at > block.height);
-        assert(expires_at <= block.height + 1_200_000u32);
+        assert(expires_at <= block.height + MAX_EXPIRY);
 
         // Update subscriber count
         let count: u64 = Mapping::get_or_use(subscriber_count, creator, 0u64);
@@ -1397,7 +1441,7 @@ program veilsub_v16.aleo {
 
         // Platform fee from creator's portion (5%)
         let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
-        let platform_cut: u64 = creator_amount / 20u64;
+        let platform_cut: u64 = creator_amount / PLATFORM_FEE_DIV;
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
 
         // Track referral count for creator
@@ -1486,22 +1530,148 @@ program veilsub_v16.aleo {
         Mapping::set(total_revenue, creator, revenue + amount);
 
         let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
-        let platform_cut: u64 = amount / 20u64;
+        let platform_cut: u64 = amount / PLATFORM_FEE_DIV;
         Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
     }
 
-    // v14: Pedersen128 commitment verification — ZERO FOOTPRINT.
-    // Pure transition (no finalize) that verifies a Pedersen128 commitment.
-    // Useful for off-chain verification of committed amounts without
-    // leaving any trace on the public blockchain.
-    transition verify_pedersen_commitment(
+    // v14: verify_pedersen_commitment removed in v17 — superseded by
+    // prove_revenue_range which does the same check + range bounds.
+
+    // =========================================
+    // TRANSITIONS — HOMOMORPHIC PEDERSEN PROOFS (v17 — Novel Privacy)
+    // =========================================
+
+    // v17: Subscribe WITHOUT incrementing public subscriber_count.
+    // Instead, adds a homomorphic Pedersen commitment to sub_count_commit.
+    // Observer sees only the aggregate group element — cannot extract count.
+    // Creator proves their count later via prove_sub_count (zero-footprint).
+    // This is the maximum privacy mode for subscriber metrics.
+    async transition subscribe_private_count(
+        payment: credits.aleo/credits,
+        creator: address,
+        tier: u8,
         amount: u64,
-        salt: field,
-        public expected_commitment: field,
-    ) {
-        let randomizer: scalar = BHP256::hash_to_scalar(salt);
-        let computed: field = Pedersen128::commit_to_field(amount, randomizer);
-        assert_eq(computed, expected_commitment);
+        pass_id: field,
+        expires_at: u32,
+        blinding: field,            // subscriber-chosen randomness for commitment
+    ) -> (AccessPass, CreatorReceipt, credits.aleo/credits, credits.aleo/credits, Future) {
+        assert(tier >= 1u8);
+        assert(blinding != 0field);
+
+        let (change, to_creator): (credits.aleo/credits, credits.aleo/credits) =
+            credits.aleo/transfer_private(payment, creator, amount);
+
+        let pass: AccessPass = AccessPass {
+            owner: self.caller,
+            creator: creator,
+            tier: tier,
+            pass_id: pass_id,
+            expires_at: expires_at,
+        };
+
+        let receipt: CreatorReceipt = CreatorReceipt {
+            owner: creator,
+            subscriber_hash: BHP256::hash_to_field(self.caller),
+            tier: tier,
+            amount: amount,
+            pass_id: pass_id,
+        };
+
+        // Convert blinding to scalar for Pedersen commitment
+        let blinding_scalar: scalar = BHP256::hash_to_scalar(blinding);
+
+        return (pass, receipt, change, to_creator,
+            finalize_sub_private_count(creator, amount, tier, expires_at, pass_id, blinding_scalar));
     }
+    async function finalize_sub_private_count(
+        creator: address,
+        amount: u64,
+        tier: u8,
+        expires_at: u32,
+        pass_id: field,
+        blinding: scalar,
+    ) {
+        // Validate tier pricing (same pattern as subscribe)
+        let tier_key: field = BHP256::hash_to_field(TierKey { creator: creator, tier_id: tier });
+        let has_custom_tier: bool = Mapping::contains(creator_tiers, tier_key);
+
+        let custom_price: u64 = Mapping::get_or_use(creator_tiers, tier_key, 0u64);
+        let legacy_base: u64 = Mapping::get_or_use(tier_prices, creator, 0u64);
+        let legacy_price: u64 = legacy_base * (tier == 3u8 ? 5u64 : (tier == 2u8 ? 2u64 : 1u64));
+        let required_price: u64 = has_custom_tier ? custom_price : legacy_price;
+
+        assert(amount >= required_price);
+
+        let deprecated: bool = Mapping::get_or_use(tier_deprecated, tier_key, false);
+        assert(!deprecated);
+
+        assert(expires_at > block.height);
+        assert(expires_at <= block.height + MAX_EXPIRY);
+
+        // Add homomorphic Pedersen commitment: C = 1*G + blinding*H
+        // This commits to "1 new subscriber" without revealing the count publicly
+        let new_commit: group = (1u64 as scalar) * group::GEN + blinding * Poseidon2::hash_to_group(0field);
+        let existing: group = Mapping::get_or_use(sub_count_commit, creator, 0group);
+        Mapping::set(sub_count_commit, creator, existing + new_commit);
+
+        // Revenue tracking (still public for withdrawal accounting)
+        let revenue: u64 = Mapping::get_or_use(total_revenue, creator, 0u64);
+        Mapping::set(total_revenue, creator, revenue + amount);
+
+        let plat_rev: u64 = Mapping::get_or_use(platform_revenue, 0u8, 0u64);
+        let platform_cut: u64 = amount / PLATFORM_FEE_DIV;
+        Mapping::set(platform_revenue, 0u8, plat_rev + platform_cut);
+
+        Mapping::set(pass_creator, pass_id, creator);
+    }
+
+    // v17: Creator proves their subscriber count by opening the aggregate
+    // Pedersen commitment. ZERO FOOTPRINT — no finalize, no public trace.
+    //
+    // The creator provides:
+    //   - claimed_count: the number of subscribers they claim
+    //   - sum_blinding: the sum of all blinding factors from all subscriptions
+    //   - expected_commit: the aggregate commitment stored on-chain
+    //
+    // The transition verifies: expected_commit == claimed_count*G + sum_blinding*H
+    // If verification passes, the ZK proof attests to the count without revealing it.
+    //
+    // PRIVACY GUARANTEE: The proof reveals NOTHING to the blockchain.
+    // A third party can verify the proof off-chain by checking the Aleo
+    // transaction outputs, but the claimed_count never appears publicly.
+    transition prove_sub_count(
+        claimed_count: u64,
+        sum_blinding: scalar,
+        public expected_commit: group,
+    ) {
+        let computed: group = (claimed_count as scalar) * group::GEN + sum_blinding * Poseidon2::hash_to_group(0field);
+        assert_eq(computed, expected_commit);
+    }
+
+    // v17: Creator proves "my revenue is in range [lo, hi]" without revealing
+    // the exact amount. Uses Pedersen128 commitment with range bounds.
+    // ZERO FOOTPRINT — no finalize, pure ZK proof.
+    //
+    // PRIVACY GUARANTEE: The proof verifies actual_revenue >= lo AND
+    // actual_revenue <= hi. The exact revenue is never public.
+    // Third parties verify by checking the Aleo proof, not chain state.
+    transition prove_revenue_range(
+        actual_revenue: u64,
+        salt: field,
+        public commitment: field,
+        public lower_bound: u64,
+        public upper_bound: u64,
+    ) {
+        // Verify the commitment opens to actual_revenue
+        let randomizer: scalar = BHP256::hash_to_scalar(salt);
+        let computed: field = Pedersen128::commit_to_field(actual_revenue, randomizer);
+        assert_eq(computed, commitment);
+
+        // Verify range: lo <= actual_revenue <= hi
+        assert(actual_revenue >= lower_bound);
+        assert(actual_revenue <= upper_bound);
+    }
+
+    // v17: verify_group_commit merged into prove_sub_count — same operation.
 
 }

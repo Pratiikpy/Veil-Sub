@@ -411,9 +411,9 @@ export default function VerifyPage() {
               animate={{ opacity: 1, y: 0 }}
               className="text-center"
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] mb-6">
-                <ShieldCheck className="w-4 h-4 text-[#a1a1aa]" />
-                <span className="text-xs font-medium tracking-wide uppercase text-[#a1a1aa]">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/[0.06] border border-violet-500/[0.12] mb-6">
+                <ShieldCheck className="w-4 h-4 text-violet-400" />
+                <span className="text-xs font-medium tracking-wide uppercase text-violet-300">
                   Zero-Knowledge Verification
                 </span>
               </div>
@@ -652,8 +652,8 @@ export default function VerifyPage() {
               return (
                 <GlassCard key={step.title} delay={i * 0.1}>
                   <div className="text-center">
-                    <div className="w-12 h-12 rounded-[8px] bg-white/[0.04] flex items-center justify-center mx-auto mb-4">
-                      <Icon className="w-6 h-6 text-[#a1a1aa]" />
+                    <div className="w-12 h-12 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center mx-auto mb-4">
+                      <Icon className="w-6 h-6 text-violet-400/70" />
                     </div>
                     <h3 className="text-white font-semibold mb-2">
                       {step.title}
