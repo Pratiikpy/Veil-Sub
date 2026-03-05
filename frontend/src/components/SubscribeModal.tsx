@@ -9,7 +9,7 @@ import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { generatePassId, formatCredits } from '@/lib/utils'
 import { dedupeRecords } from '@/lib/recordSync'
-import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT } from '@/lib/config'
+import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT, FEES } from '@/lib/config'
 import { logSubscriptionEvent } from '@/lib/logEvent'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
@@ -349,6 +349,10 @@ export default function SubscribeModal({
                     <div className="pt-1.5 mt-1.5 border-t border-white/5 flex justify-between text-[#a1a1aa]">
                       <span>Duration</span>
                       <span>~30 days ({SUBSCRIPTION_DURATION_BLOCKS.toLocaleString()} blocks)</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Est. network fee</span>
+                      <span>~{formatCredits(privacyMode === 'standard' ? FEES.SUBSCRIBE : privacyMode === 'blind' ? FEES.SUBSCRIBE_BLIND : FEES.SUBSCRIBE_PRIVATE_COUNT)} ALEO</span>
                     </div>
                   </div>
                 </div>

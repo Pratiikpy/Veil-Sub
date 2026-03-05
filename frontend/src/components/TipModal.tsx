@@ -6,11 +6,12 @@ import { X, Heart } from 'lucide-react'
 import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
-import { creditsToMicrocredits } from '@/lib/utils'
+import { creditsToMicrocredits, formatCredits } from '@/lib/utils'
 import { dedupeRecords } from '@/lib/recordSync'
 import { logSubscriptionEvent } from '@/lib/logEvent'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
+import { FEES } from '@/lib/config'
 import type { TxStatus } from '@/types'
 
 interface Props {
@@ -283,16 +284,19 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                     min="0.1"
                     max="1000"
                     step="0.1"
-                    className="w-full px-4 py-2.5 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-white placeholder-slate-500 focus:outline-none focus:border-[rgba(255,255,255,0.12)] focus:ring-2 focus:ring-white/10 transition-all text-sm pr-16"
+                    className="w-full px-4 py-2.5 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all text-sm pr-16"
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#71717a]">ALEO</span>
                 </div>
                 <p className="text-center text-sm text-[#a1a1aa] mb-3">
                   {customAmount ? `${customAmount} ALEO credits` : `${selectedAmount} ALEO credits`}
                 </p>
-                <div className="p-2.5 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-4">
+                <div className="p-2.5 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-4 space-y-1">
                   <p className="text-[11px] text-green-400/80">
                     Your identity stays private. The creator receives payment but never knows who tipped.
+                  </p>
+                  <p className="text-[11px] text-[#71717a]">
+                    Est. network fee: ~{formatCredits(FEES.TIP)} ALEO
                   </p>
                 </div>
 

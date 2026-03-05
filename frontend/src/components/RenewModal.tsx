@@ -9,7 +9,7 @@ import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { generatePassId, formatCredits } from '@/lib/utils'
 import { dedupeRecords } from '@/lib/recordSync'
-import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT } from '@/lib/config'
+import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT, FEES } from '@/lib/config'
 import { logSubscriptionEvent } from '@/lib/logEvent'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
@@ -324,8 +324,9 @@ export default function RenewModal({
                       <span>{formatCredits(platformCut)} ALEO</span>
                     </div>
                   </div>
-                  <div className="mt-2 pt-2 border-t border-white/5 text-xs text-[#a1a1aa]">
-                    Access for ~30 days ({SUBSCRIPTION_DURATION_BLOCKS.toLocaleString()} blocks)
+                  <div className="mt-2 pt-2 border-t border-white/5 text-xs text-[#a1a1aa] space-y-1">
+                    <div>Access for ~30 days ({SUBSCRIPTION_DURATION_BLOCKS.toLocaleString()} blocks)</div>
+                    <div>Est. network fee: ~{formatCredits(FEES.RENEW)} ALEO</div>
                   </div>
                 </div>
 

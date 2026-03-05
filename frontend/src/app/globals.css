@@ -9,7 +9,7 @@
   --foreground:     #ffffff;
   --text-secondary: #a1a1aa;
   --text-tertiary:  #71717a;
-  --text-muted:     #525252;
+  --text-muted:     #71717a;
 
   /* ─── Accent — violet (mystery, premium, veil) ─── */
   --accent:         #8B5CF6;
@@ -235,4 +235,14 @@ body {
 /* ─── Nav indicator ─── */
 .nav-indicator {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Reduced motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter, Instrument_Serif } from 'next/font/google'
 import './globals.css'
 import { ClientProviders } from '@/providers/ClientProviders'
@@ -19,6 +19,13 @@ const instrumentSerif = Instrument_Serif({
   style: ['normal', 'italic'],
   variable: '--font-instrument-serif',
 })
+
+export const viewport: Viewport = {
+  themeColor: '#000000',
+  colorScheme: 'dark',
+  width: 'device-width',
+  initialScale: 1,
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://veilsub.vercel.app'),
