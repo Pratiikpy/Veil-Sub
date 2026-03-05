@@ -40,7 +40,12 @@
 - **Glassmorphism + Violet Accent**: Applied across landing, explore, verify, privacy, vision, and docs pages
 - **GlassCard accent variant**: `border-violet-500/[0.12]` with hover glow effect
 - **Landing Page**: Updated ticker stats, evolution badge, hero footer, and explorer links for v20
-- **Docs Page**: Added v17 Pedersen section in Privacy tab, updated transitions list, violet tab selector
+- **Docs Page**: Added v17 Pedersen section in Privacy tab, updated transitions list (all 31), all 30 mappings documented, violet tab selector
+- **Explorer Page**: Quick Mapping Queries section with one-click on-chain lookups (no wallet needed)
+- **Vision Page**: Updated stats (30 mappings), roadmap reflects Wave 3 completion
+- **Analytics Page**: Updated version timeline (v4-v8 through v19-v20), protocol stats (30 mappings, 1,750+ lines)
+- **Optimistic UI**: Toast loading states in SubscribeModal, TipModal, CreatePostForm
+- **Featured Creators**: 5 demo creators with fallback display on explore page
 
 ### Documentation
 - **Privacy Threat Model**: 12 attack vectors with severity/mitigation/residual risk analysis
@@ -91,8 +96,8 @@ Privacy: 7 | Tech: 5 | UX: 7 | Practicality: 7 | Novelty: 7 = **33/50**
 | Referral system | No | Yes (10% reward) | New |
 | Pedersen commitments | No | Yes (homomorphic) | New |
 | Content management | Publish only | Publish + update + delete + encrypt | Full CRUD |
-| Subscription transfer | No | Yes (transfer_subscription) | New |
-| Access revocation | No | Yes (revoke_access + enforce_revocation) | New |
+| Subscription transfer | No | Yes (transfer_pass) | New |
+| Access revocation | No | Yes (revoke_access + verify enforcement) | New |
 | Dispute system | No | Yes (dispute_content) | New |
 | Frontend pages | 8 | 22 routes | +175% |
 | Design system | Basic dark | Glassmorphism + violet accent | Premium |

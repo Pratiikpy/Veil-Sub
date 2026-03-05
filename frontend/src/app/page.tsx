@@ -191,6 +191,8 @@ const TICKER_ITEMS = [
   { icon: Shield, text: 'Zero Public Footprint' },
   { icon: Coins, text: 'Pedersen Commitments' },
   { icon: Shield, text: '8 Record Types' },
+  { icon: Layers, text: '30 Mappings' },
+  { icon: Code, text: '1,750+ Lines of Leo' },
 ]
 
 /* ─── Bento Features ─── */
@@ -223,6 +225,8 @@ const CONTRACT_FEATURES = [
   { icon: Eye, title: 'Zero-Footprint Verify', desc: 'No finalize, no public trace', version: 'v8' },
   { icon: Shield, title: 'Sybil-Protected Disputes', desc: 'Only subscribers can dispute', version: 'v15' },
   { icon: Lock, title: 'Commit-Reveal Tipping', desc: 'BHP256 commitment hidden tip amounts', version: 'v14' },
+  { icon: Gift, title: 'Subscription Gifting', desc: 'Gift an AccessPass to any Aleo address', version: 'v10' },
+  { icon: Zap, title: 'Poseidon2 Optimization', desc: 'Deep Poseidon2 hashing in all finalize blocks', version: 'v19' },
 ]
 
 /* ─── Home Page ─── */
@@ -500,7 +504,7 @@ export default function HomePage() {
           <ScrollReveal>
             <SectionHeader
               badge="v8 → v20 Evolution"
-              title="Ten versions of privacy innovation"
+              title="Twelve versions of privacy innovation"
               subtitle="Each iteration adds novel cryptographic features. Built in public, deployed on testnet."
             />
           </ScrollReveal>

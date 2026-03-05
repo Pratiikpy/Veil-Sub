@@ -244,22 +244,22 @@ UPSTASH_REDIS_REST_TOKEN=<your-redis-token>
 
 **Account:** `aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk`
 
-### On-Chain Transactions (v14)
-| # | Transition | Args |
-|---|-----------|------|
-| 1 | `register_creator` | base price 1000 |
-| 2 | `create_custom_tier` | tier 1, price 500 |
-| 3 | `publish_content` | content #1 |
-| 4 | `publish_encrypted_content` | content #2 |
-| 5 | `dispute_content` | content #2 |
-| 6 | `commit_tip` | commitment #1 |
-| 7 | `update_content` | content #1 |
-| 8 | `delete_content` | content #2 |
-| 9 | `create_custom_tier` | tier 2, price 1500 |
-| 10 | `publish_content` | content #3 |
-| 11 | `commit_tip` | commitment #2 |
-| 12 | `verify_pedersen_commitment` | Pedersen128 verify |
-| 13 | `create_custom_tier` | tier 3, price 5000 |
+### On-Chain Transactions (v20)
+| # | Transition | Args | Purpose |
+|---|-----------|------|---------|
+| 1 | `register_creator` | base price 1000 | Creator registration |
+| 2 | `create_custom_tier` | tier 1, price 500 | Supporter tier |
+| 3 | `create_custom_tier` | tier 2, price 2000 | Premium tier |
+| 4 | `create_custom_tier` | tier 3, price 5000 | VIP tier |
+| 5 | `publish_content` | content #1, tier 1 | Supporter content |
+| 6 | `publish_content` | content #2, tier 2 | Premium content |
+| 7 | `publish_encrypted_content` | content #3, tier 1 | Encrypted content |
+| 8 | `update_content` | content #1, tier 2 | Content lifecycle |
+| 9 | `delete_content` | content #2 | Content removal |
+| 10 | `commit_tip` | creator, 500, salt | Pedersen tipping |
+| 11 | `update_tier_price` | tier 1, 750 | Dynamic pricing |
+| 12 | `deprecate_tier` | tier 3 | Tier lifecycle |
+| 13 | `publish_content` | content #4, tier 1 | Additional content |
 
 ---
 

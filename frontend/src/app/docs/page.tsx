@@ -192,7 +192,18 @@ mapping escrow_data: field => u64;             // escrow_id => refund amount hel
 mapping nonce_used: field => bool;             // nonce_hash => is nonce consumed
 mapping encryption_commits: field => field;    // content_id => encryption commitment
 mapping access_revoked: field => bool;         // pass_id => is access revoked
-mapping content_disputes: field => u8;         // dispute_id => dispute status`}
+mapping content_disputes: field => u8;         // dispute_id => dispute status
+mapping pass_creator: field => address;         // pass_id => creator (for revocation auth)
+mapping dispute_submitted: field => bool;       // hash(caller, content) => already disputed
+mapping tip_commitments: field => field;        // hash(creator, caller) => BHP256 commitment
+mapping creator_privacy_mode: address => u8;    // creator => default privacy level
+mapping referral_count: address => u64;         // creator => total referrals received
+mapping sub_count_commit: address => group;     // creator => Pedersen group commitment
+mapping subscription_by_tier: field => u64;     // hash(creator, tier) => tier sub count
+mapping creator_last_active: address => u32;    // creator => block.height of last action
+mapping total_subscriptions: address => u64;    // creator => lifetime subscription count
+mapping content_version: field => u64;          // hash(content_id) => update count
+mapping subscription_epoch: field => u64;       // hash(creator, epoch) => subs per epoch`}
         />
       </div>
 

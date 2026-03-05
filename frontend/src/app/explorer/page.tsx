@@ -18,6 +18,8 @@ import {
   ChevronLeft,
   ChevronRight,
   BarChart3,
+  Database,
+  Loader2,
 } from 'lucide-react'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { formatCredits, isValidAleoAddress, shortenAddress } from '@/lib/utils'
@@ -27,6 +29,7 @@ import PageTransition from '@/components/PageTransition'
 import OnChainVerify from '@/components/OnChainVerify'
 import AnimatedCounter from '@/components/AnimatedCounter'
 import ActivityChart from '@/components/ActivityChart'
+import { PROGRAM_ID, PLATFORM_ADDRESS } from '@/lib/config'
 import type { CreatorProfile } from '@/types'
 
 interface GlobalStats {
@@ -86,6 +89,94 @@ function timeAgo(dateStr: string): string {
   if (hours < 24) return `${hours}h ago`
   const days = Math.floor(hours / 24)
   return `${days}d ago`
+}
+
+const ALEO_API = 'https://api.explorer.provable.com/v1/testnet'
+
+const MAPPING_QUERIES = [
+  { mapping: 'subscriber_count', key: PLATFORM_ADDRESS, label: 'Subscriber Count', desc: 'Total subscribers for platform creator' },
+  { mapping: 'total_revenue', key: PLATFORM_ADDRESS, label: 'Total Revenue', desc: 'Lifetime revenue in microcredits' },
+  { mapping: 'tier_prices', key: PLATFORM_ADDRESS, label: 'Base Price', desc: 'Creator base subscription price' },
+  { mapping: 'content_count', key: PLATFORM_ADDRESS, label: 'Content Count', desc: 'Published content pieces' },
+  { mapping: 'referral_count', key: PLATFORM_ADDRESS, label: 'Referral Count', desc: 'On-chain referral activations' },
+  { mapping: 'creator_last_active', key: PLATFORM_ADDRESS, label: 'Last Active Block', desc: 'Most recent on-chain activity' },
+]
+
+function QuickMappingQueries() {
+  const [results, setResults] = useState<Record<string, string | null>>({})
+  const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({})
+
+  const queryMapping = async (mapping: string, key: string) => {
+    setLoadingMap(prev => ({ ...prev, [mapping]: true }))
+    try {
+      const res = await fetch(`${ALEO_API}/program/${PROGRAM_ID}/mapping/${mapping}/${key}`)
+      if (!res.ok) {
+        setResults(prev => ({ ...prev, [mapping]: null }))
+      } else {
+        const data = await res.json()
+        setResults(prev => ({ ...prev, [mapping]: data === null ? null : String(data).replace(/"/g, '') }))
+      }
+    } catch {
+      setResults(prev => ({ ...prev, [mapping]: null }))
+    }
+    setLoadingMap(prev => ({ ...prev, [mapping]: false }))
+  }
+
+  const queryAll = () => {
+    MAPPING_QUERIES.forEach(q => queryMapping(q.mapping, q.key))
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.15 }}
+      className="mb-10"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Database className="w-4 h-4 text-violet-400" />
+          <h2 className="text-lg font-semibold text-white">Quick Mapping Queries</h2>
+        </div>
+        <button
+          onClick={queryAll}
+          className="px-3 py-1.5 rounded-[4px] text-xs font-medium bg-violet-500/10 text-violet-300 border border-violet-500/20 hover:bg-violet-500/20 transition-colors"
+        >
+          Query All
+        </button>
+      </div>
+      <p className="text-xs text-[#71717a] mb-4">
+        Query on-chain mappings directly from the Aleo testnet API. No wallet required — these are public aggregate values.
+      </p>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {MAPPING_QUERIES.map((q) => (
+          <div
+            key={q.mapping}
+            className="p-4 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08] hover:border-white/[0.12] transition-colors"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <code className="text-xs text-violet-300 font-mono">{q.mapping}</code>
+              <button
+                onClick={() => queryMapping(q.mapping, q.key)}
+                disabled={loadingMap[q.mapping]}
+                className="px-2 py-1 rounded text-[10px] font-medium bg-white/[0.06] text-[#a1a1aa] hover:text-white hover:bg-white/[0.1] transition-colors disabled:opacity-40"
+              >
+                {loadingMap[q.mapping] ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Query'}
+              </button>
+            </div>
+            <p className="text-[10px] text-[#525252] mb-2">{q.desc}</p>
+            {results[q.mapping] !== undefined && (
+              <div className="pt-2 border-t border-white/[0.06]">
+                <span className="text-sm font-mono text-white">
+                  {results[q.mapping] ?? <span className="text-[#71717a]">not set</span>}
+                </span>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  )
 }
 
 export default function ExplorerPage() {
@@ -461,6 +552,11 @@ export default function ExplorerPage() {
                 Only aggregate data (subscriber count, total revenue, tier price) is publicly visible.
               </p>
             </motion.div>
+          )}
+
+          {/* Quick Mapping Queries — No Wallet Needed */}
+          {!searched && (
+            <QuickMappingQueries />
           )}
 
           {/* Recent Events Table */}

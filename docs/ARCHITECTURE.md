@@ -58,25 +58,31 @@ The Leo smart contract is the trust foundation. All financial operations and acc
 | `total_revenue` | creator address | u64 | Public revenue metric |
 | `platform_revenue` | u8 (constant) | u64 | Platform fee accumulator |
 | `content_count` | creator address | u64 | Published content count |
-| `content_meta` | BHP256(content_id) | u8 | Content tier requirement |
-| `content_hashes` | BHP256(content_id) | field | Content body integrity hash |
-| `creator_tiers` | BHP256(TierKey) | u64 | Custom tier pricing |
+| `content_meta` | Poseidon2(content_id) | u8 | Content tier requirement |
+| `content_hashes` | Poseidon2(content_id) | field | Content body integrity hash |
+| `creator_tiers` | Poseidon2(TierKey) | u64 | Custom tier pricing |
 | `tier_count` | creator address | u64 | Number of tiers per creator |
-| `tier_deprecated` | BHP256(TierKey) | bool | Deprecated tier flag |
-| `content_deleted` | BHP256(content_id) | bool | Content deletion flag |
+| `tier_deprecated` | Poseidon2(TierKey) | bool | Deprecated tier flag |
+| `content_deleted` | Poseidon2(content_id) | bool | Content deletion flag |
 | `gift_redeemed` | gift_id (field) | bool | Gift redemption tracking |
 | `refund_claimed` | pass_id (field) | bool | Refund claim tracking |
 | `escrow_data` | pass_id (field) | u32 | Escrow expiry block height |
-| `nonce_used` | BHP256(nonce) | bool | Blind renewal nonce replay prevention |
-| `encryption_commits` | BHP256(content_id) | field | Encrypted content commitment |
+| `nonce_used` | Poseidon2(nonce) | bool | Blind renewal nonce replay prevention |
+| `encryption_commits` | Poseidon2(content_id) | field | Encrypted content commitment |
 | `access_revoked` | pass_id (field) | bool | Access revocation flag |
-| `content_disputes` | BHP256(content_id) | u64 | Content dispute counter |
+| `content_disputes` | Poseidon2(content_id) | u64 | Content dispute counter |
 | `pass_creator` | pass_id (field) | address | Maps pass to its issuing creator (auth for revocation) |
 | `tip_commitments` | commitment (field) | field | Stores tip commitment hashes |
 | `tip_revealed` | commitment (field) | bool | Tracks revealed tips |
 | `dispute_count_by_caller` | BHP256(caller, content_id) | u64 | Per-caller dispute rate limiting |
 | `referral_count` | creator address | u64 | Total referrals received per creator |
 | `sub_count_commit` | creator address | group | Homomorphic Pedersen subscriber commitment aggregate |
+| `creator_privacy_mode` | creator address | u8 | Creator's default privacy level |
+| `subscription_by_tier` | Poseidon2(TierKey) | u64 | Per-tier subscriber count |
+| `creator_last_active` | creator address | u32 | Block height of last creator action |
+| `total_subscriptions` | creator address | u64 | Lifetime subscription count per creator |
+| `content_version` | Poseidon2(content_id) | u64 | Content update version counter |
+| `subscription_epoch` | Poseidon2(creator, epoch) | u64 | Subscriptions per epoch (EPOCH_SIZE=1200 blocks) |
 
 **Transitions (Functions):**
 | Transition | Privacy | Finalize? | Purpose |
