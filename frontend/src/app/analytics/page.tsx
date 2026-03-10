@@ -61,17 +61,17 @@ const CONTRACT_VERSIONS = [
   },
   {
     version: 'v24',
-    description: 'Content auth fix (content_creator mapping), on-chain expiry enforcement in verify_access/verify_tier_access, subscription_by_tier in all subscribe variants. 25 transitions, 22 mappings — deployed on testnet',
+    description: 'Content auth fix (content_creator mapping), on-chain expiry enforcement in verify_access/verify_tier_access, subscription_by_tier in all subscribe variants. 25 transitions, 22 mappings—deployed on testnet',
     deployed: true,
   },
   {
     version: 'v25',
-    description: 'prove_subscriber_threshold (privacy-preserving reputation proof), total_creators + total_content platform analytics mappings. 26 transitions, 24 mappings — deployed on testnet (superseded by v27)',
+    description: 'prove_subscriber_threshold (privacy-preserving reputation proof), total_creators + total_content platform analytics mappings. 26 transitions, 24 mappings—deployed on testnet (superseded by v27)',
     deployed: true,
   },
   {
     version: 'v26',
-    description: 'Ephemeral trial passes (subscribe_trial) — 20% of tier price for ~12hr access. 27 transitions, 24 mappings, 846 statements — deployed on testnet (superseded by v27)',
+    description: 'Ephemeral trial passes (subscribe_trial)—20% of tier price for ~12hr access. 27 transitions, 24 mappings, 846 statements—deployed on testnet (superseded by v27)',
     deployed: true,
   },
   {
@@ -123,7 +123,7 @@ export default function AnalyticsPage() {
               Platform Analytics
             </h1>
             <p className="text-muted text-base max-w-2xl leading-relaxed">
-              Aggregate statistics from on-chain mappings. All data is public — no subscriber
+              Aggregate statistics from on-chain mappings. All data is public—no subscriber
               identities exposed.
             </p>
           </div>
@@ -197,7 +197,7 @@ export default function AnalyticsPage() {
                       Footprint Verifications
                     </p>
                     <p className="text-sm text-subtle leading-relaxed">
-                      verify_access finalize only checks revocation via pass_id — subscriber
+                      verify_access finalize only checks revocation via pass_id—subscriber
                       identity never touches public state.
                     </p>
                   </div>
@@ -242,7 +242,7 @@ export default function AnalyticsPage() {
                   <span className="text-sm font-medium text-white">Blind</span>
                 </div>
                 <p className="text-xs text-subtle leading-relaxed mb-3">
-                  Nonce-rotated identity — each renewal uses BHP256(caller, unique_nonce).
+                  Nonce-rotated identity—each renewal uses BHP256(caller, unique_nonce).
                   Creator sees a different subscriber each time.
                 </p>
                 <div className="text-xs text-subtle">subscribe_blind · renew_blind</div>
@@ -253,7 +253,7 @@ export default function AnalyticsPage() {
                   <span className="text-sm font-medium text-white">Maximum (v27)</span>
                 </div>
                 <p className="text-xs text-subtle leading-relaxed mb-3">
-                  All mapping keys are Poseidon2 field hashes — zero raw addresses
+                  All mapping keys are Poseidon2 field hashes—zero raw addresses
                   in any finalize block. Full address unlinkability.
                 </p>
                 <div className="text-xs text-subtle">all transitions · Poseidon2 keys</div>

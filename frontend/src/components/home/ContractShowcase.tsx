@@ -26,7 +26,7 @@ const CONTRACT_FEATURES = [
   { icon: Users, title: 'Encrypted Content Delivery', desc: 'On-chain encryption commitments for gated content', version: 'v12' },
   { icon: RefreshCw, title: 'Blind Renewal', desc: 'Unlinkable identity rotation per renewal', version: 'v11' },
   { icon: ArrowLeftRight, title: 'Pass Transfer', desc: 'Transfer subscriptions on-chain', version: 'v15' },
-  { icon: Eye, title: 'Minimal-Footprint Verify', desc: 'Revocation check only — subscriber identity never in finalize', version: 'v8' },
+  { icon: Eye, title: 'Minimal-Footprint Verify', desc: 'Revocation check only—subscriber identity never in finalize', version: 'v8' },
   { icon: Shield, title: 'Sybil-Protected Disputes', desc: 'Only subscribers can dispute', version: 'v15' },
   { icon: Lock, title: 'Commit-Reveal Tipping', desc: 'BHP256 commitment hidden tip amounts', version: 'v14' },
   { icon: Gift, title: 'Subscription Gifting', desc: 'Gift an AccessPass to any Aleo address', version: 'v10' },

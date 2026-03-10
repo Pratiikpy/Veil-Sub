@@ -56,7 +56,7 @@ export default function ConnectWalletPrompt() {
             className="mt-4 p-4 rounded-xl bg-violet-500/5 border border-violet-500/10"
           >
             <p className="text-xs text-muted text-center">
-              Your identity stays private — creators only see aggregate subscriber counts and revenue. VeilSub never exposes who subscribes.
+              Your identity stays private—creators only see aggregate subscriber counts and revenue. VeilSub never exposes who subscribes.
             </p>
           </m.div>
         </div>

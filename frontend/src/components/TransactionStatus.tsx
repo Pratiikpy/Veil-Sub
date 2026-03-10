@@ -100,7 +100,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
         <div>
           <p className="text-red-300 text-sm font-medium">Transaction Failed</p>
           <p className="text-red-400 text-xs">
-            {errorMessage || 'Transaction failed — try again or check wallet connection.'}
+            {errorMessage || 'Transaction failed—try again or check wallet connection.'}
           </p>
         </div>
       </m.div>
@@ -121,7 +121,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
           <span className="text-amber-400 text-xs font-medium">
             {status === 'proving'
               ? 'Do not close this tab while your ZK proof is being generated.'
-              : 'Do not close this tab — your transaction is being submitted to the network.'}
+              : 'Do not close this tab—your transaction is being submitted to the network.'}
           </span>
         </m.div>
       )}

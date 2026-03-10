@@ -156,7 +156,7 @@ export default function GiftSubscriptionFlow({
                   <div className="flex items-start gap-2">
                     <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-400" />
                     <p className="text-xs text-green-400/80">
-                      Gift is private — only the recipient can see and redeem the GiftToken. Your identity is hashed.
+                      Gift is private—only the recipient can see and redeem the GiftToken. Your identity is hashed.
                     </p>
                   </div>
                 </div>

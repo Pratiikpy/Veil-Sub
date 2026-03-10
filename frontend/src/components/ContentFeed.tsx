@@ -245,7 +245,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         Exclusive Content
       </h2>
       <p className="text-xs text-subtle mb-4">
-        Content is server-gated — locked posts are never sent to your browser until your AccessPass is verified.
+        Content is server-gated—locked posts are never sent to your browser until your AccessPass is verified.
       </p>
 
       {initialLoad && loading ? (
@@ -339,7 +339,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     <div className="mb-3 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-28">
                       <div className="flex items-center gap-2 text-subtle">
                         <ImageIcon className="w-5 h-5" />
-                        <span className="text-xs">Image content — subscribe to view</span>
+                        <span className="text-xs">Image content—subscribe to view</span>
                       </div>
                     </div>
                   )}
@@ -414,7 +414,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                           <ArrowRight className="w-3 h-3" />
                         </button>
                         <p className="text-xs text-subtle">
-                          Content is server-protected — not visible in network requests
+                          Content is server-protected—not visible in network requests
                         </p>
                       </div>
                     </div>
@@ -454,7 +454,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         <div className="flex items-center gap-2">
           <Shield className="w-3.5 h-3.5 text-muted shrink-0" />
           <p className="text-xs text-subtle">
-            Gated content is server-protected. Bodies are only delivered after AccessPass verification — never exposed in network requests.
+            Gated content is server-protected. Bodies are only delivered after AccessPass verification—never exposed in network requests.
           </p>
         </div>
       </div>

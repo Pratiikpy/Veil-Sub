@@ -49,7 +49,7 @@ export default function PrivacyPage() {
               </h1>
               <p className="text-lg text-muted max-w-2xl mx-auto mb-6">
                 Built on Aleo&apos;s zero-knowledge proof system. Subscriber addresses
-                never enter the finalize scope — enforced by the Leo compiler.
+                never enter the finalize scope—enforced by the Leo compiler.
               </p>
               <a
                 href={`https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`}
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-all"
               >
                 <Shield className="w-4 h-4" />
-                Verify on Aleoscan — audit the deployed contract yourself
+                Verify on Aleoscan—audit the deployed contract yourself
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
               </a>
             </m.div>
@@ -102,7 +102,7 @@ export default function PrivacyPage() {
               </h2>
               <p className="text-muted max-w-2xl mx-auto">
                 A three-layer privacy architecture that makes the entire subscriber lifecycle
-                unlinkable — from first subscription through every renewal, tip, and verification.
+                unlinkable—from first subscription through every renewal, tip, and verification.
               </p>
             </m.div>
 
@@ -148,13 +148,13 @@ export default function PrivacyPage() {
                   </div>
                   <p className="text-sm text-muted mb-4">
                     All 25 mappings use Poseidon2 field-hashed keys. No raw address appears
-                    in any finalize function — compiler-enforced, not policy.
+                    in any finalize function—compiler-enforced, not policy.
                   </p>
                   <div className="p-3 rounded-xl bg-black/40 border border-border">
                     <code className="text-xs text-green-300 font-mono leading-relaxed">
                       mapping key = Poseidon2(address) -&gt; field
                     </code>
-                    <p className="text-xs text-subtle mt-1.5">Irreversible hash — cannot recover wallet address from on-chain data</p>
+                    <p className="text-xs text-subtle mt-1.5">Irreversible hash—cannot recover wallet address from on-chain data</p>
                   </div>
                 </div>
               </m.div>
@@ -297,7 +297,7 @@ export default function PrivacyPage() {
                   </Tooltip> rejects any code path where subscriber addresses
                   reach <Tooltip content="Finalize: the public execution layer of Aleo. Code in finalize blocks is visible to everyone on-chain.">
                     <span className="border-b border-dotted border-subtle cursor-help">finalize scope</span>
-                  </Tooltip>. No runtime policy — compile-time enforcement.
+                  </Tooltip>. No runtime policy—compile-time enforcement.
                 </p>
               </GlassCard>
             </div>
@@ -325,10 +325,10 @@ export default function PrivacyPage() {
                       </div>
                       <div className="grid sm:grid-cols-2 gap-3 mb-5">
                         {[
-                          'verify_access finalize only checks revocation via pass_id — subscriber address never enters public state',
+                          'verify_access finalize only checks revocation via pass_id—subscriber address never enters public state',
                           'No subscriber-identifying mapping writes, no counter increments tied to identity',
-                          'Prevents timing correlation attacks — observers cannot link verification to any subscriber',
-                          'Revocation enforcement is the only finalize action — zero identity exposure',
+                          'Prevents timing correlation attacks—observers cannot link verification to any subscriber',
+                          'Revocation enforcement is the only finalize action—zero identity exposure',
                         ].map((point, idx) => (
                           <div key={idx} className="flex items-start gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0 mt-1.5" />
@@ -350,13 +350,13 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
     assert(!revoked);                  // ERR_027: Access revoked
     assert(expires_at > block.height); // ERR_104: Subscription expired
 }
-// ↑ Finalize receives pass_id + expires_at (opaque values) — never the subscriber address.
+// ↑ Finalize receives pass_id + expires_at (opaque values)—never the subscriber address.
 // Revocation + expiry enforced on-chain, zero identity exposure.`}</code>
                         </pre>
                       </div>
                       <p className="text-xs text-subtle mt-3">
                         Unique design: revocation enforcement + zero subscriber exposure. The finalize only checks
-                        a boolean mapping keyed by pass_id — no subscriber address ever reaches public state.
+                        a boolean mapping keyed by pass_id—no subscriber address ever reaches public state.
                       </p>
                     </div>
                   </div>
@@ -385,7 +385,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold">Private Data</h3>
-                    <p className="text-xs text-subtle">ZK Records — only you can see</p>
+                    <p className="text-xs text-subtle">ZK records—only you can see</p>
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -397,7 +397,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                     },
                     {
                       title: 'Subscription Relationship',
-                      desc: 'Creators cannot enumerate who subscribes. They only see a total count — never individual addresses.',
+                      desc: 'Creators cannot enumerate who subscribes. They only see a total count—never individual addresses.',
                       icon: Layers,
                     },
                     {
@@ -422,7 +422,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                     },
                     {
                       title: 'Double-Hash Subscriber Identity (v23)',
-                      desc: 'Subscriber hashes in CreatorReceipt records use Poseidon2(Poseidon2(caller)) — making rainbow table attacks infeasible even with known address sets.',
+                      desc: 'Subscriber hashes in CreatorReceipt records use Poseidon2(Poseidon2(caller))—making rainbow table attacks infeasible even with known address sets.',
                       icon: Lock,
                     },
                     {
@@ -437,7 +437,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                     },
                     {
                       title: 'Poseidon2 Field-Key Mappings (v23)',
-                      desc: 'All mapping keys are Poseidon2 field hashes of addresses. On-chain observers cannot link mapping reads to wallet addresses — full address unlinkability.',
+                      desc: 'All mapping keys are Poseidon2 field hashes of addresses. On-chain observers cannot link mapping reads to wallet addresses—full address unlinkability.',
                       icon: Lock,
                     },
                   ].map((item) => {
@@ -466,7 +466,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold">Public Data</h3>
-                    <p className="text-xs text-subtle">Mappings — verifiable by everyone</p>
+                    <p className="text-xs text-subtle">Mappings—verifiable by everyone</p>
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -478,7 +478,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                     },
                     {
                       title: 'Total Subscriber Count',
-                      desc: 'An aggregate counter only. Shows "47 subscribers" — not which addresses subscribed.',
+                      desc: 'An aggregate counter only. Shows "47 subscribers"—not which addresses subscribed.',
                       icon: Server,
                     },
                     {
@@ -493,7 +493,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                     },
                     {
                       title: 'Nonce Usage Tracking (v11)',
-                      desc: 'Public mapping of consumed nonces — proves blind renewal anonymity without revealing identities.',
+                      desc: 'Public mapping of consumed nonces—proves blind renewal anonymity without revealing identities.',
                       icon: Server,
                     },
                     {
@@ -503,7 +503,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                     },
                     {
                       title: 'BHP256 Commit-Reveal Tipping (v23)',
-                      desc: 'Tip amounts are hidden behind BHP256 commitments until reveal. Commitment stored in tip_commitments mapping — amount stays private until creator reveals.',
+                      desc: 'Tip amounts are hidden behind BHP256 commitments until reveal. Commitment stored in tip_commitments mapping—amount stays private until creator reveals.',
                       icon: Server,
                     },
                     {
@@ -554,7 +554,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                   {[
                     {
                       title: 'Timing Correlation',
-                      desc: 'When subscriber_count increments, an observer can correlate the timestamp — narrowing down when a subscription occurred.',
+                      desc: 'When subscriber_count increments, an observer can correlate the timestamp—narrowing down when a subscription occurred.',
                     },
                     {
                       title: 'Amount Inference',
@@ -562,7 +562,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                     },
                     {
                       title: 'Renewal Pattern Tracking',
-                      desc: 'Blind Subscription Protocol (BSP): Each renewal uses a unique nonce — MITIGATED. Creators cannot correlate consecutive renewals from the same subscriber.',
+                      desc: 'Blind Subscription Protocol (BSP): Each renewal uses a unique nonce—MITIGATED. Creators cannot correlate consecutive renewals from the same subscriber.',
                     },
                     {
                       title: 'Network Metadata',
@@ -588,7 +588,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                   {[
                     {
                       title: 'Subscriber Identity',
-                      desc: 'No code path exists for wallet addresses to reach public state — verified by auditing the Leo source.',
+                      desc: 'No code path exists for wallet addresses to reach public state—verified by auditing the Leo source.',
                     },
                     {
                       title: 'Subscription Relationships',
@@ -624,19 +624,19 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                     },
                     {
                       title: 'No Subscriber Data in Finalize',
-                      desc: 'Finalize only receives creator_hash (Poseidon2 field), amount, and tier. No raw address — not even the creator — enters finalize. Subscriber identity has no pathway to public state.',
+                      desc: 'Finalize only receives creator_hash (Poseidon2 field), amount, and tier. No raw address—not even the creator—enters finalize. Subscriber identity has no pathway to public state.',
                     },
                     {
                       title: 'Finalize Parameter Tradeoff',
-                      desc: 'Tier and amount are public in finalize — this is required for on-chain payment validation (validators must enforce correct pricing). The subscriber ADDRESS is the privacy-critical value and it never touches finalize. Skipping validation would allow paying base price for VIP access.',
+                      desc: 'Tier and amount are public in finalize—this is required for on-chain payment validation (validators must enforce correct pricing). The subscriber ADDRESS is the privacy-critical value and it never touches finalize. Skipping validation would allow paying base price for VIP access.',
                     },
                     {
                       title: 'Minimal-Footprint Access Verification',
-                      desc: 'verify_access finalize only checks revocation status via pass_id — subscriber identity never enters finalize. No subscriber-identifying mapping writes, no counters tied to identity. This prevents timing correlation attacks from linking verification to any subscriber.',
+                      desc: 'verify_access finalize only checks revocation status via pass_id—subscriber identity never enters finalize. No subscriber-identifying mapping writes, no counters tied to identity. This prevents timing correlation attacks from linking verification to any subscriber.',
                     },
                     {
                       title: 'Blind Subscription Protocol (BSP)',
-                      desc: 'Each subscription and renewal generates a unique subscriber hash via nonce rotation — creators cannot track renewal patterns or link transactions to the same person. BSP makes the entire subscriber lifecycle unlinkable.',
+                      desc: 'Each subscription and renewal generates a unique subscriber hash via nonce rotation—creators cannot track renewal patterns or link transactions to the same person. BSP makes the entire subscriber lifecycle unlinkable.',
                     },
                   ].map((item) => (
                     <div key={item.title} className="p-3 rounded-sm bg-white/[0.04] border border-border">
@@ -742,7 +742,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
                 </div>
               </div>
               <p className="text-xs text-subtle text-center mt-3">
-                Left: typical on-chain subscription. Right: VeilSub&apos;s BSP — subscriber address never enters any public mapping.
+                Left: typical on-chain subscription. Right: VeilSub&apos;s BSP—subscriber address never enters any public mapping.
               </p>
             </m.div>
 
@@ -782,11 +782,11 @@ identity:     ████████████     // Poseidon2(BlindKey)
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
-                    <span>Finalize checks revocation + expiry — zero identity exposure</span>
+                    <span>Finalize checks revocation + expiry—zero identity exposure</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
-                    <span>Only pass_id and expires_at reach finalize — subscriber address never exposed</span>
+                    <span>Only pass_id and expires_at reach finalize—subscriber address never exposed</span>
                   </div>
                 </div>
               </div>
@@ -796,15 +796,15 @@ identity:     ████████████     // Poseidon2(BlindKey)
               {[
                 {
                   fn: 'subscribe()',
-                  guarantee: 'Finalize receives only creator_hash (Poseidon2 field) and amount — no raw address, including subscriber, is ever passed to any public scope.',
+                  guarantee: 'Finalize receives only creator_hash (Poseidon2 field) and amount—no raw address, including subscriber, is ever passed to any public scope.',
                 },
                 {
                   fn: 'verify_access()',
-                  guarantee: 'Finalize only checks revocation via pass_id — subscriber address never reaches public state. Minimal on-chain footprint.',
+                  guarantee: 'Finalize only checks revocation via pass_id—subscriber address never reaches public state. Minimal on-chain footprint.',
                 },
                 {
                   fn: 'tip()',
-                  guarantee: 'Finalize only updates aggregate total_revenue — tipper address stays completely private.',
+                  guarantee: 'Finalize only updates aggregate total_revenue—tipper address stays completely private.',
                 },
                 {
                   fn: 'renew()',
@@ -816,11 +816,11 @@ identity:     ████████████     // Poseidon2(BlindKey)
                 },
                 {
                   fn: 'subscribe_blind() (v11)',
-                  guarantee: 'Subscriber nonce generates blind hash — creator cannot correlate subscriber identity across transactions.',
+                  guarantee: 'Subscriber nonce generates blind hash—creator cannot correlate subscriber identity across transactions.',
                 },
                 {
                   fn: 'renew_blind() (v11)',
-                  guarantee: 'Each renewal uses a unique nonce — consecutive renewals cannot be linked to the same subscriber.',
+                  guarantee: 'Each renewal uses a unique nonce—consecutive renewals cannot be linked to the same subscriber.',
                 },
                 {
                   fn: 'gift_subscription() (v10)',
@@ -828,7 +828,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
                 },
                 {
                   fn: 'redeem_gift() (v10)',
-                  guarantee: 'Recipient redeems GiftToken to AccessPass. Only recipient address is used — giver remains unknown.',
+                  guarantee: 'Recipient redeems GiftToken to AccessPass. Only recipient address is used—giver remains unknown.',
                 },
                 {
                   fn: 'verify_tier_access()',
@@ -840,7 +840,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
                 },
                 {
                   fn: 'reveal_tip()',
-                  guarantee: 'Reveals committed tip to creator. Only aggregate revenue updated — tipper identity stays private.',
+                  guarantee: 'Reveals committed tip to creator. Only aggregate revenue updated—tipper identity stays private.',
                 },
                 {
                   fn: 'transfer_pass()',
@@ -848,11 +848,11 @@ identity:     ████████████     // Poseidon2(BlindKey)
                 },
                 {
                   fn: 'subscribe_trial()',
-                  guarantee: 'Ephemeral trial pass (~12 hours) at 20% cost. Same privacy model as subscribe — short duration enforced on-chain.',
+                  guarantee: 'Ephemeral trial pass (~12 hours) at 20% cost. Same privacy model as subscribe—short duration enforced on-chain.',
                 },
                 {
                   fn: 'All payments',
-                  guarantee: 'Use credits.aleo/transfer_private — never public transfers. Amount and sender are hidden on-chain.',
+                  guarantee: 'Use credits.aleo/transfer_private—never public transfers. Amount and sender are hidden on-chain.',
                 },
               ].map((item, i) => (
                 <m.div
@@ -893,7 +893,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
                   {[
                     ['Subscriber identity', 'Public', 'Private (ZK)'],
                     ['Transaction history', 'Permanent & visible', 'Hidden on-chain'],
-                    ['Creator sees who subscribes', 'Yes — full list', 'No — aggregate only'],
+                    ['Creator sees who subscribes', 'Yes—full list', 'No—aggregate only'],
                     ['Payment privacy', 'Bank/card linked', 'Private credit transfer'],
                     ['Third-party data access', 'Platform sells data', 'No data to sell'],
                     ['Censorship resistance', 'Platform can ban', 'On-chain, unstoppable'],
@@ -965,7 +965,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
             </div>
             <p className="text-xs text-subtle mt-4 text-center">
               Comparison based on publicly available source code. NullPay v18, Veiled Markets v16, lasagna latest.
-              N/A = not applicable (different domain — AMM or prediction market).
+              N/A = not applicable (different domain—AMM or prediction market).
             </p>
           </div>
         </section>

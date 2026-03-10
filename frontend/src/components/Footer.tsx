@@ -48,7 +48,7 @@ export default function Footer() {
         <div className="pt-5 border-t border-border/75 flex items-center justify-between text-xs text-subtle">
           <div className="flex items-center gap-2">
             <Shield className="w-3 h-3 text-violet-400/50" />
-            <span>Built on Aleo — Zero-knowledge by default</span>
+            <span>Built on Aleo—zero-knowledge by default</span>
           </div>
           <a
             href={`https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`}
@@ -82,7 +82,7 @@ export default function Footer() {
         </div>
         <div className="pt-3 border-t border-border/75 flex items-center gap-2 text-[10px] text-subtle">
           <Shield className="w-3 h-3 text-violet-400/50 shrink-0" />
-          <span>Built on Aleo — Zero-knowledge by default</span>
+          <span>Built on Aleo—zero-knowledge by default</span>
         </div>
       </div>
     </footer>

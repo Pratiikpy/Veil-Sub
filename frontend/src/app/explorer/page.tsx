@@ -162,7 +162,7 @@ function QuickMappingQueries() {
         </button>
       </div>
       <p className="text-xs text-subtle mb-4">
-        Query on-chain mappings for the featured creator via privacy proxy. No wallet required — these are public aggregate values. Your IP is never sent to external APIs.
+        Query on-chain mappings for the featured creator via privacy proxy. No wallet required—these are public aggregate values. Your IP is never sent to external APIs.
       </p>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {MAPPING_QUERIES.map((q) => (
@@ -309,7 +309,7 @@ export default function ExplorerPage() {
             <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-2" style={{ letterSpacing: '-0.03em' }}>On-Chain Explorer</h1>
             <p className="text-muted">
               Look up any creator&apos;s public stats directly from the Aleo blockchain.
-              Only aggregate data is visible — subscriber identities are always private.
+              Only aggregate data is visible—subscriber identities are always private.
             </p>
           </m.div>
 
@@ -475,7 +475,7 @@ export default function ExplorerPage() {
                         )}
                       </div>
                       <p className="text-xs text-subtle mt-1">
-                        Aggregate count only — no individual IDs visible
+                        Aggregate count only—no individual IDs visible
                       </p>
                     </GlassCard>
 
@@ -530,7 +530,7 @@ export default function ExplorerPage() {
                       <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300">
                         /api/aleo
                       </code>
-                      . Your IP is never sent to external APIs. All values are public aggregate data — no subscriber identities are
+                      . Your IP is never sent to external APIs. All values are public aggregate data—no subscriber identities are
                       exposed.
                     </p>
                   </div>

@@ -625,7 +625,7 @@ export default function CreatorPage({
                   </h2>
                   <p className="text-sm text-muted">
                     Show appreciation with a private ALEO transfer. The creator
-                    receives 95% via private transfer — 5% platform fee.
+                    receives 95% via private transfer—5% platform fee.
                   </p>
                 </div>
                 <div className="flex gap-2 shrink-0 flex-wrap">
@@ -684,7 +684,7 @@ export default function CreatorPage({
                     </code>{' '}
                     and sees only aggregate stats (total subscribers, total
                     revenue). Your identity is never linked on-chain. Subscription
-                    expiry is checked locally — no on-chain trace when you access content.
+                    expiry is checked locally—no on-chain trace when you access content.
                   </p>
                   <p className="flex items-center gap-2 pt-1">
                     <Link href="/privacy" className="text-violet-400/70 hover:text-violet-300 transition-colors inline-flex items-center gap-1">

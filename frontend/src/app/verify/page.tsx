@@ -97,7 +97,7 @@ export default function VerifyPage() {
   }
 
   const handleVerify = async (pass: AccessPass) => {
-    // Pre-verification expiry check — save user gas on expired passes
+    // Pre-verification expiry check—save user gas on expired passes
     const status = getPassStatus(pass)
     if (status === 'expired') {
       setSelectedPass(pass)
@@ -502,7 +502,7 @@ export default function VerifyPage() {
               {
                 icon: Lock,
                 title: 'Pass Consumed',
-                desc: 'Your existing AccessPass record is consumed (destroyed) in the UTXO model — like spending a coin.',
+                desc: 'Your existing AccessPass record is consumed (destroyed) in the UTXO model—like spending a coin.',
               },
               {
                 icon: Fingerprint,
@@ -541,7 +541,7 @@ export default function VerifyPage() {
             className="mt-8 p-4 rounded-xl bg-violet-500/5 border border-violet-500/10 text-center"
           >
             <p className="text-xs text-muted">
-              <strong className="text-violet-300">Minimal footprint:</strong> VeilSub&apos;s verify_access finalize only checks revocation via pass_id — subscriber identity never touches public state. No subscriber-identifying mapping writes occur when proving access.
+              <strong className="text-violet-300">Minimal footprint:</strong> VeilSub&apos;s verify_access finalize only checks revocation via pass_id—subscriber identity never touches public state. No subscriber-identifying mapping writes occur when proving access.
             </p>
           </m.div>
         </section>

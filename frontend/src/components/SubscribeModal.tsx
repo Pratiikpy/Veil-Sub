@@ -287,7 +287,7 @@ export default function SubscribeModal({
                     )}
                     {privacyMode === 'blind' && (
                       <p className="text-[10px] text-violet-400/70 mt-2">
-                        Your identity is rotated each subscription — unlinkable across renewals.
+                        Your identity is rotated each subscription—unlinkable across renewals.
                       </p>
                     )}
                     {privacyMode === 'trial' && (
@@ -303,8 +303,8 @@ export default function SubscribeModal({
                   <ul className="text-[11px] text-green-400/80 space-y-1 list-none">
                     <li>Your address is never published on-chain</li>
                     {privacyMode === 'standard' && <li>Aggregate subscriber count updates publicly</li>}
-                    {privacyMode === 'blind' && <li>Identity hash rotated — unlinkable renewals</li>}
-                    {privacyMode === 'trial' && <li>Short-lived pass — 20% cost, ~12 hour access</li>}
+                    {privacyMode === 'blind' && <li>Identity hash rotated—unlinkable renewals</li>}
+                    {privacyMode === 'trial' && <li>Short-lived pass—20% cost, ~12 hour access</li>}
                     <li>AccessPass stored privately in your wallet</li>
                     <li>Payment via credits.aleo/transfer_private</li>
                   </ul>

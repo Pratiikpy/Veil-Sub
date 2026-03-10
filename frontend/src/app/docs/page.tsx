@@ -201,7 +201,7 @@ function ContractTab() {
         <CodeBlock
           lang="leo"
           code={`record AccessPass {
-    owner: address,         // subscriber (private — only they can see)
+    owner: address,         // subscriber (private—only they can see)
     creator: address,       // which creator (private)
     tier: u8,               // custom tier ID (private)
     pass_id: field,         // unique identifier (private)
@@ -212,10 +212,10 @@ function ContractTab() {
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Mappings (Public) — 25 Total</h3>
+        <h3 className="text-xl font-semibold text-white mb-3">Mappings (Public)—25 Total</h3>
         <CodeBlock
           lang="leo"
-          code={`// v27: ALL mapping keys are Poseidon2 field hashes — ZERO raw addresses in finalize
+          code={`// v27: ALL mapping keys are Poseidon2 field hashes—ZERO raw addresses in finalize
 // Core mappings
 mapping tier_prices: field => u64;             // hash(creator) => base price (microcredits)
 mapping subscriber_count: field => u64;        // hash(creator) => total subscribers
@@ -270,7 +270,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
             {
               name: 'verify_access(pass, creator)',
               type: 'async',
-              desc: 'Consume and re-create AccessPass to prove access. Finalize checks revocation and expiry (v24+) via pass_id and expires_at — subscriber address never reaches public state.',
+              desc: 'Consume and re-create AccessPass to prove access. Finalize checks revocation and expiry (v24+) via pass_id and expires_at—subscriber address never reaches public state.',
             },
             {
               name: 'tip(payment, creator, amount)',
@@ -285,7 +285,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
             {
               name: 'publish_content(content_id, min_tier)',
               type: 'async',
-              desc: 'Creator publishes content metadata on-chain. Records content existence and minimum tier required for access. Content body stays off-chain — only tier-gating is enforced on-chain.',
+              desc: 'Creator publishes content metadata on-chain. Records content existence and minimum tier required for access. Content body stays off-chain—only tier-gating is enforced on-chain.',
             },
             {
               name: 'create_custom_tier(creator, tier_id, price, max_subscribers)',
@@ -300,12 +300,12 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
             {
               name: 'deprecate_tier(creator, tier_id)',
               type: 'async',
-              desc: 'Mark a tier as deprecated — prevents new subscriptions, but existing subscribers retain access.',
+              desc: 'Mark a tier as deprecated—prevents new subscriptions, but existing subscribers retain access.',
             },
             {
               name: 'update_content(content_id, new_min_tier)',
               type: 'async',
-              desc: 'Creator updates the tier requirement for published content. Does not delete — only updates access level.',
+              desc: 'Creator updates the tier requirement for published content. Does not delete—only updates access level.',
             },
             {
               name: 'delete_content(content_id)',
@@ -335,12 +335,12 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
             {
               name: 'subscribe_blind(payment, creator, tier_id, amount, nonce)',
               type: 'async',
-              desc: 'Subscribe using nonce-based blinding — generates blind subscriber hash. Prevents subscription pattern tracking.',
+              desc: 'Subscribe using nonce-based blinding—generates blind subscriber hash. Prevents subscription pattern tracking.',
             },
             {
               name: 'renew_blind(old_pass, payment, new_tier_id, amount, nonce)',
               type: 'async',
-              desc: 'Renew subscription with new nonce — each renewal uses unique nonce, preventing creator from tracking renewal patterns.',
+              desc: 'Renew subscription with new nonce—each renewal uses unique nonce, preventing creator from tracking renewal patterns.',
             },
             {
               name: 'verify_tier_access(pass, creator, required_tier)',
@@ -375,7 +375,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
             {
               name: 'reveal_tip(payment, creator, amount, salt)',
               type: 'async',
-              desc: 'Phase 2 — reveals the committed tip and executes the transfer. Recomputes the commitment, verifies it matches, then transfers credits to the creator.',
+              desc: 'Phase 2—reveals the committed tip and executes the transfer. Recomputes the commitment, verifies it matches, then transfers credits to the creator.',
             },
             {
               name: 'create_audit_token(pass, verifier, scope_mask)',
@@ -464,16 +464,16 @@ function PrivacyModelTab() {
         <p className="text-sm text-muted leading-relaxed">
           <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">verify_access</code> has
           a <strong className="text-white">minimal finalize</strong> that only checks revocation status via pass_id.
-          The subscriber address never enters finalize — no identity-linked mapping writes, no counter increments,
+          The subscriber address never enters finalize—no identity-linked mapping writes, no counter increments,
           no on-chain evidence of <em>who</em> verified. This is a deliberate privacy design: the finalize only
           reads <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">access_revoked</code> to
           enforce pass revocation, without exposing subscriber identity. Access proof relies on Aleo&apos;s native
-          record ownership system — no manual nullifiers or ZK proof verification needed.
+          record ownership system—no manual nullifiers or ZK proof verification needed.
         </p>
       </div>
 
       <div className="p-4 rounded-sm bg-violet-500/5 border border-violet-500/20">
-        <h4 className="text-violet-300 font-semibold mb-2">v23: ZERO Addresses in Finalize — Full Poseidon2 Privacy Overhaul</h4>
+        <h4 className="text-violet-300 font-semibold mb-2">v23: ZERO Addresses in Finalize—Full Poseidon2 Privacy Overhaul</h4>
         <p className="text-sm text-muted leading-relaxed mb-3">
           v23 represents a fundamental privacy overhaul: <strong className="text-white">no raw addresses appear in any
           finalize block</strong>. Every mapping key that previously used a plain address is now a Poseidon2
@@ -493,7 +493,7 @@ function PrivacyModelTab() {
         </p>
         <p className="text-sm text-muted leading-relaxed">
           The result: 27 transitions, 25 mappings, 6 record types, 5 structs, 866 statements,
-          and 119 error codes — a leaner, more private contract that fits within testnet deployment limits.
+          and 119 error codes—a leaner, more private contract that fits within testnet deployment limits.
           Commit-reveal tipping uses{' '}
           <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">BHP256::commit_to_field</code> —
           a novel cryptographic commitment scheme for hidden tip amounts.
@@ -514,7 +514,7 @@ function PrivacyModelTab() {
             },
             {
               title: 'UTXO access proof pattern',
-              detail: 'verify_access() consumes the AccessPass record and re-creates it. Finalize only checks revocation via pass_id — subscriber address never reaches public state.',
+              detail: 'verify_access() consumes the AccessPass record and re-creates it. Finalize only checks revocation via pass_id—subscriber address never reaches public state.',
             },
             {
               title: 'No records to program addresses',
@@ -592,7 +592,7 @@ curl https://api.explorer.provable.com/v1/testnet/program/${DEPLOYED_PROGRAM_ID}
 
 const { executeTransaction } = useWallet()
 
-// Execute a subscribe transaction (v27 — returns AccessPass)
+// Execute a subscribe transaction (v27—returns AccessPass)
 const result = await executeTransaction({
   program: '${DEPLOYED_PROGRAM_ID}',
   function: 'subscribe',
@@ -676,7 +676,7 @@ function FaqTab() {
   const faqs = [
     {
       q: 'Can the creator see who subscribes?',
-      a: 'No. The creator only sees aggregate statistics — total subscriber count and total revenue. Individual subscriber identities are never exposed on-chain or off-chain.',
+      a: 'No. The creator only sees aggregate statistics—total subscriber count and total revenue. Individual subscriber identities are never exposed on-chain or off-chain.',
     },
     {
       q: 'What wallet do I need?',
@@ -684,11 +684,11 @@ function FaqTab() {
     },
     {
       q: 'How does the AccessPass work?',
-      a: 'When you subscribe, a private AccessPass record is created in your wallet. This record is encrypted and only you can see it. To prove access, the verify_access transition consumes and re-creates the record — proving ownership cryptographically without revealing your identity.',
+      a: 'When you subscribe, a private AccessPass record is created in your wallet. This record is encrypted and only you can see it. To prove access, the verify_access transition consumes and re-creates the record—proving ownership cryptographically without revealing your identity.',
     },
     {
       q: 'What if I lose my AccessPass?',
-      a: 'Your AccessPass is stored as an encrypted record on the Aleo blockchain. As long as you have access to your wallet (private key), you can always recover it. If you lose your wallet key, the pass is unrecoverable — this is the trade-off for privacy.',
+      a: 'Your AccessPass is stored as an encrypted record on the Aleo blockchain. As long as you have access to your wallet (private key), you can always recover it. If you lose your wallet key, the pass is unrecoverable—this is the trade-off for privacy.',
     },
     {
       q: 'Is this on mainnet?',

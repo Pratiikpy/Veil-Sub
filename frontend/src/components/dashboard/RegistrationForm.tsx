@@ -111,7 +111,7 @@ export default function RegistrationForm({
               <div className="flex items-start gap-2">
                 <Info className="w-4 h-4 text-violet-400 mt-0.5 shrink-0" />
                 <p className="text-xs text-muted">
-                  You&apos;ll never see who subscribes — only aggregate
+                  You&apos;ll never see who subscribes—only aggregate
                   subscriber count and total revenue. Privacy is the core
                   feature. VeilSub takes a {PLATFORM_FEE_PCT}% platform fee on all subscriptions and tips.
                 </p>
