@@ -91,76 +91,82 @@ export function useContractExecute() {
   )
 
   // Process a single record: try all formats, lazy-decrypt if needed
-  const processRecord = async (r: WalletRecord): Promise<{ plaintext: string; microcredits: number } | null> => {
-    if (r?.spent) return null
+  const processRecord = useCallback(
+    async (r: WalletRecord): Promise<{ plaintext: string; microcredits: number } | null> => {
+      if (r?.spent) return null
 
-    let val = getMicrocredits(r)
+      let val = getMicrocredits(r)
 
-    // Shield Wallet returns `recordPlaintext` (not `plaintext`).
-    // Normalize without mutating the original record object.
-    let normalized = r
-    if (!r?.plaintext && r?.recordPlaintext) {
-      normalized = { ...r, plaintext: r.recordPlaintext }
-      if (val === 0) val = getMicrocredits(normalized)
-    }
+      // Shield Wallet returns `recordPlaintext` (not `plaintext`).
+      // Normalize without mutating the original record object.
+      let normalized = r
+      if (!r?.plaintext && r?.recordPlaintext) {
+        normalized = { ...r, plaintext: r.recordPlaintext }
+        if (val === 0) val = getMicrocredits(normalized)
+      }
 
-    // Try to decrypt the record to get plaintext when we have ciphertext but no plaintext
-    const cipher = normalized?.recordCiphertext || normalized?.ciphertext
-    if (cipher && !normalized?.plaintext && decrypt) {
-      try {
-        const decrypted = await decrypt(cipher)
-        if (decrypted) {
-          normalized = { ...normalized, plaintext: decrypted }
-          if (val === 0) val = getMicrocredits(normalized)
+      // Try to decrypt the record to get plaintext when we have ciphertext but no plaintext
+      const cipher = normalized?.recordCiphertext || normalized?.ciphertext
+      if (cipher && !normalized?.plaintext && decrypt) {
+        try {
+          const decrypted = await decrypt(cipher)
+          if (decrypted) {
+            normalized = { ...normalized, plaintext: decrypted }
+            if (val === 0) val = getMicrocredits(normalized)
+          }
+        } catch (decryptErr) {
+          // Decrypt failed -- record may be from another program
         }
-      } catch (decryptErr) {
-        // Decrypt failed -- record may be from another program
       }
-    }
 
-    if (val <= 0) return null
+      if (val <= 0) return null
 
-    // Extract plaintext string for transaction input
-    let plaintext = ''
-    if (typeof normalized === 'string') {
-      plaintext = normalized
-    } else if (normalized?.plaintext) {
-      plaintext = normalized.plaintext
-    } else if (normalized?.recordPlaintext) {
-      plaintext = normalized.recordPlaintext
-    } else {
-      // Reconstruct from structured data (NullPay pattern)
-      const nonce = normalized?.nonce || normalized?._nonce || normalized?.data?._nonce
-      const owner = normalized?.owner || normalized?.data?.owner
-      if (nonce && owner) {
-        const cleanOwner = String(owner).replace(/\.private$/, '')
-        const cleanNonce = String(nonce).replace(/\.public$/, '')
-        plaintext = `{ owner: ${cleanOwner}.private, microcredits: ${val}u64.private, _nonce: ${cleanNonce}.public }`
-      } else if (r?.ciphertext) {
-        plaintext = r.ciphertext
+      // Extract plaintext string for transaction input
+      let plaintext = ''
+      if (typeof normalized === 'string') {
+        plaintext = normalized
+      } else if (normalized?.plaintext) {
+        plaintext = normalized.plaintext
+      } else if (normalized?.recordPlaintext) {
+        plaintext = normalized.recordPlaintext
+      } else {
+        // Reconstruct from structured data (NullPay pattern)
+        const nonce = normalized?.nonce || normalized?._nonce || normalized?.data?._nonce
+        const owner = normalized?.owner || normalized?.data?.owner
+        if (nonce && owner) {
+          const cleanOwner = String(owner).replace(/\.private$/, '')
+          const cleanNonce = String(nonce).replace(/\.public$/, '')
+          plaintext = `{ owner: ${cleanOwner}.private, microcredits: ${val}u64.private, _nonce: ${cleanNonce}.public }`
+        } else if (r?.ciphertext) {
+          plaintext = r.ciphertext
+        }
       }
-    }
 
-    if (!plaintext) {
-      // Record has value but no plaintext -- skip
-      return null
-    }
-    return { plaintext, microcredits: val }
-  }
+      if (!plaintext) {
+        // Record has value but no plaintext -- skip
+        return null
+      }
+      return { plaintext, microcredits: val }
+    },
+    [decrypt]
+  )
 
-  const extractPlaintext = async (r: WalletRecord): Promise<string> => {
-    if (r?.spent) return ''
-    if (typeof r === 'string') return r
-    if (r?.plaintext) return r.plaintext
-    if (r?.recordPlaintext) return r.recordPlaintext
-    if ((r?.recordCiphertext || r?.ciphertext) && decrypt) {
-      try {
-        const decrypted = await decrypt((r.recordCiphertext || r.ciphertext) as string)
-        if (decrypted) return decrypted
-      } catch { /* skip */ }
-    }
-    return ''
-  }
+  const extractPlaintext = useCallback(
+    async (r: WalletRecord): Promise<string> => {
+      if (r?.spent) return ''
+      if (typeof r === 'string') return r
+      if (r?.plaintext) return r.plaintext
+      if (r?.recordPlaintext) return r.recordPlaintext
+      if ((r?.recordCiphertext || r?.ciphertext) && decrypt) {
+        try {
+          const decrypted = await decrypt((r.recordCiphertext || r.ciphertext) as string)
+          if (decrypted) return decrypted
+        } catch { /* skip */ }
+      }
+      return ''
+    },
+    [decrypt]
+  )
 
   return {
     address,

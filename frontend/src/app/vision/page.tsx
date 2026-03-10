@@ -134,7 +134,7 @@ export default function VisionPage() {
             <div className="grid md:grid-cols-3 gap-4">
               {[
                 { stat: '27', label: 'Transitions', desc: 'Complete subscription lifecycle' },
-                { stat: '24', label: 'Mappings', desc: 'Aggregate-only public state' },
+                { stat: '25', label: 'Mappings', desc: 'Aggregate-only public state' },
                 { stat: '0', label: 'Identity Leaks', desc: 'Subscriber addresses never in finalize' },
               ].map((item, i) => (
                 <m.div

@@ -712,7 +712,7 @@ function FaqTab() {
     },
     {
       q: 'How did VeilSub evolve from v15 to v27?',
-      a: 'v15 was the first testnet deployment (security hardening, subscription transfer). Subsequent versions (v16-v21) added features like referrals, Pedersen commitments, and analytics — but v21 exceeded testnet\'s ~2.1M variable limit. v23 was a privacy overhaul: all finalize mapping keys use Poseidon2 field hashes instead of raw addresses. v24 adds content_creator mapping for auth and on-chain expiry enforcement. v25 adds prove_subscriber_threshold and platform analytics. v26 adds ephemeral trial passes (subscribe_trial). v27 adds scoped audit tokens (scope_mask bitfield), trial rate-limiting (one trial per creator per subscriber), and gift revocation fix. The result: 27 transitions, 25 mappings, 866 statements — deployed on testnet.',
+      a: 'v15 was the first testnet deployment (security hardening, subscription transfer). Subsequent versions (v16–v21) added features like referrals, Pedersen commitments, and analytics — but v21 exceeded testnet\'s ~2.1M variable limit. v23 was a privacy overhaul: all finalize mapping keys use Poseidon2 field hashes instead of raw addresses. v24 adds content_creator mapping for auth and on-chain expiry enforcement. v25 adds prove_subscriber_threshold and platform analytics. v26 adds ephemeral trial passes (subscribe_trial). v27 adds scoped audit tokens (scope_mask bitfield), trial rate-limiting (one trial per creator per subscriber), and gift revocation fix. The result: 27 transitions, 25 mappings, 866 statements — deployed on testnet.',
     },
   ]
 
