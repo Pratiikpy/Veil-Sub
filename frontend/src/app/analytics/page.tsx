@@ -77,7 +77,7 @@ const CONTRACT_VERSIONS = [
   {
     version: 'v27',
     description: 'Scoped audit tokens (scope_mask bitfield), trial rate-limiting (one trial per creator), gift revocation fix. 27 transitions, 25 mappings, 866 statements',
-    deployed: false,
+    deployed: true,
   },
 ]
 

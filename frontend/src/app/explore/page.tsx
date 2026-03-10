@@ -150,11 +150,14 @@ export default function ExplorePage() {
         const apiCreators = data.creators || []
         // Fallback: show featured creators when API returns empty (demo mode)
         if (apiCreators.length === 0 && !debouncedSearch.trim()) {
-          setCreators(FEATURED_CREATORS.map(fc => ({
+          // Use dynamic timestamps relative to current time (appeared recently)
+          const now = new Date()
+          setCreators(FEATURED_CREATORS.map((fc, i) => ({
             address: fc.address,
             display_name: fc.label,
             bio: fc.bio ?? null,
-            created_at: '2026-02-01T00:00:00Z',
+            // Stagger join dates: first creator joined ~30 days ago, subsequent ones more recently
+            created_at: new Date(now.getTime() - (30 - i * 5) * 24 * 60 * 60 * 1000).toISOString(),
           })))
         } else {
           setCreators(apiCreators)

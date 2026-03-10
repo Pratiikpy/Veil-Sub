@@ -13,7 +13,7 @@ export default function Footer() {
             <div className="flex items-center gap-2 mb-3">
               <span className="font-serif italic text-white text-lg">VeilSub</span>
               <span className="px-1.5 py-0.5 text-[10px] font-medium text-violet-400/70 bg-violet-500/[0.08] border border-violet-500/[0.12] rounded">
-                v26
+                v27
               </span>
             </div>
             <p className="text-xs text-subtle leading-relaxed max-w-[240px]">
@@ -67,7 +67,7 @@ export default function Footer() {
           <div className="flex items-center gap-2">
             <span className="font-serif italic text-white text-sm">VeilSub</span>
             <span className="px-1.5 py-0.5 text-[9px] font-medium text-violet-400/70 bg-violet-500/[0.08] border border-violet-500/[0.12] rounded">
-              v26
+              v27
             </span>
           </div>
           <a href="https://github.com/Pratiikpy/Veil-Sub" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository" className="flex items-center gap-1 text-xs text-subtle hover:text-muted transition-colors">

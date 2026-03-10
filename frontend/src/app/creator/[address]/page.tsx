@@ -237,7 +237,8 @@ export default function CreatorPage({
         ...tier,
         name: custom.name || tier.name,
         // Override priceMultiplier so totalPrice = custom.price (not basePrice * multiplier)
-        priceMultiplier: basePrice > 0 ? custom.price / basePrice : (custom.price > 0 ? 1 : tier.priceMultiplier),
+        // Guard against division by zero: if basePrice is 0, use the custom price as multiplier 1
+        priceMultiplier: basePrice > 0 ? custom.price / basePrice : 1,
       }
     }
     return tier
@@ -410,12 +411,15 @@ export default function CreatorPage({
                 <div className="space-y-2">
                   {userPasses.map((pass, i) => {
                     const tierInfo = displayTiers.find((t) => t.id === pass.tier)
-                    const tierColor =
-                      pass.tier === 3
-                        ? 'text-violet-300 bg-violet-500/10 border-violet-500/20'
-                        : pass.tier === 2
-                          ? 'text-blue-300 bg-blue-500/10 border-blue-500/20'
-                          : 'text-green-300 bg-green-500/10 border-green-500/20'
+                    // Color mapping for tier badges, supports tier IDs 1-5+ with fallback
+                    const tierColorMap: Record<number, string> = {
+                      1: 'text-green-300 bg-green-500/10 border-green-500/20',
+                      2: 'text-blue-300 bg-blue-500/10 border-blue-500/20',
+                      3: 'text-violet-300 bg-violet-500/10 border-violet-500/20',
+                      4: 'text-amber-300 bg-amber-500/10 border-amber-500/20',
+                      5: 'text-pink-300 bg-pink-500/10 border-pink-500/20',
+                    }
+                    const tierColor = tierColorMap[pass.tier] || 'text-muted bg-white/5 border-border'
                     const expiry = getPassExpiry(pass)
 
                     return (

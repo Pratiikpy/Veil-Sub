@@ -30,7 +30,7 @@ import AddressAvatar from '@/components/ui/AddressAvatar'
 import OnChainVerify from '@/components/OnChainVerify'
 import AnimatedCounter from '@/components/AnimatedCounter'
 import ActivityChart from '@/components/ActivityChart'
-import { DEPLOYED_PROGRAM_ID, PLATFORM_ADDRESS } from '@/lib/config'
+import { DEPLOYED_PROGRAM_ID, PLATFORM_ADDRESS, CREATOR_HASH_MAP } from '@/lib/config'
 import type { CreatorProfile } from '@/types'
 
 interface GlobalStats {
@@ -96,8 +96,8 @@ function timeAgo(dateStr: string): string {
 const ALEO_API = '/api/aleo'
 
 // v23: All mappings use Poseidon2 field hashes as keys, not raw addresses
-// Pre-computed Poseidon2 hash of deployment address for featured creator demo queries
-const CREATOR_HASH = '7077346389288357645876044527218031735459465201928260558184537791016616885101field'
+// Use the pre-computed Poseidon2 hash from the central config for featured creator queries
+const CREATOR_HASH = CREATOR_HASH_MAP[PLATFORM_ADDRESS] || '7077346389288357645876044527218031735459465201928260558184537791016616885101field'
 
 const MAPPING_QUERIES = [
   { mapping: 'subscriber_count', key: CREATOR_HASH, label: 'Subscriber Count', desc: 'Total subscribers for platform creator' },

@@ -12,7 +12,7 @@ const STATS = [
   { key: 'privacy', value: 100, suffix: '%', label: 'Private', sublabel: 'Subscriber identity hidden' },
   { key: 'transitions', value: 27, suffix: '', label: 'Transitions', sublabel: 'On-chain smart contract' },
   { key: 'records', value: 6, suffix: '', label: 'Record Types', sublabel: 'Private data structures' },
-  { key: 'versions', value: 26, suffix: '', label: 'Versions', sublabel: 'Iterative testnet deploys', prefix: 'v' },
+  { key: 'versions', value: 27, suffix: '', label: 'Versions', sublabel: 'Iterative testnet deploys', prefix: 'v' },
 ]
 
 export default function ProtocolStats() {
