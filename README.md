@@ -129,7 +129,7 @@ NOVEL: Zero-address finalize, blind renewal, commit-reveal
 ```
 Frontend (Next.js 16 + React 19 + Tailwind 4)
   5 wallets: Shield, Leo, Fox, Puzzle, Soter
-  62 components, 10 routes, 16 hooks
+  65 components, 10 routes, 19 hooks
 
 API Layer (Next.js API routes)
   /api/aleo/* proxy (hides user IP from Provable)
