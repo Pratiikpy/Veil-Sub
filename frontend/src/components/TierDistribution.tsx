@@ -17,9 +17,11 @@ export default function TierDistribution({ creatorAddress }: Props) {
   const [distribution, setDistribution] = useState<Record<string, number>>({})
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
+    setFetchError(false)
     fetch(`/api/analytics/summary?creator=${encodeURIComponent(creatorAddress)}`, { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error('API error')
@@ -32,6 +34,7 @@ export default function TierDistribution({ creatorAddress }: Props) {
       })
       .catch((err) => {
         if (err.name === 'AbortError') return
+        setFetchError(true)
         setLoading(false)
       })
     return () => controller.abort()
@@ -39,18 +42,30 @@ export default function TierDistribution({ creatorAddress }: Props) {
 
   if (loading) {
     return (
-      <div className="h-36 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08] animate-pulse" />
+      <div className="h-36 rounded-sm bg-surface-1 border border-border animate-pulse" />
+    )
+  }
+
+  if (fetchError) {
+    return (
+      <div className="rounded-sm bg-surface-1 border border-border p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Users className="w-4 h-4 text-muted" />
+          <h3 className="text-sm font-medium text-white">Tier Breakdown</h3>
+        </div>
+        <p className="text-xs text-subtle">Unable to load tier data.</p>
+      </div>
     )
   }
 
   const maxCount = Math.max(...Object.values(distribution), 1)
 
   return (
-    <div className="rounded-[12px] bg-[#0a0a0a] border border-white/[0.08] p-5">
+    <div className="rounded-sm bg-surface-1 border border-border p-5">
       <div className="flex items-center gap-2 mb-4">
-        <Users className="w-4 h-4 text-[#a1a1aa]" />
+        <Users className="w-4 h-4 text-muted" />
         <h3 className="text-sm font-medium text-white">Tier Breakdown</h3>
-        <span className="text-xs text-[#71717a] ml-auto">{total} total</span>
+        <span className="text-xs text-subtle ml-auto">{total} total</span>
       </div>
 
       <div className="space-y-3">
@@ -63,8 +78,8 @@ export default function TierDistribution({ creatorAddress }: Props) {
           return (
             <div key={tierId} className="group relative">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-[#a1a1aa]">{config.name}</span>
-                <span className="text-xs text-[#71717a]">
+                <span className="text-xs text-muted">{config.name}</span>
+                <span className="text-xs text-subtle">
                   {count} ({pct.toFixed(0)}%)
                 </span>
               </div>
@@ -75,9 +90,9 @@ export default function TierDistribution({ creatorAddress }: Props) {
                 />
                 {/* Hover tooltip */}
                 <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block z-10">
-                  <div className="px-2.5 py-1.5 rounded bg-[#1a1825] border border-white/[0.08] text-xs whitespace-nowrap shadow-lg">
+                  <div className="px-2.5 py-1.5 rounded bg-surface-2 border border-border text-xs whitespace-nowrap shadow-lg">
                     <p className="text-white font-medium">{count} subscribers</p>
-                    <p className="text-[#a1a1aa]">{pct.toFixed(1)}% of total</p>
+                    <p className="text-muted">{pct.toFixed(1)}% of total</p>
                   </div>
                 </div>
               </div>

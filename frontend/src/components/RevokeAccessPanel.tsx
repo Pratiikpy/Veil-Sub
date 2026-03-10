@@ -42,9 +42,9 @@ export default function RevokeAccessPanel() {
           }
         })
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setTxStatus('failed')
-      setError(err?.message || 'Revocation failed')
+      setError(err instanceof Error ? err.message : 'Revocation failed')
       toast.error('Revocation failed')
     } finally {
       submittingRef.current = false
@@ -52,19 +52,19 @@ export default function RevokeAccessPanel() {
   }
 
   return (
-    <div className="rounded-3xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] p-6">
+    <div className="rounded-3xl glass p-6">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-9 h-9 rounded-xl bg-red-500/[0.08] border border-red-500/[0.12] flex items-center justify-center">
           <ShieldOff className="w-4 h-4 text-red-400" />
         </div>
         <div>
           <h3 className="text-sm font-semibold text-white">Revoke Subscriber Access</h3>
-          <p className="text-xs text-[#71717a]">Permanently revoke an AccessPass by ID</p>
+          <p className="text-xs text-subtle">Permanently revoke an AccessPass by ID</p>
         </div>
       </div>
 
       <div className="rounded-xl bg-red-500/[0.04] border border-red-500/[0.08] p-3 mb-4">
-        <p className="text-xs text-red-300/50 flex items-center gap-1.5">
+        <p className="text-xs text-red-300 flex items-center gap-1.5">
           <AlertTriangle className="w-3 h-3 shrink-0" />
           This is irreversible. The subscriber will lose access immediately.
         </p>
@@ -76,7 +76,8 @@ export default function RevokeAccessPanel() {
           value={passId}
           onChange={(e) => setPassId(e.target.value)}
           placeholder="Enter pass_id (field value)"
-          className="flex-1 px-4 py-2.5 rounded-xl bg-black/40 border border-white/[0.08] text-white text-sm font-mono placeholder-[#71717a] focus:outline-none focus:border-red-500/[0.2] transition-colors"
+          aria-label="Pass ID to revoke"
+          className="flex-1 px-4 py-2.5 rounded-xl bg-black/40 border border-border text-white text-base font-mono placeholder-subtle focus:outline-none focus:border-red-500/[0.3] focus:shadow-[0_0_20px_rgba(239,68,68,0.08)] transition-all"
         />
         <Button
           onClick={handleRevoke}
@@ -88,7 +89,7 @@ export default function RevokeAccessPanel() {
       </div>
 
       {txStatus !== 'idle' && (
-        <TransactionStatus status={txStatus} txId={txId} />
+        <TransactionStatus status={txStatus} txId={txId} errorMessage={error} />
       )}
 
       {error && (

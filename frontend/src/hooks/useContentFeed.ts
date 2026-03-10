@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { SEED_CONTENT } from '@/lib/config'
+import { computeWalletHash } from '@/lib/utils'
 import type { AccessPass, ContentPost } from '@/types'
 
 export function useContentFeed() {
@@ -13,10 +14,13 @@ export function useContentFeed() {
         id: s.id,
         title: s.title,
         body: s.minTier > 0 ? null : s.body,
+        preview: s.preview,
         minTier: s.minTier,
         createdAt: s.createdAt,
         contentId: s.contentId,
         gated: s.minTier > 0,
+        imageUrl: s.imageUrl && s.minTier === 0 ? s.imageUrl : null,
+        hasImage: !!s.imageUrl,
       }))
 
       setLoading(true)
@@ -30,8 +34,8 @@ export function useContentFeed() {
           setLoading(false)
           return apiPosts.length > 0 ? apiPosts : seedPosts
         }
-      } catch {
-        // Fallback to seed content only
+      } catch (err) {
+        console.error('[useContentFeed] Failed to fetch posts, falling back to seed content:', err)
       }
       setLoading(false)
       return seedPosts
@@ -46,7 +50,7 @@ export function useContentFeed() {
       walletAddress: string,
       accessPasses: AccessPass[],
       signFn: ((msg: Uint8Array) => Promise<Uint8Array>) | null = null
-    ): Promise<string | null> => {
+    ): Promise<{ body: string; imageUrl?: string } | null> => {
       try {
         const timestamp = Date.now()
         let signature: string | undefined
@@ -66,11 +70,10 @@ export function useContentFeed() {
           }
         }
 
-        // Hash wallet address client-side to avoid sending plaintext to server.
-        // This preserves rate-limiting capability without leaking subscriber identity.
-        const addrBytes = new TextEncoder().encode(walletAddress)
-        const hashBuf = await crypto.subtle.digest('SHA-256', addrBytes)
-        const walletHash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
+        // Compute server-salted hash to avoid sending plaintext to server.
+        // Uses NEXT_PUBLIC_WALLET_AUTH_SALT so the server can verify without
+        // exposing the subscriber's raw address.
+        const walletHash = await computeWalletHash(walletAddress)
 
         const res = await fetch('/api/posts/unlock', {
           method: 'POST',
@@ -89,11 +92,11 @@ export function useContentFeed() {
           }),
         })
         if (res.ok) {
-          const { body } = await res.json()
-          return body as string
+          const data = await res.json()
+          return { body: data.body as string, imageUrl: data.imageUrl as string | undefined }
         }
-      } catch {
-        // Unlock failed
+      } catch (err) {
+        console.error('[useContentFeed] Unlock failed:', err)
       }
       return null
     },
@@ -107,13 +110,12 @@ export function useContentFeed() {
       body: string,
       minTier: number,
       contentId: string,
-      signFn: ((msg: Uint8Array) => Promise<Uint8Array>) | null = null
+      signFn: ((msg: Uint8Array) => Promise<Uint8Array>) | null = null,
+      imageUrl?: string
     ): Promise<ContentPost | null> => {
       try {
         const timestamp = Date.now()
-        const addrBytes = new TextEncoder().encode(creatorAddress)
-        const hashBuf = await crypto.subtle.digest('SHA-256', addrBytes)
-        const walletHash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
+        const walletHash = await computeWalletHash(creatorAddress)
 
         let signature: string | undefined
         if (signFn) {
@@ -138,8 +140,10 @@ export function useContentFeed() {
             creator: creatorAddress,
             title,
             body,
+            preview: body.slice(0, 200),
             minTier,
             contentId,
+            ...(imageUrl ? { imageUrl } : {}),
             walletHash,
             timestamp,
             signature,
@@ -149,8 +153,8 @@ export function useContentFeed() {
           const { post } = await res.json()
           return post as ContentPost
         }
-      } catch {
-        // Fail silently — caller handles null
+      } catch (err) {
+        console.error('[useContentFeed] Create post failed:', err)
       }
       return null
     },
@@ -165,9 +169,7 @@ export function useContentFeed() {
     ): Promise<boolean> => {
       try {
         const timestamp = Date.now()
-        const addrBytes = new TextEncoder().encode(creatorAddress)
-        const hashBuf = await crypto.subtle.digest('SHA-256', addrBytes)
-        const walletHash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
+        const walletHash = await computeWalletHash(creatorAddress)
 
         let signature: string | undefined
         if (signFn) {
@@ -197,12 +199,64 @@ export function useContentFeed() {
           }),
         })
         return res.ok
-      } catch {
+      } catch (err) {
+        console.error('[useContentFeed] Delete post failed:', err)
         return false
       }
     },
     []
   )
 
-  return { getPostsForCreator, unlockPost, createPost, deletePost, loading }
+  const editPost = useCallback(
+    async (
+      creatorAddress: string,
+      postId: string,
+      updates: { title?: string; body?: string; preview?: string; minTier?: number },
+      signFn: ((msg: Uint8Array) => Promise<Uint8Array>) | null = null
+    ): Promise<ContentPost | null> => {
+      try {
+        const timestamp = Date.now()
+        const walletHash = await computeWalletHash(creatorAddress)
+
+        let signature: string | undefined
+        if (signFn) {
+          try {
+            const message = `veilsub:edit:${postId}:${timestamp}`
+            const msgBytes = new TextEncoder().encode(message)
+            const sigBytes = await signFn(msgBytes)
+            let binary = ''
+            for (let i = 0; i < sigBytes.length; i++) {
+              binary += String.fromCharCode(sigBytes[i])
+            }
+            signature = btoa(binary)
+          } catch {
+            // Wallet rejected signing
+          }
+        }
+
+        const res = await fetch('/api/posts', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            creator: creatorAddress,
+            postId,
+            ...updates,
+            walletHash,
+            timestamp,
+            signature,
+          }),
+        })
+        if (res.ok) {
+          const { post } = await res.json()
+          return post as ContentPost
+        }
+      } catch (err) {
+        console.error('[useContentFeed] Edit post failed:', err)
+      }
+      return null
+    },
+    []
+  )
+
+  return { getPostsForCreator, unlockPost, createPost, editPost, deletePost, loading }
 }

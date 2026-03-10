@@ -1,22 +1,12 @@
-'use client'
-
 import { ReactNode } from 'react'
-import { motion } from 'framer-motion'
 
 interface Props {
   children: ReactNode
   className?: string
 }
 
+// Server component: this is a plain div wrapper with no client-side behavior.
+// Kept as a named component for consistent page structure across routes.
 export default function PageTransition({ children, className = '' }: Props) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  )
+  return <div className={className}>{children}</div>
 }

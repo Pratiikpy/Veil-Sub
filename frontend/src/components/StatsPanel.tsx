@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { Users, Coins, Tag } from 'lucide-react'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { formatCredits } from '@/lib/utils'
@@ -15,27 +15,37 @@ interface Props {
 export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
   const { fetchCreatorStats, loading } = useCreatorStats()
   const [stats, setStats] = useState<CreatorProfile | null>(null)
+  const [fetchError, setFetchError] = useState(false)
 
   useEffect(() => {
     if (creatorAddress) {
+      setFetchError(false)
       fetchCreatorStats(creatorAddress).then(setStats).catch(() => {
-        // Network error — keep existing stats or null
+        setFetchError(true)
       })
     }
   }, [creatorAddress, fetchCreatorStats, refreshKey])
 
   if (loading && !stats) {
     return (
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="p-4 rounded-[8px] bg-white/[0.05] border border-white/[0.05] animate-pulse"
+            className="p-4 rounded-xl bg-white/[0.05] border border-white/[0.05] animate-pulse"
           >
             <div className="h-4 w-16 bg-white/10 rounded mb-2" />
             <div className="h-8 w-20 bg-white/10 rounded" />
           </div>
         ))}
+      </div>
+    )
+  }
+
+  if (!stats && fetchError) {
+    return (
+      <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/15 text-center">
+        <p className="text-xs text-red-300">Failed to load stats. Check your connection and refresh.</p>
       </div>
     )
   }
@@ -47,7 +57,7 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
       label: 'Subscribers',
       value: stats.subscriberCount.toString(),
       icon: Users,
-      color: 'text-[#a1a1aa]',
+      color: 'text-muted',
     },
     {
       label: 'Revenue',
@@ -70,19 +80,19 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
       {items.map((item, i) => {
         const Icon = item.icon
         return (
-          <motion.div
+          <m.div
             key={item.label}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="p-4 rounded-[8px] bg-[#0a0a0a] border border-white/[0.05] hover:border-white/10 transition-colors"
+            className="p-4 rounded-xl bg-surface-1 border border-white/[0.05] hover:border-border transition-colors"
           >
             <div className="flex items-center gap-2 mb-2">
               <Icon className={`w-4 h-4 ${item.color}`} />
-              <span className="text-xs text-[#a1a1aa]">{item.label}</span>
+              <span className="text-xs text-muted">{item.label}</span>
             </div>
             <p className="text-xl font-bold text-white">{item.value}</p>
-          </motion.div>
+          </m.div>
         )
       })}
     </div>

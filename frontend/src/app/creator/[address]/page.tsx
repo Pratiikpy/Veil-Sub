@@ -1,35 +1,40 @@
 'use client'
 
-import { useEffect, useState, use, useMemo } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useState, useRef, use } from 'react'
+import { m } from 'framer-motion'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 import {
   Shield,
   Heart,
   Sparkles,
-  Lock,
   Users,
   Coins,
   ExternalLink,
   RefreshCw,
-  Clock,
   AlertTriangle,
   ArrowRight,
   Search,
   ArrowLeftRight,
   Flag,
+  Copy,
+  Check,
+  Share2,
+  FileKey,
 } from 'lucide-react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
+import { useCreatorTiers } from '@/hooks/useCreatorTiers'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useSupabase } from '@/hooks/useSupabase'
-import SubscribeModal from '@/components/SubscribeModal'
-import TipModal from '@/components/TipModal'
-import RenewModal from '@/components/RenewModal'
-import GiftSubscriptionFlow from '@/components/GiftSubscriptionFlow'
-import TransferPassModal from '@/components/TransferPassModal'
+import dynamic from 'next/dynamic'
+const SubscribeModal = dynamic(() => import('@/components/SubscribeModal'), { ssr: false })
+const TipModal = dynamic(() => import('@/components/TipModal'), { ssr: false })
+const RenewModal = dynamic(() => import('@/components/RenewModal'), { ssr: false })
+const GiftSubscriptionFlow = dynamic(() => import('@/components/GiftSubscriptionFlow'), { ssr: false })
+const TransferPassModal = dynamic(() => import('@/components/TransferPassModal'), { ssr: false })
+const DisputeContentModal = dynamic(() => import('@/components/DisputeContentModal'), { ssr: false })
+const CreateAuditTokenModal = dynamic(() => import('@/components/CreateAuditTokenModal'), { ssr: false })
 import ContentFeed from '@/components/ContentFeed'
 import CreatorQRCode from '@/components/CreatorQRCode'
 import PageTransition from '@/components/PageTransition'
@@ -42,6 +47,78 @@ import { TIERS } from '@/types'
 import type { CreatorProfile, SubscriptionTier, AccessPass } from '@/types'
 
 import CreatorSkeleton from '@/components/CreatorSkeleton'
+import AddressAvatar from '@/components/ui/AddressAvatar'
+
+function GiftDropdown({
+  connected,
+  tiers,
+  basePrice,
+  onSelect,
+}: {
+  connected: boolean
+  tiers: typeof TIERS
+  basePrice: number
+  onSelect: (tier: { id: number; name: string; price: number }) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false)
+      }
+    }
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [open])
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        disabled={!connected}
+        onClick={() => setOpen((prev) => !prev)}
+        aria-haspopup="true"
+        aria-expanded={open}
+        className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-muted font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        <Sparkles className="w-4 h-4" />
+        Gift
+      </button>
+      {connected && open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full mt-1 z-20 min-w-[180px] py-1 rounded-xl bg-surface-1 border border-border shadow-xl animate-in fade-in slide-in-from-top-1 duration-150"
+        >
+          {tiers.map((tier) => (
+            <button
+              key={tier.id}
+              role="menuitem"
+              onClick={() => {
+                onSelect({ id: tier.id, name: tier.name, price: basePrice * tier.priceMultiplier })
+                setOpen(false)
+              }}
+              className="w-full text-left px-4 py-2 text-sm text-muted hover:text-white hover:bg-white/[0.04] transition-colors flex items-center justify-between"
+            >
+              <span>{tier.name}</span>
+              <span className="text-xs text-subtle">{formatCredits(basePrice * tier.priceMultiplier)}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function CreatorPage({
   params,
@@ -49,13 +126,10 @@ export default function CreatorPage({
   params: Promise<{ address: string }>
 }) {
   const { address } = use(params)
-  const searchParams = useSearchParams()
-  const referrerAddress = useMemo(() => {
-    const ref = searchParams.get('ref')
-    return ref && ref.startsWith('aleo1') && ref.length > 50 ? ref : null
-  }, [searchParams])
+  // Referral system removed in v23 (subscribe_referral transition removed for variable limit)
   const { connected, address: publicKey } = useWallet()
   const { fetchCreatorStats } = useCreatorStats()
+  const { tiers: onChainTiers, tierCount: onChainTierCount, loading: tiersLoading } = useCreatorTiers(address)
   const { getAccessPasses } = useVeilSub()
   const { blockHeight } = useBlockHeight()
   const { getCreatorProfile } = useSupabase()
@@ -72,6 +146,15 @@ export default function CreatorPage({
   const [showGift, setShowGift] = useState(false)
   const [giftTier, setGiftTier] = useState<{ id: number; name: string; price: number } | null>(null)
   const [transferPass, setTransferPass] = useState<AccessPass | null>(null)
+  const [disputeContentId, setDisputeContentId] = useState<string | null>(null)
+  const [auditTokenPass, setAuditTokenPass] = useState<AccessPass | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  const copyAddress = () => {
+    navigator.clipboard.writeText(address)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   // Fetch creator stats and profile
   useEffect(() => {
@@ -124,13 +207,13 @@ export default function CreatorPage({
     return (
       <PageTransition className="min-h-screen">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="p-8 rounded-[12px] border border-red-500/15 bg-red-500/5 text-center">
+          <div className="p-8 rounded-sm border border-red-500/15 bg-red-500/5 text-center">
             <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
-            <h2 className="text-xl font-semibold text-[#fafafa] mb-2">Failed to Load Creator</h2>
-            <p className="text-sm text-[#a1a1aa] mb-4">Could not fetch creator data. Please check your connection and try again.</p>
+            <h2 className="text-xl font-semibold text-white mb-2">Failed to Load Creator</h2>
+            <p className="text-sm text-muted mb-4">Could not fetch creator data. Please check your connection and try again.</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-6 py-2.5 rounded-[8px] bg-white/[0.05] border border-white/[0.08] text-[#fafafa] font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 inline-flex items-center gap-2"
+              className="px-6 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 inline-flex items-center gap-2"
             >
               <RefreshCw className="w-4 h-4" />
               Retry
@@ -143,6 +226,22 @@ export default function CreatorPage({
 
   const isRegistered = stats?.tierPrice !== null && stats?.tierPrice !== undefined
   const basePrice = stats?.tierPrice ?? 0
+  const hasOnChainTiers = onChainTierCount > 0
+
+  // Build display tiers: merge on-chain/cached custom prices with fallback hardcoded TIERS.
+  // onChainTiers comes from useCreatorTiers which queries the chain + falls back to config cache.
+  const displayTiers = TIERS.map((tier) => {
+    const custom = onChainTiers[tier.id]
+    if (custom && custom.price > 0) {
+      return {
+        ...tier,
+        name: custom.name || tier.name,
+        // Override priceMultiplier so totalPrice = custom.price (not basePrice * multiplier)
+        priceMultiplier: basePrice > 0 ? custom.price / basePrice : (custom.price > 0 ? 1 : tier.priceMultiplier),
+      }
+    }
+    return tier
+  })
 
   const getPassExpiry = (pass: AccessPass) => {
     if (blockHeight === null || pass.expiresAt === 0) return null
@@ -167,37 +266,73 @@ export default function CreatorPage({
   return (
     <PageTransition className="min-h-screen">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-1.5 text-xs text-subtle mb-6" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-muted transition-colors">Home</Link>
+          <span>/</span>
+          <Link href="/explore" className="hover:text-muted transition-colors">Explore</Link>
+          <span>/</span>
+          <span className="text-muted font-mono">{displayName || shortenAddress(address)}</span>
+        </nav>
+
         {/* Creator Header */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-10"
         >
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-            <div className="w-14 h-14 rounded-[12px] bg-white/[0.06] flex items-center justify-center">
-              <Shield className="w-7 h-7 text-white/40" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-semibold text-[#fafafa] mb-1">
+            <AddressAvatar address={address} size={56} />
+            <div className="flex-1 min-w-0">
+              <h1
+                className="text-2xl sm:text-3xl font-serif italic text-white mb-1"
+                style={{ letterSpacing: '-0.02em' }}
+              >
                 {displayName || shortenAddress(address)}
               </h1>
               {displayName && (
-                <p className="text-base text-slate-500 font-mono mb-1">
+                <p className="text-base text-subtle font-mono mb-1">
                   {shortenAddress(address)}
                 </p>
               )}
               {bio && (
-                <p className="text-sm text-slate-400 mb-1">{bio}</p>
+                <p className="text-sm text-muted mb-1">{bio}</p>
               )}
-              <a
-                href={`https://testnet.explorer.provable.com/address/${address}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-sm text-[#a1a1aa] hover:text-[#fafafa]"
-              >
-                View on Explorer
-                <ExternalLink className="w-3 h-3" />
-              </a>
+              <div className="flex items-center gap-3 flex-wrap">
+                <a
+                  href={`https://testnet.explorer.provable.com/address/${address}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm text-muted hover:text-white transition-colors"
+                >
+                  View on Explorer
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+                <button
+                  onClick={copyAddress}
+                  className="inline-flex items-center gap-1 text-sm text-subtle hover:text-muted transition-colors"
+                  aria-label="Copy creator address"
+                >
+                  {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+                  {copied ? 'Copied' : 'Copy'}
+                </button>
+                <button
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({ title: displayName || 'VeilSub Creator', url: window.location.href })
+                    } else {
+                      navigator.clipboard.writeText(window.location.href)
+                      setCopied(true)
+                      setTimeout(() => setCopied(false), 2000)
+                    }
+                  }}
+                  className="inline-flex items-center gap-1 text-sm text-subtle hover:text-muted transition-colors"
+                  aria-label="Share creator page"
+                >
+                  <Share2 className="w-3 h-3" />
+                  Share
+                </button>
+              </div>
             </div>
           </div>
 
@@ -206,46 +341,37 @@ export default function CreatorPage({
             <div className="flex flex-wrap gap-6 mb-6">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-violet-400" />
-                <span className="text-sm text-slate-300">
+                <span className="text-sm text-white">
                   {stats?.subscriberCount ?? 0} subscribers
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <Coins className="w-4 h-4 text-green-400" />
-                <span className="text-sm text-slate-300">
+                <span className="text-sm text-white">
                   {formatCredits(stats?.totalRevenue ?? 0)} ALEO earned
                 </span>
               </div>
             </div>
           )}
 
-          {/* Referral Banner */}
-          {referrerAddress && isRegistered && (
-            <div className="p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.12] mb-4">
-              <p className="text-xs text-violet-300 flex items-center gap-2">
-                <Users className="w-3.5 h-3.5 shrink-0" />
-                Referred by {referrerAddress.slice(0, 10)}...{referrerAddress.slice(-6)} — 10% of your subscription goes to them as a private reward.
-              </p>
-            </div>
-          )}
-        </motion.div>
+        </m.div>
 
         {!isRegistered ? (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-20"
           >
-            <div className="w-16 h-16 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08] flex items-center justify-center mx-auto mb-6">
-              <Shield className="w-8 h-8 text-[#71717a]" />
+            <div className="mx-auto mb-6 w-16 h-16">
+              <AddressAvatar address={address} size={64} />
             </div>
-            <h2 className="text-2xl font-semibold text-[#fafafa] mb-3">
+            <h2 className="text-2xl font-semibold text-white mb-3">
               Creator Not Found
             </h2>
-            <p className="text-slate-400 max-w-md mx-auto mb-2">
+            <p className="text-muted max-w-md mx-auto mb-2">
               This address hasn&apos;t registered as a creator on VeilSub yet.
             </p>
-            <p className="text-base text-slate-500 font-mono mb-8">
+            <p className="text-base text-subtle font-mono mb-8">
               {shortenAddress(address)}
             </p>
             <div className="flex items-center justify-center gap-3 flex-wrap">
@@ -258,18 +384,18 @@ export default function CreatorPage({
               </Link>
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-[8px] bg-white/[0.05] border border-white/[0.08] text-[#a1a1aa] text-sm hover:bg-white/[0.08] transition-all duration-300"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.05] border border-border text-muted text-sm hover:bg-white/[0.08] transition-all duration-300"
               >
                 Register as a Creator
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-          </motion.div>
+          </m.div>
         ) : (
           <div className="space-y-10">
             {/* User's Existing Passes */}
             {userPasses.length > 0 && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="p-4 rounded-xl bg-green-500/5 border border-green-500/20"
@@ -279,11 +405,11 @@ export default function CreatorPage({
                   <span className="text-sm font-medium text-green-300">
                     Your AccessPasses ({userPasses.length})
                   </span>
-                  <span className="text-xs text-slate-500 ml-auto">Only you can see this</span>
+                  <span className="text-xs text-subtle ml-auto">Only you can see this</span>
                 </div>
                 <div className="space-y-2">
                   {userPasses.map((pass, i) => {
-                    const tierInfo = TIERS.find((t) => t.id === pass.tier)
+                    const tierInfo = displayTiers.find((t) => t.id === pass.tier)
                     const tierColor =
                       pass.tier === 3
                         ? 'text-violet-300 bg-violet-500/10 border-violet-500/20'
@@ -295,15 +421,15 @@ export default function CreatorPage({
                     return (
                       <div
                         key={pass.passId || i}
-                        className="flex flex-wrap items-center gap-2 sm:gap-3 p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.08]"
+                        className="flex flex-wrap items-center gap-2 sm:gap-3 p-2.5 rounded-lg bg-white/[0.02] border border-border"
                       >
                         <span
                           className={`px-2 py-0.5 rounded-full text-xs font-medium border ${tierColor}`}
                         >
                           {tierInfo?.name ?? `Tier ${pass.tier}`}
                         </span>
-                        <span className="text-xs text-slate-500 font-mono hidden sm:inline">
-                          ID: {pass.passId.length > 16 ? `${pass.passId.slice(0, 8)}...${pass.passId.slice(-6)}` : pass.passId}
+                        <span className="text-xs text-subtle font-mono hidden sm:inline">
+                          ID: {pass.passId ? (pass.passId.length > 16 ? `${pass.passId.slice(0, 8)}...${pass.passId.slice(-6)}` : pass.passId) : '\u2014'}
                         </span>
 
                         {/* Expiry display */}
@@ -311,7 +437,7 @@ export default function CreatorPage({
                           <span className="ml-auto flex flex-wrap items-center gap-2">
                             {expiry.expired ? (
                               <>
-                                <span className="px-2 py-0.5 rounded-full text-xs font-medium border bg-gray-500/10 text-gray-400 border-gray-500/20">
+                                <span className="px-2 py-0.5 rounded-full text-xs font-medium border bg-white/[0.05] text-subtle border-border">
                                   Expired
                                 </span>
                                 <button
@@ -323,10 +449,18 @@ export default function CreatorPage({
                                 </button>
                                 <button
                                   onClick={() => setTransferPass(pass)}
-                                  className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs text-[#a1a1aa] hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
+                                  className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-border text-xs text-muted hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
                                 >
                                   <ArrowLeftRight className="w-3 h-3" />
                                   Transfer
+                                </button>
+                                <button
+                                  onClick={() => setAuditTokenPass(pass)}
+                                  className="px-2.5 py-1 rounded-lg bg-violet-500/[0.06] border border-violet-500/15 text-xs text-violet-300 hover:bg-violet-500/10 transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
+                                  aria-label="Create audit token for this pass"
+                                >
+                                  <FileKey className="w-3 h-3" />
+                                  Audit Token
                                 </button>
                               </>
                             ) : (() => {
@@ -335,7 +469,7 @@ export default function CreatorPage({
                               return (
                                 <>
                                   <div className="w-16 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                                    <motion.div
+                                    <m.div
                                       initial={{ width: 0 }}
                                       animate={{ width: `${progress}%` }}
                                       transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -347,10 +481,18 @@ export default function CreatorPage({
                                   </span>
                                   <button
                                     onClick={() => setTransferPass(pass)}
-                                    className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs text-[#a1a1aa] hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
+                                    className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-border text-xs text-muted hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
                                   >
                                     <ArrowLeftRight className="w-3 h-3" />
                                     Transfer
+                                  </button>
+                                  <button
+                                    onClick={() => setAuditTokenPass(pass)}
+                                    className="px-2.5 py-1 rounded-lg bg-violet-500/[0.06] border border-violet-500/15 text-xs text-violet-300 hover:bg-violet-500/10 transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
+                                    aria-label="Create audit token for this pass"
+                                  >
+                                    <FileKey className="w-3 h-3" />
+                                    Audit Token
                                   </button>
                                 </>
                               )
@@ -361,36 +503,48 @@ export default function CreatorPage({
                     )
                   })}
                 </div>
-              </motion.div>
+              </m.div>
             )}
 
             {/* Subscription Tiers */}
             <div>
-              <h2 className="text-lg font-semibold text-white mb-4">
-                Subscription Tiers
-              </h2>
+              <div className="flex items-center gap-3 mb-4">
+                <h2 className="text-lg font-semibold text-white">
+                  Subscription Tiers
+                </h2>
+                {tiersLoading ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/[0.05] border border-border text-[10px] text-subtle font-medium animate-pulse">
+                    Loading tiers...
+                  </span>
+                ) : hasOnChainTiers ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] text-green-400 font-medium">
+                    <Shield className="w-3 h-3" />
+                    {onChainTierCount} custom tier{onChainTierCount !== 1 ? 's' : ''} on-chain
+                  </span>
+                ) : null}
+              </div>
               <div className="grid sm:grid-cols-3 gap-4">
-                {TIERS.map((tier, i) => {
+                {displayTiers.map((tier, i) => {
                   const tierPrice = basePrice * tier.priceMultiplier
                   const hasThisTier = userPasses.some(
                     (p) => p.tier === tier.id
                   )
 
                   return (
-                    <motion.div
+                    <m.div
                       key={tier.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
                       className={`relative p-6 rounded-xl border hover:-translate-y-0.5 transition-all duration-300 ${
                         tier.id === 3
-                          ? 'bg-[#0a0a0a] border-white/[0.10] hover:border-white/[0.15]'
-                          : 'bg-[#0a0a0a] border-white/[0.08] hover:border-[rgba(255,255,255,0.1)]'
+                          ? 'bg-surface-1 border-violet-500/[0.15] hover:border-violet-500/[0.25] hover:shadow-accent-md'
+                          : 'bg-surface-1 border-border hover:border-glass-hover'
                       }`}
                     >
                       {tier.id === 3 && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/[0.06] border border-white/[0.10]">
-                          <span className="text-xs font-medium text-white/40">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15]">
+                          <span className="text-xs font-medium text-violet-300">
                             Popular
                           </span>
                         </div>
@@ -401,11 +555,11 @@ export default function CreatorPage({
                       </h3>
                       <p className="text-2xl font-bold text-white mb-1">
                         {formatCredits(tierPrice)}{' '}
-                        <span className="text-sm font-normal text-slate-400">
+                        <span className="text-sm font-normal text-muted">
                           ALEO
                         </span>
                       </p>
-                      <p className="text-xs text-slate-500 mb-4">
+                      <p className="text-xs text-subtle mb-4">
                         {tier.description}
                       </p>
 
@@ -413,7 +567,7 @@ export default function CreatorPage({
                         {tier.features.map((f) => (
                           <li
                             key={f}
-                            className="flex items-center gap-2 text-xs text-slate-400"
+                            className="flex items-center gap-2 text-xs text-muted"
                           >
                             <Sparkles className="w-3 h-3 text-violet-400" />
                             {f}
@@ -429,16 +583,16 @@ export default function CreatorPage({
                         <button
                           onClick={() => setSelectedTier(tier)}
                           disabled={!connected}
-                          className={`w-full py-2.5 rounded-lg font-medium text-sm transition-all duration-300 active:scale-[0.98] ${
+                          className={`w-full py-2.5 rounded-lg font-medium text-sm transition-all duration-300 active:scale-[0.98] btn-shimmer ${
                             tier.id === 3
                               ? 'bg-white text-black hover:bg-white/90'
-                              : 'bg-white/[0.05] border border-white/[0.08] text-[#fafafa] hover:bg-white/[0.08]'
+                              : 'bg-white/[0.05] border border-border text-white hover:bg-white/[0.08]'
                           } disabled:opacity-40 disabled:cursor-not-allowed`}
                         >
                           {connected ? 'Subscribe' : 'Connect wallet'}
                         </button>
                       )}
-                    </motion.div>
+                    </m.div>
                   )
                 })}
               </div>
@@ -454,60 +608,67 @@ export default function CreatorPage({
             />
 
             {/* Tip & Gift Section */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="p-6 rounded-xl bg-[#0a0a0a] border border-white/[0.08]"
+              className="p-6 rounded-xl bg-surface-1 border border-border"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-lg font-semibold text-white mb-1">
                     Send a Private Tip
                   </h2>
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-muted">
                     Show appreciation with a private ALEO transfer. The creator
                     receives 95% via private transfer — 5% platform fee.
                   </p>
                 </div>
-                <div className="flex gap-2 shrink-0">
-                  <button
-                    onClick={() => {
-                      setGiftTier({ id: 1, name: 'Supporter', price: basePrice })
+                <div className="flex gap-2 shrink-0 flex-wrap">
+                  <GiftDropdown
+                    connected={connected}
+                    tiers={displayTiers}
+                    basePrice={basePrice}
+                    onSelect={(tier) => {
+                      setGiftTier(tier)
                       setShowGift(true)
                     }}
-                    disabled={!connected}
-                    className="px-4 py-2.5 rounded-[8px] bg-white/[0.05] border border-white/[0.08] text-[#a1a1aa] font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    Gift
-                  </button>
+                  />
                   <button
                     onClick={() => setShowTip(true)}
                     disabled={!connected}
-                    className="px-4 py-2.5 rounded-[8px] bg-white/[0.05] border border-white/[0.08] text-[#a1a1aa] font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-muted font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Heart className="w-4 h-4" />
                     Tip
                   </button>
+                  {userPasses.length > 0 && (
+                    <button
+                      onClick={() => setDisputeContentId('general')}
+                      className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-muted font-medium text-sm hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 transition-all duration-300 flex items-center gap-2"
+                    >
+                      <Flag className="w-4 h-4" />
+                      Dispute
+                    </button>
+                  )}
                 </div>
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Share QR Code */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
               <CreatorQRCode creatorAddress={address} />
-            </motion.div>
+            </m.div>
 
             {/* Privacy Notice */}
-            <div className="p-4 rounded-[8px] bg-[#0a0a0a] border border-white/[0.08]">
+            <div className="p-4 rounded-xl bg-surface-1 border border-border">
               <div className="flex items-start gap-3">
                 <Shield className="w-5 h-5 text-violet-400 mt-0.5 shrink-0" />
-                <div className="text-xs text-slate-400 space-y-1">
+                <div className="text-xs text-muted space-y-1">
                   <p>
                     <strong className="text-violet-300">
                       Privacy guarantee:
@@ -520,6 +681,12 @@ export default function CreatorPage({
                     and sees only aggregate stats (total subscribers, total
                     revenue). Your identity is never linked on-chain. Subscription
                     expiry is checked locally — no on-chain trace when you access content.
+                  </p>
+                  <p className="flex items-center gap-2 pt-1">
+                    <Link href="/privacy" className="text-violet-400/70 hover:text-violet-300 transition-colors inline-flex items-center gap-1">
+                      Learn more about our privacy model
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
                   </p>
                 </div>
               </div>
@@ -536,7 +703,6 @@ export default function CreatorPage({
           tier={selectedTier}
           creatorAddress={address}
           basePrice={basePrice}
-          referrerAddress={referrerAddress}
         />
       )}
       <TipModal
@@ -568,6 +734,22 @@ export default function CreatorPage({
           onClose={() => setTransferPass(null)}
           accessPassPlaintext={transferPass.rawPlaintext}
           creatorAddress={address}
+        />
+      )}
+      {disputeContentId && userPasses.length > 0 && (
+        <DisputeContentModal
+          isOpen={!!disputeContentId}
+          onClose={() => setDisputeContentId(null)}
+          contentId={disputeContentId}
+          contentTitle={displayName ? `${displayName}'s content` : 'Creator content'}
+          accessPassPlaintext={userPasses[0].rawPlaintext}
+        />
+      )}
+      {auditTokenPass && (
+        <CreateAuditTokenModal
+          isOpen={!!auditTokenPass}
+          onClose={() => setAuditTokenPass(null)}
+          pass={auditTokenPass}
         />
       )}
     </PageTransition>

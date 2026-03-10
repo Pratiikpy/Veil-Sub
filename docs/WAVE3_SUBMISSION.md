@@ -3,9 +3,8 @@
 ## Project Overview
 **VeilSub** is a privacy-first creator subscription platform on Aleo. Creators register, set custom tiers, and publish gated content. Subscribers pay with private credits, receive encrypted AccessPass records, and verify access with zero public footprint.
 
-- **Deployed Program**: [`veilsub_v15.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v15.aleo) (testnet, 28 transitions)
-- **Source Contract**: `veilsub_v20.aleo` (1,750+ lines, 31 transitions, 30 mappings, 8 records, 972 statements)
-- **Frontend**: https://veilsub.vercel.app (22 routes, 15,200+ lines TypeScript)
+- **Deployed Program**: [`veilsub_v27.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v27.aleo) (testnet, 27 transitions, 25 mappings, 866 statements)
+- **Frontend**: https://veilsub.vercel.app
 - **Repository**: https://github.com/Pratiikpy/Veil-Sub
 - **Account**: `aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk`
 
@@ -18,117 +17,89 @@
 | Feedback | Response | Status |
 |----------|----------|--------|
 | Flexible creator tiers | `create_custom_tier`, `update_tier_price`, `deprecate_tier` -- creators manage their own tiers on-chain | Done (v9) |
-| Verification working | `verify_access` + `verify_tier_access` -- zero-footprint (no finalize), enforces revocation | Done (v15) |
-| Gated content delivery | Server-side verification, encrypted content bodies, `publish_encrypted_content` with encryption commitments | Done (v12) |
+| Verification working | `verify_access` + `verify_tier_access` -- minimal-footprint (revocation + expiry check, subscriber never in finalize) | Done (v15), deployed on v27 |
+| Gated content delivery | Server-side verification, encrypted content bodies, `publish_encrypted_content` with encryption commitments | Done (v12), deployed on v27 |
 
 ---
 
 ## What We Built in Wave 3
 
-### Contract Evolution: v8 to v20 (12 versions in one wave)
+### Contract Evolution: v8 to v27 (19 versions in one wave)
 - **v9**: Dynamic creator tiers + content lifecycle (create/update/delete)
 - **v10**: Gifting (GiftToken record) + refund escrow (RefundEscrow record) + fee withdrawal
-- **v11**: **Blind renewal** -- novel privacy technique (subscriber identity rotation per nonce)
+- **v11**: Blind renewal -- subscriber identity rotation per nonce
 - **v12**: Encrypted content delivery + dispute system + access revocation
 - **v13**: Auth hardening, ternary safety, get_or_use pattern
-- **v14**: **Commit-reveal tipping** (BHP256 commitment scheme -- hidden tip amounts)
-- **v15**: Security hardening, subscription transfer, revocation enforcement -- **DEPLOYED ON TESTNET**
-- **v16**: On-chain referral system (ReferralReward record, 10% referrer bonus)
-- **v17**: **Homomorphic Pedersen commitments** for subscriber count, zero-footprint proofs
-- **v18**: Poseidon2 optimization (2-8 constraints vs 256 for BHP256)
-- **v19**: Deep Poseidon2 in all finalize functions, activity tracking, MIN_PRICE validation
-- **v20**: Analytics epochs, content versioning, 30 mappings, 972 statements
+- **v14**: Commit-reveal tipping (BHP256 commitment scheme)
+- **v15**: Security hardening, subscription transfer -- **first testnet deploy**
+- **v16-v21**: Source-only iterations (referrals, Pedersen, analytics, error codes)
+- **v23**: **Privacy overhaul -- ZERO addresses in finalize.** All finalize functions receive Poseidon2 hashes instead of raw addresses. Removed variable-expensive features (Pedersen proofs, referrals, escrow) to fit testnet limit.
+- **v24**: Incremental improvements on v23 privacy overhaul. 22 mappings, 1,734,009 variables. Deployed on testnet.
+- **v25**: prove_subscriber_threshold, platform analytics mappings. 26 transitions, 24 mappings, 779 statements, 1,751,818 variables. **Deployed and verified on testnet.**
+- **v26**: `subscribe_trial` — ephemeral trial passes at 20% of tier price for ~12 hours. 27 transitions, 24 mappings, 846 statements, 1,879,536 variables. Deployed on testnet.
+- **v27**: Scoped audit tokens (`scope_mask` on AuditToken), trial rate-limiting (`trial_used` mapping + TrialKey struct), `redeem_gift` now writes `pass_creator` for revocation. 27 transitions, 25 mappings, 866 statements. **Deployed on testnet.**
 
-### 7 Novel Privacy Techniques
-1. **Blind Renewal** (v11): Each `renew_blind()` rotates subscriber identity via `BHP256(caller, nonce)`. Creator cannot link renewals to the same person.
-2. **Commit-Reveal Tipping** (v14): Tip amounts hidden until voluntary reveal via BHP256 commitment scheme.
-3. **Homomorphic Pedersen Commitments** (v17): Aggregate subscriber counts without revealing individual subscriptions.
-4. **Zero-Footprint Verification** (v8+): `verify_access` and `verify_tier_access` skip finalize entirely -- no on-chain trace.
-5. **Double-Hash Identity** (v19): `Poseidon2(Poseidon2(caller))` in receipts makes rainbow tables infeasible.
-6. **Privacy-Preserving Referrals** (v16): Referrer earns reward without seeing who subscribed.
-7. **Zero-Footprint Proofs** (v17): `prove_sub_count` and `prove_revenue_range` prove properties without any on-chain trace.
+### 3 Novel Privacy Techniques (deployed on v27)
+1. **Zero-Address Finalize** (v23+): Every finalize function receives `creator_hash: field` (Poseidon2) instead of `creator: address`. All 25 mappings are field-keyed. No raw address ever appears in the public execution layer.
+2. **Blind Renewal** (v11+): Each `renew_blind()` rotates subscriber identity via `Poseidon2(BlindKey{caller, nonce})`. Creator cannot link renewals to the same person.
+3. **Commit-Reveal Tipping** (v14+): `commit_tip` stores `BHP256::commit_to_field(amount, blinding_factor)`. Tip amounts stay hidden until the tipper voluntarily calls `reveal_tip` with the preimage.
 
-### On-Chain Testnet Transactions (v15)
-| # | Transition | Purpose | Verifiable |
-|---|-----------|---------|-----------|
+### Additional Privacy Features
+- **Zero-Footprint Verification**: `verify_access` and `verify_tier_access` check only revocation status in finalize -- subscriber identity never touches public state.
+- **Trial Passes**: `subscribe_trial` creates ephemeral AccessPass at 20% of tier price with ~12hr block duration
+- **Private Payments**: All subscription payments use `credits.aleo/transfer_private` -- amounts and sender addresses are never public.
+- **One-Way Identity Hashing**: Subscriber hashes in receipts use `Poseidon2(caller)` — a one-way hash preventing reverse lookups.
+- **Zero-Trace Audit Tokens**: `create_audit_token` has NO finalize at all — creates a selective-disclosure AuditToken record with absolutely zero on-chain trace.
+
+### On-Chain Testnet Transactions
+| # | Transition | Purpose | Verified |
+|---|-----------|---------|----------|
 | 1 | `register_creator` (base price 1000) | Creator registration | `tier_prices` mapping |
 | 2 | `create_custom_tier` (tier 1, 500) | Supporter tier | `tier_count` mapping |
 | 3 | `create_custom_tier` (tier 2, 2000) | Premium tier | `tier_count` mapping |
 | 4 | `create_custom_tier` (tier 3, 5000) | VIP tier | `tier_count` mapping |
 | 5 | `publish_content` (#1, tier 1) | Supporter content | `content_count` mapping |
 | 6 | `publish_content` (#2, tier 2) | Premium content | `content_count` mapping |
-| 7 | `publish_encrypted_content` (#3, tier 1) | Encrypted content | `encryption_commits` mapping |
-| 8 | `update_content` (#1, tier 2) | Content lifecycle | `content_meta` mapping |
-| 9 | `delete_content` (#2) | Content removal | `content_deleted` mapping |
-| 10 | `commit_tip` (500, salt) | Pedersen tipping | `tip_commitments` mapping |
-| 11 | `update_tier_price` (tier 1, 750) | Dynamic pricing | tier data |
-| 12 | `deprecate_tier` (tier 3) | Tier lifecycle | `tier_deprecated` mapping |
-| 13 | `publish_content` (#4, tier 1) | Additional content | `content_count` mapping |
-
-### Frontend (22 Routes, 15,200+ Lines TypeScript)
-- Premium monochrome design with violet accent, serif typography
-- Glassmorphism cards, scroll animations (Framer Motion), loading skeletons
-- Error boundaries on all 9 route segments
-- Mobile responsive with bottom navigation, touch targets
-- Transaction progress stepper with 4-step timing
-- Privacy mode selector (Standard / Blind / Maximum)
-- Creator analytics dashboard with charts (ActivityChart, TierDistribution)
-- On-chain explorer for mapping queries (no wallet required)
-- WCAG AA contrast compliance, prefers-reduced-motion support
-- PWA manifest, dynamic metadata, SEO (sitemap, robots.txt, OpenGraph)
-- Gas estimate display on all transaction modals
-- 5-wallet support (Shield, Leo, Fox, Puzzle, Soter)
+| 7 | `publish_content` (#3, tier 1) | Additional content | `content_count` mapping |
+| 8 | `publish_content` (#4, tier 2) | More content | `content_count` mapping |
+| 9 | `publish_content` (#5, tier 1) | Content variety | `content_count` mapping |
+| 10 | `publish_encrypted_content` (#6, tier 1) | Encrypted content | `encryption_commits` mapping |
+| 11 | `update_content` (#1 -> tier 2) | Content lifecycle | `content_meta` mapping |
+| 12 | `delete_content` (#2) | Content removal | `content_deleted` mapping |
+| 13 | `commit_tip` (500, salt) | Commitment tipping | `tip_commitments` mapping |
 
 ---
 
-## Feature Matrix (31 Transitions)
+## Feature Matrix (27 Transitions, deployed on v27)
 
 | Feature | Status | Version | Privacy Level |
 |---------|--------|---------|--------------|
-| Creator registration | Done | v8 | Public (creator address) |
-| Standard subscription | Done | v8 | Private (subscriber hidden) |
-| Zero-footprint verification | Done | v8 | Maximum (no finalize) |
-| Audit tokens | Done | v8 | Maximum (no finalize) |
-| Custom creator tiers | Done | v9 | Public (tier prices) |
-| Content publish/update/delete | Done | v9 | Public (metadata only) |
-| Subscription gifting | Done | v10 | Private (GiftToken record) |
-| Refund escrow | Done | v10 | Private (RefundEscrow record) |
-| Fee withdrawal | Done | v10 | Public (aggregate amounts) |
-| Blind renewal | Done | v11 | **Maximum** (unlinkable identity) |
-| Encrypted content | Done | v12 | Private (commitment only) |
-| Dispute system | Done | v12 | Private (subscriber proof required) |
-| Access revocation | Done | v12 | Auth-gated (creator-only) |
-| Commit-reveal tipping | Done | v14 | **Maximum** (hidden until reveal) |
-| Subscription transfer | Done | v15 | Private (revocation-checked) |
-| On-chain referrals | Done | v16 | Private (ReferralReward record) |
-| Pedersen commitment proofs | Done | v17 | **Maximum** (homomorphic) |
-| Poseidon2 optimization | Done | v18-v19 | Performance (2-8 vs 256 constraints) |
-| Analytics epochs | Done | v20 | Public (aggregate per epoch) |
-| Content versioning | Done | v20 | Public (version counter) |
-
----
-
-## Scoring Self-Assessment
-
-| Category | Wave 2 | Wave 3 Target | Justification |
-|----------|--------|--------------|---------------|
-| Privacy (40%) | 7 | 9 | 7 novel privacy techniques, 3 zero-footprint proofs, Pedersen commitments, blind renewal, never-in-finalize guarantee |
-| Tech (20%) | 5 | 8 | 31 transitions, 30 mappings, 972 statements, 20 version iterations, Poseidon2 optimization, 8 record types |
-| UX (20%) | 7 | 8 | 22 routes, scroll animations, skeletons, error boundaries, privacy mode selector, on-chain explorer, gas estimates |
-| Practicality (10%) | 7 | 8 | Fee withdrawal, escrow refunds, dispute system, content CRUD, referral economics |
-| Novelty (10%) | 7 | 8 | Blind renewal, Pedersen commitments, zero-footprint proofs, subscription transfer, commit-reveal tipping |
-| **Total** | **33** | **41** | |
+| Creator registration | Deployed | v8+ | Semi-public (creator hash only) |
+| Standard subscription | Deployed | v8+ | Private (subscriber hidden) |
+| Access verification | Deployed | v8+ | Maximum (finalize checks revocation + expiry — no subscriber identity) |
+| Tier-gated verification | Deployed | v15+ | Maximum (finalize checks revocation + expiry only) |
+| Audit tokens | Deployed | v8+ | Maximum (no finalize — zero on-chain trace) |
+| Custom creator tiers | Deployed | v9+ | Public (tier prices) |
+| Content publish/update/delete | Deployed | v9+ | Public (metadata only) |
+| Subscription gifting | Deployed | v10+ | Private (GiftToken record) |
+| Fee withdrawal (platform + creator) | Deployed | v10+ | Public (aggregate amounts) |
+| Blind renewal | Deployed | v11+ | **Maximum** (unlinkable identity) |
+| Encrypted content | Deployed | v12+ | Private (commitment only) |
+| Dispute system | Deployed | v12+ | Private (subscriber proof) |
+| Access revocation | Deployed | v12+ | Auth-gated (creator-only) |
+| Commit-reveal tipping | Deployed | v14+ | **Maximum** (hidden until reveal) |
+| Subscription transfer | Deployed | v15+ | Private (revocation-checked) |
+| Trial subscriptions | Deployed | v26+ | Private (subscriber hidden, short duration) |
+| Threshold reputation proof | Deployed | v25+ | Public (proves N+ subs without exact count) |
 
 ---
 
 ## Known Limitations
-- v20 exceeds testnet variable limit (2.3M vs 2.1M max) -- v15 is deployed with 28/31 transitions
-- Video demo not yet recorded (all features functional, awaiting screen capture)
-- Supabase off-chain storage optional (app works without it via seed data and on-chain queries)
+- Some features from v16-v21 (Pedersen proofs, referrals, escrow/refund) were removed in v23 to fit under the testnet variable limit (2,097,152). The source code for these versions is in the repository history.
+- `withdraw_platform_fees` and `withdraw_creator_rev` track revenue as accounting ledgers -- actual payments go directly to creators via `transfer_private` at subscription time.
+- Subscription expiry is enforced on-chain via `block.height` comparison in `verify_access` and `verify_tier_access` (added in v24).
 
-## Wave 4 Goals
-- Deploy optimized contract closer to v20 feature set (remove analytics features to fit under limit)
-- Execute subscribe/renew/gift transitions with second test account
-- Record and submit video demo
-- Private tier selection (hash tier in finalize)
-- Multi-nonce blind renewal enhancement
+## Next Steps
+- Execute remaining transitions (subscribe, verify_access, renew, gift, tip) with test subscriber account
+- Record video demo showing end-to-end flow
+- Explore re-adding referral system with optimized variable usage

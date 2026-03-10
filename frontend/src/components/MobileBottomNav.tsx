@@ -3,12 +3,13 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import { Compass, ShieldCheck, LayoutDashboard, Home } from 'lucide-react'
+import { Compass, ShieldCheck, LayoutDashboard, Home, BookOpen } from 'lucide-react'
 
 const MOBILE_NAV = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/explore', label: 'Explore', icon: Compass },
   { href: '/verify', label: 'Verify', icon: ShieldCheck },
+  { href: '/docs', label: 'Docs', icon: BookOpen },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, requiresWallet: true },
 ]
 
@@ -26,7 +27,7 @@ export default function MobileBottomNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-white/[0.08] bg-black/95 backdrop-blur-xl safe-area-bottom">
+    <nav aria-label="Bottom navigation" className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-border bg-black/95 backdrop-blur-xl safe-area-bottom">
       <div className="flex items-center justify-around h-14 px-2">
         {items.map((item) => {
           const Icon = item.icon
@@ -36,13 +37,18 @@ export default function MobileBottomNav() {
               key={item.href}
               href={item.href}
               aria-label={item.label}
-              className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-2 rounded-[8px] transition-colors ${
+              className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-2 rounded-lg transition-all duration-200 ${
                 active
                   ? 'text-white'
-                  : 'text-[#71717a] active:text-[#a1a1aa]'
+                  : 'text-subtle active:text-muted active:scale-95'
               }`}
             >
-              <Icon className="w-5 h-5" />
+              <div className="relative">
+                <Icon className={`w-5 h-5 transition-transform duration-200 ${active ? 'scale-110' : ''}`} />
+                {active && (
+                  <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-violet-400" />
+                )}
+              </div>
               <span className="text-[10px] font-medium">{item.label}</span>
             </Link>
           )

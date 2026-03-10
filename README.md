@@ -4,119 +4,207 @@
 
 VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pay with ALEO credits and receive an encrypted **AccessPass** record — their identity is never exposed on-chain. Creators see aggregate stats but never individual subscriber identities.
 
-**Live on Testnet:** [`veilsub_v15.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v15.aleo) (28 transitions) | **Source:** `veilsub_v20.aleo` (31 transitions, 972 statements)
+**Deployed on Testnet:** [`veilsub_v27.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v27.aleo) — 27 transitions, 25 mappings, 6 record types, 5 structs, 866 statements
 
-> **Quick Stats:** 31 transitions · 30 mappings · 8 record types · 1,750+ lines of Leo · 972 statements · 20 iterative deploys · 5 structs · Poseidon2 optimized · 3 privacy modes · 3 zero-footprint proofs · 22 frontend routes · 5 wallet support · 15,200+ lines of TypeScript
+**Live:** [veilsub.vercel.app](https://veilsub.vercel.app)
+
+---
+
+## Quick Verification Guide
+
+| What to Verify | How |
+|---------------|-----|
+| Contract compiles | `cd contracts/veilsub && leo build` |
+| Zero addresses in finalize | Search `main.leo` for `address` in any finalize block — you'll find none |
+| On-chain transactions | [View on AleoScan](https://testnet.aleoscan.io/program?id=veilsub_v27.aleo) → Transactions tab |
+| 6 record types | Search `record` in `main.leo` — AccessPass, CreatorReceipt, AuditToken, SubscriptionTier, ContentDeletion, GiftToken |
+| Blind Subscription Protocol | Search `BlindKey` in `main.leo` — nonce-rotated identity hashing |
+| Commit-reveal tipping | Search `BHP256::commit_to_field` in `main.leo` — two-phase protocol |
+| Frontend live | [veilsub.vercel.app](https://veilsub.vercel.app) |
+| Walletless explorer | [/explorer](https://veilsub.vercel.app/explorer) — no wallet needed |
+| Privacy model | [/privacy](https://veilsub.vercel.app/privacy) — threat model + comparison |
+
+**Key Innovation:** Every finalize function uses `creator_hash: field` (Poseidon2 hash) instead of raw `creator: address`. All 25 mappings are field-keyed — zero raw addresses in any finalize block.
+
+---
+
+## Quick Demo
+
+1. **Visit** [veilsub.vercel.app](https://veilsub.vercel.app) — landing page with privacy architecture and platform stats
+2. **Explore** [/explorer](https://veilsub.vercel.app/explorer) — query on-chain mappings without a wallet
+3. **Verify** [/verify](https://veilsub.vercel.app/verify) — zero-footprint verification flow
+4. **Read** [/docs](https://veilsub.vercel.app/docs) — all 27 transitions documented with privacy levels
+5. **Check testnet** — [`veilsub_v27.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v27.aleo)
+
+---
+
+## What Judges Said (Wave 2) & Our Response
+
+> *"Would be better if subscription tiers can be flexibly added by creators themselves, interested to see how verification and gated content delivery actually work next"*
+
+| Feedback | Response | Version |
+|----------|----------|---------|
+| Flexible creator tiers | `create_custom_tier`, `update_tier_price`, `deprecate_tier` — creators manage their own tiers on-chain | v9 |
+| Verification working | `verify_access` + `verify_tier_access` — minimal-footprint (revocation + expiry check, subscriber identity never in finalize) | v15 |
+| Gated content delivery | Server-side verification, encrypted content bodies, `publish_encrypted_content` with encryption commitments | v12 |
+
+We addressed every point. 19 version iterations (v8→v27), 15 new transitions, a complete privacy overhaul eliminating all raw addresses from the public execution layer, trial subscription passes, scoped audit tokens, and trial rate-limiting.
 
 ---
 
 ## What Makes VeilSub Unique
 
+### Three Novel Privacy Techniques
+
+**1. Zero-Address Finalize (v23)** — Every finalize function receives `creator_hash: field` instead of `creator: address`. All 25 mappings are field-keyed. No raw address ever appears in the public finalize layer. This matches NullPay's privacy discipline (Privacy 8) while retaining VeilSub's full feature set.
+
+```
+// v21 (before):  finalize_subscribe(creator: address, ...)
+// v23 (after):   finalize_subscribe(creator_hash: field, ...)
+// Result: zero raw addresses in ALL public mapping keys
+```
+
+**2. Blind Subscription Protocol — BSP (v11)** — Each subscription and renewal uses a different nonce, producing a different `subscriber_hash`. The creator's `CreatorReceipt` shows a "different" subscriber each time — even though it's the same person. BSP is the subscription-domain equivalent of lasagna's DAR (Deferred Aggregate Revelation).
+
+```
+subscriber_hash = Poseidon2::hash_to_field(BlindKey { subscriber: caller, nonce: unique_nonce })
+// Different nonce each renewal → different hash → unlinkable identity rotation
+```
+
+**3. Commit-Reveal Tipping (v14)** — Tip amounts are hidden on-chain via `BHP256::commit_to_field` until the tipper voluntarily reveals. Uses a two-phase protocol: commit stores the commitment hash, reveal verifies the commitment and executes the transfer.
+
+```
+Phase 1 (commit):  commitment = BHP256::commit_to_field(hash(creator, amount), hash_to_scalar(salt))
+Phase 2 (reveal):  recompute commitment, verify match, transfer credits
+// Tip amount stays hidden until voluntary reveal
+```
+
+### Additional Privacy Features
+
 | Feature | How It Works |
 |---------|-------------|
-| **Zero-Footprint Verification** | `verify_access` checks revocation status but leaves no trace of *who* verified |
-| **Blind Renewal** | Each renewal uses `BHP256(caller, unique_nonce)` — creator sees "different" subscribers each time. Cannot link renewals to the same person |
-| **Pedersen Commit-Reveal Tipping** | Tip amounts hidden on-chain via `BHP256::commit_to_field` until voluntary reveal |
-| **Subscriber Never in Finalize** | `self.caller` is NEVER passed to any finalize function. Zero code path to public state |
-| **Subscription Transfer** | Transfer AccessPass to another address — unique feature no competitor has |
-| **Homomorphic Pedersen Commitments** | `subscribe_private_count` stores group-element aggregates instead of public counters — subscriber count is hidden |
-| **Zero-Footprint Proofs** | `prove_sub_count` and `prove_revenue_range` prove properties without any on-chain trace |
+| **Zero-Footprint Verification** | `verify_access` and `verify_tier_access` check revocation status but leave no trace of *who* verified. No subscriber identity in finalize. |
+| **Zero-Footprint Audit** | `create_audit_token` has NO finalize at all — selective disclosure with zero on-chain trace |
+| **Subscriber Never in Finalize** | `self.caller` is NEVER passed to any finalize function. Zero code path to public state. |
+| **Subscription Transfer** | Transfer AccessPass to another address — not offered by NullPay, Veiled Markets, or lasagna |
+| **Nonce Replay Prevention** | `nonce_used` mapping prevents blind renewal nonce reuse (one-time identity per renewal) |
+| **Poseidon2 Optimization** | All finalize hashing uses Poseidon2 (2-8 constraints vs 256 for BHP256). BHP256 only in transition layer for commitment operations. |
 
 ---
 
-## Architecture
+## Privacy Architecture
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                    Frontend (Next.js 16)             │
-│  React 19 + Tailwind 4 + Framer Motion              │
-│  5 Wallet Support: Shield, Leo, Fox, Puzzle, Soter   │
-├─────────────────────────────────────────────────────┤
-│                  API Layer (Next.js)                 │
-│  /api/posts (Upstash Redis) + /api/creators (Supabase)│
-│  Wallet-hash auth: SHA-256(address) → no plaintext   │
-├─────────────────────────────────────────────────────┤
-│              Aleo Smart Contract (v20)               │
-│  31 transitions · 30 mappings · 8 record types       │
-│  1,750+ lines of Leo · 5 structs                     │
-│  credits.aleo import                                 │
-└─────────────────────────────────────────────────────┘
+PRIVATE (Records — only owner can decrypt)
+  AccessPass, CreatorReceipt, AuditToken, SubscriptionTier,
+  ContentDeletion, GiftToken + all payments + subscriber identity
+
+PUBLIC (Mappings — all field-keyed, ZERO raw addresses)
+  Poseidon2(creator) → tier prices, subscriber counts, revenue
+  Poseidon2(TierKey) → custom tier prices
+  Poseidon2(content_id) → content metadata, hashes
+  Commitment hashes → tip commitments, encryption keys
+  Singletons → platform_revenue, total_creators, total_content
+
+NOVEL: Zero-address finalize, blind renewal, commit-reveal
+  tipping, subscription transfer, zero-footprint verification,
+  trial passes, threshold proofs
 ```
 
-### Privacy Boundary
+### What Observers Learn vs. Cannot Learn
 
-| Private (Records) | Public (Mappings) |
+| Observable (Public Mappings) | Hidden (Private Records) |
 |---|---|
-| Subscriber identity | Creator addresses |
-| AccessPass, CreatorReceipt | Tier prices, subscriber counts |
-| AuditToken, GiftToken | Content metadata, revenue totals |
-| RefundEscrow, SubscriptionTier | Tier configuration |
-| All payment transfers | Platform fee accounting |
-| Committed tip amounts | Dispute counts |
-| ReferralReward tokens | Referral counts |
+| Number of subscribers per creator (hashed key) | WHO subscribed |
+| Tier price configuration | Which tier a subscriber chose |
+| Content metadata (min tier, hash) | Content body / encrypted payload |
+| Platform aggregate revenue | Individual payment amounts |
+| That a tip commitment exists | Tip amount (until voluntary reveal) |
+| That a dispute was filed | Who filed the dispute |
 
 ---
 
-## Smart Contract — `veilsub_v20.aleo`
+## System Architecture
 
-### 8 Record Types
-1. **AccessPass** — subscriber's encrypted credential
-2. **CreatorReceipt** — creator's payment proof
-3. **AuditToken** — selective disclosure for third-party verification
-4. **SubscriptionTier** — creator's tier ownership proof
-5. **ContentDeletion** — proof of content removal
-6. **GiftToken** — transferable subscription gift
-7. **RefundEscrow** — time-locked refund claim
-8. **ReferralReward** — privacy-preserving referral reward proof
+```
+Frontend (Next.js 16 + React 19 + Tailwind 4)
+  5 wallets: Shield, Leo, Fox, Puzzle, Soter
+  62 components, 10 routes, 16 hooks
 
-### 31 Transitions (by category)
+API Layer (Next.js API routes)
+  /api/aleo/* proxy (hides user IP from Provable)
+  /api/posts (Upstash Redis), /api/creators (Supabase)
+  Auth: SHA-256(address) — no plaintext wallet addresses stored
+
+Smart Contract (veilsub_v27.aleo)
+  27 transitions, 25 mappings, 6 records, 5 structs
+  866 statements, credits.aleo import
+  ZERO raw addresses in finalize layer
+```
+
+---
+
+## Smart Contract — `veilsub_v27.aleo`
+
+### 6 Record Types
+1. **AccessPass** — subscriber's encrypted credential (creator, tier, expiry, privacy_level)
+2. **CreatorReceipt** — creator's payment proof (subscriber_hash, amount, pass_id)
+3. **AuditToken** — selective disclosure for third-party verification (zero-footprint)
+4. **SubscriptionTier** — creator's tier ownership proof (tier_id, name_hash, price)
+5. **ContentDeletion** — proof of content removal (content_id, reason_hash)
+6. **GiftToken** — transferable subscription gift (recipient, creator, tier, expiry)
+
+### 5 Structs
+1. **TierKey** — composite key for custom tier lookups (`creator_hash: field, tier_id: u8`)
+2. **BlindKey** — composite key for blind renewal identity rotation (`subscriber: address, nonce: field`)
+3. **TipCommitData** — data committed in tip commitment scheme (`creator: address, amount: u64`)
+4. **DisputeKey** — type-safe dispute tracking key (`caller_hash: field, content_id: field`)
+5. **TrialKey** — composite key for trial rate-limiting (`subscriber: address, creator_hash: field`)
+
+### 27 Transitions (by category)
 
 **Creator Management (6)**
 - `register_creator` — set base price, join platform
-- `create_custom_tier` — dynamic pricing per tier (up to 10)
+- `create_custom_tier` — dynamic pricing per tier (up to 20)
 - `update_tier_price` — modify tier pricing
 - `deprecate_tier` — sunset a tier
 - `withdraw_platform_fees` — admin fee withdrawal
 - `withdraw_creator_rev` — creator revenue withdrawal
 
-**Subscriptions (6)**
-- `subscribe` — pay and receive AccessPass
+**Subscriptions (5)**
+- `subscribe` — pay and receive AccessPass + CreatorReceipt
 - `renew` — extend existing subscription
 - `subscribe_blind` — nonce-rotated identity (Blind Renewal)
-- `renew_blind` — unlinkable renewal
-- `subscribe_with_escrow` — with refund window
-- `subscribe_private_count` — Pedersen commitment aggregate only, no public counter (v17)
+- `renew_blind` — unlinkable blind renewal
+- `subscribe_trial` — ephemeral trial pass (20% of tier price, ~12hr duration, one per creator)
 
-**Verification & Proofs (5)**
-- `verify_access` — prove access with revocation enforcement (v15)
-- `verify_tier_access` — tier-gated verification with revocation (v15)
-- `create_audit_token` — selective disclosure
-- `prove_sub_count` — zero-footprint proof of subscriber count (v17)
-- `prove_revenue_range` — zero-footprint revenue range proof (v17)
+**Verification & Audit (3)**
+- `verify_access` — prove access with revocation enforcement (zero-footprint)
+- `verify_tier_access` — tier-gated verification with revocation
+- `create_audit_token` — selective disclosure (no finalize at all)
 
-**Content (4)**
-- `publish_content` — on-chain content metadata
-- `publish_encrypted_content` — with encryption commitment
-- `update_content` — modify tier requirement
-- `delete_content` — remove with proof
+**Content Lifecycle (4)**
+- `publish_content` — on-chain content metadata with tier gating
+- `publish_encrypted_content` — with encryption commitment hash
+- `update_content` — modify tier requirement or content hash
+- `delete_content` — remove with ContentDeletion proof
 
-**Gifting & Refunds (3)**
+**Gifting (2)**
 - `gift_subscription` — gift AccessPass to another address
-- `redeem_gift` — recipient claims gift
-- `claim_refund` — credit-based refund within 500-block window
+- `redeem_gift` — recipient claims gift, receives AccessPass
 
 **Tipping (3)**
-- `tip` — direct private tip
-- `commit_tip` — commit to tip amount (hidden)
-- `reveal_tip` — reveal and execute tip
+- `tip` — direct private tip to creator
+- `commit_tip` — commit to tip amount (hidden via BHP256)
+- `reveal_tip` — reveal and execute committed tip
 
 **Transfer & Moderation (3)**
-- `transfer_pass` — transfer subscription to new owner (v15)
-- `revoke_access` — creator revokes a pass
-- `dispute_content` — subscriber-only disputes with rate limiting (v15)
+- `transfer_pass` — transfer subscription to new owner
+- `revoke_access` — creator revokes a pass (checks pass_creator hash)
+- `dispute_content` — subscriber-only disputes with per-caller rate limiting
 
-**Referral (1)**
-- `subscribe_referral` — subscribe via referral link, reward split between creator and referrer
+**Privacy Proofs (1)**
+- `prove_subscriber_threshold` — prove creator has N+ subscribers without revealing exact count
 
 ### Version History
 
@@ -127,75 +215,26 @@ VeilSub is a privacy-first creator subscription platform on Aleo. Subscribers pa
 | v10 | Subscription gifting (GiftToken), refund escrow, fee withdrawal |
 | v11 | **Blind Renewal** — nonce-rotated subscriber identity (novel privacy technique) |
 | v12 | Encrypted content delivery, access revocation, content disputes |
-| v13 | Ternary safety fixes, get_or_use pattern, custom token tiers |
-| v14 | **Pedersen/BHP256 commit-reveal tipping** — hidden tip amounts until reveal |
-| v15 | **Security hardening** — revocation enforcement, Sybil-resistant disputes, subscription transfer |
-| v16 | **On-chain referral system** — privacy-preserving referral rewards, ReferralReward record, referral_count mapping |
-| v17 | **Homomorphic Pedersen commitments** — `subscribe_private_count` with `sub_count_commit` mapping, `prove_sub_count` and `prove_revenue_range` zero-footprint proofs, named constants replacing magic numbers |
-| v18 | **Version bump** — 25 mappings, 1,690+ lines, continued privacy hardening and contract refinements |
-| v19 | **Poseidon2 optimization** — all BHP256::hash_to_field replaced with Poseidon2 in finalize, 3 new mappings, MIN_PRICE/MAX_TIER validation, 954 statements, 28 mappings |
-| v20 | **Analytics epochs & content versioning** — subscription_epoch mapping, EPOCH_SIZE constant, content_version mapping, version tracking in publish/update, 30 mappings, 972 statements |
+| v13 | Ternary safety fixes, get_or_use pattern |
+| v14 | **BHP256 commit-reveal tipping** — hidden tip amounts until reveal |
+| v15 | **Security hardening** — revocation enforcement, Sybil-resistant disputes, subscription transfer. First testnet deploy. |
+| v16-v21 | Referral system, Pedersen commitments, Poseidon2 optimization, analytics epochs, error codes (source-only iterations — exceeded testnet variable limit) |
+| v23 | **PRIVACY OVERHAUL** — zero addresses in finalize, all field-keyed mappings, pass_creator stores hash not address, auth checks in transition layer. Removed variable-expensive features (Pedersen proofs, referral transition, escrow). Deployed on testnet with 15+ confirmed transactions. |
+| **v24** | **Content auth fix** — `content_creator` mapping, on-chain expiry enforcement, `subscription_by_tier` consistency. Deployed on testnet. |
+| **v25** | **Threshold proofs + platform stats** — `prove_subscriber_threshold`, `total_creators` and `total_content` platform-wide mappings. Deployed on testnet. |
+| **v26** | **Trial passes** — `subscribe_trial` for ephemeral ~12hr access at 20% of tier price. 27 transitions, 24 mappings, 846 statements. Deployed on testnet. |
+| **v27** | **Scoped audit tokens + trial rate-limiting** — `scope_mask` field on AuditToken, `trial_used` mapping with TrialKey struct for one-trial-per-creator enforcement, `redeem_gift` now writes `pass_creator` for revocation. 27 transitions, 25 mappings, 866 statements. **Deployed on testnet.** |
 
----
+### Security Model
 
-## Novel Privacy Techniques
-
-### 1. Blind Renewal (v11)
-```
-subscriber_hash = BHP256::hash_to_field(BlindKey { subscriber: caller, nonce: unique_nonce })
-```
-Each subscription and renewal uses a **different nonce**, producing a different `subscriber_hash`. The creator's `CreatorReceipt` shows a different "subscriber" each time — **even though it's the same person**. This is equivalent to lasagna's DAR (Deferred Aggregate Revelation) but applied to subscriber identity instead of bet direction.
-
-### 2. Pedersen Commit-Reveal Tipping (v14)
-```
-Phase 1 (commit):  commitment = BHP256::commit_to_field(hash(creator, amount), hash_to_scalar(salt))
-Phase 2 (reveal):  recompute commitment, verify match, transfer credits
-```
-Tip amount stays hidden on-chain until the tipper voluntarily reveals. Uses NullPay-style BHP256 commitment pattern.
-
-### 3. Zero-Footprint Verification
-`verify_access` consumes the old AccessPass and mints a new one — proving you have access without leaving evidence of *who* verified. The finalize only checks revocation status, never touches subscriber identity.
-
-### 4. Privacy-Preserving Referrals (v16)
-```
-subscriber_hash = BHP256::hash_to_field(self.caller)
-referral_reward = ReferralReward { owner: referrer, creator, amount: 10% of subscription, referred_hash: subscriber_hash }
-```
-Referrer receives a private ReferralReward record proving they referred someone — but the referred subscriber's identity is protected via BHP256 hash. The referrer knows they earned a reward but cannot identify who they referred.
-
-### 5. Homomorphic Pedersen Subscriber Commitments (v17)
-```
-sub_count_commit[creator] += Pedersen64::commit_to_group(1u64, rand_scalar)
-```
-`subscribe_private_count` updates a Pedersen commitment aggregate (`sub_count_commit` mapping) instead of the public `subscriber_count` counter. The aggregate is a group element that encodes the count homomorphically — it cannot be read without the creator's knowledge.
-
-### 6. Zero-Footprint Proofs (v17)
-- `prove_sub_count` — proves subscriber count matches a claimed value without revealing the count publicly (no finalize)
-- `prove_revenue_range` — proves revenue falls within a range without revealing the exact amount (no finalize)
-
-These are the subscription-domain equivalent of range proofs — proving properties about private data without disclosure.
-
-### 7. Deep Poseidon2 Optimization (v19)
-All `BHP256::hash_to_field` calls in finalize functions replaced with `Poseidon2::hash_to_field` — **2-8 constraints vs 256 per hash**. This applies to:
-- TierKey hashing (tier lookups, deprecation checks)
-- Content ID hashing (publish, update, delete, encrypt)
-- BlindKey hashing (blind subscriptions/renewals)
-- Nonce hashing (replay prevention)
-- TipCommitData hashing (commit-reveal tipping)
-- Epoch key hashing (analytics epochs)
-
-BHP256 is retained **only** for commitment operations (`commit_to_field`, `hash_to_scalar`) where algebraic properties are required.
-
----
-
-## Security Model (v15)
-
-- **Revocation enforced**: `verify_access` and `verify_tier_access` check `access_revoked` mapping — revoked passes are rejected
-- **Sybil-resistant disputes**: `dispute_content` requires an AccessPass (subscriber proof) + limits 1 dispute per caller per content
-- **Transfer safety**: `transfer_pass` checks revocation before allowing transfer
-- **Auth checks**: `revoke_access` verifies `pass_creator` mapping — only the issuing creator can revoke
-- **Ternary safety**: `get_or_use` pattern throughout prevents Leo's both-branch evaluation bug
-- **Nonce replay prevention**: `nonce_used` mapping prevents blind renewal nonce reuse
+- **Zero-Address Finalize**: No raw address ever appears in any finalize function
+- **Auth in Transition Layer**: `self.caller` checks enforced by ZK proofs, never leaked to public state
+- **Revocation Enforced**: `verify_access` and `verify_tier_access` check `access_revoked` mapping
+- **Sybil-Resistant Disputes**: `dispute_content` requires AccessPass + per-caller rate limiting via `dispute_count_by_caller`
+- **Transfer Safety**: `transfer_pass` checks revocation before allowing transfer
+- **Nonce Replay Prevention**: `nonce_used` mapping prevents blind renewal nonce reuse
+- **Trial Rate-Limiting**: `trial_used` mapping prevents multiple trials per creator per subscriber
+- **Anti-Abuse Constants**: `MAX_CONTENT_PER_CREATOR` (1000), `MAX_SUBS_PER_CREATOR` (100K), `MIN_PRICE` (100 microcredits), `MAX_TIER` (20)
 
 ---
 
@@ -206,22 +245,21 @@ BHP256 is retained **only** for commitment operations (`commit_to_field`, `hash_
 ### Pages
 | Page | Purpose |
 |------|---------|
-| `/` | Landing page — hero, features, stats, creator search |
+| `/` | Landing page — hero, features, stats, FAQ, competitor comparison |
 | `/explore` | Browse and search creators |
 | `/creator/[address]` | Creator profile — tiers, content feed, subscribe/tip/gift |
 | `/dashboard` | Creator dashboard — stats, post creation, tier management |
-| `/verify` | Verify AccessPass with ZK proof |
+| `/verify` | Verify AccessPass with zero-footprint proof (no wallet required) |
 | `/docs` | Full documentation with tabbed interface |
 | `/privacy` | Privacy model, threat analysis, comparison table |
-| `/analytics` | Platform-wide analytics and version timeline |
-| `/explorer` | On-chain explorer (works without wallet) |
+| `/analytics` | Platform analytics and version timeline |
+| `/explorer` | On-chain mapping queries (works without wallet) |
 | `/vision` | Use cases and roadmap |
 
 ### Key Features
 - 5-wallet support (Shield, Leo, Fox, Puzzle, Soter)
 - Scroll-reveal animations on every section
 - Glassmorphism design with violet accents
-- Bento stats grid with CountUp animations
 - Mobile-first responsive + bottom navigation
 - Gated content feed with blur-locked posts
 - QR code generation for creator pages
@@ -229,9 +267,8 @@ BHP256 is retained **only** for commitment operations (`commit_to_field`, `hash_
 - Loading skeletons for every route
 - Route-level error boundaries
 - SEO: sitemap, robots.txt, OpenGraph images
-- Privacy mode selector (Standard/Blind/Maximum)
+- Privacy mode selector (Standard/Blind)
 - On-chain mapping queries (no wallet required)
-- 15,200+ lines of TypeScript
 
 ---
 
@@ -247,7 +284,7 @@ cd contracts/veilsub && leo build
 
 ### Environment Variables
 ```env
-NEXT_PUBLIC_PROGRAM_ID=veilsub_v20.aleo
+NEXT_PUBLIC_PROGRAM_ID=veilsub_v27.aleo
 NEXT_PUBLIC_ALEO_API=https://api.explorer.provable.com/v1
 NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-key>
@@ -259,13 +296,13 @@ UPSTASH_REDIS_REST_TOKEN=<your-redis-token>
 
 ## Testnet Deployment
 
-**Deployed:** [`veilsub_v15.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v15.aleo) — 28 transitions, 23 mappings, 7 records
-
-**Source Code:** `veilsub_v20.aleo` — 31 transitions, 30 mappings, 8 records (exceeds testnet variable limit of 2.1M; full source in `contracts/veilsub/src/main.leo`)
+**Deployed:** [`veilsub_v27.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v27.aleo) — 27 transitions, 25 mappings, 6 records, 866 statements
 
 **Account:** `aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk`
 
-### On-Chain Transactions (v15)
+**Deployment Cost:** 41.26 ALEO (storage: 36.89, synthesis: 3.36, namespace: 1.0)
+
+### On-Chain Transactions (v24)
 | # | Transition | Args | Purpose |
 |---|-----------|------|---------|
 | 1 | `register_creator` | base price 1000 | Creator registration |
@@ -275,46 +312,14 @@ UPSTASH_REDIS_REST_TOKEN=<your-redis-token>
 | 5 | `publish_content` | content #1, tier 1 | Supporter content |
 | 6 | `publish_content` | content #2, tier 2 | Premium content |
 | 7 | `publish_encrypted_content` | content #3, tier 1 | Encrypted content |
-| 8 | `update_content` | content #1, tier 2 | Content lifecycle |
+| 8 | `update_content` | content #1 → tier 2 | Content lifecycle |
 | 9 | `delete_content` | content #2 | Content removal |
-| 10 | `commit_tip` | creator, 500, salt | Pedersen tipping |
-| 11 | `update_tier_price` | tier 1, 750 | Dynamic pricing |
-| 12 | `deprecate_tier` | tier 3 | Tier lifecycle |
-| 13 | `publish_content` | content #4, tier 1 | Additional content |
-
----
-
-## Competitive Positioning
-
-| Metric | VeilSub v20 | NullPay v13 | Veiled Markets | lasagna |
-|--------|-------------|-------------|----------------|---------|
-| **Contract** | | | | |
-| Transitions | 31 | ~15 | ~32 | ~12 |
-| Record Types | 8 | 4 | 3 | 3 |
-| Mappings | 30 | ~12 | ~18 | ~10 |
-| Lines of Leo | 1,750+ | ~800 | ~2,576 | ~600 |
-| Version Iterations | v20 (20 deploys) | v13 | ~3 | ~4 |
-| **Privacy** | | | | |
-| Subscriber Identity Hidden | Yes (never in finalize) | Yes (dual-record) | N/A (AMM) | N/A (prediction) |
-| Zero-Footprint Verification | Yes (no finalize) | No | No | No |
-| Blind Renewal (unlinkable) | Yes (nonce-based) | No | No | No |
-| Pedersen Commitments | Yes (homomorphic) | No | No | Yes (DAR) |
-| Zero-Footprint Proofs | 3 (verify, prove_sub, prove_revenue) | 0 | 0 | 0 |
-| Privacy Modes | 3 (standard/blind/max) | 1 | 1 | 1 |
-| **Features** | | | | |
-| Subscription Gifting | Yes (GiftToken record) | No | No | No |
-| Subscription Transfer | Yes | No | No | No |
-| Refund Escrow | Yes | No | No | No |
-| Content CRUD | Yes (publish/update/delete/encrypt) | No | No | No |
-| Sybil-Resistant Disputes | Yes | No | No | No |
-| Revocation Enforcement | Yes | No | No | No |
-| On-Chain Referrals | Yes (10% reward) | No | No | No |
-| Custom Creator Tiers | Yes (dynamic) | No | N/A | N/A |
-| **Frontend** | | | | |
-| Pages/Routes | 22 | ~8 | ~6 | ~4 |
-| Wallet Support | 5 wallets | 1-2 | 1-2 | 1-2 |
-| Design System | Glassmorphism + violet | Basic | Basic | Basic |
-| Walletless Explorer | Yes | No | No | No |
+| 10 | `commit_tip` | creator, 500, salt | Commit-reveal tipping (phase 1) |
+| 11 | `publish_content` | content #4, tier 1 | Additional content |
+| 12 | `publish_content` | content #5, tier 3 | VIP content |
+| 13 | `withdraw_platform_fees` | 100 | Platform fee model |
+| 14 | `withdraw_creator_rev` | 50 | Creator revenue withdrawal |
+| 15 | `publish_content` | content #6, tier 2 | More content |
 
 ---
 

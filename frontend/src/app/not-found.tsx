@@ -1,29 +1,46 @@
-import { Shield } from 'lucide-react'
+import { Shield, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center max-w-md px-4">
-        <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center mx-auto mb-6">
-          <Shield className="w-8 h-8 text-slate-600" />
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      {/* Ambient glow */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.06) 0%, transparent 70%)',
+        }}
+      />
+      <div className="relative text-center max-w-md px-4">
+        <div className="relative w-16 h-16 mx-auto mb-6">
+          <div className="absolute inset-0 rounded-2xl bg-violet-500/10 animate-pulse" />
+          <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-border flex items-center justify-center">
+            <Shield className="w-8 h-8 text-violet-400" />
+          </div>
         </div>
-        <h2 className="text-2xl font-bold text-white mb-3">
+        <p className="text-7xl font-bold text-white/10 mb-4 select-none">
+          404
+        </p>
+        <h2
+          className="text-3xl font-serif italic text-white mb-3"
+          style={{ letterSpacing: '-0.03em' }}
+        >
           Page Not Found
         </h2>
-        <p className="text-slate-400 mb-8">
+        <p className="text-muted mb-8 leading-relaxed">
           The page you&apos;re looking for doesn&apos;t exist or has been moved.
         </p>
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-3 flex-wrap">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium text-sm hover:from-violet-500 hover:to-purple-500 transition-all active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-medium text-sm hover:bg-white/90 hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all active:scale-[0.98] btn-shimmer"
           >
             Go Home
+            <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             href="/explore"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-sm hover:bg-white/10 transition-colors active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/[0.05] border border-border text-muted text-sm hover:bg-white/[0.08] hover:border-border-hover transition-all active:scale-[0.98]"
           >
             Explore Creators
           </Link>

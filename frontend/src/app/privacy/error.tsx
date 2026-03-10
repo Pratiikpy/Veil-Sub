@@ -12,29 +12,29 @@ export default function PrivacyError({
 }) {
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center max-w-md px-4">
+      <div className="text-center max-w-md px-4" role="alert">
         <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-6">
           <AlertTriangle className="w-8 h-8 text-amber-400" />
         </div>
         <h2 className="text-2xl font-bold text-white mb-3">Privacy Model Error</h2>
-        <p className="text-slate-400 mb-2">
+        <p className="text-muted mb-2">
           Could not load the privacy model documentation.
         </p>
         {error.digest && (
-          <p className="text-xs text-slate-600 font-mono mb-6">
+          <p className="text-xs text-subtle font-mono mb-6">
             Error ID: {error.digest}
           </p>
         )}
         <div className="flex items-center justify-center gap-3">
           <button
             onClick={reset}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium text-sm hover:from-violet-500 hover:to-purple-500 transition-all active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-black font-medium text-sm hover:bg-white/90 transition-all active:scale-[0.98] btn-shimmer"
           >
             Retry
           </button>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-sm hover:bg-white/10 transition-colors active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.05] border border-border text-white text-sm hover:bg-white/[0.08] transition-all active:scale-[0.98]"
           >
             Go Home
           </Link>

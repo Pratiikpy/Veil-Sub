@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { FileText, Send } from 'lucide-react'
+import { m } from 'framer-motion'
+import { FileText, Send, Image as ImageIcon, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
+import Button from './ui/Button'
 import { generatePassId } from '@/lib/utils'
 import TransactionStatus from './TransactionStatus'
 import type { TxStatus } from '@/types'
@@ -25,6 +26,9 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
 
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
+  const [preview, setPreview] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
+  const [imageError, setImageError] = useState(false)
   const [minTier, setMinTier] = useState(1)
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
   const [txId, setTxId] = useState<string | null>(null)
@@ -55,7 +59,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
     submittingRef.current = true
     setError(null)
     setTxStatus('signing')
-    toast.loading(`Publishing "${title.trim()}"...`, { id: 'post-optimistic', duration: 8000 })
+    toast.loading(`Publishing "${title.trim()}"...`, { id: 'post-optimistic', duration: 60000 })
 
     try {
       const contentId = generatePassId()
@@ -71,6 +75,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
         const postTitle = title.trim()
         const postBody = body.trim()
         const postTier = minTier
+        const postImageUrl = imageUrl.trim() || undefined
 
         startPolling(id, async (result) => {
           if (result.status === 'confirmed') {
@@ -85,7 +90,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                   return result
                 }
               : null
-            const saved = await createPost(creatorAddress, postTitle, postBody, postTier, contentId, wrappedSign)
+            const saved = await createPost(creatorAddress, postTitle, postBody, postTier, contentId, wrappedSign, postImageUrl)
             if (!saved) {
               console.error('[CreatePostForm] Failed to save post body to Redis')
               toast.error('Post confirmed on-chain but failed to save content. Try re-publishing.')
@@ -94,6 +99,9 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
             }
             setTitle('')
             setBody('')
+            setPreview('')
+            setImageUrl('')
+            setImageError(false)
             setMinTier(1)
             onPostCreated?.()
           } else if (result.status === 'failed') {
@@ -123,16 +131,17 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
     setError(null)
   }
 
-  const tierLabels = ['Supporter', 'Premium', 'VIP']
+  const tierLabels: Record<number, string> = { 1: 'Supporter', 2: 'Premium', 3: 'VIP' }
 
   return (
-    <motion.div
+    <m.div
+      id="create-post"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]"
+      className="p-6 rounded-sm bg-surface-1 border border-border scroll-mt-24"
     >
       <div className="flex items-center gap-2 mb-4">
-        <FileText className="w-5 h-5 text-[#a1a1aa]" />
+        <FileText className="w-5 h-5 text-muted" />
         <h2 className="text-lg font-semibold text-white">Create Post</h2>
       </div>
 
@@ -140,39 +149,97 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
         <>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-[#a1a1aa] mb-1.5">Title</label>
+              <label htmlFor="post-title" className="block text-sm text-muted mb-1.5">Title</label>
               <input
+                id="post-title"
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Post title..."
-                className="w-full px-4 py-2.5 rounded-[8px] bg-white/[0.05] border border-white/[0.08] text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm"
+                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base"
               />
             </div>
             <div>
-              <label className="block text-sm text-[#a1a1aa] mb-1.5">Content</label>
+              <label htmlFor="post-content" className="block text-sm text-muted mb-1.5">Content</label>
               <textarea
+                id="post-content"
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Write your exclusive content..."
                 rows={4}
-                className="w-full px-4 py-2.5 rounded-[8px] bg-white/[0.05] border border-white/[0.08] text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm resize-none"
+                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base resize-none"
               />
             </div>
             <div>
-              <label className="block text-sm text-[#a1a1aa] mb-1.5">Minimum tier required</label>
-              <div className="grid grid-cols-3 gap-2">
+              <label htmlFor="post-preview" className="block text-sm text-muted mb-1.5">
+                Preview <span className="text-subtle">(optional — shown to non-subscribers)</span>
+              </label>
+              <textarea
+                id="post-preview"
+                value={preview}
+                onChange={(e) => setPreview(e.target.value.slice(0, 300))}
+                placeholder="A short teaser to attract subscribers..."
+                rows={2}
+                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base resize-none"
+              />
+              <p className="text-[10px] text-subtle mt-0.5">{preview.length}/300</p>
+            </div>
+            <div>
+              <label htmlFor="post-image-url" className="block text-sm text-muted mb-1.5">
+                Image <span className="text-subtle">(optional — paste a URL)</span>
+              </label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle pointer-events-none" />
+                  <input
+                    id="post-image-url"
+                    type="url"
+                    value={imageUrl}
+                    onChange={(e) => { setImageUrl(e.target.value); setImageError(false) }}
+                    placeholder="https://example.com/image.jpg"
+                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm"
+                  />
+                </div>
+                {imageUrl && (
+                  <button
+                    type="button"
+                    onClick={() => { setImageUrl(''); setImageError(false) }}
+                    className="px-2.5 rounded-xl bg-white/[0.05] border border-border text-subtle hover:text-white hover:bg-white/[0.08] transition-colors"
+                    aria-label="Clear image"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              {imageUrl && !imageError && (
+                <div className="mt-2 relative rounded-lg overflow-hidden border border-border bg-white/[0.02] max-h-48">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imageUrl}
+                    alt="Preview"
+                    className="w-full max-h-48 object-cover"
+                    onError={() => setImageError(true)}
+                  />
+                </div>
+              )}
+              {imageError && (
+                <p className="text-xs text-red-400 mt-1">Failed to load image. Check the URL and try again.</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm text-muted mb-1.5">Minimum tier required</label>
+              <div className="flex flex-wrap gap-2">
                 {[1, 2, 3].map((tier) => (
                   <button
                     key={tier}
                     onClick={() => setMinTier(tier)}
-                    className={`py-2 px-3 rounded-lg text-xs font-medium transition-all ${
+                    className={`py-2.5 px-3 rounded-lg text-xs font-medium transition-all ${
                       minTier === tier
-                        ? 'bg-violet-500/20 border border-violet-500/40 text-[#a1a1aa]'
-                        : 'bg-white/[0.05] border border-white/[0.08] text-[#a1a1aa] hover:bg-white/[0.08]'
+                        ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
+                        : 'bg-white/[0.05] border border-border text-muted hover:bg-white/[0.08] hover:border-white/15'
                     }`}
                   >
-                    {tierLabels[tier - 1]}
+                    {tierLabels[tier] || `Tier ${tier}`}
                   </button>
                 ))}
               </div>
@@ -185,40 +252,40 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
             </div>
           )}
 
-          <p className="mt-3 text-xs text-[#71717a]">
+          <p className="mt-3 text-xs text-subtle">
             Publishing registers content metadata on-chain (content ID + minimum tier). The post body is stored off-chain and persists across devices.
           </p>
 
-          <button
+          <Button
             onClick={handlePublish}
             disabled={!title.trim() || !body.trim() || (txStatus !== 'idle' && txStatus !== 'failed')}
-            className="mt-4 w-full py-2.5 rounded-[8px] bg-white/[0.06] text-white font-medium text-sm hover:bg-[#7c3aed] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="mt-4 w-full"
           >
             <Send className="w-4 h-4" />
             Publish
-          </button>
+          </Button>
         </>
       ) : (
         <div className="py-2">
-          <TransactionStatus status={txStatus} txId={txId} />
+          <TransactionStatus status={txStatus} txId={txId} errorMessage={error} />
           {txStatus === 'confirmed' && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="mt-4 text-center"
             >
               <p className="text-green-400 font-medium mb-1">Published!</p>
-              <p className="text-xs text-[#a1a1aa]">Content metadata is now on-chain.</p>
+              <p className="text-xs text-muted">Content metadata is now on-chain.</p>
               <button
                 onClick={handleReset}
-                className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-white hover:bg-white/[0.08] transition-colors"
+                className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
               >
                 Create Another
               </button>
-            </motion.div>
+            </m.div>
           )}
         </div>
       )}
-    </motion.div>
+    </m.div>
   )
 }

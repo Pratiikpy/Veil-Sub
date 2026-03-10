@@ -1,7 +1,8 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { ShieldCheck, X, ExternalLink } from 'lucide-react'
+import { PROGRAM_ID } from '@/lib/config'
 
 interface Props {
   success: boolean
@@ -17,7 +18,7 @@ export default function VerificationResult({
   passTier,
 }: Props) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className={`p-5 rounded-xl border ${
@@ -46,7 +47,7 @@ export default function VerificationResult({
           >
             {success ? 'Access Verified' : 'Verification Failed'}
           </p>
-          <p className="text-xs text-[#71717a]">
+          <p className="text-xs text-subtle">
             {success
               ? 'ZK proof confirms valid AccessPass ownership'
               : 'Could not verify this AccessPass'}
@@ -57,12 +58,12 @@ export default function VerificationResult({
       {success && passTier && passCreator && (
         <div className="space-y-2 mb-3">
           <div className="flex justify-between text-xs">
-            <span className="text-[#71717a]">Tier</span>
+            <span className="text-subtle">Tier</span>
             <span className="text-white">{passTier}</span>
           </div>
           <div className="flex justify-between text-xs">
-            <span className="text-[#71717a]">Creator</span>
-            <span className="text-[#a1a1aa] font-mono text-[10px]">
+            <span className="text-subtle">Creator</span>
+            <span className="text-muted font-mono text-[10px]">
               {passCreator}
             </span>
           </div>
@@ -75,23 +76,23 @@ export default function VerificationResult({
             href={`https://testnet.explorer.provable.com/transaction/${txId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-[#a1a1aa] hover:text-white"
+            className="inline-flex items-center gap-1 text-xs text-muted hover:text-white"
           >
             View on Explorer
             <ExternalLink className="w-3 h-3" />
           </a>
         ) : (
           <a
-            href="https://testnet.aleoscan.io/program?id=veilsub_v15.aleo"
+            href={`https://testnet.aleoscan.io/program?id=${PROGRAM_ID}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-[#a1a1aa] hover:text-white"
+            className="inline-flex items-center gap-1 text-xs text-muted hover:text-white"
           >
             View program on Explorer
             <ExternalLink className="w-3 h-3" />
           </a>
         )
       )}
-    </motion.div>
+    </m.div>
   )
 }

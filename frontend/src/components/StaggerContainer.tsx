@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode, useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
+import { m, useInView } from 'framer-motion'
 
 interface Props {
   children: ReactNode
@@ -40,7 +40,7 @@ export default function StaggerContainer({
   const isInView = useInView(ref, { once: true, amount: 0.1 })
 
   return (
-    <motion.div
+    <m.div
       ref={ref}
       variants={containerVariants(staggerDelay)}
       initial="hidden"
@@ -48,6 +48,6 @@ export default function StaggerContainer({
       className={className}
     >
       {children}
-    </motion.div>
+    </m.div>
   )
 }

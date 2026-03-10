@@ -15,6 +15,19 @@ contracts/veilsub/outputs/
 *.key
 nul
 Usersprate*
+tmptest.txt
+
+# Planning/audit artifacts (not for submission)
+archive/
+WAVE3_FULL_AUDIT_v24.md
+DEPLOYMENT_READINESS_REPORT.md
+ZKShield_doc.txt
+
+# Python scripts (not part of project)
+*.py
+
+# Test artifacts
+frontend/test-results/
 
 # Reference repos (not part of project)
 aleo-reference-projects/
@@ -28,5 +41,18 @@ aleo-reference-projects/
 .vscode/
 *.swp
 
+# Qoder
+.qoder/
+
 # Claude Code
 .claude/
+
+# Polish loop (process files, not for submission)
+.polish-loop/
+
+# Skills
+.skills/
+
+# Temp files
+*.tmp
+.loop-temp/

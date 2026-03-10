@@ -4,7 +4,7 @@
 
 VeilSub is a **privacy-first creator subscription platform** built on the Aleo blockchain. Creators register, set subscription tiers, and publish gated content. Subscribers pay with private Aleo credits, receive encrypted AccessPass records, and can verify access with **zero public footprint**. The platform is competing in the **Aleo Privacy Buildathon** (10 waves, $50K total pool).
 
-- **Current contract**: `veilsub_v17.aleo` — 1,677 lines, 31 transitions, 24 mappings, 8 records (contracts/veilsub/src/main.leo)
+- **Current contract**: `veilsub_v27.aleo` (local build) — 27 transitions, 25 mappings, 5 structs, 6 records, 866 statements (contracts/veilsub/src/main.leo)
 - **Frontend**: Next.js 16 + React 19 + TypeScript + Tailwind 4 (frontend/)
 - **Off-chain**: Supabase (profiles, analytics) + Upstash Redis (posts, rate limiting)
 - **Wallet support**: Shield, Leo (patched), Fox, Puzzle, Soter
@@ -65,6 +65,111 @@ everyign in aleo reffrence proecjt u msut understnad to the latest github thing
 - Before claiming any feature is "good enough", compare it against the 5 funded projects
 - Ask: "Would this score higher than what NullPay/Veiled Markets/lasagna did?"
 - The bar is Tech 8+, Privacy 8+, not just "working code"
+
+When you add a new finalize function (e.g., `finalize_renew`), you MUST copy ALL mapping updates from the similar existing function (e.g., `finalize_subscribe`). Missing a single mapping = broken feature.
+
+**Mandatory Checklist for Any Subscribe/Renew/Referral Finalize Block**:
+- ✓ `subscriber_count` — increment subscriber count for creator
+- ✓ `total_revenue` — add subscription price to creator's lifetime revenue
+- ✓ `platform_revenue` — add platform fee (5-10% of price) to fee pool
+- ✓ `pass_creator` — map pass_id → creator (required for revocation auth)
+- ✓ `subscription_by_tier` — increment per-tier subscriber count (v19+)
+- ✓ `creator_last_active` — update creator's last action block height (v19+)
+- ✓ `subscription_epoch` — increment epoch count for analytics (v20+)
+- ✓ `total_subscriptions` — increment lifetime subscription count (v20+)
+
+**Why each mapping matters**:
+- `subscriber_count`, `total_revenue`: Public metrics for explorer/analytics
+- `platform_revenue`, `pass_creator`: Business logic + access control
+- `subscription_by_tier`: Per-tier analytics (judges want this detail)
+- `creator_last_active`: Activity tracking for onboarding incentives
+- `subscription_epoch`: Wave-by-wave historical data
+- `total_subscriptions`: Career metric for creator reputation
+
+**Example**: When `finalize_subscribe` was added in v9, it should have updated all 8 mappings. When `finalize_renew` was added in v10, it must update the SAME 8. When new mappings are added, old finalizes must be back-filled.
+
+### 7. ALWAYS Add Error Code Comments to All Asserts
+
+Every `assert!()` statement MUST have an error code comment. The error code format is:
+```leo
+assert(condition);                    // ERR_XXX: Human-readable description
+```
+
+**Current Error Code Range**: ERR_001 through ERR_113 (v21)
+
+When adding new asserts:
+1. Find the highest existing error code in main.leo (currently 113)
+2. Increment by 1 (so 114, 115, etc.)
+3. Add comment describing what the assert validates
+
+**Example**:
+```leo
+// WRONG ❌ — no error code
+assert(amount > 0u64);
+
+// RIGHT ✅ — clear error code + description
+assert(amount > 0u64);               // ERR_114: Tip amount must be positive
+```
+
+**Why this matters**:
+- Judges can understand contract failures without reading source
+- Creates an audit trail of validation rules
+- Helps developers debug transaction failures ("ERR_114" → look up what that validates)
+- v21 has 113 error codes; every new assertion must continue the sequence
+
+### 8. NEVER Mix BHP256 and Poseidon2 Hash Functions — Use Each in Its Correct Layer
+
+VeilSub uses two cryptographic hash functions for different purposes. Using the wrong one breaks privacy or efficiency.
+
+**Layer Usage Rule**:
+- **Transition Layer** (public visibility): Use **BHP256** for privacy-critical hashing
+  - Subscriber identity hashing (blind renewal)
+  - Private data commitments
+  - Reason: BHP256 outputs are not pre-computed; provides plausible deniability
+
+- **Finalize Layer** (public mapping keys): Use **Poseidon2** for gas efficiency
+  - Mapping key hashing (content_id, nonce)
+  - Analytics aggregation
+  - Reason: Poseidon2 is ZK-friendly and cheaper on-chain## 9. ALWAYS Build and Verify After Modifying main.leo
+
+Leo compiler is strict and will catch errors early. After ANY change to `contracts/veilsub/src/main.leo`:
+
+**IMMEDIATE BUILD CHECK** (run this RIGHT AFTER editing):
+```bash
+cd contracts/veilsub && leo build
+```
+
+**Zero Errors Required**: If leo build fails, the contract doesn't work. Full stop.
+
+**Verify Variable Count**:
+After a successful build, leo will output:
+```
+    Variables: XXX,XXX
+    Constraints: XXX,XXX
+    Statement count: XXX
+```
+
+**Testnet Limit Rule**:
+- Variables must stay **below 2,097,152** (testnet limit)
+- Current deployed: v26 = 1,879,536 variables (89.6% of limit)
+- If you add significant features, you WILL exceed the limit
+
+**When adding new features**:
+1. Build locally first — verify it compiles
+2. Check variable count in build output
+3. If near limit (>1.9M): mark as "local-only" or simplify the feature
+4. If way over (>2.1M): you need to wait for Aleo network upgrade or refactor
+
+**This is not optional**: Judges will compile and verify variable count. If it doesn't compile, instant failure.
+
+never use ai slop thign in anywhere any where readme or frotnen make sure no ai slop 
+
+
+## 10. ALWAYS Keep Frontend and Contract in Sync
+
+When you add a new transition to the smart contract, you MUST update the frontend in parallel. Missing steps = broken feature that compiles but doesn't work.
+
+
 
 ---
 

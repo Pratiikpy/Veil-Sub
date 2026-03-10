@@ -94,7 +94,7 @@ export function parseAccessPass(
   const parsed = parseRecordPlaintext(plaintext)
   const tier = parseInt(parsed.tier ?? '', 10)
   const expiresAt = parseInt(parsed.expires_at ?? '', 10)
-  if (!parsed.owner || !parsed.creator || isNaN(tier) || tier < 1 || tier > 3 || isNaN(expiresAt)) {
+  if (!parsed.owner || !parsed.creator || isNaN(tier) || tier < 1 || tier > 20 || isNaN(expiresAt)) {
     return null
   }
   return {
@@ -120,4 +120,33 @@ export function isValidAleoAddress(address: string): boolean {
 export function shortenAddress(address: string, chars = 6): string {
   if (!address || address.length < 12) return address
   return `${address.slice(0, chars + 4)}...${address.slice(-chars)}`
+}
+
+/**
+ * Parse microcredits from an Aleo record plaintext string.
+ * Extracts the numeric value from patterns like "microcredits: 500000u64".
+ */
+export function parseMicrocredits(plaintext: string): number {
+  const match = plaintext.match(/microcredits\s*:\s*([\d_]+)u64/)
+  return match ? parseInt(match[1].replace(/_/g, ''), 10) : 0
+}
+
+/**
+ * Compute a server-salted wallet hash for API authentication.
+ *
+ * Hash = SHA-256(address + salt), where salt is SUPABASE_ENCRYPTION_KEY on the
+ * server side and NEXT_PUBLIC_WALLET_AUTH_SALT on the client side. Both must
+ * be configured to the same value for auth to work.
+ *
+ * This prevents forgery from public address alone -- the attacker needs the salt.
+ * Combined with wallet signature + tight timestamp, this provides practical auth
+ * for off-chain Redis content storage.
+ */
+export async function computeWalletHash(address: string): Promise<string> {
+  const salt = typeof window === 'undefined'
+    ? (process.env.NEXT_PUBLIC_WALLET_AUTH_SALT || process.env.SUPABASE_ENCRYPTION_KEY || '')
+    : (process.env.NEXT_PUBLIC_WALLET_AUTH_SALT || '')
+  const encoder = new TextEncoder()
+  const hashBuf = await crypto.subtle.digest('SHA-256', encoder.encode(address + salt))
+  return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
 }

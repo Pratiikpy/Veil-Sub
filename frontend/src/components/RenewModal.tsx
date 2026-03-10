@@ -1,19 +1,25 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, RefreshCw, Shield } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { m, AnimatePresence } from 'framer-motion'
+import { X, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
+import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { generatePassId, formatCredits } from '@/lib/utils'
-import { dedupeRecords } from '@/lib/recordSync'
 import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT, FEES } from '@/lib/config'
+import { getErrorMessage } from '@/lib/errorMessages'
 import { logSubscriptionEvent } from '@/lib/logEvent'
+import { useFocusTrap } from '@/hooks/useFocusTrap'
+import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
+import { useBalanceCheck } from '@/hooks/useBalanceCheck'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
-import type { AccessPass, SubscriptionTier, TxStatus } from '@/types'
+import Button from './ui/Button'
+import type { AccessPass, SubscriptionTier } from '@/types'
 import { TIERS } from '@/types'
 
 interface Props {
@@ -29,59 +35,33 @@ export default function RenewModal({
   pass,
   basePrice,
 }: Props) {
-  const { renew, getCreditsRecords, connected } = useVeilSub()
+  const { renew, renewBlind, getCreditsRecords, connected } = useVeilSub()
+  const { signMessage } = useWallet()
   const { blockHeight } = useBlockHeight()
   const { startPolling, stopPolling } = useTransactionPoller()
+  const {
+    txStatus, setTxStatus, txId, setTxId,
+    error, setError, statusMessage,
+    submittingRef, handleClose, resetFlow,
+  } = useTransactionFlow({ isOpen, onClose, connected, stopPolling })
+  const focusTrapRef = useFocusTrap(isOpen, handleClose)
+  const { checkBalance } = useBalanceCheck(getCreditsRecords)
+
   const [selectedTier, setSelectedTier] = useState<SubscriptionTier>(
-    TIERS.find((t) => t.id === pass.tier) || TIERS[0]
+    TIERS.find((t) => t.id === pass.tier) || {
+      id: pass.tier,
+      name: `Tier ${pass.tier}`,
+      priceMultiplier: pass.tier,
+      description: `Custom tier ${pass.tier}`,
+      features: ['Custom tier access'],
+    }
   )
-  const [txStatus, setTxStatus] = useState<TxStatus>('idle')
-  const [txId, setTxId] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [privacyMode, setPrivacyMode] = useState<'standard' | 'blind'>('standard')
   const [insufficientBalance, setInsufficientBalance] = useState(false)
-  const [statusMessage, setStatusMessage] = useState<string | null>(null)
-  const submittingRef = useRef(false)
-  const txStatusRef = useRef(txStatus)
-  txStatusRef.current = txStatus
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    }
-    return () => { document.body.style.overflow = '' }
-  }, [isOpen])
-
-  useEffect(() => {
-    return () => stopPolling()
-  }, [stopPolling])
-
-  // Detect wallet disconnect during transaction
-  useEffect(() => {
-    if (!connected && (txStatus === 'signing' || txStatus === 'proving' || txStatus === 'broadcasting')) {
-      setTxStatus('failed')
-      setError('Wallet disconnected. Please reconnect and try again.')
-      stopPolling()
-      submittingRef.current = false
-    }
-  }, [connected, txStatus, stopPolling])
-
-  // Cycling status messages during proving/broadcasting
-  useEffect(() => {
-    if (txStatus !== 'proving' && txStatus !== 'broadcasting') {
-      setStatusMessage(null)
-      return
-    }
-    const messages = txStatus === 'proving'
-      ? ['Generating zero-knowledge proof...', 'Wallet is computing the ZK circuit...', 'This may take 30-60 seconds...']
-      : ['Broadcasting renewal to Aleo network...', 'Waiting for block confirmation...', 'Validators are verifying the proof...']
-    let idx = 0
-    setStatusMessage(messages[0])
-    const interval = setInterval(() => {
-      idx = (idx + 1) % messages.length
-      setStatusMessage(messages[idx])
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [txStatus])
+  const tierGroupRef = useRef<HTMLDivElement>(null)
+  const privacyGroupRef = useRef<HTMLDivElement>(null)
+  useRovingTabIndex(tierGroupRef)
+  useRovingTabIndex(privacyGroupRef)
 
   const totalPrice = basePrice * selectedTier.priceMultiplier
   const creatorCut = totalPrice - Math.floor(totalPrice / 20)
@@ -90,11 +70,6 @@ export default function RenewModal({
   const isExpired = blockHeight !== null && pass.expiresAt <= blockHeight
   const blocksRemaining = blockHeight !== null ? Math.max(0, pass.expiresAt - blockHeight) : null
   const daysRemaining = blocksRemaining !== null ? Math.round((blocksRemaining * 3) / 86400) : null
-
-  const parseMicrocredits = (plaintext: string): number => {
-    const m = plaintext.match(/microcredits\s*:\s*([\d_]+)u64/)
-    return m ? parseInt(m[1].replace(/_/g, ''), 10) : 0
-  }
 
   const handleRenew = async () => {
     if (submittingRef.current) return
@@ -109,54 +84,18 @@ export default function RenewModal({
 
     submittingRef.current = true
     setError(null)
-    setStatusMessage(null)
     setTxStatus('signing')
 
     try {
-      let rawRecords: string[]
-      try {
-        rawRecords = await getCreditsRecords()
-      } catch {
-        await new Promise(r => setTimeout(r, 2000))
-        try {
-          rawRecords = await getCreditsRecords()
-        } catch (retryErr) {
-          throw new Error(`Could not load wallet records: ${retryErr instanceof Error ? retryErr.message : 'Unknown error'}. Please ensure your wallet is synced.`)
-        }
-      }
-      if (rawRecords.length === 0) {
-        await new Promise(r => setTimeout(r, 2000))
-        try {
-          rawRecords = await getCreditsRecords()
-        } catch { rawRecords = [] }
-      }
-      // Nonce-based deduplication
-      const records = dedupeRecords(rawRecords)
-
-      if (records.length < 1) {
-        setInsufficientBalance(true)
-        setError('No private credit records found. Convert public credits to private or get testnet credits.')
+      const balanceResult = await checkBalance(totalPrice)
+      if (balanceResult.error) {
+        if (balanceResult.insufficientBalance) setInsufficientBalance(true)
+        setError(balanceResult.error)
         setTxStatus('idle')
         submittingRef.current = false
         return
       }
-
-      const totalAvailable = records.reduce((sum, r) => sum + parseMicrocredits(r), 0)
-      const largestRecord = parseMicrocredits(records[0])
-      if (totalAvailable < totalPrice) {
-        setInsufficientBalance(true)
-        setError(`Insufficient private balance. You have ${formatCredits(totalAvailable)} ALEO but need ${formatCredits(totalPrice)} ALEO.`)
-        setTxStatus('idle')
-        submittingRef.current = false
-        return
-      }
-      if (largestRecord < totalPrice) {
-        setInsufficientBalance(true)
-        setError(`Your largest record has ${formatCredits(largestRecord)} ALEO but you need ${formatCredits(totalPrice)} in a single record. Convert public credits to private to create a larger record.`)
-        setTxStatus('idle')
-        submittingRef.current = false
-        return
-      }
+      const records = balanceResult.records
 
       // v8: Single-record renew — contract handles both creator and platform payments
       const paymentRecord = records[0]
@@ -164,16 +103,30 @@ export default function RenewModal({
       const newPassId = generatePassId()
       const newExpiresAt = blockHeight + SUBSCRIPTION_DURATION_BLOCKS
 
-      setStatusMessage(null)
       setTxStatus('proving')
-      const id = await renew(
-        pass.rawPlaintext,
-        paymentRecord,
-        selectedTier.id,
-        totalPrice,
-        newPassId,
-        newExpiresAt
-      )
+
+      let id: string | null
+      if (privacyMode === 'blind') {
+        const nonce = generatePassId()
+        id = await renewBlind(
+          pass.rawPlaintext,
+          paymentRecord,
+          nonce,
+          selectedTier.id,
+          totalPrice,
+          newPassId,
+          newExpiresAt
+        )
+      } else {
+        id = await renew(
+          pass.rawPlaintext,
+          paymentRecord,
+          selectedTier.id,
+          totalPrice,
+          newPassId,
+          newExpiresAt
+        )
+      }
 
       if (id) {
         setTxId(id)
@@ -182,7 +135,10 @@ export default function RenewModal({
           if (result.status === 'confirmed') {
             if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
-            logSubscriptionEvent(pass.creator, selectedTier?.id || 1, totalPrice, result.resolvedTxId || id)
+            const wrappedSign = signMessage
+              ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
+              : null
+            logSubscriptionEvent(pass.creator, selectedTier?.id || 1, totalPrice, result.resolvedTxId || id, wrappedSign)
             toast.success('Subscription renewed!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
@@ -196,47 +152,29 @@ export default function RenewModal({
       }
     } catch (err) {
       setTxStatus('failed')
-      setError(err instanceof Error ? err.message : 'Renewal failed')
+      setError(getErrorMessage(err instanceof Error ? err.message : 'Renewal failed'))
     } finally {
       submittingRef.current = false
     }
   }
 
-  const handleClose = () => {
-    // Allow close in ANY state — never trap the user
-    stopPolling()
-    setTxStatus('idle')
-    setTxId(null)
-    setError(null)
+  const handleModalClose = () => {
     setInsufficientBalance(false)
-    setStatusMessage(null)
-    submittingRef.current = false
-    onClose()
+    handleClose()
   }
-
-  // Escape key to close (uses refs to avoid stale closures)
-  const handleCloseRef = useRef(handleClose)
-  handleCloseRef.current = handleClose
-  useEffect(() => {
-    if (!isOpen) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleCloseRef.current()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [isOpen])
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh] bg-black/60 backdrop-blur-sm overflow-y-auto"
-          onClick={handleClose}
+          onClick={handleModalClose}
         >
-          <motion.div
+          <m.div
+            ref={focusTrapRef}
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
@@ -244,20 +182,20 @@ export default function RenewModal({
             role="dialog"
             aria-modal="true"
             aria-label="Renew subscription"
-            className="w-full max-w-md rounded-xl bg-[#0a0a0a] border border-[rgba(255,255,255,0.08)] shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-md rounded-sm bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <RefreshCw className="w-5 h-5 text-[#a1a1aa]" />
+                <RefreshCw className="w-5 h-5 text-muted" />
                 <h3 className="text-lg font-semibold text-white">
                   Renew Subscription
                 </h3>
               </div>
               <button
-                onClick={handleClose}
+                onClick={handleModalClose}
                 aria-label="Close renewal dialog"
-                className="p-1 rounded-lg hover:bg-white/5 text-[#a1a1aa] hover:text-white transition-colors"
+                className="p-1 rounded-lg hover:bg-white/[0.05] text-muted hover:text-white active:scale-[0.9] transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -266,18 +204,18 @@ export default function RenewModal({
             {txStatus === 'idle' ? (
               <>
                 {/* Current Status */}
-                <div className="p-3 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-4">
-                  <p className="text-xs text-[#71717a] mb-1">Current pass</p>
+                <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4">
+                  <p className="text-xs text-subtle mb-1">Current pass</p>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-white">
-                      {TIERS.find((t) => t.id === pass.tier)?.name || `Tier ${pass.tier}`}
+                      {TIERS.find((t) => t.id === pass.tier)?.name ?? `Custom Tier ${pass.tier}`}
                     </span>
                     {isExpired ? (
                       <span className="px-2 py-0.5 rounded-full text-xs bg-red-500/10 text-red-400 border border-red-500/20">
                         Expired
                       </span>
                     ) : (
-                      <span className="text-xs text-[#a1a1aa]">
+                      <span className="text-xs text-muted">
                         ~{daysRemaining} days left
                       </span>
                     )}
@@ -286,16 +224,19 @@ export default function RenewModal({
 
                 {/* Tier Selector */}
                 <div className="mb-4">
-                  <p className="text-xs text-[#a1a1aa] mb-2">Renew as:</p>
-                  <div className="grid grid-cols-3 gap-2">
+                  <p className="text-xs text-muted mb-2">Renew as:</p>
+                  <div ref={tierGroupRef} className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Subscription tier">
                     {TIERS.map((tier) => (
                       <button
                         key={tier.id}
+                        role="radio"
+                        aria-checked={selectedTier.id === tier.id}
+                        tabIndex={selectedTier.id === tier.id ? 0 : -1}
                         onClick={() => setSelectedTier(tier)}
-                        className={`py-2 px-3 rounded-lg text-xs font-medium transition-all ${
+                        className={`py-2.5 px-3 rounded-lg text-xs font-medium transition-all ${
                           selectedTier.id === tier.id
-                            ? 'bg-violet-500/20 border border-violet-500/40 text-[#a1a1aa]'
-                            : 'bg-white/5 border border-white/10 text-[#a1a1aa] hover:bg-white/10'
+                            ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
+                            : 'bg-white/5 border border-white/10 text-muted hover:bg-white/10 hover:border-white/15'
                         }`}
                       >
                         {tier.name}
@@ -304,17 +245,47 @@ export default function RenewModal({
                   </div>
                 </div>
 
+                {/* Privacy Mode Selector */}
+                <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4">
+                    <p className="text-xs text-subtle mb-2 font-medium">Privacy Level</p>
+                    <div ref={privacyGroupRef} className="grid grid-cols-2 gap-1.5" role="radiogroup" aria-label="Privacy level">
+                      {([
+                        { key: 'standard' as const, label: 'Standard', desc: 'BHP256 hash' },
+                        { key: 'blind' as const, label: 'Blind', desc: 'Nonce rotation' },
+                      ]).map((mode) => (
+                        <button
+                          key={mode.key}
+                          role="radio"
+                          aria-checked={privacyMode === mode.key}
+                          tabIndex={privacyMode === mode.key ? 0 : -1}
+                          onClick={() => setPrivacyMode(mode.key)}
+                          className={`p-2 rounded-lg border text-center transition-all ${
+                            privacyMode === mode.key
+                              ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300 shadow-accent-sm'
+                              : 'border-border/75 bg-transparent text-subtle hover:border-glass-hover hover:text-muted'
+                          }`}
+                        >
+                          <span className="text-[11px] font-medium block">{mode.label}</span>
+                          <span className="text-[9px] text-subtle block">{mode.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                    {privacyMode === 'blind' && (
+                      <p className="text-[10px] text-violet-400/70 mt-2">
+                        Each renewal uses a unique identity hash. Creator cannot link renewals to the same person.
+                      </p>
+                    )}
+                </div>
+
                 {/* Payment Breakdown */}
-                <div className="p-4 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[#a1a1aa] font-medium">
-                      {selectedTier.name}
-                    </span>
-                    <span className="text-white font-bold">
-                      {formatCredits(totalPrice)} ALEO
-                    </span>
-                  </div>
-                  <div className="text-xs text-[#71717a] space-y-1">
+                <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
+                  <span className="text-xs text-subtle uppercase tracking-wider font-medium">
+                    {selectedTier.name}
+                  </span>
+                  <p className="text-2xl font-bold text-white mt-1 mb-2">
+                    {formatCredits(totalPrice)} <span className="text-sm font-medium text-muted">ALEO</span>
+                  </p>
+                  <div className="text-xs text-subtle space-y-1">
                     <div className="flex justify-between">
                       <span>Creator ({100 - PLATFORM_FEE_PCT}%)</span>
                       <span>{formatCredits(creatorCut)} ALEO</span>
@@ -324,24 +295,26 @@ export default function RenewModal({
                       <span>{formatCredits(platformCut)} ALEO</span>
                     </div>
                   </div>
-                  <div className="mt-2 pt-2 border-t border-white/5 text-xs text-[#a1a1aa] space-y-1">
+                  <div className="mt-2 pt-2 border-t border-white/5 text-xs text-muted space-y-1">
                     <div>Access for ~30 days ({SUBSCRIPTION_DURATION_BLOCKS.toLocaleString()} blocks)</div>
-                    <div>Est. network fee: ~{formatCredits(FEES.RENEW)} ALEO</div>
+                    <div>Est. network fee: ~{formatCredits(privacyMode === 'standard' ? FEES.RENEW : FEES.RENEW_BLIND)} ALEO</div>
                   </div>
                 </div>
 
                 {/* Privacy Notice */}
-                <div className="p-3 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-4">
-                  <div className="flex items-center gap-2">
-                    <Shield className="w-3.5 h-3.5 text-green-400 shrink-0" />
-                    <p className="text-xs text-green-400">
-                      Your identity stays private. Both payments use private transfers.
-                    </p>
-                  </div>
+                <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4 space-y-1.5">
+                  <p className="text-xs text-green-400 font-medium">Zero-Knowledge Privacy</p>
+                  <ul className="text-[11px] text-green-400/80 space-y-1 list-none">
+                    <li>Your address is never published on-chain</li>
+                    {privacyMode === 'standard' && <li>Aggregate subscriber count updates publicly</li>}
+                    {privacyMode === 'blind' && <li>Identity hash rotated -- unlinkable renewals</li>}
+                    <li>AccessPass stored privately in your wallet</li>
+                    <li>Payment via credits.aleo/transfer_private</li>
+                  </ul>
                 </div>
 
                 {error && (
-                  <div className="p-3 rounded-[8px] bg-red-500/10 border border-red-500/15 mb-4">
+                  <div role="alert" className="p-3 rounded-xl bg-red-500/10 border border-red-500/15 mb-4">
                     <p className="text-xs text-red-400">{error}</p>
                   </div>
                 )}
@@ -359,46 +332,46 @@ export default function RenewModal({
                   </div>
                 )}
 
-                <button
+                <Button
                   onClick={handleRenew}
                   disabled={txStatus !== 'idle'}
-                  className="w-full py-3 rounded-lg bg-white text-black font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full"
                 >
                   Renew Privately
-                </button>
+                </Button>
               </>
             ) : (
               <div className="py-2">
                 {statusMessage && (
-                  <div className="mb-3 p-3 rounded-[8px] bg-[#18181b] border border-white/[0.08]">
-                    <p className="text-xs text-[#a1a1aa] animate-pulse">{statusMessage}</p>
+                  <div className="mb-3 p-3 rounded-xl bg-surface-2 border border-border">
+                    <p className="text-xs text-muted animate-pulse">{statusMessage}</p>
                   </div>
                 )}
-                <TransactionStatus status={txStatus} txId={txId} />
+                <TransactionStatus status={txStatus} txId={txId} errorMessage={error} />
                 {txStatus === 'confirmed' && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-4 text-center"
                   >
                     <p className="text-green-400 font-medium mb-1">Renewed!</p>
-                    <p className="text-xs text-[#a1a1aa]">
+                    <p className="text-xs text-muted">
                       Your new AccessPass is in your wallet.
                     </p>
                     <button
-                      onClick={handleClose}
-                      className="mt-4 px-6 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
+                      onClick={handleModalClose}
+                      className="mt-4 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                     >
                       Done
                     </button>
-                  </motion.div>
+                  </m.div>
                 )}
                 {txStatus === 'failed' && (
                   <div className="mt-4 text-center">
-                    {error && <p className="text-xs text-red-400 mb-3">{error}</p>}
+                    {error && <p role="alert" className="text-xs text-red-400 mb-3">{error}</p>}
                     <button
-                      onClick={() => { setTxStatus('idle'); setError(null); setStatusMessage(null) }}
-                      className="px-6 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
+                      onClick={() => resetFlow()}
+                      className="px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                     >
                       Try Again
                     </button>
@@ -406,8 +379,8 @@ export default function RenewModal({
                 )}
               </div>
             )}
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       )}
     </AnimatePresence>
   )

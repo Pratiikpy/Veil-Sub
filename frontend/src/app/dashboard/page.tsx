@@ -1,296 +1,33 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useEffect, useRef } from 'react'
+import { m } from 'framer-motion'
 import Link from 'next/link'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import {
-  Settings,
-  Copy,
-  Check,
-  ExternalLink,
-  Shield,
-  Info,
-  Share2,
-  Lock,
-  Percent,
-  ArrowRight,
-  Sparkles,
-  Trash2,
-  FileText,
-} from 'lucide-react'
+import { ExternalLink, Shield, Share2 } from 'lucide-react'
 import { toast } from 'sonner'
+import dynamic from 'next/dynamic'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { useSupabase } from '@/hooks/useSupabase'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
-import StatsPanel from '@/components/StatsPanel'
-import TransactionStatus from '@/components/TransactionStatus'
-import CreatorQRCode from '@/components/CreatorQRCode'
-import CreatePostForm from '@/components/CreatePostForm'
-import { useContentFeed } from '@/hooks/useContentFeed'
-import ActivityChart from '@/components/ActivityChart'
-import TierDistribution from '@/components/TierDistribution'
 import PageTransition from '@/components/PageTransition'
-import CelebrationBurst from '@/components/CelebrationBurst'
-import { creditsToMicrocredits, formatCredits, shortenAddress } from '@/lib/utils'
-import { PLATFORM_FEE_PCT, PLATFORM_ADDRESS, DEPLOYED_PROGRAM_ID, MICROCREDITS_PER_CREDIT } from '@/lib/config'
-import TierCreationDialog from '@/components/TierCreationDialog'
-import ContentManagementPanel from '@/components/ContentManagementPanel'
-import RevokeAccessPanel from '@/components/RevokeAccessPanel'
-import { TIERS } from '@/types'
+import { creditsToMicrocredits } from '@/lib/utils'
 import type { TxStatus, CreatorProfile } from '@/types'
 
-function ShareText({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false)
+import ConnectWalletPrompt from '@/components/dashboard/ConnectWalletPrompt'
+import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton'
+import RegistrationForm from '@/components/dashboard/RegistrationForm'
+import RegisteredDashboard from '@/components/dashboard/RegisteredDashboard'
 
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      toast.error('Clipboard not available. Please copy manually.')
-    }
-  }
-
-  return (
-    <div className="relative">
-      <div className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.08] text-sm text-slate-300 whitespace-pre-wrap break-all">
-        {text}
-      </div>
-      <button
-        onClick={copy}
-        className="mt-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-black hover:bg-white/10 transition-all duration-300 flex items-center gap-2 active:scale-[0.98]"
-      >
-        {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
-        {copied ? 'Copied' : 'Copy to clipboard'}
-      </button>
-    </div>
-  )
-}
-
-function DashboardSkeleton() {
-  return (
-    <div className="min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="animate-pulse mb-8">
-          <div className="h-8 w-52 rounded-lg bg-white/[0.06] mb-3" />
-          <div className="h-4 w-80 rounded-lg bg-white/[0.04]" />
-        </div>
-        <div className="max-w-lg animate-pulse">
-          <div className="p-6 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-5 h-5 rounded bg-white/[0.06]" />
-              <div className="h-5 w-40 rounded-lg bg-white/[0.06]" />
-            </div>
-            <div className="mb-6">
-              <div className="h-4 w-48 rounded bg-white/[0.04] mb-2" />
-              <div className="h-12 w-full rounded-xl bg-white/[0.04]" />
-              <div className="h-3 w-52 rounded bg-white/[0.03] mt-2" />
-            </div>
-            <div className="h-20 w-full rounded-lg bg-white/[0.03] mb-6" />
-            <div className="h-12 w-full rounded-xl bg-white/[0.06]" />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function PostsList({ address }: { address: string }) {
-  const { signMessage } = useWallet()
-  const { getPostsForCreator, deletePost } = useContentFeed()
-  const [posts, setPosts] = useState<{ id: string; title: string; minTier: number; createdAt?: string; contentId?: string }[]>([])
-  const [postsLoaded, setPostsLoaded] = useState(false)
-
-  const tierLabels: Record<number, { name: string; color: string }> = {
-    1: { name: 'Supporter', color: 'text-green-300 bg-green-500/10 border-green-500/20' },
-    2: { name: 'Premium', color: 'text-blue-300 bg-blue-500/10 border-blue-500/20' },
-    3: { name: 'VIP', color: 'text-violet-300 bg-violet-500/10 border-violet-500/20' },
-  }
-
-  const fetchPosts = useCallback(async () => {
-    try {
-      const result = await getPostsForCreator(address)
-      setPosts(result.filter((p) => p.contentId !== 'seed'))
-    } catch {
-      // Content feed has its own fallback
-    }
-    setPostsLoaded(true)
-  }, [address, getPostsForCreator])
-
-  useEffect(() => { fetchPosts() }, [fetchPosts])
-
-  const handleDelete = async (postId: string) => {
-    const wrappedSign = signMessage
-      ? async (msg: Uint8Array) => {
-          const result = await signMessage(msg)
-          if (!result) throw new Error('Signing cancelled')
-          return result
-        }
-      : null
-    const ok = await deletePost(address, postId, wrappedSign)
-    if (ok) {
-      setPosts((prev) => prev.filter((p) => p.id !== postId))
-      toast.success('Post deleted')
-    } else {
-      toast.error('Failed to delete post')
-    }
-  }
-
-  if (!postsLoaded) return null
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.24 }}
-      className="p-6 rounded-xl bg-[#0a0a0a] border border-white/[0.08]"
-    >
-      <div className="flex items-center gap-2 mb-4">
-        <FileText className="w-5 h-5 text-violet-400" />
-        <h2 className="text-lg font-semibold text-white">Your Posts</h2>
-        <span className="text-xs text-slate-500 ml-auto">{posts.length} posts</span>
-      </div>
-      {posts.length === 0 ? (
-        <p className="text-sm text-slate-500">No posts yet. Create your first post above.</p>
-      ) : (
-        <div className="space-y-2">
-          {posts.map((post) => {
-            const tier = tierLabels[post.minTier] || tierLabels[1]
-            return (
-              <div
-                key={post.id}
-                className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/[0.08]"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white truncate">{post.title}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className={`px-2 py-0.5 rounded-full text-xs border ${tier.color}`}>
-                      {tier.name}
-                    </span>
-                    {post.createdAt && (
-                      <span className="text-xs text-slate-600">
-                        {new Date(post.createdAt).toLocaleDateString()}
-                      </span>
-                    )}
-                    {post.contentId && post.contentId !== 'seed' && (
-                      <span className="text-xs text-green-500/60">on-chain</span>
-                    )}
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleDelete(post.id)}
-                  className="p-2 rounded-lg hover:bg-red-500/10 text-slate-600 hover:text-red-400 transition-all duration-300"
-                  title="Delete post"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            )
-          })}
-        </div>
-      )}
-    </motion.div>
-  )
-}
-
-function ProfileEditor({ address }: { address: string }) {
-  const { signMessage } = useWallet()
-  const { getCreatorProfile, upsertCreatorProfile } = useSupabase()
-  const [name, setName] = useState('')
-  const [bio, setBio] = useState('')
-  const [saved, setSaved] = useState(false)
-  const [profileLoaded, setProfileLoaded] = useState(false)
-
-  useEffect(() => {
-    let cancelled = false
-    getCreatorProfile(address).then((profile) => {
-      if (cancelled) return
-      if (profile) {
-        setName(profile.display_name || '')
-        setBio(profile.bio || '')
-      }
-      setProfileLoaded(true)
-    }).catch(() => {
-      if (cancelled) return
-      setProfileLoaded(true)
-    })
-    return () => { cancelled = true }
-  }, [address, getCreatorProfile])
-
-  const handleSave = async () => {
-    const wrappedSign = signMessage
-      ? async (msg: Uint8Array) => {
-          const result = await signMessage(msg)
-          if (!result) throw new Error('Signing cancelled')
-          return result
-        }
-      : null
-    const result = await upsertCreatorProfile(address, name || undefined, bio || undefined, wrappedSign)
-    if (result) {
-      setSaved(true)
-      toast.success('Profile saved!')
-      setTimeout(() => setSaved(false), 2000)
-    } else {
-      toast.error('Failed to save profile. Please try again.')
-    }
-  }
-
-  if (!profileLoaded) return null
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.12 }}
-      className="p-6 rounded-xl bg-[#0a0a0a] border border-white/[0.08]"
-    >
-      <div className="flex items-center gap-2 mb-4">
-        <Settings className="w-5 h-5 text-violet-400" />
-        <h2 className="text-lg font-semibold text-white">Profile</h2>
-      </div>
-      <div className="space-y-3">
-        <div>
-          <label className="block text-sm text-slate-400 mb-1.5">Display name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Your creator name"
-            maxLength={50}
-            className="w-full px-4 py-2.5 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm text-slate-400 mb-1.5">Bio</label>
-          <textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            placeholder="Tell subscribers what you create..."
-            maxLength={200}
-            rows={2}
-            className="w-full px-4 py-2.5 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300 text-sm resize-none"
-          />
-        </div>
-        <button
-          onClick={handleSave}
-          className="px-5 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-all duration-300 active:scale-[0.98]"
-        >
-          {saved ? 'Saved!' : 'Save Profile'}
-        </button>
-      </div>
-    </motion.div>
-  )
-}
+const CelebrationBurst = dynamic(() => import('@/components/CelebrationBurst'), { ssr: false })
 
 export default function DashboardPage() {
   const { address: publicKey, connected, signMessage } = useWallet()
   const { registerCreator } = useVeilSub()
   const { fetchCreatorStats } = useCreatorStats()
   const { startPolling, stopPolling } = useTransactionPoller()
-  const { upsertCreatorProfile, getCreatorProfile } = useSupabase()
+  const { upsertCreatorProfile } = useSupabase()
 
   const [price, setPrice] = useState('')
   const [displayName, setDisplayName] = useState('')
@@ -304,7 +41,6 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [creatorLink, setCreatorLink] = useState('')
   const [showCelebration, setShowCelebration] = useState(false)
-  const [showTierDialog, setShowTierDialog] = useState(false)
   const celebrationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -410,49 +146,7 @@ export default function DashboardPage() {
   }
 
   if (!connected) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="max-w-md text-center">
-          <Shield className="w-12 h-12 text-violet-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">
-            Connect Your Wallet
-          </h2>
-          <p className="text-slate-400 mb-8">
-            Connect your Leo Wallet to access the creator dashboard.
-          </p>
-          <div className="text-left p-5 rounded-xl bg-[#0a0a0a] border border-white/[0.08] space-y-4">
-            <p className="text-sm font-medium text-white">Getting Started</p>
-            <div className="space-y-3">
-              <div className="flex gap-3">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-violet-500/20 text-violet-400 text-xs font-bold flex items-center justify-center">1</span>
-                <p className="text-sm text-slate-400">
-                  Install{' '}
-                  <a href="https://www.leo.app/" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300 underline">
-                    Leo Wallet
-                  </a>{' '}
-                  browser extension
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-violet-500/20 text-violet-400 text-xs font-bold flex items-center justify-center">2</span>
-                <p className="text-sm text-slate-400">
-                  Get testnet credits from the{' '}
-                  <a href="https://faucet.aleo.org/" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300 underline">
-                    Aleo Faucet
-                  </a>
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-violet-500/20 text-violet-400 text-xs font-bold flex items-center justify-center">3</span>
-                <p className="text-sm text-slate-400">
-                  Click <strong className="text-white">&quot;Select Wallet&quot;</strong> above to connect
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <ConnectWalletPrompt />
   }
 
   if (loading) {
@@ -463,576 +157,88 @@ export default function DashboardPage() {
     <PageTransition className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1
+            className="text-3xl sm:text-4xl font-serif italic text-white mb-2"
+            style={{ letterSpacing: '-0.03em' }}
+          >
             Creator Dashboard
           </h1>
-          <p className="text-slate-400">
+          <p className="text-muted">
             {isRegistered
               ? 'Manage your subscription settings and view aggregate stats.'
               : 'Register as a creator to start accepting private subscriptions.'}
           </p>
-        </motion.div>
+        </m.div>
 
         {showCelebration ? (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="flex flex-col items-center justify-center py-20 relative"
           >
             <CelebrationBurst />
-            <motion.div
+            <m.div
               animate={{ rotate: [0, -10, 10, -10, 0] }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               <Shield className="w-16 h-16 text-violet-400 mb-6" />
-            </motion.div>
+            </m.div>
             <h2 className="text-3xl font-bold text-white mb-3">
               You&apos;re Registered!
             </h2>
-            <p className="text-slate-400 text-center max-w-md mb-8">
+            <p className="text-muted text-center max-w-md mb-8">
               Your creator profile is live on-chain. Subscribers can now find you and subscribe privately.
             </p>
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1 }}
               className="space-y-3 text-center"
             >
-              <p className="text-xs text-slate-500 uppercase tracking-wider font-medium">Next steps</p>
+              <p className="text-xs text-subtle uppercase tracking-wider font-medium">Next steps</p>
               <div className="flex items-center gap-3 flex-wrap justify-center">
                 <Link
                   href={`/creator/${publicKey}`}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px] bg-white/[0.05] border border-white/[0.08] text-sm text-violet-300 hover:bg-violet-500/20 transition-all duration-300 active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-violet-300 hover:bg-violet-500/20 transition-all duration-300 active:scale-[0.98]"
                 >
                   <ExternalLink className="w-4 h-4" />
                   View your page
                 </Link>
                 <button
                   onClick={copyLink}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px] bg-white/[0.05] border border-white/[0.08] text-sm text-[#a1a1aa] hover:bg-white/[0.08] transition-all duration-300"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-muted hover:bg-white/[0.08] transition-all duration-300"
                 >
                   <Share2 className="w-4 h-4" />
                   Share your link
                 </button>
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         ) : !isRegistered ? (
-          /* Registration Form */
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-lg"
-          >
-            <div className="p-6 rounded-xl bg-[#0a0a0a] border border-white/[0.08]">
-              <div className="flex items-center gap-2 mb-6">
-                <Settings className="w-5 h-5 text-violet-400" />
-                <h2 className="text-lg font-semibold text-white">
-                  Register as Creator
-                </h2>
-              </div>
-
-              {txStatus === 'idle' || txStatus === 'failed' ? (
-                <>
-                  <div className="mb-6">
-                    <label className="block text-sm text-slate-400 mb-2">
-                      Base subscription price (ALEO credits)
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={price}
-                        onChange={(e) => setPrice(e.target.value)}
-                        placeholder="5"
-                        min="0.1"
-                        step="0.1"
-                        onKeyDown={(e) => e.key === 'Enter' && handleRegister()}
-                        className="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300"
-                      />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-500">
-                        ALEO
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-500 mt-2">
-                      Premium tier = 2x, VIP tier = 5x this price.
-                    </p>
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block text-sm text-slate-400 mb-2">
-                      Display name (optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      placeholder="Your creator name"
-                      maxLength={50}
-                      className="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300"
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label className="block text-sm text-slate-400 mb-2">
-                      Bio (optional)
-                    </label>
-                    <textarea
-                      value={bioText}
-                      onChange={(e) => setBioText(e.target.value)}
-                      placeholder="Tell subscribers what you create..."
-                      maxLength={200}
-                      rows={2}
-                      className="w-full px-4 py-3 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-[#fafafa] placeholder-[#71717a] focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300 resize-none"
-                    />
-                  </div>
-
-                  <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/10 mb-6">
-                    <div className="flex items-start gap-2">
-                      <Info className="w-4 h-4 text-violet-400 mt-0.5 shrink-0" />
-                      <p className="text-xs text-slate-400">
-                        You&apos;ll never see who subscribes — only aggregate
-                        subscriber count and total revenue. Privacy is the core
-                        feature. VeilSub takes a {PLATFORM_FEE_PCT}% platform fee on all subscriptions and tips.
-                      </p>
-                    </div>
-                  </div>
-
-                  {txStatus === 'failed' && (
-                    <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 mb-4">
-                      <p className="text-xs text-red-400">Registration failed. Please try again.</p>
-                    </div>
-                  )}
-
-                  <button
-                    onClick={handleRegister}
-                    disabled={!price || parseFloat(price) <= 0}
-                    className="w-full py-3 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
-                  >
-                    {txStatus === 'failed' ? 'Retry' : 'Register'}
-                  </button>
-                </>
-              ) : (
-                <TransactionStatus status={txStatus} txId={txId} />
-              )}
-            </div>
-          </motion.div>
+          <RegistrationForm
+            price={price}
+            setPrice={setPrice}
+            displayName={displayName}
+            setDisplayName={setDisplayName}
+            bioText={bioText}
+            setBioText={setBioText}
+            txStatus={txStatus}
+            txId={txId}
+            onRegister={handleRegister}
+          />
         ) : (
-          /* Registered Creator Dashboard */
-          <div className="space-y-8">
-            {/* Share Link */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="p-4 rounded-xl bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] flex flex-col sm:flex-row items-start sm:items-center gap-4"
-            >
-              <div className="flex-1">
-                <p className="text-sm text-violet-300 font-medium mb-1">
-                  Your creator page
-                </p>
-                <p className="text-xs text-slate-400 break-all">
-                  {creatorLink || `/creator/${shortenAddress(publicKey || '')}`}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={copyLink}
-                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-black hover:bg-white/10 transition-all duration-300 flex items-center gap-2 active:scale-[0.98]"
-                >
-                  {copied ? (
-                    <Check className="w-4 h-4 text-green-400" />
-                  ) : (
-                    <Copy className="w-4 h-4" />
-                  )}
-                  {copied ? 'Copied' : 'Copy'}
-                </button>
-                <Link
-                  href={`/creator/${publicKey}`}
-                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-black hover:bg-white/10 transition-all duration-300 flex items-center gap-2 active:scale-[0.98]"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  View
-                </Link>
-              </div>
-            </motion.div>
-
-            {/* QR Code */}
-            {publicKey && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                <CreatorQRCode creatorAddress={publicKey} />
-              </motion.div>
-            )}
-
-            {/* Profile Editor */}
-            {publicKey && <ProfileEditor address={publicKey} />}
-
-            {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-            >
-              <h2 className="text-lg font-semibold text-white mb-4">
-                On-Chain Stats
-              </h2>
-              {publicKey && (
-                <StatsPanel
-                  creatorAddress={publicKey}
-                  refreshKey={refreshKey}
-                />
-              )}
-            </motion.div>
-
-            {/* v9: Custom Tier Management */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.152 }}
-              className="p-5 rounded-xl bg-[#0a0a0a] border border-white/[0.08]"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-violet-400" />
-                  <h2 className="text-lg font-semibold text-white">Custom Tiers</h2>
-                </div>
-                <button
-                  onClick={() => setShowTierDialog(true)}
-                  className="px-3 py-1.5 rounded-lg bg-white text-xs font-medium text-black hover:bg-white/90 transition-all duration-300 active:scale-[0.98]"
-                >
-                  + New Tier
-                </button>
-              </div>
-              <p className="text-xs text-slate-500 mb-3">
-                Create custom subscription tiers with flexible pricing. Subscribers choose from your tiers when subscribing.
-              </p>
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { id: 1, name: 'Supporter', mult: '1x' },
-                  { id: 2, name: 'Premium', mult: '2x' },
-                  { id: 3, name: 'VIP', mult: '5x' },
-                ].map((t) => (
-                  <div key={t.id} className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.08] text-center">
-                    <p className="text-xs font-medium text-slate-300">{t.name}</p>
-                    <p className="text-[10px] text-slate-500">Default {t.mult} base</p>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-            <TierCreationDialog
-              isOpen={showTierDialog}
-              onClose={() => setShowTierDialog(false)}
-              onSuccess={() => toast.success('Custom tier created on-chain!')}
-            />
-
-            {/* v10: Fee Withdrawal */}
-            {publicKey === PLATFORM_ADDRESS && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.153 }}
-                className="p-5 rounded-[8px] bg-[#0a0a0a] border border-white/[0.08]"
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <Percent className="w-4 h-4 text-amber-400" />
-                  <h3 className="text-sm font-medium text-amber-300">Platform Fee Withdrawal</h3>
-                </div>
-                <p className="text-xs text-slate-500 mb-3">
-                  Withdraw accumulated {PLATFORM_FEE_PCT}% platform fees from on-chain revenue.
-                </p>
-                <button
-                  onClick={async () => {
-                    try {
-                      const { withdrawPlatformFees } = await import('@/hooks/useVeilSub').then(m => ({ withdrawPlatformFees: m.useVeilSub }))
-                      toast.info('Platform fee withdrawal initiated')
-                    } catch (err: any) {
-                      toast.error(err?.message || 'Withdrawal failed')
-                    }
-                  }}
-                  className="px-4 py-2 rounded-lg bg-amber-600/80 text-sm font-medium text-white hover:bg-amber-600 transition-all duration-300"
-                >
-                  Withdraw Platform Fees
-                </button>
-              </motion.div>
-            )}
-
-            {/* Verified On-Chain */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.155 }}
-              className="p-4 rounded-[8px] bg-[#0a0a0a] border border-white/[0.08]"
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <Shield className="w-4 h-4 text-green-400" />
-                <h3 className="text-sm font-medium text-green-300">Verified On-Chain</h3>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <a
-                  href={`https://testnet.explorer.provable.com/program/${DEPLOYED_PROGRAM_ID}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs text-slate-300 hover:text-white hover:border-green-500/30 transition-all"
-                >
-                  <ExternalLink className="w-3 h-3" />
-                  View on Provable Explorer
-                </a>
-                <a
-                  href={`https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs text-slate-300 hover:text-white hover:border-green-500/30 transition-all"
-                >
-                  <ExternalLink className="w-3 h-3" />
-                  View on Aleoscan
-                </a>
-                {publicKey && (
-                  <a
-                    href={`https://testnet.explorer.provable.com/program/${DEPLOYED_PROGRAM_ID}/mapping/tier_prices/${publicKey}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs text-slate-300 hover:text-white hover:border-green-500/30 transition-all"
-                  >
-                    <ExternalLink className="w-3 h-3" />
-                    Your tier_prices entry
-                  </a>
-                )}
-              </div>
-            </motion.div>
-
-            {/* Analytics */}
-            {publicKey && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.16 }}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-white">
-                    Analytics
-                  </h2>
-                  <span className="text-xs text-slate-500">All values verified on-chain</span>
-                </div>
-
-                {/* 30-Day Overview Summary */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                  {[
-                    { label: 'Subscribers', value: stats?.subscriberCount ?? 0, suffix: '' },
-                    { label: 'Total Revenue', value: stats?.totalRevenue ? formatCredits(stats.totalRevenue) : '0', suffix: 'ALEO' },
-                    { label: 'Posts Published', value: stats?.contentCount ?? 0, suffix: '' },
-                    { label: 'Base Price', value: stats?.tierPrice ? formatCredits(stats.tierPrice) : '0', suffix: 'ALEO' },
-                  ].map((stat, i) => (
-                    <motion.div
-                      key={stat.label}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.16 + i * 0.04 }}
-                      className="p-4 rounded-xl bg-[#0a0a0a] border border-white/[0.08] hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.1)] transition-all duration-300"
-                    >
-                      <p className="text-[11px] text-slate-500 uppercase tracking-wider mb-1.5">{stat.label}</p>
-                      <p className="text-2xl font-bold text-white tabular-nums">
-                        {stat.value}
-                        {stat.suffix && <span className="text-xs font-normal text-slate-500 ml-1">{stat.suffix}</span>}
-                      </p>
-                    </motion.div>
-                  ))}
-                </div>
-
-                <div className="grid lg:grid-cols-2 gap-4">
-                  <ActivityChart creatorAddress={publicKey} />
-                  <TierDistribution creatorAddress={publicKey} />
-                </div>
-              </motion.div>
-            )}
-
-            {/* Tier Pricing Breakdown */}
-            {stats?.tierPrice != null && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.18 }}
-              >
-                <h2 className="text-lg font-semibold text-white mb-4">
-                  Your Tier Pricing
-                </h2>
-                <div className="grid sm:grid-cols-3 gap-3">
-                  {TIERS.map((tier) => {
-                    const tierPrice = (stats?.tierPrice ?? 0) * tier.priceMultiplier
-                    const colors =
-                      tier.id === 3
-                        ? 'border-violet-500/20 bg-violet-500/5'
-                        : tier.id === 2
-                          ? 'border-blue-500/20 bg-blue-500/5'
-                          : 'border-green-500/20 bg-green-500/5'
-                    const textColor =
-                      tier.id === 3
-                        ? 'text-violet-300'
-                        : tier.id === 2
-                          ? 'text-blue-300'
-                          : 'text-green-300'
-                    return (
-                      <div
-                        key={tier.id}
-                        className={`p-4 rounded-xl border ${colors}`}
-                      >
-                        <p className={`text-sm font-medium ${textColor} mb-1`}>
-                          {tier.name}
-                        </p>
-                        <p className="text-xl font-bold text-white">
-                          {formatCredits(tierPrice)}{' '}
-                          <span className="text-xs font-normal text-slate-500">ALEO</span>
-                        </p>
-                        <p className="text-xs text-slate-500 mt-1">
-                          {tier.priceMultiplier}x base price
-                        </p>
-                      </div>
-                    )
-                  })}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Platform Fee Info */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="p-4 rounded-xl bg-[#0a0a0a] border border-white/[0.08]"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <Percent className="w-4 h-4 text-violet-400" />
-                <h3 className="text-sm font-medium text-white">Platform Fee</h3>
-              </div>
-              <p className="text-xs text-slate-400">
-                VeilSub takes a {PLATFORM_FEE_PCT}% platform fee on subscriptions and tips.
-                {100 - PLATFORM_FEE_PCT}% goes directly to you via private transfer.
-                Both payments are private — subscribers remain anonymous to you and to the platform.
-              </p>
-            </motion.div>
-
-            {/* Create Post */}
-            {publicKey && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.22 }}
-              >
-                <CreatePostForm
-                  creatorAddress={publicKey}
-                  onPostCreated={() => setRefreshKey((k) => k + 1)}
-                />
-              </motion.div>
-            )}
-
-            {/* Posts List */}
-            {publicKey && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.24 }}
-              >
-                <PostsList address={publicKey} />
-              </motion.div>
-            )}
-
-            {/* Revoke Subscriber Access */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.245 }}
-            >
-              <RevokeAccessPanel />
-            </motion.div>
-
-            {/* Content Gating Explainer */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-              className="p-6 rounded-xl bg-[#0a0a0a] border border-white/[0.08]"
-            >
-              <h2 className="text-lg font-semibold text-white mb-3">
-                How Content Gating Works
-              </h2>
-              <div className="space-y-3 text-sm text-slate-400">
-                <p>
-                  Subscribers receive a private <strong className="text-white">AccessPass</strong> record
-                  in their wallet with an expiry of ~30 days. This record proves they have access without
-                  revealing their identity.
-                </p>
-                <p>
-                  When a subscriber visits your gated content, they can prove
-                  access by executing the <code className="px-1.5 py-0.5 rounded bg-white/10 text-violet-300 text-xs">verify_access</code> transition,
-                  which consumes and re-creates their pass — proving ownership
-                  cryptographically. Access checks have zero public footprint.
-                </p>
-                <p>
-                  You see total subscribers and revenue — never individual
-                  subscriber identities.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Share Your Page */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.28 }}
-              className="p-6 rounded-xl bg-[#0a0a0a] border border-white/[0.08]"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <Share2 className="w-5 h-5 text-violet-400" />
-                <h2 className="text-lg font-semibold text-white">
-                  Share Your Page
-                </h2>
-              </div>
-              <p className="text-sm text-slate-400 mb-4">
-                Copy a ready-made message to share on social media or messaging apps.
-              </p>
-              <ShareText
-                text={`Support me privately on VeilSub — no one will know you subscribed. Powered by Aleo zero-knowledge proofs.\n${creatorLink || `/creator/${publicKey}`}`}
-              />
-              <div className="mt-4 pt-4 border-t border-white/[0.06]">
-                <p className="text-xs text-violet-300 font-medium mb-2">Referral Link (v17)</p>
-                <p className="text-[11px] text-slate-500 mb-2">
-                  Share this link and earn 10% of every subscription. Referral rewards are private — you get a ReferralReward record but cannot see who subscribed.
-                </p>
-                <ShareText
-                  text={`${creatorLink || `/creator/${publicKey}`}?ref=${publicKey}`}
-                />
-              </div>
-            </motion.div>
-
-            {/* Active Gated Content Note */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="p-4 rounded-[8px] bg-[#0a0a0a] border border-white/[0.08]"
-            >
-              <div className="flex items-start gap-3">
-                <Lock className="w-5 h-5 text-green-400 mt-0.5 shrink-0" />
-                <div>
-                  <p className="text-sm text-green-300 font-medium mb-1">
-                    Exclusive content is live
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    Your subscribers can now see tier-gated exclusive content on your creator page.
-                    Content visibility is determined by each subscriber&apos;s AccessPass — checked
-                    locally in their browser, with no server involved. Subscriptions expire after ~30 days
-                    and can be renewed.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </div>
+          <RegisteredDashboard
+            publicKey={publicKey!}
+            stats={stats}
+            refreshKey={refreshKey}
+            setRefreshKey={setRefreshKey}
+            creatorLink={creatorLink}
+          />
         )}
       </div>
     </PageTransition>

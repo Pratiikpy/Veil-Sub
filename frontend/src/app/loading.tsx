@@ -10,7 +10,7 @@ export default function Loading() {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] animate-pulse"
+              className="p-6 rounded-2xl bg-white/[0.02] border border-border animate-pulse"
             >
               <div className="h-5 w-24 rounded-lg bg-white/[0.06] mb-4" />
               <div className="h-8 w-20 rounded-lg bg-white/[0.06] mb-3" />

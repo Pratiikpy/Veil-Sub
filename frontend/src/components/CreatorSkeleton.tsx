@@ -5,7 +5,7 @@ export default function CreatorSkeleton() {
         {/* Header skeleton */}
         <div className="mb-10 animate-pulse">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-[12px] bg-white/[0.06]" />
+            <div className="w-16 h-16 rounded-sm bg-white/[0.06]" />
             <div>
               <div className="h-6 w-40 rounded-lg bg-white/[0.06] mb-2" />
               <div className="h-4 w-28 rounded-lg bg-white/[0.04]" />
@@ -20,7 +20,7 @@ export default function CreatorSkeleton() {
         {/* Tier cards skeleton */}
         <div className="grid sm:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse p-6 rounded-[12px] border border-white/[0.08] bg-[#0a0a0a]">
+            <div key={i} className="animate-pulse p-6 rounded-sm border border-border bg-surface-1">
               <div className="h-5 w-24 rounded-lg bg-white/[0.06] mb-3" />
               <div className="h-8 w-20 rounded-lg bg-white/[0.06] mb-1" />
               <div className="h-3 w-36 rounded-lg bg-white/[0.04] mb-4" />

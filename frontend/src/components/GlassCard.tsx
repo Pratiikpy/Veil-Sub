@@ -1,7 +1,7 @@
 'use client'
 
-import { ReactNode } from 'react'
-import { motion } from 'framer-motion'
+import { memo, ReactNode } from 'react'
+import { m } from 'framer-motion'
 
 type Variant = 'default' | 'heavy' | 'light' | 'accent'
 
@@ -16,16 +16,16 @@ interface Props {
 
 const variantClasses: Record<Variant, string> = {
   default:
-    'bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.15]',
+    'glass hover:border-border-hover',
   heavy:
-    'bg-[#080808]/80 backdrop-blur-xl border border-white/[0.10] hover:border-white/[0.18]',
+    'bg-surface-1/80 backdrop-blur-xl border border-border hover:border-border-hover',
   light:
-    'bg-[#0e0e0e]/60 backdrop-blur-lg border border-white/[0.06] hover:border-white/[0.12]',
+    'bg-surface-1/60 backdrop-blur-lg border border-border/75 hover:border-glass-hover',
   accent:
-    'bg-[#0a0a0a]/70 backdrop-blur-xl border border-violet-500/[0.12] hover:border-violet-500/[0.25] hover:shadow-[0_0_30px_rgba(139,92,246,0.08)]',
+    'glass hover:border-violet-500/25 hover:shadow-accent-lg',
 }
 
-export default function GlassCard({
+export default memo(function GlassCard({
   children,
   className = '',
   shimmer = false,
@@ -34,7 +34,7 @@ export default function GlassCard({
   variant = 'default',
 }: Props) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -43,7 +43,13 @@ export default function GlassCard({
         hover ? 'hover:-translate-y-0.5' : ''
       } ${className}`}
     >
-      {/* Shimmer shine effect */}
+      {/* Top-edge highlight — Liquid Glass inspired depth cue */}
+      <div
+        className="absolute inset-x-0 top-0 h-px rounded-t-3xl pointer-events-none"
+        style={{
+          background: 'linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.08) 50%, transparent 90%)',
+        }}
+      />
       {shimmer && (
         <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
           <div
@@ -56,6 +62,6 @@ export default function GlassCard({
         </div>
       )}
       {children}
-    </motion.div>
+    </m.div>
   )
-}
+})

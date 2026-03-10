@@ -1,13 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { Loader2, Check, X, Pen, Cpu, Radio, ExternalLink } from 'lucide-react'
 import type { TxStatus } from '@/types'
+import { PROGRAM_ID } from '@/lib/config'
 
 interface Props {
   status: TxStatus
   txId?: string | null
+  errorMessage?: string | null
 }
 
 const steps = [
@@ -50,9 +52,19 @@ const statusOrder: Record<TxStatus, number> = {
   failed: -2,
 }
 
-export default function TransactionStatus({ status, txId }: Props) {
+export default function TransactionStatus({ status, txId, errorMessage }: Props) {
   const [dots, setDots] = useState('')
   const [elapsed, setElapsed] = useState(0)
+
+  // Warn user before closing tab during active transaction
+  useEffect(() => {
+    if (status === 'idle' || status === 'confirmed' || status === 'failed') return
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [status])
 
   useEffect(() => {
     setElapsed(0)
@@ -75,31 +87,55 @@ export default function TransactionStatus({ status, txId }: Props) {
 
   if (status === 'failed') {
     return (
-      <motion.div
+      <m.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex items-center gap-3 p-4 rounded-[8px] bg-red-500/10 border border-red-500/20"
+        aria-live="assertive"
+        role="alert"
+        className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20"
       >
         <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
           <X className="w-5 h-5 text-red-400" />
         </div>
         <div>
           <p className="text-red-300 text-sm font-medium">Transaction Failed</p>
-          <p className="text-red-400/60 text-xs">
-            ZK proof failed — try again or check wallet connection.
+          <p className="text-red-400 text-xs">
+            {errorMessage || 'Transaction failed — try again or check wallet connection.'}
           </p>
         </div>
-      </motion.div>
+      </m.div>
     )
   }
 
   const currentIdx = statusOrder[status] ?? -1
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" aria-live="polite" aria-atomic="true">
+      {/* Don't close tab warning */}
+      {(status === 'proving' || status === 'broadcasting') && (
+        <m.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 mb-2"
+        >
+          <span className="text-amber-400 text-xs font-medium">
+            {status === 'proving'
+              ? 'Do not close this tab while your ZK proof is being generated.'
+              : 'Do not close this tab — your transaction is being submitted to the network.'}
+          </span>
+        </m.div>
+      )}
+
       {/* Progress bar */}
-      <div className="h-1 rounded-full bg-white/[0.05] overflow-hidden mb-4">
-        <motion.div
+      <div
+        className="h-1 rounded-full bg-white/[0.05] overflow-hidden mb-4"
+        role="progressbar"
+        aria-valuenow={status === 'confirmed' ? 100 : Math.round(((currentIdx + 0.5) / steps.length) * 100)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Transaction progress"
+      >
+        <m.div
           className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full"
           initial={{ width: '0%' }}
           animate={{
@@ -120,7 +156,7 @@ export default function TransactionStatus({ status, txId }: Props) {
         const isConfirmedStep = step.key === 'confirmed' && status === 'confirmed'
 
         return (
-          <motion.div
+          <m.div
             key={step.key}
             initial={{ opacity: 0, x: -10 }}
             animate={{
@@ -132,7 +168,7 @@ export default function TransactionStatus({ status, txId }: Props) {
               delay: i * 0.08,
               scale: isConfirmedStep ? { duration: 0.4, ease: 'easeOut' } : undefined,
             }}
-            className={`flex items-center gap-3 p-3 rounded-[8px] transition-all ${
+            className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
               isActive
                 ? 'bg-violet-500/10 border border-violet-500/25 animate-pulse'
                 : isDone
@@ -158,71 +194,72 @@ export default function TransactionStatus({ status, txId }: Props) {
               ) : (
                 <Icon
                   className={`w-4 h-4 ${
-                    isPending ? 'text-slate-700' : 'text-[#a1a1aa]'
+                    isPending ? 'text-subtle' : 'text-muted'
                   }`}
                 />
               )}
             </div>
             <div className="flex-1 min-w-0">
               <p
+                role={isActive ? 'status' : undefined}
                 className={`text-sm font-medium ${
                   isActive
-                    ? 'text-[#a1a1aa]'
+                    ? 'text-muted'
                     : isDone
                     ? 'text-green-400'
-                    : 'text-slate-600'
+                    : 'text-subtle'
                 }`}
               >
                 {isDone ? step.doneMsg : step.label}
                 {isActive ? dots : ''}
               </p>
               {isActive && (
-                <motion.p
+                <m.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="text-xs text-[#71717a] mt-0.5"
+                  className="text-xs text-subtle mt-0.5"
                 >
                   {step.activeMsg}
                   {(status === 'proving' || status === 'broadcasting') && elapsed > 0 && (
-                    <span className="text-slate-600 ml-1">
+                    <span className="text-subtle ml-1">
                       ({elapsed >= 60 ? `${Math.floor(elapsed / 60)}m ${elapsed % 60}s` : `${elapsed}s`})
                     </span>
                   )}
-                </motion.p>
+                </m.p>
               )}
             </div>
-          </motion.div>
+          </m.div>
         )
       })}
 
       {/* Transaction ID */}
       {status === 'confirmed' && txId && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           className="mt-3"
         >
-          <p className="text-xs text-[#71717a] mb-2">Transaction ID</p>
+          <p className="text-xs text-subtle mb-2">Transaction ID</p>
           {!txId.startsWith('at1') ? (
             <>
-              <div className="flex items-center gap-2 p-3 rounded-[8px] bg-[#0a0a0a] border border-white/[0.08]">
-                <span className="text-xs text-[#71717a] break-all flex-1 font-mono">
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-surface-1 border border-border">
+                <span className="text-xs text-subtle break-all flex-1 font-mono">
                   {txId}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-600 mt-1.5">
+              <p className="text-[11px] text-subtle mt-1.5">
                 Wallet returned a temporary ID. Your transaction is confirmed on-chain.
               </p>
               <a
-                href={`https://testnet.aleoscan.io/program?id=veilsub_v15.aleo`}
+                href={`https://testnet.aleoscan.io/program?id=${PROGRAM_ID}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 mt-2 p-2.5 rounded-[8px] bg-violet-500/5 border border-violet-500/15 hover:border-violet-500/30 hover:bg-violet-500/10 transition-all group"
+                className="flex items-center gap-2 mt-2 p-2.5 rounded-xl bg-violet-500/5 border border-violet-500/15 hover:border-violet-500/30 hover:bg-violet-500/10 transition-all group"
               >
-                <span className="text-xs text-[#a1a1aa] group-hover:text-white flex-1">
+                <span className="text-xs text-muted group-hover:text-white flex-1">
                   View program on Explorer
                 </span>
-                <ExternalLink className="w-3.5 h-3.5 text-[#a1a1aa] group-hover:text-white shrink-0" />
+                <ExternalLink className="w-3.5 h-3.5 text-muted group-hover:text-white shrink-0" />
               </a>
             </>
           ) : (
@@ -230,15 +267,15 @@ export default function TransactionStatus({ status, txId }: Props) {
               href={`https://testnet.explorer.provable.com/transaction/${txId}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 p-3 rounded-[8px] bg-[#0a0a0a] border border-white/[0.08] hover:border-violet-500/30 hover:bg-violet-500/5 transition-all group"
+              className="flex items-center gap-2 p-3 rounded-xl bg-surface-1 border border-border hover:border-violet-500/30 hover:bg-violet-500/5 transition-all group"
             >
-              <span className="text-xs text-[#a1a1aa] group-hover:text-white break-all flex-1 font-mono">
+              <span className="text-xs text-muted group-hover:text-white break-all flex-1 font-mono">
                 {txId}
               </span>
-              <ExternalLink className="w-4 h-4 text-[#a1a1aa] group-hover:text-white shrink-0" />
+              <ExternalLink className="w-4 h-4 text-muted group-hover:text-white shrink-0" />
             </a>
           )}
-        </motion.div>
+        </m.div>
       )}
     </div>
   )

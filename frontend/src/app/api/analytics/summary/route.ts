@@ -10,8 +10,16 @@ export async function GET(req: NextRequest) {
 
   const supabase = getServerSupabase()
   if (!supabase) {
-    // Return mock data when Supabase is not configured
-    return NextResponse.json(generateMockData())
+    // Return empty data when Supabase is not configured
+    return NextResponse.json({
+      daily: Array.from({ length: 30 }, (_, i) => {
+        const d = new Date(); d.setDate(d.getDate() - (29 - i))
+        return { date: d.toISOString().split('T')[0], subscriptions: 0, revenue: 0, tips: 0 }
+      }),
+      tierDistribution: {},
+      totalSubscribers: 0,
+      totalRevenue: 0,
+    })
   }
 
   try {
@@ -77,31 +85,5 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     console.error('[API /analytics/summary]', err)
     return NextResponse.json({ error: 'Failed to load analytics' }, { status: 500 })
-  }
-}
-
-function generateMockData() {
-  const daily = []
-  const now = new Date()
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(now)
-    d.setDate(d.getDate() - i)
-    const dateStr = d.toISOString().split('T')[0]
-    // Generate realistic-looking demo data
-    const subs = Math.floor(Math.random() * 4)
-    const rev = subs * (2_000_000 + Math.floor(Math.random() * 8_000_000))
-    daily.push({
-      date: dateStr,
-      subscriptions: subs,
-      revenue: rev,
-      tips: Math.random() > 0.7 ? Math.floor(Math.random() * 2) : 0,
-    })
-  }
-
-  return {
-    daily,
-    tierDistribution: { '1': 12, '2': 5, '3': 2 },
-    totalSubscribers: 19,
-    totalRevenue: 95_000_000,
   }
 }

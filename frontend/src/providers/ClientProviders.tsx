@@ -2,6 +2,8 @@
 
 import { ReactNode } from 'react'
 import dynamic from 'next/dynamic'
+import { LazyMotion, domAnimation, MotionConfig } from 'framer-motion'
+import '@provablehq/aleo-wallet-adaptor-react-ui/dist/styles.css'
 
 // SSR-safe: wallet adapters access `window` in constructors — must be client-only.
 // NullPay (Vite) never has SSR, so adapters always create on client.
@@ -20,8 +22,12 @@ const WelcomeOverlay = dynamic(
 export function ClientProviders({ children }: { children: ReactNode }) {
   return (
     <WalletProvider>
-      {children}
-      <WelcomeOverlay />
+      <LazyMotion features={domAnimation}>
+        <MotionConfig reducedMotion="user">
+          {children}
+          <WelcomeOverlay />
+        </MotionConfig>
+      </LazyMotion>
     </WalletProvider>
   )
 }

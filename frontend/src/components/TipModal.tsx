@@ -1,18 +1,23 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, Heart } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { m, AnimatePresence } from 'framer-motion'
+import { X, Heart, EyeOff, Eye, Shield } from 'lucide-react'
 import { toast } from 'sonner'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
-import { creditsToMicrocredits, formatCredits } from '@/lib/utils'
-import { dedupeRecords } from '@/lib/recordSync'
+import { useTransactionFlow } from '@/hooks/useTransactionFlow'
+import { creditsToMicrocredits, formatCredits, generatePassId } from '@/lib/utils'
 import { logSubscriptionEvent } from '@/lib/logEvent'
+import { useFocusTrap } from '@/hooks/useFocusTrap'
+import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
+import { useBalanceCheck } from '@/hooks/useBalanceCheck'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
 import { FEES } from '@/lib/config'
-import type { TxStatus } from '@/types'
+import { getErrorMessage } from '@/lib/errorMessages'
+import Button from './ui/Button'
 
 interface Props {
   isOpen: boolean
@@ -22,67 +27,36 @@ interface Props {
 
 const TIP_AMOUNTS = [1, 5, 10, 25]
 
-const parseMicrocredits = (plaintext: string): number => {
-  const match = plaintext.match(/microcredits\s*:\s*([\d_]+)u64/)
-  return match ? parseInt(match[1].replace(/_/g, ''), 10) : 0
-}
+type TipMode = 'direct' | 'private'
+type CommitPhase = 'commit' | 'reveal' | 'done'
 
 export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
-  const { tip, getCreditsRecords, connected } = useVeilSub()
+  const { tip, commitTip, revealTip, getCreditsRecords, connected } = useVeilSub()
+  const { signMessage } = useWallet()
   const { startPolling, stopPolling } = useTransactionPoller()
+  const {
+    txStatus, setTxStatus, txId, setTxId,
+    error, setError, statusMessage,
+    submittingRef, handleClose, resetFlow,
+  } = useTransactionFlow({ isOpen, onClose, connected, stopPolling })
+  const focusTrapRef = useFocusTrap(isOpen, handleClose)
+  const { checkBalance } = useBalanceCheck(getCreditsRecords)
+
   const [selectedAmount, setSelectedAmount] = useState(5)
   const [customAmount, setCustomAmount] = useState('')
-  const [txStatus, setTxStatus] = useState<TxStatus>('idle')
-  const [txId, setTxId] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
   const [insufficientBalance, setInsufficientBalance] = useState(false)
-  const [statusMessage, setStatusMessage] = useState<string | null>(null)
-  const submittingRef = useRef(false)
-  const txStatusRef = useRef(txStatus)
-  txStatusRef.current = txStatus
+  const [tipMode, setTipMode] = useState<TipMode>('direct')
+  const [commitPhase, setCommitPhase] = useState<CommitPhase>('commit')
+  const [savedSalt, setSavedSalt] = useState<string | null>(null)
+  const [savedAmount, setSavedAmount] = useState<number>(0)
+  const tipGroupRef = useRef<HTMLDivElement>(null)
+  const modeGroupRef = useRef<HTMLDivElement>(null)
+  useRovingTabIndex(tipGroupRef)
+  useRovingTabIndex(modeGroupRef)
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    }
-    return () => { document.body.style.overflow = '' }
-  }, [isOpen])
+  const getTipAmount = () => parseFloat(customAmount) || selectedAmount
 
-  // Stop polling on unmount
-  useEffect(() => {
-    return () => stopPolling()
-  }, [stopPolling])
-
-  // Detect wallet disconnect during transaction
-  useEffect(() => {
-    if (!connected && (txStatus === 'signing' || txStatus === 'proving' || txStatus === 'broadcasting')) {
-      setTxStatus('failed')
-      setError('Wallet disconnected. Please reconnect and try again.')
-      stopPolling()
-      submittingRef.current = false
-    }
-  }, [connected, txStatus, stopPolling])
-
-  // Cycling status messages during proving/broadcasting
-  useEffect(() => {
-    if (txStatus !== 'proving' && txStatus !== 'broadcasting') {
-      setStatusMessage(null)
-      return
-    }
-    const messages = txStatus === 'proving'
-      ? ['Generating zero-knowledge proof...', 'Wallet is computing the ZK circuit...', 'This may take 30-60 seconds...']
-      : ['Broadcasting tip to Aleo network...', 'Waiting for block confirmation...', 'Validators are verifying the proof...']
-    let idx = 0
-    setStatusMessage(messages[0])
-    const interval = setInterval(() => {
-      idx = (idx + 1) % messages.length
-      setStatusMessage(messages[idx])
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [txStatus])
-
-  const handleTip = async () => {
+  const handleDirectTip = async () => {
     if (submittingRef.current) return
     if (!connected) {
       setError('Please connect your wallet first.')
@@ -91,13 +65,12 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
     submittingRef.current = true
     setError(null)
-    setStatusMessage(null)
     setTxStatus('signing')
-    const tipDisplay = parseFloat(customAmount) || selectedAmount
-    toast.loading(`Sending ${tipDisplay} ALEO tip...`, { id: 'tip-optimistic', duration: 5000 })
+    const tipDisplay = getTipAmount()
+    toast.loading(`Sending ${tipDisplay} ALEO tip...`, { id: 'tip-optimistic', duration: 60000 })
 
     try {
-      const tipAmount = parseFloat(customAmount) || selectedAmount
+      const tipAmount = getTipAmount()
       if (tipAmount < 0.1 || tipAmount > 1000) {
         toast.dismiss('tip-optimistic')
         setError('Tip amount must be between 0.1 and 1000 ALEO.')
@@ -108,64 +81,21 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
       const tipMicrocredits = creditsToMicrocredits(tipAmount)
 
-      let rawRecords: string[]
-      try {
-        rawRecords = await getCreditsRecords()
-      } catch {
-        await new Promise(r => setTimeout(r, 2000))
-        try {
-          rawRecords = await getCreditsRecords()
-        } catch (retryErr) {
-          throw new Error(`Could not load wallet records: ${retryErr instanceof Error ? retryErr.message : 'Unknown error'}. Please ensure your wallet is synced.`)
-        }
-      }
-      if (rawRecords.length === 0) {
-        await new Promise(r => setTimeout(r, 2000))
-        try {
-          rawRecords = await getCreditsRecords()
-        } catch { rawRecords = [] }
-      }
-      const records = dedupeRecords(rawRecords)
-
-      if (records.length < 1) {
+      const balanceResult = await checkBalance(tipMicrocredits)
+      if (balanceResult.error) {
         toast.dismiss('tip-optimistic')
-        setInsufficientBalance(true)
-        setError('No private credit records found. Convert public credits to private or get testnet credits.')
+        if (balanceResult.insufficientBalance) setInsufficientBalance(true)
+        setError(balanceResult.error)
         setTxStatus('idle')
         submittingRef.current = false
         return
       }
-
-      const totalAvailable = records.reduce((sum, r) => sum + parseMicrocredits(r), 0)
-      const largestRecord = parseMicrocredits(records[0])
-      if (totalAvailable < tipMicrocredits) {
-        toast.dismiss('tip-optimistic')
-        setInsufficientBalance(true)
-        setError(`Insufficient private balance. You have ${(totalAvailable / 1_000_000).toFixed(2)} ALEO but need ${tipAmount} ALEO.`)
-        setTxStatus('idle')
-        submittingRef.current = false
-        return
-      }
-      if (largestRecord < tipMicrocredits) {
-        toast.dismiss('tip-optimistic')
-        setInsufficientBalance(true)
-        setError(`Your largest record has ${(largestRecord / 1_000_000).toFixed(2)} ALEO but you need ${tipAmount} in a single record. Convert public credits to private to create a larger record.`)
-        setTxStatus('idle')
-        submittingRef.current = false
-        return
-      }
-
-      // v8: Single-record tip — contract handles both creator and platform payments
+      const records = balanceResult.records
       const paymentRecord = records[0]
 
-      setStatusMessage(null)
       setTxStatus('proving')
       toast.dismiss('tip-optimistic')
-      const id = await tip(
-        paymentRecord,
-        creatorAddress,
-        tipMicrocredits
-      )
+      const id = await tip(paymentRecord, creatorAddress, tipMicrocredits)
 
       if (id) {
         setTxId(id)
@@ -174,7 +104,10 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
           if (result.status === 'confirmed') {
             if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
-            logSubscriptionEvent(creatorAddress, 0, tipMicrocredits, result.resolvedTxId || id)
+            const wrappedSign = signMessage
+              ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
+              : null
+            logSubscriptionEvent(creatorAddress, 0, tipMicrocredits, result.resolvedTxId || id, wrappedSign)
             toast.success('Tip sent!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
@@ -189,47 +122,165 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
     } catch (err) {
       toast.dismiss('tip-optimistic')
       setTxStatus('failed')
-      setError(err instanceof Error ? err.message : 'Tip failed')
+      setError(getErrorMessage(err instanceof Error ? err.message : 'Tip failed'))
     } finally {
       submittingRef.current = false
     }
   }
 
-  const handleClose = () => {
-    // Allow close in ANY state — never trap the user
-    stopPolling()
-    setTxStatus('idle')
-    setTxId(null)
+  const handleCommit = async () => {
+    if (submittingRef.current) return
+    if (!connected) {
+      setError('Please connect your wallet first.')
+      return
+    }
+
+    const tipAmount = getTipAmount()
+    if (tipAmount < 0.1 || tipAmount > 1000) {
+      setError('Tip amount must be between 0.1 and 1000 ALEO.')
+      return
+    }
+
+    submittingRef.current = true
     setError(null)
-    setInsufficientBalance(false)
-    setStatusMessage(null)
-    submittingRef.current = false
-    onClose()
+    setTxStatus('signing')
+    toast.loading('Committing hidden tip...', { id: 'commit-tip', duration: 60000 })
+
+    try {
+      const tipMicrocredits = creditsToMicrocredits(tipAmount)
+      const salt = generatePassId()
+
+      setTxStatus('proving')
+      toast.dismiss('commit-tip')
+      const id = await commitTip(creatorAddress, tipMicrocredits, salt)
+
+      if (id) {
+        setSavedSalt(salt)
+        setSavedAmount(tipMicrocredits)
+        setTxId(id)
+        setTxStatus('broadcasting')
+        startPolling(id, (result) => {
+          if (result.status === 'confirmed') {
+            if (result.resolvedTxId) setTxId(result.resolvedTxId)
+            setTxStatus('confirmed')
+            setCommitPhase('reveal')
+            toast.success('Tip committed! You can reveal it when ready.')
+          } else if (result.status === 'failed') {
+            setTxStatus('failed')
+            setError('Commit failed on-chain.')
+            toast.error('Commit failed')
+          }
+        })
+      } else {
+        setTxStatus('failed')
+        setError('Transaction was rejected by wallet.')
+      }
+    } catch (err) {
+      toast.dismiss('commit-tip')
+      setTxStatus('failed')
+      setError(getErrorMessage(err instanceof Error ? err.message : 'Commit failed'))
+    } finally {
+      submittingRef.current = false
+    }
   }
 
-  // Escape key to close (uses refs to avoid stale closures)
-  const handleCloseRef = useRef(handleClose)
-  handleCloseRef.current = handleClose
-  useEffect(() => {
-    if (!isOpen) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleCloseRef.current()
+  const handleReveal = async () => {
+    if (submittingRef.current || !savedSalt) return
+    if (!connected) {
+      setError('Please connect your wallet first.')
+      return
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [isOpen])
+
+    submittingRef.current = true
+    setError(null)
+    setTxStatus('signing')
+    toast.loading('Revealing tip...', { id: 'reveal-tip', duration: 60000 })
+
+    try {
+      const balanceResult = await checkBalance(savedAmount)
+      if (balanceResult.error) {
+        toast.dismiss('reveal-tip')
+        if (balanceResult.insufficientBalance) setInsufficientBalance(true)
+        setError(balanceResult.error)
+        setTxStatus('idle')
+        submittingRef.current = false
+        return
+      }
+      const records = balanceResult.records
+      const paymentRecord = records[0]
+
+      setTxStatus('proving')
+      toast.dismiss('reveal-tip')
+      const id = await revealTip(paymentRecord, creatorAddress, savedAmount, savedSalt)
+
+      if (id) {
+        setTxId(id)
+        setTxStatus('broadcasting')
+        startPolling(id, (result) => {
+          if (result.status === 'confirmed') {
+            if (result.resolvedTxId) setTxId(result.resolvedTxId)
+            setTxStatus('confirmed')
+            setCommitPhase('done')
+            toast.success('Tip revealed and sent!')
+          } else if (result.status === 'failed') {
+            setTxStatus('failed')
+            setError('Reveal failed on-chain.')
+            toast.error('Reveal failed')
+          }
+        })
+      } else {
+        setTxStatus('failed')
+        setError('Transaction was rejected by wallet.')
+      }
+    } catch (err) {
+      toast.dismiss('reveal-tip')
+      setTxStatus('failed')
+      setError(getErrorMessage(err instanceof Error ? err.message : 'Reveal failed'))
+    } finally {
+      submittingRef.current = false
+    }
+  }
+
+  const handleModalClose = () => {
+    setInsufficientBalance(false)
+    setCommitPhase('commit')
+    setSavedSalt(null)
+    setSavedAmount(0)
+    setTipMode('direct')
+    handleClose()
+  }
+
+  const handleAction = () => {
+    if (tipMode === 'direct') {
+      handleDirectTip()
+    } else if (commitPhase === 'commit') {
+      handleCommit()
+    } else if (commitPhase === 'reveal') {
+      resetFlow()
+      handleReveal()
+    }
+  }
+
+  const currentFee = tipMode === 'direct'
+    ? FEES.TIP
+    : commitPhase === 'commit'
+      ? FEES.COMMIT_TIP
+      : FEES.REVEAL_TIP
+
+  const isRevealReady = tipMode === 'private' && commitPhase === 'reveal' && txStatus === 'confirmed'
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh] bg-black/60 backdrop-blur-sm overflow-y-auto"
-          onClick={handleClose}
+          onClick={handleModalClose}
         >
-          <motion.div
+          <m.div
+            ref={focusTrapRef}
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
@@ -237,7 +288,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
             role="dialog"
             aria-modal="true"
             aria-label="Send a private tip"
-            className="w-full max-w-sm rounded-xl bg-[#0a0a0a] border border-[rgba(255,255,255,0.08)] shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-sm rounded-sm bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
@@ -247,61 +298,141 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                 </h3>
               </div>
               <button
-                onClick={handleClose}
+                onClick={handleModalClose}
                 aria-label="Close tip dialog"
-                className="p-1 rounded-lg hover:bg-white/5 text-[#a1a1aa]"
+                className="p-1 rounded-lg hover:bg-white/[0.05] text-muted hover:text-white active:scale-[0.9] transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {txStatus === 'idle' ? (
+            {(txStatus === 'idle' || isRevealReady) ? (
               <>
-                <div className="grid grid-cols-4 gap-2 mb-4">
-                  {TIP_AMOUNTS.map((amount) => (
+                {/* Tip Mode Toggle */}
+                {commitPhase === 'commit' && (
+                  <div ref={modeGroupRef} className="grid grid-cols-2 gap-1.5 mb-4" role="radiogroup" aria-label="Tip mode">
                     <button
-                      key={amount}
-                      onClick={() => { setSelectedAmount(amount); setCustomAmount('') }}
-                      className={`py-3 rounded-xl text-sm font-medium transition-all ${
-                        selectedAmount === amount && !customAmount
-                          ? 'bg-violet-500/20 border border-violet-500/40 text-[#a1a1aa]'
-                          : 'bg-white/5 border border-white/10 text-[#a1a1aa] hover:bg-white/10'
+                      role="radio"
+                      aria-checked={tipMode === 'direct'}
+                      tabIndex={tipMode === 'direct' ? 0 : -1}
+                      onClick={() => setTipMode('direct')}
+                      className={`p-2.5 rounded-lg border text-center transition-all ${
+                        tipMode === 'direct'
+                          ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300 shadow-accent-sm'
+                          : 'border-border/75 bg-transparent text-subtle hover:border-glass-hover hover:text-muted'
                       }`}
                     >
-                      {amount}
+                      <Eye className="w-4 h-4 mx-auto mb-1" />
+                      <span className="text-[11px] font-medium block">Direct Tip</span>
+                      <span className="text-[9px] text-subtle block">Instant transfer</span>
                     </button>
-                  ))}
-                </div>
-                <div className="relative mb-4">
-                  <input
-                    type="number"
-                    value={customAmount}
-                    onChange={(e) => {
-                      setCustomAmount(e.target.value)
-                      if (e.target.value) setSelectedAmount(0)
-                    }}
-                    placeholder="Custom amount"
-                    min="0.1"
-                    max="1000"
-                    step="0.1"
-                    className="w-full px-4 py-2.5 rounded-lg bg-[#0a0a0a] border border-white/[0.08] text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all text-sm pr-16"
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#71717a]">ALEO</span>
-                </div>
-                <p className="text-center text-sm text-[#a1a1aa] mb-3">
-                  {customAmount ? `${customAmount} ALEO credits` : `${selectedAmount} ALEO credits`}
-                </p>
-                <div className="p-2.5 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-4 space-y-1">
-                  <p className="text-[11px] text-green-400/80">
-                    Your identity stays private. The creator receives payment but never knows who tipped.
-                  </p>
-                  <p className="text-[11px] text-[#71717a]">
-                    Est. network fee: ~{formatCredits(FEES.TIP)} ALEO
-                  </p>
+                    <button
+                      role="radio"
+                      aria-checked={tipMode === 'private'}
+                      tabIndex={tipMode === 'private' ? 0 : -1}
+                      onClick={() => setTipMode('private')}
+                      className={`p-2.5 rounded-lg border text-center transition-all ${
+                        tipMode === 'private'
+                          ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300 shadow-accent-sm'
+                          : 'border-border/75 bg-transparent text-subtle hover:border-glass-hover hover:text-muted'
+                      }`}
+                    >
+                      <EyeOff className="w-4 h-4 mx-auto mb-1" />
+                      <span className="text-[11px] font-medium block">Private Tip</span>
+                      <span className="text-[9px] text-subtle block">Commit-reveal</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Reveal Phase Banner */}
+                {isRevealReady && (
+                  <div className="p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-4">
+                    <p className="text-xs text-violet-300 font-medium mb-1">Phase 2: Reveal Your Tip</p>
+                    <p className="text-[11px] text-muted">
+                      Your commitment is on-chain. Click below to reveal {formatCredits(savedAmount)} ALEO
+                      and transfer it to the creator.
+                    </p>
+                  </div>
+                )}
+
+                {/* Amount Selection (only in commit phase) */}
+                {commitPhase === 'commit' && (
+                  <>
+                    <div ref={tipGroupRef} className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4" role="radiogroup" aria-label="Tip amount">
+                      {TIP_AMOUNTS.map((amount) => (
+                        <button
+                          key={amount}
+                          role="radio"
+                          aria-checked={selectedAmount === amount && !customAmount}
+                          tabIndex={selectedAmount === amount && !customAmount ? 0 : -1}
+                          onClick={() => { setSelectedAmount(amount); setCustomAmount('') }}
+                          className={`py-3 rounded-xl text-sm font-medium transition-all ${
+                            selectedAmount === amount && !customAmount
+                              ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
+                              : 'bg-white/5 border border-white/10 text-muted hover:bg-white/10 hover:border-white/15'
+                          }`}
+                        >
+                          {amount}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="relative mb-4">
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        value={customAmount}
+                        onChange={(e) => {
+                          setCustomAmount(e.target.value)
+                          if (e.target.value) setSelectedAmount(0)
+                        }}
+                        placeholder="Custom amount"
+                        aria-label="Custom tip amount in ALEO"
+                        min="0.1"
+                        max="1000"
+                        step="0.1"
+                        className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base pr-16"
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-subtle">ALEO</span>
+                    </div>
+                    <p className="text-center text-sm text-muted mb-3">
+                      {customAmount ? `${customAmount} ALEO credits` : `${selectedAmount} ALEO credits`}
+                    </p>
+                  </>
+                )}
+
+                {/* Privacy Notice */}
+                <div className="p-2.5 rounded-xl bg-surface-2 border border-border mb-4 space-y-1">
+                  {tipMode === 'direct' ? (
+                    <>
+                      <p className="text-[11px] text-green-400/80">
+                        Your identity stays private. The creator receives payment but never knows who tipped.
+                      </p>
+                      <p className="text-[11px] text-subtle">
+                        Est. network fee: ~{formatCredits(currentFee)} ALEO
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex gap-1.5 items-start">
+                        <Shield className="w-3.5 h-3.5 text-green-400 mt-0.5 shrink-0" />
+                        <div className="text-[11px] text-green-400/80 space-y-0.5">
+                          <p className="font-medium text-green-400">Commit-Reveal Privacy</p>
+                          {commitPhase === 'commit' ? (
+                            <p>Phase 1: A cryptographic commitment hides the tip amount on-chain. The creator sees only a hash until you reveal.</p>
+                          ) : (
+                            <p>Phase 2: Reveal verifies your commitment and transfers the actual payment to the creator.</p>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-subtle">
+                        Est. network fee: ~{formatCredits(currentFee)} ALEO ({commitPhase === 'commit' ? 'commit' : 'reveal'} phase)
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 {error && (
-                  <div className="p-3 rounded-[8px] bg-red-500/10 border border-red-500/15 mb-4">
+                  <div role="alert" className="p-3 rounded-xl bg-red-500/10 border border-red-500/15 mb-4">
                     <p className="text-xs text-red-400">{error}</p>
                   </div>
                 )}
@@ -313,55 +444,73 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                       onConverted={() => {
                         setInsufficientBalance(false)
                         setError(null)
-                        handleTip()
+                        handleAction()
                       }}
                     />
                   </div>
                 )}
 
-                <button
-                  onClick={handleTip}
-                  disabled={txStatus !== 'idle'}
-                  className="w-full py-3 rounded-lg bg-white text-black font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                <Button
+                  onClick={handleAction}
+                  disabled={txStatus !== 'idle' && !isRevealReady}
+                  className="w-full"
                 >
-                  {txStatus !== 'idle' ? 'Processing...' : 'Tip Privately'}
-                </button>
+                  {tipMode === 'direct'
+                    ? 'Tip Privately'
+                    : commitPhase === 'commit'
+                      ? 'Commit Tip (Phase 1)'
+                      : 'Reveal & Send (Phase 2)'}
+                </Button>
               </>
             ) : (
               <div className="py-2">
                 {statusMessage && (
-                  <div className="mb-3 p-3 rounded-[8px] bg-[#18181b] border border-white/[0.08]">
-                    <p className="text-xs text-[#a1a1aa] animate-pulse">{statusMessage}</p>
+                  <div className="mb-3 p-3 rounded-xl bg-surface-2 border border-border">
+                    <p className="text-xs text-muted animate-pulse">{statusMessage}</p>
                   </div>
                 )}
-                <TransactionStatus status={txStatus} txId={txId} />
-                {txStatus === 'confirmed' && (
-                  <motion.div
+                <TransactionStatus status={txStatus} txId={txId} errorMessage={error} />
+                {txStatus === 'confirmed' && tipMode === 'direct' && (
+                  <m.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="mt-4 text-center"
                   >
                     <p className="text-green-400 font-medium">Tip sent!</p>
                     <button
-                      onClick={handleClose}
-                      className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
+                      onClick={handleModalClose}
+                      className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                     >
                       Done
                     </button>
-                  </motion.div>
+                  </m.div>
+                )}
+                {txStatus === 'confirmed' && tipMode === 'private' && commitPhase === 'done' && (
+                  <m.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mt-4 text-center"
+                  >
+                    <p className="text-green-400 font-medium">Private tip revealed and sent!</p>
+                    <p className="text-xs text-muted mt-1">
+                      The creator has received {formatCredits(savedAmount)} ALEO. Both phases are verified on-chain.
+                    </p>
+                    <button
+                      onClick={handleModalClose}
+                      className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
+                    >
+                      Done
+                    </button>
+                  </m.div>
                 )}
                 {txStatus === 'failed' && (
                   <div className="mt-4 text-center">
                     {error && (
-                      <p className="text-xs text-red-400 mb-3">{error}</p>
+                      <p role="alert" className="text-xs text-red-400 mb-3">{error}</p>
                     )}
                     <button
-                      onClick={() => {
-                        setTxStatus('idle')
-                        setError(null)
-                        setStatusMessage(null)
-                      }}
-                      className="px-6 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
+                      onClick={() => resetFlow()}
+                      className="px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                     >
                       Try Again
                     </button>
@@ -369,8 +518,8 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                 )}
               </div>
             )}
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       )}
     </AnimatePresence>
   )

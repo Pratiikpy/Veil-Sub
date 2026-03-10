@@ -8,15 +8,15 @@ export default function DashboardLoading() {
         </div>
         <div className="grid sm:grid-cols-4 gap-4 mb-10">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] animate-pulse">
+            <div key={i} className="p-6 rounded-2xl bg-white/[0.02] border border-border animate-pulse">
               <div className="h-4 w-20 rounded bg-white/[0.06] mb-3" />
               <div className="h-7 w-16 rounded bg-white/[0.06]" />
             </div>
           ))}
         </div>
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] animate-pulse h-64" />
-          <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] animate-pulse h-64" />
+          <div className="p-6 rounded-2xl bg-white/[0.02] border border-border animate-pulse h-64" />
+          <div className="p-6 rounded-2xl bg-white/[0.02] border border-border animate-pulse h-64" />
         </div>
       </div>
     </div>

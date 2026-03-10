@@ -1,19 +1,26 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, Shield, Sparkles, Users } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { m, AnimatePresence } from 'framer-motion'
+import { X, Shield, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
+import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { generatePassId, formatCredits } from '@/lib/utils'
-import { dedupeRecords } from '@/lib/recordSync'
-import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT, FEES } from '@/lib/config'
+import { SUBSCRIPTION_DURATION_BLOCKS, TRIAL_DURATION_BLOCKS, TRIAL_PRICE_DIVISOR, PLATFORM_FEE_PCT, FEES } from '@/lib/config'
+import { getErrorMessage } from '@/lib/errorMessages'
 import { logSubscriptionEvent } from '@/lib/logEvent'
-import TransactionStatus from './TransactionStatus'
+import { useFocusTrap } from '@/hooks/useFocusTrap'
+import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
+import { useBalanceCheck } from '@/hooks/useBalanceCheck'
+import TransactionProgress from './TransactionProgress'
+import type { ProgressStep } from './TransactionProgress'
 import BalanceConverter from './BalanceConverter'
-import type { SubscriptionTier, TxStatus } from '@/types'
+import Button from './ui/Button'
+import type { SubscriptionTier } from '@/types'
 
 interface Props {
   isOpen: boolean
@@ -21,12 +28,6 @@ interface Props {
   tier: SubscriptionTier
   creatorAddress: string
   basePrice: number // microcredits
-  referrerAddress?: string | null
-}
-
-const parseMicrocredits = (plaintext: string): number => {
-  const match = plaintext.match(/microcredits\s*:\s*([\d_]+)u64/)
-  return match ? parseInt(match[1].replace(/_/g, ''), 10) : 0
 }
 
 export default function SubscribeModal({
@@ -35,68 +36,38 @@ export default function SubscribeModal({
   tier,
   creatorAddress,
   basePrice,
-  referrerAddress,
 }: Props) {
-  const { subscribe, subscribeBlind, subscribeReferral, subscribePrivateCount, getCreditsRecords, connected } = useVeilSub()
+  const { subscribe, subscribeBlind, subscribeTrial, getCreditsRecords, connected } = useVeilSub()
+  const { signMessage } = useWallet()
   const { blockHeight } = useBlockHeight()
   const { startPolling, stopPolling } = useTransactionPoller()
-  const [txStatus, setTxStatus] = useState<TxStatus>('idle')
-  const [txId, setTxId] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const {
+    txStatus, setTxStatus, txId, setTxId,
+    error, setError, statusMessage,
+    submittingRef, handleClose, resetFlow,
+  } = useTransactionFlow({ isOpen, onClose, connected, stopPolling })
+  const focusTrapRef = useFocusTrap(isOpen, handleClose)
+  const { checkBalance } = useBalanceCheck(getCreditsRecords)
+
   const [insufficientBalance, setInsufficientBalance] = useState(false)
-  const [statusMessage, setStatusMessage] = useState<string | null>(null)
-  const [privacyMode, setPrivacyMode] = useState<'standard' | 'blind' | 'max'>('standard')
-  const submittingRef = useRef(false)
-  const txStatusRef = useRef(txStatus)
-  txStatusRef.current = txStatus
+  const [privacyMode, setPrivacyMode] = useState<'standard' | 'blind' | 'trial'>('standard')
+  const privacyGroupRef = useRef<HTMLDivElement>(null)
+  useRovingTabIndex(privacyGroupRef)
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    }
-    return () => { document.body.style.overflow = '' }
-  }, [isOpen])
+  // Map TxStatus → ProgressStep for the visual progress bar
+  const progressStep: ProgressStep =
+    txStatus === 'idle' ? 'idle'
+      : txStatus === 'signing' ? 'preparing'
+      : txStatus === 'proving' ? 'proving'
+      : txStatus === 'broadcasting' ? 'broadcasting'
+      : txStatus === 'confirmed' ? 'success'
+      : txStatus === 'failed' ? 'error'
+      : 'idle'
 
-  // Stop polling on unmount
-  useEffect(() => {
-    return () => stopPolling()
-  }, [stopPolling])
-
-  // Detect wallet disconnect during transaction
-  useEffect(() => {
-    if (!connected && (txStatus === 'signing' || txStatus === 'proving' || txStatus === 'broadcasting')) {
-      setTxStatus('failed')
-      setError('Wallet disconnected. Please reconnect and try again.')
-      stopPolling()
-      submittingRef.current = false
-    }
-  }, [connected, txStatus, stopPolling])
-
-  const totalPrice = basePrice * tier.priceMultiplier
-  const isReferral = !!referrerAddress && referrerAddress.startsWith('aleo1') && referrerAddress !== creatorAddress
-  const referralAmount = isReferral ? Math.floor(totalPrice / 10) : 0 // 10% to referrer
-  const creatorAmount = totalPrice - referralAmount
+  const fullPrice = basePrice * tier.priceMultiplier
+  const totalPrice = privacyMode === 'trial' ? Math.floor(fullPrice / TRIAL_PRICE_DIVISOR) : fullPrice
   const creatorCut = totalPrice - Math.floor(totalPrice / 20)
   const platformCut = Math.floor(totalPrice / 20)
-
-  // Cycling status messages during proving/broadcasting
-  useEffect(() => {
-    if (txStatus !== 'proving' && txStatus !== 'broadcasting') {
-      setStatusMessage(null)
-      return
-    }
-    const messages = txStatus === 'proving'
-      ? ['Generating zero-knowledge proof...', 'Wallet is computing the ZK circuit...', 'This may take 30-60 seconds...', 'Almost there — proof nearly complete...']
-      : ['Broadcasting transaction to Aleo network...', 'Waiting for block confirmation...', 'Validators are verifying the proof...', 'Finalizing on-chain state...']
-    let idx = 0
-    setStatusMessage(messages[0])
-    const interval = setInterval(() => {
-      idx = (idx + 1) % messages.length
-      setStatusMessage(messages[idx])
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [txStatus])
 
   const handleSubscribe = async () => {
     if (submittingRef.current) return
@@ -111,85 +82,40 @@ export default function SubscribeModal({
 
     submittingRef.current = true
     setError(null)
-    setStatusMessage(null)
     setTxStatus('signing')
-    toast.loading('Preparing your private subscription...', { id: 'subscribe-optimistic', duration: 5000 })
+    toast.loading('Preparing your private subscription...', { id: 'subscribe-optimistic', duration: 60000 })
 
     try {
-      let rawRecords: string[]
-      try {
-        rawRecords = await getCreditsRecords()
-      } catch {
-        // Retry once after brief sync delay
-        await new Promise(r => setTimeout(r, 2000))
-        try {
-          rawRecords = await getCreditsRecords()
-        } catch (retryErr) {
-          throw new Error(`Could not load wallet records: ${retryErr instanceof Error ? retryErr.message : 'Unknown error'}. Please ensure your wallet is synced and has sufficient balance.`)
-        }
-      }
-      if (rawRecords.length === 0) {
-        await new Promise(r => setTimeout(r, 2000))
-        try {
-          rawRecords = await getCreditsRecords()
-        } catch { rawRecords = [] }
-      }
-      const records = dedupeRecords(rawRecords)
-
-      if (records.length < 1) {
+      const balanceResult = await checkBalance(totalPrice)
+      if (balanceResult.error) {
         toast.dismiss('subscribe-optimistic')
-        setInsufficientBalance(true)
-        setError('No private credit records found. Convert public credits to private or get testnet credits.')
+        if (balanceResult.insufficientBalance) setInsufficientBalance(true)
+        setError(balanceResult.error)
         setTxStatus('idle')
         submittingRef.current = false
         return
       }
-
-      const totalAvailable = records.reduce((sum, r) => sum + parseMicrocredits(r), 0)
-      const largestRecord = parseMicrocredits(records[0])
-      if (totalAvailable < totalPrice) {
-        toast.dismiss('subscribe-optimistic')
-        setInsufficientBalance(true)
-        setError(`Insufficient private balance. You have ${formatCredits(totalAvailable)} ALEO but need ${formatCredits(totalPrice)} ALEO.`)
-        setTxStatus('idle')
-        submittingRef.current = false
-        return
-      }
-      if (largestRecord < totalPrice) {
-        toast.dismiss('subscribe-optimistic')
-        setInsufficientBalance(true)
-        setError(`Your largest record has ${formatCredits(largestRecord)} ALEO but you need ${formatCredits(totalPrice)} in a single record. Convert public credits to private to create a larger record.`)
-        setTxStatus('idle')
-        submittingRef.current = false
-        return
-      }
+      const records = balanceResult.records
 
       const passId = generatePassId()
-      const expiresAt = blockHeight + SUBSCRIPTION_DURATION_BLOCKS
+      const expiresAt = privacyMode === 'trial'
+        ? blockHeight + TRIAL_DURATION_BLOCKS
+        : blockHeight + SUBSCRIPTION_DURATION_BLOCKS
 
-      setStatusMessage(null)
       setTxStatus('proving')
       toast.dismiss('subscribe-optimistic')
 
       let id: string | null
-      if (isReferral && referrerAddress && records.length >= 2) {
-        // v16: Referral subscribe — needs two credit records
-        id = await subscribeReferral(
-          records[0], records[1],
-          creatorAddress, referrerAddress,
-          tier.id, referralAmount, creatorAmount, passId, expiresAt
+      if (privacyMode === 'trial') {
+        // Trial subscribe — ephemeral short-lived pass at reduced cost
+        id = await subscribeTrial(
+          records[0], creatorAddress, tier.id, totalPrice, passId, expiresAt
         )
       } else if (privacyMode === 'blind') {
         // v11: Blind subscribe — nonce-rotated identity hash
         const nonce = generatePassId() // random nonce
         id = await subscribeBlind(
           records[0], creatorAddress, nonce, tier.id, totalPrice, passId, expiresAt
-        )
-      } else if (privacyMode === 'max') {
-        // v17: Max privacy — Pedersen commitment, no public count
-        const blinding = generatePassId() // random blinding factor
-        id = await subscribePrivateCount(
-          records[0], creatorAddress, tier.id, totalPrice, passId, expiresAt, blinding
         )
       } else {
         // Standard subscribe
@@ -205,7 +131,10 @@ export default function SubscribeModal({
           if (result.status === 'confirmed') {
             if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
-            logSubscriptionEvent(creatorAddress, tier.id, totalPrice, result.resolvedTxId || id)
+            const wrappedSign = signMessage
+              ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
+              : null
+            logSubscriptionEvent(creatorAddress, tier.id, totalPrice, result.resolvedTxId || id, wrappedSign)
             toast.success('Subscribed!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
@@ -220,47 +149,29 @@ export default function SubscribeModal({
     } catch (err) {
       toast.dismiss('subscribe-optimistic')
       setTxStatus('failed')
-      setError(err instanceof Error ? err.message : 'Transaction failed')
+      setError(getErrorMessage(err instanceof Error ? err.message : 'Transaction failed'))
     } finally {
       submittingRef.current = false
     }
   }
 
-  const handleClose = () => {
-    // Allow close in ANY state — never trap the user in a hung modal
-    stopPolling()
-    setTxStatus('idle')
-    setTxId(null)
-    setError(null)
+  const handleModalClose = () => {
     setInsufficientBalance(false)
-    setStatusMessage(null)
-    submittingRef.current = false
-    onClose()
+    handleClose()
   }
-
-  // Escape key to close (uses refs to avoid stale closures)
-  const handleCloseRef = useRef(handleClose)
-  handleCloseRef.current = handleClose
-  useEffect(() => {
-    if (!isOpen) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleCloseRef.current()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [isOpen])
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh] bg-black/60 backdrop-blur-sm overflow-y-auto"
-          onClick={handleClose}
+          onClick={handleModalClose}
         >
-          <motion.div
+          <m.div
+            ref={focusTrapRef}
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
@@ -268,20 +179,20 @@ export default function SubscribeModal({
             role="dialog"
             aria-modal="true"
             aria-label="Subscribe to creator"
-            className="w-full max-w-md rounded-xl bg-[#0a0a0a] border border-[rgba(255,255,255,0.08)] shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-md rounded-sm bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-[#a1a1aa]" />
+                <Shield className="w-5 h-5 text-muted" />
                 <h3 className="text-lg font-semibold text-white">
                   Private Subscription
                 </h3>
               </div>
               <button
-                onClick={handleClose}
+                onClick={handleModalClose}
                 aria-label="Close subscription dialog"
-                className="p-1 rounded-lg hover:bg-white/5 text-[#a1a1aa] hover:text-white transition-colors"
+                className="p-1 rounded-lg hover:bg-white/[0.05] text-muted hover:text-white active:scale-[0.9] transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -290,125 +201,117 @@ export default function SubscribeModal({
             {txStatus === 'idle' ? (
               <>
                 {/* Tier Info */}
-                <div className="p-4 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[#a1a1aa] font-medium">
+                <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-subtle uppercase tracking-wider font-medium">
                       {tier.name}
                     </span>
-                    <span className="text-white font-bold">
-                      {formatCredits(totalPrice)} ALEO
-                    </span>
                   </div>
-                  <p className="text-sm text-[#a1a1aa]">{tier.description}</p>
+                  <p className="text-2xl font-bold text-white mb-2">
+                    {formatCredits(totalPrice)} <span className="text-sm font-medium text-muted">ALEO</span>
+                  </p>
+                  <p className="text-sm text-muted">{tier.description}</p>
                   <ul className="mt-3 space-y-1">
                     {tier.features.map((f) => (
                       <li
                         key={f}
-                        className="text-xs text-[#a1a1aa] flex items-center gap-2"
+                        className="text-xs text-muted flex items-center gap-2"
                       >
-                        <Sparkles className="w-3 h-3 text-[#a1a1aa]" />
+                        <Sparkles className="w-3 h-3 text-muted" />
                         {f}
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                {/* Referral Notice */}
-                {isReferral && (
-                  <div className="p-3 rounded-[8px] bg-violet-500/[0.06] border border-violet-500/[0.12] mb-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Users className="w-3.5 h-3.5 text-violet-400" />
-                      <span className="text-xs font-medium text-violet-300">Referral Subscription</span>
-                    </div>
-                    <p className="text-[11px] text-[#a1a1aa]">
-                      10% ({formatCredits(referralAmount)} ALEO) goes to the referrer as a private reward.
-                      The referrer cannot see your identity.
-                    </p>
-                  </div>
-                )}
-
                 {/* Fee Breakdown */}
-                <div className="p-3 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-4">
-                  <div className="text-xs text-[#71717a] space-y-1">
-                    {isReferral && (
-                      <div className="flex justify-between">
-                        <span>Referrer (10%)</span>
-                        <span className="text-violet-300">{formatCredits(referralAmount)} ALEO</span>
-                      </div>
-                    )}
+                <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4">
+                  <div className="text-xs text-subtle space-y-1">
                     <div className="flex justify-between">
-                      <span>Creator ({isReferral ? '90' : String(100 - PLATFORM_FEE_PCT)}%)</span>
-                      <span className="text-[#a1a1aa]">{formatCredits(isReferral ? creatorAmount : creatorCut)} ALEO</span>
+                      <span>Creator ({100 - PLATFORM_FEE_PCT}%)</span>
+                      <span className="text-muted">{formatCredits(creatorCut)} ALEO</span>
                     </div>
-                    {!isReferral && (
-                      <div className="flex justify-between">
-                        <span>Platform fee ({PLATFORM_FEE_PCT}%)</span>
-                        <span className="text-[#a1a1aa]">{formatCredits(platformCut)} ALEO</span>
-                      </div>
-                    )}
-                    <div className="pt-1.5 mt-1.5 border-t border-white/5 flex justify-between text-[#a1a1aa]">
+                    <div className="flex justify-between">
+                      <span>Platform fee ({PLATFORM_FEE_PCT}%)</span>
+                      <span className="text-muted">{formatCredits(platformCut)} ALEO</span>
+                    </div>
+                    <div className="pt-1.5 mt-1.5 border-t border-white/5 flex justify-between text-muted">
                       <span>Duration</span>
-                      <span>~30 days ({SUBSCRIPTION_DURATION_BLOCKS.toLocaleString()} blocks)</span>
+                      <span>
+                        {privacyMode === 'trial'
+                          ? `~12 hours (${TRIAL_DURATION_BLOCKS.toLocaleString()} blocks)`
+                          : `~30 days (${SUBSCRIPTION_DURATION_BLOCKS.toLocaleString()} blocks)`}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Est. network fee</span>
-                      <span>~{formatCredits(privacyMode === 'standard' ? FEES.SUBSCRIBE : privacyMode === 'blind' ? FEES.SUBSCRIBE_BLIND : FEES.SUBSCRIBE_PRIVATE_COUNT)} ALEO</span>
+                      <span>~{formatCredits(
+                        privacyMode === 'trial' ? FEES.SUBSCRIBE_TRIAL
+                          : privacyMode === 'blind' ? FEES.SUBSCRIBE_BLIND
+                          : FEES.SUBSCRIBE
+                      )} ALEO</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Privacy Mode Selector (v17) */}
-                {!isReferral && (
-                  <div className="p-3 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-4">
-                    <p className="text-xs text-[#71717a] mb-2 font-medium">Privacy Level</p>
-                    <div className="grid grid-cols-3 gap-1.5">
+                {/* Privacy Mode Selector */}
+                <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4">
+                    <p className="text-xs text-subtle mb-2 font-medium">Privacy Level</p>
+                    <div ref={privacyGroupRef} className="grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="Privacy level">
                       {([
-                        { key: 'standard' as const, label: 'Standard', desc: 'BHP256 hash' },
+                        { key: 'standard' as const, label: 'Standard', desc: '30 days' },
                         { key: 'blind' as const, label: 'Blind', desc: 'Nonce rotation' },
-                        { key: 'max' as const, label: 'Maximum', desc: 'Pedersen commit' },
+                        { key: 'trial' as const, label: 'Trial', desc: '~12 hrs / 20%' },
                       ]).map((mode) => (
                         <button
                           key={mode.key}
+                          role="radio"
+                          aria-checked={privacyMode === mode.key}
+                          tabIndex={privacyMode === mode.key ? 0 : -1}
                           onClick={() => setPrivacyMode(mode.key)}
                           className={`p-2 rounded-lg border text-center transition-all ${
                             privacyMode === mode.key
-                              ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300'
-                              : 'border-white/[0.06] bg-transparent text-[#71717a] hover:border-white/[0.12]'
+                              ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300 shadow-accent-sm'
+                              : 'border-border/75 bg-transparent text-subtle hover:border-glass-hover hover:text-muted'
                           }`}
                         >
                           <span className="text-[11px] font-medium block">{mode.label}</span>
-                          <span className="text-[9px] opacity-60 block">{mode.desc}</span>
+                          <span className="text-[9px] text-subtle block">{mode.desc}</span>
                         </button>
                       ))}
                     </div>
+                    {privacyMode === 'standard' && (
+                      <p className="text-[10px] text-violet-400/70 mt-2">
+                        Your subscriber identity is linked to your wallet address.
+                      </p>
+                    )}
                     {privacyMode === 'blind' && (
                       <p className="text-[10px] text-violet-400/70 mt-2">
-                        Each subscription uses a unique identity hash. Creator cannot link renewals to the same person.
+                        Your identity is rotated each subscription — unlinkable across renewals.
                       </p>
                     )}
-                    {privacyMode === 'max' && (
+                    {privacyMode === 'trial' && (
                       <p className="text-[10px] text-violet-400/70 mt-2">
-                        Subscriber count hidden behind Pedersen commitment. No public counter increment.
+                        Short-term pass (~12 hours / 1,000 blocks) at 20% of tier price.
                       </p>
                     )}
-                  </div>
-                )}
+                </div>
 
                 {/* Privacy Notice */}
-                <div className="p-3 rounded-[8px] bg-[#18181b] border border-white/[0.08] mb-6 space-y-1.5">
+                <div className="p-3 rounded-xl bg-surface-2 border border-border mb-6 space-y-1.5">
                   <p className="text-xs text-green-400 font-medium">Zero-Knowledge Privacy</p>
                   <ul className="text-[11px] text-green-400/80 space-y-1 list-none">
                     <li>Your address is never published on-chain</li>
                     {privacyMode === 'standard' && <li>Aggregate subscriber count updates publicly</li>}
                     {privacyMode === 'blind' && <li>Identity hash rotated — unlinkable renewals</li>}
-                    {privacyMode === 'max' && <li>Subscriber count stays hidden (Pedersen commitment)</li>}
+                    {privacyMode === 'trial' && <li>Short-lived pass — 20% cost, ~12 hour access</li>}
                     <li>AccessPass stored privately in your wallet</li>
                     <li>Payment via credits.aleo/transfer_private</li>
                   </ul>
                 </div>
 
                 {error && (
-                  <div className="p-3 rounded-[8px] bg-red-500/10 border border-red-500/15 mb-4">
+                  <div role="alert" className="p-3 rounded-xl bg-red-500/10 border border-red-500/15 mb-4">
                     <p className="text-xs text-red-400">{error}</p>
                   </div>
                 )}
@@ -427,54 +330,50 @@ export default function SubscribeModal({
                 )}
 
                 {/* Subscribe Button */}
-                <button
+                <Button
                   onClick={handleSubscribe}
                   disabled={txStatus !== 'idle'}
-                  className="w-full py-3 rounded-lg bg-white text-black font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full"
                 >
                   {txStatus !== 'idle' ? 'Processing...' : 'Subscribe Privately'}
-                </button>
+                </Button>
               </>
             ) : (
-              <div className="py-2">
-                {statusMessage && (
-                  <div className="mb-3 p-3 rounded-[8px] bg-[#18181b] border border-white/[0.08]">
-                    <p className="text-xs text-[#a1a1aa] animate-pulse">{statusMessage}</p>
-                  </div>
-                )}
-                <TransactionStatus status={txStatus} txId={txId} />
+              <div className="py-2 space-y-4">
+                <TransactionProgress
+                  currentStep={progressStep}
+                  error={error ?? undefined}
+                />
                 {txStatus === 'confirmed' && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mt-4 text-center"
+                    className="text-center"
                   >
                     <p className="text-green-400 font-medium mb-1">
                       Subscribed!
                     </p>
-                    <p className="text-xs text-[#a1a1aa]">
-                      Your AccessPass is now in your wallet. Access for ~30 days.
+                    <p className="text-xs text-muted">
+                      Your AccessPass is now in your wallet. {privacyMode === 'trial' ? 'Trial access for ~12 hours.' : 'Access for ~30 days.'}
                     </p>
+                    {txId && (
+                      <p className="text-[11px] text-subtle mt-2 font-mono break-all">
+                        TX: {txId.slice(0, 16)}...{txId.slice(-8)}
+                      </p>
+                    )}
                     <button
-                      onClick={handleClose}
-                      className="mt-4 px-6 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
+                      onClick={handleModalClose}
+                      className="mt-4 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                     >
                       Done
                     </button>
-                  </motion.div>
+                  </m.div>
                 )}
                 {txStatus === 'failed' && (
-                  <div className="mt-4 text-center">
-                    {error && (
-                      <p className="text-xs text-red-400 mb-3">{error}</p>
-                    )}
+                  <div className="text-center">
                     <button
-                      onClick={() => {
-                        setTxStatus('idle')
-                        setError(null)
-                        setStatusMessage(null)
-                      }}
-                      className="px-6 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-colors"
+                      onClick={() => resetFlow()}
+                      className="px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                     >
                       Try Again
                     </button>
@@ -482,8 +381,8 @@ export default function SubscribeModal({
                 )}
               </div>
             )}
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       )}
     </AnimatePresence>
   )

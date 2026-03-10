@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Verify Access — VeilSub',
-  description: 'Prove your subscription access using zero-knowledge proofs. Verify AccessPass ownership without revealing your identity.',
+  description: 'Prove you hold a valid AccessPass using a zero-knowledge proof. Zero-footprint verification — your identity stays completely private on-chain.',
 }
 
 export default function VerifyLayout({ children }: { children: React.ReactNode }) {

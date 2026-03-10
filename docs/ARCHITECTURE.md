@@ -4,10 +4,12 @@
 
 VeilSub is a privacy-preserving content subscription platform built on Aleo. It enables creators to monetize content while keeping subscriber identities completely private through zero-knowledge proofs.
 
+**Deployed Contract:** [`veilsub_v27.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v27.aleo) — 27 transitions, 25 mappings, 6 record types, 866 statements
+
 ```
 +-------------------+       +--------------------+       +------------------+
 |   Frontend        |       |   Aleo Testnet     |       |   Off-Chain      |
-|   (Next.js 16)    |<----->|   (veilsub_v20)    |       |   Services       |
+|   (Next.js 16)    |<----->|   (veilsub_v27)    |       |   Services       |
 |                   |       |                    |       |                  |
 | - Dashboard       |       | - AccessPass       |       | - Supabase (DB)  |
 | - Explore         |       | - CreatorReceipt   |       | - Upstash Redis  |
@@ -15,9 +17,9 @@ VeilSub is a privacy-preserving content subscription platform built on Aleo. It 
 | - Create Tiers    |       | - SubscriptionTier |       |                  |
 | - Gated Content   |       | - ContentDeletion  |       |                  |
 | - Gift Subs       |       | - GiftToken        |       |                  |
-| - Manage Access   |       | - RefundEscrow     |       |                  |
-| - Creator Pages   |       | - credits.aleo     |       |                  |
-| - On-Chain Verify |       |                    |       |                  |
+| - Manage Access   |       |                    |       |                  |
+| - Creator Pages   |       |                    |       |                  |
+| - On-Chain Verify |       | - credits.aleo     |       |                  |
 +-------------------+       +--------------------+       +------------------+
         |                           |                           |
         v                           v                           v
@@ -27,97 +29,100 @@ VeilSub is a privacy-preserving content subscription platform built on Aleo. It 
 | - Shield Wallet   |       | - ZK Proofs        |       | - Encrypted      |
 | - Leo Wallet      |       | - Private Records  |       |   Wallet Addrs   |
 | - Fox Wallet      |       | - transfer_private |       | - Content Cache  |
-| - Puzzle Wallet   |       | - BHP256 Hashing   |       | - Creator Profiles|
-| - Soter Wallet    |       |                    |       |                  |
+| - Puzzle Wallet   |       | - Poseidon2 Hashing|       | - Creator Profiles|
+| - Soter Wallet    |       | - BHP256 Commits   |       |                  |
 +-------------------+       +--------------------+       +------------------+
 ```
 
-## Layer Architecture
+## v23 Privacy Architecture: ZERO Addresses in Finalize
 
-### Layer 1: Smart Contract (`veilsub_v20.aleo`)
+The core privacy overhaul introduced in v23: **no raw address ever appears in any finalize function**. All mappings use `field` keys (Poseidon2 hashes of addresses). Auth checks happen in the transition layer where `self.caller` is available — enforced by ZK proofs, never leaked to public state. v24-v27 extends this architecture with 25 mappings while preserving the zero-address finalize guarantee.
 
-The Leo smart contract is the trust foundation. All financial operations and access control happen on-chain.
+```
+TRANSITION LAYER (private, ZK-proof-guaranteed)
+├── self.caller available → auth checks here
+├── BHP256 commitments for tipping (algebraic properties)
+├── BlindKey hashing for identity rotation
+└── Records created/consumed (AccessPass, CreatorReceipt, etc.)
 
-**Records (Private State):**
+FINALIZE LAYER (public, on-chain)
+├── creator_hash: field ← Poseidon2(creator address)
+├── ALL mapping keys: field ← Poseidon2(various keys)
+├── ZERO raw addresses
+└── Aggregate counters only (subscriber_count, revenue, etc.)
+```
+
+## Layer 1: Smart Contract (`veilsub_v27.aleo`)
+
+### Records (Private State — 6 types)
 | Record | Owner | Purpose |
 |--------|-------|---------|
-| `AccessPass` | Subscriber | Proves subscription access (tier, expiry, creator) |
+| `AccessPass` | Subscriber | Proves subscription access (tier, expiry, creator, privacy_level) |
 | `CreatorReceipt` | Creator | Private proof of payment received (hashed subscriber ID) |
 | `AuditToken` | Verifier | Selective disclosure token for third-party verification |
 | `SubscriptionTier` | Creator | Proof of custom tier creation (tier_id, price, name_hash) |
 | `ContentDeletion` | Creator | Proof of content deletion (content_id, reason_hash) |
 | `GiftToken` | Recipient | Gift subscription pending redemption (creator, tier, expires_at) |
-| `RefundEscrow` | Subscriber | Refund claim within escrow window (creator, amount, escrow_expiry) |
-| `ReferralReward` | Referrer | Privacy-preserving referral reward proof (creator, amount, referred_hash) |
 
-**Mappings (Public State):**
-| Mapping | Key | Value | Purpose |
-|---------|-----|-------|---------|
-| `tier_prices` | creator address | u64 | Public subscription pricing |
-| `subscriber_count` | creator address | u64 | Public subscriber metric |
-| `total_revenue` | creator address | u64 | Public revenue metric |
-| `platform_revenue` | u8 (constant) | u64 | Platform fee accumulator |
-| `content_count` | creator address | u64 | Published content count |
+### Mappings (Public State — 25 field-keyed mappings, ZERO raw addresses)
+| Mapping | Key Type | Value | Purpose |
+|---------|----------|-------|---------|
+| `tier_prices` | Poseidon2(creator) | u64 | Base subscription pricing |
+| `subscriber_count` | Poseidon2(creator) | u64 | Public subscriber metric |
+| `total_revenue` | Poseidon2(creator) | u64 | Public revenue metric |
+| `platform_revenue` | u8 (constant key) | u64 | Platform fee accumulator |
+| `content_count` | Poseidon2(creator) | u64 | Published content count |
 | `content_meta` | Poseidon2(content_id) | u8 | Content tier requirement |
 | `content_hashes` | Poseidon2(content_id) | field | Content body integrity hash |
+| `content_creator` | Poseidon2(content_id) | field | Content ownership for auth |
 | `creator_tiers` | Poseidon2(TierKey) | u64 | Custom tier pricing |
-| `tier_count` | creator address | u64 | Number of tiers per creator |
+| `tier_count` | Poseidon2(creator) | u64 | Number of tiers per creator |
 | `tier_deprecated` | Poseidon2(TierKey) | bool | Deprecated tier flag |
 | `content_deleted` | Poseidon2(content_id) | bool | Content deletion flag |
 | `gift_redeemed` | gift_id (field) | bool | Gift redemption tracking |
-| `refund_claimed` | pass_id (field) | bool | Refund claim tracking |
-| `escrow_data` | pass_id (field) | u32 | Escrow expiry block height |
 | `nonce_used` | Poseidon2(nonce) | bool | Blind renewal nonce replay prevention |
 | `encryption_commits` | Poseidon2(content_id) | field | Encrypted content commitment |
 | `access_revoked` | pass_id (field) | bool | Access revocation flag |
+| `pass_creator` | pass_id (field) | field | Maps pass to creator HASH (not address) |
 | `content_disputes` | Poseidon2(content_id) | u64 | Content dispute counter |
-| `pass_creator` | pass_id (field) | address | Maps pass to its issuing creator (auth for revocation) |
-| `tip_commitments` | commitment (field) | field | Stores tip commitment hashes |
+| `tip_commitments` | commitment (field) | bool | Stores tip commitment existence |
 | `tip_revealed` | commitment (field) | bool | Tracks revealed tips |
-| `dispute_count_by_caller` | BHP256(caller, content_id) | u64 | Per-caller dispute rate limiting |
-| `referral_count` | creator address | u64 | Total referrals received per creator |
-| `sub_count_commit` | creator address | group | Homomorphic Pedersen subscriber commitment aggregate |
-| `creator_privacy_mode` | creator address | u8 | Creator's default privacy level |
+| `dispute_count_by_caller` | Poseidon2(DisputeKey) | u64 | Per-caller dispute rate limiting |
 | `subscription_by_tier` | Poseidon2(TierKey) | u64 | Per-tier subscriber count |
-| `creator_last_active` | creator address | u32 | Block height of last creator action |
-| `total_subscriptions` | creator address | u64 | Lifetime subscription count per creator |
-| `content_version` | Poseidon2(content_id) | u64 | Content update version counter |
-| `subscription_epoch` | Poseidon2(creator, epoch) | u64 | Subscriptions per epoch (EPOCH_SIZE=1200 blocks) |
+| `total_creators` | 0u8 (singleton) | u64 | Platform-wide creator count |
+| `total_content` | 0u8 (singleton) | u64 | Platform-wide content count |
+| `trial_used` | Poseidon2(TrialKey) | bool | One-trial-per-creator rate limiting |
 
-**Transitions (Functions):**
+### Transitions (27 total)
 | Transition | Privacy | Finalize? | Purpose |
 |------------|---------|-----------|---------|
-| `register_creator` | Creator = public | Yes | Register as content creator |
+| `register_creator` | Creator hash only | Yes | Register as content creator |
 | `subscribe` | Subscriber = private | Yes | Subscribe + pay (atomic) |
-| `verify_access` | Full private | **No** | Zero-footprint access check |
+| `verify_access` | Full private | Yes (revocation + expiry check) | Minimal-footprint access verification |
 | `create_audit_token` | Full private | **No** | Selective disclosure for verifiers |
 | `tip` | Tipper = private | Yes | Send tip to creator |
 | `renew` | Subscriber = private | Yes | Renew subscription |
-| `publish_content` | Creator = public | Yes | Publish content metadata + hash |
-| `create_custom_tier` | Creator = public | Yes | Create custom subscription tier |
-| `update_tier_price` | Creator = public | Yes | Update tier price |
-| `deprecate_tier` | Creator = public | Yes | Mark tier as deprecated |
-| `update_content` | Creator = public | Yes | Update content tier/hash |
-| `delete_content` | Creator = public | Yes | Delete content (returns ContentDeletion) |
+| `publish_content` | Creator hash only | Yes | Publish content metadata + hash |
+| `create_custom_tier` | Creator hash only | Yes | Create custom subscription tier |
+| `update_tier_price` | Creator hash only | Yes | Update tier price |
+| `deprecate_tier` | Creator hash only | Yes | Mark tier as deprecated |
+| `update_content` | Creator hash only | Yes | Update content tier/hash |
+| `delete_content` | Creator hash only | Yes | Delete content (returns ContentDeletion) |
 | `gift_subscription` | Gifter = private | Yes | Gift a subscription to another address |
-| `redeem_gift` | Recipient = private | Yes | Redeem a GiftToken for AccessPass |
-| `subscribe_with_escrow` | Subscriber = private | Yes | Subscribe with refund window |
-| `claim_refund` | Subscriber = private | Yes | Claim refund within escrow window |
-| `withdraw_platform_fees` | Platform = public | Yes | Withdraw accumulated platform fees |
-| `withdraw_creator_rev` | Creator = public | Yes | Withdraw creator revenue |
-| `subscribe_blind` | Subscriber = private | Yes | Subscribe with nonce-based identity rotation |
-| `renew_blind` | Subscriber = private | Yes | Blind renewal (different hash each time) |
-| `verify_tier_access` | Full private | **No** | Zero-footprint dynamic tier verification |
-| `publish_encrypted_content` | Creator = public | Yes | Publish with encryption commitment |
-| `revoke_access` | Creator = public | Yes | Revoke subscriber access |
-| `dispute_content` | Any = public | Yes | Dispute content integrity |
-| `commit_tip` | Tipper = private | Yes | Commit to tip amount (hidden via BHP256 commitment) |
+| `redeem_gift` | Recipient = private | Yes | Redeem GiftToken for AccessPass |
+| `withdraw_platform_fees` | Platform admin check in transition | Yes | Withdraw accumulated platform fees |
+| `withdraw_creator_rev` | Creator hash only | Yes | Withdraw creator revenue |
+| `subscribe_blind` | Subscriber = private (nonce-rotated) | Yes | Subscribe with identity rotation |
+| `renew_blind` | Subscriber = private (nonce-rotated) | Yes | Blind renewal (different hash each time) |
+| `subscribe_trial` | Subscriber = private | Yes | Trial subscription (20% price, ~12hr) |
+| `verify_tier_access` | Full private | Yes (revocation + expiry check) | Minimal-footprint tier-gated verification |
+| `publish_encrypted_content` | Creator hash only | Yes | Publish with encryption commitment |
+| `revoke_access` | Creator hash verified in transition | Yes | Revoke subscriber access |
+| `dispute_content` | Subscriber must have AccessPass | Yes | Dispute content (rate-limited) |
+| `transfer_pass` | Subscriber = private | Yes | Transfer subscription to another address |
+| `commit_tip` | Tipper = private | Yes | Commit to hidden tip amount (BHP256) |
 | `reveal_tip` | Tipper = private | Yes | Reveal committed tip and execute transfer |
-| `transfer_pass` | Subscriber = private | Yes | Transfer subscription to another address (v15) |
-| `subscribe_referral` | Subscriber = private | Yes | Subscribe via referral with reward split (v16) |
-| `subscribe_private_count` | Subscriber = private | Yes | Subscribe updating only Pedersen aggregate, NOT public counter (v17) |
-| `prove_sub_count` | Full private | **No** | Zero-footprint proof of subscriber count (v17) |
-| `prove_revenue_range` | Full private | **No** | Zero-footprint range proof for revenue (v17) |
+| `prove_subscriber_threshold` | Creator hash only | Yes | Prove N+ subscribers without revealing count |
 
 ### Layer 2: Frontend (Next.js 16 + React 19)
 
@@ -127,15 +132,17 @@ frontend/src/
 │   ├── page.tsx            # Landing page
 │   ├── dashboard/          # Creator dashboard
 │   ├── explore/            # Browse creators
-│   ├── verify/             # ZK verification + on-chain explorer
+│   ├── verify/             # ZK verification
 │   ├── creator/[address]/  # Creator profile
-│   ├── docs/               # Documentation
-│   ├── privacy/            # Privacy policy
-│   ├── vision/             # Project vision
-│   └── api/                # API routes (Supabase proxy)
-├── components/             # Reusable UI components
-├── hooks/                  # React hooks (useVeilSub, etc.)
-├── lib/                    # Utilities (config, crypto, Supabase)
+│   ├── docs/               # Documentation (5-tab interface)
+│   ├── privacy/            # Privacy model + threat analysis
+│   ├── analytics/          # Platform analytics
+│   ├── explorer/           # On-chain mapping queries
+│   ├── vision/             # Use cases + roadmap
+│   └── api/                # API routes (Supabase/Redis proxy)
+├── components/             # 62 reusable UI components
+├── hooks/                  # 16 custom hooks (useVeilSub, useCreatorStats, etc.)
+├── lib/                    # Utilities (config, crypto, Supabase, Redis)
 ├── providers/              # Context providers (Wallet, Client)
 └── types/                  # TypeScript type definitions
 ```
@@ -145,7 +152,7 @@ frontend/src/
 | Service | Purpose | Data Stored |
 |---------|---------|-------------|
 | **Supabase** (PostgreSQL) | Creator profiles, content metadata | Encrypted wallet addresses, content bodies |
-| **Upstash Redis** | Fast content caching | Serialized content feeds |
+| **Upstash Redis** | Fast content caching, rate limiting | Serialized content feeds |
 | **Vercel** | Frontend hosting + serverless API | Static assets, API routes |
 
 ### Layer 4: Wallet Integration
@@ -157,56 +164,41 @@ Five wallet adapters via `@provablehq/aleo-wallet-adaptor-react`:
 - **Puzzle Wallet** — privacy-focused
 - **Soter Wallet** — security-focused
 
-## Data Flow
+## Data Flow: Subscribe
 
-### Subscribe Flow
 ```
-1. Subscriber connects wallet (Shield/Leo/Fox/Puzzle/Soter)
-2. Frontend fetches credits.aleo records via requestRecords()
-3. User selects creator + tier → frontend computes amount
-4. executeTransaction() calls veilsub_v20.aleo/subscribe:
-   a. credits.aleo/transfer_private sends payment to creator
-   b. AccessPass record created (owned by subscriber)
-   c. CreatorReceipt record created (owned by creator)
-   d. Finalize validates price, updates counters
-5. Frontend polls transactionStatus() until confirmed
-6. Backend updates Supabase with subscription event (no wallet addresses)
-```
-
-### Verify Access Flow (Zero Footprint)
-```
-1. Subscriber's wallet holds AccessPass record
-2. verify_access consumes old pass, creates new identical pass
-3. ZK proof proves ownership — NO finalize, NO public state change
-4. Creator/service validates the proof output
-```
-
-### Audit Token Flow (Selective Disclosure)
-```
-1. Subscriber holds AccessPass
-2. Calls create_audit_token(pass, verifier_address)
-3. Old AccessPass consumed, new AccessPass + AuditToken created
-4. AuditToken sent to verifier — reveals: creator, tier, expires_at
-5. AuditToken does NOT reveal: subscriber address (only BHP256 hash)
-6. NO finalize — creating audit tokens is invisible on-chain
+1. User clicks "Subscribe" on creator page
+2. Frontend → useVeilSub.subscribe(payment_record, creator, tier, amount, pass_id, expiry)
+3. Wallet prompts for signature (ZK proof generated client-side)
+4. Transition layer:
+   - self.caller verified (subscriber identity)
+   - credits.aleo/transfer_private sends payment to creator
+   - AccessPass record created (owner: subscriber)
+   - CreatorReceipt record created (owner: creator)
+   - subscriber_hash = Poseidon2(self.caller) [never raw address]
+   - creator_hash = Poseidon2(creator) [never raw address]
+5. Finalize layer (PUBLIC — zero addresses):
+   - subscriber_count[creator_hash] += 1
+   - total_revenue[creator_hash] += amount
+   - platform_revenue[0u8] += amount / 20  (5% fee)
+   - pass_creator[pass_id] = creator_hash
+   - subscription_by_tier[Poseidon2(TierKey)] += 1
+6. Frontend polls for confirmation → shows AccessPass
+7. Content feed unlocks (blur removed for subscribed tiers)
 ```
 
-## Security Model
+## Data Flow: Blind Renewal
 
-- **AES-256-GCM** encryption for wallet addresses stored in Supabase
-- **CORS/COOP headers** configured in Next.js for cross-origin protection
-- **Private fee mode** — all transaction fees paid from private records
-- **No raw addresses in logs** — subscriber addresses never written to any log/DB
-- **Service role key** restricted to backend-only Supabase operations
-
-## Dependencies
-
-### Smart Contract
-- `credits.aleo` — Native Aleo credit transfers (transfer_private)
-
-### Frontend
-- Next.js 16.1.6 + React 19.2.3 + TypeScript 5
-- Tailwind CSS 4 + Framer Motion
-- @provablehq/aleo-wallet-adaptor-react (5 wallet adapters)
-- Supabase JS + Upstash Redis
-- Recharts (analytics), Sonner (toasts), Lucide React (icons)
+```
+1. User selects "Blind" privacy mode in SubscribeModal
+2. Frontend generates random nonce (unique per renewal)
+3. Transition layer:
+   - subscriber_hash = Poseidon2(BlindKey { subscriber: self.caller, nonce: random_nonce })
+   - This produces a DIFFERENT hash each renewal → creator cannot link renewals
+   - Payment, AccessPass, CreatorReceipt same as standard subscribe
+4. Finalize layer:
+   - nonce_used[Poseidon2(nonce)] = true  (replay prevention)
+   - Same mappings updated (subscriber_count, revenue, etc.)
+   - No way to correlate this renewal to previous subscriptions
+5. Result: Creator sees a "new subscriber" each renewal cycle
+```

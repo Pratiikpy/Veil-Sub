@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 
 const SPARKLE_POSITIONS = [
   { x: -60, y: -60 },
@@ -17,7 +17,7 @@ export default function CelebrationBurst({ color = 'bg-violet-400' }: { color?: 
   return (
     <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
       {SPARKLE_POSITIONS.map((pos, i) => (
-        <motion.div
+        <m.div
           key={i}
           initial={{ opacity: 1, x: 0, y: 0, scale: 1 }}
           animate={{ opacity: 0, x: pos.x, y: pos.y, scale: 0 }}

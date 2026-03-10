@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import { hashAddress } from '@/lib/encryption'
+import { computeWalletHash } from '@/lib/utils'
 
 interface SupabaseCreatorProfile {
   address_hash: string
@@ -72,10 +73,11 @@ export function useSupabase() {
     ) => {
       try {
         const timestamp = Date.now()
+        const walletHash = await computeWalletHash(creatorAddress)
         let signature: string | undefined
         if (signMessage) {
           try {
-            const msg = new TextEncoder().encode(`veilsub:analytics:${timestamp}`)
+            const msg = new TextEncoder().encode(`veilsub:analytics:${creatorAddress}:${timestamp}`)
             const sig = await signMessage(msg)
             signature = btoa(String.fromCharCode(...sig))
           } catch {
@@ -90,6 +92,7 @@ export function useSupabase() {
             tier,
             amount_microcredits: amountMicrocredits,
             tx_id: txId,
+            walletHash,
             signature,
             timestamp,
           }),

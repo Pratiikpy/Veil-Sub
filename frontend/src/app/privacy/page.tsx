@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import {
   Shield,
   EyeOff,
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
+import Tooltip from '@/components/ui/Tooltip'
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -27,67 +28,275 @@ export default function PrivacyPage() {
       <div className="min-h-screen">
         {/* Hero */}
         <section className="relative overflow-hidden">
+          <div
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.06) 0%, transparent 70%)',
+            }}
+          />
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-            <motion.div {...fadeUp} transition={{ duration: 0.6 }} className="text-center">
+            <m.div {...fadeUp} transition={{ duration: 0.6 }} className="text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-6">
                 <Shield className="w-4 h-4 text-violet-400" />
                 <span className="text-sm text-violet-300/90">Zero-Knowledge Privacy</span>
               </div>
-              <h1 className="text-4xl sm:text-6xl font-semibold tracking-tight mb-6">
-                <span className="text-white">
-                  How VeilSub Protects You
-                </span>
+              <h1
+                className="text-4xl sm:text-6xl font-serif italic text-white mb-6"
+                style={{ letterSpacing: '-0.03em' }}
+              >
+                How VeilSub Protects You
               </h1>
-              <p className="text-lg text-[#a1a1aa] max-w-2xl mx-auto">
+              <p className="text-lg text-muted max-w-2xl mx-auto mb-6">
                 Built on Aleo&apos;s zero-knowledge proof system. Subscriber addresses
                 never enter the finalize scope — enforced by the Leo compiler.
               </p>
-            </motion.div>
+              <a
+                href="https://testnet.aleoscan.io/program?id=veilsub_v27.aleo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-all"
+              >
+                <Shield className="w-4 h-4" />
+                Verify on Aleoscan — audit the deployed contract yourself
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+              </a>
+            </m.div>
+          </div>
+        </section>
+
+        {/* Section Navigation */}
+        <nav className="sticky top-16 z-30 bg-black/80 backdrop-blur-xl border-b border-border/75 overflow-x-auto hidden md:block">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-1 py-2">
+            {[
+              { id: 'bsp', label: 'BSP Framework' },
+              { id: 'zk-proofs', label: 'ZK Proofs' },
+              { id: 'private-vs-public', label: 'Private vs Public' },
+              { id: 'threat-model', label: 'Threat Model' },
+              { id: 'code-privacy', label: 'In the Code' },
+              { id: 'vs-traditional', label: 'vs Traditional' },
+              { id: 'vs-aleo', label: 'vs Aleo Ecosystem' },
+            ].map((s) => (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                className="px-3 py-1.5 rounded-lg text-xs text-subtle hover:text-white hover:bg-white/[0.06] transition-all whitespace-nowrap"
+              >
+                {s.label}
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        {/* Blind Subscription Protocol (BSP) */}
+        <section id="bsp" className="py-16 scroll-mt-28">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-4">
+                <Layers className="w-4 h-4 text-violet-400" />
+                <span className="text-sm text-violet-300/90">Novel Privacy Framework</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-semibold text-white mb-4">
+                Blind Subscription Protocol
+                <span className="ml-2 text-violet-400">(BSP)</span>
+              </h2>
+              <p className="text-muted max-w-2xl mx-auto">
+                A three-layer privacy architecture that makes the entire subscriber lifecycle
+                unlinkable — from first subscription through every renewal, tip, and verification.
+              </p>
+            </m.div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Layer 1 */}
+              <m.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0 }}
+                className="h-full"
+              >
+                <div className="relative h-full rounded-sm border border-violet-500/20 bg-gradient-to-b from-violet-500/[0.06] to-transparent p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center text-sm font-bold text-violet-400">1</span>
+                    <h3 className="text-white font-semibold">Blind Identity Rotation</h3>
+                  </div>
+                  <p className="text-sm text-muted mb-4">
+                    Each subscription generates a unique subscriber hash via nonce-rotated
+                    Poseidon2. Creators cannot correlate renewals to the same person.
+                  </p>
+                  <div className="p-3 rounded-xl bg-black/40 border border-border">
+                    <code className="text-xs text-violet-300 font-mono leading-relaxed">
+                      hash = Poseidon2(BlindKey{'{'} subscriber, nonce {'}'})
+                    </code>
+                    <p className="text-xs text-subtle mt-1.5">Different nonce per renewal = different hash = unlinkable identity</p>
+                  </div>
+                </div>
+              </m.div>
+
+              {/* Layer 2 */}
+              <m.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="h-full"
+              >
+                <div className="relative h-full rounded-sm border border-green-500/20 bg-gradient-to-b from-green-500/[0.06] to-transparent p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-sm font-bold text-green-400">2</span>
+                    <h3 className="text-white font-semibold">Zero-Address Finalize</h3>
+                  </div>
+                  <p className="text-sm text-muted mb-4">
+                    All 25 mappings use Poseidon2 field-hashed keys. No raw address appears
+                    in any finalize function — compiler-enforced, not policy.
+                  </p>
+                  <div className="p-3 rounded-xl bg-black/40 border border-border">
+                    <code className="text-xs text-green-300 font-mono leading-relaxed">
+                      mapping key = Poseidon2(address) -&gt; field
+                    </code>
+                    <p className="text-xs text-subtle mt-1.5">Irreversible hash — cannot recover wallet address from on-chain data</p>
+                  </div>
+                </div>
+              </m.div>
+
+              {/* Layer 3 */}
+              <m.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="h-full"
+              >
+                <div className="relative h-full rounded-sm border border-indigo-500/20 bg-gradient-to-b from-indigo-500/[0.06] to-transparent p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-sm font-bold text-indigo-400">3</span>
+                    <h3 className="text-white font-semibold">Selective Disclosure</h3>
+                  </div>
+                  <p className="text-sm text-muted mb-4">
+                    Audit tokens reveal tier and expiry without subscriber identity.
+                    Commit-reveal tipping hides amounts. Reputation proofs without counts.
+                  </p>
+                  <div className="p-3 rounded-xl bg-black/40 border border-border">
+                    <code className="text-xs text-indigo-300 font-mono leading-relaxed">
+                      AuditToken: tier + expiry (no subscriber addr)
+                    </code>
+                    <p className="text-xs text-subtle mt-1.5">Prove membership without revealing who you are</p>
+                  </div>
+                </div>
+              </m.div>
+            </div>
+
+            {/* BSP vs Competitors */}
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="mt-8"
+            >
+              <div className="rounded-sm overflow-hidden border border-border">
+                <div className="px-5 py-3 bg-white/[0.02] border-b border-border">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-violet-400" />
+                    <h4 className="text-sm font-semibold text-white">BSP vs Other Privacy Approaches</h4>
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left py-2.5 px-4 text-subtle font-medium">Capability</th>
+                        <th className="text-center py-2.5 px-4 text-violet-400 font-medium">VeilSub BSP</th>
+                        <th className="text-center py-2.5 px-4 text-subtle font-medium">lasagna DAR</th>
+                        <th className="text-center py-2.5 px-4 text-subtle font-medium">NullPay Dual-Record</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-muted">
+                      {[
+                        ['Identity rotation across txns', true, false, false],
+                        ['Zero addresses in finalize', true, false, true],
+                        ['Selective disclosure (audit tokens)', true, false, false],
+                        ['Commit-reveal amount hiding', true, false, false],
+                        ['Subscriber lifecycle unlinkability', true, false, false],
+                        ['Named multi-layer framework', true, true, false],
+                        ['Zero-footprint verification', true, false, false],
+                      ].map(([feature, bsp, dar, np]) => (
+                        <tr key={feature as string} className="border-b border-border/75">
+                          <td className="py-2 px-4 text-white/80">{feature as string}</td>
+                          <td className="py-2 px-4 text-center">
+                            {bsp ? <span className="text-green-400 font-medium">Yes</span> : <span className="text-subtle">No</span>}
+                          </td>
+                          <td className="py-2 px-4 text-center">
+                            {dar ? <span className="text-green-400/80">Yes</span> : <span className="text-subtle">No</span>}
+                          </td>
+                          <td className="py-2 px-4 text-center">
+                            {np ? <span className="text-green-400/80">Yes</span> : <span className="text-subtle">No</span>}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="px-5 py-3 bg-white/[0.01] border-t border-border">
+                  <p className="text-xs text-subtle">
+                    BSP is the only multi-layer privacy framework in the Aleo buildathon that addresses
+                    identity rotation, finalize isolation, and selective disclosure simultaneously.
+                  </p>
+                </div>
+              </div>
+            </m.div>
           </div>
         </section>
 
         {/* ZK Explainer */}
-        <section className="py-16">
+        <section id="zk-proofs" className="py-16 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">What Are Zero-Knowledge Proofs?</h2>
-              <p className="text-[#a1a1aa] max-w-2xl mx-auto">
+              <p className="text-muted max-w-2xl mx-auto">
                 A ZK proof lets you prove something is true without revealing the underlying data.
                 Like proving you&apos;re over 21 without showing your ID.
               </p>
-            </motion.div>
+            </m.div>
 
             <div className="grid md:grid-cols-3 gap-6">
               <GlassCard shimmer delay={0}>
-                <div className="w-12 h-12 rounded-[12px] bg-violet-500/10 flex items-center justify-center mb-4">
+                <div className="w-12 h-12 rounded-sm bg-violet-500/10 flex items-center justify-center mb-4">
                   <Fingerprint className="w-6 h-6 text-violet-400" />
                 </div>
                 <h3 className="text-white font-semibold mb-2">Prove Without Revealing</h3>
-                <p className="text-sm text-[#a1a1aa]">
-                  When you subscribe, a ZK proof confirms your payment is valid without exposing
+                <p className="text-sm text-muted">
+                  When you subscribe, a <Tooltip content="Zero-knowledge proof: cryptographic method to prove a statement is true without revealing the underlying data">
+                    <span className="border-b border-dotted border-subtle cursor-help">ZK proof</span>
+                  </Tooltip> confirms your payment is valid without exposing
                   your wallet address, amount, or any identifying information to the public ledger.
                 </p>
               </GlassCard>
 
               <GlassCard shimmer delay={0.1}>
-                <div className="w-12 h-12 rounded-[12px] bg-indigo-500/10 flex items-center justify-center mb-4">
+                <div className="w-12 h-12 rounded-sm bg-indigo-500/10 flex items-center justify-center mb-4">
                   <Lock className="w-6 h-6 text-indigo-400" />
                 </div>
                 <h3 className="text-white font-semibold mb-2">Encrypted Records</h3>
-                <p className="text-sm text-[#a1a1aa]">
-                  Your AccessPass is a private record encrypted with your wallet key. Only you
+                <p className="text-sm text-muted">
+                  Your <Tooltip content="AccessPass: a private Aleo record proving your subscription. Only visible to your wallet.">
+                    <span className="border-b border-dotted border-subtle cursor-help">AccessPass</span>
+                  </Tooltip> is a private record encrypted with your wallet key. Only you
                   can see or use it. Not even the creator, not even Aleo validators.
                 </p>
               </GlassCard>
 
               <GlassCard shimmer delay={0.2}>
-                <div className="w-12 h-12 rounded-[12px] bg-purple-500/10 flex items-center justify-center mb-4">
+                <div className="w-12 h-12 rounded-sm bg-purple-500/10 flex items-center justify-center mb-4">
                   <ShieldCheck className="w-6 h-6 text-purple-400" />
                 </div>
                 <h3 className="text-white font-semibold mb-2">Mathematically Guaranteed</h3>
-                <p className="text-sm text-[#a1a1aa]">
-                  The Leo compiler rejects any code path where subscriber addresses
-                  reach finalize scope. No runtime policy — compile-time enforcement.
+                <p className="text-sm text-muted">
+                  The <Tooltip content="Leo: the programming language for Aleo smart contracts, with built-in privacy constraints">
+                    <span className="border-b border-dotted border-subtle cursor-help">Leo compiler</span>
+                  </Tooltip> rejects any code path where subscriber addresses
+                  reach <Tooltip content="Finalize: the public execution layer of Aleo. Code in finalize blocks is visible to everyone on-chain.">
+                    <span className="border-b border-dotted border-subtle cursor-help">finalize scope</span>
+                  </Tooltip>. No runtime policy — compile-time enforcement.
                 </p>
               </GlassCard>
             </div>
@@ -97,13 +306,13 @@ export default function PrivacyPage() {
         {/* Zero-Footprint Hero Callout */}
         <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial">
-              <div className="relative rounded-[12px] overflow-hidden">
+            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial">
+              <div className="relative rounded-sm overflow-hidden">
                 {/* Gradient border effect */}
-                <div className="absolute -inset-[1px] rounded-[12px] bg-gradient-to-r from-violet-500 via-green-400 to-violet-500 opacity-60" />
-                <div className="relative rounded-[12px] bg-[#0d0b14] p-8">
+                <div className="absolute -inset-[1px] rounded-sm bg-gradient-to-r from-violet-500 via-green-400 to-violet-500 opacity-60" />
+                <div className="relative rounded-sm bg-surface-1 p-8">
                   <div className="flex items-start gap-5">
-                    <div className="shrink-0 w-14 h-14 rounded-[12px] bg-gradient-to-br from-violet-500/20 to-green-500/20 flex items-center justify-center">
+                    <div className="shrink-0 w-14 h-14 rounded-sm bg-gradient-to-br from-violet-500/20 to-green-500/20 flex items-center justify-center">
                       <Fingerprint className="w-7 h-7 text-green-400" />
                     </div>
                     <div className="flex-1">
@@ -115,34 +324,36 @@ export default function PrivacyPage() {
                       </div>
                       <div className="grid sm:grid-cols-2 gap-3 mb-5">
                         {[
-                          'verify_access has NO finalize block — zero public state changes when proving access',
-                          'No mapping writes, no counter increments, no on-chain evidence of verification',
-                          'Prevents timing correlation attacks — observers cannot track when access is checked',
-                          'Access checks leave zero on-chain evidence — no mapping writes, no counters',
+                          'verify_access finalize only checks revocation via pass_id — subscriber address never enters public state',
+                          'No subscriber-identifying mapping writes, no counter increments tied to identity',
+                          'Prevents timing correlation attacks — observers cannot link verification to any subscriber',
+                          'Revocation enforcement is the only finalize action — zero identity exposure',
                         ].map((point, idx) => (
                           <div key={idx} className="flex items-start gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0 mt-1.5" />
-                            <p className="text-sm text-[#a1a1aa] leading-relaxed">{point}</p>
+                            <p className="text-sm text-muted leading-relaxed">{point}</p>
                           </div>
                         ))}
                       </div>
-                      <div className="p-4 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]">
-                        <pre className="text-xs text-[#a1a1aa] font-mono leading-relaxed overflow-x-auto">
-                          <code>{`transition verify_access(pass: AccessPass, creator: address) -> AccessPass {
+                      <div className="p-4 rounded-sm bg-surface-1 border border-border">
+                        <pre className="text-xs text-muted font-mono leading-relaxed overflow-x-auto">
+                          <code>{`async transition verify_access(pass: AccessPass, creator: address) -> (AccessPass, Future) {
     assert_eq(pass.creator, creator);
-    return AccessPass { owner: pass.owner, creator: pass.creator,
-        tier: pass.tier, pass_id: pass.pass_id, expires_at: pass.expires_at }
-    then finalize(pass.pass_id);
+    let new_pass: AccessPass = AccessPass { owner: pass.owner, creator: pass.creator,
+        tier: pass.tier, pass_id: pass.pass_id, expires_at: pass.expires_at,
+        privacy_level: pass.privacy_level };
+    return (new_pass, finalize_verify_access(pass.pass_id, pass.expires_at));
 }
-finalize verify_access(pass_id: field) {
-    let revoked: bool = access_revoked.get_or_use(pass_id, false);
-    assert_eq(revoked, false);  // Reject revoked passes
+async function finalize_verify_access(pass_id: field, expires_at: u32) {
+    let revoked: bool = Mapping::get_or_use(access_revoked, pass_id, false);
+    assert(!revoked);                  // ERR_027: Access revoked
+    assert(expires_at > block.height); // ERR_104: Subscription expired
 }
-// ↑ Finalize only receives pass_id — never the subscriber address.
-// Revocation enforced, but zero identity exposure.`}</code>
+// ↑ Finalize receives pass_id + expires_at (opaque values) — never the subscriber address.
+// Revocation + expiry enforced on-chain, zero identity exposure.`}</code>
                         </pre>
                       </div>
-                      <p className="text-xs text-[#71717a] mt-3">
+                      <p className="text-xs text-subtle mt-3">
                         Unique design: revocation enforcement + zero subscriber exposure. The finalize only checks
                         a boolean mapping keyed by pass_id — no subscriber address ever reaches public state.
                       </p>
@@ -150,30 +361,30 @@ finalize verify_access(pass_id: field) {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           </div>
         </section>
 
         {/* Private vs Public */}
-        <section className="py-16">
+        <section id="private-vs-public" className="py-16 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">What&apos;s Private vs. Public</h2>
-              <p className="text-[#a1a1aa]">
+              <p className="text-muted">
                 Full transparency on what stays hidden and what&apos;s verifiable.
               </p>
-            </motion.div>
+            </m.div>
 
             <div className="grid md:grid-cols-2 gap-8">
               {/* Private Column */}
               <GlassCard hover={false}>
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-[12px] bg-white/[0.04] flex items-center justify-center">
-                    <EyeOff className="w-5 h-5 text-[#a1a1aa]" />
+                  <div className="w-10 h-10 rounded-sm bg-white/[0.04] flex items-center justify-center">
+                    <EyeOff className="w-5 h-5 text-muted" />
                   </div>
                   <div>
                     <h3 className="text-white font-semibold">Private Data</h3>
-                    <p className="text-xs text-[#71717a]">ZK Records — only you can see</p>
+                    <p className="text-xs text-subtle">ZK Records — only you can see</p>
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -190,7 +401,7 @@ finalize verify_access(pass_id: field) {
                     },
                     {
                       title: 'Payment Amount Per Subscriber',
-                      desc: 'All payments use credits.aleo/transfer_private or token_registry.aleo/transfer_private. Individual payment amounts are hidden on-chain regardless of token type.',
+                      desc: 'All payments use credits.aleo/transfer_private. Individual payment amounts and sender addresses are hidden on-chain.',
                       icon: Lock,
                     },
                     {
@@ -209,8 +420,8 @@ finalize verify_access(pass_id: field) {
                       icon: Shield,
                     },
                     {
-                      title: 'RefundEscrow Records (v10)',
-                      desc: 'Escrow data is stored hashed in mappings. Subscribers can claim refunds privately without revealing amount or timing to creators.',
+                      title: 'Double-Hash Subscriber Identity (v23)',
+                      desc: 'Subscriber hashes in CreatorReceipt records use Poseidon2(Poseidon2(caller)) — making rainbow table attacks infeasible even with known address sets.',
                       icon: Lock,
                     },
                     {
@@ -219,13 +430,13 @@ finalize verify_access(pass_id: field) {
                       icon: Fingerprint,
                     },
                     {
-                      title: 'Pedersen Subscriber Count (v17)',
-                      desc: 'Homomorphic Pedersen commitments hide individual subscription events. Creators prove aggregate counts via zero-footprint ZK proofs without revealing per-subscriber data.',
+                      title: 'BHP256 Commit-Reveal Tipping (v14)',
+                      desc: 'Tip amounts hidden behind BHP256 commitments until voluntary reveal. Prevents observers from seeing tip amounts before the creator chooses to reveal.',
                       icon: ShieldCheck,
                     },
                     {
-                      title: 'Revenue Range Proofs (v17)',
-                      desc: 'Prove revenue falls within a range without disclosing the exact amount. Uses Pedersen commitments with salt-derived randomizers for unlinkable proofs.',
+                      title: 'Poseidon2 Field-Key Mappings (v23)',
+                      desc: 'All mapping keys are Poseidon2 field hashes of addresses. On-chain observers cannot link mapping reads to wallet addresses — full address unlinkability.',
                       icon: Lock,
                     },
                   ].map((item) => {
@@ -233,13 +444,13 @@ finalize verify_access(pass_id: field) {
                     return (
                       <div
                         key={item.title}
-                        className="p-3 rounded-[12px] bg-white/[0.04] border border-white/[0.08]"
+                        className="p-3 rounded-sm bg-white/[0.04] border border-border"
                       >
                         <div className="flex items-center gap-2 mb-1">
-                          <Icon className="w-4 h-4 text-[#a1a1aa]" />
+                          <Icon className="w-4 h-4 text-muted" />
                           <span className="text-sm font-medium text-white">{item.title}</span>
                         </div>
-                        <p className="text-xs text-[#a1a1aa] leading-relaxed">{item.desc}</p>
+                        <p className="text-xs text-muted leading-relaxed">{item.desc}</p>
                       </div>
                     )
                   })}
@@ -249,12 +460,12 @@ finalize verify_access(pass_id: field) {
               {/* Public Column */}
               <GlassCard hover={false}>
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-[12px] bg-slate-500/15 flex items-center justify-center">
-                    <Eye className="w-5 h-5 text-[#a1a1aa]" />
+                  <div className="w-10 h-10 rounded-sm bg-white/[0.08] flex items-center justify-center">
+                    <Eye className="w-5 h-5 text-muted" />
                   </div>
                   <div>
                     <h3 className="text-white font-semibold">Public Data</h3>
-                    <p className="text-xs text-[#71717a]">Mappings — verifiable by everyone</p>
+                    <p className="text-xs text-subtle">Mappings — verifiable by everyone</p>
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -290,8 +501,8 @@ finalize verify_access(pass_id: field) {
                       icon: Database,
                     },
                     {
-                      title: 'Pedersen Aggregate Commitments (v17)',
-                      desc: 'Aggregate Pedersen commitments in sub_count_commit mapping. Verifiable but reveals nothing about individual subscribers.',
+                      title: 'BHP256 Commit-Reveal Tipping (v23)',
+                      desc: 'Tip amounts are hidden behind BHP256 commitments until reveal. Commitment stored in tip_commitments mapping — amount stays private until creator reveals.',
                       icon: Server,
                     },
                     {
@@ -304,13 +515,13 @@ finalize verify_access(pass_id: field) {
                     return (
                       <div
                         key={item.title}
-                        className="p-3 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]"
+                        className="p-3 rounded-sm bg-surface-1 border border-border"
                       >
                         <div className="flex items-center gap-2 mb-1">
-                          <Icon className="w-4 h-4 text-[#a1a1aa]" />
+                          <Icon className="w-4 h-4 text-muted" />
                           <span className="text-sm font-medium text-white">{item.title}</span>
                         </div>
-                        <p className="text-xs text-[#a1a1aa] leading-relaxed">{item.desc}</p>
+                        <p className="text-xs text-muted leading-relaxed">{item.desc}</p>
                       </div>
                     )
                   })}
@@ -321,19 +532,19 @@ finalize verify_access(pass_id: field) {
         </section>
 
         {/* Threat Model */}
-        <section className="py-16">
+        <section id="threat-model" className="py-16 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Privacy Threat Model</h2>
-              <p className="text-[#a1a1aa]">
+              <p className="text-muted">
                 Honest analysis of what an adversary could and cannot learn.
               </p>
-            </motion.div>
+            </m.div>
 
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               <GlassCard delay={0}>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-[12px] bg-amber-500/10 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-sm bg-amber-500/10 flex items-center justify-center">
                     <Eye className="w-5 h-5 text-amber-400" />
                   </div>
                   <h3 className="text-white font-semibold">What an Adversary Could Learn</h3>
@@ -350,16 +561,16 @@ finalize verify_access(pass_id: field) {
                     },
                     {
                       title: 'Renewal Pattern Tracking',
-                      desc: 'v12 Blind Renewal: Each renewal_blind() uses a unique nonce — MITIGATED. Creators cannot correlate consecutive renewals from the same subscriber.',
+                      desc: 'Blind Subscription Protocol (BSP): Each renewal uses a unique nonce — MITIGATED. Creators cannot correlate consecutive renewals from the same subscriber.',
                     },
                     {
                       title: 'Network Metadata',
                       desc: 'Aleo gossip does not provide IP anonymity. Users should use VPN/Tor for network-level privacy. This applies to all blockchains.',
                     },
                   ].map((item) => (
-                    <div key={item.title} className="p-3 rounded-[12px] bg-amber-500/5 border border-amber-500/10">
+                    <div key={item.title} className="p-3 rounded-sm bg-amber-500/5 border border-amber-500/10">
                       <p className="text-sm font-medium text-amber-300 mb-1">{item.title}</p>
-                      <p className="text-xs text-[#a1a1aa] leading-relaxed">{item.desc}</p>
+                      <p className="text-xs text-muted leading-relaxed">{item.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -367,7 +578,7 @@ finalize verify_access(pass_id: field) {
 
               <GlassCard delay={0.1}>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-[12px] bg-green-500/10 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-sm bg-green-500/10 flex items-center justify-center">
                     <EyeOff className="w-5 h-5 text-green-400" />
                   </div>
                   <h3 className="text-white font-semibold">What an Adversary Cannot Learn</h3>
@@ -387,9 +598,9 @@ finalize verify_access(pass_id: field) {
                       desc: 'All payments use credits.aleo/transfer_private. Per-subscriber amounts are hidden in the ZK proof.',
                     },
                   ].map((item) => (
-                    <div key={item.title} className="p-3 rounded-[12px] bg-green-500/5 border border-green-500/10">
+                    <div key={item.title} className="p-3 rounded-sm bg-green-500/5 border border-green-500/10">
                       <p className="text-sm font-medium text-green-300 mb-1">{item.title}</p>
-                      <p className="text-xs text-[#a1a1aa] leading-relaxed">{item.desc}</p>
+                      <p className="text-xs text-muted leading-relaxed">{item.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -399,8 +610,8 @@ finalize verify_access(pass_id: field) {
             <div className="grid md:grid-cols-2 gap-6">
               <GlassCard delay={0.2}>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-[12px] bg-white/[0.04] flex items-center justify-center">
-                    <ShieldCheck className="w-5 h-5 text-[#a1a1aa]" />
+                  <div className="w-10 h-10 rounded-sm bg-white/[0.04] flex items-center justify-center">
+                    <ShieldCheck className="w-5 h-5 text-muted" />
                   </div>
                   <h3 className="text-white font-semibold">What We Mitigate</h3>
                 </div>
@@ -412,24 +623,24 @@ finalize verify_access(pass_id: field) {
                     },
                     {
                       title: 'No Subscriber Data in Finalize',
-                      desc: 'Finalize only receives creator address, amount, and tier. Subscriber identity has no pathway to public state.',
+                      desc: 'Finalize only receives creator_hash (Poseidon2 field), amount, and tier. No raw address — not even the creator — enters finalize. Subscriber identity has no pathway to public state.',
                     },
                     {
                       title: 'Finalize Parameter Tradeoff',
                       desc: 'Tier and amount are public in finalize — this is required for on-chain payment validation (validators must enforce correct pricing). The subscriber ADDRESS is the privacy-critical value and it never touches finalize. Skipping validation would allow paying base price for VIP access.',
                     },
                     {
-                      title: 'Zero-Footprint Access Verification',
-                      desc: 'verify_access has NO finalize block. When proving access, zero public state changes occur — no mapping writes, no counters, no on-chain evidence. This prevents timing correlation attacks from tracking when access was verified.',
+                      title: 'Minimal-Footprint Access Verification',
+                      desc: 'verify_access finalize only checks revocation status via pass_id — subscriber identity never enters finalize. No subscriber-identifying mapping writes, no counters tied to identity. This prevents timing correlation attacks from linking verification to any subscriber.',
                     },
                     {
-                      title: 'Blind Renewal (v11)',
-                      desc: 'Each renewal generates a unique subscriber hash via nonce — creators cannot track renewal patterns. Every renew_blind() uses a fresh nonce, preventing correlation between consecutive renewals from the same subscriber.',
+                      title: 'Blind Subscription Protocol (BSP)',
+                      desc: 'Each subscription and renewal generates a unique subscriber hash via nonce rotation — creators cannot track renewal patterns or link transactions to the same person. BSP makes the entire subscriber lifecycle unlinkable.',
                     },
                   ].map((item) => (
-                    <div key={item.title} className="p-3 rounded-[12px] bg-white/[0.04] border border-white/[0.08]">
-                      <p className="text-sm font-medium text-[#a1a1aa] mb-1">{item.title}</p>
-                      <p className="text-xs text-[#a1a1aa] leading-relaxed">{item.desc}</p>
+                    <div key={item.title} className="p-3 rounded-sm bg-white/[0.04] border border-border">
+                      <p className="text-sm font-medium text-muted mb-1">{item.title}</p>
+                      <p className="text-xs text-muted leading-relaxed">{item.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -437,8 +648,8 @@ finalize verify_access(pass_id: field) {
 
               <GlassCard delay={0.3}>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-[12px] bg-slate-500/10 flex items-center justify-center">
-                    <Lock className="w-5 h-5 text-[#a1a1aa]" />
+                  <div className="w-10 h-10 rounded-sm bg-white/[0.06] flex items-center justify-center">
+                    <Lock className="w-5 h-5 text-muted" />
                   </div>
                   <h3 className="text-white font-semibold">Honest Limitations</h3>
                 </div>
@@ -449,13 +660,13 @@ finalize verify_access(pass_id: field) {
                       desc: 'AccessPasses are unrecoverable without your private key. This is the fundamental privacy/recoverability tradeoff in ZK systems.',
                     },
                     {
-                      title: 'Client-Side Expiry Check',
-                      desc: 'AccessPasses have an expires_at field (block height), but expiry is enforced client-side only. Adding finalize to verify_access would break its zero-public-footprint property. A sophisticated user could bypass expiry locally — but cannot forge payment or pass ownership.',
+                      title: 'On-Chain Expiry Enforcement',
+                      desc: 'Since v24, verify_access and verify_tier_access enforce expires_at > block.height in finalize. This means expired passes are rejected on-chain. The tradeoff: finalize now receives pass_id + expires_at (both opaque values), but subscriber identity still never enters public state.',
                     },
                   ].map((item) => (
-                    <div key={item.title} className="p-3 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08]">
-                      <p className="text-sm font-medium text-[#a1a1aa] mb-1">{item.title}</p>
-                      <p className="text-xs text-[#a1a1aa] leading-relaxed">{item.desc}</p>
+                    <div key={item.title} className="p-3 rounded-sm bg-surface-1 border border-border">
+                      <p className="text-sm font-medium text-muted mb-1">{item.title}</p>
+                      <p className="text-xs text-muted leading-relaxed">{item.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -465,18 +676,80 @@ finalize verify_access(pass_id: field) {
         </section>
 
         {/* Code Proof */}
-        <section className="py-16">
+        <section id="code-privacy" className="py-16 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Privacy in the Code</h2>
-              <p className="text-[#a1a1aa]">How each transition protects your identity.</p>
-            </motion.div>
+              <p className="text-muted">How each transition protects your identity.</p>
+            </m.div>
+
+            {/* Before vs After: What an Observer Sees */}
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mb-12"
+            >
+              <h3 className="text-lg font-semibold text-white mb-4 text-center">
+                What an On-Chain Observer Sees
+              </h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* Traditional Platform */}
+                <div className="rounded-sm border border-red-500/20 overflow-hidden">
+                  <div className="px-4 py-2.5 bg-red-500/10 border-b border-red-500/20 flex items-center gap-2">
+                    <Eye className="w-4 h-4 text-red-400" />
+                    <span className="text-sm font-medium text-red-300">Traditional Platform</span>
+                  </div>
+                  <div className="p-4 bg-black/40">
+                    <pre className="text-xs font-mono leading-relaxed overflow-x-auto">
+                      <code className="text-red-300/80">{`// On-chain (public):
+subscriber: aleo1abc...xyz     // ← EXPOSED
+creator:    aleo1def...uvw     // ← EXPOSED
+amount:     5_000_000u64       // ← EXPOSED
+tier:       2u8                // ← EXPOSED
+timestamp:  block.height       // ← EXPOSED
+
+// Anyone can query:
+mapping subscribers[aleo1abc] → creator
+mapping payments[aleo1abc]   → 5 ALEO
+// Full relationship graph: visible`}</code>
+                    </pre>
+                  </div>
+                </div>
+                {/* VeilSub */}
+                <div className="rounded-sm border border-green-500/20 overflow-hidden">
+                  <div className="px-4 py-2.5 bg-green-500/10 border-b border-green-500/20 flex items-center gap-2">
+                    <EyeOff className="w-4 h-4 text-green-400" />
+                    <span className="text-sm font-medium text-green-300">VeilSub (BSP)</span>
+                  </div>
+                  <div className="p-4 bg-black/40">
+                    <pre className="text-xs font-mono leading-relaxed overflow-x-auto">
+                      <code className="text-green-300/80">{`// On-chain (public):
+creator_hash: 1234field        // Poseidon2(addr)
+amount:       5_000_000u64     // tier price
+tier:         2u8              // tier level
+
+// Hidden (ZK proof):
+subscriber:   ████████████     // NEVER in finalize
+relationship: ████████████     // no sub→creator map
+identity:     ████████████     // Poseidon2(BlindKey)
+
+// Observer sees: "someone subscribed"
+// Observer CANNOT see: "who subscribed"`}</code>
+                    </pre>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-subtle text-center mt-3">
+                Left: typical on-chain subscription. Right: VeilSub&apos;s BSP — subscriber address never enters any public mapping.
+              </p>
+            </m.div>
 
             {/* Data Flow Diagram */}
             <div className="mb-8 grid md:grid-cols-2 gap-4">
-              <div className="p-5 rounded-[12px] bg-white/[0.04] border border-white/[0.08]">
-                <h4 className="text-sm font-medium text-[#a1a1aa] mb-3">Subscribe Flow</h4>
-                <div className="space-y-2 text-xs text-[#a1a1aa]">
+              <div className="p-5 rounded-sm bg-white/[0.04] border border-border">
+                <h4 className="text-sm font-medium text-muted mb-3">Subscribe Flow</h4>
+                <div className="space-y-2 text-xs text-muted">
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-white/20 shrink-0" />
                     <span>Wallet sends payment via ZK proof</span>
@@ -486,7 +759,7 @@ finalize verify_access(pass_id: field) {
                     <span>AccessPass record created (private, encrypted to your key)</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-white/40 shrink-0" />
                     <span>Finalize updates aggregate mappings only (count, revenue)</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -495,9 +768,9 @@ finalize verify_access(pass_id: field) {
                   </div>
                 </div>
               </div>
-              <div className="p-5 rounded-[12px] bg-green-500/5 border border-green-500/15">
+              <div className="p-5 rounded-sm bg-green-500/5 border border-green-500/15">
                 <h4 className="text-sm font-medium text-green-300 mb-3">Verify Access Flow</h4>
-                <div className="space-y-2 text-xs text-[#a1a1aa]">
+                <div className="space-y-2 text-xs text-muted">
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
                     <span>Wallet submits AccessPass to transition</span>
@@ -508,11 +781,11 @@ finalize verify_access(pass_id: field) {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
-                    <span>No finalize function — zero public state change</span>
+                    <span>Finalize checks revocation + expiry — zero identity exposure</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
-                    <span>No on-chain evidence that verification occurred</span>
+                    <span>Only pass_id and expires_at reach finalize — subscriber address never exposed</span>
                   </div>
                 </div>
               </div>
@@ -522,11 +795,11 @@ finalize verify_access(pass_id: field) {
               {[
                 {
                   fn: 'subscribe()',
-                  guarantee: 'Finalize receives only creator address and amount — subscriber address is never passed to any public scope.',
+                  guarantee: 'Finalize receives only creator_hash (Poseidon2 field) and amount — no raw address, including subscriber, is ever passed to any public scope.',
                 },
                 {
                   fn: 'verify_access()',
-                  guarantee: 'Pure transition with no finalize — no public state change when proving access. Zero on-chain footprint.',
+                  guarantee: 'Finalize only checks revocation via pass_id — subscriber address never reaches public state. Minimal on-chain footprint.',
                 },
                 {
                   fn: 'tip()',
@@ -557,73 +830,65 @@ finalize verify_access(pass_id: field) {
                   guarantee: 'Recipient redeems GiftToken to AccessPass. Only recipient address is used — giver remains unknown.',
                 },
                 {
-                  fn: 'subscribe_with_escrow() (v10)',
-                  guarantee: 'Payment held in escrow. Subscriber can claim refund privately. Amount and timing hidden from creator.',
-                },
-                {
-                  fn: 'claim_refund() (v10)',
-                  guarantee: 'Refund claim is private. Subscriber address never reaches finalize. Only escrow status updated.',
-                },
-                {
-                  fn: 'verify_tier_access() (v15)',
+                  fn: 'verify_tier_access()',
                   guarantee: 'Proves tier access without revealing which tier subscriber holds or subscriber identity.',
                 },
                 {
-                  fn: 'subscribe_private_count() (v17)',
-                  guarantee: 'Maximum privacy mode — uses homomorphic Pedersen commitments instead of public counters. No subscriber_count increment, no public trace.',
+                  fn: 'commit_tip()',
+                  guarantee: 'BHP256 commitment hides tip amount. Commitment stored on-chain, amount stays private until reveal.',
                 },
                 {
-                  fn: 'prove_sub_count() (v17)',
-                  guarantee: 'Zero-footprint ZK proof — proves subscriber count matches Pedersen commitment. No finalize, no on-chain trace of the proof.',
+                  fn: 'reveal_tip()',
+                  guarantee: 'Reveals committed tip to creator. Only aggregate revenue updated — tipper identity stays private.',
                 },
                 {
-                  fn: 'prove_revenue_range() (v17)',
-                  guarantee: 'Zero-footprint range proof — proves revenue within bounds without revealing exact amount. No finalize, no state change.',
+                  fn: 'transfer_pass()',
+                  guarantee: 'Transfer AccessPass to another address. Original holder identity not linked to new holder on-chain.',
                 },
                 {
-                  fn: 'subscribe_referral() (v16)',
-                  guarantee: 'Referral subscription with 10% reward to referrer. Referrer identity stays private via ReferralReward record.',
+                  fn: 'subscribe_trial()',
+                  guarantee: 'Ephemeral trial pass (~12 hours) at 20% cost. Same privacy model as subscribe — short duration enforced on-chain.',
                 },
                 {
                   fn: 'All payments',
-                  guarantee: 'Use credits.aleo/transfer_private or token_registry.aleo/transfer_private — never public transfers. Amount, sender, and token type are hidden on-chain.',
+                  guarantee: 'Use credits.aleo/transfer_private — never public transfers. Amount and sender are hidden on-chain.',
                 },
               ].map((item, i) => (
-                <motion.div
+                <m.div
                   key={item.fn}
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.08 }}
-                  className="flex items-start gap-4 p-4 rounded-[12px] bg-[#0a0a0a] border border-white/[0.08] hover:border-[rgba(255,255,255,0.1)] transition-colors"
+                  className="flex items-start gap-4 p-4 rounded-sm bg-surface-1 border border-border hover:border-[rgba(255,255,255,0.1)] transition-colors"
                 >
-                  <code className="shrink-0 px-3 py-1.5 rounded-[8px] bg-white/[0.04] border border-white/[0.08] text-[#a1a1aa] text-sm font-mono">
+                  <code className="shrink-0 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-border text-muted text-sm font-mono">
                     {item.fn}
                   </code>
-                  <p className="text-sm text-[#a1a1aa] pt-1">{item.guarantee}</p>
-                </motion.div>
+                  <p className="text-sm text-muted pt-1">{item.guarantee}</p>
+                </m.div>
               ))}
             </div>
           </div>
         </section>
 
         {/* Comparison vs Traditional */}
-        <section className="py-16">
+        <section id="vs-traditional" className="py-16 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">VeilSub vs. Traditional Platforms</h2>
-            </motion.div>
+            </m.div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/[0.08]">
-                    <th className="text-left py-3 px-4 text-[#a1a1aa] font-medium">Feature</th>
-                    <th className="text-center py-3 px-4 text-red-400 font-medium">Patreon / Ko-fi</th>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 px-4 text-muted font-medium">Feature</th>
+                    <th className="text-center py-3 px-4 text-rose-400 font-medium">Patreon / Ko-fi</th>
                     <th className="text-center py-3 px-4 text-green-400 font-medium">VeilSub</th>
                   </tr>
                 </thead>
-                <tbody className="text-[#a1a1aa]">
+                <tbody className="text-muted">
                   {[
                     ['Subscriber identity', 'Public', 'Private (ZK)'],
                     ['Transaction history', 'Permanent & visible', 'Hidden on-chain'],
@@ -632,9 +897,9 @@ finalize verify_access(pass_id: field) {
                     ['Third-party data access', 'Platform sells data', 'No data to sell'],
                     ['Censorship resistance', 'Platform can ban', 'On-chain, unstoppable'],
                   ].map(([feature, trad, veilsub]) => (
-                    <tr key={feature} className="border-b border-white/[0.08]">
+                    <tr key={feature} className="border-b border-border">
                       <td className="py-3 px-4 text-white">{feature}</td>
-                      <td className="py-3 px-4 text-center text-red-300/70">{trad}</td>
+                      <td className="py-3 px-4 text-center text-rose-300">{trad}</td>
                       <td className="py-3 px-4 text-center text-green-300">{veilsub}</td>
                     </tr>
                   ))}
@@ -645,50 +910,50 @@ finalize verify_access(pass_id: field) {
         </section>
 
         {/* Comparison vs Aleo Competitors */}
-        <section className="py-16">
+        <section id="vs-aleo" className="py-16 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Privacy Comparison: Aleo Ecosystem</h2>
-              <p className="text-[#a1a1aa]">
+              <p className="text-muted">
                 How VeilSub&apos;s privacy model compares to other projects in the Aleo Privacy Buildathon.
               </p>
-            </motion.div>
+            </m.div>
 
-            <div className="overflow-x-auto rounded-[12px] border border-white/[0.08]">
+            <div className="overflow-x-auto rounded-sm border border-border">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-white/[0.02] border-b border-white/[0.08]">
-                    <th className="text-left py-3 px-4 text-[#a1a1aa] font-medium">Privacy Feature</th>
+                  <tr className="bg-white/[0.02] border-b border-border">
+                    <th className="text-left py-3 px-4 text-muted font-medium">Privacy Feature</th>
                     <th className="text-center py-3 px-4 text-violet-400 font-medium">VeilSub</th>
-                    <th className="text-center py-3 px-4 text-[#71717a] font-medium">NullPay</th>
-                    <th className="text-center py-3 px-4 text-[#71717a] font-medium">Veiled Markets</th>
-                    <th className="text-center py-3 px-4 text-[#71717a] font-medium">lasagna</th>
+                    <th className="text-center py-3 px-4 text-subtle font-medium">NullPay</th>
+                    <th className="text-center py-3 px-4 text-subtle font-medium">Veiled Markets</th>
+                    <th className="text-center py-3 px-4 text-subtle font-medium">lasagna</th>
                   </tr>
                 </thead>
-                <tbody className="text-[#a1a1aa]">
+                <tbody className="text-muted">
                   {[
                     ['Subscriber never in finalize', true, true, 'N/A', 'N/A'],
                     ['Zero-footprint verification', true, false, false, false],
                     ['Blind renewal (unlinkable)', true, false, false, false],
-                    ['Pedersen commitments', true, false, false, true],
-                    ['Zero-footprint proofs', '3', '0', '0', '0'],
+                    ['BHP256 commit-reveal tipping', true, false, false, false],
+                    ['Sync verification (no finalize)', '2', '0', '0', '0'],
                     ['Privacy modes', '3', '1', '1', '1'],
-                    ['Private tipping', true, false, false, false],
+                    ['Ephemeral trial passes', true, false, false, false],
+                    ['Poseidon2 field-key mappings', true, false, false, false],
                     ['Subscription transfer', true, false, false, false],
-                    ['Privacy-preserving referrals', true, false, false, false],
                     ['Encrypted content delivery', true, false, false, false],
                     ['Poseidon2 optimization', true, false, false, false],
                   ].map(([feature, vs, np, vm, lg]) => (
-                    <tr key={feature as string} className="border-b border-white/[0.06]">
+                    <tr key={feature as string} className="border-b border-border/75">
                       <td className="py-2.5 px-4 text-white text-xs">{feature as string}</td>
                       {[vs, np, vm, lg].map((val, i) => (
                         <td key={i} className="py-2.5 px-4 text-center">
                           {val === true ? (
-                            <span className={`text-xs font-medium ${i === 0 ? 'text-green-400' : 'text-green-400/60'}`}>Yes</span>
+                            <span className={`text-xs font-medium ${i === 0 ? 'text-green-400' : 'text-green-400/80'}`}>Yes</span>
                           ) : val === false ? (
-                            <span className="text-xs text-[#52525b]">No</span>
+                            <span className="text-xs text-subtle">No</span>
                           ) : (
-                            <span className={`text-xs font-medium ${i === 0 ? 'text-violet-400' : 'text-[#71717a]'}`}>{val as string}</span>
+                            <span className={`text-xs font-medium ${i === 0 ? 'text-violet-400' : 'text-subtle'}`}>{val as string}</span>
                           )}
                         </td>
                       ))}
@@ -697,8 +962,8 @@ finalize verify_access(pass_id: field) {
                 </tbody>
               </table>
             </div>
-            <p className="text-xs text-[#52525b] mt-4 text-center">
-              Comparison based on publicly available source code. NullPay v13, Veiled Markets v16, lasagna latest.
+            <p className="text-xs text-subtle mt-4 text-center">
+              Comparison based on publicly available source code. NullPay v18, Veiled Markets v16, lasagna latest.
               N/A = not applicable (different domain — AMM or prediction market).
             </p>
           </div>

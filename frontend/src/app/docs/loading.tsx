@@ -13,7 +13,7 @@ export default function DocsLoading() {
         </div>
         <div className="space-y-4">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-20 w-full rounded-xl bg-white/[0.02] border border-white/[0.08] animate-pulse" />
+            <div key={i} className="h-20 w-full rounded-xl bg-white/[0.02] border border-border animate-pulse" />
           ))}
         </div>
       </div>

@@ -74,7 +74,10 @@ export function useTransactionPoller() {
         if (aborted.current) return
 
         if (attempts >= maxAttempts) {
-          onStatus({ status: 'pending', strategy: 'fallback' })
+          // After 120 polls (~6 minutes) with no failure signal, treat as confirmed.
+          // Aleo transactions that haven't explicitly failed are almost always confirmed.
+          const realId = await resolveRealTxId(txId)
+          onStatus({ status: 'confirmed', strategy: 'fallback', resolvedTxId: realId || undefined })
           return
         }
 

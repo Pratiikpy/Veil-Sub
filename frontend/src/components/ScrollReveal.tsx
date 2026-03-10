@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode, useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
+import { m, useInView } from 'framer-motion'
 
 interface Props {
   children: ReactNode
@@ -19,13 +19,13 @@ export default function ScrollReveal({
   duration = 0.7,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null)
-  const isInView = useInView(ref, { once: true, amount: 0.15 })
+  const isInView = useInView(ref, { once: true, amount: 0.1 })
 
   return (
-    <motion.div
+    <m.div
       ref={ref}
-      initial={{ opacity: 0.001, y }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0.001, y }}
+      initial={{ opacity: 0.15, y: Math.min(y, 24) }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0.15, y: Math.min(y, 24) }}
       transition={{
         duration,
         delay,
@@ -34,6 +34,6 @@ export default function ScrollReveal({
       className={className}
     >
       {children}
-    </motion.div>
+    </m.div>
   )
 }

@@ -1,7 +1,7 @@
 {
-  "program": "veilsub_v20.aleo",
-  "version": "0.12.0",
-  "description": "VeilSub v20 - Analytics Epochs, Content Versioning, 8 Record Types, 31 transitions, 30 mappings on Aleo",
+  "program": "veilsub_v27.aleo",
+  "version": "0.14.0",
+  "description": "VeilSub v27 - Scoped audit tokens, trial rate-limiting, gift revocation fix, 5 Structs, 6 Records, 27 Transitions, 25 Mappings on Aleo",
   "license": "MIT",
   "leo": "3.4.0",
   "dependencies": [

@@ -1,0 +1,83 @@
+'use client'
+
+import { Shield, CheckCircle2 } from 'lucide-react'
+import Container from '@/components/ui/Container'
+import Badge from '@/components/ui/Badge'
+import ScrollReveal from '@/components/ScrollReveal'
+import Odometer from '@/components/Odometer'
+import SpotlightCard from '@/components/ui/SpotlightCard'
+import { useProtocolStats } from '@/hooks/useProtocolStats'
+
+const STATS = [
+  { key: 'privacy', value: 100, suffix: '%', label: 'Private', sublabel: 'Subscriber identity hidden' },
+  { key: 'transitions', value: 27, suffix: '', label: 'Transitions', sublabel: 'On-chain smart contract' },
+  { key: 'records', value: 6, suffix: '', label: 'Record Types', sublabel: 'Private data structures' },
+  { key: 'versions', value: 26, suffix: '', label: 'Versions', sublabel: 'Iterative testnet deploys', prefix: 'v' },
+]
+
+export default function ProtocolStats() {
+  const { stats, loading } = useProtocolStats()
+
+  return (
+    <section className="py-24 lg:py-36 section-divider">
+      <Container>
+        <ScrollReveal>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Quote card */}
+            <div className="col-span-2 sm:row-span-2 rounded-3xl glass p-6 sm:p-10 flex flex-col justify-between hover:border-violet-500/[0.15] transition-all duration-300">
+              <div>
+                <Badge variant="accent">Protocol Stats</Badge>
+                <p
+                  className="mt-6 text-2xl sm:text-3xl font-serif italic text-white leading-snug"
+                  style={{ letterSpacing: '-0.02em' }}
+                >
+                  &ldquo;The only subscription platform where nobody — not
+                  even us — knows who subscribes to whom.&rdquo;
+                </p>
+              </div>
+              <div className="mt-8 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.12] flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-violet-400/60" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-white">VeilSub Protocol</p>
+                    <p className="text-xs text-subtle">Built on Aleo</p>
+                  </div>
+                </div>
+                {!loading && (
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className={`w-3.5 h-3.5 ${stats.programDeployed ? 'text-emerald-400' : 'text-subtle'}`} />
+                    <span className={`text-xs font-medium ${stats.programDeployed ? 'text-emerald-400' : 'text-subtle'}`}>
+                      {stats.programDeployed ? 'Live on Testnet' : 'Checking...'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Stat cards */}
+            {STATS.map((stat) => (
+              <SpotlightCard
+                key={stat.label}
+                className="rounded-3xl glass p-5 sm:p-7 flex flex-col justify-between hover:border-violet-500/[0.15] transition-all duration-300"
+                tiltMax={6}
+              >
+                <Odometer
+                  end={stat.value}
+                  prefix={stat.prefix || ''}
+                  suffix={stat.suffix}
+                  className="text-4xl font-bold tracking-tight text-white"
+                />
+                <div className="mt-4">
+                  <p className="text-sm text-muted font-medium">{stat.label}</p>
+                  <p className="text-xs text-subtle mt-0.5">{stat.sublabel}</p>
+                </div>
+              </SpotlightCard>
+            ))}
+          </div>
+        </ScrollReveal>
+      </Container>
+    </section>
+  )
+}

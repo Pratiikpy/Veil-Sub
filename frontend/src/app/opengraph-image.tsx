@@ -94,10 +94,10 @@ export default function OGImage() {
           }}
         >
           {[
-            { value: '31', label: 'Transitions' },
-            { value: '30', label: 'Mappings' },
-            { value: '8', label: 'Record Types' },
-            { value: 'v15', label: 'On Testnet' },
+            { value: '27', label: 'Transitions' },
+            { value: '24', label: 'Mappings' },
+            { value: '6', label: 'Record Types' },
+            { value: 'v26', label: 'Deployed' },
           ].map((stat) => (
             <div key={stat.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div style={{ fontSize: 28, fontWeight: 700, color: '#c4b5fd' }}>{stat.value}</div>
@@ -124,7 +124,7 @@ export default function OGImage() {
               color: '#c4b5fd',
             }}
           >
-            Zero-Knowledge Privacy · 1,750+ Lines of Leo
+            Zero-Knowledge Privacy · Zero Addresses in Finalize · v26 Deployed
           </div>
         </div>
       </div>

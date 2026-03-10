@@ -24,12 +24,12 @@ export default function SectionHeader({
       )}
       <h2
         className="text-3xl sm:text-4xl font-serif italic text-white"
-        style={{ letterSpacing: '-1px', lineHeight: 1.15 }}
+        style={{ letterSpacing: '-0.025em', lineHeight: 1.15 }}
       >
         {title}
       </h2>
       {subtitle && (
-        <p className="mt-4 text-base text-[#a1a1aa] max-w-xl leading-relaxed mx-auto">
+        <p className="mt-4 text-base text-muted max-w-xl leading-relaxed mx-auto">
           {subtitle}
         </p>
       )}

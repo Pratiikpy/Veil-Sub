@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { motion } from 'framer-motion'
-import { Lock, Unlock, Star, MessageSquare, Crown, Shield, RefreshCw, Loader2, FileText, ArrowRight, Flag } from 'lucide-react'
+import { m } from 'framer-motion'
+import { Lock, Unlock, Star, MessageSquare, Crown, Shield, RefreshCw, Loader2, FileText, ArrowRight, Flag, Image as ImageIcon } from 'lucide-react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useContentFeed } from '@/hooks/useContentFeed'
-import DisputeContentModal from './DisputeContentModal'
+import dynamic from 'next/dynamic'
+const DisputeContentModal = dynamic(() => import('./DisputeContentModal'), { ssr: false })
 import type { AccessPass, ContentPost } from '@/types'
 
 interface Props {
@@ -70,7 +71,7 @@ function LoadingSkeleton() {
       {[1, 2, 3].map((i) => (
         <div
           key={i}
-          className="rounded-[12px] border border-white/[0.05] bg-white/[0.01] p-5 animate-pulse"
+          className="rounded-sm border border-white/[0.05] bg-white/[0.01] p-5 animate-pulse"
         >
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-lg bg-white/[0.05]" />
@@ -78,8 +79,8 @@ function LoadingSkeleton() {
             <div className="w-16 h-5 rounded-full bg-white/[0.05]" />
           </div>
           <div className="space-y-2">
-            <div className="h-3 rounded bg-[#0a0a0a] w-full" />
-            <div className="h-3 rounded bg-[#0a0a0a] w-3/4" />
+            <div className="h-3 rounded bg-surface-1 w-full" />
+            <div className="h-3 rounded bg-surface-1 w-3/4" />
           </div>
         </div>
       ))}
@@ -95,6 +96,8 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   const [unlockingIds, setUnlockingIds] = useState<Set<string>>(new Set())
   const unlockingRef = useRef(new Set<string>())
   const failedUnlocksRef = useRef(new Set<string>())
+  const [failedUnlocks, setFailedUnlocks] = useState(new Set<string>())
+  const [unlockedImages, setUnlockedImages] = useState<Record<string, string>>({})
   const unlockedBodiesRef = useRef<Record<string, string>>({})
   const signMessageRef = useRef(signMessage)
   const unlockRunningRef = useRef(false)
@@ -167,7 +170,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
             }
           : null
 
-        const body = await unlockPost(post.id, creatorAddress, walletAddress, activePassesRef.current, wrappedSign)
+        const result = await unlockPost(post.id, creatorAddress, walletAddress, activePassesRef.current, wrappedSign)
 
         // Always clean up and process result — never discard a completed sign
         unlockingRef.current.delete(post.id)
@@ -177,10 +180,14 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
           return next
         })
 
-        if (body) {
-          setUnlockedBodies((prev) => ({ ...prev, [post.id]: body }))
+        if (result) {
+          setUnlockedBodies((prev) => ({ ...prev, [post.id]: result.body }))
+          if (result.imageUrl) {
+            setUnlockedImages((prev) => ({ ...prev, [post.id]: result.imageUrl! }))
+          }
         } else {
           failedUnlocksRef.current.add(post.id)
+          setFailedUnlocks((prev) => new Set(prev).add(post.id))
         }
       }
       unlockRunningRef.current = false
@@ -190,23 +197,65 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [posts, highestTier, walletAddress, creatorAddress])
 
+  const retryUnlock = useCallback(async (post: ContentPost) => {
+    if (!walletAddress || unlockingRef.current.has(post.id)) return
+    // Remove from failed set
+    failedUnlocksRef.current.delete(post.id)
+    setFailedUnlocks((prev) => {
+      const next = new Set(prev)
+      next.delete(post.id)
+      return next
+    })
+    // Mark as unlocking
+    unlockingRef.current.add(post.id)
+    setUnlockingIds((prev) => new Set(prev).add(post.id))
+
+    const currentSign = signMessageRef.current
+    const wrappedSign = currentSign
+      ? async (msg: Uint8Array) => {
+          const result = await currentSign(msg)
+          if (!result) throw new Error('Signing cancelled')
+          return result
+        }
+      : null
+
+    const result = await unlockPost(post.id, creatorAddress, walletAddress, activePassesRef.current, wrappedSign)
+
+    unlockingRef.current.delete(post.id)
+    setUnlockingIds((prev) => {
+      const next = new Set(prev)
+      next.delete(post.id)
+      return next
+    })
+
+    if (result) {
+      setUnlockedBodies((prev) => ({ ...prev, [post.id]: result.body }))
+      if (result.imageUrl) {
+        setUnlockedImages((prev) => ({ ...prev, [post.id]: result.imageUrl! }))
+      }
+    } else {
+      failedUnlocksRef.current.add(post.id)
+      setFailedUnlocks((prev) => new Set(prev).add(post.id))
+    }
+  }, [walletAddress, creatorAddress, unlockPost])
+
   return (
     <div>
       <h2 className="text-lg font-semibold text-white mb-2">
         Exclusive Content
       </h2>
-      <p className="text-xs text-[#71717a] mb-4">
+      <p className="text-xs text-subtle mb-4">
         Content is server-gated — locked posts are never sent to your browser until your AccessPass is verified.
       </p>
 
       {initialLoad && loading ? (
         <LoadingSkeleton />
       ) : error ? (
-        <div className="p-6 rounded-[12px] border border-red-500/20 bg-red-500/5 text-center">
+        <div className="p-6 rounded-sm border border-red-500/20 bg-red-500/5 text-center">
           <p className="text-sm text-red-400 mb-3">Failed to load posts</p>
           <button
             onClick={fetchPosts}
-            className="px-4 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-white hover:bg-white/[0.08] transition-colors inline-flex items-center gap-2"
+            className="px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] transition-colors inline-flex items-center gap-2"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Retry
@@ -215,10 +264,10 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       ) : (
         <div className="space-y-4">
           {posts.length === 0 && (
-            <div className="p-8 rounded-[12px] bg-[#0a0a0a] border border-white/[0.05] text-center">
-              <FileText className="w-10 h-10 text-slate-700 mx-auto mb-3" />
+            <div className="p-8 rounded-sm bg-surface-1 border border-white/[0.05] text-center">
+              <FileText className="w-10 h-10 text-subtle mx-auto mb-3" />
               <h3 className="text-white font-medium mb-1">No Posts Yet</h3>
-              <p className="text-sm text-[#71717a]">
+              <p className="text-sm text-subtle">
                 This creator hasn&apos;t published any exclusive content yet. Check back soon!
               </p>
             </div>
@@ -227,18 +276,21 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
             const tier = tierConfig[post.minTier] || tierConfig[1]
             const hasAccess = highestTier >= post.minTier
             const unlockedBody = unlockedBodies[post.id]
+            const unlockedImage = unlockedImages[post.id]
             const isUnlocking = unlockingIds.has(post.id)
+            const isFailed = failedUnlocks.has(post.id)
             const displayBody = unlockedBody || post.body
+            const displayImage = unlockedImage || post.imageUrl
             const unlocked = hasAccess && displayBody != null
             const Icon = tier.icon
 
             return (
-              <motion.div
+              <m.div
                 key={post.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
-                className={`relative rounded-[12px] border overflow-hidden ${
+                className={`relative rounded-sm border overflow-hidden ${
                   unlocked
                     ? `${tier.border} ${tier.bg}`
                     : 'border-white/5 bg-white/[0.01]'
@@ -254,15 +306,15 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       {unlocked ? (
                         <Icon className={`w-4 h-4 ${tier.text}`} />
                       ) : isUnlocking ? (
-                        <Loader2 className="w-4 h-4 text-[#a1a1aa] animate-spin" />
+                        <Loader2 className="w-4 h-4 text-muted animate-spin" />
                       ) : (
-                        <Lock className="w-4 h-4 text-slate-600" />
+                        <Lock className="w-4 h-4 text-subtle" />
                       )}
                     </div>
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <h3
                         className={`font-medium truncate ${
-                          unlocked ? 'text-white' : 'text-[#71717a]'
+                          unlocked ? 'text-white' : 'text-subtle'
                         }`}
                       >
                         {post.title}
@@ -271,7 +323,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                         className={`px-2 py-0.5 rounded-full text-xs border shrink-0 ${
                           unlocked
                             ? `${tier.text} ${tier.lockBg} ${tier.border}`
-                            : 'text-slate-600 bg-[#0a0a0a] border-white/[0.08]'
+                            : 'text-subtle bg-surface-1 border-border'
                         }`}
                       >
                         {tier.name}
@@ -282,32 +334,76 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     )}
                   </div>
 
+                  {/* Gated image placeholder — shown when post has image but content is locked */}
+                  {!unlocked && post.hasImage && !isUnlocking && (
+                    <div className="mb-3 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-28">
+                      <div className="flex items-center gap-2 text-subtle">
+                        <ImageIcon className="w-5 h-5" />
+                        <span className="text-xs">Image content — subscribe to view</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Unlocked image */}
+                  {unlocked && displayImage && (
+                    <div className="mb-3 rounded-lg overflow-hidden border border-white/[0.06]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={displayImage}
+                        alt={post.title}
+                        className="w-full max-h-72 object-cover"
+                        loading="lazy"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                      />
+                    </div>
+                  )}
+
                   {unlocked && displayBody ? (
-                    <p className="text-sm text-[#a1a1aa] leading-relaxed">
+                    <p className="text-sm text-muted leading-relaxed">
                       {displayBody}
                     </p>
                   ) : isUnlocking ? (
                     <div className="flex items-center gap-2 py-3">
                       <Loader2 className="w-4 h-4 text-violet-400 animate-spin" />
-                      <p className="text-sm text-[#a1a1aa]">Verifying access pass...</p>
+                      <p className="text-sm text-muted">Verifying access pass...</p>
+                    </div>
+                  ) : isFailed && hasAccess ? (
+                    <div className="flex items-center gap-3 py-3">
+                      <p className="text-sm text-red-400/80">Unlock failed</p>
+                      <button
+                        onClick={() => retryUnlock(post)}
+                        className="px-3 py-1 rounded-lg text-xs font-medium bg-white/[0.05] border border-border text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all inline-flex items-center gap-1.5"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        Retry unlock
+                      </button>
                     </div>
                   ) : (
                     <div className="py-3">
-                      {/* Blurred placeholder lines */}
-                      <div className="space-y-2 mb-4">
-                        <div className="h-3 rounded bg-gradient-to-r from-white/[0.06] to-white/[0.02] w-full blur-sm" />
-                        <div className="h-3 rounded bg-gradient-to-r from-white/[0.05] to-white/[0.02] w-[85%] blur-sm" />
-                        <div className="h-3 rounded bg-gradient-to-r from-white/[0.04] to-white/[0.01] w-[60%] blur-sm" />
-                      </div>
+                      {/* Preview text for non-subscribers */}
+                      {post.preview ? (
+                        <div className="mb-4">
+                          <p className="text-sm text-muted/80 leading-relaxed italic">
+                            {post.preview}
+                          </p>
+                          <div className="mt-2 h-px bg-gradient-to-r from-white/[0.08] via-white/[0.04] to-transparent" />
+                        </div>
+                      ) : (
+                        <div className="space-y-2 mb-4">
+                          <div className="h-3 rounded bg-gradient-to-r from-white/[0.06] to-white/[0.02] w-full blur-sm" />
+                          <div className="h-3 rounded bg-gradient-to-r from-white/[0.05] to-white/[0.02] w-[85%] blur-sm" />
+                          <div className="h-3 rounded bg-gradient-to-r from-white/[0.04] to-white/[0.01] w-[60%] blur-sm" />
+                        </div>
+                      )}
                       {/* Pulsing lock icon */}
                       <div className="flex flex-col items-center gap-3">
-                        <motion.div
+                        <m.div
                           animate={{ scale: [1, 1.1, 1] }}
                           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                           className={`w-10 h-10 rounded-full flex items-center justify-center ${tier.lockBg}`}
                         >
                           <Lock className={`w-4.5 h-4.5 ${tier.text}`} />
-                        </motion.div>
+                        </m.div>
                         <button
                           className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${tier.lockBg} ${tier.text} border ${tier.border} hover:brightness-125`}
                           disabled
@@ -317,7 +413,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                             : 'Connect wallet to unlock'}
                           <ArrowRight className="w-3 h-3" />
                         </button>
-                        <p className="text-xs text-slate-600">
+                        <p className="text-xs text-subtle">
                           Content is server-protected — not visible in network requests
                         </p>
                       </div>
@@ -326,7 +422,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
                   <div className="flex items-center justify-between mt-2">
                     {post.contentId !== 'seed' && (
-                      <p className="text-xs text-slate-600">
+                      <p className="text-xs text-subtle">
                         Published on-chain
                       </p>
                     )}
@@ -334,29 +430,30 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       {unlocked && post.contentId !== 'seed' && (
                         <button
                           onClick={() => setDisputePost({ contentId: post.contentId, title: post.title })}
-                          className="text-xs text-slate-600 hover:text-red-400 transition-colors flex items-center gap-1"
+                          className="text-xs text-subtle hover:text-red-400 transition-colors flex items-center gap-1"
                         >
                           <Flag className="w-3 h-3" />
                           Dispute
                         </button>
                       )}
                       {post.createdAt && (
-                        <p className="text-xs text-slate-600">
+                        <p className="text-xs text-subtle">
                           {timeAgo(post.createdAt)}
+                          {post.updatedAt && ' (edited)'}
                         </p>
                       )}
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             )
           })}
         </div>
       )}
       <div className="mt-4 p-3 rounded-lg bg-violet-500/5 border border-violet-500/10">
         <div className="flex items-center gap-2">
-          <Shield className="w-3.5 h-3.5 text-[#a1a1aa] shrink-0" />
-          <p className="text-xs text-[#71717a]">
+          <Shield className="w-3.5 h-3.5 text-muted shrink-0" />
+          <p className="text-xs text-subtle">
             Gated content is server-protected. Bodies are only delivered after AccessPass verification — never exposed in network requests.
           </p>
         </div>

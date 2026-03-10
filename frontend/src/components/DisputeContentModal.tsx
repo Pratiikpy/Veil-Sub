@@ -1,14 +1,16 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, Flag, Shield, AlertTriangle } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { m, AnimatePresence } from 'framer-motion'
+import { X, Flag, Shield } from 'lucide-react'
 import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
+import { useTransactionFlow } from '@/hooks/useTransactionFlow'
+import { useFocusTrap } from '@/hooks/useFocusTrap'
+import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
 import TransactionStatus from './TransactionStatus'
 import Button from './ui/Button'
-import type { TxStatus } from '@/types'
 
 interface Props {
   isOpen: boolean
@@ -35,27 +37,28 @@ export default function DisputeContentModal({
 }: Props) {
   const { disputeContent, connected } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
-  const [selectedReason, setSelectedReason] = useState<string | null>(null)
-  const [txStatus, setTxStatus] = useState<TxStatus>('idle')
-  const [txId, setTxId] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const submittingRef = useRef(false)
+  const {
+    txStatus, setTxStatus, txId, setTxId,
+    error, setError, submittingRef, handleClose,
+  } = useTransactionFlow({ isOpen, onClose, connected, stopPolling })
+  const focusTrapRef = useFocusTrap(isOpen, handleClose)
 
-  useEffect(() => {
-    if (!isOpen) return
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [isOpen, onClose])
+  const [selectedReason, setSelectedReason] = useState<string | null>(null)
+  const reasonGroupRef = useRef<HTMLDivElement>(null)
+  useRovingTabIndex(reasonGroupRef)
 
   const handleDispute = async () => {
-    if (!connected || submittingRef.current || !selectedReason) return
+    if (!selectedReason) {
+      setError('Please select a reason for the dispute.')
+      return
+    }
+    if (!connected || submittingRef.current) return
     submittingRef.current = true
     setTxStatus('signing')
     setError(null)
 
     try {
-      const result = await disputeContent(contentId)
+      const result = await disputeContent(accessPassPlaintext, contentId)
       if (result) {
         setTxId(result)
         setTxStatus('broadcasting')
@@ -70,39 +73,39 @@ export default function DisputeContentModal({
           }
         })
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setTxStatus('failed')
-      setError(err?.message || 'Dispute failed')
+      setError(err instanceof Error ? err.message : 'Dispute failed')
       toast.error('Dispute failed')
     } finally {
       submittingRef.current = false
     }
   }
 
-  if (!isOpen) return null
-
   return (
     <AnimatePresence>
-      <motion.div
+      {isOpen && (
+      <m.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center px-4"
+        className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh] overflow-y-auto"
       >
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-        <motion.div
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+        <m.div
+          ref={focusTrapRef}
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
           role="dialog"
           aria-modal="true"
           aria-label="Dispute content"
-          className="relative w-full max-w-md rounded-3xl bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/[0.08] p-8 shadow-2xl"
+          className="relative w-full max-w-md rounded-sm bg-surface-1 border border-border p-6 shadow-2xl"
         >
           <button
-            onClick={onClose}
+            onClick={handleClose}
             aria-label="Close dispute modal"
-            className="absolute top-5 right-5 text-[#71717a] hover:text-white transition-colors"
+            className="absolute top-5 right-5 text-subtle hover:text-white active:scale-[0.9] transition-all"
           >
             <X className="w-5 h-5" />
           </button>
@@ -114,15 +117,15 @@ export default function DisputeContentModal({
             </div>
             <div>
               <h3 className="text-lg font-semibold text-white">Dispute Content</h3>
-              <p className="text-xs text-[#71717a] truncate max-w-[280px]">{contentTitle}</p>
+              <p className="text-xs text-subtle truncate max-w-[280px]">{contentTitle}</p>
             </div>
           </div>
 
           {/* Sybil protection notice */}
-          <div className="rounded-2xl bg-violet-500/[0.04] border border-violet-500/[0.1] p-4 mb-6">
+          <div className="rounded-xl bg-surface-2 border border-border p-4 mb-6">
             <div className="flex gap-2">
               <Shield className="w-4 h-4 text-violet-400/60 mt-0.5 shrink-0" />
-              <p className="text-xs text-[#a1a1aa] leading-relaxed">
+              <p className="text-xs text-muted leading-relaxed">
                 Disputes are Sybil-protected: only verified subscribers can dispute,
                 limited to 1 dispute per content per address. Your AccessPass proves eligibility
                 without revealing your identity.
@@ -132,18 +135,21 @@ export default function DisputeContentModal({
 
           {/* Reason selection */}
           <div className="mb-6">
-            <label className="block text-xs text-[#a1a1aa] font-medium uppercase tracking-wider mb-3">
+            <label id="dispute-reason-label" className="block text-xs text-muted font-medium uppercase tracking-wider mb-3">
               Reason for Dispute
             </label>
-            <div className="space-y-2">
-              {DISPUTE_REASONS.map((reason) => (
+            <div ref={reasonGroupRef} className="space-y-2" role="radiogroup" aria-labelledby="dispute-reason-label">
+              {DISPUTE_REASONS.map((reason, index) => (
                 <button
                   key={reason.id}
+                  role="radio"
+                  aria-checked={selectedReason === reason.id}
+                  tabIndex={selectedReason === reason.id || (selectedReason === null && index === 0) ? 0 : -1}
                   onClick={() => setSelectedReason(reason.id)}
-                  className={`w-full text-left px-4 py-3 rounded-xl border text-sm transition-all duration-200 ${
+                  className={`w-full text-left px-4 py-3 rounded-lg border text-sm transition-all ${
                     selectedReason === reason.id
                       ? 'bg-violet-500/[0.08] border-violet-500/[0.2] text-white'
-                      : 'bg-black/20 border-white/[0.06] text-[#71717a] hover:border-white/[0.12] hover:text-[#a1a1aa]'
+                      : 'bg-white/[0.05] border-border text-subtle hover:border-violet-500/20 hover:text-muted'
                   }`}
                 >
                   {reason.label}
@@ -155,17 +161,17 @@ export default function DisputeContentModal({
           {/* Status */}
           {txStatus !== 'idle' && (
             <div className="mb-4">
-              <TransactionStatus status={txStatus} txId={txId} />
+              <TransactionStatus status={txStatus} txId={txId} errorMessage={error} />
             </div>
           )}
 
           {error && (
-            <p className="text-xs text-red-400 mb-4">{error}</p>
+            <p className="text-xs text-red-400 mb-4" role="alert">{error}</p>
           )}
 
           {/* Actions */}
           <div className="flex gap-3">
-            <Button variant="secondary" onClick={onClose} className="flex-1">
+            <Button variant="secondary" onClick={handleClose} className="flex-1">
               Cancel
             </Button>
             <Button
@@ -176,8 +182,9 @@ export default function DisputeContentModal({
               {txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Submitting...' : 'Submit Dispute'}
             </Button>
           </div>
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
+      )}
     </AnimatePresence>
   )
 }

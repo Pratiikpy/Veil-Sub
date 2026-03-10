@@ -32,12 +32,18 @@ export async function POST(req: NextRequest) {
     }
 
     // Wallet signature verification: required for content unlock.
-    // Full Aleo ed25519 on-curve verification is planned for post-hackathon.
-    // The signature proves the caller invoked wallet.signMessage() — which requires
-    // possession of the wallet's private key. Combined with walletHash verification,
-    // this prevents fabricated requests from scripts without wallet access.
-    if (!signature || typeof signature !== 'string' || signature.length < 20) {
+    // Full Aleo ed25519 on-curve verification requires @provablehq/sdk (post-hackathon).
+    // We validate format + decoded byte length (64+ for ed25519) to reject trivially-forged strings.
+    if (!signature || typeof signature !== 'string' || !/^[A-Za-z0-9+/=]+$/.test(signature)) {
       return NextResponse.json({ error: 'Wallet signature required' }, { status: 403 })
+    }
+    try {
+      const decoded = Uint8Array.from(atob(signature), c => c.charCodeAt(0))
+      if (decoded.length < 64) {
+        return NextResponse.json({ error: 'Wallet signature too short' }, { status: 403 })
+      }
+    } catch {
+      return NextResponse.json({ error: 'Invalid signature encoding' }, { status: 403 })
     }
 
     // Validate timestamp type to prevent NaN comparison bypass
@@ -53,9 +59,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Rate limited' }, { status: 429 })
     }
 
-    // Verify timestamp is recent (within 5 minutes) to prevent replay
+    // Verify timestamp is recent (within 2 minutes) to limit replay attacks
     const now = Date.now()
-    if (Math.abs(now - timestamp) > 5 * 60 * 1000) {
+    if (Math.abs(now - timestamp) > 2 * 60 * 1000) {
       return NextResponse.json({ error: 'Request expired' }, { status: 403 })
     }
 
@@ -111,10 +117,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Insufficient access' }, { status: 403 })
     }
 
-    // Access granted — return the full post body
+    // Access granted — return the full post body + image
     return NextResponse.json({
       postId: post.id,
       body: post.body,
+      imageUrl: post.imageUrl || null,
     })
   } catch (err) {
     console.error('[API /posts/unlock]', err)

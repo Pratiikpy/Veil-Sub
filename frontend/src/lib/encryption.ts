@@ -18,12 +18,10 @@ function getEncryptionKey(): string {
     _cachedKey = key
     return key
   }
-  // In production runtime (not build), warn loudly about missing key
   if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
-    console.error('[encryption] CRITICAL: SUPABASE_ENCRYPTION_KEY not set in production — using dev fallback')
-  } else if (typeof window === 'undefined') {
-    console.warn('[encryption] SUPABASE_ENCRYPTION_KEY not set — using dev fallback')
+    throw new Error('[encryption] SUPABASE_ENCRYPTION_KEY must be set in production')
   }
+  // Dev-only fallback — never runs in production
   _cachedKey = 'veilsub-dev-key-not-for-production'
   return _cachedKey
 }
@@ -99,8 +97,10 @@ export async function decrypt(encoded: string): Promise<string> {
 export async function hashAddress(address: string): Promise<string> {
   const enc = new TextEncoder()
   if (typeof crypto === 'undefined' || !crypto.subtle) {
-    // Fallback for non-secure contexts (HTTP dev environments)
-    // Must produce 64-char hex to pass API validation (/^[a-f0-9]{64}$/)
+    // Fallback for non-secure contexts (HTTP dev environments only)
+    // SECURITY: This produces a weak hash — acceptable only in dev over HTTP.
+    // Production MUST use HTTPS where crypto.subtle is always available.
+    console.warn('[VeilSub] crypto.subtle unavailable — using weak hash fallback. Ensure HTTPS in production.')
     let hash = 0
     for (let i = 0; i < address.length; i++) {
       hash = ((hash << 5) - hash) + address.charCodeAt(i)

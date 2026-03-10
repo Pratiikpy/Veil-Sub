@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { hashAddress } from '@/lib/encryption'
+import { getRedis } from '@/lib/redis'
+
+const ALEO_ADDRESS_RE = /^aleo1[a-z0-9]{58}$/
 
 export async function GET(req: NextRequest) {
   const addressHash = req.nextUrl.searchParams.get('creator_address_hash')
@@ -17,6 +20,10 @@ export async function GET(req: NextRequest) {
         totalSubscriptions: 0,
         totalRevenue: 0,
         activePrograms: 1,
+      }, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+        },
       })
     }
 
@@ -40,14 +47,22 @@ export async function GET(req: NextRequest) {
       totalCreators: uniqueCreators,
       totalSubscriptions: totalSubscriptions || 0,
       totalRevenue,
-      activePrograms: 1, // veilsub_v15.aleo (deployed)
+      activePrograms: 1, // veilsub_v27.aleo (deployed)
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      },
     })
   }
 
   // Recent events across ALL creators
   if (recent === 'true') {
     if (!supabase) {
-      return NextResponse.json({ events: [] })
+      return NextResponse.json({ events: [] }, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+        },
+      })
     }
 
     const { data } = await supabase
@@ -56,7 +71,11 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: false })
       .limit(50)
 
-    return NextResponse.json({ events: data || [] })
+    return NextResponse.json({ events: data || [] }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      },
+    })
   }
 
   // Existing per-creator query
@@ -75,7 +94,59 @@ export async function GET(req: NextRequest) {
     .order('created_at', { ascending: false })
     .limit(50)
 
-  return NextResponse.json({ events: data || [] })
+  return NextResponse.json({ events: data || [] }, {
+    headers: {
+      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+    },
+  })
+}
+
+// Minimum decoded signature length (Aleo ed25519 signatures are 64 bytes)
+const MIN_SIG_BYTES = 64
+// Timestamp validity window: 2 minutes
+const TIMESTAMP_WINDOW_MS = 2 * 60 * 1000
+
+/**
+ * Verify wallet auth for analytics events.
+ * Same model as the posts API: server-salted hash + wallet signature + tight timestamp.
+ * See /api/posts/route.ts verifyWalletAuth for full documentation.
+ */
+async function verifyAnalyticsAuth(
+  address: string,
+  walletHash: unknown,
+  timestamp: unknown,
+  signature: unknown
+): Promise<string | null> {
+  if (typeof walletHash !== 'string' || !/^[a-f0-9]{64}$/.test(walletHash)) {
+    return 'Invalid wallet hash'
+  }
+  if (typeof timestamp !== 'number' || !Number.isFinite(timestamp)) {
+    return 'Invalid timestamp'
+  }
+  if (Math.abs(Date.now() - timestamp) > TIMESTAMP_WINDOW_MS) {
+    return 'Request expired'
+  }
+  // Server-salted hash verification
+  const salt = process.env.NEXT_PUBLIC_WALLET_AUTH_SALT || process.env.SUPABASE_ENCRYPTION_KEY || ''
+  const encoder = new TextEncoder()
+  const hashBuf = await crypto.subtle.digest('SHA-256', encoder.encode(address + salt))
+  const expectedHash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
+  if (walletHash !== expectedHash) {
+    return 'Wallet hash mismatch'
+  }
+  // Validate wallet signature format and byte length
+  if (typeof signature !== 'string' || !/^[A-Za-z0-9+/=]+$/.test(signature)) {
+    return 'Wallet signature required'
+  }
+  try {
+    const decoded = Uint8Array.from(atob(signature), c => c.charCodeAt(0))
+    if (decoded.length < MIN_SIG_BYTES) {
+      return 'Wallet signature too short'
+    }
+  } catch {
+    return 'Invalid signature encoding'
+  }
+  return null
 }
 
 export async function POST(req: NextRequest) {
@@ -90,16 +161,42 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { creator_address, tier, amount_microcredits, tx_id } = payload
+    const { creator_address, tier, amount_microcredits, tx_id, walletHash, timestamp, signature } = payload
 
     if (!creator_address || typeof creator_address !== 'string') {
       return NextResponse.json({ error: 'Missing creator_address' }, { status: 400 })
     }
-    if (typeof tier !== 'number' || !Number.isInteger(tier) || tier < 0 || tier > 3) {
-      return NextResponse.json({ error: 'Invalid tier (must be 0-3)' }, { status: 400 })
+    // Validate creator_address is a real Aleo address format
+    if (!ALEO_ADDRESS_RE.test(creator_address)) {
+      return NextResponse.json({ error: 'Invalid creator address format' }, { status: 400 })
+    }
+
+    // Wallet authentication: verify the caller has wallet signing capability
+    const authError = await verifyAnalyticsAuth(creator_address, walletHash, timestamp, signature)
+    if (authError) {
+      return NextResponse.json({ error: authError }, { status: 403 })
+    }
+
+    if (typeof tier !== 'number' || !Number.isInteger(tier) || tier < 0 || tier > 20) {
+      return NextResponse.json({ error: 'Invalid tier (must be 0-20)' }, { status: 400 })
     }
     if (typeof amount_microcredits !== 'number' || amount_microcredits < 0 || amount_microcredits > 1_000_000_000_000) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 })
+    }
+    // tx_id must be a non-empty string if provided
+    if (tx_id !== undefined && tx_id !== null && (typeof tx_id !== 'string' || tx_id.length > 200)) {
+      return NextResponse.json({ error: 'Invalid tx_id' }, { status: 400 })
+    }
+
+    // Rate limit: 10 analytics events per minute per address (prevents spam/abuse)
+    const redis = getRedis()
+    if (redis) {
+      const rlKey = `veilsub:analytics-rl:${walletHash}`
+      const count = await redis.incr(rlKey)
+      await redis.expire(rlKey, 60)
+      if (count > 10) {
+        return NextResponse.json({ error: 'Rate limited' }, { status: 429 })
+      }
     }
 
     const creatorHash = await hashAddress(creator_address)

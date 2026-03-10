@@ -10,7 +10,7 @@ import { PatchedLeoWalletAdapter } from '@/lib/PatchedLeoWalletAdapter'
 import { FoxWalletAdapter } from '@provablehq/aleo-wallet-adaptor-fox'
 import { PuzzleWalletAdapter } from '@provablehq/aleo-wallet-adaptor-puzzle'
 import { SoterWalletAdapter } from '@provablehq/aleo-wallet-adaptor-soter'
-import '@provablehq/aleo-wallet-adaptor-react-ui/dist/styles.css'
+// CSS import moved to ClientProviders.tsx — Turbopack can't chunk CSS from dynamic() modules
 import { APP_NAME, DEPLOYED_PROGRAM_ID } from '@/lib/config'
 
 interface Props {

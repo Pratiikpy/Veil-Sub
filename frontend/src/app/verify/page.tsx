@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { motion } from 'framer-motion'
+import Link from 'next/link'
+import { m } from 'framer-motion'
 import {
   Shield,
   Lock,
@@ -10,20 +11,15 @@ import {
   RefreshCw,
   Zap,
   Search,
-  Globe,
-  Database,
-  FileText,
-  Users,
-  Coins,
-  CheckCircle2,
-  XCircle,
-  Loader2,
+  AlertTriangle,
+  Clock,
 } from 'lucide-react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
+import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { parseAccessPass, shortenAddress } from '@/lib/utils'
-import { DEPLOYED_PROGRAM_ID } from '@/lib/config'
+import { getErrorMessage } from '@/lib/errorMessages'
 import { TIERS } from '@/types'
 import type { AccessPass, TxStatus } from '@/types'
 import GlassCard from '@/components/GlassCard'
@@ -31,45 +27,21 @@ import PageTransition from '@/components/PageTransition'
 import StatusBadge from '@/components/StatusBadge'
 import VerificationResult from '@/components/VerificationResult'
 import TransactionStatus from '@/components/TransactionStatus'
-
-const ALEO_API = process.env.NEXT_PUBLIC_ALEO_API_URL || 'https://api.explorer.provable.com/v1/testnet'
-
-async function queryMapping(mappingName: string, key: string): Promise<string | null> {
-  try {
-    const res = await fetch(`${ALEO_API}/program/${DEPLOYED_PROGRAM_ID}/mapping/${mappingName}/${key}`)
-    if (!res.ok) return null
-    const data = await res.json()
-    if (data === null || data === 'null') return null
-    return String(data).replace(/"/g, '')
-  } catch {
-    return null
-  }
-}
-
-interface CreatorStats {
-  registered: boolean
-  basePrice: number | null
-  subscriberCount: number | null
-  totalRevenue: number | null
-  contentCount: number | null
-}
-
-interface ContentInfo {
-  found: boolean
-  minTier: number | null
-  contentHash: string | null
-}
+import OnChainExplorer from '@/components/OnChainExplorer'
 
 export default function VerifyPage() {
   const { connected } = useWallet()
   const { getAccessPasses, verifyAccess } = useVeilSub()
+  const { blockHeight } = useBlockHeight()
   const { startPolling, stopPolling } = useTransactionPoller()
 
   const [passes, setPasses] = useState<AccessPass[]>([])
   const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [selectedPass, setSelectedPass] = useState<AccessPass | null>(null)
   const [verifyTxStatus, setVerifyTxStatus] = useState<TxStatus>('idle')
   const [verifyTxId, setVerifyTxId] = useState<string | null>(null)
+  const [verifyError, setVerifyError] = useState<string | null>(null)
   const [verifyResult, setVerifyResult] = useState<
     'idle' | 'success' | 'failed'
   >('idle')
@@ -90,6 +62,7 @@ export default function VerifyPage() {
 
   const loadPasses = useCallback(async () => {
     setLoading(true)
+    setLoadError(null)
     try {
       const records = await getAccessPasses()
       const parsed = records
@@ -98,6 +71,7 @@ export default function VerifyPage() {
       setPasses(parsed)
     } catch {
       setPasses([])
+      setLoadError('Failed to load passes. Check your wallet connection and try again.')
     }
     setLoading(false)
   }, [getAccessPasses])
@@ -110,9 +84,32 @@ export default function VerifyPage() {
     loadPasses()
   }, [connected, loadPasses])
 
+  const getPassStatus = (pass: AccessPass): 'active' | 'expired' | 'unknown' => {
+    if (blockHeight === null || !pass.expiresAt || pass.expiresAt === 0) return 'unknown'
+    return pass.expiresAt <= blockHeight ? 'expired' : 'active'
+  }
+
+  const getPassDaysLeft = (pass: AccessPass): number | null => {
+    if (blockHeight === null || !pass.expiresAt || pass.expiresAt === 0) return null
+    const blocksLeft = pass.expiresAt - blockHeight
+    if (blocksLeft <= 0) return 0
+    return Math.max(1, Math.round((blocksLeft * 3) / 86400))
+  }
+
   const handleVerify = async (pass: AccessPass) => {
+    // Pre-verification expiry check — save user gas on expired passes
+    const status = getPassStatus(pass)
+    if (status === 'expired') {
+      setSelectedPass(pass)
+      setVerifyResult('failed')
+      setVerifyError('This pass has expired. Renew your subscription on the creator\'s page before verifying.')
+      setVerifyTxStatus('idle')
+      return
+    }
+
     setSelectedPass(pass)
     setVerifyResult('idle')
+    setVerifyError(null)
     setVerifyTxStatus('signing')
     setVerifyTxId(null)
 
@@ -129,275 +126,19 @@ export default function VerifyPage() {
           } else if (result.status === 'failed') {
             setVerifyTxStatus('failed')
             setVerifyResult('failed')
+            setVerifyError('Transaction failed on-chain. Your pass may be revoked or expired.')
           }
         })
       } else {
         setVerifyTxStatus('failed')
         setVerifyResult('failed')
+        setVerifyError('Transaction was rejected by wallet.')
       }
-    } catch {
+    } catch (err) {
       setVerifyTxStatus('failed')
       setVerifyResult('failed')
+      setVerifyError(err instanceof Error ? getErrorMessage(err.message) : 'Verification failed. Please try again.')
     }
-  }
-
-  // On-Chain Explorer component — no wallet needed
-  function OnChainExplorer() {
-    const [creatorAddr, setCreatorAddr] = useState('')
-    const [creatorStats, setCreatorStats] = useState<CreatorStats | null>(null)
-    const [creatorLoading, setCreatorLoading] = useState(false)
-
-    const [contentId, setContentId] = useState('')
-    const [contentInfo, setContentInfo] = useState<ContentInfo | null>(null)
-    const [contentLoading, setContentLoading] = useState(false)
-
-    const [programDeployed, setProgramDeployed] = useState<boolean | null>(null)
-    const [deployLoading, setDeployLoading] = useState(false)
-
-    const lookupCreator = async () => {
-      if (!creatorAddr.startsWith('aleo1')) return
-      setCreatorLoading(true)
-      setCreatorStats(null)
-      try {
-        const [price, subs, rev, content] = await Promise.all([
-          queryMapping('tier_prices', creatorAddr),
-          queryMapping('subscriber_count', creatorAddr),
-          queryMapping('total_revenue', creatorAddr),
-          queryMapping('content_count', creatorAddr),
-        ])
-        setCreatorStats({
-          registered: price !== null,
-          basePrice: price ? parseInt(price.replace('u64', '')) : null,
-          subscriberCount: subs ? parseInt(subs.replace('u64', '')) : null,
-          totalRevenue: rev ? parseInt(rev.replace('u64', '')) : null,
-          contentCount: content ? parseInt(content.replace('u64', '')) : null,
-        })
-      } catch {
-        setCreatorStats({ registered: false, basePrice: null, subscriberCount: null, totalRevenue: null, contentCount: null })
-      }
-      setCreatorLoading(false)
-    }
-
-    const lookupContent = async () => {
-      if (!contentId) return
-      setContentLoading(true)
-      setContentInfo(null)
-      try {
-        // Content IDs are hashed on-chain with BHP256. We query with the raw field value
-        // since the API accepts the mapping key directly
-        const [tier, hash] = await Promise.all([
-          queryMapping('content_meta', contentId),
-          queryMapping('content_hashes', contentId),
-        ])
-        setContentInfo({
-          found: tier !== null,
-          minTier: tier ? parseInt(tier.replace('u8', '')) : null,
-          contentHash: hash || null,
-        })
-      } catch {
-        setContentInfo({ found: false, minTier: null, contentHash: null })
-      }
-      setContentLoading(false)
-    }
-
-    const checkDeployment = async () => {
-      setDeployLoading(true)
-      setProgramDeployed(null)
-      try {
-        const res = await fetch(`${ALEO_API}/program/${DEPLOYED_PROGRAM_ID}`)
-        setProgramDeployed(res.ok)
-      } catch {
-        setProgramDeployed(false)
-      }
-      setDeployLoading(false)
-    }
-
-    return (
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-white/5">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-6">
-            <Globe className="w-4 h-4 text-emerald-400" />
-            <span className="text-sm text-emerald-300">
-              No Wallet Required
-            </span>
-          </div>
-          <h2 className="text-2xl font-bold text-white mb-3">
-            On-Chain Explorer
-          </h2>
-          <p className="text-slate-400 text-sm max-w-xl mx-auto">
-            Query on-chain data directly from Aleo testnet. No wallet connection needed.
-            Verify creator registrations, content metadata, and program deployment.
-          </p>
-        </motion.div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Creator Lookup */}
-          <GlassCard hover={false}>
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="w-5 h-5 text-violet-400" />
-                <h3 className="text-white font-semibold">Creator Lookup</h3>
-              </div>
-              <div>
-                <input
-                  type="text"
-                  value={creatorAddr}
-                  onChange={(e) => setCreatorAddr(e.target.value)}
-                  placeholder="aleo1..."
-                  className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300"
-                />
-              </div>
-              <button
-                onClick={lookupCreator}
-                disabled={creatorLoading || !creatorAddr.startsWith('aleo1')}
-                className="w-full py-2.5 rounded-lg bg-violet-600/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-600/30 transition-all duration-300 disabled:opacity-40 flex items-center justify-center gap-2"
-              >
-                {creatorLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-                Query On-Chain
-              </button>
-              {creatorStats && (
-                <div className="space-y-2 pt-2 border-t border-white/5">
-                  <div className="flex items-center gap-2 text-sm">
-                    {creatorStats.registered ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    ) : (
-                      <XCircle className="w-4 h-4 text-red-400" />
-                    )}
-                    <span className={creatorStats.registered ? 'text-emerald-300' : 'text-red-300'}>
-                      {creatorStats.registered ? 'Registered Creator' : 'Not Registered'}
-                    </span>
-                  </div>
-                  {creatorStats.registered && (
-                    <>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-400">Base Price</span>
-                        <span className="text-white font-mono">
-                          {creatorStats.basePrice !== null ? `${(creatorStats.basePrice / 1_000_000).toFixed(2)} ALEO` : '—'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-400">Subscribers</span>
-                        <span className="text-white font-mono">{creatorStats.subscriberCount ?? '—'}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-400">Total Revenue</span>
-                        <span className="text-white font-mono">
-                          {creatorStats.totalRevenue !== null ? `${(creatorStats.totalRevenue / 1_000_000).toFixed(2)} ALEO` : '—'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-400">Content Published</span>
-                        <span className="text-white font-mono">{creatorStats.contentCount ?? '—'}</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          </GlassCard>
-
-          {/* Right Column: Content + Deployment */}
-          <div className="space-y-6">
-            {/* Content Lookup */}
-            <GlassCard hover={false}>
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <FileText className="w-5 h-5 text-violet-400" />
-                  <h3 className="text-white font-semibold">Content Verification</h3>
-                </div>
-                <div>
-                  <input
-                    type="text"
-                    value={contentId}
-                    onChange={(e) => setContentId(e.target.value)}
-                    placeholder="Content hash (field value)"
-                    className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-violet-500/[0.3] focus:shadow-[0_0_20px_rgba(139,92,246,0.08)] transition-all duration-300"
-                  />
-                </div>
-                <button
-                  onClick={lookupContent}
-                  disabled={contentLoading || !contentId}
-                  className="w-full py-2.5 rounded-lg bg-violet-600/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-600/30 transition-all duration-300 disabled:opacity-40 flex items-center justify-center gap-2"
-                >
-                  {contentLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-                  Verify Content
-                </button>
-                {contentInfo && (
-                  <div className="space-y-2 pt-2 border-t border-white/5">
-                    <div className="flex items-center gap-2 text-sm">
-                      {contentInfo.found ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-red-400" />
-                      )}
-                      <span className={contentInfo.found ? 'text-emerald-300' : 'text-red-300'}>
-                        {contentInfo.found ? 'Content Found On-Chain' : 'Not Found'}
-                      </span>
-                    </div>
-                    {contentInfo.found && (
-                      <>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-400">Min Tier Required</span>
-                          <span className="text-white">{TIERS.find(t => t.id === contentInfo.minTier)?.name || `Tier ${contentInfo.minTier}`}</span>
-                        </div>
-                        {contentInfo.contentHash && (
-                          <div className="flex justify-between text-sm">
-                            <span className="text-slate-400">Integrity Hash</span>
-                            <span className="text-white font-mono text-xs truncate max-w-[160px]">{contentInfo.contentHash}</span>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-            </GlassCard>
-
-            {/* Deployment Status */}
-            <GlassCard hover={false}>
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Database className="w-5 h-5 text-violet-400" />
-                  <h3 className="text-white font-semibold">Program Deployment</h3>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-slate-400">
-                  <Coins className="w-4 h-4" />
-                  <span className="font-mono text-xs">{DEPLOYED_PROGRAM_ID}</span>
-                </div>
-                <button
-                  onClick={checkDeployment}
-                  disabled={deployLoading}
-                  className="w-full py-2.5 rounded-lg bg-violet-600/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-600/30 transition-all duration-300 disabled:opacity-40 flex items-center justify-center gap-2"
-                >
-                  {deployLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-                  Check Deployment
-                </button>
-                {programDeployed !== null && (
-                  <div className="flex items-center gap-2 text-sm pt-2 border-t border-white/5">
-                    {programDeployed ? (
-                      <>
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                        <span className="text-emerald-300">Deployed on Aleo Testnet</span>
-                      </>
-                    ) : (
-                      <>
-                        <XCircle className="w-4 h-4 text-red-400" />
-                        <span className="text-red-300">Not Found on Testnet</span>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-            </GlassCard>
-          </div>
-        </div>
-      </section>
-    )
   }
 
   return (
@@ -405,8 +146,14 @@ export default function VerifyPage() {
       <div className="min-h-screen">
         {/* Hero */}
         <section className="relative overflow-hidden">
+          <div
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.06) 0%, transparent 70%)',
+            }}
+          />
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center"
@@ -417,30 +164,49 @@ export default function VerifyPage() {
                   Zero-Knowledge Verification
                 </span>
               </div>
-              <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-[#fafafa] mb-4">
+              <h1
+                className="text-4xl sm:text-5xl font-serif italic text-white mb-4"
+                style={{ letterSpacing: '-0.03em' }}
+              >
                 Verify Your Access
               </h1>
-              <p className="text-lg text-[#a1a1aa] max-w-2xl mx-auto">
+              <p className="text-lg text-muted max-w-2xl mx-auto leading-relaxed">
                 Prove you hold a valid AccessPass using a zero-knowledge proof.
                 Your identity stays completely private.
               </p>
-            </motion.div>
+            </m.div>
           </div>
         </section>
 
         {/* Main Content */}
         <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {!connected ? (
-            <div className="text-center py-16">
-              <Shield className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+            <m.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="max-w-md mx-auto text-center py-12"
+            >
+              <div className="relative w-16 h-16 mx-auto mb-6">
+                <div className="absolute inset-0 rounded-2xl bg-violet-500/20 animate-pulse" />
+                <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-violet-500/20 flex items-center justify-center">
+                  <Fingerprint className="w-8 h-8 text-violet-400" />
+                </div>
+              </div>
               <h2 className="text-xl font-semibold text-white mb-2">
-                Connect Your Wallet
+                Connect Wallet to Verify
               </h2>
-              <p className="text-slate-400 text-sm">
-                Connect your Leo Wallet to view and verify your Access
-                Passes.
+              <p className="text-muted text-sm mb-6">
+                Connect your wallet to view your AccessPasses and generate zero-knowledge proofs.
               </p>
-            </div>
+              <div className="p-4 rounded-xl glass text-left">
+                <p className="text-xs text-muted leading-relaxed">
+                  <strong className="text-violet-300">How it works:</strong> Select an AccessPass from your wallet, then click Verify. VeilSub generates a ZK proof that confirms your subscription without revealing your identity. The verification has zero public footprint.
+                </p>
+              </div>
+              <p className="text-xs text-subtle mt-4">
+                Scroll down to use the On-Chain Explorer without a wallet.
+              </p>
+            </m.div>
           ) : (
             <div className="grid lg:grid-cols-2 gap-8">
               {/* Left: Your Passes */}
@@ -453,7 +219,7 @@ export default function VerifyPage() {
                     onClick={loadPasses}
                     disabled={loading}
                     aria-label="Refresh access passes"
-                    className="p-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-[#71717a] hover:text-[#fafafa] hover:bg-white/[0.08] transition-all duration-300"
+                    className="p-2 rounded-lg bg-white/[0.05] border border-border text-subtle hover:text-white hover:bg-white/[0.08] transition-all duration-300"
                   >
                     <RefreshCw
                       className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
@@ -466,12 +232,24 @@ export default function VerifyPage() {
                     {[0, 1, 2].map((i) => (
                       <div
                         key={i}
-                        className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] animate-pulse"
+                        className="p-4 rounded-xl bg-white/[0.02] border border-border animate-pulse"
                       >
                         <div className="h-4 w-24 bg-white/10 rounded mb-2" />
                         <div className="h-3 w-40 bg-white/5 rounded" />
                       </div>
                     ))}
+                  </div>
+                ) : loadError ? (
+                  <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/20 text-center">
+                    <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+                    <p className="text-sm text-red-300 mb-3">{loadError}</p>
+                    <button
+                      onClick={loadPasses}
+                      className="px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white hover:bg-white/[0.08] transition-all inline-flex items-center gap-1.5"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      Retry
+                    </button>
                   </div>
                 ) : passes.length > 0 ? (
                   <div className="space-y-3">
@@ -479,8 +257,11 @@ export default function VerifyPage() {
                       const tierInfo = TIERS.find((t) => t.id === pass.tier)
                       const isSelected =
                         selectedPass?.passId === pass.passId
+                      const passStatus = getPassStatus(pass)
+                      const daysLeft = getPassDaysLeft(pass)
+                      const isExpired = passStatus === 'expired'
                       return (
-                        <motion.button
+                        <m.button
                           key={pass.passId}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
@@ -488,35 +269,60 @@ export default function VerifyPage() {
                             setSelectedPass(pass)
                             setVerifyResult('idle')
                             setVerifyTxStatus('idle')
+                            setVerifyError(null)
                           }}
                           className={`w-full text-left p-4 rounded-xl border transition-all duration-300 ${
-                            isSelected
-                              ? 'bg-[#0a0a0a] border-[rgba(255,255,255,0.12)]'
-                              : 'bg-[#0a0a0a] border-white/[0.08] hover:border-[rgba(255,255,255,0.1)]'
+                            isExpired
+                              ? isSelected
+                                ? 'bg-red-500/[0.04] border-red-500/30 opacity-80'
+                                : 'bg-surface-1 border-border opacity-60 hover:opacity-80 hover:border-red-500/20'
+                              : isSelected
+                                ? 'bg-violet-500/[0.04] border-violet-500/30 shadow-accent-sm'
+                                : 'bg-surface-1 border-border hover:border-glass-hover hover:bg-white/[0.01]'
                           }`}
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-white font-medium text-sm">
+                            <span className={`font-medium text-sm ${isExpired ? 'text-muted' : 'text-white'}`}>
                               {tierInfo?.name || `Tier ${pass.tier}`}
                             </span>
-                            <StatusBadge status="active" size="sm" />
+                            <StatusBadge status={isExpired ? 'expired' : 'active'} size="sm" />
                           </div>
-                          <p className="text-xs text-slate-500 font-mono">
-                            Creator: {shortenAddress(pass.creator)}
-                          </p>
-                        </motion.button>
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs text-subtle font-mono">
+                              Creator: {shortenAddress(pass.creator)}
+                            </p>
+                            {daysLeft !== null && !isExpired && (
+                              <span className="flex items-center gap-1 text-xs text-subtle">
+                                <Clock className="w-3 h-3" />
+                                {daysLeft}d left
+                              </span>
+                            )}
+                          </div>
+                        </m.button>
                       )
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-12 rounded-xl bg-[#0a0a0a] border border-white/[0.08]">
-                    <Lock className="w-10 h-10 text-slate-700 mx-auto mb-3" />
-                    <p className="text-slate-400 text-sm mb-1">
+                  <div className="text-center py-12 rounded-xl bg-surface-1 border border-border">
+                    <div className="relative w-14 h-14 mx-auto mb-4">
+                      <div className="absolute inset-0 rounded-xl bg-violet-500/10 animate-pulse" />
+                      <div className="relative w-full h-full rounded-xl bg-surface-1 border border-border flex items-center justify-center">
+                        <Lock className="w-7 h-7 text-subtle" />
+                      </div>
+                    </div>
+                    <p className="text-white font-medium text-sm mb-1">
                       No Access Passes Found
                     </p>
-                    <p className="text-slate-600 text-xs">
-                      Subscribe to a creator to receive your first pass.
+                    <p className="text-subtle text-xs mb-4">
+                      Subscribe to a creator to receive your first AccessPass.
                     </p>
+                    <Link
+                      href="/explore"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-muted hover:text-white hover:bg-white/[0.08] transition-all"
+                    >
+                      <Search className="w-3 h-3" />
+                      Explore Creators
+                    </Link>
                   </div>
                 )}
               </div>
@@ -533,35 +339,66 @@ export default function VerifyPage() {
                     <GlassCard hover={false}>
                       <div className="space-y-3">
                         <div className="flex justify-between text-sm">
-                          <span className="text-slate-400">Pass ID</span>
+                          <span className="text-muted">Pass ID</span>
                           <span className="text-white font-mono text-xs">
                             {selectedPass.passId.slice(0, 12)}...
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-slate-400">Creator</span>
+                          <span className="text-muted">Creator</span>
                           <span className="text-white font-mono text-xs">
                             {shortenAddress(selectedPass.creator)}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-slate-400">Tier</span>
+                          <span className="text-muted">Tier</span>
                           <span className="text-white">
                             {TIERS.find((t) => t.id === selectedPass.tier)
                               ?.name || `Tier ${selectedPass.tier}`}
                           </span>
                         </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted">Status</span>
+                          {(() => {
+                            const status = getPassStatus(selectedPass)
+                            const days = getPassDaysLeft(selectedPass)
+                            if (status === 'expired') return <span className="text-red-400 font-medium">Expired</span>
+                            if (days !== null) return <span className="text-green-400">{days}d remaining</span>
+                            return <span className="text-muted">Unknown</span>
+                          })()}
+                        </div>
                       </div>
                     </GlassCard>
 
+                    {/* Expired pass warning */}
+                    {getPassStatus(selectedPass) === 'expired' && verifyResult === 'idle' && (
+                      <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/15 flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
+                        <div>
+                          <p className="text-xs text-red-300 mb-1">This pass has expired.</p>
+                          <p className="text-xs text-subtle">Verification will fail. Visit the creator&apos;s page to renew.</p>
+                        </div>
+                      </div>
+                    )}
+
                     {verifyResult === 'idle' && verifyTxStatus === 'idle' && (
-                      <button
-                        onClick={() => handleVerify(selectedPass)}
-                        className="w-full py-3 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98]"
-                      >
-                        <Zap className="w-4 h-4" />
-                        Verify with ZK Proof
-                      </button>
+                      getPassStatus(selectedPass) === 'expired' ? (
+                        <Link
+                          href={`/creator/${selectedPass.creator}`}
+                          className="w-full py-3 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-300 font-medium hover:bg-violet-500/20 transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98]"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          Renew This Pass
+                        </Link>
+                      ) : (
+                        <button
+                          onClick={() => handleVerify(selectedPass)}
+                          className="w-full py-3 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] btn-shimmer"
+                        >
+                          <Zap className="w-4 h-4" />
+                          Verify with ZK Proof
+                        </button>
+                      )
                     )}
 
                     {verifyTxStatus !== 'idle' &&
@@ -573,35 +410,62 @@ export default function VerifyPage() {
                       )}
 
                     {verifyResult !== 'idle' && (
-                      <VerificationResult
-                        success={verifyResult === 'success'}
-                        txId={verifyTxId}
-                        passCreator={shortenAddress(selectedPass.creator)}
-                        passTier={
-                          TIERS.find((t) => t.id === selectedPass.tier)
-                            ?.name
-                        }
-                      />
-                    )}
+                      <>
+                        <VerificationResult
+                          success={verifyResult === 'success'}
+                          txId={verifyTxId}
+                          passCreator={shortenAddress(selectedPass.creator)}
+                          passTier={
+                            TIERS.find((t) => t.id === selectedPass.tier)
+                              ?.name
+                          }
+                        />
 
-                    {verifyResult !== 'idle' && (
-                      <button
-                        onClick={() => {
-                          stopPolling()
-                          setVerifyResult('idle')
-                          setVerifyTxStatus('idle')
-                          setVerifyTxId(null)
-                        }}
-                        className="w-full py-2.5 rounded-lg bg-white/[0.05] border border-white/[0.08] text-sm text-[#fafafa] hover:bg-white/[0.08] transition-all duration-300 active:scale-[0.98]"
-                      >
-                        Verify Again
-                      </button>
+                        {/* Recovery guidance on failure */}
+                        {verifyResult === 'failed' && verifyError && (
+                          <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/15">
+                            <p className="text-xs text-red-300 mb-2">{verifyError}</p>
+                            <div className="flex flex-wrap gap-2">
+                              {(verifyError.includes('expired') || verifyError.includes('renew')) && (
+                                <Link
+                                  href={`/creator/${selectedPass.creator}`}
+                                  className="px-3 py-1.5 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-all inline-flex items-center gap-1"
+                                >
+                                  <RefreshCw className="w-3 h-3" />
+                                  Renew Subscription
+                                </Link>
+                              )}
+                              {(verifyError.includes('revoked') || verifyError.includes('ERR_027')) && (
+                                <Link
+                                  href={`/creator/${selectedPass.creator}`}
+                                  className="px-3 py-1.5 rounded-lg bg-white/[0.05] border border-border text-xs text-muted hover:bg-white/[0.08] transition-all inline-flex items-center gap-1"
+                                >
+                                  Re-subscribe
+                                </Link>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        <button
+                          onClick={() => {
+                            stopPolling()
+                            setVerifyResult('idle')
+                            setVerifyTxStatus('idle')
+                            setVerifyTxId(null)
+                            setVerifyError(null)
+                          }}
+                          className="w-full py-2.5 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] transition-all duration-300 active:scale-[0.98]"
+                        >
+                          {verifyResult === 'failed' ? 'Try Another Pass' : 'Verify Again'}
+                        </button>
+                      </>
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-16 rounded-xl bg-[#0a0a0a] border border-white/[0.08]">
-                    <ShieldCheck className="w-10 h-10 text-slate-700 mx-auto mb-3" />
-                    <p className="text-slate-400 text-sm">
+                  <div className="text-center py-16 rounded-xl bg-surface-1 border border-border">
+                    <ShieldCheck className="w-10 h-10 text-subtle mx-auto mb-3" />
+                    <p className="text-muted text-sm">
                       Select a pass to begin verification
                     </p>
                   </div>
@@ -615,20 +479,23 @@ export default function VerifyPage() {
         <OnChainExplorer />
 
         {/* How It Works */}
-        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-white/[0.08]">
-          <motion.div
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-border">
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-2xl font-semibold text-[#fafafa] mb-3">
+            <h2
+              className="text-2xl sm:text-3xl font-serif italic text-white mb-3"
+              style={{ letterSpacing: '-0.02em' }}
+            >
               How ZK Verification Works
             </h2>
-            <p className="text-[#a1a1aa] text-sm">
+            <p className="text-muted text-sm">
               Three steps, zero identity exposure.
             </p>
-          </motion.div>
+          </m.div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {[
@@ -652,18 +519,31 @@ export default function VerifyPage() {
               return (
                 <GlassCard key={step.title} delay={i * 0.1}>
                   <div className="text-center">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-violet-500/20 text-violet-400 text-xs font-bold mb-3">
+                      {i + 1}
+                    </span>
                     <div className="w-12 h-12 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center mx-auto mb-4">
                       <Icon className="w-6 h-6 text-violet-400/70" />
                     </div>
                     <h3 className="text-white font-semibold mb-2">
                       {step.title}
                     </h3>
-                    <p className="text-sm text-slate-400">{step.desc}</p>
+                    <p className="text-sm text-muted">{step.desc}</p>
                   </div>
                 </GlassCard>
               )
             })}
           </div>
+          <m.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="mt-8 p-4 rounded-xl bg-violet-500/5 border border-violet-500/10 text-center"
+          >
+            <p className="text-xs text-muted">
+              <strong className="text-violet-300">Minimal footprint:</strong> VeilSub&apos;s verify_access finalize only checks revocation via pass_id — subscriber identity never touches public state. No subscriber-identifying mapping writes occur when proving access.
+            </p>
+          </m.div>
         </section>
       </div>
     </PageTransition>
