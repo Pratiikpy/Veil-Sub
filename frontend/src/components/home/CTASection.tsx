@@ -33,10 +33,10 @@ export default function CTASection() {
                 className="text-4xl sm:text-5xl lg:text-6xl font-serif italic text-white"
                 style={{ letterSpacing: '-0.03em' }}
               >
-                Try VeilSub on Testnet
+                Ready to Go Private?
               </h2>
               <p className="mt-6 text-lg text-muted max-w-lg mx-auto leading-relaxed">
-                Subscribe privately or register as a creator. Your supporters stay anonymous.
+                Start earning from subscribers who value privacy. No lists. No traces. No compromise.
               </p>
               <div className="flex items-center justify-center gap-3 flex-wrap mt-10">
                 <Link href="/dashboard">

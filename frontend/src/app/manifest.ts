@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'VeilSub — Private Creator Subscriptions',
+    name: 'VeilSub—Private Creator Subscriptions',
     short_name: 'VeilSub',
     description: 'Subscribe privately. Prove access. Nobody sees who you support. Zero-knowledge subscriptions on Aleo.',
     start_url: '/',

@@ -25,9 +25,9 @@ export default function ProblemSolution() {
               Exposes You.
             </h2>
             <p className="mt-6 text-muted leading-relaxed">
-              Every major platform — Patreon, Ko-fi, YouTube memberships —
-              publicly links subscribers to creators. Fans fear judgment.
-              Creators lose privacy-conscious supporters.
+              Every major platform—Patreon, Ko-fi, YouTube memberships—publicly
+              links subscribers to creators. Fans fear judgment. Creators lose
+              privacy-conscious supporters.
             </p>
           </ScrollReveal>
 

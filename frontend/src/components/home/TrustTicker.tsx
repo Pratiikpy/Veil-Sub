@@ -19,7 +19,7 @@ const TICKER_ITEMS = [
   { icon: Shield, text: '6 Record Types' },
   { icon: Layers, text: '25 Mappings' },
   { icon: Code, text: '1,388 Lines of Leo' },
-  { icon: Shield, text: '119 Error Codes' },
+  { icon: Shield, text: '102 Error Codes' },
 ]
 
 export default function TrustTicker() {

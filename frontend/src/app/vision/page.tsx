@@ -20,7 +20,7 @@ const USE_CASES = [
     icon: Newspaper,
     title: 'Anonymous Journalism',
     description:
-      'Protect whistleblower supporters and investigative journalism backers. Subscribers fund critical reporting without fear of retaliation — their identity never appears on-chain.',
+      'Protect whistleblower supporters and investigative journalism backers. Subscribers fund critical reporting without fear of retaliation—their identity never appears on-chain.',
     color: 'text-amber-400',
     bg: 'bg-amber-500/10',
   },
@@ -28,7 +28,7 @@ const USE_CASES = [
     icon: Palette,
     title: 'Private Creator Monetization',
     description:
-      'Content creators in sensitive niches — adult content, political commentary, controversial art — monetize without exposing their supporters to social stigma.',
+      'Content creators in sensitive niches—adult content, political commentary, controversial art—monetize without exposing their supporters to social stigma.',
     color: 'text-pink-400',
     bg: 'bg-pink-500/10',
   },
@@ -60,7 +60,7 @@ const USE_CASES = [
     icon: Code2,
     title: 'Developer SDK',
     description:
-      'Embeddable privacy subscription primitive for any Aleo dApp. Any program can call verify_access to gate features behind private AccessPass ownership — zero integration friction.',
+      'Embeddable privacy subscription primitive for any Aleo dApp. Any program can call verify_access to gate features behind private AccessPass ownership—zero integration friction.',
     color: 'text-cyan-400',
     bg: 'bg-cyan-500/10',
   },
@@ -90,7 +90,7 @@ export default function VisionPage() {
                 Vision &amp; Use Cases
               </h1>
               <p className="text-lg text-muted max-w-2xl mx-auto">
-                VeilSub is more than a subscription platform — it&apos;s a reusable
+                VeilSub is more than a subscription platform—it's a reusable
                 zero-knowledge access control primitive. The AccessPass record can gate
                 anything.
               </p>
@@ -127,7 +127,7 @@ export default function VisionPage() {
               <h2 className="text-3xl font-semibold text-white mb-4">Composable Privacy Primitive</h2>
               <p className="text-muted max-w-2xl mx-auto">
                 Any Aleo program can verify AccessPass ownership via <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">verify_access</code> —
-                a minimal-footprint transition whose finalize only checks revocation — subscriber identity never enters public state.
+                a minimal-footprint transition whose finalize only checks revocation—subscriber identity never enters public state.
               </p>
             </m.div>
 
@@ -167,7 +167,7 @@ export default function VisionPage() {
             <div className="space-y-4">
               {[
                 { phase: 'Wave 2', status: 'done', items: 'v8 multi-token, CreatorReceipt, AuditToken, content hashes, walletless explorer, mobile nav' },
-                { phase: 'Wave 3', status: 'current', items: 'v27 on testnet (27 transitions, 25 mappings, 6 records, 5 structs) — scoped audit tokens, trial rate-limiting, gift revocation fix, ZERO addresses in finalize, Poseidon2 field-hashed mapping keys, commit-reveal tipping, blind renewal, gifting, disputes, subscription transfer, trial passes, content auth, expiry enforcement, prove_subscriber_threshold' },
+                { phase: 'Wave 3', status: 'current', items: 'v27 on testnet (27 transitions, 25 mappings, 6 records, 5 structs): scoped audit tokens, trial rate-limiting, gift revocation fix, ZERO addresses in finalize, Poseidon2 field-hashed mapping keys, commit-reveal tipping, blind renewal, gifting, disputes, subscription transfer, trial passes, content auth, expiry enforcement, prove_subscriber_threshold' },
                 { phase: 'Wave 4', status: 'next', items: 'Private tier selection, decoy subscriber hashes, creator analytics dashboard, batch subscriptions, TypeScript SDK' },
                 { phase: 'Mainnet', status: 'future', items: 'Production deployment, TypeScript SDK, DAO governance, mobile wallet support' },
               ].map((item, i) => (
@@ -223,7 +223,7 @@ export default function VisionPage() {
                   Ready to explore?
                 </h2>
                 <p className="text-muted max-w-lg mx-auto mb-6">
-                  Try VeilSub on Aleo Testnet — connect a wallet, subscribe to a creator, and verify your privacy guarantees on-chain.
+                  Try VeilSub on Aleo Testnet—connect a wallet, subscribe to a creator, and verify your privacy guarantees on-chain.
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-3">
                   <Link

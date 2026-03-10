@@ -92,7 +92,7 @@ export default function HeroSection() {
             style={{ y: descY }}
           >
             Subscribe to creators without anyone knowing. Prove your access
-            with zero-knowledge proofs — no trace left on-chain.
+            with zero-knowledge proofs—no trace left on-chain.
           </m.p>
 
           <m.div
@@ -144,7 +144,7 @@ export default function HeroSection() {
               transition={{ duration: 0.5, delay: 1.0 }}
               className="mt-3 text-xs text-subtle text-center"
             >
-              No wallet needed to browse — connect when you&apos;re ready to subscribe
+              No wallet needed to browse—connect when you're ready to subscribe
             </m.p>
           )}
 

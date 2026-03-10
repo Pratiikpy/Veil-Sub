@@ -12,7 +12,7 @@ const FEATURES_LARGE = [
   {
     icon: EyeOff,
     title: 'Private Payments',
-    desc: 'Subscribe with ALEO credits. Your identity is cryptographically hidden — no subscriber lists, no transaction links, no public record of who pays whom.',
+    desc: 'Subscribe with ALEO credits. Your identity is cryptographically hidden—no subscriber lists, no transaction links, no public record of who pays whom.',
   },
   {
     icon: KeyRound,

@@ -31,8 +31,8 @@ export default function ProtocolStats() {
                   className="mt-6 text-2xl sm:text-3xl font-serif italic text-white leading-snug"
                   style={{ letterSpacing: '-0.02em' }}
                 >
-                  &ldquo;The only subscription platform where nobody — not
-                  even us — knows who subscribes to whom.&rdquo;
+                  &ldquo;The only subscription platform where nobody—not
+                  even us—knows who subscribes to whom.&rdquo;
                 </p>
               </div>
               <div className="mt-8 flex items-center justify-between">

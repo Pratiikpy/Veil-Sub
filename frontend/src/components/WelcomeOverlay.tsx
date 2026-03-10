@@ -25,7 +25,7 @@ const HIGHLIGHTS = [
   {
     icon: Zap,
     title: 'Single-Record Payments',
-    desc: 'One record handles everything — no splitting required. CreatorReceipts for private payment proofs.',
+    desc: 'One record handles everything—no splitting required. CreatorReceipts for private payment proofs.',
     color: 'text-blue-400',
     bg: 'bg-blue-500/10',
   },
@@ -96,7 +96,7 @@ export default function WelcomeOverlay() {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-white">Welcome to VeilSub</h2>
-                  <p className="text-xs text-subtle">v27 — Private Creator Subscriptions on Aleo</p>
+                  <p className="text-xs text-subtle">v27—Private Creator Subscriptions on Aleo</p>
                 </div>
               </div>
               <button

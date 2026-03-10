@@ -12,7 +12,7 @@ const STEPS = [
   { icon: Wallet, title: 'Connect Wallet', desc: 'Link your Shield or Leo Wallet. Your address stays private.' },
   { icon: UserCheck, title: 'Find a Creator', desc: 'Browse creators and see public stats: price and subscriber count.' },
   { icon: Lock, title: 'Subscribe Privately', desc: 'Pay with ALEO credits. A private AccessPass appears in your wallet.' },
-  { icon: Zap, title: 'Prove Access', desc: 'Show your AccessPass to unlock content — without revealing your identity.' },
+  { icon: Zap, title: 'Prove Access', desc: 'Show your AccessPass to unlock content—without revealing your identity.' },
 ]
 
 export default function HowItWorks() {
