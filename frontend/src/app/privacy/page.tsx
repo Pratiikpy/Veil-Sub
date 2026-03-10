@@ -16,6 +16,7 @@ import {
 import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
 import Tooltip from '@/components/ui/Tooltip'
+import { DEPLOYED_PROGRAM_ID } from '@/lib/config'
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -51,7 +52,7 @@ export default function PrivacyPage() {
                 never enter the finalize scope — enforced by the Leo compiler.
               </p>
               <a
-                href="https://testnet.aleoscan.io/program?id=veilsub_v27.aleo"
+                href={`https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-all"

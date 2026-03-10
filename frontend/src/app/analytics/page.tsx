@@ -250,7 +250,7 @@ export default function AnalyticsPage() {
               <GlassCard delay={0.1}>
                 <div className="flex items-center gap-2 mb-3">
                   <Lock className="w-4 h-4 text-purple-400" />
-                  <span className="text-sm font-medium text-white">Maximum (v26)</span>
+                  <span className="text-sm font-medium text-white">Maximum (v27)</span>
                 </div>
                 <p className="text-xs text-subtle leading-relaxed mb-3">
                   All mapping keys are Poseidon2 field hashes — zero raw addresses

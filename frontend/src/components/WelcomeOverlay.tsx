@@ -96,7 +96,7 @@ export default function WelcomeOverlay() {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-white">Welcome to VeilSub</h2>
-                  <p className="text-xs text-subtle">v26 — Private Creator Subscriptions on Aleo</p>
+                  <p className="text-xs text-subtle">v27 — Private Creator Subscriptions on Aleo</p>
                 </div>
               </div>
               <button

@@ -161,7 +161,7 @@ export const SEED_CONTENT: SeedContent[] = [
   },
   {
     id: 'seed-4',
-    title: 'Weekly Update: v26 Deployed — Trial Passes + Platform Analytics',
+    title: 'Weekly Update: v27 Deployed — Scoped Audit Tokens + Trial Passes',
     body: 'VeilSub v27 is deployed on testnet with 27 transitions, 25 mappings, 6 record types, 866 statements. New in v27: scoped audit tokens (scope_mask bitfield), trial rate-limiting (one trial per creator per subscriber), gift revocation fix. Inherited: subscribe_trial, prove_subscriber_threshold, platform analytics. Zero addresses in finalize — all mapping keys are Poseidon2 hashes.',
     minTier: 1,
     createdAt: '2026-03-01T10:00:00Z',
@@ -170,7 +170,7 @@ export const SEED_CONTENT: SeedContent[] = [
   {
     id: 'seed-5',
     title: 'Deep Dive: Blind Renewal Privacy Technique',
-    body: 'In this premium post, we explain how blind renewal works: each renew_blind() call generates a unique subscriber hash via Poseidon2(caller, nonce). The creator sees "different" subscribers each time — they cannot link renewals to the same person. Combined with v26\'s zero-address finalize policy, even the blockchain itself cannot correlate renewal patterns to real identities.',
+    body: 'In this premium post, we explain how blind renewal works: each renew_blind() call generates a unique subscriber hash via Poseidon2(caller, nonce). The creator sees "different" subscribers each time — they cannot link renewals to the same person. Combined with v27\'s zero-address finalize policy, even the blockchain itself cannot correlate renewal patterns to real identities.',
     preview: 'How blind renewal makes each subscription look like a different person using nonce-based identity rotation...',
     minTier: 2,
     createdAt: '2026-03-02T14:00:00Z',

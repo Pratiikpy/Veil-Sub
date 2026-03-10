@@ -638,7 +638,7 @@ export default function ExplorerPage() {
                     const txShort = event.tx_id ? `${event.tx_id.slice(0, 12)}...${event.tx_id.slice(-6)}` : '—'
                     const explorerUrl = event.tx_id?.startsWith('at1')
                       ? `https://testnet.explorer.provable.com/transaction/${event.tx_id}`
-                      : `https://testnet.aleoscan.io/program?id=veilsub_v27.aleo`
+                      : `https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`
 
                     return (
                       <div key={`${event.tx_id || i}-${i}`}>
