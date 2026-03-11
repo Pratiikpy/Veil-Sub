@@ -53,7 +53,7 @@ const ITEMS: ChangelogItem[] = [
   {
     icon: <Zap className="w-4 h-4 text-cyan-400" />,
     title: '27 Transitions, 25 Mappings, 6 Records',
-    description: 'Deployed as veilsub_v27.aleo on testnet. 119 error codes, scoped audit tokens, trial rate-limiting.',
+    description: 'Deployed as veilsub_v27.aleo on testnet. 102 error codes, scoped audit tokens, trial rate-limiting.',
     tag: 'v27',
   },
 ]

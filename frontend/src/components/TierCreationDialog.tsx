@@ -128,6 +128,8 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                       <button
                         key={id}
                         onClick={() => setTierId(id)}
+                        aria-label={`Select tier ${id}`}
+                        aria-pressed={tierId === id}
                         className={`rounded-lg py-2 text-xs font-medium transition-all ${
                           tierId === id
                             ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'

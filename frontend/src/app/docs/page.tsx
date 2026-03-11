@@ -418,7 +418,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Error Codes (v27)</h3>
         <p className="text-sm text-muted mb-4">
-          Every <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">assert</code> in the contract has a unique error code (ERR_001–ERR_119) for debugging and frontend error mapping. Key ranges:
+          Every <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">assert</code> in the contract has 102 unique error codes (range: ERR_001–ERR_119, with gaps) for debugging and frontend error mapping. Key ranges:
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {[
@@ -493,7 +493,7 @@ function PrivacyModelTab() {
         </p>
         <p className="text-sm text-muted leading-relaxed">
           The result: 27 transitions, 25 mappings, 6 record types, 5 structs, 866 statements,
-          and 119 error codes—a leaner, more private contract that fits within testnet deployment limits.
+          and 102 error codes—a leaner, more private contract that fits within testnet deployment limits.
           Commit-reveal tipping uses{' '}
           <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">BHP256::commit_to_field</code> —
           a novel cryptographic commitment scheme for hidden tip amounts.

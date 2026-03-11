@@ -171,7 +171,7 @@ export default function HeroSection() {
         </m.div>
 
         <div className="flex justify-center mt-10 sm:mt-16">
-          <ChevronDown className="w-5 h-5 text-violet-400/60 animate-scroll-bounce" />
+          <ChevronDown className="w-5 h-5 text-violet-400/60 animate-scroll-bounce" aria-hidden="true" />
         </div>
       </Container>
     </section>

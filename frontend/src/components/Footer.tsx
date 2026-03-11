@@ -38,7 +38,7 @@ export default function Footer() {
               <Link href="/docs" className="block text-xs text-subtle hover:text-white transition-colors">Documentation</Link>
               <Link href="/privacy" className="block text-xs text-subtle hover:text-white transition-colors">Privacy Model</Link>
               <a href="https://github.com/Pratiikpy/Veil-Sub" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-subtle hover:text-white transition-colors">
-                <Github className="w-3 h-3" /> GitHub
+                <Github className="w-3 h-3" aria-hidden="true" /> GitHub
               </a>
               <Link href="/vision" className="block text-xs text-subtle hover:text-white transition-colors">Vision & Roadmap</Link>
             </div>
@@ -54,10 +54,11 @@ export default function Footer() {
             href={`https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={`View ${DEPLOYED_PROGRAM_ID} on Aleoscan`}
             className="flex items-center gap-1 hover:text-muted transition-colors font-mono"
           >
             {DEPLOYED_PROGRAM_ID}
-            <ExternalLink className="w-3 h-3" />
+            <ExternalLink className="w-3 h-3" aria-hidden="true" />
           </a>
         </div>
       </div>

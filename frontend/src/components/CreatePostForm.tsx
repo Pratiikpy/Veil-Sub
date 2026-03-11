@@ -228,11 +228,13 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
             </div>
             <div>
               <label className="block text-sm text-muted mb-1.5">Minimum tier required</label>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Minimum tier selection">
                 {[1, 2, 3].map((tier) => (
                   <button
                     key={tier}
                     onClick={() => setMinTier(tier)}
+                    aria-label={`Set minimum tier to ${tierLabels[tier] || `Tier ${tier}`}`}
+                    aria-pressed={minTier === tier}
                     className={`py-2.5 px-3 rounded-lg text-xs font-medium transition-all ${
                       minTier === tier
                         ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
