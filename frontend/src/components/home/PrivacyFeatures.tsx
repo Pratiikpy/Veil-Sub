@@ -22,10 +22,10 @@ const FEATURES_LARGE = [
 ]
 
 const FEATURES_SMALL = [
-  { icon: FileText, title: 'Encrypted Content', desc: 'Content encrypted at the protocol level' },
-  { icon: Lock, title: 'Blind Renewals', desc: 'Renew without linking to original purchase' },
+  { icon: FileText, title: 'Encrypted Content', desc: 'AES-256 encrypted posts—only AccessPass holders decrypt' },
+  { icon: Lock, title: 'Blind Renewals', desc: 'Nonce rotation via Poseidon2 breaks linkability' },
   { icon: Coins, title: 'Commit-Reveal Tipping', desc: 'BHP256 commitments hide tip amounts until reveal' },
-  { icon: Globe, title: 'On-Chain Verification', desc: 'Verify proofs publicly, identity stays hidden' },
+  { icon: Globe, title: 'On-Chain Verification', desc: 'verify_access checks pass_id only—zero address exposure' },
 ]
 
 export default function PrivacyFeatures() {

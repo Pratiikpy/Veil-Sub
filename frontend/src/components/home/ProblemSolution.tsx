@@ -4,9 +4,9 @@ import Badge from '@/components/ui/Badge'
 import ScrollReveal from '@/components/ScrollReveal'
 
 const COMPARISON_ROWS = [
-  { traditional: 'Subscriber lists are public', veilsub: 'Subscriber identity is never exposed' },
-  { traditional: 'Transaction history is permanent', veilsub: 'Payments via credits.aleo transfer_private—ZK proven' },
-  { traditional: 'Everyone knows who pays whom', veilsub: 'Poseidon2 field keys—no subscriber-to-creator mapping' },
+  { traditional: 'Patreon/Ko-fi show subscriber names in tier lists', veilsub: 'Subscriber identity never enters public state—not even mappings' },
+  { traditional: 'Transaction history is permanent and public', veilsub: 'Payments via credits.aleo transfer_private—ZK proven, no on-chain trace' },
+  { traditional: 'Blockchain explorers reveal who pays whom', veilsub: 'All 25 mappings use Poseidon2 field keys—zero raw address storage' },
 ]
 
 export default function ProblemSolution() {
@@ -25,9 +25,9 @@ export default function ProblemSolution() {
               Exposes You.
             </h2>
             <p className="mt-6 text-white/70 leading-relaxed">
-              Every major platform—Patreon, Ko-fi, YouTube memberships—publicly
-              links subscribers to creators. Fans fear judgment. Creators lose
-              privacy-conscious supporters.
+              Patreon, Ko-fi, and YouTube memberships display subscriber names
+              in public tier lists. On Ethereum, on-chain payments are forever
+              traceable. Privacy-conscious supporters avoid subscribing at all.
             </p>
           </ScrollReveal>
 

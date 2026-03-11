@@ -220,32 +220,42 @@ export default function ExplorerPage() {
 
   // Global stats
   const [globalStats, setGlobalStats] = useState<GlobalStats | null>(null)
+  const [statsError, setStatsError] = useState(false)
 
   // Recent events
   const [events, setEvents] = useState<RecentEvent[]>([])
   const [eventsLoading, setEventsLoading] = useState(true)
+  const [eventsError, setEventsError] = useState(false)
   const [eventsPage, setEventsPage] = useState(0)
   const [eventFilter, setEventFilter] = useState<'all' | 'subscriptions' | 'tips'>('all')
   const [copiedTxId, setCopiedTxId] = useState<string | null>(null)
 
   // Fetch global stats
   useEffect(() => {
+    setStatsError(false)
     fetch('/api/analytics?global_stats=true')
       .then((r) => r.json())
       .then(setGlobalStats)
-      .catch(() => setGlobalStats({ totalCreators: 1, totalSubscriptions: 0, totalRevenue: 0, activePrograms: 2 }))
+      .catch(() => {
+        setStatsError(true)
+        setGlobalStats({ totalCreators: 1, totalSubscriptions: 0, totalRevenue: 0, activePrograms: 2 })
+      })
   }, [])
 
   // Fetch recent events
   useEffect(() => {
     setEventsLoading(true)
+    setEventsError(false)
     fetch('/api/analytics?recent=true')
       .then((r) => r.json())
       .then((json) => {
         setEvents(json.events || [])
         setEventsLoading(false)
       })
-      .catch(() => setEventsLoading(false))
+      .catch(() => {
+        setEventsError(true)
+        setEventsLoading(false)
+      })
   }, [])
 
   // Fetch sparkline data when a creator is found
@@ -333,8 +343,15 @@ export default function ExplorerPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 }}
-              className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10"
+              className="mb-10"
             >
+              {statsError && (
+                <div className="mb-3 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-center gap-2">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>Could not fetch live stats. Showing cached values.</span>
+                </div>
+              )}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <GlassCard delay={0}>
                 <div className="flex items-center gap-2 mb-2">
                   <Users className="w-4 h-4 text-violet-400" />
@@ -371,6 +388,7 @@ export default function ExplorerPage() {
                   <AnimatedCounter target={globalStats.activePrograms} />
                 </p>
               </GlassCard>
+              </div>
             </m.div>
           )}
 
@@ -656,6 +674,18 @@ export default function ExplorerPage() {
                       <div className="h-3 bg-white/[0.03] rounded w-32" />
                     </div>
                   ))}
+                </div>
+              ) : eventsError ? (
+                <div className="text-center py-12">
+                  <AlertCircle className="w-8 h-8 text-amber-400 mx-auto mb-3" />
+                  <p className="text-sm text-white/70 mb-1">Failed to load recent activity</p>
+                  <p className="text-xs text-white/60 mb-4">Could not fetch events from the analytics API.</p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/70 hover:bg-white/[0.08] transition-colors"
+                  >
+                    Retry
+                  </button>
                 </div>
               ) : paginatedEvents.length === 0 ? (
                 <div className="text-center py-12">

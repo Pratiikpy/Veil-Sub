@@ -9,9 +9,9 @@ import SpotlightCard from '@/components/ui/SpotlightCard'
 import { useProtocolStats } from '@/hooks/useProtocolStats'
 
 const STATS = [
-  { key: 'privacy', value: 100, suffix: '%', label: 'Private', sublabel: 'Subscriber identity hidden' },
-  { key: 'transitions', value: 27, suffix: '', label: 'Transitions', sublabel: 'On-chain smart contract' },
-  { key: 'records', value: 6, suffix: '', label: 'Record Types', sublabel: 'Private data structures' },
+  { key: 'privacy', value: 100, suffix: '%', label: 'Private', sublabel: 'Zero-address finalize scope' },
+  { key: 'transitions', value: 27, suffix: '', label: 'Transitions', sublabel: 'Leo smart contract functions' },
+  { key: 'records', value: 6, suffix: '', label: 'Record Types', sublabel: 'AccessPass, AuditToken, etc.' },
   { key: 'versions', value: 27, suffix: '', label: 'Versions', sublabel: 'Iterative testnet deploys', prefix: 'v' },
 ]
 
@@ -31,8 +31,8 @@ export default function ProtocolStats() {
                   className="mt-6 text-2xl sm:text-3xl font-serif italic text-white leading-snug"
                   style={{ letterSpacing: '-0.02em' }}
                 >
-                  &ldquo;The only subscription platform where nobody—not
-                  even us—knows who subscribes to whom.&rdquo;
+                  &ldquo;Zero addresses in finalize—even the smart contract
+                  never learns who subscribes to whom.&rdquo;
                 </p>
               </div>
               <div className="mt-8 flex items-center justify-between">

@@ -21,6 +21,7 @@ import {
   Share2,
   FileKey,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
@@ -175,7 +176,10 @@ export default function CreatorPage({
         setDisplayName(profile.display_name)
         setBio(profile.bio)
       }
-    }).catch(() => { /* profile unavailable, defaults are fine */ })
+    }).catch(() => {
+      // Profile metadata unavailable, defaults are fine but notify user
+      toast.warning('Profile details unavailable. Using on-chain data only.', { id: 'profile-fetch-warn' })
+    })
     return () => { cancelled = true }
   }, [address, fetchCreatorStats, getCreatorProfile])
 

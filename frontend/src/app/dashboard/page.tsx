@@ -109,6 +109,9 @@ export default function DashboardPage() {
                   }
                 : null
               upsertCreatorProfile(publicKey, displayName || undefined, bioText || undefined, wrappedSign)
+                .catch(() => {
+                  toast.warning('Profile saved on-chain but off-chain metadata could not be saved.')
+                })
             }
             setShowCelebration(true)
             celebrationTimerRef.current = setTimeout(() => {

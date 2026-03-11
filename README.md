@@ -285,7 +285,7 @@ cd contracts/veilsub && leo build
 ### Environment Variables
 ```env
 NEXT_PUBLIC_PROGRAM_ID=veilsub_v27.aleo
-NEXT_PUBLIC_ALEO_API=https://api.explorer.provable.com/v1
+NEXT_PUBLIC_ALEO_API_URL=https://api.explorer.provable.com/v1/testnet
 NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-key>
 UPSTASH_REDIS_REST_URL=<your-redis-url>
