@@ -4,6 +4,11 @@ import { useState, useCallback } from 'react'
 import { DEPLOYED_PROGRAM_ID, getCreatorHash } from '@/lib/config'
 import type { CreatorProfile } from '@/types'
 
+export interface CreatorStatsError {
+  message: string
+  code?: number
+}
+
 // Module-level cache for Aleo mapping lookups — prevents duplicate fetches
 // within the same page session and protects against API rate limits.
 const mappingCache = new Map<string, { data: number | null; timestamp: number }>()
@@ -45,10 +50,12 @@ async function fetchMapping(
 
 export function useCreatorStats() {
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<CreatorStatsError | null>(null)
 
   const fetchCreatorStats = useCallback(
     async (creatorAddress: string): Promise<CreatorProfile> => {
       setLoading(true)
+      setError(null)
       try {
         // v24+: All on-chain mappings use Poseidon2(address) as key, not raw address
         const creatorHash = getCreatorHash(creatorAddress)
@@ -87,8 +94,9 @@ export function useCreatorStats() {
           contentCount,
           tierCount,
         }
-      } catch {
-        // Silent fallback — stats unavailable
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Failed to fetch creator stats'
+        setError({ message: msg })
         return {
           address: creatorAddress,
           tierPrice: null,
@@ -104,5 +112,7 @@ export function useCreatorStats() {
     []
   )
 
-  return { fetchCreatorStats, loading }
+  const clearError = useCallback(() => setError(null), [])
+
+  return { fetchCreatorStats, loading, error, clearError }
 }

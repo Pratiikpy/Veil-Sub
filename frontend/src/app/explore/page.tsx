@@ -72,6 +72,7 @@ interface Creator {
   display_name: string | null
   bio: string | null
   created_at: string
+  category?: string
 }
 
 function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
@@ -220,6 +221,7 @@ export default function ExplorePage() {
             address: fc.address,
             display_name: fc.label,
             bio: fc.bio ?? null,
+            category: fc.category,
             // Stagger join dates: first creator joined ~30 days ago, subsequent ones more recently
             created_at: new Date(now.getTime() - (30 - i * 5) * 24 * 60 * 60 * 1000).toISOString(),
           })))
@@ -409,7 +411,12 @@ export default function ExplorePage() {
           {!loading && !fetchError && creators.length > 0 && (
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs text-white/60">
-                {creators.length} creator{creators.length !== 1 ? 's' : ''}{debouncedSearch ? ` matching "${debouncedSearch}"` : ''}
+                {(() => {
+                  const filtered = creators.filter((c) => selectedCategory === 'all' || c.category === selectedCategory)
+                  const count = filtered.length
+                  const categoryLabel = selectedCategory !== 'all' ? ` in ${CATEGORIES.find(cat => cat.id === selectedCategory)?.label || selectedCategory}` : ''
+                  return `${count} creator${count !== 1 ? 's' : ''}${debouncedSearch ? ` matching "${debouncedSearch}"` : ''}${categoryLabel}`
+                })()}
               </p>
               {!debouncedSearch && (
                 <div className="flex items-center gap-1">
@@ -508,13 +515,33 @@ export default function ExplorePage() {
                 )}
               </div>
             </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {creators.map((creator, i) => (
-                <CreatorCard key={creator.address} creator={creator} index={i} />
-              ))}
-            </div>
-          )}
+          ) : (() => {
+            const filteredCreators = creators.filter((creator) => selectedCategory === 'all' || creator.category === selectedCategory)
+            if (filteredCreators.length === 0 && selectedCategory !== 'all') {
+              return (
+                <div className="text-center py-12">
+                  <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                    <Search className="w-6 h-6 text-violet-400" aria-hidden="true" />
+                  </div>
+                  <h3 className="text-white font-medium mb-1">No creators in {CATEGORIES.find(c => c.id === selectedCategory)?.label}</h3>
+                  <p className="text-sm text-white/60 mb-4">Try a different category or browse all creators.</p>
+                  <button
+                    onClick={() => setSelectedCategory('all')}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] transition-all"
+                  >
+                    View All Creators
+                  </button>
+                </div>
+              )
+            }
+            return (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredCreators.map((creator, i) => (
+                  <CreatorCard key={creator.address} creator={creator} index={i} />
+                ))}
+              </div>
+            )
+          })()}
         </div>
       </div>
     </PageTransition>

@@ -257,73 +257,146 @@ export default function RegisteredDashboard({
               </div>
             </m.div>
 
-            {/* Getting Started Checklist */}
+            {/* Getting Started Checklist with Progress Ring */}
             {((stats?.subscriberCount ?? 0) === 0 || (stats?.contentCount ?? 0) === 0 || Object.keys(creatorTiers).length === 0) && (
               <m.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 }}
-                className="p-5 rounded-xl bg-gradient-to-r from-violet-500/[0.06] to-transparent border border-violet-500/15"
+                className="p-6 rounded-2xl bg-gradient-to-br from-violet-600/10 via-violet-500/5 to-transparent border border-violet-500/20"
               >
-                <h2 className="text-sm font-semibold text-white mb-3">Getting Started with VeilSub</h2>
-                <div className="space-y-2.5">
+                {/* Header with Progress Ring */}
+                {(() => {
+                  const steps = [
+                    { done: true },
+                    { done: Object.keys(creatorTiers).length > 0 },
+                    { done: (stats?.contentCount ?? 0) > 0 },
+                    { done: false },
+                  ]
+                  const completedCount = steps.filter((s) => s.done).length
+                  const percentage = (completedCount / steps.length) * 100
+                  const circumference = 2 * Math.PI * 28
+                  const strokeDashoffset = circumference - (percentage / 100) * circumference
+
+                  return (
+                    <div className="flex items-center justify-between mb-5">
+                      <div>
+                        <h2 className="text-lg font-semibold text-white mb-1">Welcome to VeilSub!</h2>
+                        <p className="text-sm text-white/60">
+                          {completedCount === 4 ? "You're all set!" : `${4 - completedCount} step${4 - completedCount !== 1 ? 's' : ''} to launch`}
+                        </p>
+                      </div>
+                      <div className="relative w-16 h-16">
+                        <svg className="transform -rotate-90 w-16 h-16">
+                          <circle
+                            cx="32"
+                            cy="32"
+                            r="28"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            fill="none"
+                            className="text-white/10"
+                          />
+                          <circle
+                            cx="32"
+                            cy="32"
+                            r="28"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            fill="none"
+                            strokeDasharray={circumference}
+                            strokeDashoffset={strokeDashoffset}
+                            strokeLinecap="round"
+                            className="text-green-400 transition-all duration-500"
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-lg font-bold text-white">{completedCount}/4</span>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })()}
+
+                {/* Steps Grid */}
+                <div className="grid sm:grid-cols-2 gap-3">
                   {[
                     {
                       done: true,
-                      label: 'Register as a VeilSub creator',
-                      detail: 'On-chain registration to veilsub_v27.aleo complete',
+                      label: 'Register as a creator',
+                      detail: 'On-chain registration complete',
+                      icon: CheckCircle2,
                     },
                     {
                       done: Object.keys(creatorTiers).length > 0,
                       label: 'Create a custom tier',
-                      detail: 'Set flexible pricing via create_custom_tier transition',
+                      detail: 'Set flexible pricing',
                       action: () => setShowTierDialog(true),
                       actionLabel: 'Create Tier',
+                      icon: Settings,
                     },
                     {
                       done: (stats?.contentCount ?? 0) > 0,
                       label: 'Publish your first post',
-                      detail: 'Publish tier-gated content—subscribers prove access via verify_access with zero finalize footprint',
+                      detail: 'Share tier-gated content',
                       tabSwitch: 'content' as TabId,
+                      icon: FileText,
                     },
                     {
                       done: false,
-                      label: 'Share your creator page',
-                      detail: 'Invite subscribers with your link',
+                      label: 'Share your page',
+                      detail: 'Invite subscribers',
                       action: copyLink,
                       actionLabel: 'Copy Link',
+                      icon: Share2,
                     },
-                  ].map((step) => (
-                    <div key={step.label} className="flex items-center gap-3">
-                      {step.done ? (
-                        <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" aria-hidden="true" />
-                      ) : (
-                        <Circle className="w-5 h-5 text-white/60 shrink-0" aria-hidden="true" />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm ${step.done ? 'text-white/60 line-through' : 'text-white'}`}>
-                          {step.label}
-                        </p>
-                        <p className="text-xs text-white/60">{step.detail}</p>
-                      </div>
-                      {!step.done && step.action && (
-                        <button
-                          onClick={step.action}
-                          className="shrink-0 px-3 py-1 rounded-lg bg-white/[0.06] border border-border text-xs text-violet-300 hover:bg-violet-500/10 transition-all"
-                        >
-                          {step.actionLabel}
-                        </button>
-                      )}
-                      {!step.done && 'tabSwitch' in step && step.tabSwitch && (
-                        <button
-                          onClick={() => setActiveTab(step.tabSwitch as TabId)}
-                          className="shrink-0 px-3 py-1 rounded-lg bg-white/[0.06] border border-border text-xs text-violet-300 hover:bg-violet-500/10 transition-all"
-                        >
-                          Go to Content
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                  ].map((step) => {
+                    const Icon = step.icon
+                    return (
+                      <m.div
+                        key={step.label}
+                        className={`p-4 rounded-xl border transition-all ${
+                          step.done
+                            ? 'bg-green-500/5 border-green-500/15'
+                            : 'bg-white/[0.03] border-border hover:border-violet-500/20'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${
+                            step.done ? 'bg-green-500/15' : 'bg-violet-500/10'
+                          }`}>
+                            {step.done ? (
+                              <CheckCircle2 className="w-4 h-4 text-green-400" aria-hidden="true" />
+                            ) : (
+                              <Icon className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-medium ${step.done ? 'text-white/50 line-through' : 'text-white'}`}>
+                              {step.label}
+                            </p>
+                            <p className="text-xs text-white/50 mt-0.5">{step.detail}</p>
+                            {!step.done && step.action && (
+                              <button
+                                onClick={step.action}
+                                className="mt-2 px-3 py-1.5 rounded-lg bg-violet-500/15 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/25 transition-all"
+                              >
+                                {step.actionLabel}
+                              </button>
+                            )}
+                            {!step.done && 'tabSwitch' in step && step.tabSwitch && (
+                              <button
+                                onClick={() => setActiveTab(step.tabSwitch as TabId)}
+                                className="mt-2 px-3 py-1.5 rounded-lg bg-violet-500/15 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/25 transition-all"
+                              >
+                                Go to Content
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </m.div>
+                    )
+                  })}
                 </div>
               </m.div>
             )}

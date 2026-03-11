@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { hashAddress } from '@/lib/encryption'
 import { computeWalletHash } from '@/lib/utils'
 
@@ -16,15 +16,28 @@ interface SubscriptionEvent {
   created_at: string
 }
 
+export interface SupabaseError {
+  operation: 'getProfile' | 'upsertProfile' | 'recordEvent' | 'getEvents'
+  message: string
+  code?: number
+}
+
 export function useSupabase() {
+  const [error, setError] = useState<SupabaseError | null>(null)
   const getCreatorProfile = useCallback(async (address: string): Promise<SupabaseCreatorProfile | null> => {
+    setError(null)
     try {
       const addressHashValue = await hashAddress(address)
       const res = await fetch(`/api/creators?address_hash=${addressHashValue}`)
-      if (!res.ok) return null
+      if (!res.ok) {
+        setError({ operation: 'getProfile', message: 'Failed to fetch profile', code: res.status })
+        return null
+      }
       const { profile } = await res.json()
       return profile ?? null
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Network error fetching profile'
+      setError({ operation: 'getProfile', message: msg })
       return null
     }
   }, [])
@@ -36,6 +49,7 @@ export function useSupabase() {
       bio?: string,
       signMessage?: ((msg: Uint8Array) => Promise<Uint8Array>) | null
     ): Promise<SupabaseCreatorProfile | null> => {
+      setError(null)
       try {
         const timestamp = Date.now()
         let signature: string | undefined
@@ -53,10 +67,15 @@ export function useSupabase() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ address, display_name: displayName, bio, signature, timestamp }),
         })
-        if (!res.ok) return null
+        if (!res.ok) {
+          setError({ operation: 'upsertProfile', message: 'Failed to save profile', code: res.status })
+          return null
+        }
         const { profile } = await res.json()
         return profile ?? null
-      } catch {
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Network error saving profile'
+        setError({ operation: 'upsertProfile', message: msg })
         return null
       }
     },
@@ -105,21 +124,31 @@ export function useSupabase() {
   )
 
   const getSubscriptionEvents = useCallback(async (address: string): Promise<SubscriptionEvent[]> => {
+    setError(null)
     try {
       const addressHashValue = await hashAddress(address)
       const res = await fetch(`/api/analytics?creator_address_hash=${addressHashValue}`)
-      if (!res.ok) return []
+      if (!res.ok) {
+        setError({ operation: 'getEvents', message: 'Failed to fetch events', code: res.status })
+        return []
+      }
       const { events } = await res.json()
       return events || []
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Network error fetching events'
+      setError({ operation: 'getEvents', message: msg })
       return []
     }
   }, [])
+
+  const clearError = useCallback(() => setError(null), [])
 
   return {
     getCreatorProfile,
     upsertCreatorProfile,
     recordSubscriptionEvent,
     getSubscriptionEvents,
+    error,
+    clearError,
   }
 }

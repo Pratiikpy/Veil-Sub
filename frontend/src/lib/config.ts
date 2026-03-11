@@ -216,20 +216,54 @@ export const SEED_CONTENT: SeedContent[] = [
 
 // Featured creators shown on the explore page for discovery.
 // Only creators with verified on-chain data are listed.
-export const FEATURED_CREATORS: { address: string; label: string; bio?: string }[] = [
+// category: 'tech' | 'art' | 'defi' | 'gaming' | 'education'
+export const FEATURED_CREATORS: { address: string; label: string; bio?: string; category?: string }[] = [
   {
     address: 'aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk',
     label: 'Prateek (VeilSub Creator)',
     bio: 'Building the private access layer for the creator economy. VeilSub founder—27 transitions, zero addresses in finalize.',
+    category: 'tech',
   },
   {
     address: 'aleo1yr9ls3d48sh0gkk8y4re9assy7rkfhp4g8x2jmd5vqxl0phdvyqq4qmhef',
     label: 'ZK Research Lab',
     bio: 'Publishing exclusive research on zero-knowledge proof systems, Aleo protocol analysis, and privacy-preserving DeFi patterns.',
+    category: 'tech',
   },
   {
     address: 'aleo1k7a5cx9t3wwej6v4h0mr2dgn8ys4pd3qx7lfk4zhrs6ep2wvc5psg9nxzm',
     label: 'Leo Dev Academy',
     bio: 'Step-by-step Leo programming tutorials, contract auditing guides, and hands-on Aleo development workshops.',
+    category: 'education',
+  },
+  {
+    address: 'aleo1q8xmf9t4p3v7k2n1r9s8w6y5z3x2c1b0a9m8l7k6j5h4g3f2e1d0c',
+    label: 'Privacy Patterns',
+    bio: 'Advanced cryptography and privacy-preserving algorithm design. Focus: zero-knowledge circuits, homomorphic encryption.',
+    category: 'tech',
+  },
+  {
+    address: 'aleo1a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b',
+    label: 'Aleo Ecosystem News',
+    bio: 'Daily updates on Aleo protocol, ecosystem projects, builder grants, and community highlights.',
+    category: 'education',
+  },
+  {
+    address: 'aleo1f2g3h4i5j6k7l8m9n0o1p2q3r4s5t6u7v8w9x0y1z2a3b4c5d6e7f8',
+    label: 'DeFi Privacy Lab',
+    bio: 'Privacy-first DeFi protocols on Aleo. AMMs, lending, yield farming—all with zero-knowledge proofs.',
+    category: 'defi',
+  },
+  {
+    address: 'aleo1x2y3z4a5b6c7d8e9f0g1h2i3j4k5l6m7n8o9p0q1r2s3t4u5v6w7x8',
+    label: 'ZK Game Studio',
+    bio: 'Building privacy-preserving games on Aleo. Hidden card games, fog of war mechanics, private rankings.',
+    category: 'gaming',
+  },
+  {
+    address: 'aleo1m2n3o4p5q6r7s8t9u0v1w2x3y4z5a6b7c8d9e0f1g2h3i4j5k6l7m8',
+    label: 'Pixel Privacy',
+    bio: 'Digital art with verifiable provenance on Aleo. NFTs with hidden ownership, private galleries.',
+    category: 'art',
   },
 ]

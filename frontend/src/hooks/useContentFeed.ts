@@ -5,8 +5,15 @@ import { SEED_CONTENT } from '@/lib/config'
 import { computeWalletHash } from '@/lib/utils'
 import type { AccessPass, ContentPost } from '@/types'
 
+export interface ContentFeedError {
+  operation: 'fetch' | 'unlock' | 'create' | 'edit' | 'delete'
+  message: string
+  code?: number
+}
+
 export function useContentFeed() {
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<ContentFeedError | null>(null)
 
   const getPostsForCreator = useCallback(
     async (creatorAddress: string): Promise<ContentPost[]> => {
@@ -24,6 +31,7 @@ export function useContentFeed() {
       }))
 
       setLoading(true)
+      setError(null)
       try {
         const res = await fetch(
           `/api/posts?creator=${encodeURIComponent(creatorAddress)}`
@@ -34,8 +42,10 @@ export function useContentFeed() {
           setLoading(false)
           return apiPosts.length > 0 ? apiPosts : seedPosts
         }
-      } catch {
-        // Silent fallback to seed content
+        setError({ operation: 'fetch', message: 'Failed to load posts', code: res.status })
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Network error fetching posts'
+        setError({ operation: 'fetch', message: msg })
       }
       setLoading(false)
       return seedPosts
@@ -95,8 +105,10 @@ export function useContentFeed() {
           const data = await res.json()
           return { body: data.body as string, imageUrl: data.imageUrl as string | undefined }
         }
-      } catch {
-        // Unlock failed — return null
+        setError({ operation: 'unlock', message: 'Access verification failed', code: res.status })
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Network error unlocking content'
+        setError({ operation: 'unlock', message: msg })
       }
       return null
     },
@@ -153,8 +165,10 @@ export function useContentFeed() {
           const { post } = await res.json()
           return post as ContentPost
         }
-      } catch {
-        // Create failed — return null
+        setError({ operation: 'create', message: 'Failed to publish post', code: res.status })
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Network error creating post'
+        setError({ operation: 'create', message: msg })
       }
       return null
     },
@@ -198,8 +212,13 @@ export function useContentFeed() {
             signature,
           }),
         })
+        if (!res.ok) {
+          setError({ operation: 'delete', message: 'Failed to delete post', code: res.status })
+        }
         return res.ok
-      } catch {
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Network error deleting post'
+        setError({ operation: 'delete', message: msg })
         return false
       }
     },
@@ -249,13 +268,17 @@ export function useContentFeed() {
           const { post } = await res.json()
           return post as ContentPost
         }
-      } catch {
-        // Edit failed — return null
+        setError({ operation: 'edit', message: 'Failed to update post', code: res.status })
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Network error editing post'
+        setError({ operation: 'edit', message: msg })
       }
       return null
     },
     []
   )
 
-  return { getPostsForCreator, unlockPost, createPost, editPost, deletePost, loading }
+  const clearError = useCallback(() => setError(null), [])
+
+  return { getPostsForCreator, unlockPost, createPost, editPost, deletePost, loading, error, clearError }
 }
