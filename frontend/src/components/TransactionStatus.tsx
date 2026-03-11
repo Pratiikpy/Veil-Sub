@@ -136,7 +136,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
         aria-label="Transaction progress"
       >
         <m.div
-          className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full"
+          className="h-full bg-gradient-to-r from-violet-500 to-violet-600 rounded-full"
           initial={{ width: '0%' }}
           animate={{
             width:

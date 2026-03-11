@@ -21,13 +21,13 @@ export default function VerificationResult({
     <m.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`p-5 rounded-xl border ${
+      className={`p-6 rounded-xl border ${
         success
           ? 'bg-green-500/5 border-green-500/20 shadow-[0_0_30px_rgba(16,185,129,0.15)]'
           : 'bg-red-500/5 border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.15)]'
       }`}
     >
-      <div className="flex items-center gap-3 mb-3">
+      <div className="flex items-center gap-4 mb-4">
         <div
           className={`w-10 h-10 rounded-full flex items-center justify-center ${
             success ? 'bg-green-500/15' : 'bg-red-500/15'
@@ -56,7 +56,7 @@ export default function VerificationResult({
       </div>
 
       {success && passTier && passCreator && (
-        <div className="space-y-2 mb-3">
+        <div className="space-y-2 mb-4">
           <div className="flex justify-between text-xs">
             <span className="text-white/60">Tier</span>
             <span className="text-white">{passTier}</span>

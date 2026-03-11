@@ -71,9 +71,9 @@ function LoadingSkeleton() {
       {[1, 2, 3].map((i) => (
         <div
           key={i}
-          className="rounded-xl border border-white/[0.05] bg-white/[0.01] p-5 animate-pulse"
+          className="rounded-xl border border-white/[0.05] bg-white/[0.01] p-6 animate-pulse"
         >
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-4 mb-4">
             <div className="w-8 h-8 rounded-lg bg-white/[0.05]" />
             <div className="flex-1 h-4 rounded bg-white/[0.05]" />
             <div className="w-16 h-5 rounded-full bg-white/[0.05]" />
@@ -298,8 +298,8 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     : 'border-white/5 bg-white/[0.01]'
                 }`}
               >
-                <div className="p-5">
-                  <div className="flex items-center gap-3 mb-3">
+                <div className="p-6">
+                  <div className="flex items-center gap-4 mb-4">
                     <div
                       className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                         unlocked ? tier.lockBg : 'bg-white/[0.05]'

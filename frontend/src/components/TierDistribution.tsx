@@ -50,8 +50,8 @@ export default function TierDistribution({ creatorAddress }: Props) {
 
   if (fetchError) {
     return (
-      <div className="rounded-xl bg-surface-1 border border-border p-5">
-        <div className="flex items-center gap-2 mb-3">
+      <div className="rounded-xl bg-surface-1 border border-border p-6">
+        <div className="flex items-center gap-2 mb-4">
           <Users className="w-4 h-4 text-white/70" aria-hidden="true" />
           <h3 className="text-sm font-medium text-white">Tier Breakdown</h3>
         </div>
@@ -65,7 +65,7 @@ export default function TierDistribution({ creatorAddress }: Props) {
   const maxCount = distValues.length > 0 ? Math.max(...distValues.filter((v): v is number => typeof v === 'number'), 1) : 1
 
   return (
-    <div className="rounded-xl bg-surface-1 border border-border p-5">
+    <div className="rounded-xl bg-surface-1 border border-border p-6">
       <div className="flex items-center gap-2 mb-4">
         <Users className="w-4 h-4 text-white/70" aria-hidden="true" />
         <h3 className="text-sm font-medium text-white">Tier Breakdown</h3>

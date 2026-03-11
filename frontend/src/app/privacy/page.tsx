@@ -753,8 +753,8 @@ identity:     ████████████     // Poseidon2(BlindKey)
 
             {/* Data Flow Diagram */}
             <div className="mb-8 grid md:grid-cols-2 gap-4">
-              <div className="p-5 rounded-xl bg-white/[0.04] border border-border">
-                <h4 className="text-sm font-medium text-white/70 mb-3">Subscribe Flow</h4>
+              <div className="p-6 rounded-xl bg-white/[0.04] border border-border">
+                <h4 className="text-sm font-medium text-white/70 mb-4">Subscribe Flow</h4>
                 <div className="space-y-2 text-xs text-white/70">
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-white/20 shrink-0" />
@@ -774,8 +774,8 @@ identity:     ████████████     // Poseidon2(BlindKey)
                   </div>
                 </div>
               </div>
-              <div className="p-5 rounded-xl bg-green-500/5 border border-green-500/15">
-                <h4 className="text-sm font-medium text-green-300 mb-3">Verify Access Flow</h4>
+              <div className="p-6 rounded-xl bg-green-500/5 border border-green-500/15">
+                <h4 className="text-sm font-medium text-green-300 mb-4">Verify Access Flow</h4>
                 <div className="space-y-2 text-xs text-white/70">
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
