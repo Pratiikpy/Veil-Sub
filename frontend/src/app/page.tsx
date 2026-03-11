@@ -11,6 +11,7 @@ const ProblemSolution = dynamic(() => import('@/components/home/ProblemSolution'
 const HowItWorks = dynamic(() => import('@/components/home/HowItWorks'))
 const PrivacyFeatures = dynamic(() => import('@/components/home/PrivacyFeatures'))
 const ContractShowcase = dynamic(() => import('@/components/home/ContractShowcase'))
+const ZeroKnowledgeVisual = dynamic(() => import('@/components/home/ZeroKnowledgeVisual'))
 const PlatformComparison = dynamic(() => import('@/components/home/PlatformComparison'))
 const ExploreCreators = dynamic(() => import('@/components/home/ExploreCreators'))
 const ProtocolStats = dynamic(() => import('@/components/home/ProtocolStats'))
@@ -27,6 +28,7 @@ export default function HomePage() {
       <HowItWorks />
       <PrivacyFeatures />
       <ContractShowcase />
+      <ZeroKnowledgeVisual />
       <PlatformComparison />
       <ExploreCreators />
       <ProtocolStats />
