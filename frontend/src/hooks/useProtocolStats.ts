@@ -39,7 +39,7 @@ export function useProtocolStats() {
     programDeployed: false,
     transitionCount: 27,
     recordTypes: 6,
-    versions: 26,
+    versions: 27,
   })
   const [loading, setLoading] = useState(true)
 
@@ -56,7 +56,7 @@ export function useProtocolStats() {
         programDeployed: deployed,
         transitionCount: 27,
         recordTypes: 6,
-        versions: 26,
+        versions: 27,
       })
       setLoading(false)
     }

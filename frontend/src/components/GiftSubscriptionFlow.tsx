@@ -49,10 +49,8 @@ export default function GiftSubscriptionFlow({
       const records = await getCreditsRecords()
       if (records.length === 0) throw new Error('No private credits available. Convert public credits first.')
       const paymentRecord = typeof records[0] === 'string' ? records[0] : (records[0] as Record<string, string>).plaintext
-      // Generate a collision-resistant gift ID using crypto API + timestamp + random suffix
-      const randomBytes = new Uint8Array(8)
-      crypto.getRandomValues(randomBytes)
-      const giftId = `${Date.now()}-${Array.from(randomBytes).map(b => b.toString(16).padStart(2, '0')).join('')}`
+      // Generate a collision-resistant gift ID using crypto.randomUUID (RFC 4122 v4, 2^122 unique space)
+      const giftId = crypto.randomUUID()
       const expiresAt = 0 // Will be computed in finalize based on block.height + duration
       const result = await giftSubscription(
         paymentRecord,

@@ -97,7 +97,7 @@ export function useTransactionPoller() {
           // After enough non-failure polls, treat as confirmed.
           if (result.status === 'pending') {
             const rawResult = await transactionStatus?.(txId)
-            const rawS = (typeof rawResult === 'string' ? rawResult : (rawResult as any)?.status || '').toLowerCase()
+            const rawS = (typeof rawResult === 'string' ? rawResult : (rawResult as { status?: string } | null)?.status || '').toLowerCase()
 
             // Count any non-failure response (pending, accepted, etc.)
             if (!rawS.includes('fail') && !rawS.includes('reject')) {

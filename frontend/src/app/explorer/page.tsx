@@ -541,10 +541,28 @@ export default function ExplorerPage() {
                   <h3 className="text-lg font-semibold text-white mb-1">
                     Creator Not Registered
                   </h3>
-                  <p className="text-sm text-white/70">
+                  <p className="text-sm text-white/70 mb-4">
                     This address has not called <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300 text-xs">register_creator</code> on VeilSub.
                     No subscription data exists for this address.
                   </p>
+                  <div className="flex items-center justify-center gap-3">
+                    <button
+                      onClick={() => {
+                        setAddress('')
+                        setSearched(false)
+                      }}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-white/10 hover:bg-white/15 text-white/80 hover:text-white transition-all"
+                    >
+                      Try Another Address
+                    </button>
+                    <a
+                      href="/explore"
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 hover:text-violet-200 transition-all border border-violet-500/30"
+                    >
+                      Browse Creators
+                      <ArrowRight className="w-4 h-4" />
+                    </a>
+                  </div>
                 </div>
               )}
             </m.div>

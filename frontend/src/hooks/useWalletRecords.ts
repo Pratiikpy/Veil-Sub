@@ -254,7 +254,7 @@ export function useWalletRecords() {
           const result = await wallet.adapter.transactionStatus(txId)
           const status = typeof result === 'string'
             ? result
-            : (result as any)?.status ?? 'unknown'
+            : (result as { status?: string } | null)?.status ?? 'unknown'
           return status
         }
         return 'unknown'
