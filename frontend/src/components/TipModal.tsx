@@ -341,7 +341,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                     >
                       <Eye className="w-4 h-4 mx-auto mb-1" aria-hidden="true" />
                       <span className="text-[11px] font-medium block">Direct Tip</span>
-                      <span className="text-[9px] text-white/60 block">Instant transfer</span>
+                      <span className="text-[9px] text-white/60 block">via transfer_private</span>
                     </button>
                     <button
                       role="radio"
@@ -356,7 +356,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                     >
                       <EyeOff className="w-4 h-4 mx-auto mb-1" aria-hidden="true" />
                       <span className="text-[11px] font-medium block">Private Tip</span>
-                      <span className="text-[9px] text-white/60 block">Commit-reveal</span>
+                      <span className="text-[9px] text-white/60 block">BHP256 commit-reveal</span>
                     </button>
                   </div>
                 )}
@@ -422,7 +422,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                   {tipMode === 'direct' ? (
                     <>
                       <p className="text-[11px] text-green-400/80">
-                        Your identity stays private. The creator receives payment but never knows who tipped.
+                        Your identity stays private via transfer_private. The creator receives payment but never knows who tipped.
                       </p>
                       <p className="text-[11px] text-white/60">
                         Est. network fee: ~{formatCredits(currentFee)} ALEO
@@ -433,11 +433,11 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                       <div className="flex gap-1.5 items-start">
                         <Shield className="w-3.5 h-3.5 text-green-400 mt-0.5 shrink-0" aria-hidden="true" />
                         <div className="text-[11px] text-green-400/80 space-y-0.5">
-                          <p className="font-medium text-green-400">Commit-Reveal Privacy</p>
+                          <p className="font-medium text-green-400">Commit-Reveal Privacy (BHP256)</p>
                           {commitPhase === 'commit' ? (
-                            <p>Phase 1: A cryptographic commitment hides the tip amount on-chain. The creator sees only a hash until you reveal.</p>
+                            <p>Phase 1: commit_tip hashes your amount with BHP256. The creator sees only the hash until you reveal.</p>
                           ) : (
-                            <p>Phase 2: Reveal verifies your commitment and transfers the actual payment to the creator.</p>
+                            <p>Phase 2: reveal_tip verifies your commitment and transfers the actual payment via transfer_private.</p>
                           )}
                         </div>
                       </div>
@@ -510,7 +510,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                   >
                     <p className="text-green-400 font-medium">Private tip revealed and sent!</p>
                     <p className="text-xs text-white/70 mt-1">
-                      The creator has received {formatCredits(savedAmount)} ALEO. Both phases are verified on-chain.
+                      The creator has received {formatCredits(savedAmount)} ALEO via transfer_private. Both phases verified on veilsub_v27.aleo.
                     </p>
                     <button
                       onClick={handleModalClose}

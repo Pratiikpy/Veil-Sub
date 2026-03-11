@@ -268,9 +268,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
           {posts.length === 0 && (
             <div className="p-8 rounded-sm bg-surface-1 border border-white/[0.05] text-center">
               <FileText className="w-10 h-10 text-white/60 mx-auto mb-3" aria-hidden="true" />
-              <h3 className="text-white font-medium mb-1">No Posts Yet</h3>
+              <h3 className="text-white font-medium mb-1">No Exclusive Content Yet</h3>
               <p className="text-sm text-white/60">
-                This creator hasn&apos;t published any exclusive content yet. Check back soon!
+                This creator hasn&apos;t published any AccessPass-gated content yet. Check back soon!
               </p>
             </div>
           )}
@@ -341,7 +341,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     <div className="mb-3 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-28">
                       <div className="flex items-center gap-2 text-white/60">
                         <ImageIcon className="w-5 h-5" aria-hidden="true" />
-                        <span className="text-xs">Image content—subscribe to view</span>
+                        <span className="text-xs">Image content—AccessPass required</span>
                       </div>
                     </div>
                   )}
@@ -379,7 +379,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                   ) : isUnlocking ? (
                     <div className="flex items-center gap-2 py-3">
                       <Loader2 className="w-4 h-4 text-violet-400 animate-spin" aria-hidden="true" />
-                      <p className="text-sm text-white/70">Verifying access pass...</p>
+                      <p className="text-sm text-white/70">Verifying AccessPass via verify_access...</p>
                     </div>
                   ) : isFailed && hasAccess ? (
                     <div className="flex items-center gap-3 py-3">
@@ -423,8 +423,8 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                           disabled
                         >
                           {connected
-                            ? `Subscribe to ${tier.name} to unlock`
-                            : 'Connect wallet to unlock'}
+                            ? `Subscribe to ${tier.name} for AccessPass`
+                            : 'Connect wallet for AccessPass'}
                           <ArrowRight className="w-3 h-3" aria-hidden="true" />
                         </button>
                         <p className="text-xs text-white/60">
@@ -437,7 +437,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                   <div className="flex items-center justify-between mt-2">
                     {post.contentId !== 'seed' && (
                       <p className="text-xs text-white/60">
-                        Published on-chain
+                        Published via veilsub_v27.aleo
                       </p>
                     )}
                     <div className="flex items-center gap-3 ml-auto">

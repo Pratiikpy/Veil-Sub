@@ -1,7 +1,7 @@
 'use client'
 
 import { m } from 'framer-motion'
-import { EyeOff, KeyRound, FileText, Lock, Coins, Globe } from 'lucide-react'
+import { EyeOff, KeyRound, FileText, Lock, Coins, Globe, Layers, Gift } from 'lucide-react'
 import Container from '@/components/ui/Container'
 import SectionHeader from '@/components/ui/SectionHeader'
 import ScrollReveal from '@/components/ScrollReveal'
@@ -23,8 +23,10 @@ const FEATURES_LARGE = [
 
 const FEATURES_SMALL = [
   { icon: FileText, title: 'Scoped Audit Tokens', desc: 'Bitfield mask controls which fields verifiers see: tier, expiry, or nothing—you choose' },
-  { icon: Lock, title: 'Six Private Records', desc: 'AccessPass, AuditToken, GiftToken, and 3 more—each with independent privacy scope' },
+  { icon: Layers, title: 'Dynamic Creator Tiers', desc: 'Flexible pricing via create_custom_tier—creators define their own tier names and prices' },
+  { icon: Gift, title: 'Private Gift Subscriptions', desc: 'gift_subscription + redeem_gift—send AccessPasses to friends without revealing yourself' },
   { icon: Coins, title: 'Commit-Reveal Tipping', desc: 'BHP256 hash commitment hides tip amount until you reveal—tips stay private' },
+  { icon: Lock, title: 'Six Private Records', desc: 'AccessPass, AuditToken, GiftToken, and 3 more—each with independent privacy scope' },
   { icon: Globe, title: 'verify_access Proofs', desc: 'Verify subscription status using only pass_id—no address exposure on-chain' },
 ]
 

@@ -207,7 +207,7 @@ export default function ExplorePage() {
             </h1>
             <p className="text-lg text-white/70 max-w-lg mx-auto">
               Discover creators on VeilSub and subscribe via BSP—your wallet never enters
-              finalize, your AccessPass proves membership without identity.
+              finalize, your AccessPass proves membership without identity. Gift subscriptions privately to friends.
             </p>
           </m.div>
 

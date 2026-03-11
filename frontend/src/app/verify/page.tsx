@@ -312,17 +312,17 @@ export default function VerifyPage() {
                   </div>
                 ) : (
                   <div className="text-center py-12 rounded-xl bg-surface-1 border border-border">
-                    <div className="relative w-14 h-14 mx-auto mb-4">
-                      <div className="absolute inset-0 rounded-xl bg-violet-500/10 animate-pulse" />
-                      <div className="relative w-full h-full rounded-xl bg-surface-1 border border-border flex items-center justify-center">
-                        <Lock className="w-7 h-7 text-white/60" aria-hidden="true" />
+                    <div className="relative w-16 h-16 mx-auto mb-4">
+                      <div className="absolute inset-0 rounded-2xl bg-violet-500/10 animate-pulse" />
+                      <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-border flex items-center justify-center">
+                        <Lock className="w-8 h-8 text-white/60" aria-hidden="true" />
                       </div>
                     </div>
                     <p className="text-white font-medium text-sm mb-1">
-                      No Access Passes Found
+                      No AccessPasses Found
                     </p>
                     <p className="text-white/60 text-xs mb-4">
-                      Subscribe to a creator to receive your first AccessPass.
+                      Subscribe to a creator via BSP to receive your first AccessPass record.
                     </p>
                     <Link
                       href="/explore"

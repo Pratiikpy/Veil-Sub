@@ -265,25 +265,25 @@ export default function RegisteredDashboard({
                 transition={{ delay: 0.05 }}
                 className="p-5 rounded-xl bg-gradient-to-r from-violet-500/[0.06] to-transparent border border-violet-500/15"
               >
-                <h2 className="text-sm font-semibold text-white mb-3">Getting Started</h2>
+                <h2 className="text-sm font-semibold text-white mb-3">Getting Started with VeilSub</h2>
                 <div className="space-y-2.5">
                   {[
                     {
                       done: true,
-                      label: 'Register as a creator',
-                      detail: 'On-chain registration complete',
+                      label: 'Register as a VeilSub creator',
+                      detail: 'On-chain registration to veilsub_v27.aleo complete',
                     },
                     {
                       done: Object.keys(creatorTiers).length > 0,
                       label: 'Create a custom tier',
-                      detail: 'Set pricing for your subscription tiers',
+                      detail: 'Set flexible pricing via create_custom_tier transition',
                       action: () => setShowTierDialog(true),
                       actionLabel: 'Create Tier',
                     },
                     {
                       done: (stats?.contentCount ?? 0) > 0,
                       label: 'Publish your first post',
-                      detail: 'Create gated content for subscribers',
+                      detail: 'Create AccessPass-gated content for subscribers',
                       tabSwitch: 'content' as TabId,
                     },
                     {
@@ -377,7 +377,7 @@ export default function RegisteredDashboard({
               <div className="mt-4 pt-4 border-t border-border/75">
                 <p className="text-xs text-violet-300 font-medium mb-2">Direct Link</p>
                 <p className="text-[11px] text-white/60 mb-2">
-                  Share your creator page link. Subscribers pay privately — you receive a CreatorReceipt record but cannot identify individual subscribers.
+                  Share your creator page link. Subscribers pay privately via credits.aleo/transfer_private — you receive a CreatorReceipt record but cannot identify individual subscribers (zero-address finalize).
                 </p>
                 <ShareText
                   text={`${creatorLink || `/creator/${publicKey}`}`}
@@ -422,7 +422,7 @@ export default function RegisteredDashboard({
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-border text-xs text-white hover:text-white hover:border-green-500/30 transition-all"
                 >
                   <ExternalLink className="w-3 h-3" aria-hidden="true" />
-                  Your tier_prices entry
+                  Your tier_prices mapping
                 </a>
               </div>
             </m.div>
@@ -469,13 +469,13 @@ export default function RegisteredDashboard({
               className="p-6 rounded-xl bg-surface-1 border border-border"
             >
               <h2 className="text-lg font-semibold text-white mb-3">
-                How Content Gating Works
+                How VeilSub Content Gating Works
               </h2>
               <div className="space-y-3 text-sm text-white/70">
                 <p>
                   Subscribers receive a private <strong className="text-white">AccessPass</strong> record
-                  in their wallet with an expiry of ~30 days. This record proves they have access without
-                  revealing their identity.
+                  in their wallet with an expiry of ~30 days (259,200 blocks). This record proves they have access via BSP
+                  without revealing their identity to the platform.
                 </p>
                 <p>
                   When a subscriber visits your gated content, they can prove
@@ -736,7 +736,7 @@ export default function RegisteredDashboard({
               </div>
               <p className="text-xs text-white/60 mb-2">
                 Prove your subscriber count exceeds a threshold without revealing the exact number.
-                Uses zero-knowledge verification on-chain — third parties see only that the proof succeeded.
+                Uses prove_subscriber_threshold on-chain — third parties see only that the proof succeeded.
               </p>
               <div className="flex gap-2">
                 <div className="flex-1 p-3 rounded-lg bg-white/[0.03] border border-border">
