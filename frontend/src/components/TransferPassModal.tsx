@@ -89,7 +89,7 @@ export default function TransferPassModal({
           role="dialog"
           aria-modal="true"
           aria-label="Transfer subscription pass"
-          className="relative w-full max-w-md rounded-xl bg-surface-1 border border-border p-6 shadow-2xl"
+          className="relative w-full max-w-md rounded-xl bg-surface-1 border border-border p-8 shadow-2xl"
         >
           {/* Close */}
           <button
@@ -157,7 +157,7 @@ export default function TransferPassModal({
                 type="checkbox"
                 checked={confirmed}
                 onChange={(e) => setConfirmed(e.target.checked)}
-                className="mt-0.5 w-4 h-4 rounded border-red-500/30 bg-red-500/10 text-red-400 focus:ring-red-500/30 focus:ring-offset-0 cursor-pointer"
+                className="mt-0.5 w-4 h-4 rounded border-red-500/30 bg-red-500/10 text-red-400 focus:ring-red-500/30 focus:ring-offset-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-red-400/50"
               />
               <span className="text-xs text-red-200/80 leading-relaxed group-hover:text-red-200 transition-colors">
                 I understand this transfer is irreversible and my AccessPass will be permanently moved to the recipient
@@ -178,7 +178,7 @@ export default function TransferPassModal({
 
           {/* Success State */}
           {txStatus === 'confirmed' && (
-            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4 mb-4">
+            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4 mb-4" role="status" aria-live="polite">
               <p className="text-sm text-emerald-300 font-medium mb-2">Transfer Complete</p>
               <p className="text-xs text-white/60 leading-relaxed">
                 Your AccessPass has been transferred to <span className="font-mono text-violet-300">{recipientAddress.slice(0, 12)}...{recipientAddress.slice(-6)}</span>.

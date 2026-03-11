@@ -168,7 +168,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
                       ? 'bg-[var(--accent,#8B5CF6)] text-white shadow-[0_0_16px_rgba(139,92,246,0.4)]'
                       : isErrorStep
                       ? 'bg-red-500 text-white'
-                      : 'bg-white/10 text-white/40'
+                      : 'bg-white/10 text-white/60'
                   }`}
                 >
                   {isDone ? (
@@ -191,7 +191,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
                       ? 'text-white'
                       : isErrorStep
                       ? 'text-red-400'
-                      : 'text-white/40'
+                      : 'text-white/60'
                   }`}
                 >
                   {step.label}
@@ -285,7 +285,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
                         ? 'text-white'
                         : isErrorStep
                         ? 'text-red-400'
-                        : 'text-white/40'
+                        : 'text-white/60'
                     }`}
                   >
                     {step.label}
@@ -346,16 +346,19 @@ export default function TransactionProgress({ currentStep, error }: Props) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             className="mt-5 text-center"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
           >
             {/* Active message -- desktop only, mobile shows inline */}
             <p className="hidden sm:block text-xs text-white/60 mb-1">
               {currentStepDef.activeMsg}
             </p>
             {estimatedRemaining && (
-              <p className="text-[11px] text-white/40">{estimatedRemaining}</p>
+              <p className="text-[11px] text-white/60">{estimatedRemaining}</p>
             )}
             {elapsed > 0 && (
-              <p className="text-[11px] text-white/30 mt-0.5">
+              <p className="text-[11px] text-white/50 mt-0.5">
                 Elapsed: {elapsed >= 60 ? `${Math.floor(elapsed / 60)}m ${elapsed % 60}s` : `${elapsed}s`}
               </p>
             )}

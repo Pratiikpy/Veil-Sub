@@ -165,7 +165,7 @@ export default function DashboardPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
           <h1 className="text-3xl font-serif italic text-white mb-4">Creator Dashboard</h1>
           <div className="p-6 rounded-xl bg-red-500/5 border border-red-500/15 max-w-md mx-auto">
-            <p className="text-sm text-red-300 mb-3">Could not load your creator status. This may be a network issue.</p>
+            <p className="text-sm text-red-300 mb-4">Could not load your creator status. This may be a network issue.</p>
             <button
               onClick={() => setRefreshKey((k) => k + 1)}
               className="px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] transition-all"
@@ -213,7 +213,7 @@ export default function DashboardPage() {
             >
               <Shield className="w-16 h-16 text-violet-400 mb-6" aria-hidden="true" />
             </m.div>
-            <h2 className="text-3xl font-bold text-white mb-3">
+            <h2 className="text-3xl font-bold text-white mb-4">
               You&apos;re Registered!
             </h2>
             <p className="text-white/70 text-center max-w-md mb-8">
@@ -223,10 +223,10 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1 }}
-              className="space-y-3 text-center"
+              className="space-y-4 text-center"
             >
               <p className="text-xs text-white/60 uppercase tracking-wider font-medium">Next steps</p>
-              <div className="flex items-center gap-3 flex-wrap justify-center">
+              <div className="flex items-center gap-4 flex-wrap justify-center">
                 <Link
                   href={`/creator/${publicKey}`}
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-violet-300 hover:bg-violet-500/20 transition-all duration-300 active:scale-[0.98]"

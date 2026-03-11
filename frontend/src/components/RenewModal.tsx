@@ -147,7 +147,7 @@ export default function RenewModal({
               ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
               : null
             logSubscriptionEvent(pass.creator, selectedTier?.id || 1, totalPrice, result.resolvedTxId || id, wrappedSign)
-            toast.success('Subscription renewed!')
+            toast.success('AccessPass renewed—zero-address finalize confirmed')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             setError('Transaction failed on-chain.')
@@ -241,7 +241,7 @@ export default function RenewModal({
                         aria-checked={selectedTier.id === tier.id}
                         tabIndex={selectedTier.id === tier.id ? 0 : -1}
                         onClick={() => setSelectedTier(tier)}
-                        className={`py-2.5 px-3 rounded-lg text-xs font-medium transition-all ${
+                        className={`py-2.5 px-4 rounded-lg text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50 focus-visible:ring-offset-0 ${
                           selectedTier.id === tier.id
                             ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
                             : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:border-white/15'
@@ -356,7 +356,7 @@ export default function RenewModal({
             ) : (
               <div className="py-2">
                 {statusMessage && (
-                  <div className="mb-3 p-3 rounded-xl bg-surface-2 border border-border">
+                  <div className="mb-4 p-4 rounded-xl bg-surface-2 border border-border">
                     <p className="text-xs text-white/70 animate-pulse">{statusMessage}</p>
                   </div>
                 )}
@@ -366,6 +366,8 @@ export default function RenewModal({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-4 text-center"
+                    role="status"
+                    aria-live="polite"
                   >
                     <p className="text-green-400 font-medium mb-1">Renewal Confirmed</p>
                     <p className="text-xs text-white/60">
@@ -381,7 +383,7 @@ export default function RenewModal({
                 )}
                 {txStatus === 'failed' && (
                   <div className="mt-4 text-center">
-                    {error && <p role="alert" className="text-xs text-red-400 mb-3">{error}</p>}
+                    {error && <p role="alert" className="text-xs text-red-400 mb-4">{error}</p>}
                     <button
                       onClick={() => resetFlow()}
                       className="px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"

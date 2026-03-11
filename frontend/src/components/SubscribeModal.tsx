@@ -354,9 +354,11 @@ export default function SubscribeModal({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center"
+                    role="status"
+                    aria-live="polite"
                   >
                     <p className="text-green-400 font-medium mb-1">
-                      Subscribed!
+                      Subscribed via BSP!
                     </p>
                     <p className="text-xs text-white/70">
                       Your AccessPass is now in your wallet. {privacyMode === 'trial' ? 'Trial access for ~12 hours.' : 'Access for ~30 days.'}

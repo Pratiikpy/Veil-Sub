@@ -84,7 +84,7 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
         </p>
         <button
           onClick={loadProfile}
-          className="px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300 hover:bg-amber-500/20 transition-all inline-flex items-center gap-2"
+          className="px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300 hover:bg-amber-500/20 transition-all inline-flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-0"
         >
           <RefreshCw className="w-4 h-4" aria-hidden="true" />
           Retry
@@ -104,7 +104,7 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
         <Settings className="w-5 h-5 text-violet-400" aria-hidden="true" />
         <h2 className="text-lg font-semibold text-white">Profile</h2>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div>
           <label htmlFor="profile-name" className="block text-sm text-white/70 mb-1.5">Display name</label>
           <input
@@ -133,7 +133,7 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
           onClick={handleSave}
           disabled={isSaving}
           title={isSaving ? 'Saving profile to server...' : 'Save your display name and bio'}
-          className="px-5 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-all duration-300 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-2"
+          className="px-5 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-all duration-300 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-violet-400/50 focus-visible:ring-offset-0"
         >
           {isSaving && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
           {saved ? 'Saved!' : isSaving ? 'Saving...' : 'Save Profile'}

@@ -457,9 +457,9 @@ export default function ExplorePage() {
           {/* Results */}
           {fetchError ? (
             <div className="text-center py-16">
-              <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" aria-hidden="true" />
-              <h3 className="text-white font-medium mb-1">Failed to Load Creators</h3>
-              <p className="text-sm text-white/60 mb-4">Could not reach the server. Please try again.</p>
+              <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-4" aria-hidden="true" />
+              <h3 className="text-white font-medium mb-1">Creator Directory Unavailable</h3>
+              <p className="text-sm text-white/60 mb-4">Check your connection and retry to load creators.</p>
               <button
                 onClick={() => setRetryKey(k => k + 1)}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-white hover:bg-white/10 transition-all duration-300"

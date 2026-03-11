@@ -65,8 +65,8 @@ export default function WelcomeOverlay() {
         >
           <div className="rounded-xl bg-black/95 border border-violet-500/30 p-4 shadow-[0_8px_40px_rgba(139,92,246,0.15)] backdrop-blur-xl">
             {/* Header row */}
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <div className="flex items-center gap-3">
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center shrink-0">
                   <Shield className="w-5 h-5 text-violet-400" aria-hidden="true" />
                 </div>
@@ -85,16 +85,16 @@ export default function WelcomeOverlay() {
             </div>
 
             {/* Key value prop */}
-            <p className="text-xs text-white/70 mb-3 leading-relaxed">
+            <p className="text-xs text-white/70 mb-4 leading-relaxed">
               Subscribe to creators with zero on-chain identity exposure. Your AccessPass proves access without revealing who you are.
             </p>
 
             {/* Actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <Link
                 href="/docs"
                 onClick={() => dismiss(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-xs font-medium text-white transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-xs font-medium text-white transition-colors"
               >
                 Learn how it works
                 <ArrowRight className="w-3 h-3" aria-hidden="true" />

@@ -118,7 +118,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
               ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
               : null
             logSubscriptionEvent(creatorAddress, 0, tipMicrocredits, result.resolvedTxId || id, wrappedSign)
-            toast.success('Tip sent!')
+            toast.success('Private tip sent—you remain anonymous')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             setError('Transaction failed on-chain.')
@@ -411,7 +411,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                       />
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/60">ALEO</span>
                     </div>
-                    <p className="text-center text-sm text-white/70 mb-3">
+                    <p className="text-center text-sm text-white/70 mb-4">
                       {customAmount ? `${customAmount} ALEO credits` : `${selectedAmount} ALEO credits`}
                     </p>
                   </>
@@ -491,7 +491,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
             ) : (
               <div className="py-2">
                 {statusMessage && (
-                  <div className="mb-3 p-3 rounded-xl bg-surface-2 border border-border">
+                  <div className="mb-4 p-4 rounded-xl bg-surface-2 border border-border">
                     <p className="text-xs text-white/70 animate-pulse">{statusMessage}</p>
                   </div>
                 )}
@@ -501,11 +501,13 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="mt-4 text-center"
+                    role="status"
+                    aria-live="polite"
                   >
-                    <p className="text-green-400 font-medium">Tip sent!</p>
+                    <p className="text-green-400 font-medium">Private tip sent!</p>
                     <button
                       onClick={handleModalClose}
-                      className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
+                      className="mt-4 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                     >
                       Done
                     </button>
@@ -516,14 +518,16 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="mt-4 text-center"
+                    role="status"
+                    aria-live="polite"
                   >
-                    <p className="text-green-400 font-medium">Private tip revealed and sent!</p>
+                    <p className="text-green-400 font-medium">Commit-reveal tip complete!</p>
                     <p className="text-xs text-white/70 mt-1">
                       The creator has received {formatCredits(savedAmount)} ALEO privately. Both phases verified on-chain.
                     </p>
                     <button
                       onClick={handleModalClose}
-                      className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
+                      className="mt-4 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                     >
                       Done
                     </button>
@@ -532,7 +536,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                 {txStatus === 'failed' && (
                   <div className="mt-4 text-center">
                     {error && (
-                      <p role="alert" className="text-xs text-red-400 mb-3">{error}</p>
+                      <p role="alert" className="text-xs text-red-400 mb-4">{error}</p>
                     )}
                     <button
                       onClick={() => resetFlow()}

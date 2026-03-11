@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="grid grid-cols-3 gap-8 mb-6">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-4">
               <span className="font-serif italic text-white text-lg">VeilSub</span>
               <span className="px-1.5 py-0.5 text-[10px] font-medium text-violet-400/70 bg-violet-500/[0.08] border border-violet-500/[0.12] rounded">
                 v27
@@ -22,7 +22,7 @@ export default function Footer() {
           </div>
           {/* Navigation */}
           <div>
-            <p className="text-xs font-medium text-white/70 mb-3 uppercase tracking-wider">Platform</p>
+            <p className="text-xs font-medium text-white/70 mb-4 uppercase tracking-wider">Platform</p>
             <div className="space-y-2">
               <Link href="/explore" className="block text-xs text-white/60 hover:text-white transition-colors">Explore Creators</Link>
               <Link href="/verify" className="block text-xs text-white/60 hover:text-white transition-colors">Verify Access</Link>
@@ -33,7 +33,7 @@ export default function Footer() {
           </div>
           {/* Resources */}
           <div>
-            <p className="text-xs font-medium text-white/70 mb-3 uppercase tracking-wider">Resources</p>
+            <p className="text-xs font-medium text-white/70 mb-4 uppercase tracking-wider">Resources</p>
             <div className="space-y-2">
               <Link href="/docs" className="block text-xs text-white/60 hover:text-white transition-colors">Documentation</Link>
               <Link href="/privacy" className="block text-xs text-white/60 hover:text-white transition-colors">Privacy Model</Link>

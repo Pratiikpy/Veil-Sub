@@ -263,7 +263,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         <LoadingSkeleton />
       ) : error ? (
         <div className="p-8 rounded-xl border border-red-500/20 bg-red-500/5 text-center">
-          <p className="text-sm text-red-400 mb-3">Failed to load posts</p>
+          <p className="text-sm text-red-400 mb-4">Failed to load posts</p>
           <button
             onClick={fetchPosts}
             aria-label="Retry loading posts"
@@ -277,7 +277,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         <div className="space-y-4">
           {posts.length === 0 && (
             <div className="p-8 rounded-xl bg-surface-1 border border-white/[0.05] text-center">
-              <FileText className="w-10 h-10 text-white/60 mx-auto mb-3" aria-hidden="true" />
+              <FileText className="w-10 h-10 text-white/60 mx-auto mb-4" aria-hidden="true" />
               <h3 className="text-white font-medium mb-1">No Exclusive Content Yet</h3>
               <p className="text-sm text-white/60">
                 This creator hasn&apos;t published any AccessPass-gated content yet. Check back soon!

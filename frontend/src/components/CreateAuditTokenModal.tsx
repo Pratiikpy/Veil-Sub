@@ -111,7 +111,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
             role="dialog"
             aria-modal="true"
             aria-label="Create audit token"
-            className="w-full max-w-md rounded-xl bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-md rounded-xl bg-surface-1 border border-border shadow-2xl p-8 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
@@ -147,7 +147,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                 </div>
 
                 {/* Privacy Explanation */}
-                <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4">
+                <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
                   <div className="flex gap-2">
                     <Shield className="w-4 h-4 text-green-400 mt-0.5 shrink-0" aria-hidden="true" />
                     <div className="text-[11px] text-green-400/80 space-y-1">
@@ -216,7 +216,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                 </div>
 
                 {error && (
-                  <div role="alert" className="p-3 rounded-xl bg-red-500/10 border border-red-500/15 mb-4">
+                  <div role="alert" className="p-4 rounded-xl bg-red-500/10 border border-red-500/15 mb-4">
                     <p className="text-xs text-red-400">{error}</p>
                   </div>
                 )}
@@ -228,7 +228,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
             ) : (
               <div className="py-2">
                 {statusMessage && (
-                  <div className="mb-3 p-3 rounded-xl bg-surface-2 border border-border">
+                  <div className="mb-4 p-4 rounded-xl bg-surface-2 border border-border">
                     <p className="text-xs text-white/70 animate-pulse">{statusMessage}</p>
                   </div>
                 )}
@@ -253,7 +253,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                 )}
                 {txStatus === 'failed' && (
                   <div className="mt-4 text-center">
-                    {error && <p role="alert" className="text-xs text-red-400 mb-3">{error}</p>}
+                    {error && <p role="alert" className="text-xs text-red-400 mb-4">{error}</p>}
                     <button
                       onClick={() => resetFlow()}
                       className="px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"

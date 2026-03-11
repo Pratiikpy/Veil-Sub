@@ -207,7 +207,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                   <button
                     type="button"
                     onClick={() => { setImageUrl(''); setImageError(false) }}
-                    className="px-2.5 rounded-xl bg-white/[0.05] border border-border text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors"
+                    className="px-2.5 rounded-xl bg-white/[0.05] border border-border text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors focus-visible:ring-2 focus-visible:ring-violet-400/50 focus-visible:ring-offset-0"
                     aria-label="Clear image"
                   >
                     <X className="w-4 h-4" aria-hidden="true" />
@@ -238,7 +238,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                     onClick={() => setMinTier(tier)}
                     aria-label={`Set minimum tier to ${tierLabels[tier] || `Tier ${tier}`}`}
                     aria-pressed={minTier === tier}
-                    className={`py-2.5 px-3 rounded-lg text-xs font-medium transition-all ${
+                    className={`py-2.5 px-4 rounded-lg text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50 focus-visible:ring-offset-0 ${
                       minTier === tier
                         ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
                         : 'bg-white/[0.05] border border-border text-white/70 hover:bg-white/[0.08] hover:border-white/15'
@@ -252,12 +252,12 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
           </div>
 
           {error && (
-            <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+            <div className="mt-4 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
               <p className="text-xs text-red-400">{error}</p>
             </div>
           )}
 
-          <p className="mt-3 text-xs text-white/60">
+          <p className="mt-4 text-xs text-white/60">
             Publishing registers content metadata on-chain (content ID + minimum tier). The post body is stored off-chain and persists across devices.
           </p>
 
@@ -284,7 +284,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
               <button
                 onClick={handleReset}
                 aria-label="Create another post"
-                className="mt-3 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50"
+                className="mt-4 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50"
               >
                 Create Another Post
               </button>

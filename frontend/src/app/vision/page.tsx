@@ -104,7 +104,7 @@ export default function VisionPage() {
         {/* Use Cases Grid */}
         <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {USE_CASES.map((useCase, i) => {
                 const Icon = useCase.icon
                 return (
@@ -134,7 +134,7 @@ export default function VisionPage() {
               </p>
             </m.div>
 
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-8">
               {[
                 { stat: '27', label: 'Transitions', desc: 'Complete subscription lifecycle' },
                 { stat: '25', label: 'Mappings', desc: 'Aggregate-only public state' },
@@ -150,7 +150,7 @@ export default function VisionPage() {
                     {item.stat}
                   </p>
                   <p className="text-sm font-medium text-white mt-1">{item.label}</p>
-                  <p className="text-xs text-white/60 mt-0.5">{item.desc}</p>
+                  <p className="text-xs text-white/60 mt-1">{item.desc}</p>
                 </m.div>
               ))}
             </div>
@@ -197,7 +197,7 @@ export default function VisionPage() {
                   key={item.phase}
                   initial={{ opacity: 1, x: 0 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className={`flex items-start gap-4 p-6 rounded-xl border ${
+                  className={`flex items-start gap-4 p-8 rounded-xl border ${
                     item.status === 'current'
                       ? 'bg-violet-500/[0.08] border-violet-500/30'
                       : 'bg-surface-1 border-border'

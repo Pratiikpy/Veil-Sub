@@ -102,7 +102,7 @@ export default function ChangelogOverlay() {
         >
           <div className="rounded-xl bg-black/95 border border-amber-500/30 p-4 shadow-[0_8px_40px_rgba(245,158,11,0.15)] backdrop-blur-xl">
             {/* Header */}
-            <div className="flex items-start justify-between gap-3 mb-2">
+            <div className="flex items-start justify-between gap-4 mb-2">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-amber-400" aria-hidden="true" />
                 <span className="text-sm font-medium text-white">New in {CHANGELOG_VERSION}</span>
@@ -138,7 +138,7 @@ export default function ChangelogOverlay() {
             </div>
 
             {/* Stats bar */}
-            <div className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-white/[0.03] mb-3">
+            <div className="flex items-center justify-between px-2 py-2 rounded-lg bg-white/[0.03] mb-4">
               <span className="text-[10px] text-white/50">27 transitions</span>
               <span className="text-[10px] text-white/30">•</span>
               <span className="text-[10px] text-white/50">6 record types</span>
@@ -147,11 +147,11 @@ export default function ChangelogOverlay() {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <Link
                 href="/docs"
                 onClick={() => dismiss(true)}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30 text-xs font-medium text-amber-300 hover:bg-amber-500/30 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 border border-amber-500/30 text-xs font-medium text-amber-300 hover:bg-amber-500/30 transition-colors"
               >
                 See all features
                 <ArrowRight className="w-3 h-3" aria-hidden="true" />

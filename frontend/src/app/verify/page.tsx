@@ -477,10 +477,10 @@ export default function VerifyPage() {
                       </div>
                     </div>
                     <p className="text-white font-medium text-sm mb-1">
-                      No AccessPasses Found
+                      No Private Passes Yet
                     </p>
                     <p className="text-white/60 text-xs mb-4">
-                      Subscribe to a creator via BSP to receive your first AccessPass record.
+                      Subscribe to a creator to receive your encrypted AccessPass record—your identity stays zero-address.
                     </p>
                     <Link
                       href="/explore"
