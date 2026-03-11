@@ -71,7 +71,7 @@ export default function ProtocolStats() {
                 />
                 <div className="mt-4">
                   <p className="text-sm text-white/80 font-medium">{stat.label}</p>
-                  <p className="text-xs text-white/60 mt-0.5">{stat.sublabel}</p>
+                  <p className="text-xs text-white/70 mt-1">{stat.sublabel}</p>
                 </div>
               </SpotlightCard>
             ))}

@@ -111,12 +111,12 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
             role="dialog"
             aria-modal="true"
             aria-label="Create audit token"
-            className="w-full max-w-md rounded-sm bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-md rounded-xl bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <FileKey className="w-5 h-5 text-violet-400" aria-hidden="true" />
-                <h3 className="text-lg font-semibold text-white">Create Audit Token</h3>
+                <h3 className="text-lg font-semibold text-white">create_audit_token Transition</h3>
               </div>
               <button
                 onClick={handleClose}
@@ -151,9 +151,9 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                   <div className="flex gap-2">
                     <Shield className="w-4 h-4 text-green-400 mt-0.5 shrink-0" aria-hidden="true" />
                     <div className="text-[11px] text-green-400/80 space-y-1">
-                      <p className="font-medium text-green-400">Selective Disclosure</p>
-                      <p>Generate a lightweight proof token. Share it to prove your subscription without exposing your AccessPass.</p>
-                      <p>The audit token reveals your tier and expiry to the verifier, but never your wallet address. No on-chain finalize footprint.</p>
+                      <p className="font-medium text-green-400">Selective Disclosure via AuditToken</p>
+                      <p>The create_audit_token transition mints an AuditToken record to the verifier. Scope mask controls which fields are visible.</p>
+                      <p>Pure private transition—no finalize footprint on-chain. Your wallet address is never revealed.</p>
                     </div>
                   </div>
                 </div>
@@ -211,7 +211,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                 {/* Fee Info */}
                 <div className="p-2.5 rounded-xl bg-surface-2 border border-border mb-4">
                   <p className="text-[11px] text-white/60">
-                    Est. network fee: ~{formatCredits(FEES.AUDIT_TOKEN)} ALEO. No finalize cost (pure private operation).
+                    Est. network fee: ~{formatCredits(FEES.AUDIT_TOKEN)} ALEO. Zero-address finalize pattern—pure private operation.
                   </p>
                 </div>
 
@@ -222,7 +222,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                 )}
 
                 <Button onClick={handleCreate} disabled={txStatus !== 'idle'} className="w-full">
-                  Create Audit Token
+                  Execute create_audit_token
                 </Button>
               </>
             ) : (
@@ -239,9 +239,9 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-4 text-center"
                   >
-                    <p className="text-green-400 font-medium mb-1">Audit Token Created</p>
-                    <p className="text-xs text-white/70">
-                      The verifier now holds a proof of your {tierName} subscription. Your wallet address was never revealed.
+                    <p className="text-green-400 font-medium mb-1">AuditToken Minted</p>
+                    <p className="text-xs text-white/60">
+                      AuditToken minted to verifier. No on-chain footprint—pure private record transfer via veilsub_v27.aleo.
                     </p>
                     <button
                       onClick={handleClose}

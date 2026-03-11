@@ -197,7 +197,7 @@ export default function RenewModal({
               <div className="flex items-center gap-2">
                 <RefreshCw className="w-5 h-5 text-white/70" aria-hidden="true" />
                 <h3 className="text-lg font-semibold text-white">
-                  Renew Subscription
+                  Renew via BSP
                 </h3>
               </div>
               <button
@@ -345,7 +345,7 @@ export default function RenewModal({
                   disabled={txStatus !== 'idle'}
                   className="w-full"
                 >
-                  Renew Privately
+                  Execute renew_subscription
                 </Button>
               </>
             ) : (
@@ -362,9 +362,9 @@ export default function RenewModal({
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-4 text-center"
                   >
-                    <p className="text-green-400 font-medium mb-1">Renewed!</p>
-                    <p className="text-xs text-white/70">
-                      Your new AccessPass is in your wallet.
+                    <p className="text-green-400 font-medium mb-1">renew_subscription Confirmed</p>
+                    <p className="text-xs text-white/60">
+                      New AccessPass record minted to your wallet. Zero-address finalize completed.
                     </p>
                     <button
                       onClick={handleModalClose}

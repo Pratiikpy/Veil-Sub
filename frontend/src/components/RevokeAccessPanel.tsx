@@ -58,15 +58,15 @@ export default function RevokeAccessPanel() {
           <ShieldOff className="w-4 h-4 text-red-400" aria-hidden="true" />
         </div>
         <div>
-          <h3 className="text-sm font-semibold text-white">Revoke Subscriber Access</h3>
-          <p className="text-xs text-white/60">Permanently revoke an AccessPass by ID</p>
+          <h3 className="text-sm font-semibold text-white">revoke_access Transition</h3>
+          <p className="text-xs text-white/60">Invalidate an AccessPass via veilsub_v27.aleo</p>
         </div>
       </div>
 
       <div className="rounded-xl bg-red-500/[0.04] border border-red-500/[0.08] p-3 mb-4">
         <p className="text-xs text-red-300 flex items-center gap-1.5">
           <AlertTriangle className="w-3 h-3 shrink-0" aria-hidden="true" />
-          This is irreversible. The subscriber will lose access immediately.
+          Irreversible on-chain revocation. The pass_id is added to revoked_passes mapping; content gating checks will reject this AccessPass.
         </p>
       </div>
 
@@ -75,7 +75,7 @@ export default function RevokeAccessPanel() {
           type="text"
           value={passId}
           onChange={(e) => setPassId(e.target.value)}
-          placeholder="Enter pass_id (field value)"
+          placeholder="Enter AccessPass pass_id (field)"
           aria-label="Pass ID to revoke"
           className="flex-1 px-4 py-2.5 rounded-xl bg-black/40 border border-border text-white text-base font-mono placeholder-subtle focus:outline-none focus:border-red-500/[0.3] focus:shadow-[0_0_20px_rgba(239,68,68,0.08)] transition-all"
         />

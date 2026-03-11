@@ -53,8 +53,8 @@ const USE_CASES = [
     title: 'Event Ticketing',
     description:
       'ZK-proven event access without identity exposure. Prove you hold a valid ticket at the door without revealing who purchased it or what else you attend.',
-    color: 'text-purple-400',
-    bg: 'bg-purple-500/10',
+    color: 'text-violet-400',
+    bg: 'bg-violet-500/10',
   },
   {
     icon: Code2,
@@ -89,7 +89,7 @@ export default function VisionPage() {
               >
                 Vision &amp; Use Cases
               </h1>
-              <p className="text-lg text-white/70 max-w-2xl mx-auto">
+              <p className="text-lg text-white/60 max-w-2xl mx-auto">
                 VeilSub is more than a subscription platform—it&apos;s a composable zero-knowledge access
                 control primitive using Aleo records. Any program can call verify_access to gate features
                 behind AccessPass ownership. v27&apos;s minimal-footprint finalize is a single access_revoked
@@ -113,7 +113,7 @@ export default function VisionPage() {
                       <Icon className={`w-6 h-6 ${useCase.color}`} aria-hidden="true" />
                     </div>
                     <h3 className="text-white font-semibold mb-2">{useCase.title}</h3>
-                    <p className="text-sm text-white/70 leading-relaxed">
+                    <p className="text-sm text-white/60 leading-relaxed">
                       {useCase.description}
                     </p>
                   </GlassCard>
@@ -128,7 +128,7 @@ export default function VisionPage() {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Composable Privacy Primitive</h2>
-              <p className="text-white/70 max-w-2xl mx-auto">
+              <p className="text-white/60 max-w-2xl mx-auto">
                 Any Aleo program can verify AccessPass ownership via <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">verify_access</code> —
                 a minimal-footprint transition whose finalize only checks revocation—subscriber identity never enters public state.
               </p>
@@ -199,7 +199,7 @@ export default function VisionPage() {
                         {item.status === 'done' ? 'Complete' : item.status === 'current' ? 'In Progress' : item.status === 'next' ? 'Planned' : 'Future'}
                       </span>
                     </div>
-                    <p className="text-xs text-white/70 mt-0.5">{item.items}</p>
+                    <p className="text-xs text-white/60 mt-1">{item.items}</p>
                   </div>
                 </m.div>
               ))}
@@ -225,7 +225,7 @@ export default function VisionPage() {
                 <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-3">
                   Ready to explore?
                 </h2>
-                <p className="text-white/70 max-w-lg mx-auto mb-6">
+                <p className="text-white/60 max-w-lg mx-auto mb-6">
                   Try VeilSub on Aleo Testnet—connect a wallet, subscribe to a creator, and verify your privacy guarantees on-chain.
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-3">

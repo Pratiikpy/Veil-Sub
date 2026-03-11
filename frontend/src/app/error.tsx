@@ -17,10 +17,12 @@ export default function Error({
           <Shield className="w-8 h-8 text-red-400" />
         </div>
         <h2 className="text-2xl font-bold text-white mb-3">
-          Something Went Wrong
+          VeilSub Error
         </h2>
-        <p className="text-white/70 mb-2">
-          An unexpected error occurred. This might be a temporary issue.
+        <p className="text-white/60 mb-2">
+          An error occurred while executing a VeilSub operation. This could be a wallet
+          connection issue, an on-chain transaction failure, or a temporary network problem.
+          Your AccessPass records remain safe in your wallet.
         </p>
         {error.digest && (
           <p className="text-xs text-white/60 font-mono mb-6">
@@ -32,7 +34,7 @@ export default function Error({
             onClick={reset}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-black font-medium text-sm hover:bg-white/90 transition-all active:scale-[0.98] btn-shimmer"
           >
-            Try Again
+            Retry Operation
           </button>
           <Link
             href="/"

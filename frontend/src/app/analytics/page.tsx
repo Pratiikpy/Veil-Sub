@@ -129,7 +129,7 @@ export default function AnalyticsPage() {
             <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-3" style={{ letterSpacing: '-0.03em' }}>
               Platform Analytics
             </h1>
-            <p className="text-white/70 text-base max-w-2xl leading-relaxed">
+            <p className="text-white/60 text-base max-w-2xl leading-relaxed">
               Public aggregate statistics from Poseidon2-hashed mappings. Creator-scoped metrics
               (subscriber_count, total_revenue per creator) are queried by creator_hash = Poseidon2(address),
               never raw address. All 25 mapping keys are field hashes. Zero individual subscriber identities
@@ -278,7 +278,7 @@ export default function AnalyticsPage() {
               </GlassCard>
               <GlassCard delay={0.1}>
                 <div className="flex items-center gap-2 mb-3">
-                  <Lock className="w-4 h-4 text-purple-400" aria-hidden="true" />
+                  <Lock className="w-4 h-4 text-violet-400" aria-hidden="true" />
                   <span className="text-sm font-medium text-white">Maximum (v27)</span>
                 </div>
                 <p className="text-xs text-white/60 leading-relaxed mb-3">
@@ -338,7 +338,7 @@ export default function AnalyticsPage() {
             >
               <Search className="w-8 h-8 text-violet-400 mx-auto mb-4" aria-hidden="true" />
               <h3 className="text-xl font-semibold text-white mb-2">Query the chain yourself</h3>
-              <p className="text-sm text-white/70 max-w-md mx-auto mb-5">
+              <p className="text-sm text-white/60 max-w-md mx-auto mb-5">
                 Look up any creator&apos;s public stats, query on-chain mappings directly, and verify data with no wallet required.
               </p>
               <Link
@@ -400,7 +400,7 @@ function ProtocolStat({
   return (
     <GlassCard delay={delay}>
       <div className="text-center">
-        <Icon className="w-5 h-5 text-white/70 mx-auto mb-3" aria-hidden="true" />
+        <Icon className="w-5 h-5 text-white/60 mx-auto mb-4" aria-hidden="true" />
         <p className="text-2xl font-semibold text-white mb-1">{value}</p>
         <p className="text-sm text-white/60">{label}</p>
       </div>

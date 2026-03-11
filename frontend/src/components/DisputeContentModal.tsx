@@ -100,7 +100,7 @@ export default function DisputeContentModal({
           role="dialog"
           aria-modal="true"
           aria-label="Dispute content"
-          className="relative w-full max-w-md rounded-sm bg-surface-1 border border-border p-6 shadow-2xl"
+          className="relative w-full max-w-md rounded-xl bg-surface-1 border border-border p-6 shadow-2xl"
         >
           <button
             onClick={handleClose}
@@ -116,7 +116,7 @@ export default function DisputeContentModal({
               <Flag className="w-5 h-5 text-red-400" aria-hidden="true" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">Dispute Content</h3>
+              <h3 className="text-lg font-semibold text-white">dispute_content Transition</h3>
               <p className="text-xs text-white/60 truncate max-w-[280px]">{contentTitle}</p>
             </div>
           </div>
@@ -125,10 +125,10 @@ export default function DisputeContentModal({
           <div className="rounded-xl bg-surface-2 border border-border p-4 mb-6">
             <div className="flex gap-2">
               <Shield className="w-4 h-4 text-violet-400/60 mt-0.5 shrink-0" aria-hidden="true" />
-              <p className="text-xs text-white/70 leading-relaxed">
-                Disputes are Sybil-protected: only verified subscribers can dispute,
-                limited to 1 dispute per content per address. Your AccessPass proves eligibility
-                without revealing your identity.
+              <p className="text-xs text-white/60 leading-relaxed">
+                Sybil-protected via AccessPass ownership. The dispute_content transition verifies
+                your subscription on-chain (1 dispute per content per subscriber_hash). Your wallet
+                address is never published.
               </p>
             </div>
           </div>
@@ -179,7 +179,7 @@ export default function DisputeContentModal({
               disabled={!selectedReason || txStatus === 'signing' || txStatus === 'broadcasting'}
               className="flex-1 bg-red-500/80 text-white hover:bg-red-500/90 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]"
             >
-              {txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Submitting...' : 'Dispute On-Chain'}
+              {txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Submitting...' : 'Execute dispute_content'}
             </Button>
           </div>
         </m.div>

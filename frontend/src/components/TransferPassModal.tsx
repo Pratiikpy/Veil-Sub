@@ -87,7 +87,7 @@ export default function TransferPassModal({
           role="dialog"
           aria-modal="true"
           aria-label="Transfer subscription pass"
-          className="relative w-full max-w-md rounded-sm bg-surface-1 border border-border p-6 shadow-2xl"
+          className="relative w-full max-w-md rounded-xl bg-surface-1 border border-border p-6 shadow-2xl"
         >
           {/* Close */}
           <button
@@ -104,8 +104,8 @@ export default function TransferPassModal({
               <ArrowLeftRight className="w-5 h-5 text-violet-400" aria-hidden="true" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">Transfer Subscription</h3>
-              <p className="text-xs text-white/60">Send your AccessPass to another address</p>
+              <h3 className="text-lg font-semibold text-white">transfer_pass Transition</h3>
+              <p className="text-xs text-white/60">Transfer your AccessPass to another wallet</p>
             </div>
           </div>
 
@@ -114,10 +114,10 @@ export default function TransferPassModal({
             <div className="flex gap-2">
               <Shield className="w-4 h-4 text-violet-400/60 mt-0.5 shrink-0" aria-hidden="true" />
               <div>
-                <p className="text-xs text-violet-300/80 font-medium mb-1">Privacy Preserved</p>
+                <p className="text-xs text-violet-300/80 font-medium mb-1">BSP Transfer Privacy</p>
                 <p className="text-xs text-white/60 leading-relaxed">
-                  Your current pass is consumed and a new one is minted for the recipient.
-                  The transfer is on-chain but the recipient&apos;s subscription details remain private.
+                  Your AccessPass record is consumed via veilsub_v27.aleo. A fresh AccessPass is minted
+                  to the recipient. Poseidon2-hashed subscriber identity prevents linkage.
                 </p>
               </div>
             </div>
@@ -148,7 +148,7 @@ export default function TransferPassModal({
           <div className="rounded-xl bg-red-500/10 border border-red-500/15 p-3 mb-6">
             <p className="text-xs text-red-300 flex items-center gap-2">
               <AlertTriangle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-              This action is irreversible. Your access will be revoked after transfer.
+              Irreversible on-chain operation. Your AccessPass record will be consumed; the recipient receives a new one.
             </p>
           </div>
 
@@ -174,7 +174,7 @@ export default function TransferPassModal({
               disabled={!isValidAddress || txStatus === 'signing' || txStatus === 'broadcasting'}
               className="flex-1"
             >
-              {txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Broadcasting...' : 'Transfer Pass'}
+              {txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Broadcasting...' : 'Execute transfer_pass'}
             </Button>
           </div>
         </m.div>

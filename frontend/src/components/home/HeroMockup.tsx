@@ -72,7 +72,7 @@ export default function HeroMockup() {
               </div>
               <span className="text-[11px] text-white/60 font-mono truncate">aleo1hp9m08f...epyxs</span>
             </div>
-            <div className="ml-auto flex items-center gap-3 text-xs text-white/60">
+            <div className="ml-auto flex items-center gap-4 text-xs text-white/60">
               <span className="hidden sm:flex items-center gap-1">
                 <Users className="w-3 h-3" /> 42
               </span>
@@ -83,7 +83,7 @@ export default function HeroMockup() {
           </m.div>
 
           {/* Tier cards */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-5">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
             {TIERS.map((tier, i) => (
               <m.div
                 key={tier.name}
@@ -103,7 +103,7 @@ export default function HeroMockup() {
                 )}
                 <p className="text-[10px] text-white/70 mb-0.5 mt-1 uppercase tracking-wider">{tier.name}</p>
                 <p className={`text-2xl sm:text-3xl font-bold leading-none ${tier.selected ? 'text-violet-200' : 'text-white'}`}>{tier.price}</p>
-                <p className="text-[9px] text-white/60 mt-1 font-medium">ALEO/mo</p>
+                <p className="text-[10px] text-white/60 mt-1 font-medium">ALEO/mo</p>
                 {tier.selected && (
                   <Check className="w-3.5 h-3.5 text-violet-400 mx-auto mt-2" />
                 )}
@@ -117,7 +117,7 @@ export default function HeroMockup() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 1.7 }}
           >
-            <div className="w-full py-3 rounded-xl bg-white text-black text-sm font-semibold text-center">
+            <div className="w-full py-3 rounded-xl bg-violet-500 hover:bg-violet-400 text-white text-sm font-semibold text-center transition-colors cursor-pointer">
               Subscribe Privately
             </div>
           </m.div>
