@@ -92,7 +92,6 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
               : null
             const saved = await createPost(creatorAddress, postTitle, postBody, postTier, contentId, wrappedSign, postImageUrl)
             if (!saved) {
-              console.error('[CreatePostForm] Failed to save post body to Redis')
               toast.error('Post confirmed on-chain but failed to save content. Try re-publishing.')
             } else {
               toast.success('Post published on-chain!')
@@ -212,12 +211,12 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                 )}
               </div>
               {imageUrl && !imageError && (
-                <div className="mt-2 relative rounded-lg overflow-hidden border border-border bg-white/[0.02] max-h-48">
+                <div className="mt-2 relative rounded-lg overflow-hidden border border-border bg-white/[0.02] aspect-video max-h-48">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={imageUrl}
                     alt={title ? `Preview image for ${title}` : 'Post image preview'}
-                    className="w-full max-h-48 object-cover"
+                    className="w-full h-full object-cover"
                     onError={() => setImageError(true)}
                   />
                 </div>

@@ -18,7 +18,7 @@ export function useBlockHeight() {
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return
-      console.error('[useBlockHeight] Error:', err)
+      // Silent failure — block height unavailable
     } finally {
       setLoading(false)
     }

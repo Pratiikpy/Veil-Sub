@@ -31,7 +31,7 @@ export function useWalletRecords() {
         if (text && text.includes('tier_id') && text.includes('name_hash') && text.includes('price')) results.push(text)
       }
       return results
-    } catch (err) { console.error('[useWalletRecords] getTierRecords failed:', err); return [] }
+    } catch { return [] }
   }, [connected, requestRecords, extractPlaintext])
 
   // Fetch GiftToken records (for gift recipients)
@@ -50,7 +50,7 @@ export function useWalletRecords() {
         if (text && text.includes('gifter_hash')) results.push(text)
       }
       return results
-    } catch (err) { console.error('[useWalletRecords] getGiftTokens failed:', err); return [] }
+    } catch { return [] }
   }, [connected, requestRecords, extractPlaintext])
 
   // Split a single credits record into two via credits.aleo/split.
@@ -101,8 +101,7 @@ export function useWalletRecords() {
       }
 
       return results.sort((a, b) => b.amount - a.amount).map((r) => r.plaintext)
-    } catch (err) {
-      console.error('[useWalletRecords] getTokenRecords failed:', err)
+    } catch {
       return []
     }
   }, [connected, requestRecords, extractPlaintext])
@@ -190,8 +189,7 @@ export function useWalletRecords() {
       }
 
       return results
-    } catch (err) {
-      console.error('[useWalletRecords] getAccessPasses failed:', err)
+    } catch {
       return []
     }
   }, [connected, requestRecords, extractPlaintext])
@@ -214,8 +212,7 @@ export function useWalletRecords() {
       }
 
       return results
-    } catch (err) {
-      console.error('[useWalletRecords] getCreatorReceipts failed:', err)
+    } catch {
       return []
     }
   }, [connected, requestRecords, extractPlaintext])
@@ -239,8 +236,7 @@ export function useWalletRecords() {
       }
 
       return results
-    } catch (err) {
-      console.error('[useWalletRecords] getAuditTokens failed:', err)
+    } catch {
       return []
     }
   }, [connected, requestRecords, extractPlaintext])
@@ -258,8 +254,7 @@ export function useWalletRecords() {
           return status
         }
         return 'unknown'
-      } catch (err) {
-        console.error('[useWalletRecords] pollTxStatus failed:', err)
+      } catch {
         return 'unknown'
       }
     },

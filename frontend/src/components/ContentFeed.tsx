@@ -348,12 +348,12 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
                   {/* Unlocked image */}
                   {unlocked && displayImage && (
-                    <div className="mb-3 rounded-lg overflow-hidden border border-white/[0.06]">
+                    <div className="mb-3 rounded-lg overflow-hidden border border-white/[0.06] aspect-video bg-white/[0.02]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={displayImage}
                         alt={`Image for ${post.title}`}
-                        className="w-full max-h-72 object-cover"
+                        className="w-full h-full object-cover"
                         loading="lazy"
                         onError={(e) => {
                           const img = e.target as HTMLImageElement

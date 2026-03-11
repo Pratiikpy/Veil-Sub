@@ -86,13 +86,11 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error) {
-      console.error('[API /creators POST] Supabase error:', error)
       return NextResponse.json({ error: 'Internal error' }, { status: 500 })
     }
 
     return NextResponse.json({ profile: data })
-  } catch (err) {
-    console.error('[API /creators POST]', err)
+  } catch {
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }

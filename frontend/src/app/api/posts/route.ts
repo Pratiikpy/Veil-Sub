@@ -32,8 +32,7 @@ export async function GET(req: NextRequest) {
         'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120',
       },
     })
-  } catch (err) {
-    console.error('[API /posts GET]', err)
+  } catch {
     return NextResponse.json({ posts: [] })
   }
 }
@@ -181,8 +180,7 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json({ post })
-  } catch (err) {
-    console.error('[API /posts POST]', err)
+  } catch {
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }
@@ -271,8 +269,7 @@ export async function PUT(req: NextRequest) {
     }
 
     return NextResponse.json({ error: 'Post not found' }, { status: 404 })
-  } catch (err) {
-    console.error('[API /posts PUT]', err)
+  } catch {
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }
@@ -325,8 +322,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     return NextResponse.json({ error: 'Post not found' }, { status: 404 })
-  } catch (err) {
-    console.error('[API /posts DELETE]', err)
+  } catch {
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }

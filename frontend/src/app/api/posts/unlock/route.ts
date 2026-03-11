@@ -123,8 +123,7 @@ export async function POST(req: NextRequest) {
       body: post.body,
       imageUrl: post.imageUrl || null,
     })
-  } catch (err) {
-    console.error('[API /posts/unlock]', err)
+  } catch {
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }

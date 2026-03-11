@@ -49,8 +49,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       creators: creators.filter(Boolean),
     })
-  } catch (err) {
-    console.error('[API /creators/list]', err)
+  } catch {
     return NextResponse.json({ creators: [] })
   }
 }

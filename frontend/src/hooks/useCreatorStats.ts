@@ -87,8 +87,8 @@ export function useCreatorStats() {
           contentCount,
           tierCount,
         }
-      } catch (err) {
-        console.error('[useCreatorStats] Failed to fetch on-chain stats:', err)
+      } catch {
+        // Silent fallback — stats unavailable
         return {
           address: creatorAddress,
           tierPrice: null,

@@ -82,8 +82,7 @@ export async function GET(req: NextRequest) {
       totalSubscribers: events.length,
       totalRevenue: events.reduce((sum, e) => sum + (e.amount_microcredits || 0), 0),
     })
-  } catch (err) {
-    console.error('[API /analytics/summary]', err)
+  } catch {
     return NextResponse.json({ error: 'Failed to load analytics' }, { status: 500 })
   }
 }

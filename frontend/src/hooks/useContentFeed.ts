@@ -34,8 +34,8 @@ export function useContentFeed() {
           setLoading(false)
           return apiPosts.length > 0 ? apiPosts : seedPosts
         }
-      } catch (err) {
-        console.error('[useContentFeed] Failed to fetch posts, falling back to seed content:', err)
+      } catch {
+        // Silent fallback to seed content
       }
       setLoading(false)
       return seedPosts
@@ -95,8 +95,8 @@ export function useContentFeed() {
           const data = await res.json()
           return { body: data.body as string, imageUrl: data.imageUrl as string | undefined }
         }
-      } catch (err) {
-        console.error('[useContentFeed] Unlock failed:', err)
+      } catch {
+        // Unlock failed — return null
       }
       return null
     },
@@ -153,8 +153,8 @@ export function useContentFeed() {
           const { post } = await res.json()
           return post as ContentPost
         }
-      } catch (err) {
-        console.error('[useContentFeed] Create post failed:', err)
+      } catch {
+        // Create failed — return null
       }
       return null
     },
@@ -199,8 +199,7 @@ export function useContentFeed() {
           }),
         })
         return res.ok
-      } catch (err) {
-        console.error('[useContentFeed] Delete post failed:', err)
+      } catch {
         return false
       }
     },
@@ -250,8 +249,8 @@ export function useContentFeed() {
           const { post } = await res.json()
           return post as ContentPost
         }
-      } catch (err) {
-        console.error('[useContentFeed] Edit post failed:', err)
+      } catch {
+        // Edit failed — return null
       }
       return null
     },
