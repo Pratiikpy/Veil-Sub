@@ -56,6 +56,7 @@ export default function VerifyPage() {
     if (!connected && (verifyTxStatus === 'signing' || verifyTxStatus === 'broadcasting')) {
       setVerifyTxStatus('failed')
       setVerifyResult('failed')
+      setVerifyError('Wallet disconnected during verification. Please reconnect and try again.')
       stopPolling()
     }
   }, [connected, verifyTxStatus, stopPolling])
@@ -147,7 +148,7 @@ export default function VerifyPage() {
         {/* Hero */}
         <section className="relative overflow-hidden">
           <div
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none"
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[800px] h-[200px] sm:h-[400px] pointer-events-none"
             style={{
               background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.06) 0%, transparent 70%)',
             }}

@@ -32,15 +32,15 @@ export default function HeroSection() {
       {/* Dot grid — animated background texture */}
       <DotGrid />
 
-      {/* Hero ambient glow — layered for depth */}
+      {/* Hero ambient glow — layered for depth (responsive) */}
       <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[700px] pointer-events-none"
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[550px] sm:w-[1100px] h-[350px] sm:h-[700px] pointer-events-none"
         style={{
           background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.07) 0%, rgba(139,92,246,0.02) 40%, transparent 70%)',
         }}
       />
       <div
-        className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[600px] h-[300px] pointer-events-none blur-3xl"
+        className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[300px] sm:w-[600px] h-[150px] sm:h-[300px] pointer-events-none blur-3xl"
         style={{
           background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
         }}

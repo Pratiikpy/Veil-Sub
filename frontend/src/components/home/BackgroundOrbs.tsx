@@ -3,30 +3,30 @@ import React from 'react'
 function BackgroundOrbs() {
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-      {/* Violet orb -- top right */}
+      {/* Violet orb -- top right (responsive: 350px on mobile, 700px on sm+) */}
       <div
-        className="absolute -top-[300px] -right-[200px] w-[700px] h-[700px] rounded-full animate-float"
+        className="absolute -top-[150px] sm:-top-[300px] -right-[100px] sm:-right-[200px] w-[350px] sm:w-[700px] h-[350px] sm:h-[700px] rounded-full animate-float"
         style={{
           background: 'radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, rgba(139, 92, 246, 0.02) 50%, transparent 70%)',
         }}
       />
-      {/* White orb -- top left */}
+      {/* White orb -- top left (responsive) */}
       <div
-        className="absolute -top-[200px] -left-[300px] w-[600px] h-[600px] rounded-full animate-float-delayed"
+        className="absolute -top-[100px] sm:-top-[200px] -left-[150px] sm:-left-[300px] w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] rounded-full animate-float-delayed"
         style={{
           background: 'radial-gradient(circle, rgba(255, 255, 255, 0.035) 0%, transparent 70%)',
         }}
       />
-      {/* Subtle violet glow -- center */}
+      {/* Subtle violet glow -- center (responsive) */}
       <div
-        className="absolute top-[40%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full animate-float-slow"
+        className="absolute top-[40%] left-1/2 -translate-x-1/2 w-[450px] sm:w-[900px] h-[250px] sm:h-[500px] rounded-full animate-float-slow"
         style={{
           background: 'radial-gradient(ellipse, rgba(139, 92, 246, 0.04) 0%, transparent 70%)',
         }}
       />
-      {/* Deep bottom ambient */}
+      {/* Deep bottom ambient (responsive) */}
       <div
-        className="absolute top-[75%] left-1/3 w-[600px] h-[400px] rounded-full animate-float-delayed"
+        className="absolute top-[75%] left-1/3 w-[300px] sm:w-[600px] h-[200px] sm:h-[400px] rounded-full animate-float-delayed"
         style={{
           background: 'radial-gradient(ellipse, rgba(139, 92, 246, 0.03) 0%, transparent 70%)',
         }}

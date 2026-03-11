@@ -17,41 +17,41 @@ interface ChangelogItem {
 
 const ITEMS: ChangelogItem[] = [
   {
-    icon: <Shield className="w-4 h-4 text-violet-400" />,
+    icon: <Shield className="w-4 h-4 text-violet-400" aria-hidden="true" />,
     title: 'Blind Subscription Protocol (BSP)',
     description: 'Three-layer privacy framework: blind identity rotation, zero-address finalize, and selective disclosure. Every subscription looks like a different person.',
     tag: 'Core',
   },
   {
-    icon: <Eye className="w-4 h-4 text-emerald-400" />,
+    icon: <Eye className="w-4 h-4 text-emerald-400" aria-hidden="true" />,
     title: 'Audit Tokens',
     description: 'Zero-footprint third-party verification. Prove subscription access to anyone without revealing your identity or on-chain history.',
     tag: 'New',
   },
   {
-    icon: <Clock className="w-4 h-4 text-blue-400" />,
+    icon: <Clock className="w-4 h-4 text-blue-400" aria-hidden="true" />,
     title: 'Trial Passes',
     description: '20% of tier price for ~12 hours of access. Ephemeral AccessPass with automatic expiry lets new subscribers try before committing.',
     tag: 'New',
   },
   {
-    icon: <Gift className="w-4 h-4 text-pink-400" />,
+    icon: <Gift className="w-4 h-4 text-pink-400" aria-hidden="true" />,
     title: 'Gift Subscriptions',
     description: 'Gift access to any Aleo address. The recipient redeems a private GiftToken for a full AccessPass without linking to the sender.',
     tag: 'New',
   },
   {
-    icon: <Sparkles className="w-4 h-4 text-amber-400" />,
+    icon: <Sparkles className="w-4 h-4 text-amber-400" aria-hidden="true" />,
     title: 'Commit-Reveal Tipping',
     description: 'Tip amounts hidden on-chain via BHP256 commitments until voluntary reveal. Two-phase privacy protocol keeps generosity private.',
   },
   {
-    icon: <Tag className="w-4 h-4 text-violet-300" />,
+    icon: <Tag className="w-4 h-4 text-violet-300" aria-hidden="true" />,
     title: 'Custom Creator Tiers',
     description: 'Creators define their own pricing with up to 20 custom tiers. Full control over subscription levels and pricing.',
   },
   {
-    icon: <Zap className="w-4 h-4 text-cyan-400" />,
+    icon: <Zap className="w-4 h-4 text-cyan-400" aria-hidden="true" />,
     title: '27 Transitions, 25 Mappings, 6 Records',
     description: 'Deployed as veilsub_v27.aleo on testnet. 102 error codes, scoped audit tokens, trial rate-limiting.',
     tag: 'v27',
@@ -60,16 +60,6 @@ const ITEMS: ChangelogItem[] = [
 
 export default function ChangelogOverlay() {
   const [visible, setVisible] = useState(false)
-  const trapRef = useFocusTrap(visible)
-
-  useEffect(() => {
-    try {
-      const seen = localStorage.getItem(STORAGE_KEY)
-      if (!seen) setVisible(true)
-    } catch {
-      // localStorage unavailable
-    }
-  }, [])
 
   function dismiss() {
     setVisible(false)
@@ -79,6 +69,17 @@ export default function ChangelogOverlay() {
       // localStorage unavailable
     }
   }
+
+  const trapRef = useFocusTrap(visible, dismiss)
+
+  useEffect(() => {
+    try {
+      const seen = localStorage.getItem(STORAGE_KEY)
+      if (!seen) setVisible(true)
+    } catch {
+      // localStorage unavailable
+    }
+  }, [])
 
   return (
     <AnimatePresence>
@@ -106,7 +107,7 @@ export default function ChangelogOverlay() {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <Sparkles className="w-5 h-5 text-violet-400" />
+                    <Sparkles className="w-5 h-5 text-violet-400" aria-hidden="true" />
                     <h2 className="text-lg font-medium text-white">What&apos;s New</h2>
                   </div>
                   <p className="text-xs text-white/60">VeilSub {CHANGELOG_VERSION} — deployed on testnet</p>
@@ -114,7 +115,7 @@ export default function ChangelogOverlay() {
                 <button
                   onClick={dismiss}
                   aria-label="Close changelog"
-                  className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/60 transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50"
                 >
                   <X className="w-4 h-4" />
                 </button>

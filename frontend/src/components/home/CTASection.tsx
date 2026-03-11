@@ -7,9 +7,9 @@ import ScrollReveal from '@/components/ScrollReveal'
 export default function CTASection() {
   return (
     <section className="relative py-24 lg:py-36 section-divider overflow-hidden">
-      {/* CTA ambient glow */}
+      {/* CTA ambient glow (responsive) */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] pointer-events-none"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[800px] h-[200px] sm:h-[400px] pointer-events-none"
         style={{
           background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.08) 0%, transparent 70%)',
         }}

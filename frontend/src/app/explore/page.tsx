@@ -177,7 +177,7 @@ export default function ExplorePage() {
     <PageTransition>
       <div className="min-h-screen relative">
         <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none"
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[800px] h-[200px] sm:h-[400px] pointer-events-none"
           style={{
             background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
           }}
@@ -240,7 +240,8 @@ export default function ExplorePage() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-violet-400 transition-colors" />
               {/* Debounce loading indicator */}
               {search !== debouncedSearch && search.trim() !== '' && (
-                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                  <span className="text-xs text-violet-300/80">Searching...</span>
                   <div className="w-4 h-4 border-2 border-violet-400/30 border-t-violet-400 rounded-full animate-spin" />
                 </div>
               )}
