@@ -60,7 +60,7 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
               </p>
               {isFeatured && (
                 <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-violet-500/10 border border-violet-500/20 text-[10px] text-violet-400 font-medium">
-                  <Star className="w-2.5 h-2.5" />
+                  <Star className="w-2.5 h-2.5" aria-hidden="true" />
                   Featured
                 </span>
               )}
@@ -81,11 +81,11 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
         {stats && stats.tierPrice !== null && (
           <div className="flex gap-4 text-xs text-white/60 mb-3">
             <span className="flex items-center gap-1">
-              <Users className="w-3 h-3" />
+              <Users className="w-3 h-3" aria-hidden="true" />
               {stats.subscriberCount} subscriber{stats.subscriberCount !== 1 ? 's' : ''}
             </span>
             <span className="flex items-center gap-1">
-              <Coins className="w-3 h-3" />
+              <Coins className="w-3 h-3" aria-hidden="true" />
               from {formatCredits(stats.tierPrice)} ALEO
             </span>
           </div>
@@ -95,7 +95,7 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
             Joined {new Date(creator.created_at).toLocaleDateString()}
           </span>
           <span className="text-xs text-white/60 group-hover:text-violet-300 flex items-center gap-1 transition-colors">
-            View page <ArrowRight className="w-3 h-3" />
+            View page <ArrowRight className="w-3 h-3" aria-hidden="true" />
           </span>
         </div>
       </Link>
@@ -194,7 +194,7 @@ export default function ExplorePage() {
             className="text-center mb-10"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/[0.06] border border-violet-500/[0.12] mb-6">
-              <Shield className="w-4 h-4 text-violet-400" />
+              <Shield className="w-4 h-4 text-violet-400" aria-hidden="true" />
               <span className="text-xs font-medium tracking-wide uppercase text-violet-300">
                 Browse Creators
               </span>
@@ -220,20 +220,20 @@ export default function ExplorePage() {
             >
               {platformStatsError ? (
                 <div className="flex items-center gap-1.5 text-xs text-amber-400/80">
-                  <AlertTriangle className="w-3.5 h-3.5" />
+                  <AlertTriangle className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>On-chain stats unavailable</span>
                 </div>
               ) : (
                 <>
                   {platformStats.creators !== null && (
                     <div className="flex items-center gap-1.5 text-xs text-white/60">
-                      <Users className="w-3.5 h-3.5 text-violet-400" />
+                      <Users className="w-3.5 h-3.5 text-violet-400" aria-hidden="true" />
                       <span className="text-white font-medium tabular-nums">{platformStats.creators}</span> registered creator{platformStats.creators !== 1 ? 's' : ''}
                     </div>
                   )}
                   {platformStats.content !== null && (
                     <div className="flex items-center gap-1.5 text-xs text-white/60">
-                      <Shield className="w-3.5 h-3.5 text-green-400" />
+                      <Shield className="w-3.5 h-3.5 text-green-400" aria-hidden="true" />
                       <span className="text-white font-medium tabular-nums">{platformStats.content}</span> published post{platformStats.content !== 1 ? 's' : ''}
                     </div>
                   )}
@@ -250,7 +250,7 @@ export default function ExplorePage() {
             className="max-w-lg mx-auto mb-10"
           >
             <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-violet-400 transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-violet-400 transition-colors" aria-hidden="true" />
               {/* Debounce loading indicator */}
               {search !== debouncedSearch && search.trim() !== '' && (
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -284,7 +284,7 @@ export default function ExplorePage() {
                   className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/15 transition-all duration-200 group"
                 >
                   <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-violet-400" />
+                    <Shield className="w-4 h-4 text-violet-400" aria-hidden="true" />
                     <span className="text-sm text-white">Go to creator page</span>
                     <span className="text-xs text-white/60 font-mono">{shortenAddress(search.trim())}</span>
                   </div>
@@ -333,7 +333,7 @@ export default function ExplorePage() {
           {/* Results */}
           {fetchError ? (
             <div className="text-center py-16">
-              <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
+              <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" aria-hidden="true" />
               <h3 className="text-white font-medium mb-1">Failed to Load Creators</h3>
               <p className="text-sm text-white/60 mb-4">Could not reach the server. Please try again.</p>
               <button
@@ -367,7 +367,7 @@ export default function ExplorePage() {
               <div className="relative w-16 h-16 mx-auto mb-4">
                 <div className="absolute inset-0 rounded-2xl bg-violet-500/10 animate-pulse" />
                 <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-border flex items-center justify-center">
-                  <Users className="w-8 h-8 text-white/60" />
+                  <Users className="w-8 h-8 text-white/60" aria-hidden="true" />
                 </div>
               </div>
               <h3 className="text-white font-medium mb-1">
@@ -392,7 +392,7 @@ export default function ExplorePage() {
                     className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 transition-all duration-300 active:scale-[0.98]"
                   >
                     Become a Creator
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
                   </Link>
                 )}
               </div>

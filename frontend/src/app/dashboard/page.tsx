@@ -189,7 +189,7 @@ export default function DashboardPage() {
               animate={{ rotate: [0, -10, 10, -10, 0] }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <Shield className="w-16 h-16 text-violet-400 mb-6" />
+              <Shield className="w-16 h-16 text-violet-400 mb-6" aria-hidden="true" />
             </m.div>
             <h2 className="text-3xl font-bold text-white mb-3">
               You&apos;re Registered!
@@ -209,7 +209,7 @@ export default function DashboardPage() {
                   href={`/creator/${publicKey}`}
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-violet-300 hover:bg-violet-500/20 transition-all duration-300 active:scale-[0.98]"
                 >
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="w-4 h-4" aria-hidden="true" />
                   View your page
                 </Link>
                 <button

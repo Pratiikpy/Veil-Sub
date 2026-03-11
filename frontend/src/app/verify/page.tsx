@@ -197,7 +197,7 @@ export default function VerifyPage() {
               <div className="relative w-16 h-16 mx-auto mb-6">
                 <div className="absolute inset-0 rounded-2xl bg-violet-500/20 animate-pulse" />
                 <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-violet-500/20 flex items-center justify-center">
-                  <Fingerprint className="w-8 h-8 text-violet-400" />
+                  <Fingerprint className="w-8 h-8 text-violet-400" aria-hidden="true" />
                 </div>
               </div>
               <h2 className="text-xl font-semibold text-white mb-2">
@@ -249,13 +249,13 @@ export default function VerifyPage() {
                   </div>
                 ) : loadError ? (
                   <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/20 text-center">
-                    <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+                    <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-2" aria-hidden="true" />
                     <p className="text-sm text-red-300 mb-3">{loadError}</p>
                     <button
                       onClick={loadPasses}
                       className="px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white hover:bg-white/[0.08] transition-all inline-flex items-center gap-1.5"
                     >
-                      <RefreshCw className="w-3 h-3" />
+                      <RefreshCw className="w-3 h-3" aria-hidden="true" />
                       Retry
                     </button>
                   </div>
@@ -301,7 +301,7 @@ export default function VerifyPage() {
                             </p>
                             {daysLeft !== null && !isExpired && (
                               <span className="flex items-center gap-1 text-xs text-white/60">
-                                <Clock className="w-3 h-3" />
+                                <Clock className="w-3 h-3" aria-hidden="true" />
                                 {daysLeft}d left
                               </span>
                             )}
@@ -315,7 +315,7 @@ export default function VerifyPage() {
                     <div className="relative w-14 h-14 mx-auto mb-4">
                       <div className="absolute inset-0 rounded-xl bg-violet-500/10 animate-pulse" />
                       <div className="relative w-full h-full rounded-xl bg-surface-1 border border-border flex items-center justify-center">
-                        <Lock className="w-7 h-7 text-white/60" />
+                        <Lock className="w-7 h-7 text-white/60" aria-hidden="true" />
                       </div>
                     </div>
                     <p className="text-white font-medium text-sm mb-1">
@@ -328,7 +328,7 @@ export default function VerifyPage() {
                       href="/explore"
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/70 hover:text-white hover:bg-white/[0.08] transition-all"
                     >
-                      <Search className="w-3 h-3" />
+                      <Search className="w-3 h-3" aria-hidden="true" />
                       Explore Creators
                     </Link>
                   </div>
@@ -381,7 +381,7 @@ export default function VerifyPage() {
                     {/* Expired pass warning */}
                     {getPassStatus(selectedPass) === 'expired' && verifyResult === 'idle' && (
                       <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/15 flex items-start gap-2">
-                        <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
+                        <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" aria-hidden="true" />
                         <div>
                           <p className="text-xs text-red-300 mb-1">This pass has expired.</p>
                           <p className="text-xs text-white/60">Verification will fail. Visit the creator&apos;s page to renew.</p>
@@ -395,7 +395,7 @@ export default function VerifyPage() {
                           href={`/creator/${selectedPass.creator}`}
                           className="w-full py-3 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-300 font-medium hover:bg-violet-500/20 transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98]"
                         >
-                          <RefreshCw className="w-4 h-4" />
+                          <RefreshCw className="w-4 h-4" aria-hidden="true" />
                           Renew This Pass
                         </Link>
                       ) : (
@@ -403,7 +403,7 @@ export default function VerifyPage() {
                           onClick={() => handleVerify(selectedPass)}
                           className="w-full py-3 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] btn-shimmer"
                         >
-                          <Zap className="w-4 h-4" />
+                          <Zap className="w-4 h-4" aria-hidden="true" />
                           Verify with ZK Proof
                         </button>
                       )
@@ -439,7 +439,7 @@ export default function VerifyPage() {
                                   href={`/creator/${selectedPass.creator}`}
                                   className="px-3 py-1.5 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-all inline-flex items-center gap-1"
                                 >
-                                  <RefreshCw className="w-3 h-3" />
+                                  <RefreshCw className="w-3 h-3" aria-hidden="true" />
                                   Renew Subscription
                                 </Link>
                               )}
@@ -472,7 +472,7 @@ export default function VerifyPage() {
                   </div>
                 ) : (
                   <div className="text-center py-16 rounded-xl bg-surface-1 border border-border">
-                    <ShieldCheck className="w-10 h-10 text-white/60 mx-auto mb-3" />
+                    <ShieldCheck className="w-10 h-10 text-white/60 mx-auto mb-3" aria-hidden="true" />
                     <p className="text-white/70 text-sm">
                       Select a pass to begin verification
                     </p>
@@ -531,7 +531,7 @@ export default function VerifyPage() {
                       {i + 1}
                     </span>
                     <div className="w-12 h-12 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center mx-auto mb-4">
-                      <Icon className="w-6 h-6 text-violet-400/70" />
+                      <Icon className="w-6 h-6 text-violet-400/70" aria-hidden="true" />
                     </div>
                     <h3 className="text-white font-semibold mb-2">
                       {step.title}

@@ -159,7 +159,7 @@ function QuickMappingQueries() {
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Database className="w-4 h-4 text-violet-400" />
+          <Database className="w-4 h-4 text-violet-400" aria-hidden="true" />
           <h2 className="text-lg font-semibold text-white">Quick Mapping Queries</h2>
         </div>
         <button
@@ -183,9 +183,10 @@ function QuickMappingQueries() {
               <button
                 onClick={() => queryMapping(q.mapping, q.key)}
                 disabled={loadingMap[q.mapping]}
+                title={loadingMap[q.mapping] ? 'Loading...' : `Query ${q.mapping} mapping`}
                 className="px-2 py-1 rounded text-[10px] font-medium bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.1] transition-colors disabled:opacity-40"
               >
-                {loadingMap[q.mapping] ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Query'}
+                {loadingMap[q.mapping] ? <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" /> : 'Query'}
               </button>
             </div>
             <p className="text-[10px] text-white/60 mb-2">{q.desc}</p>
@@ -347,14 +348,14 @@ export default function ExplorerPage() {
             >
               {statsError && (
                 <div className="mb-3 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-center gap-2">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                   <span>Could not fetch live stats. Showing cached values.</span>
                 </div>
               )}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <GlassCard delay={0}>
                 <div className="flex items-center gap-2 mb-2">
-                  <Users className="w-4 h-4 text-violet-400" />
+                  <Users className="w-4 h-4 text-violet-400" aria-hidden="true" />
                   <span className="text-xs text-white/70">Total Creators</span>
                 </div>
                 <p className="text-3xl font-semibold text-white">
@@ -363,7 +364,7 @@ export default function ExplorerPage() {
               </GlassCard>
               <GlassCard delay={0.05}>
                 <div className="flex items-center gap-2 mb-2">
-                  <Activity className="w-4 h-4 text-green-400" />
+                  <Activity className="w-4 h-4 text-green-400" aria-hidden="true" />
                   <span className="text-xs text-white/70">Total Subscriptions</span>
                 </div>
                 <p className="text-3xl font-semibold text-white">
@@ -372,7 +373,7 @@ export default function ExplorerPage() {
               </GlassCard>
               <GlassCard delay={0.1}>
                 <div className="flex items-center gap-2 mb-2">
-                  <Coins className="w-4 h-4 text-amber-400" />
+                  <Coins className="w-4 h-4 text-amber-400" aria-hidden="true" />
                   <span className="text-xs text-white/70">Platform Revenue</span>
                 </div>
                 <p className="text-3xl font-semibold text-white">
@@ -381,7 +382,7 @@ export default function ExplorerPage() {
               </GlassCard>
               <GlassCard delay={0.15}>
                 <div className="flex items-center gap-2 mb-2">
-                  <Shield className="w-4 h-4 text-blue-400" />
+                  <Shield className="w-4 h-4 text-blue-400" aria-hidden="true" />
                   <span className="text-xs text-white/70">Active Programs</span>
                 </div>
                 <p className="text-3xl font-semibold text-white">
@@ -401,7 +402,7 @@ export default function ExplorerPage() {
           >
             <div className="flex gap-3">
               <div className="flex-1 relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60 group-focus-within:text-violet-400 transition-colors" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60 group-focus-within:text-violet-400 transition-colors" aria-hidden="true" />
                 <input
                   type="text"
                   value={address}
@@ -415,6 +416,7 @@ export default function ExplorerPage() {
               <button
                 onClick={handleSearch}
                 disabled={loading || !address.trim()}
+                title={loading ? 'Searching...' : !address.trim() ? 'Enter a creator address to search' : 'Search for creator stats'}
                 className="px-4 sm:px-6 rounded-xl bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 btn-shimmer shrink-0"
               >
                 {loading ? (
@@ -436,7 +438,7 @@ export default function ExplorerPage() {
               animate={{ opacity: 1 }}
               className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3"
             >
-              <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
               <p className="text-sm text-red-300">{error}</p>
             </m.div>
           )}
@@ -466,14 +468,14 @@ export default function ExplorerPage() {
                     rel="noopener noreferrer"
                     className="px-3 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/60 hover:text-white flex items-center gap-1 transition-colors"
                   >
-                    Aleo Explorer <ExternalLink className="w-3 h-3" />
+                    Aleo Explorer <ExternalLink className="w-3 h-3" aria-hidden="true" />
                   </a>
                   {isRegistered && (
                     <a
                       href={`/creator/${result.address}`}
                       className="px-3 py-2 rounded-lg bg-white/[0.06] border border-border text-xs text-white/60 hover:text-white flex items-center gap-1 transition-colors"
                     >
-                      Subscribe <ArrowRight className="w-3 h-3" />
+                      Subscribe <ArrowRight className="w-3 h-3" aria-hidden="true" />
                     </a>
                   )}
                 </div>
@@ -486,7 +488,7 @@ export default function ExplorerPage() {
                     <GlassCard delay={0}>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-violet-400" />
+                          <Users className="w-4 h-4 text-violet-400" aria-hidden="true" />
                           <span className="text-xs text-white/70">Subscribers</span>
                         </div>
                         <OnChainVerify
@@ -501,7 +503,7 @@ export default function ExplorerPage() {
                         </p>
                         {sparkData.length > 0 && (
                           <div className="flex items-center gap-1.5">
-                            <TrendingUp className="w-3 h-3 text-violet-400" />
+                            <TrendingUp className="w-3 h-3 text-violet-400" aria-hidden="true" />
                             <MiniSparkline data={sparkData} />
                           </div>
                         )}
@@ -514,7 +516,7 @@ export default function ExplorerPage() {
                     <GlassCard delay={0.1}>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <Coins className="w-4 h-4 text-green-400" />
+                          <Coins className="w-4 h-4 text-green-400" aria-hidden="true" />
                           <span className="text-xs text-white/70">Total Revenue</span>
                         </div>
                         <OnChainVerify
@@ -534,7 +536,7 @@ export default function ExplorerPage() {
                     <GlassCard delay={0.2}>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <Tag className="w-4 h-4 text-blue-400" />
+                          <Tag className="w-4 h-4 text-blue-400" aria-hidden="true" />
                           <span className="text-xs text-white/70">Base Price</span>
                         </div>
                         <OnChainVerify
@@ -569,7 +571,7 @@ export default function ExplorerPage() {
                 </>
               ) : (
                 <div className="text-center py-12">
-                  <AlertCircle className="w-10 h-10 text-white/60 mx-auto mb-3" />
+                  <AlertCircle className="w-10 h-10 text-white/60 mx-auto mb-3" aria-hidden="true" />
                   <h3 className="text-lg font-semibold text-white mb-1">
                     Creator Not Registered
                   </h3>
@@ -592,7 +594,7 @@ export default function ExplorerPage() {
                       className="inline-flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 hover:text-violet-200 transition-all border border-violet-500/30"
                     >
                       Browse Creators
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4" aria-hidden="true" />
                     </a>
                   </div>
                 </div>
@@ -608,7 +610,7 @@ export default function ExplorerPage() {
               transition={{ delay: 0.3 }}
               className="text-center py-12"
             >
-              <Search className="w-10 h-10 text-white/60 mx-auto mb-3" />
+              <Search className="w-10 h-10 text-white/60 mx-auto mb-3" aria-hidden="true" />
               <p className="text-white/60 text-sm">
                 Enter a creator&apos;s Aleo address to view their public on-chain stats.
               </p>
@@ -632,7 +634,7 @@ export default function ExplorerPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-violet-400" />
+                <BarChart3 className="w-4 h-4 text-violet-400" aria-hidden="true" />
                 <h2 className="text-lg font-semibold text-white">Recent Activity</h2>
               </div>
               <div className="flex gap-1">
@@ -677,7 +679,7 @@ export default function ExplorerPage() {
                 </div>
               ) : eventsError ? (
                 <div className="text-center py-12">
-                  <AlertCircle className="w-8 h-8 text-amber-400 mx-auto mb-3" />
+                  <AlertCircle className="w-8 h-8 text-amber-400 mx-auto mb-3" aria-hidden="true" />
                   <p className="text-sm text-white/70 mb-1">Failed to load recent activity</p>
                   <p className="text-xs text-white/60 mb-4">Could not fetch events from the analytics API.</p>
                   <button
@@ -689,7 +691,7 @@ export default function ExplorerPage() {
                 </div>
               ) : paginatedEvents.length === 0 ? (
                 <div className="text-center py-12">
-                  <Activity className="w-8 h-8 text-white/60 mx-auto mb-3" />
+                  <Activity className="w-8 h-8 text-white/60 mx-auto mb-3" aria-hidden="true" />
                   <p className="text-sm text-white/60 mb-1">No events found</p>
                   <p className="text-xs text-white/60">Subscription and tip activity will appear here once transactions are confirmed on-chain.</p>
                 </div>
@@ -724,9 +726,9 @@ export default function ExplorerPage() {
                                   aria-label="Copy transaction ID"
                                 >
                                   {copiedTxId === event.tx_id ? (
-                                    <Check className="w-3 h-3 text-green-400" />
+                                    <Check className="w-3 h-3 text-green-400" aria-hidden="true" />
                                   ) : (
-                                    <Copy className="w-3 h-3" />
+                                    <Copy className="w-3 h-3" aria-hidden="true" />
                                   )}
                                 </button>
                                 <a
@@ -736,7 +738,7 @@ export default function ExplorerPage() {
                                   className="shrink-0 p-1 rounded hover:bg-white/10 text-white/60 hover:text-white transition-colors"
                                   aria-label="View on explorer"
                                 >
-                                  <ExternalLink className="w-3 h-3" />
+                                  <ExternalLink className="w-3 h-3" aria-hidden="true" />
                                 </a>
                               </>
                             )}
@@ -776,9 +778,9 @@ export default function ExplorerPage() {
                                     aria-label="Copy transaction ID"
                                   >
                                     {copiedTxId === event.tx_id ? (
-                                      <Check className="w-3.5 h-3.5 text-green-400" />
+                                      <Check className="w-3.5 h-3.5 text-green-400" aria-hidden="true" />
                                     ) : (
-                                      <Copy className="w-3.5 h-3.5" />
+                                      <Copy className="w-3.5 h-3.5" aria-hidden="true" />
                                     )}
                                   </button>
                                   <a
@@ -788,7 +790,7 @@ export default function ExplorerPage() {
                                     className="p-1.5 rounded hover:bg-white/10 text-white/60 hover:text-white transition-colors"
                                     aria-label="View on explorer"
                                   >
-                                    <ExternalLink className="w-3.5 h-3.5" />
+                                    <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
                                   </a>
                                 </>
                               )}
@@ -809,7 +811,7 @@ export default function ExplorerPage() {
                     disabled={eventsPage === 0}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-white/60 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
-                    <ChevronLeft className="w-3 h-3" /> Prev
+                    <ChevronLeft className="w-3 h-3" aria-hidden="true" /> Prev
                   </button>
                   <div className="flex gap-1">
                     {Array.from({ length: totalPages }, (_, i) => (
@@ -831,7 +833,7 @@ export default function ExplorerPage() {
                     disabled={eventsPage >= totalPages - 1}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-white/60 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
-                    Next <ChevronRight className="w-3 h-3" />
+                    Next <ChevronRight className="w-3 h-3" aria-hidden="true" />
                   </button>
                 </div>
               )}

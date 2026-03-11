@@ -170,6 +170,7 @@ export default function AnalyticsPage() {
               <button
                 onClick={fetchStats}
                 disabled={loading}
+                title={loading ? 'Loading statistics...' : 'Retry loading platform stats'}
                 className="px-4 py-1.5 rounded-lg bg-amber-500/20 border border-amber-500/30 text-xs font-medium text-amber-300 hover:bg-amber-500/30 transition-all disabled:opacity-50"
               >
                 {loading ? 'Retrying...' : 'Retry'}
@@ -195,7 +196,7 @@ export default function AnalyticsPage() {
               <GlassCard delay={0}>
                 <div className="flex items-start gap-4">
                   <div className="p-2 rounded-lg bg-white/[0.06]">
-                    <EyeOff className="w-5 h-5 text-white/60" />
+                    <EyeOff className="w-5 h-5 text-white/60" aria-hidden="true" />
                   </div>
                   <div>
                     <p className="text-2xl font-semibold text-white mb-1">0</p>
@@ -210,7 +211,7 @@ export default function AnalyticsPage() {
               <GlassCard delay={0.05}>
                 <div className="flex items-start gap-4">
                   <div className="p-2 rounded-lg bg-white/[0.06]">
-                    <ShieldCheck className="w-5 h-5 text-white/60" />
+                    <ShieldCheck className="w-5 h-5 text-white/60" aria-hidden="true" />
                   </div>
                   <div>
                     <p className="text-2xl font-semibold text-white mb-1">0</p>
@@ -227,7 +228,7 @@ export default function AnalyticsPage() {
               <GlassCard delay={0.1}>
                 <div className="flex items-start gap-4">
                   <div className="p-2 rounded-lg bg-white/[0.06]">
-                    <Lock className="w-5 h-5 text-white/60" />
+                    <Lock className="w-5 h-5 text-white/60" aria-hidden="true" />
                   </div>
                   <div>
                     <p className="text-2xl font-semibold text-white mb-1">100%</p>
@@ -248,7 +249,7 @@ export default function AnalyticsPage() {
             <div className="grid md:grid-cols-3 gap-4">
               <GlassCard delay={0}>
                 <div className="flex items-center gap-2 mb-3">
-                  <ShieldCheck className="w-4 h-4 text-green-400" />
+                  <ShieldCheck className="w-4 h-4 text-green-400" aria-hidden="true" />
                   <span className="text-sm font-medium text-white">Standard</span>
                 </div>
                 <p className="text-xs text-white/60 leading-relaxed mb-3">
@@ -259,7 +260,7 @@ export default function AnalyticsPage() {
               </GlassCard>
               <GlassCard delay={0.05} variant="accent">
                 <div className="flex items-center gap-2 mb-3">
-                  <EyeOff className="w-4 h-4 text-violet-400" />
+                  <EyeOff className="w-4 h-4 text-violet-400" aria-hidden="true" />
                   <span className="text-sm font-medium text-white">Blind</span>
                 </div>
                 <p className="text-xs text-white/60 leading-relaxed mb-3">
@@ -270,7 +271,7 @@ export default function AnalyticsPage() {
               </GlassCard>
               <GlassCard delay={0.1}>
                 <div className="flex items-center gap-2 mb-3">
-                  <Lock className="w-4 h-4 text-purple-400" />
+                  <Lock className="w-4 h-4 text-purple-400" aria-hidden="true" />
                   <span className="text-sm font-medium text-white">Maximum (v27)</span>
                 </div>
                 <p className="text-xs text-white/60 leading-relaxed mb-3">
@@ -301,7 +302,7 @@ export default function AnalyticsPage() {
                     }`}
                   >
                     <div className="flex items-center gap-3 shrink-0">
-                      <GitBranch className={`w-4 h-4 ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-white/60'}`} />
+                      <GitBranch className={`w-4 h-4 ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-white/60'}`} aria-hidden="true" />
                       <span
                         className={`text-sm font-mono font-medium ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-white/70'}`}
                       >
@@ -328,7 +329,7 @@ export default function AnalyticsPage() {
               viewport={{ once: true }}
               className="rounded-2xl glass p-8 text-center"
             >
-              <Search className="w-8 h-8 text-violet-400 mx-auto mb-4" />
+              <Search className="w-8 h-8 text-violet-400 mx-auto mb-4" aria-hidden="true" />
               <h3 className="text-xl font-semibold text-white mb-2">Query the chain yourself</h3>
               <p className="text-sm text-white/70 max-w-md mx-auto mb-5">
                 Look up any creator&apos;s public stats, query on-chain mappings directly, and verify data with no wallet required.
@@ -338,7 +339,7 @@ export default function AnalyticsPage() {
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all btn-shimmer"
               >
                 Open On-Chain Explorer
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </Link>
             </m.div>
           </section>
@@ -392,7 +393,7 @@ function ProtocolStat({
   return (
     <GlassCard delay={delay}>
       <div className="text-center">
-        <Icon className="w-5 h-5 text-white/70 mx-auto mb-3" />
+        <Icon className="w-5 h-5 text-white/70 mx-auto mb-3" aria-hidden="true" />
         <p className="text-2xl font-semibold text-white mb-1">{value}</p>
         <p className="text-sm text-white/60">{label}</p>
       </div>
