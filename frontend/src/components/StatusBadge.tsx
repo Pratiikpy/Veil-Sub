@@ -52,7 +52,7 @@ export default function StatusBadge({
       className={`inline-flex items-center gap-1.5 rounded-full border font-medium ${config.className} ${sizeClasses}`}
     >
       {showIcon && (
-        <Icon className={size === 'sm' ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
+        <Icon className={size === 'sm' ? 'w-3 h-3' : 'w-3.5 h-3.5'} aria-hidden="true" />
       )}
       {config.label}
     </span>

@@ -263,7 +263,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
             disabled={!title.trim() || !body.trim() || (txStatus !== 'idle' && txStatus !== 'failed')}
             className="mt-4 w-full"
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-4 h-4" aria-hidden="true" />
             Publish
           </Button>
         </>

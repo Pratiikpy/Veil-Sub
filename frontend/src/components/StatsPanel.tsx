@@ -88,7 +88,7 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
             className="p-4 rounded-xl bg-surface-1 border border-white/[0.05] hover:border-border transition-colors"
           >
             <div className="flex items-center gap-2 mb-2">
-              <Icon className={`w-4 h-4 ${item.color}`} />
+              <Icon className={`w-4 h-4 ${item.color}`} aria-hidden="true" />
               <span className="text-xs text-white/70">{item.label}</span>
             </div>
             <p className="text-xl font-bold text-white">{item.value}</p>

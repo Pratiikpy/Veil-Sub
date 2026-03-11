@@ -99,7 +99,7 @@ export default function PostsList({ address }: PostsListProps) {
                   className="p-2 rounded-lg hover:bg-red-500/10 text-white/60 hover:text-red-400 active:scale-[0.9] transition-all duration-300"
                   aria-label="Delete post"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
             )

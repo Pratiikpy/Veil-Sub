@@ -95,7 +95,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
         className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20"
       >
         <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
-          <X className="w-5 h-5 text-red-400" />
+          <X className="w-5 h-5 text-red-400" aria-hidden="true" />
         </div>
         <div>
           <p className="text-red-300 text-sm font-medium">Transaction Failed</p>
@@ -188,11 +188,12 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
               }`}
             >
               {isActive ? (
-                <Loader2 className="w-4 h-4 text-violet-400 animate-spin" />
+                <Loader2 className="w-4 h-4 text-violet-400 animate-spin" aria-hidden="true" />
               ) : isDone ? (
-                <Check className="w-4 h-4 text-green-400" />
+                <Check className="w-4 h-4 text-green-400" aria-hidden="true" />
               ) : (
                 <Icon
+                  aria-hidden="true"
                   className={`w-4 h-4 ${
                     isPending ? 'text-white/60' : 'text-white/70'
                   }`}
@@ -259,7 +260,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
                 <span className="text-xs text-white/70 group-hover:text-white flex-1">
                   View program on Explorer
                 </span>
-                <ExternalLink className="w-3.5 h-3.5 text-white/70 group-hover:text-white shrink-0" />
+                <ExternalLink className="w-3.5 h-3.5 text-white/70 group-hover:text-white shrink-0" aria-hidden="true" />
               </a>
             </>
           ) : (
@@ -272,7 +273,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
               <span className="text-xs text-white/70 group-hover:text-white break-all flex-1 font-mono">
                 {txId}
               </span>
-              <ExternalLink className="w-4 h-4 text-white/70 group-hover:text-white shrink-0" />
+              <ExternalLink className="w-4 h-4 text-white/70 group-hover:text-white shrink-0" aria-hidden="true" />
             </a>
           )}
         </m.div>

@@ -52,7 +52,7 @@ export default function TierDistribution({ creatorAddress }: Props) {
     return (
       <div className="rounded-sm bg-surface-1 border border-border p-5">
         <div className="flex items-center gap-2 mb-3">
-          <Users className="w-4 h-4 text-white/70" />
+          <Users className="w-4 h-4 text-white/70" aria-hidden="true" />
           <h3 className="text-sm font-medium text-white">Tier Breakdown</h3>
         </div>
         <p className="text-xs text-white/60">Unable to load tier data.</p>
@@ -67,7 +67,7 @@ export default function TierDistribution({ creatorAddress }: Props) {
   return (
     <div className="rounded-sm bg-surface-1 border border-border p-5">
       <div className="flex items-center gap-2 mb-4">
-        <Users className="w-4 h-4 text-white/70" />
+        <Users className="w-4 h-4 text-white/70" aria-hidden="true" />
         <h3 className="text-sm font-medium text-white">Tier Breakdown</h3>
         <span className="text-xs text-white/60 ml-auto">{total} total</span>
       </div>

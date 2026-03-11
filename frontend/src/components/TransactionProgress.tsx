@@ -163,11 +163,11 @@ export default function TransactionProgress({ currentStep, error }: Props) {
                   }`}
                 >
                   {isDone ? (
-                    <Check className="w-4 h-4" />
+                    <Check className="w-4 h-4" aria-hidden="true" />
                   ) : isActive ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
                   ) : isErrorStep ? (
-                    <AlertCircle className="w-4 h-4" />
+                    <AlertCircle className="w-4 h-4" aria-hidden="true" />
                   ) : (
                     <span>{i + 1}</span>
                   )}
@@ -228,11 +228,11 @@ export default function TransactionProgress({ currentStep, error }: Props) {
                     }`}
                   >
                     {isDone ? (
-                      <Check className="w-4 h-4" />
+                      <Check className="w-4 h-4" aria-hidden="true" />
                     ) : isActive ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
                     ) : isErrorStep ? (
-                      <AlertCircle className="w-4 h-4" />
+                      <AlertCircle className="w-4 h-4" aria-hidden="true" />
                     ) : (
                       <span>{i + 1}</span>
                     )}
@@ -308,7 +308,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
             className="mt-5 text-center"
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20">
-              <Check className="w-4 h-4 text-green-400" />
+              <Check className="w-4 h-4 text-green-400" aria-hidden="true" />
               <span className="text-sm font-medium text-green-400">
                 Transaction confirmed!
               </span>
@@ -325,7 +325,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
             role="alert"
             className="mt-5 flex items-start gap-2.5 p-3 rounded-xl bg-red-500/10 border border-red-500/20"
           >
-            <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+            <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
             <p className="text-xs text-red-400">{error}</p>
           </m.div>
         )}

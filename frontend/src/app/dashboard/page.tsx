@@ -39,6 +39,7 @@ export default function DashboardPage() {
   const [copied, setCopied] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [statsError, setStatsError] = useState(false)
   const [creatorLink, setCreatorLink] = useState('')
   const [showCelebration, setShowCelebration] = useState(false)
   const celebrationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -66,6 +67,7 @@ export default function DashboardPage() {
       return
     }
     let cancelled = false
+    setStatsError(false)
     fetchCreatorStats(publicKey).then((s) => {
       if (cancelled) return
       setStats(s)
@@ -73,6 +75,7 @@ export default function DashboardPage() {
       setLoading(false)
     }).catch(() => {
       if (cancelled) return
+      setStatsError(true)
       setLoading(false)
     })
     return () => { cancelled = true }
@@ -156,6 +159,25 @@ export default function DashboardPage() {
     return <DashboardSkeleton />
   }
 
+  if (statsError) {
+    return (
+      <PageTransition className="min-h-screen">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+          <h1 className="text-3xl font-serif italic text-white mb-4">Creator Dashboard</h1>
+          <div className="p-6 rounded-xl bg-red-500/5 border border-red-500/15 max-w-md mx-auto">
+            <p className="text-sm text-red-300 mb-3">Could not load your creator status. This may be a network issue.</p>
+            <button
+              onClick={() => setRefreshKey((k) => k + 1)}
+              className="px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] transition-all"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </PageTransition>
+    )
+  }
+
   return (
     <PageTransition className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -216,7 +238,7 @@ export default function DashboardPage() {
                   onClick={copyLink}
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-white/70 hover:bg-white/[0.08] transition-all duration-300"
                 >
-                  <Share2 className="w-4 h-4" />
+                  <Share2 className="w-4 h-4" aria-hidden="true" />
                   Share your link
                 </button>
               </div>

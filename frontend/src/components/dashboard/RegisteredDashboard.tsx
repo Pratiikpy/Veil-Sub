@@ -296,9 +296,9 @@ export default function RegisteredDashboard({
                   ].map((step) => (
                     <div key={step.label} className="flex items-center gap-3">
                       {step.done ? (
-                        <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
+                        <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" aria-hidden="true" />
                       ) : (
-                        <Circle className="w-5 h-5 text-white/60 shrink-0" />
+                        <Circle className="w-5 h-5 text-white/60 shrink-0" aria-hidden="true" />
                       )}
                       <div className="flex-1 min-w-0">
                         <p className={`text-sm ${step.done ? 'text-white/60 line-through' : 'text-white'}`}>
@@ -393,7 +393,7 @@ export default function RegisteredDashboard({
               className="p-4 rounded-xl bg-surface-1 border border-border"
             >
               <div className="flex items-center gap-2 mb-3">
-                <Shield className="w-4 h-4 text-green-400" />
+                <Shield className="w-4 h-4 text-green-400" aria-hidden="true" />
                 <h3 className="text-sm font-medium text-green-300">Verified On-Chain</h3>
               </div>
               <div className="flex flex-wrap gap-3">
@@ -403,7 +403,7 @@ export default function RegisteredDashboard({
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-border text-xs text-white hover:text-white hover:border-green-500/30 transition-all"
                 >
-                  <ExternalLink className="w-3 h-3" />
+                  <ExternalLink className="w-3 h-3" aria-hidden="true" />
                   View on Provable Explorer
                 </a>
                 <a
@@ -412,7 +412,7 @@ export default function RegisteredDashboard({
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-border text-xs text-white hover:text-white hover:border-green-500/30 transition-all"
                 >
-                  <ExternalLink className="w-3 h-3" />
+                  <ExternalLink className="w-3 h-3" aria-hidden="true" />
                   View on Aleoscan
                 </a>
                 <a
@@ -421,7 +421,7 @@ export default function RegisteredDashboard({
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-border text-xs text-white hover:text-white hover:border-green-500/30 transition-all"
                 >
-                  <ExternalLink className="w-3 h-3" />
+                  <ExternalLink className="w-3 h-3" aria-hidden="true" />
                   Your tier_prices entry
                 </a>
               </div>
@@ -639,7 +639,7 @@ export default function RegisteredDashboard({
               className="p-4 rounded-xl bg-surface-1 border border-border"
             >
               <div className="flex items-center gap-2 mb-2">
-                <Percent className="w-4 h-4 text-violet-400" />
+                <Percent className="w-4 h-4 text-violet-400" aria-hidden="true" />
                 <h3 className="text-sm font-medium text-white">Platform Fee</h3>
               </div>
               <p className="text-xs text-white/70">
@@ -675,7 +675,7 @@ export default function RegisteredDashboard({
                   <h2 className="text-lg font-semibold text-white">Custom Tiers</h2>
                   {creatorTierCount > 0 && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] text-green-400 font-medium">
-                      <Shield className="w-3 h-3" />
+                      <Shield className="w-3 h-3" aria-hidden="true" />
                       {creatorTierCount} on-chain
                     </span>
                   )}
@@ -724,7 +724,7 @@ export default function RegisteredDashboard({
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Award className="w-5 h-5 text-violet-400" />
+                  <Award className="w-5 h-5 text-violet-400" aria-hidden="true" />
                   <h2 className="text-lg font-semibold text-white">Prove Reputation</h2>
                 </div>
                 <button
@@ -758,7 +758,7 @@ export default function RegisteredDashboard({
               className="p-5 rounded-xl bg-surface-1 border border-border"
             >
               <div className="flex items-center gap-2 mb-3">
-                <Percent className="w-5 h-5 text-green-400" />
+                <Percent className="w-5 h-5 text-green-400" aria-hidden="true" />
                 <h3 className="text-sm font-semibold text-white">
                   {publicKey === PLATFORM_ADDRESS ? 'Withdraw Funds' : 'Withdraw Earnings'}
                 </h3>

@@ -306,11 +306,11 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       }`}
                     >
                       {unlocked ? (
-                        <Icon className={`w-4 h-4 ${tier.text}`} />
+                        <Icon className={`w-4 h-4 ${tier.text}`} aria-hidden="true" />
                       ) : isUnlocking ? (
-                        <Loader2 className="w-4 h-4 text-white/70 animate-spin" />
+                        <Loader2 className="w-4 h-4 text-white/70 animate-spin" aria-hidden="true" />
                       ) : (
-                        <Lock className="w-4 h-4 text-white/60" />
+                        <Lock className="w-4 h-4 text-white/60" aria-hidden="true" />
                       )}
                     </div>
                     <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -332,7 +332,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       </span>
                     </div>
                     {unlocked && (
-                      <Unlock className={`w-3.5 h-3.5 shrink-0 ${tier.text}`} />
+                      <Unlock className={`w-3.5 h-3.5 shrink-0 ${tier.text}`} aria-hidden="true" />
                     )}
                   </div>
 
@@ -446,7 +446,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                           onClick={() => setDisputePost({ contentId: post.contentId, title: post.title })}
                           className="text-xs text-white/60 hover:text-red-400 transition-colors flex items-center gap-1"
                         >
-                          <Flag className="w-3 h-3" />
+                          <Flag className="w-3 h-3" aria-hidden="true" />
                           Dispute
                         </button>
                       )}
@@ -466,7 +466,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       )}
       <div className="mt-4 p-3 rounded-lg bg-violet-500/5 border border-violet-500/10">
         <div className="flex items-center gap-2">
-          <Shield className="w-3.5 h-3.5 text-white/70 shrink-0" />
+          <Shield className="w-3.5 h-3.5 text-white/70 shrink-0" aria-hidden="true" />
           <p className="text-xs text-white/60">
             Gated content is server-protected. Bodies are only delivered after AccessPass verification—never exposed in network requests.
           </p>
