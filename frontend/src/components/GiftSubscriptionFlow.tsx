@@ -125,7 +125,7 @@ export default function GiftSubscriptionFlow({
                   {txId && <p className="mt-1 text-xs text-white/60 break-all">Tx: {txId.slice(0, 20)}...</p>}
                 </div>
                 <button onClick={handleClose} className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all">
-                  Close Gift
+                  Done
                 </button>
               </div>
             ) : (

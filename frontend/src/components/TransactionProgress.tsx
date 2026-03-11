@@ -35,7 +35,7 @@ const STEPS: StepDef[] = [
   {
     key: 'proving',
     label: 'Prove',
-    activeMsg: 'Generating zero-knowledge proof...',
+    activeMsg: 'Generating Aleo zero-knowledge proof...',
     estimatedSeconds: 45,
   },
   {
@@ -94,9 +94,9 @@ export default function TransactionProgress({ currentStep, error }: Props) {
       // Proof is taking longer than estimated - show reassurance
       if (currentStepDef.key === 'proving') {
         if (elapsed >= 120) {
-          return 'Still computing... (this is normal for complex proofs)'
+          return 'Still computing... Aleo proofs can take 1-2 minutes'
         }
-        return 'Still generating proof...'
+        return 'Still generating Aleo proof...'
       }
       return null
     }
@@ -372,7 +372,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
         >
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
             <span className="text-amber-400 text-[11px] font-medium">
-              Do not close this tab while your ZK proof is being generated.
+              Do not close this tab while your Aleo ZK proof is being generated.
             </span>
           </div>
           {currentStep === 'proving' && elapsed >= 90 && (
@@ -382,7 +382,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
               className="px-3 py-2 rounded-lg bg-white/5 border border-white/10"
             >
               <p className="text-[11px] text-white/50">
-                ZK proofs can take 1-2 minutes depending on your device. If stuck beyond 3 minutes, try refreshing and retrying.
+                Aleo ZK proofs can take 1-2 minutes depending on your device. If stuck beyond 3 minutes, try refreshing and retrying.
               </p>
             </m.div>
           )}

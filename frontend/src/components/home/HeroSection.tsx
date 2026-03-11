@@ -136,7 +136,7 @@ export default function HeroSection() {
                 </Link>
                 <Link href="/privacy">
                   <Button variant="secondary" size="lg" className="rounded-full">
-                    Learn How It Works
+                    Explore Zero-Footprint Privacy
                   </Button>
                 </Link>
               </>
