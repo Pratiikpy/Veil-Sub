@@ -87,7 +87,7 @@ function OverviewTab() {
               rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
               className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.04] border border-border/75 text-xs text-white/70 hover:text-white hover:border-violet-500/20 transition-colors"
             >
-              <ExternalLink className="w-3 h-3 shrink-0" />
+              <ExternalLink className="w-3 h-3 shrink-0" aria-hidden="true" />
               {link.label}
             </a>
           ))}
@@ -117,7 +117,7 @@ function OverviewTab() {
         </p>
         <div className="p-4 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.12] flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0">
-            <Fingerprint className="w-5 h-5 text-violet-300" />
+            <Fingerprint className="w-5 h-5 text-violet-300" aria-hidden="true" />
           </div>
           <div>
             <p className="text-sm text-white font-medium">Try It Yourself</p>
@@ -196,7 +196,7 @@ function ContractTab() {
               rel="noopener noreferrer"
               className="text-xs text-white/70 hover:text-white flex items-center gap-1"
             >
-              View on Explorer <ExternalLink className="w-3 h-3" />
+              View on Explorer <ExternalLink className="w-3 h-3" aria-hidden="true" />
             </a>
           </div>
           <div className="p-4 rounded-lg bg-white/[0.04] border border-border flex items-center justify-between">
@@ -573,7 +573,7 @@ function PrivacyModelTab() {
             'The relationship between a subscriber and creator',
           ].map((item) => (
             <li key={item} className="flex items-center gap-2 text-sm text-white/70">
-              <Shield className="w-4 h-4 text-white/60 shrink-0" />
+              <Shield className="w-4 h-4 text-white/60 shrink-0" aria-hidden="true" />
               {item}
             </li>
           ))}
@@ -674,7 +674,7 @@ function FaqItem({ q, a, index }: { q: string; a: string; index: number }) {
         aria-controls={`docs-faq-answer-${index}`}
       >
         <h4 className="text-white font-medium pr-4">{q}</h4>
-        <ChevronDown className={`w-4 h-4 text-white/60 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-white/60 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
       </button>
       <AnimatePresence initial={false}>
         {open && (
@@ -800,20 +800,25 @@ export default function DocsPage() {
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Tab Navigation */}
             <div className="lg:w-56 shrink-0">
-              <nav className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0">
+              <nav className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0" role="tablist" aria-label="Documentation sections">
                 {TABS.map((tab) => {
                   const Icon = tab.icon
                   return (
                     <button
                       key={tab.id}
                       onClick={() => switchTab(tab.id)}
+                      role="tab"
+                      aria-selected={activeTab === tab.id}
+                      aria-controls="docs-tabpanel"
+                      id={`tab-${tab.id}`}
+                      tabIndex={activeTab === tab.id ? 0 : -1}
                       className={`relative flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm whitespace-nowrap transition-all duration-200 ${
                         activeTab === tab.id
                           ? 'text-white bg-violet-500/[0.08] border border-violet-500/[0.15] shadow-accent-sm'
                           : 'text-white/70 hover:text-white hover:bg-white/[0.03] border border-transparent'
                       }`}
                     >
-                      <Icon className="w-4 h-4" />
+                      <Icon className="w-4 h-4" aria-hidden="true" />
                       {tab.label}
                     </button>
                   )
@@ -822,7 +827,7 @@ export default function DocsPage() {
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0" role="tabpanel" id="docs-tabpanel" aria-labelledby={`tab-${activeTab}`}>
               <AnimatePresence mode="wait">
                 <m.div
                   key={activeTab}

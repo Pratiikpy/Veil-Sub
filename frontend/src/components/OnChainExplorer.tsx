@@ -136,7 +136,7 @@ export default function OnChainExplorer() {
         className="text-center mb-12"
       >
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-6">
-          <Globe className="w-4 h-4 text-emerald-400" />
+          <Globe className="w-4 h-4 text-emerald-400" aria-hidden="true" />
           <span className="text-sm text-emerald-300">
             No Wallet Required
           </span>
@@ -158,7 +158,7 @@ export default function OnChainExplorer() {
         <GlassCard hover={false}>
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="w-5 h-5 text-violet-400" />
+              <Users className="w-5 h-5 text-violet-400" aria-hidden="true" />
               <h3 className="text-white font-semibold">Creator Lookup</h3>
             </div>
             <div>
@@ -190,9 +190,9 @@ export default function OnChainExplorer() {
               <div className="space-y-2 pt-2 border-t border-white/5">
                 <div className="flex items-center gap-2 text-sm">
                   {creatorStats.registered ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" aria-hidden="true" />
                   ) : (
-                    <XCircle className="w-4 h-4 text-red-400" />
+                    <XCircle className="w-4 h-4 text-red-400" aria-hidden="true" />
                   )}
                   <span className={creatorStats.registered ? 'text-emerald-300' : 'text-red-300'}>
                     {creatorStats.registered ? 'Registered Creator' : 'Not Registered'}
@@ -233,7 +233,7 @@ export default function OnChainExplorer() {
           <GlassCard hover={false}>
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-2">
-                <FileText className="w-5 h-5 text-violet-400" />
+                <FileText className="w-5 h-5 text-violet-400" aria-hidden="true" />
                 <h3 className="text-white font-semibold">Content Verification</h3>
               </div>
               <div>
@@ -258,9 +258,9 @@ export default function OnChainExplorer() {
                 <div className="space-y-2 pt-2 border-t border-white/5">
                   <div className="flex items-center gap-2 text-sm">
                     {contentInfo.found ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" aria-hidden="true" />
                     ) : (
-                      <XCircle className="w-4 h-4 text-red-400" />
+                      <XCircle className="w-4 h-4 text-red-400" aria-hidden="true" />
                     )}
                     <span className={contentInfo.found ? 'text-emerald-300' : 'text-red-300'}>
                       {contentInfo.found ? 'Content Found On-Chain' : 'Not Found'}
@@ -289,11 +289,11 @@ export default function OnChainExplorer() {
           <GlassCard hover={false}>
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-2">
-                <Database className="w-5 h-5 text-violet-400" />
+                <Database className="w-5 h-5 text-violet-400" aria-hidden="true" />
                 <h3 className="text-white font-semibold">Program Deployment</h3>
               </div>
               <div className="flex items-center gap-2 text-sm text-white/70">
-                <Coins className="w-4 h-4" />
+                <Coins className="w-4 h-4" aria-hidden="true" />
                 <span className="font-mono text-xs break-all">{DEPLOYED_PROGRAM_ID}</span>
               </div>
               <button
@@ -308,12 +308,12 @@ export default function OnChainExplorer() {
                 <div className="flex items-center gap-2 text-sm pt-2 border-t border-white/5">
                   {programDeployed ? (
                     <>
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" aria-hidden="true" />
                       <span className="text-emerald-300">Deployed on Aleo Testnet</span>
                     </>
                   ) : (
                     <>
-                      <XCircle className="w-4 h-4 text-red-400" />
+                      <XCircle className="w-4 h-4 text-red-400" aria-hidden="true" />
                       <span className="text-red-300">Not Found on Testnet</span>
                     </>
                   )}

@@ -1,6 +1,7 @@
 export default function DashboardLoading() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" role="status" aria-live="polite" aria-busy="true">
+      <span className="sr-only">Loading dashboard, please wait</span>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="animate-pulse mb-10">
           <div className="h-8 w-64 rounded-lg bg-white/[0.06] mb-4" />

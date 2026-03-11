@@ -180,7 +180,10 @@ export default function VerifyPage() {
                 Verify Your Access
               </h1>
               <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
-                Prove your subscription with zero-knowledge cryptography. On-chain finalize checks only pass_id, expiry, and revocation—your subscriber address never appears in any mapping.
+                Prove your subscription with zero-knowledge cryptography.
+              </p>
+              <p className="text-sm text-white/50 max-w-2xl mx-auto mt-2">
+                On-chain verification checks only pass ID, expiry, and revocation status—your wallet address never appears in any mapping.
               </p>
             </m.div>
           </div>
@@ -316,7 +319,7 @@ export default function VerifyPage() {
                     Connect Wallet to Verify
                   </h2>
                   <p className="text-white/70 text-sm mb-6 text-center">
-                    Connect to view AccessPasses. verify_access proves subscription validity without revealing your address—finalize only checks pass_id, not who owns it.
+                    Connect to view your private access passes. Verification proves subscription validity without revealing your address—on-chain checks only confirm the pass exists, not who owns it.
                   </p>
 
                   {/* What gets verified */}

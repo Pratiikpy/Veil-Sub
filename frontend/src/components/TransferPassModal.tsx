@@ -94,8 +94,13 @@ export default function TransferPassModal({
           {/* Close */}
           <button
             onClick={handleClose}
+            disabled={txStatus === 'signing' || txStatus === 'broadcasting'}
             aria-label="Close transfer modal"
-            className="absolute top-5 right-5 text-white/60 hover:text-white transition-colors"
+            className={`absolute top-5 right-5 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded ${
+              txStatus === 'signing' || txStatus === 'broadcasting'
+                ? 'text-white/30 cursor-not-allowed'
+                : 'text-white/60 hover:text-white'
+            }`}
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -193,9 +198,25 @@ export default function TransferPassModal({
               <Button variant="accent" onClick={handleClose} className="w-full">
                 Done
               </Button>
-            ) : (
+            ) : txStatus === 'failed' ? (
               <>
                 <Button variant="secondary" onClick={handleClose} className="flex-1">
+                  Close
+                </Button>
+                <Button
+                  variant="accent"
+                  onClick={() => {
+                    setTxStatus('idle')
+                    setError(null)
+                  }}
+                  className="flex-1"
+                >
+                  Try Again
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="secondary" onClick={handleClose} className="flex-1" disabled={txStatus === 'signing' || txStatus === 'broadcasting'}>
                   Cancel
                 </Button>
                 <Button

@@ -22,6 +22,8 @@ import RegisteredDashboard from '@/components/dashboard/RegisteredDashboard'
 
 const CelebrationBurst = dynamic(() => import('@/components/CelebrationBurst'), { ssr: false })
 
+const TITLE_STYLE = { letterSpacing: '-0.03em' } as const
+
 export default function DashboardPage() {
   const { address: publicKey, connected, signMessage } = useWallet()
   const { registerCreator } = useVeilSub()
@@ -190,7 +192,7 @@ export default function DashboardPage() {
         >
           <h1
             className="text-3xl sm:text-4xl font-serif italic text-white mb-2"
-            style={{ letterSpacing: '-0.03em' }}
+            style={TITLE_STYLE}
           >
             Creator Dashboard
           </h1>

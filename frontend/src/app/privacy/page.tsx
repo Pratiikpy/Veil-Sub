@@ -38,7 +38,7 @@ export default function PrivacyPage() {
           <div className="relative max-w-5xl mx-auto px-4 sm:px-8 lg:px-8 pt-20 pb-16">
             <m.div {...fadeUp} transition={{ duration: 0.6 }} className="text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-8">
-                <Shield className="w-4 h-4 text-violet-400" />
+                <Shield className="w-4 h-4 text-violet-400" aria-hidden="true" />
                 <span className="text-sm text-violet-300/90">Zero-Knowledge Privacy</span>
               </div>
               <h1
@@ -60,9 +60,9 @@ export default function PrivacyPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-all"
               >
-                <Shield className="w-4 h-4" />
+                <Shield className="w-4 h-4" aria-hidden="true" />
                 Verify on Aleoscan—audit the deployed contract yourself
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
               </a>
             </m.div>
           </div>
@@ -96,7 +96,7 @@ export default function PrivacyPage() {
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-4">
-                <Layers className="w-4 h-4 text-violet-400" />
+                <Layers className="w-4 h-4 text-violet-400" aria-hidden="true" />
                 <span className="text-sm text-violet-300/90">Novel Privacy Framework</span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-semibold text-white mb-4">
@@ -313,7 +313,7 @@ export default function PrivacyPage() {
               <div className="rounded-xl overflow-hidden border border-border">
                 <div className="px-4 py-4 bg-white/[0.02] border-b border-border">
                   <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-violet-400" />
+                    <ShieldCheck className="w-4 h-4 text-violet-400" aria-hidden="true" />
                     <h4 className="text-sm font-semibold text-white">BSP vs Other Privacy Approaches</h4>
                   </div>
                 </div>
@@ -380,7 +380,7 @@ export default function PrivacyPage() {
             <div className="grid md:grid-cols-3 gap-8">
               <GlassCard shimmer delay={0}>
                 <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4">
-                  <Fingerprint className="w-6 h-6 text-violet-400" />
+                  <Fingerprint className="w-6 h-6 text-violet-400" aria-hidden="true" />
                 </div>
                 <h3 className="text-white font-semibold mb-2">Prove Without Revealing</h3>
                 <p className="text-sm text-white/70">
@@ -393,7 +393,7 @@ export default function PrivacyPage() {
 
               <GlassCard shimmer delay={0.1}>
                 <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center mb-4">
-                  <Lock className="w-6 h-6 text-indigo-400" />
+                  <Lock className="w-6 h-6 text-indigo-400" aria-hidden="true" />
                 </div>
                 <h3 className="text-white font-semibold mb-2">Encrypted Records</h3>
                 <p className="text-sm text-white/70">
@@ -406,7 +406,7 @@ export default function PrivacyPage() {
 
               <GlassCard shimmer delay={0.2}>
                 <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4">
-                  <ShieldCheck className="w-6 h-6 text-violet-400" />
+                  <ShieldCheck className="w-6 h-6 text-violet-400" aria-hidden="true" />
                 </div>
                 <h3 className="text-white font-semibold mb-2">Mathematically Guaranteed</h3>
                 <p className="text-sm text-white/70">
@@ -432,7 +432,7 @@ export default function PrivacyPage() {
                 <div className="relative rounded-xl bg-gradient-to-b from-violet-500/[0.08] to-green-500/[0.04] p-8">
                   <div className="flex items-start gap-4">
                     <div className="shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-violet-500/20 to-green-500/20 flex items-center justify-center">
-                      <Fingerprint className="w-7 h-7 text-green-400" />
+                      <Fingerprint className="w-7 h-7 text-green-400" aria-hidden="true" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-4 mb-4">
@@ -499,7 +499,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               <GlassCard hover={false}>
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center">
-                    <EyeOff className="w-5 h-5 text-white/70" />
+                    <EyeOff className="w-5 h-5 text-white/70" aria-hidden="true" />
                   </div>
                   <div>
                     <h3 className="text-white font-semibold">Private Data</h3>
@@ -566,7 +566,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                         className="p-4 rounded-xl bg-white/[0.04] border border-border"
                       >
                         <div className="flex items-center gap-2 mb-1">
-                          <Icon className="w-4 h-4 text-white/70" />
+                          <Icon className="w-4 h-4 text-white/70" aria-hidden="true" />
                           <span className="text-sm font-medium text-white">{item.title}</span>
                         </div>
                         <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
@@ -580,7 +580,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               <GlassCard hover={false}>
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-10 h-10 rounded-xl bg-white/[0.08] flex items-center justify-center">
-                    <Eye className="w-5 h-5 text-white/70" />
+                    <Eye className="w-5 h-5 text-white/70" aria-hidden="true" />
                   </div>
                   <div>
                     <h3 className="text-white font-semibold">Public Data</h3>
@@ -637,7 +637,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                         className="p-4 rounded-xl bg-surface-1 border border-border"
                       >
                         <div className="flex items-center gap-2 mb-1">
-                          <Icon className="w-4 h-4 text-white/70" />
+                          <Icon className="w-4 h-4 text-white/70" aria-hidden="true" />
                           <span className="text-sm font-medium text-white">{item.title}</span>
                         </div>
                         <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
@@ -664,7 +664,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               <GlassCard delay={0}>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                    <Eye className="w-5 h-5 text-amber-400" />
+                    <Eye className="w-5 h-5 text-amber-400" aria-hidden="true" />
                   </div>
                   <h3 className="text-white font-semibold">What an Adversary Could Learn</h3>
                 </div>
@@ -698,7 +698,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               <GlassCard delay={0.1}>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-                    <EyeOff className="w-5 h-5 text-green-400" />
+                    <EyeOff className="w-5 h-5 text-green-400" aria-hidden="true" />
                   </div>
                   <h3 className="text-white font-semibold">What an Adversary Cannot Learn</h3>
                 </div>
@@ -730,7 +730,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               <GlassCard delay={0.2}>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center">
-                    <ShieldCheck className="w-5 h-5 text-white/70" />
+                    <ShieldCheck className="w-5 h-5 text-white/70" aria-hidden="true" />
                   </div>
                   <h3 className="text-white font-semibold">What We Mitigate</h3>
                 </div>
@@ -768,7 +768,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               <GlassCard delay={0.3}>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center">
-                    <Lock className="w-5 h-5 text-white/70" />
+                    <Lock className="w-5 h-5 text-white/70" aria-hidden="true" />
                   </div>
                   <h3 className="text-white font-semibold">Honest Limitations</h3>
                 </div>
@@ -816,7 +816,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                 {/* Traditional Platform */}
                 <div className="rounded-xl border border-red-500/20 overflow-hidden">
                   <div className="px-4 py-2.5 bg-red-500/10 border-b border-red-500/20 flex items-center gap-2">
-                    <Eye className="w-4 h-4 text-red-400" />
+                    <Eye className="w-4 h-4 text-red-400" aria-hidden="true" />
                     <span className="text-sm font-medium text-red-300">Traditional Platform</span>
                   </div>
                   <div className="p-4 bg-black/40">
@@ -838,7 +838,7 @@ mapping payments[aleo1abc]   → 5 ALEO
                 {/* VeilSub */}
                 <div className="rounded-xl border border-green-500/20 overflow-hidden">
                   <div className="px-4 py-2.5 bg-green-500/10 border-b border-green-500/20 flex items-center gap-2">
-                    <EyeOff className="w-4 h-4 text-green-400" />
+                    <EyeOff className="w-4 h-4 text-green-400" aria-hidden="true" />
                     <span className="text-sm font-medium text-green-300">VeilSub (BSP)</span>
                   </div>
                   <div className="p-4 bg-black/40">

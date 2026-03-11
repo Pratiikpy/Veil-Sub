@@ -22,6 +22,13 @@ import { useCreatorStats } from '@/hooks/useCreatorStats'
 
 const FEATURED_ADDRESSES = new Set(FEATURED_CREATORS.map(c => c.address))
 
+// Extracted style constants to prevent unnecessary re-renders
+const GRADIENT_STYLE = {
+  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
+} as const
+
+const TITLE_STYLE = { letterSpacing: '-0.03em' } as const
+
 // Categories for filtering
 const CATEGORIES = [
   { id: 'all', label: 'All Creators' },
@@ -249,9 +256,7 @@ export default function ExplorePage() {
       <div className="min-h-screen relative">
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[800px] h-[200px] sm:h-[400px] pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
-          }}
+          style={GRADIENT_STYLE}
         />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Header */}
@@ -268,14 +273,15 @@ export default function ExplorePage() {
             </div>
             <h1
               className="text-4xl sm:text-5xl font-serif italic text-white mb-4"
-              style={{ letterSpacing: '-0.03em' }}
+              style={TITLE_STYLE}
             >
               Explore Creators
             </h1>
             <p className="text-lg text-white/70 max-w-lg mx-auto">
-              Subscribe with zero-footprint verification.{' '}
-              <span className="text-white font-medium">No addresses on-chain, no subscriber identities revealed</span>
-              —prove your AccessPass with ZK proof.
+              Subscribe anonymously. Prove access without revealing your identity.
+            </p>
+            <p className="text-xs text-white/50 max-w-lg mx-auto mt-2">
+              No subscriber addresses written to blockchain mappings—verification uses zero-knowledge proofs.
             </p>
           </m.div>
 
@@ -500,7 +506,7 @@ export default function ExplorePage() {
               <p className="text-sm text-white/60 mb-6 max-w-sm mx-auto">
                 {search
                   ? 'Try a different search term, or paste a full aleo1... address above to go directly to any creator page.'
-                  : 'Be the first creator to offer private subscription tiers—only VeilSub hides subscriber identity from the blockchain.'}
+                  : 'VeilSub is the only platform that hides subscriber identity from the blockchain. Be the first creator in your niche to offer truly private subscriptions.'}
               </p>
               <div className="flex items-center justify-center gap-4 flex-wrap">
                 {search ? (
