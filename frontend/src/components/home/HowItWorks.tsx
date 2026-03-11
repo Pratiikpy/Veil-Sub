@@ -38,7 +38,7 @@ export default function HowItWorks() {
                   <span className="text-4xl font-bold leading-none text-violet-500/20 select-none group-hover:text-violet-500/40 group-hover:scale-110 transition-all duration-300 inline-block">
                     0{i + 1}
                   </span>
-                  <div className="mt-4 mb-3 w-10 h-10 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center group-hover:bg-violet-500/[0.1] group-hover:border-violet-500/[0.2] transition-all">
+                  <div className="mt-4 mb-4 w-10 h-10 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center group-hover:bg-violet-500/[0.1] group-hover:border-violet-500/[0.2] transition-all">
                     <Icon className="w-5 h-5 text-violet-400/60 group-hover:text-violet-400 transition-colors" aria-hidden="true" />
                   </div>
                   <h3 className="text-white font-medium mb-2">{step.title}</h3>

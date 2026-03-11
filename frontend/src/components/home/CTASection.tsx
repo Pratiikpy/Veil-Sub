@@ -18,16 +18,7 @@ export default function CTASection() {
         <ScrollReveal>
           <div className="relative max-w-3xl mx-auto rounded-3xl overflow-hidden">
             {/* Gradient border */}
-            <div
-              className="absolute inset-0 rounded-3xl"
-              style={{
-                padding: '1px',
-                background: 'linear-gradient(135deg, rgba(139,92,246,0.3), rgba(139,92,246,0.05) 40%, rgba(139,92,246,0.05) 60%, rgba(139,92,246,0.3))',
-                WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                WebkitMaskComposite: 'xor',
-                maskComposite: 'exclude',
-              }}
-            />
+            <div className="gradient-border-accent" />
             <div className="relative p-10 sm:p-16 text-center bg-white/[0.01]">
               <h2
                 className="text-4xl sm:text-5xl lg:text-6xl font-serif italic text-white"

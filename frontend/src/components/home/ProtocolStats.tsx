@@ -24,7 +24,7 @@ export default function ProtocolStats() {
         <ScrollReveal>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Quote card */}
-            <div className="col-span-2 sm:row-span-2 rounded-3xl glass p-6 sm:p-10 flex flex-col justify-between hover:border-violet-500/[0.15] transition-all duration-300">
+            <div className="col-span-2 sm:row-span-2 rounded-3xl glass p-6 sm:p-8 flex flex-col justify-between hover:border-violet-500/[0.15] transition-all duration-300">
               <div>
                 <Badge variant="accent">Protocol Stats</Badge>
                 <p
@@ -60,7 +60,7 @@ export default function ProtocolStats() {
             {STATS.map((stat) => (
               <SpotlightCard
                 key={stat.label}
-                className="rounded-3xl glass p-5 sm:p-7 flex flex-col justify-between hover:border-violet-500/[0.15] transition-all duration-300"
+                className="rounded-3xl glass p-6 sm:p-8 flex flex-col justify-between hover:border-violet-500/[0.15] transition-all duration-300"
                 tiltMax={6}
               >
                 <Odometer

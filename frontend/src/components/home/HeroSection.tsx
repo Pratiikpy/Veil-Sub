@@ -68,7 +68,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex justify-center mb-10"
+            className="flex justify-center mb-12"
           >
             <Badge variant="accent">Privacy-First Protocol</Badge>
           </m.div>
@@ -109,7 +109,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.9 }}
-            className="flex items-center justify-center gap-3 flex-wrap mt-12"
+            className="flex items-center justify-center gap-4 flex-wrap mt-12"
             style={{ y: descY }}
           >
             {connected ? (
@@ -152,7 +152,7 @@ export default function HeroSection() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 1.0 }}
-              className="mt-3 text-xs text-white/50 text-center"
+              className="mt-4 text-xs text-white/50 text-center"
             >
               Browse publicly—connect Shield or Leo Wallet to subscribe privately
             </m.p>
@@ -162,7 +162,7 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 1.1 }}
-            className="mt-8 text-xs inline-flex items-center gap-3 justify-center flex-wrap"
+            className="mt-8 text-xs inline-flex items-center gap-4 justify-center flex-wrap"
           >
             <span className="inline-flex items-center gap-1.5 px-2 py-1 text-[11px] font-semibold text-violet-300 bg-violet-500/[0.08] border border-violet-500/[0.15] rounded-md">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -180,7 +180,7 @@ export default function HeroSection() {
           <HeroMockup />
         </m.div>
 
-        <div className="flex justify-center mt-10 sm:mt-16">
+        <div className="flex justify-center mt-12 sm:mt-16">
           <ChevronDown className="w-5 h-5 text-violet-400/60 animate-scroll-bounce" aria-hidden="true" />
         </div>
       </Container>

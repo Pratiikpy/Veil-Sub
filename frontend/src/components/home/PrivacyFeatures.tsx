@@ -11,21 +11,21 @@ import SpotlightCard from '@/components/ui/SpotlightCard'
 const FEATURES_LARGE = [
   {
     icon: EyeOff,
-    title: 'Private Payments',
-    desc: 'Subscribe with ALEO credits. Your identity is cryptographically hidden—no subscriber lists, no transaction links, no public record of who pays whom.',
+    title: 'Zero-Address Finalize',
+    desc: 'All 25 on-chain mappings are keyed by Poseidon2 field hashes, not raw addresses. Even if someone watches the blockchain, they cannot correlate mapping keys with wallet addresses.',
   },
   {
     icon: KeyRound,
-    title: 'Zero-Knowledge Proofs',
-    desc: 'Prove you have a valid subscription without revealing who you are, what tier you hold, or when you subscribed.',
+    title: 'Blind Subscription Protocol',
+    desc: 'Each renewal uses a fresh cryptographic nonce. Your wallet subscribed in Month 1 with nonce₁, renews in Month 2 with nonce₂—the creator cannot link these as the same person.',
   },
 ]
 
 const FEATURES_SMALL = [
-  { icon: FileText, title: 'Encrypted Content', desc: 'AES-256 encrypted posts—only AccessPass holders decrypt' },
-  { icon: Lock, title: 'Blind Renewals', desc: 'Nonce rotation via Poseidon2 breaks linkability' },
-  { icon: Coins, title: 'Commit-Reveal Tipping', desc: 'BHP256 commitments hide tip amounts until reveal' },
-  { icon: Globe, title: 'On-Chain Verification', desc: 'verify_access checks pass_id only—zero address exposure' },
+  { icon: FileText, title: 'Scoped Audit Tokens', desc: 'Bitfield mask controls which fields verifiers see: tier, expiry, or nothing—you choose' },
+  { icon: Lock, title: 'Six Private Records', desc: 'AccessPass, AuditToken, GiftToken, and 3 more—each with independent privacy scope' },
+  { icon: Coins, title: 'Commit-Reveal Tipping', desc: 'BHP256 hash commitment hides tip amount until you reveal—tips stay private' },
+  { icon: Globe, title: 'verify_access Proofs', desc: 'Verify subscription status using only pass_id—no address exposure on-chain' },
 ]
 
 export default function PrivacyFeatures() {
@@ -50,7 +50,7 @@ export default function PrivacyFeatures() {
                 className="sm:col-span-2"
               >
                 <SpotlightCard
-                  className="group relative p-10 rounded-3xl glass glass-accent h-full transition-all duration-300 overflow-hidden"
+                  className="group relative p-8 sm:p-10 rounded-3xl glass glass-accent h-full transition-all duration-300 overflow-hidden"
                   spotlightSize={400}
                 >
                   {/* Subtle corner glow */}
@@ -74,7 +74,7 @@ export default function PrivacyFeatures() {
             const Icon = feature.icon
             return (
               <m.div key={feature.title} variants={staggerItemVariants}>
-                <SpotlightCard className="group p-7 rounded-3xl glass glass-accent h-full transition-all duration-300">
+                <SpotlightCard className="group p-6 sm:p-8 rounded-3xl glass glass-accent h-full transition-all duration-300">
                   <div className="w-9 h-9 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center mb-4 group-hover:bg-violet-500/[0.1] group-hover:border-violet-500/[0.2] transition-all">
                     <Icon className="w-4 h-4 text-violet-400/60 group-hover:text-violet-400 transition-colors" aria-hidden="true" />
                   </div>

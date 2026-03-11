@@ -18,7 +18,7 @@ export default function SectionHeader({
   return (
     <div className={`${align === 'center' ? 'text-center' : 'text-left'} ${className}`}>
       {badge && (
-        <div className={`mb-5 ${align === 'center' ? 'flex justify-center' : ''}`}>
+        <div className={`mb-4 ${align === 'center' ? 'flex justify-center' : ''}`}>
           <Badge>{badge}</Badge>
         </div>
       )}
