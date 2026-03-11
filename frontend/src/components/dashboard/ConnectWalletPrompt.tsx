@@ -24,7 +24,7 @@ export default function ConnectWalletPrompt() {
               Creator Dashboard
             </h2>
             <p className="text-white/70 mb-8">
-              Connect your wallet to register as a creator or manage your subscriptions.
+              Connect your wallet to register as a creator with private subscriber stats.
             </p>
           </m.div>
 

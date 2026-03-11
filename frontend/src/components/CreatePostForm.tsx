@@ -156,7 +156,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Post title..."
-                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base"
+                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base"
               />
             </div>
             <div>
@@ -167,7 +167,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Write your exclusive content..."
                 rows={4}
-                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base resize-none"
+                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base resize-none"
               />
             </div>
             <div>
@@ -180,7 +180,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                 onChange={(e) => setPreview(e.target.value.slice(0, 300))}
                 placeholder="A short teaser to attract subscribers..."
                 rows={2}
-                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base resize-none"
+                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base resize-none"
               />
               <p className="text-[10px] text-white/60 mt-0.5">{preview.length}/300</p>
             </div>
@@ -197,7 +197,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                     value={imageUrl}
                     onChange={(e) => { setImageUrl(e.target.value); setImageError(false) }}
                     placeholder="https://example.com/image.jpg"
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm"
+                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm"
                   />
                 </div>
                 {imageUrl && (

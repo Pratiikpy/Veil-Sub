@@ -62,7 +62,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
   const handleDirectTip = async () => {
     if (submittingRef.current) return
     if (!connected) {
-      setError('Please connect your wallet first.')
+      setError('Connect wallet to tip privately.')
       return
     }
 
@@ -141,7 +141,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
   const handleCommit = async () => {
     if (submittingRef.current) return
     if (!connected) {
-      setError('Please connect your wallet first.')
+      setError('Connect wallet for commit-reveal tipping.')
       return
     }
 
@@ -197,7 +197,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
   const handleReveal = async () => {
     if (submittingRef.current || !savedSalt) return
     if (!connected) {
-      setError('Please connect your wallet first.')
+      setError('Connect wallet to reveal tip amount.')
       return
     }
 

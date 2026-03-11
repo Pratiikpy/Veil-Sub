@@ -104,7 +104,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                 <h3 className="text-lg font-semibold text-white">Create Custom Tier</h3>
               </div>
               <button onClick={handleClose} aria-label="Close tier creation dialog" className="rounded-lg p-1 text-white/70 hover:bg-white/[0.1] hover:text-white active:scale-[0.9] transition-all">
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -152,7 +152,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                     value={tierName}
                     onChange={(e) => setTierName(e.target.value)}
                     placeholder="e.g. Supporter, Premium, VIP"
-                    className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base"
+                    className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base"
                     maxLength={32}
                   />
                 </div>
@@ -169,7 +169,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                     placeholder="0.5"
                     step="0.1"
                     min="0.001"
-                    className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base"
+                    className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base"
                   />
                   {priceAleo && (
                     <p className="mt-1 text-xs text-white/60">
@@ -215,7 +215,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                   ) : (
                     <>
                       <Plus className="h-4 w-4" aria-hidden="true" />
-                      Create Tier #{tierId || '?'}
+                      Create Custom Tier #{tierId || '?'}
                     </>
                   )}
                 </Button>

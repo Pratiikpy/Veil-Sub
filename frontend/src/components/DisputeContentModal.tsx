@@ -107,7 +107,7 @@ export default function DisputeContentModal({
             aria-label="Close dispute modal"
             className="absolute top-5 right-5 text-white/60 hover:text-white active:scale-[0.9] transition-all"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
 
           {/* Header */}
@@ -179,7 +179,7 @@ export default function DisputeContentModal({
               disabled={!selectedReason || txStatus === 'signing' || txStatus === 'broadcasting'}
               className="flex-1 bg-red-500/80 text-white hover:bg-red-500/90 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]"
             >
-              {txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Submitting...' : 'Submit Dispute'}
+              {txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Submitting...' : 'Dispute On-Chain'}
             </Button>
           </div>
         </m.div>

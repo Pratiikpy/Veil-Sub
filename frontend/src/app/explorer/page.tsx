@@ -436,10 +436,18 @@ export default function ExplorerPage() {
             <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3"
+              className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start justify-between gap-3"
             >
-              <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
-              <p className="text-sm text-red-300">{error}</p>
+              <div className="flex items-start gap-3 flex-1">
+                <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
+                <p className="text-sm text-red-300">{error}</p>
+              </div>
+              <button
+                onClick={() => { setAddress(''); setError(null); setSearched(false) }}
+                className="shrink-0 text-xs text-red-300 hover:text-red-200 underline underline-offset-2 transition-colors"
+              >
+                Clear
+              </button>
             </m.div>
           )}
 
@@ -809,7 +817,8 @@ export default function ExplorerPage() {
                   <button
                     onClick={() => setEventsPage(Math.max(0, eventsPage - 1))}
                     disabled={eventsPage === 0}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-white/60 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    title={eventsPage === 0 ? 'Already on first page' : 'Go to previous page'}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-white/60 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-white/60 transition-colors"
                   >
                     <ChevronLeft className="w-3 h-3" aria-hidden="true" /> Prev
                   </button>
@@ -831,7 +840,8 @@ export default function ExplorerPage() {
                   <button
                     onClick={() => setEventsPage(Math.min(totalPages - 1, eventsPage + 1))}
                     disabled={eventsPage >= totalPages - 1}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-white/60 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    title={eventsPage >= totalPages - 1 ? 'Already on last page' : 'Go to next page'}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-white/60 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-white/60 transition-colors"
                   >
                     Next <ChevronRight className="w-3 h-3" aria-hidden="true" />
                   </button>

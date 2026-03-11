@@ -104,11 +104,13 @@ export default function ExploreCreators() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-violet-400 transition-colors" />
               <input
                 type="text"
+                id="creator-search"
                 value={searchAddress}
                 onChange={(e) => setSearchAddress(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="Search by Aleo address..."
                 aria-label="Enter creator Aleo address"
+                aria-describedby="creator-search-help"
                 className="w-full pl-11 pr-4 py-3 rounded-full glass text-white placeholder-subtle focus:outline-none focus:border-violet-500/40 focus:shadow-accent-lg focus:scale-[1.01] transition-all duration-300 text-base"
               />
             </div>
@@ -121,7 +123,7 @@ export default function ExploreCreators() {
             </Button>
           </div>
           <div className="flex items-center justify-center gap-4 mt-4">
-            <p className="text-xs text-white/60">
+            <p id="creator-search-help" className="text-xs text-white/60">
               Know a creator&apos;s address? Paste it above to visit their page.
             </p>
             <Link

@@ -72,7 +72,7 @@ export default function SubscribeModal({
   const handleSubscribe = async () => {
     if (submittingRef.current) return
     if (!connected) {
-      setError('Please connect your wallet first.')
+      setError('Connect wallet to subscribe privately.')
       return
     }
     if (blockHeight === null) {

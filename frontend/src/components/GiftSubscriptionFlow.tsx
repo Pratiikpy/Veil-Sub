@@ -226,7 +226,7 @@ export default function GiftSubscriptionFlow({
                     className="w-full"
                   >
                     <Send className="h-4 w-4" aria-hidden="true" />
-                    Send Gift
+                    Send Private Gift
                   </Button>
                 )}
               </div>

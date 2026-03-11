@@ -83,7 +83,7 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
             onChange={(e) => setName(e.target.value)}
             placeholder="Your creator name"
             maxLength={50}
-            className="w-full px-4 py-2.5 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300 text-base"
+            className="w-full px-4 py-2.5 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all duration-300 text-base"
           />
         </div>
         <div>
@@ -95,7 +95,7 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
             placeholder="Tell subscribers what you create..."
             maxLength={200}
             rows={2}
-            className="w-full px-4 py-2.5 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300 text-base resize-none"
+            className="w-full px-4 py-2.5 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all duration-300 text-base resize-none"
           />
         </div>
         <button
