@@ -58,7 +58,7 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
         toast.success('Profile saved!')
         setTimeout(() => setSaved(false), 2000)
       } else {
-        toast.error('Failed to save profile. Please try again.')
+        toast.error('Profile save failed. Sign the request in your wallet.')
       }
     } finally {
       setIsSaving(false)
@@ -87,7 +87,7 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
           className="px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300 hover:bg-amber-500/20 transition-all inline-flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-0"
         >
           <RefreshCw className="w-4 h-4" aria-hidden="true" />
-          Retry
+          Retry Load
         </button>
       </m.div>
     )

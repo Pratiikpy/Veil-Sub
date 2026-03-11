@@ -138,7 +138,7 @@ export default function SubscribeModal({
             toast.success('Subscribed!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            setError('Subscription failed. Check your wallet and try again.')
+            setError('Subscription failed on-chain. Verify Aleo credits balance.')
             toast.error('Subscription failed')
           }
         })

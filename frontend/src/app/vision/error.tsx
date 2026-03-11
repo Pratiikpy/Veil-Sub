@@ -30,13 +30,13 @@ export default function VisionError({
             onClick={reset}
             className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-white text-black font-medium text-sm hover:bg-white/90 transition-all active:scale-[0.98] btn-shimmer"
           >
-            Retry
+            Retry Page
           </button>
           <Link
             href="/"
             className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-white/[0.05] border border-border text-white text-sm hover:bg-white/[0.08] transition-all active:scale-[0.98]"
           >
-            Go Home
+            Return Home
           </Link>
         </div>
       </div>

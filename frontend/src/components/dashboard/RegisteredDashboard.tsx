@@ -111,7 +111,7 @@ export default function RegisteredDashboard({
       toast.success('Link copied!')
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      toast.error('Clipboard not available. Please copy manually.')
+      toast.error('Clipboard unavailable. Select and copy the URL manually.')
     }
   }
 
@@ -140,7 +140,7 @@ export default function RegisteredDashboard({
             toast.success(`${type === 'platform' ? 'Platform fee' : 'Revenue'} withdrawal confirmed!`)
           } else if (pollResult.status === 'failed') {
             setWithdrawTxStatus('failed')
-            setWithdrawError('Withdrawal failed. Check your wallet and try again.')
+            setWithdrawError('Revenue withdrawal failed on-chain. Verify mapping balances and retry.')
             stopPolling()
           }
         })

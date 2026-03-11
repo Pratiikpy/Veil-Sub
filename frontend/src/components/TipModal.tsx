@@ -121,7 +121,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
             toast.success('Private tip sent—you remain anonymous')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            setError('Tip failed. Check your wallet and try again.')
+            setError('Commit-reveal tip failed on-chain. Verify credits balance.')
             toast.error('Tip failed')
           }
         })

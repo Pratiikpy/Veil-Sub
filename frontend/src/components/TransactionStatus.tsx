@@ -100,7 +100,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
         <div>
           <p className="text-red-300 text-sm font-medium">Transaction Failed</p>
           <p className="text-red-400 text-xs">
-            {errorMessage || 'Transaction failed—try again or check wallet connection.'}
+            {errorMessage || 'Aleo transaction failed—verify wallet is unlocked and try again.'}
           </p>
         </div>
       </m.div>

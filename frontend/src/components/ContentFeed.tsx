@@ -263,7 +263,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         <LoadingSkeleton />
       ) : error ? (
         <div className="p-8 rounded-xl border border-red-500/20 bg-red-500/5 text-center">
-          <p className="text-sm text-red-400 mb-4">Failed to load posts</p>
+          <p className="text-sm text-red-400 mb-4">Could not load creator content from VeilSub servers</p>
           <button
             onClick={fetchPosts}
             aria-label="Retry loading posts"
@@ -393,7 +393,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     </div>
                   ) : isFailed && hasAccess ? (
                     <div className="flex items-center gap-4 py-4">
-                      <p className="text-sm text-red-400/80">Unlock failed</p>
+                      <p className="text-sm text-red-400/80">AccessPass verification failed</p>
                       <button
                         onClick={() => retryUnlock(post)}
                         aria-label="Retry unlocking post content"

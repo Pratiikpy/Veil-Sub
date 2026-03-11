@@ -61,18 +61,18 @@ export default function OnChainVerify({
 
   if (state === 'verifying') {
     return (
-      <span role="status" className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-violet-500/10 border border-violet-500/20 text-white/70">
+      <span role="status" aria-live="polite" className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-violet-500/10 border border-violet-500/20 text-white/70">
         <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" />
-        Checking
+        Checking on-chain
       </span>
     )
   }
 
   if (state === 'verified') {
     return (
-      <span role="status" className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-green-500/10 border border-green-500/20 text-green-400">
+      <span role="status" aria-live="polite" className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-green-500/10 border border-green-500/20 text-green-400">
         <Check className="w-3 h-3" aria-hidden="true" />
-        On-chain verified
+        Aleo mapping verified
       </span>
     )
   }

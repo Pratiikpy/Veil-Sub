@@ -30,7 +30,7 @@ export default function VerifyError({
             onClick={reset}
             className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-white text-black font-medium text-sm hover:bg-white/90 transition-all active:scale-[0.98] btn-shimmer"
           >
-            Retry
+            Retry Verification
           </button>
           <Link
             href="/"

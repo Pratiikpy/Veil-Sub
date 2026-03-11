@@ -56,7 +56,7 @@ export default function VerifyPage() {
     if (!connected && (verifyTxStatus === 'signing' || verifyTxStatus === 'broadcasting')) {
       setVerifyTxStatus('failed')
       setVerifyResult('failed')
-      setVerifyError('Wallet disconnected during verification. Please reconnect and try again.')
+      setVerifyError('Wallet disconnected mid-verification. Reconnect and retry.')
       stopPolling()
     }
   }, [connected, verifyTxStatus, stopPolling])
@@ -75,11 +75,11 @@ export default function VerifyPage() {
       // Distinguish wallet vs network errors
       const message = err instanceof Error ? err.message.toLowerCase() : ''
       if (message.includes('connect') || message.includes('wallet') || message.includes('extension')) {
-        setLoadError('Wallet connection lost. Please check your wallet extension is unlocked and refresh.')
+        setLoadError('Wallet connection lost. Unlock your wallet extension and refresh the page.')
       } else if (message.includes('network') || message.includes('timeout') || message.includes('fetch')) {
-        setLoadError('Network error while loading passes. Check your connection and try again.')
+        setLoadError('Network error while syncing AccessPass records from your wallet.')
       } else {
-        setLoadError('Failed to load passes. Your wallet may need to sync or reconnect.')
+        setLoadError('Could not parse AccessPass records. Your wallet may still be syncing.')
       }
     }
     setLoading(false)

@@ -18,7 +18,7 @@ export default function ExplorerError({
         </div>
         <h2 className="text-2xl font-bold text-white mb-4">Explorer Error</h2>
         <p className="text-white/70 mb-2">
-          Could not load on-chain data. Please check your connection.
+          Could not fetch Aleo mapping data. The testnet may be congested or unreachable.
         </p>
         {error.digest && (
           <p className="text-xs text-white/60 font-mono mb-6">
@@ -30,13 +30,13 @@ export default function ExplorerError({
             onClick={reset}
             className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-white text-black font-medium text-sm hover:bg-white/90 transition-all active:scale-[0.98] btn-shimmer"
           >
-            Retry
+            Retry Query
           </button>
           <Link
             href="/"
             className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-white/[0.05] border border-border text-white text-sm hover:bg-white/[0.08] transition-all active:scale-[0.98]"
           >
-            Go Home
+            Return Home
           </Link>
         </div>
       </div>

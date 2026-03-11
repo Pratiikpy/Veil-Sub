@@ -150,7 +150,7 @@ export default function RenewModal({
             toast.success('Subscription renewed privately')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            setError('Renewal failed. Check your wallet and try again.')
+            setError('BSP blind renewal failed on-chain. Verify credits and AccessPass.')
             toast.error('Renewal failed')
           }
         })
