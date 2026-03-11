@@ -47,7 +47,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="pt-5 border-t border-border/75 flex items-center justify-between text-xs text-white/60">
           <div className="flex items-center gap-2">
-            <Shield className="w-3 h-3 text-violet-400/50" />
+            <Shield className="w-3 h-3 text-violet-400/50" aria-hidden="true" />
             <span>Built on Aleo—zero-knowledge by default</span>
           </div>
           <a
@@ -82,7 +82,7 @@ export default function Footer() {
           <Link href="/explorer" className="text-xs text-white/60 hover:text-white transition-colors">On-Chain</Link>
         </div>
         <div className="pt-3 border-t border-border/75 flex items-center gap-2 text-[10px] text-white/60">
-          <Shield className="w-3 h-3 text-violet-400/50 shrink-0" />
+          <Shield className="w-3 h-3 text-violet-400/50 shrink-0" aria-hidden="true" />
           <span>Built on Aleo—zero-knowledge by default</span>
         </div>
       </div>

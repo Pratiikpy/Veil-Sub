@@ -37,20 +37,23 @@ export const getMicrocredits = (record: WalletRecord): number => {
     if (record?.data?.microcredits) {
       const raw = String(record.data.microcredits).replace(/_/g, '').replace('.private', '').replace('u64', '')
       const val = parseInt(raw, 10)
-      if (val > 0) return val
+      if (Number.isFinite(val) && val > 0) return val
     }
     // Path 2: plaintext or recordPlaintext string (contains "microcredits: Xu64")
     // Shield Wallet uses `recordPlaintext`, standard format uses `plaintext`
     const text = typeof record === 'string' ? record : (record?.plaintext || record?.recordPlaintext)
     if (text) {
       const match = text.match(/microcredits\s*:\s*([\d_]+)u64/)
-      if (match?.[1]) return parseInt(match[1].replace(/_/g, ''), 10)
+      if (match?.[1]) {
+        const val = parseInt(match[1].replace(/_/g, ''), 10)
+        if (Number.isFinite(val)) return val
+      }
     }
     // Path 3: if record itself is the data object (nested call)
     if (record?.microcredits) {
       const raw = String(record.microcredits).replace(/_/g, '').replace('.private', '').replace('u64', '')
       const val = parseInt(raw, 10)
-      if (val > 0) return val
+      if (Number.isFinite(val) && val > 0) return val
     }
     return 0
   } catch { return 0 }

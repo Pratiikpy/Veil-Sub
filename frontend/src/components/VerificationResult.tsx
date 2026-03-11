@@ -79,7 +79,7 @@ export default function VerificationResult({
             className="inline-flex items-center gap-1 text-xs text-white/70 hover:text-white"
           >
             View on Explorer
-            <ExternalLink className="w-3 h-3" />
+            <ExternalLink className="w-3 h-3" aria-hidden="true" />
           </a>
         ) : (
           <a
@@ -89,7 +89,7 @@ export default function VerificationResult({
             className="inline-flex items-center gap-1 text-xs text-white/70 hover:text-white"
           >
             View program on Explorer
-            <ExternalLink className="w-3 h-3" />
+            <ExternalLink className="w-3 h-3" aria-hidden="true" />
           </a>
         )
       )}

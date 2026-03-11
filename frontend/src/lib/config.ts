@@ -56,6 +56,12 @@ export const MICROCREDITS_PER_CREDIT = 1_000_000
 export const SECONDS_PER_BLOCK = 3
 export const SECONDS_PER_DAY = 86400
 
+// Wallet request timeouts (ms)
+export const WALLET_REQUEST_TIMEOUT_MS = 15_000
+export const POLLING_INTERVAL_MS = 3_000
+export const MAX_POLL_ATTEMPTS = 120
+export const INITIAL_POLL_DELAY_MS = 1_000
+
 // Platform fee configuration
 // PLATFORM_ADDRESS must match the PLATFORM_ADDR constant hardcoded in the Leo contract.
 export const PLATFORM_ADDRESS = 'aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk'

@@ -67,7 +67,10 @@ export default function RegistrationForm({
                   ALEO
                 </span>
               </div>
-              {price && (Number.isNaN(parseFloat(price)) || parseFloat(price) <= 0) && (
+              {price && (() => {
+                const parsedPrice = parseFloat(price)
+                return !Number.isFinite(parsedPrice) || parsedPrice <= 0
+              })() && (
                 <p className="text-xs text-red-400 mt-2" role="alert">
                   Price must be greater than zero.
                 </p>
@@ -109,7 +112,7 @@ export default function RegistrationForm({
 
             <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/10 mb-6">
               <div className="flex items-start gap-2">
-                <Info className="w-4 h-4 text-violet-400 mt-0.5 shrink-0" />
+                <Info className="w-4 h-4 text-violet-400 mt-0.5 shrink-0" aria-hidden="true" />
                 <p className="text-xs text-white/70">
                   You&apos;ll never see who subscribes—only aggregate
                   subscriber count and total revenue. Privacy is the core
@@ -126,7 +129,10 @@ export default function RegistrationForm({
 
             <Button
               onClick={onRegister}
-              disabled={!price || !Number.isFinite(parseFloat(price)) || parseFloat(price) <= 0}
+              disabled={(() => {
+                const parsedPrice = parseFloat(price)
+                return !price || !Number.isFinite(parsedPrice) || parsedPrice <= 0
+              })()}
               className="w-full"
             >
               {txStatus === 'failed' ? 'Retry' : 'Register as Creator'}

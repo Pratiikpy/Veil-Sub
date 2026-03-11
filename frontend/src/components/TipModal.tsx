@@ -309,7 +309,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <Heart className="w-5 h-5 text-pink-400" />
+                <Heart className="w-5 h-5 text-pink-400" aria-hidden="true" />
                 <h3 className="text-lg font-semibold text-white">
                   Send a Private Tip
                 </h3>
@@ -457,7 +457,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                 {insufficientBalance && (
                   <div className="mb-4">
                     <BalanceConverter
-                      requiredAmount={creditsToMicrocredits(Number.isFinite(parseFloat(customAmount)) ? parseFloat(customAmount) : selectedAmount)}
+                      requiredAmount={creditsToMicrocredits(getTipAmount())}
                       onConverted={() => {
                         setInsufficientBalance(false)
                         setError(null)

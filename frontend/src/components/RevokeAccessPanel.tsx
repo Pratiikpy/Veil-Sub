@@ -55,7 +55,7 @@ export default function RevokeAccessPanel() {
     <div className="rounded-3xl glass p-6">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-9 h-9 rounded-xl bg-red-500/[0.08] border border-red-500/[0.12] flex items-center justify-center">
-          <ShieldOff className="w-4 h-4 text-red-400" />
+          <ShieldOff className="w-4 h-4 text-red-400" aria-hidden="true" />
         </div>
         <div>
           <h3 className="text-sm font-semibold text-white">Revoke Subscriber Access</h3>
@@ -65,7 +65,7 @@ export default function RevokeAccessPanel() {
 
       <div className="rounded-xl bg-red-500/[0.04] border border-red-500/[0.08] p-3 mb-4">
         <p className="text-xs text-red-300 flex items-center gap-1.5">
-          <AlertTriangle className="w-3 h-3 shrink-0" />
+          <AlertTriangle className="w-3 h-3 shrink-0" aria-hidden="true" />
           This is irreversible. The subscriber will lose access immediately.
         </p>
       </div>

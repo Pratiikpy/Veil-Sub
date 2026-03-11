@@ -124,7 +124,7 @@ export default function ExplorePage() {
       const parse = (v: string | null) => {
         if (!v) return null
         const n = parseInt(v.replace(/"/g, '').replace(/u(8|16|32|64|128)$/, '').trim(), 10)
-        return isNaN(n) ? null : n
+        return Number.isFinite(n) ? n : null
       }
       setPlatformStats({ creators: parse(c), content: parse(p) })
     }).catch(() => {})

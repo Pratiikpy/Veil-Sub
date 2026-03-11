@@ -107,7 +107,7 @@ export default function GiftSubscriptionFlow({
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="rounded-lg bg-pink-500/20 p-2">
-                  <Gift className="h-5 w-5 text-pink-400" />
+                  <Gift className="h-5 w-5 text-pink-400" aria-hidden="true" />
                 </div>
                 <h3 className="text-lg font-semibold text-white">Gift Subscription</h3>
               </div>
@@ -119,7 +119,7 @@ export default function GiftSubscriptionFlow({
             {status === 'success' ? (
               <div className="space-y-4">
                 <div className="rounded-xl bg-surface-2 border border-border p-4 text-center">
-                  <Sparkles className="mx-auto mb-2 h-8 w-8 text-green-400" />
+                  <Sparkles className="mx-auto mb-2 h-8 w-8 text-green-400" aria-hidden="true" />
                   <p className="text-sm font-medium text-green-400">Gift sent!</p>
                   <p className="mt-1 text-xs text-white/60">Recipient will receive a GiftToken to redeem</p>
                   {txId && <p className="mt-1 text-xs text-white/60 break-all">Tx: {txId.slice(0, 20)}...</p>}
@@ -158,7 +158,7 @@ export default function GiftSubscriptionFlow({
                 {/* Privacy note */}
                 <div className="rounded-xl bg-surface-2 border border-border p-3">
                   <div className="flex items-start gap-2">
-                    <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-400" />
+                    <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-400" aria-hidden="true" />
                     <p className="text-xs text-green-400/80">
                       Gift is private—only the recipient can see and redeem the GiftToken. Your identity is hashed.
                     </p>
