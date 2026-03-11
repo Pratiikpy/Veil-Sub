@@ -10,7 +10,7 @@ import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { generatePassId, formatCredits } from '@/lib/utils'
-import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT, FEES } from '@/lib/config'
+import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT, FEES, SECONDS_PER_BLOCK, SECONDS_PER_DAY } from '@/lib/config'
 import { getErrorMessage } from '@/lib/errorMessages'
 import { logSubscriptionEvent } from '@/lib/logEvent'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
@@ -64,12 +64,14 @@ export default function RenewModal({
   useRovingTabIndex(privacyGroupRef)
 
   const totalPrice = basePrice * selectedTier.priceMultiplier
-  const creatorCut = totalPrice - Math.floor(totalPrice / 20)
-  const platformCut = Math.floor(totalPrice / 20)
+  // Use config-driven fee percentage (5% = divisor of 20)
+  const platformFeeDiv = 100 / PLATFORM_FEE_PCT
+  const platformCut = Math.floor(totalPrice / platformFeeDiv)
+  const creatorCut = totalPrice - platformCut
 
   const isExpired = blockHeight !== null && pass.expiresAt <= blockHeight
   const blocksRemaining = blockHeight !== null ? Math.max(0, pass.expiresAt - blockHeight) : null
-  const daysRemaining = blocksRemaining !== null ? Math.round((blocksRemaining * 3) / 86400) : null
+  const daysRemaining = blocksRemaining !== null ? Math.round((blocksRemaining * SECONDS_PER_BLOCK) / SECONDS_PER_DAY) : null
 
   const handleRenew = async () => {
     if (submittingRef.current) return
@@ -96,6 +98,12 @@ export default function RenewModal({
         return
       }
       const records = balanceResult.records
+      if (!records || records.length === 0) {
+        setError('No private credits available. Convert public credits first.')
+        setTxStatus('idle')
+        submittingRef.current = false
+        return
+      }
 
       // v8: Single-record renew — contract handles both creator and platform payments
       const paymentRecord = records[0]

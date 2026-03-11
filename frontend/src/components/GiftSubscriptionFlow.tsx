@@ -47,8 +47,14 @@ export default function GiftSubscriptionFlow({
     setError(null)
     try {
       const records = await getCreditsRecords()
-      if (records.length === 0) throw new Error('No private credits available. Convert public credits first.')
-      const paymentRecord = typeof records[0] === 'string' ? records[0] : (records[0] as Record<string, string>).plaintext
+      if (!records || records.length === 0) throw new Error('No private credits available. Convert public credits first.')
+      const firstRecord = records[0]
+      const paymentRecord = typeof firstRecord === 'string'
+        ? firstRecord
+        : (firstRecord && typeof firstRecord === 'object' && 'plaintext' in firstRecord)
+          ? (firstRecord as { plaintext: string }).plaintext
+          : null
+      if (!paymentRecord) throw new Error('Invalid record format. Please reconnect wallet.')
       // Generate a collision-resistant gift ID using crypto.randomUUID (RFC 4122 v4, 2^122 unique space)
       const giftId = crypto.randomUUID()
       const expiresAt = 0 // Will be computed in finalize based on block.height + duration

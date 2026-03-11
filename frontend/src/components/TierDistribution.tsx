@@ -13,6 +13,8 @@ const TIER_CONFIG: Record<string, { name: string; color: string; bg: string }> =
   '3': { name: 'VIP', color: 'bg-violet-400', bg: 'bg-violet-500/10' },
 }
 
+const DEFAULT_TIER_CONFIG = { name: 'Unknown', color: 'bg-gray-400', bg: 'bg-gray-500/10' }
+
 export default function TierDistribution({ creatorAddress }: Props) {
   const [distribution, setDistribution] = useState<Record<string, number>>({})
   const [total, setTotal] = useState(0)
@@ -70,7 +72,7 @@ export default function TierDistribution({ creatorAddress }: Props) {
 
       <div className="space-y-3">
         {['1', '2', '3'].map((tierId) => {
-          const config = TIER_CONFIG[tierId]
+          const config = TIER_CONFIG[tierId] || DEFAULT_TIER_CONFIG
           const count = distribution[tierId] || 0
           const pct = total > 0 ? (count / total) * 100 : 0
           const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0

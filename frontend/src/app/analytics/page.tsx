@@ -89,17 +89,21 @@ export default function AnalyticsPage() {
     activePrograms: 1,
   })
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState(false)
 
   useEffect(() => {
     async function fetchStats() {
+      setFetchError(false)
       try {
         const res = await fetch('/api/analytics?global_stats=true')
-        if (res.ok) {
-          const data = await res.json()
-          setStats(data)
+        if (!res.ok) {
+          setFetchError(true)
+          return
         }
+        const data = await res.json()
+        setStats(data)
       } catch {
-        // Silently fail — show zeros
+        setFetchError(true)
       } finally {
         setLoading(false)
       }
@@ -133,19 +137,19 @@ export default function AnalyticsPage() {
             <StatsCard
               icon={Users}
               label="Total Creators"
-              value={loading ? '...' : stats.totalCreators.toString()}
+              value={loading ? '...' : fetchError ? '—' : stats.totalCreators.toString()}
               delay={0}
             />
             <StatsCard
               icon={CreditCard}
               label="Total Subscriptions"
-              value={loading ? '...' : stats.totalSubscriptions.toString()}
+              value={loading ? '...' : fetchError ? '—' : stats.totalSubscriptions.toString()}
               delay={0.05}
             />
             <StatsCard
               icon={Coins}
               label="Platform Revenue"
-              value={loading ? '...' : `${formatCredits(stats.totalRevenue)} ALEO`}
+              value={loading ? '...' : fetchError ? '—' : `${formatCredits(stats.totalRevenue)} ALEO`}
               delay={0.1}
             />
             <StatsCard
@@ -155,6 +159,11 @@ export default function AnalyticsPage() {
               delay={0.15}
             />
           </div>
+          {fetchError && (
+            <div className="mb-8 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
+              <p className="text-sm text-amber-400">Unable to load platform stats. Showing static data only.</p>
+            </div>
+          )}
 
           {/* Protocol Stats */}
           <section className="mb-16">

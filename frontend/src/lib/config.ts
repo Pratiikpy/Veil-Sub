@@ -52,6 +52,10 @@ export const FEES = {
 // 1 ALEO credit = 1,000,000 microcredits
 export const MICROCREDITS_PER_CREDIT = 1_000_000
 
+// Aleo block time approximation (used for time estimates)
+export const SECONDS_PER_BLOCK = 3
+export const SECONDS_PER_DAY = 86400
+
 // Platform fee configuration
 // PLATFORM_ADDRESS must match the PLATFORM_ADDR constant hardcoded in the Leo contract.
 export const PLATFORM_ADDRESS = 'aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk'

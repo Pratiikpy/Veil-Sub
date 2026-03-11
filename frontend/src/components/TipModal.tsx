@@ -94,6 +94,13 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         return
       }
       const records = balanceResult.records
+      if (!records || records.length === 0) {
+        toast.dismiss('tip-optimistic')
+        setError('No private credits available. Convert public credits first.')
+        setTxStatus('idle')
+        submittingRef.current = false
+        return
+      }
       const paymentRecord = records[0]
 
       setTxStatus('proving')
@@ -210,6 +217,13 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         return
       }
       const records = balanceResult.records
+      if (!records || records.length === 0) {
+        toast.dismiss('reveal-tip')
+        setError('No private credits available. Convert public credits first.')
+        setTxStatus('idle')
+        submittingRef.current = false
+        return
+      }
       const paymentRecord = records[0]
 
       setTxStatus('proving')

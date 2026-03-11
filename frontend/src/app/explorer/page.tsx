@@ -115,20 +115,24 @@ const MAPPING_QUERIES = [
 function QuickMappingQueries() {
   const [results, setResults] = useState<Record<string, string | null>>({})
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({})
+  const [errorMap, setErrorMap] = useState<Record<string, boolean>>({})
   const [autoQueried, setAutoQueried] = useState(false)
 
   const queryMapping = async (mapping: string, key: string) => {
     setLoadingMap(prev => ({ ...prev, [mapping]: true }))
+    setErrorMap(prev => ({ ...prev, [mapping]: false }))
     try {
       const res = await fetch(`${ALEO_API}/program/${DEPLOYED_PROGRAM_ID}/mapping/${mapping}/${key}`)
       if (!res.ok) {
         setResults(prev => ({ ...prev, [mapping]: null }))
+        setErrorMap(prev => ({ ...prev, [mapping]: true }))
       } else {
         const data = await res.json()
         setResults(prev => ({ ...prev, [mapping]: data === null ? null : String(data).replace(/"/g, '') }))
       }
     } catch {
       setResults(prev => ({ ...prev, [mapping]: null }))
+      setErrorMap(prev => ({ ...prev, [mapping]: true }))
     }
     setLoadingMap(prev => ({ ...prev, [mapping]: false }))
   }
@@ -188,7 +192,13 @@ function QuickMappingQueries() {
             {results[q.mapping] !== undefined && (
               <div className="pt-2 border-t border-border/75">
                 <span className="text-sm font-mono text-white">
-                  {results[q.mapping] ?? <span className="text-white/60">not set</span>}
+                  {errorMap[q.mapping] ? (
+                    <span className="text-amber-400 text-xs">fetch error</span>
+                  ) : results[q.mapping] !== null ? (
+                    results[q.mapping]
+                  ) : (
+                    <span className="text-white/60">not set</span>
+                  )}
                 </span>
               </div>
             )}
