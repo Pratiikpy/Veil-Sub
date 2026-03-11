@@ -288,9 +288,9 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
               desc: 'Creator publishes content metadata on-chain. Records content existence and minimum tier required for access. Content body stays off-chain—only tier-gating is enforced on-chain.',
             },
             {
-              name: 'create_custom_tier(creator, tier_id, price, max_subscribers)',
+              name: 'create_custom_tier(tier_id, price, name_hash)',
               type: 'async',
-              desc: 'Creator dynamically creates custom tiers (replaces hardcoded 1x/2x/5x). Stores tier metadata in creator_tiers mapping. Enables unlimited tier flexibility.',
+              desc: 'Creator dynamically creates custom tiers (replaces hardcoded 1x/2x/5x). Stores tier metadata in creator_tiers mapping via Poseidon2(caller + tier_id). Enables unlimited tier flexibility.',
             },
             {
               name: 'update_tier_price(creator, tier_id, new_price)',
@@ -313,9 +313,9 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
               desc: 'Creator marks content as deleted on-chain. Records proof of deletion in content_deleted mapping.',
             },
             {
-              name: 'gift_subscription(recipient, creator, tier_id, expires_at)',
+              name: 'gift_subscription(payment, creator, recipient, tier, amount, gift_id, expires_at)',
               type: 'async',
-              desc: 'Creator or subscriber gifts a subscription to another address. Creates a GiftToken record.',
+              desc: 'Gift a subscription to another address. Transfers credits, creates GiftToken for recipient. Records gift in gift_issued mapping keyed by gift_id.',
             },
             {
               name: 'redeem_gift(gift_token)',

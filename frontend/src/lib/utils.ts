@@ -128,7 +128,7 @@ export function shortenAddress(address: string, chars = 6): string {
  */
 export function parseMicrocredits(plaintext: string): number {
   const match = plaintext.match(/microcredits\s*:\s*([\d_]+)u64/)
-  return match ? parseInt(match[1].replace(/_/g, ''), 10) : 0
+  return match?.[1] ? parseInt(match[1].replace(/_/g, ''), 10) : 0
 }
 
 /**

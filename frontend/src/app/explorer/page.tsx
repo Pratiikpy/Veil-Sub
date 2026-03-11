@@ -675,7 +675,7 @@ export default function ExplorerPage() {
                             {event.tx_id && (
                               <>
                                 <button
-                                  onClick={() => copyTxId(event.tx_id!)}
+                                  onClick={() => event.tx_id && copyTxId(event.tx_id)}
                                   className="shrink-0 p-1 rounded hover:bg-white/10 text-white/60 hover:text-white transition-colors"
                                   aria-label="Copy transaction ID"
                                 >
@@ -727,7 +727,7 @@ export default function ExplorerPage() {
                               {event.tx_id && (
                                 <>
                                   <button
-                                    onClick={() => copyTxId(event.tx_id!)}
+                                    onClick={() => event.tx_id && copyTxId(event.tx_id)}
                                     className="p-1.5 rounded hover:bg-white/10 text-white/60 hover:text-white transition-colors"
                                     aria-label="Copy transaction ID"
                                   >

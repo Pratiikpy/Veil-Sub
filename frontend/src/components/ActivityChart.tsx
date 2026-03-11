@@ -151,7 +151,7 @@ export default function ActivityChart({ creatorAddress }: Props) {
         <div>
           <p className="text-xs text-white/60">Peak Day</p>
           <p className="text-sm font-medium text-white">
-            {Math.max(...data.map((d) => d.subscriptions))} subs
+            {data.length > 0 ? Math.max(...data.map((d) => d.subscriptions)) : 0} subs
           </p>
         </div>
       </div>
