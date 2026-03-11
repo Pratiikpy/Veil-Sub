@@ -9,17 +9,17 @@ import {
 } from 'lucide-react'
 
 const TICKER_ITEMS = [
-  { icon: Shield, text: 'Built on Aleo' },
-  { icon: Lock, text: 'Zero-Knowledge Proofs' },
-  { icon: Zap, text: 'Testnet Live' },
-  { icon: EyeOff, text: 'Private Subscriptions' },
-  { icon: Layers, text: '27 Transitions' },
-  { icon: Shield, text: 'Zero Public Footprint' },
-  { icon: Coins, text: 'Poseidon2 Privacy' },
-  { icon: Shield, text: '6 Record Types' },
-  { icon: Layers, text: '25 Mappings' },
-  { icon: Code, text: '1,388 Lines of Leo' },
-  { icon: Shield, text: '102 Error Codes' },
+  { icon: Shield, text: '100% Private Subscriptions' },
+  { icon: EyeOff, text: 'Zero Public Footprint' },
+  { icon: Lock, text: 'Identity Never Stored' },
+  { icon: Zap, text: 'Aleo Testnet Live' },
+  { icon: Coins, text: 'Pay with Private Credits' },
+  { icon: Layers, text: 'v27 Contract Deployed' },
+  { icon: Shield, text: '6 Private Record Types' },
+  { icon: EyeOff, text: 'Unlinkable Renewals' },
+  { icon: Lock, text: 'Scoped Audit Tokens' },
+  { icon: Shield, text: 'Commit-Reveal Tipping' },
+  { icon: Code, text: '27 Transitions, 25 Mappings' },
 ]
 
 export default function TrustTicker() {

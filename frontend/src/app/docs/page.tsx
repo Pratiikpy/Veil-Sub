@@ -97,19 +97,22 @@ function OverviewTab() {
         <h3 className="text-xl font-semibold text-white mb-3">What is VeilSub?</h3>
         <p className="text-white/70 leading-relaxed">
           VeilSub is a privacy-first creator subscription platform where the Aleo blockchain enforces
-          zero-footprint subscriptions via the Blind Subscription Protocol (BSP). Subscribers execute
-          subscribe() with private credits—their address never enters the finalize layer. Creators
-          see aggregate statistics only (total count, total revenue). v27 uses Poseidon2-hashed mapping
-          keys: even on-chain observers cannot correlate public data with wallet addresses.
+          zero-footprint subscriptions via the Blind Subscription Protocol (BSP)—a novel three-layer
+          architecture combining identity rotation, Poseidon2 field-hashed mapping keys, and selective
+          disclosure. Subscribers execute subscribe() with private credits—their address is physically
+          impossible to reach finalize due to the Leo compiler&apos;s static analysis. v27 enforces this
+          with 27 transitions, 25 mappings, and 866 statements.
         </p>
       </div>
 
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Video Demo</h3>
         <p className="text-white/70 leading-relaxed mb-3">
-          Watch zero-footprint verification in action: subscriber connects wallet, subscribes privately
-          (payment via transfer_private), receives AccessPass, then calls verify_access to prove access
-          without revealing identity—finalize only checks pass_id and revocation status.
+          Watch zero-footprint verification in action: v27&apos;s verify_access finalize performs a single
+          read of the access_revoked mapping keyed by pass_id—no subscriber address, no identity-linked
+          writes, zero on-chain footprint. The entire subscription lifecycle stays private: subscribe
+          uses credits.aleo/transfer_private, renew supports nonce-based blinding to prevent renewal
+          pattern tracking, and verify_access never increments subscriber-linked counters.
         </p>
         <div className="p-4 rounded-sm bg-white/[0.04] border border-border flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center shrink-0">
@@ -154,7 +157,7 @@ function OverviewTab() {
         <h3 className="text-xl font-semibold text-white mb-3">Tech Stack</h3>
         <div className="grid sm:grid-cols-2 gap-3">
           {[
-            { label: 'Smart Contract', value: 'Leo 3.4.0 — v27: 27 transitions, 25 mappings, BSP + Poseidon2' },
+            { label: 'Smart Contract', value: 'Leo 3.4.0 — v27: 27 transitions, 25 mappings, 102 asserts with error codes, Poseidon2-hashed keys, BSP + commit-reveal tipping + blind renewal' },
             { label: 'Frontend', value: 'Next.js 16, React 19, TypeScript' },
             { label: 'Styling', value: 'Tailwind CSS 4, Framer Motion' },
             { label: 'Wallet', value: '@provablehq/aleo-wallet-adaptor' },

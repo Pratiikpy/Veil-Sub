@@ -7,14 +7,14 @@ function BackgroundOrbs() {
       <div
         className="absolute -top-[150px] sm:-top-[300px] -right-[100px] sm:-right-[200px] w-[350px] sm:w-[700px] h-[350px] sm:h-[700px] rounded-full animate-float"
         style={{
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, rgba(139, 92, 246, 0.02) 50%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.04) 0%, rgba(139, 92, 246, 0.01) 50%, transparent 70%)',
         }}
       />
       {/* White orb -- top left (responsive) */}
       <div
         className="absolute -top-[100px] sm:-top-[200px] -left-[150px] sm:-left-[300px] w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] rounded-full animate-float-delayed"
         style={{
-          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.035) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.018) 0%, transparent 70%)',
         }}
       />
       {/* Subtle violet glow -- center (responsive) */}

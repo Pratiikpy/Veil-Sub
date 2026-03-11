@@ -206,7 +206,8 @@ export default function ExplorePage() {
               Explore Creators
             </h1>
             <p className="text-lg text-white/70 max-w-lg mx-auto">
-              Discover creators and subscribe privately. Your identity stays hidden.
+              Discover creators on VeilSub and subscribe via BSP—your wallet never enters
+              finalize, your AccessPass proves membership without identity.
             </p>
           </m.div>
 

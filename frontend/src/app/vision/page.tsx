@@ -90,10 +90,12 @@ export default function VisionPage() {
                 Vision &amp; Use Cases
               </h1>
               <p className="text-lg text-white/70 max-w-2xl mx-auto">
-                VeilSub is more than a subscription platform—it's a composable zero-knowledge access
+                VeilSub is more than a subscription platform—it&apos;s a composable zero-knowledge access
                 control primitive using Aleo records. Any program can call verify_access to gate features
-                behind AccessPass ownership. The minimal-footprint finalize (only checks revocation via pass_id)
-                means third-party integrations inherit VeilSub's zero-subscriber-footprint privacy guarantee.
+                behind AccessPass ownership. v27&apos;s minimal-footprint finalize is a single access_revoked
+                mapping read keyed by pass_id (a field, never an address). Third-party integrations inherit
+                VeilSub&apos;s guarantee: subscriber addresses are cryptographically impossible to reach any
+                finalize block.
               </p>
             </m.div>
           </div>

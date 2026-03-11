@@ -48,8 +48,11 @@ export default function PrivacyPage() {
                 How VeilSub Protects You
               </h1>
               <p className="text-lg text-white/70 max-w-2xl mx-auto mb-6">
-                Built on Aleo&apos;s zero-knowledge proof system. Subscriber addresses
-                never enter the finalize scope—enforced by the Leo compiler.
+                Built on Aleo&apos;s zero-knowledge proof system. The Blind Subscription Protocol (BSP)
+                prevents subscriber addresses from reaching finalize layer through three isolation mechanisms:
+                (1) private AccessPass records owned only by subscribers, (2) Poseidon2 field-hashed mapping keys
+                for aggregate-only finalize writes, (3) pass_id-based verification with zero finalize footprint.
+                Enforced at compile time, not runtime policy.
               </p>
               <a
                 href={`https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`}
@@ -254,8 +257,10 @@ export default function PrivacyPage() {
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">What Are Zero-Knowledge Proofs?</h2>
               <p className="text-white/70 max-w-2xl mx-auto">
-                A ZK proof lets you prove something is true without revealing the underlying data.
-                Like proving you&apos;re over 21 without showing your ID.
+                VeilSub&apos;s ZK privacy is enforced at the language level: Leo compiles away subscriber
+                addresses from finalize blocks, and Poseidon2 hashing makes mapping keys irreversible.
+                Like proving you&apos;re a club member without revealing your name—your AccessPass proves
+                tier access without exposing who you are.
               </p>
             </m.div>
 

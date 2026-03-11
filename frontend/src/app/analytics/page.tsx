@@ -131,8 +131,10 @@ export default function AnalyticsPage() {
             </h1>
             <p className="text-white/70 text-base max-w-2xl leading-relaxed">
               Public aggregate statistics from Poseidon2-hashed mappings. Creator-scoped metrics
-              (subscriber count, revenue) are queried by mapping hash, not address. Zero individual
-              subscriber identities in any mapping—enforced by BSP finalize design.
+              (subscriber_count, total_revenue per creator) are queried by creator_hash = Poseidon2(address),
+              never raw address. All 25 mapping keys are field hashes. Zero individual subscriber identities
+              in any mapping—v27 enforces this at Leo compile time: no code path exists for subscriber
+              addresses to reach any finalize block.
             </p>
           </div>
 
@@ -222,8 +224,10 @@ export default function AnalyticsPage() {
                       Footprint Verifications
                     </p>
                     <p className="text-sm text-white/60 leading-relaxed">
-                      verify_access finalize only reads access_revoked mapping keyed by pass_id.
-                      Zero subscriber address writes, zero subscriber-linked state changes—proof of access requires zero on-chain footprint.
+                      v27 verify_access finalize: reads access_revoked[pass_id] (a single field lookup, not an address).
+                      Zero subscriber address writes, zero identity-linked counters, zero timing-correlation mapping entries.
+                      Finalize cannot correlate verification to any subscriber—proof of access is via UTXO record consumption
+                      (private AccessPass), not public state.
                     </p>
                   </div>
                 </div>

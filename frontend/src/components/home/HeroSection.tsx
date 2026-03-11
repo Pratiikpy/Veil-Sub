@@ -70,27 +70,27 @@ export default function HeroSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="flex justify-center mb-12"
           >
-            <Badge variant="accent">Privacy-First Protocol</Badge>
+            <Badge variant="accent">Built on Aleo</Badge>
           </m.div>
 
           <m.h1 style={{ lineHeight: 1.05, y: headingY }}>
             <m.span
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="block text-5xl sm:text-7xl lg:text-[88px] font-semibold text-white"
+              transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="block text-4xl sm:text-6xl lg:text-7xl font-semibold text-white"
               style={{ letterSpacing: '-0.035em' }}
             >
-              Subscribe
+              Subscribe to Creators.
             </m.span>
             <m.span
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="block text-5xl sm:text-7xl lg:text-[88px] font-serif italic bg-gradient-to-r from-white via-violet-200 to-violet-400 bg-clip-text text-transparent"
+              transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="block text-4xl sm:text-6xl lg:text-7xl font-serif italic bg-gradient-to-r from-white via-violet-200 to-violet-400 bg-clip-text text-transparent"
               style={{ letterSpacing: '-0.025em' }}
             >
-              Privately.
+              Your identity stays hidden.
             </m.span>
           </m.h1>
 
@@ -101,8 +101,8 @@ export default function HeroSection() {
             className="mt-8 text-base sm:text-lg text-white/80 max-w-[520px] mx-auto leading-relaxed"
             style={{ y: descY }}
           >
-            Blind Subscription Protocol with nonce-rotated Poseidon2 hashing.
-            Zero addresses in finalize—subscriber identity never reaches public state.
+            Creators earn. Subscribers stay anonymous. Built on zero-knowledge proofs
+            so even we can&apos;t see your data—enforced by the Aleo blockchain.
           </m.p>
 
           <m.div
@@ -134,16 +134,11 @@ export default function HeroSection() {
                     <ArrowRight className="w-4 h-4" aria-hidden="true" />
                   </Button>
                 </Link>
-                <a
-                  href="https://github.com/Pratiikpy/Veil-Sub"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <Link href="/privacy">
                   <Button variant="secondary" size="lg" className="rounded-full">
-                    <Code className="w-4 h-4" aria-hidden="true" />
-                    View Source
+                    Learn How It Works
                   </Button>
-                </a>
+                </Link>
               </>
             )}
           </m.div>
