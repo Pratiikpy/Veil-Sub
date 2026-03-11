@@ -30,7 +30,7 @@ export default function NotFound() {
         <p className="text-white/70 mb-8 leading-relaxed">
           The page you&apos;re looking for doesn&apos;t exist or has been moved.
         </p>
-        <div className="flex items-center justify-center gap-3 flex-wrap">
+        <div className="flex items-center justify-center gap-4 flex-wrap">
           <Link
             href="/"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-medium text-sm hover:bg-white/90 hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all active:scale-[0.98] btn-shimmer"

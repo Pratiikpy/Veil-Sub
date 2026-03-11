@@ -64,7 +64,7 @@ export default function BalanceConverter({
 
   return (
     <div className="p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/20 space-y-4">
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-4">
         <AlertTriangle className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
         <div>
           <h4 className="text-yellow-300 font-medium text-sm mb-1">
@@ -96,12 +96,12 @@ export default function BalanceConverter({
           </p>
         </div>
       ) : status === 'converting' ? (
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-violet-500/10 border border-violet-500/20 animate-pulse">
+        <div className="flex items-center gap-4 p-4 rounded-xl bg-violet-500/10 border border-violet-500/20 animate-pulse">
           <Loader2 className="w-4 h-4 text-violet-400 animate-spin" aria-hidden="true" />
           <span className="text-sm text-white/70">Approve conversion in wallet...</span>
         </div>
       ) : status === 'waiting' ? (
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-violet-500/10 border border-violet-500/20 animate-pulse">
+        <div className="flex items-center gap-4 p-4 rounded-xl bg-violet-500/10 border border-violet-500/20 animate-pulse">
           <Loader2 className="w-4 h-4 text-violet-400 animate-spin" aria-hidden="true" />
           <div>
             <p className="text-sm text-white/70">Converting public → private...</p>
@@ -109,7 +109,7 @@ export default function BalanceConverter({
           </div>
         </div>
       ) : status === 'done' ? (
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20">
+        <div className="flex items-center gap-4 p-4 rounded-xl bg-green-500/10 border border-green-500/20">
           <Check className="w-4 h-4 text-green-400" aria-hidden="true" />
           <div>
             <p className="text-sm text-green-300">Conversion confirmed!</p>

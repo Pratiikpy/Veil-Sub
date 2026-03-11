@@ -92,7 +92,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
         animate={{ opacity: 1, scale: 1 }}
         aria-live="assertive"
         role="alert"
-        className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20"
+        className="flex items-center gap-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20"
       >
         <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
           <X className="w-5 h-5 text-red-400" aria-hidden="true" />
@@ -168,7 +168,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
               delay: i * 0.08,
               scale: isConfirmedStep ? { duration: 0.4, ease: 'easeOut' } : undefined,
             }}
-            className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
+            className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
               isActive
                 ? 'bg-violet-500/10 border border-violet-500/25 animate-pulse'
                 : isDone

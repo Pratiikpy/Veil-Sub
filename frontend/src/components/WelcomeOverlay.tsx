@@ -90,7 +90,7 @@ export default function WelcomeOverlay() {
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center">
                   <Shield className="w-5 h-5 text-white" aria-hidden="true" />
                 </div>
@@ -109,7 +109,7 @@ export default function WelcomeOverlay() {
             </div>
 
             {/* Highlights */}
-            <div className="space-y-3 mb-6">
+            <div className="space-y-4 mb-6">
               {HIGHLIGHTS.map((item, i) => {
                 const Icon = item.icon
                 return (
@@ -122,7 +122,7 @@ export default function WelcomeOverlay() {
                       bounce: 0.3,
                       delay: 0.15 + i * 0.1,
                     }}
-                    className="flex items-start gap-3 p-3 rounded-xl bg-surface-1 border border-border hover:border-glass-hover transition-colors"
+                    className="flex items-start gap-4 p-4 rounded-xl bg-surface-1 border border-border hover:border-glass-hover transition-colors"
                   >
                     <div className={`shrink-0 w-9 h-9 rounded-lg ${item.bg} flex items-center justify-center`}>
                       <Icon className={`w-4 h-4 ${item.color}`} aria-hidden="true" />
@@ -137,7 +137,7 @@ export default function WelcomeOverlay() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <button
                 onClick={() => dismiss(false)}
                 className="flex-1 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-white/70 hover:text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"

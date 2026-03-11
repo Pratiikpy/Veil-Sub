@@ -123,14 +123,14 @@ export default function ChangelogOverlay() {
             </div>
 
             {/* Items */}
-            <div className="px-6 py-4 max-h-[60vh] overflow-y-auto space-y-3">
+            <div className="px-6 py-4 max-h-[60vh] overflow-y-auto space-y-4">
               {ITEMS.map((item, i) => (
                 <m.div
                   key={item.title}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1 + i * 0.06 }}
-                  className="flex gap-3 p-3 rounded-xl bg-white/[0.02] border border-border/30"
+                  className="flex gap-4 p-4 rounded-xl bg-white/[0.02] border border-border/30"
                 >
                   <div className="shrink-0 mt-0.5">{item.icon}</div>
                   <div className="min-w-0">

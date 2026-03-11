@@ -111,7 +111,7 @@ export default function DisputeContentModal({
           </button>
 
           {/* Header */}
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-4 mb-6">
             <div className="w-10 h-10 rounded-2xl bg-red-500/[0.08] border border-red-500/[0.12] flex items-center justify-center">
               <Flag className="w-5 h-5 text-red-400" aria-hidden="true" />
             </div>
@@ -170,7 +170,7 @@ export default function DisputeContentModal({
           )}
 
           {/* Actions */}
-          <div className="flex gap-3">
+          <div className="flex gap-4">
             <Button variant="secondary" onClick={handleClose} className="flex-1">
               Cancel
             </Button>
