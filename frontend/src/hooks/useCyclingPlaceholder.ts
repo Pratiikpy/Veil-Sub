@@ -11,12 +11,13 @@ export function useCyclingPlaceholder(
   const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    if (placeholders.length <= 1) return
+    // Guard against empty array to prevent divide-by-zero in modulo
+    if (!placeholders.length || placeholders.length <= 1) return
 
     const timer = setInterval(() => {
       setIsAnimating(true)
       fadeTimerRef.current = setTimeout(() => {
-        setIndex((prev) => (prev + 1) % placeholders.length)
+        setIndex((prev) => placeholders.length > 0 ? (prev + 1) % placeholders.length : 0)
         setIsAnimating(false)
       }, 300)
     }, interval)

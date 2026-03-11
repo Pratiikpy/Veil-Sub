@@ -37,7 +37,11 @@ async function fetchMappingRaw(
     const text = await res.text()
     if (!text || text === 'null' || text === '') return null
     return text
-  } catch {
+  } catch (err) {
+    // Re-throw AbortError to allow proper cancellation
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw err
+    }
     return null
   }
 }

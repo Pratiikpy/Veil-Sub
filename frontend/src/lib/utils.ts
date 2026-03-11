@@ -25,7 +25,7 @@ export function generatePassId(): string {
  * Format microcredits to human-readable ALEO credits string.
  */
 export function formatCredits(microcredits: number): string {
-  if (!Number.isFinite(microcredits)) return '0'
+  if (!Number.isFinite(microcredits) || MICROCREDITS_PER_CREDIT <= 0) return '0'
   const credits = microcredits / MICROCREDITS_PER_CREDIT
   if (credits >= 1000) return `${(credits / 1000).toFixed(1)}K`
   if (credits >= 1) {
@@ -38,8 +38,10 @@ export function formatCredits(microcredits: number): string {
 
 /**
  * Convert ALEO credits to microcredits.
+ * Returns 0 for invalid inputs (NaN, Infinity, negative).
  */
 export function creditsToMicrocredits(credits: number): number {
+  if (!Number.isFinite(credits) || credits < 0) return 0
   return Math.floor(credits * MICROCREDITS_PER_CREDIT)
 }
 
@@ -109,8 +111,11 @@ export function parseAccessPass(
 
 /**
  * Validate an Aleo address format.
+ * Aleo addresses are always exactly 63 characters: "aleo1" prefix + 58 chars.
  */
 export function isValidAleoAddress(address: string): boolean {
+  // Length pre-check prevents ReDoS on maliciously long inputs
+  if (typeof address !== 'string' || address.length !== 63) return false
   return /^aleo1[a-z0-9]{58}$/.test(address)
 }
 
@@ -125,10 +130,14 @@ export function shortenAddress(address: string, chars = 6): string {
 /**
  * Parse microcredits from an Aleo record plaintext string.
  * Extracts the numeric value from patterns like "microcredits: 500000u64".
+ * Returns 0 for invalid or unparseable values. Caps at MAX_SAFE_INTEGER.
  */
 export function parseMicrocredits(plaintext: string): number {
   const match = plaintext.match(/microcredits\s*:\s*([\d_]+)u64/)
-  return match?.[1] ? parseInt(match[1].replace(/_/g, ''), 10) : 0
+  if (!match?.[1]) return 0
+  const parsed = parseInt(match[1].replace(/_/g, ''), 10)
+  if (!Number.isFinite(parsed) || parsed < 0) return 0
+  return Math.min(parsed, Number.MAX_SAFE_INTEGER)
 }
 
 /**

@@ -73,7 +73,19 @@ export function useBalanceCheck(
         await new Promise(r => setTimeout(r, 2000))
         try {
           rawRecords = await getCreditsRecords()
-        } catch {
+        } catch (retryErr) {
+          // Distinguish network failure from genuinely empty wallet
+          const isNetworkError = retryErr instanceof Error &&
+            (retryErr.message.includes('timed out') || retryErr.message.includes('network') || retryErr.message.includes('fetch'))
+          if (isNetworkError) {
+            setLoading(false)
+            return {
+              records: [],
+              error: 'Network error fetching wallet records. Please check your connection and try again.',
+              insufficientBalance: false,
+              largestRecord: 0,
+            }
+          }
           rawRecords = []
         }
       }
