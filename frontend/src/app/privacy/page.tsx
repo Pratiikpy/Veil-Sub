@@ -109,6 +109,119 @@ export default function PrivacyPage() {
               </p>
             </m.div>
 
+            {/* Visual BSP Data Flow Diagram */}
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mb-12"
+            >
+              <div className="relative rounded-xl border border-violet-500/30 bg-gradient-to-b from-violet-500/[0.08] to-transparent p-6 sm:p-8 overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
+                <h3 className="text-center text-lg font-semibold text-white mb-2">
+                  BSP Data Flow: Subscribe Transaction
+                </h3>
+                <p className="text-center text-xs text-white/60 mb-8">
+                  See how subscriber identity is protected at each layer
+                </p>
+
+                {/* Desktop Flowchart */}
+                <div className="hidden sm:flex items-center justify-between gap-2 md:gap-4">
+                  {/* Box 1: User */}
+                  <div className="flex-1 text-center">
+                    <div className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-xl bg-white/10 border-2 border-white/30 flex items-center justify-center mb-3">
+                      <Fingerprint className="w-8 h-8 md:w-10 md:h-10 text-white/80" aria-hidden="true" />
+                    </div>
+                    <p className="text-sm font-medium text-white">Subscriber</p>
+                    <p className="text-xs text-white/60 font-mono">aleo1abc...xyz</p>
+                  </div>
+
+                  {/* Arrow 1 */}
+                  <div className="flex flex-col items-center shrink-0">
+                    <div className="flex items-center gap-1 text-violet-400">
+                      <div className="w-8 md:w-12 h-0.5 bg-violet-400/60" />
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                    </div>
+                    <p className="text-xs text-violet-300 mt-1">ZK Proof</p>
+                  </div>
+
+                  {/* Box 2: Transition Layer */}
+                  <div className="flex-1 text-center">
+                    <div className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-xl bg-violet-500/20 border-2 border-violet-400 flex items-center justify-center mb-3">
+                      <Lock className="w-8 h-8 md:w-10 md:h-10 text-violet-400" aria-hidden="true" />
+                    </div>
+                    <p className="text-sm font-medium text-white">Transition</p>
+                    <p className="text-xs text-white/60">Creates AccessPass</p>
+                    <p className="text-xs text-violet-400 font-medium mt-1">Private Record</p>
+                  </div>
+
+                  {/* Arrow 2 */}
+                  <div className="flex flex-col items-center shrink-0">
+                    <div className="flex items-center gap-1 text-green-400">
+                      <div className="w-8 md:w-12 h-0.5 bg-green-400/60" />
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                    </div>
+                    <p className="text-xs text-green-300 mt-1">Hashed Keys</p>
+                  </div>
+
+                  {/* Box 3: Finalize Layer */}
+                  <div className="flex-1 text-center">
+                    <div className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-xl bg-green-500/20 border-2 border-green-400 flex items-center justify-center mb-3">
+                      <Database className="w-8 h-8 md:w-10 md:h-10 text-green-400" aria-hidden="true" />
+                    </div>
+                    <p className="text-sm font-medium text-white">Finalize</p>
+                    <p className="text-xs text-white/60">Public State</p>
+                    <p className="text-xs text-green-400 font-medium mt-1">Poseidon2(creator)</p>
+                  </div>
+                </div>
+
+                {/* Mobile Flowchart - Vertical */}
+                <div className="sm:hidden space-y-4">
+                  {[
+                    { icon: Fingerprint, label: 'Subscriber', sub: 'aleo1abc...xyz', color: 'white', arrow: 'ZK Proof' },
+                    { icon: Lock, label: 'Transition', sub: 'Creates AccessPass', color: 'violet', arrow: 'Hashed Keys' },
+                    { icon: Database, label: 'Finalize', sub: 'Public State', color: 'green', arrow: null },
+                  ].map((step, i) => {
+                    const Icon = step.icon
+                    return (
+                      <div key={step.label}>
+                        <div className="flex items-center gap-4">
+                          <div className={`w-14 h-14 rounded-xl ${step.color === 'violet' ? 'bg-violet-500/20 border-violet-400' : step.color === 'green' ? 'bg-green-500/20 border-green-400' : 'bg-white/10 border-white/30'} border-2 flex items-center justify-center`}>
+                            <Icon className={`w-7 h-7 ${step.color === 'violet' ? 'text-violet-400' : step.color === 'green' ? 'text-green-400' : 'text-white/80'}`} aria-hidden="true" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-white">{step.label}</p>
+                            <p className="text-xs text-white/60">{step.sub}</p>
+                          </div>
+                        </div>
+                        {step.arrow && (
+                          <div className="ml-7 my-2 flex items-center gap-2">
+                            <div className={`w-0.5 h-6 ${i === 0 ? 'bg-violet-400/60' : 'bg-green-400/60'}`} />
+                            <span className={`text-xs ${i === 0 ? 'text-violet-300' : 'text-green-300'}`}>{step.arrow}</span>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Key Insight */}
+                <div className="mt-8 p-4 rounded-xl bg-green-500/10 border border-green-500/20">
+                  <div className="flex items-start gap-3">
+                    <ShieldCheck className="w-5 h-5 text-green-400 shrink-0 mt-0.5" aria-hidden="true" />
+                    <div>
+                      <p className="text-sm font-medium text-green-300">
+                        Subscriber address NEVER reaches finalize
+                      </p>
+                      <p className="text-xs text-white/60 mt-1">
+                        Enforced at compile time by Leo. No runtime policy—mathematically impossible to leak.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </m.div>
+
             <div className="grid md:grid-cols-3 gap-6">
               {/* Layer 1 */}
               <m.div

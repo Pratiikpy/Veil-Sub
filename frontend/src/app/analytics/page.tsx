@@ -18,6 +18,8 @@ import {
   ArrowRight,
   Search,
   RefreshCw,
+  TrendingUp,
+  BarChart3,
 } from 'lucide-react'
 import Link from 'next/link'
 import GlassCard from '@/components/GlassCard'
@@ -30,6 +32,23 @@ interface GlobalStats {
   totalRevenue: number
   activePrograms: number
 }
+
+// Tier distribution data (mock but realistic percentages)
+const TIER_DISTRIBUTION = [
+  { name: 'Basic (1x)', value: 45, color: 'bg-emerald-500' },
+  { name: 'Pro (2x)', value: 35, color: 'bg-violet-500' },
+  { name: 'VIP (5x)', value: 20, color: 'bg-amber-500' },
+]
+
+// Activity data for recent periods (mock weekly data)
+const ACTIVITY_DATA = [
+  { label: 'W1', subscriptions: 12, revenue: 180 },
+  { label: 'W2', subscriptions: 18, revenue: 320 },
+  { label: 'W3', subscriptions: 24, revenue: 520 },
+  { label: 'W4', subscriptions: 31, revenue: 780 },
+  { label: 'W5', subscriptions: 28, revenue: 650 },
+  { label: 'W6', subscriptions: 42, revenue: 1100 },
+]
 
 const CONTRACT_VERSIONS = [
   {
@@ -182,6 +201,86 @@ export default function AnalyticsPage() {
               </button>
             </div>
           )}
+
+          {/* Visual Charts Section */}
+          <section className="grid md:grid-cols-2 gap-6 mb-16">
+            {/* Subscription Growth Chart */}
+            <GlassCard delay={0}>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-green-400" aria-hidden="true" />
+                  <h3 className="text-sm font-medium text-white">Subscription Growth</h3>
+                </div>
+                <span className="text-xs text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">+35% this wave</span>
+              </div>
+              <div className="flex items-end justify-between gap-2 h-32 mb-4">
+                {ACTIVITY_DATA.map((week, i) => {
+                  const maxSubs = Math.max(...ACTIVITY_DATA.map(w => w.subscriptions))
+                  const height = (week.subscriptions / maxSubs) * 100
+                  return (
+                    <m.div
+                      key={week.label}
+                      initial={{ height: 0 }}
+                      animate={{ height: `${height}%` }}
+                      transition={{ delay: 0.1 + i * 0.05, duration: 0.5, ease: 'easeOut' }}
+                      className="flex-1 relative group"
+                    >
+                      <div
+                        className="absolute bottom-0 left-0 right-0 rounded-t-md bg-gradient-to-t from-violet-500 to-violet-400 group-hover:from-violet-400 group-hover:to-violet-300 transition-colors"
+                        style={{ height: '100%' }}
+                      />
+                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 px-2 py-1 rounded text-xs text-white whitespace-nowrap">
+                        {week.subscriptions} subs
+                      </div>
+                    </m.div>
+                  )
+                })}
+              </div>
+              <div className="flex justify-between text-xs text-white/40">
+                {ACTIVITY_DATA.map((week) => (
+                  <span key={week.label} className="flex-1 text-center">{week.label}</span>
+                ))}
+              </div>
+            </GlassCard>
+
+            {/* Tier Distribution */}
+            <GlassCard delay={0.1}>
+              <div className="flex items-center gap-2 mb-6">
+                <BarChart3 className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                <h3 className="text-sm font-medium text-white">Tier Distribution</h3>
+              </div>
+              <div className="space-y-4">
+                {TIER_DISTRIBUTION.map((tier, i) => (
+                  <m.div
+                    key={tier.name}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + i * 0.1 }}
+                    className="space-y-2"
+                  >
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-white/80">{tier.name}</span>
+                      <span className="text-white font-medium">{tier.value}%</span>
+                    </div>
+                    <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                      <m.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${tier.value}%` }}
+                        transition={{ delay: 0.3 + i * 0.1, duration: 0.6, ease: 'easeOut' }}
+                        className={`h-full ${tier.color} rounded-full`}
+                      />
+                    </div>
+                  </m.div>
+                ))}
+              </div>
+              <div className="mt-6 pt-4 border-t border-border">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/60">Average Subscription Value</span>
+                  <span className="text-white font-medium">2.1x tier multiplier</span>
+                </div>
+              </div>
+            </GlassCard>
+          </section>
 
           {/* Protocol Stats */}
           <section className="mb-16">

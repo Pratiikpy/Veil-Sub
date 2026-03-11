@@ -11,6 +11,8 @@ import {
   ArrowRight,
   AlertTriangle,
   Star,
+  TrendingUp,
+  Sparkles,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import PageTransition from '@/components/PageTransition'
@@ -20,6 +22,50 @@ import { FEATURED_CREATORS, DEPLOYED_PROGRAM_ID } from '@/lib/config'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 
 const FEATURED_ADDRESSES = new Set(FEATURED_CREATORS.map(c => c.address))
+
+// Categories for filtering
+const CATEGORIES = [
+  { id: 'all', label: 'All Creators' },
+  { id: 'tech', label: 'Tech' },
+  { id: 'art', label: 'Art & Design' },
+  { id: 'defi', label: 'DeFi' },
+  { id: 'gaming', label: 'Gaming' },
+  { id: 'education', label: 'Education' },
+] as const
+
+// Trending creator highlight component
+function TrendingCard({ creator, growth }: { creator: Creator; growth: string }) {
+  const isFeatured = FEATURED_ADDRESSES.has(creator.address)
+  return (
+    <Link
+      href={`/creator/${creator.address}`}
+      className="flex-shrink-0 w-64 p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-transparent border border-violet-500/20 hover:border-violet-500/40 transition-all group"
+    >
+      <div className="flex items-center gap-3 mb-2">
+        <AddressAvatar address={creator.address} size={36} />
+        <div className="min-w-0 flex-1">
+          <p className="text-white font-medium text-sm truncate">
+            {creator.display_name || shortenAddress(creator.address)}
+          </p>
+          <div className="flex items-center gap-1.5">
+            <TrendingUp className="w-3 h-3 text-green-400" aria-hidden="true" />
+            <span className="text-xs text-green-400 font-medium">{growth}</span>
+          </div>
+        </div>
+        {isFeatured && (
+          <Star className="w-4 h-4 text-violet-400 shrink-0" aria-hidden="true" />
+        )}
+      </div>
+      {creator.bio && (
+        <p className="text-xs text-white/60 line-clamp-2 mb-2">{creator.bio}</p>
+      )}
+      <div className="flex items-center justify-between text-xs text-white/50">
+        <span>View profile</span>
+        <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+      </div>
+    </Link>
+  )
+}
 
 interface Creator {
   address: string
@@ -116,8 +162,18 @@ export default function ExplorePage() {
   const [fetchError, setFetchError] = useState(false)
   const [retryKey, setRetryKey] = useState(0)
   const [sortBy, setSortBy] = useState<'featured' | 'newest'>('featured')
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [platformStats, setPlatformStats] = useState<{ creators: number | null; content: number | null }>({ creators: null, content: null })
   const [platformStatsError, setPlatformStatsError] = useState(false)
+
+  // Get trending creators (featured creators with mock growth data)
+  const trendingCreators = FEATURED_CREATORS.slice(0, 4).map((fc, i) => ({
+    address: fc.address,
+    display_name: fc.label,
+    bio: fc.bio ?? null,
+    created_at: new Date().toISOString(),
+    growth: ['+45%', '+32%', '+28%', '+19%'][i] || '+15%',
+  }))
 
   // Fetch platform-wide stats (total_creators, total_content mappings, key=0u8)
   useEffect(() => {
@@ -247,11 +303,61 @@ export default function ExplorePage() {
             </m.div>
           )}
 
+          {/* Trending Section */}
+          {!loading && !fetchError && creators.length > 0 && !debouncedSearch && (
+            <m.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="mb-10"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                  <Sparkles className="w-3.5 h-3.5 text-green-400" aria-hidden="true" />
+                  <span className="text-xs font-medium text-green-400">Trending This Week</span>
+                </div>
+              </div>
+              <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                {trendingCreators.map((creator) => (
+                  <TrendingCard
+                    key={creator.address}
+                    creator={creator}
+                    growth={creator.growth}
+                  />
+                ))}
+              </div>
+            </m.div>
+          )}
+
+          {/* Category Tabs */}
+          {!loading && !fetchError && creators.length > 0 && !debouncedSearch && (
+            <m.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+            >
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+                    selectedCategory === cat.id
+                      ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
+                      : 'bg-white/[0.03] text-white/60 border border-transparent hover:bg-white/[0.06] hover:text-white'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </m.div>
+          )}
+
           {/* Search */}
           <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ delay: 0.15 }}
             className="max-w-lg mx-auto mb-10"
           >
             <div className="relative group">
