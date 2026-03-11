@@ -180,7 +180,7 @@ export default function VerifyPage() {
                 Verify Your Access
               </h1>
               <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
-                Prove your subscription with zero-knowledge cryptography. On-chain verification only checks expiry and revocation—your address never touches public state.
+                Prove your subscription with zero-knowledge cryptography. On-chain finalize checks only pass_id, expiry, and revocation—your subscriber address never appears in any mapping.
               </p>
             </m.div>
           </div>
@@ -251,7 +251,7 @@ export default function VerifyPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium text-white">ZK Proof Generated</p>
-                          <p className="text-xs text-white/50 truncate">Proves ownership without revealing identity</p>
+                          <p className="text-xs text-white/50 truncate">Proves access without sending address to finalize</p>
                         </div>
                         <m.div
                           animate={{ rotate: [0, 360] }}
@@ -296,7 +296,7 @@ export default function VerifyPage() {
                         <div>
                           <p className="text-sm font-semibold text-white mb-1">Zero Public Footprint</p>
                           <p className="text-xs text-white/70 leading-relaxed">
-                            Your address never appears in mappings. Only pass_id checked against revocation list. Subscribers remain completely anonymous on-chain.
+                            Your address never appears in mappings. Finalize only reads pass_id + expiry—no subscriber lookups. Proof happens client-side; public state stays silent.
                           </p>
                         </div>
                       </div>
@@ -336,7 +336,7 @@ export default function VerifyPage() {
 
                   <div className="p-4 rounded-xl glass text-left">
                     <p className="text-xs text-white/70 leading-relaxed">
-                      <strong className="text-violet-300">UTXO pattern:</strong> verify_access consumes your pass, checks validity in finalize, then re-creates an identical pass. Your wallet address is never written to public state.
+                      <strong className="text-violet-300">UTXO pattern:</strong> verify_access consumes your pass, generates ZK proof client-side, then finalize atomically checks pass_id + expiry and re-creates an identical pass. Wallet address never enters finalize&apos;s visibility scope.
                     </p>
                   </div>
                 </div>
@@ -715,7 +715,7 @@ export default function VerifyPage() {
             className="mt-8 p-4 rounded-xl bg-violet-500/5 border border-violet-500/10 text-center"
           >
             <p className="text-xs text-white/70">
-              <strong className="text-violet-300">Minimal footprint:</strong> VeilSub&apos;s verify_access finalize only checks revocation via pass_id—subscriber identity never touches public state. No subscriber-identifying mapping writes occur when proving access.
+              <strong className="text-violet-300">Zero-footprint verification:</strong> VeilSub&apos;s verify_access generates ZK proof client-side, then finalize reads only pass_id + expires_at. No subscriber address written, read, or hashed in any mapping.
             </p>
           </m.div>
         </section>

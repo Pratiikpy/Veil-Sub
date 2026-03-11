@@ -157,10 +157,10 @@ export default function AnalyticsPage() {
             background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
           }}
         />
-        <div className="relative max-w-[1120px] mx-auto px-6">
+        <div className="relative max-w-[1120px] mx-auto px-8">
           {/* Hero */}
           <div className="mb-16">
-            <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-3" style={{ letterSpacing: '-0.03em' }}>
+            <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-4" style={{ letterSpacing: '-0.03em' }}>
               Platform Analytics
             </h1>
             <p className="text-white/60 text-base max-w-2xl leading-relaxed">
@@ -218,7 +218,7 @@ export default function AnalyticsPage() {
           )}
 
           {/* Visual Charts Section */}
-          <section className="grid md:grid-cols-2 gap-6 mb-16">
+          <section className="grid md:grid-cols-2 gap-8 mb-16">
             {/* Subscription Growth Chart */}
             <GlassCard delay={0}>
               <div className="flex items-center justify-between mb-6">
@@ -299,7 +299,7 @@ export default function AnalyticsPage() {
 
           {/* Protocol Stats */}
           <section className="mb-16">
-            <h2 className="text-lg font-medium text-white mb-6">Protocol Stats</h2>
+            <h2 className="text-lg font-medium text-white mb-8">Protocol Stats</h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <ProtocolStat icon={Activity} value="27" label="Transitions" delay={0} />
               <ProtocolStat icon={Layers} value="6" label="Record Types" delay={0.05} />
@@ -310,7 +310,7 @@ export default function AnalyticsPage() {
 
           {/* Privacy Guarantees */}
           <section className="mb-16">
-            <h2 className="text-lg font-medium text-white mb-6">Privacy Guarantees</h2>
+            <h2 className="text-lg font-medium text-white mb-8">Privacy Guarantees</h2>
             <div className="grid md:grid-cols-3 gap-4">
               <GlassCard delay={0}>
                 <div className="flex items-start gap-4">
@@ -366,36 +366,36 @@ export default function AnalyticsPage() {
 
           {/* Privacy Modes */}
           <section className="mb-16">
-            <h2 className="text-lg font-medium text-white mb-6">Privacy Modes</h2>
+            <h2 className="text-lg font-medium text-white mb-8">Privacy Modes</h2>
             <div className="grid md:grid-cols-3 gap-4">
               <GlassCard delay={0}>
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 mb-4">
                   <ShieldCheck className="w-4 h-4 text-green-400" aria-hidden="true" />
                   <span className="text-sm font-medium text-white">Standard</span>
                 </div>
-                <p className="text-xs text-white/60 leading-relaxed mb-3">
+                <p className="text-xs text-white/60 leading-relaxed mb-4">
                   Private payment via credits.aleo/transfer_private. Subscriber address excluded from
                   finalize layer via BSP. Creator sees only aggregate count—no per-subscriber mapping entries.
                 </p>
                 <div className="text-xs text-white/60">subscribe · renew</div>
               </GlassCard>
               <GlassCard delay={0.05} variant="accent">
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 mb-4">
                   <EyeOff className="w-4 h-4 text-violet-400" aria-hidden="true" />
                   <span className="text-sm font-medium text-white">Blind</span>
                 </div>
-                <p className="text-xs text-white/60 leading-relaxed mb-3">
+                <p className="text-xs text-white/60 leading-relaxed mb-4">
                   Nonce-rotated identity per action—each renewal computes BHP256(caller, unique_nonce)
                   for identity hashing. Creator sees different subscriber hash each time, breaking renewal pattern tracking.
                 </p>
                 <div className="text-xs text-white/60">subscribe_blind · renew_blind</div>
               </GlassCard>
               <GlassCard delay={0.1}>
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 mb-4">
                   <Lock className="w-4 h-4 text-violet-400" aria-hidden="true" />
                   <span className="text-sm font-medium text-white">Maximum (v27)</span>
                 </div>
-                <p className="text-xs text-white/60 leading-relaxed mb-3">
+                <p className="text-xs text-white/60 leading-relaxed mb-4">
                   All mapping keys are Poseidon2(address, context) hashes (v23+ privacy overhaul).
                   Zero raw addresses in any finalize block. On-chain analytics keyed by field hashes, preventing address-to-data linking.
                 </p>
@@ -406,7 +406,7 @@ export default function AnalyticsPage() {
 
           {/* Contract Versions Timeline */}
           <section className="mb-16">
-            <h2 className="text-lg font-medium text-white mb-6">Contract Versions</h2>
+            <h2 className="text-lg font-medium text-white mb-8">Contract Versions</h2>
             <GlassCard hover={false}>
               <div className="space-y-0">
                 {CONTRACT_VERSIONS.map((item, i) => (
@@ -449,12 +449,12 @@ export default function AnalyticsPage() {
             >
               <Search className="w-8 h-8 text-violet-400 mx-auto mb-4" aria-hidden="true" />
               <h3 className="text-xl font-semibold text-white mb-2">Query the chain yourself</h3>
-              <p className="text-sm text-white/60 max-w-md mx-auto mb-5">
+              <p className="text-sm text-white/60 max-w-md mx-auto mb-4">
                 Look up any creator&apos;s public stats, query on-chain mappings directly, and verify data with no wallet required.
               </p>
               <Link
                 href="/explorer"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all btn-shimmer"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all btn-shimmer"
               >
                 Open On-Chain Explorer
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />

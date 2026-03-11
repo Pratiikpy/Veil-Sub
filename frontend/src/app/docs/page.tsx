@@ -69,7 +69,7 @@ function OverviewTab() {
     <div className="space-y-8">
       {/* Quick Links for Judges */}
       <div className="p-4 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.12]">
-        <h3 className="text-sm font-semibold text-violet-300 mb-3">Quick Links</h3>
+        <h3 className="text-sm font-semibold text-violet-300 mb-4">Quick Links</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {[
             { label: 'Testnet Explorer', href: `https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}` },
@@ -84,7 +84,7 @@ function OverviewTab() {
               href={link.href}
               target={link.href.startsWith('http') ? '_blank' : undefined}
               rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/[0.04] border border-border/75 text-xs text-white/70 hover:text-white hover:border-violet-500/20 transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.04] border border-border/75 text-xs text-white/70 hover:text-white hover:border-violet-500/20 transition-colors"
             >
               <ExternalLink className="w-3 h-3 shrink-0" />
               {link.label}
@@ -94,7 +94,7 @@ function OverviewTab() {
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">What is VeilSub?</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">What is VeilSub?</h3>
         <p className="text-white/70 leading-relaxed">
           VeilSub is a privacy-first creator subscription platform where the Aleo blockchain enforces
           zero-footprint subscriptions via the Blind Subscription Protocol (BSP)—a novel three-layer
@@ -106,8 +106,8 @@ function OverviewTab() {
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Video Demo</h3>
-        <p className="text-white/70 leading-relaxed mb-3">
+        <h3 className="text-xl font-semibold text-white mb-4">Video Demo</h3>
+        <p className="text-white/70 leading-relaxed mb-4">
           Watch zero-footprint verification in action: v27&apos;s verify_access finalize performs a single
           read of the access_revoked mapping keyed by pass_id—no subscriber address, no identity-linked
           writes, zero on-chain footprint. The entire subscription lifecycle stays private: subscribe
@@ -128,7 +128,7 @@ function OverviewTab() {
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Architecture</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">Architecture</h3>
         <CodeBlock
           lang="plaintext"
           code={`┌──────────────┐     ┌─────────────┐     ┌───────────────────┐
@@ -154,7 +154,7 @@ function OverviewTab() {
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Tech Stack</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">Tech Stack</h3>
         <div className="grid sm:grid-cols-2 gap-4">
           {[
             { label: 'Smart Contract', value: 'Leo 3.4.0 — v27: 27 transitions, 25 mappings, 102 asserts with error codes, Poseidon2-hashed keys, BSP + commit-reveal tipping + blind renewal' },
@@ -166,7 +166,7 @@ function OverviewTab() {
           ].map((item) => (
             <div
               key={item.label}
-              className="p-3 rounded-lg bg-surface-1 border border-border"
+              className="p-4 rounded-lg bg-surface-1 border border-border"
             >
               <span className="text-xs text-white/60">{item.label}</span>
               <p className="text-sm text-white">{item.value}</p>
@@ -182,9 +182,9 @@ function ContractTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Program ID</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">Program ID</h3>
         <div className="space-y-2">
-          <div className="p-3 rounded-lg bg-white/[0.04] border border-border flex items-center justify-between">
+          <div className="p-4 rounded-lg bg-white/[0.04] border border-border flex items-center justify-between">
             <div>
               <span className="text-xs text-white/60">Deployed (testnet)</span>
               <code className="block text-white/70 text-sm font-mono">{DEPLOYED_PROGRAM_ID}</code>
@@ -198,7 +198,7 @@ function ContractTab() {
               View on Explorer <ExternalLink className="w-3 h-3" />
             </a>
           </div>
-          <div className="p-3 rounded-lg bg-white/[0.04] border border-border flex items-center justify-between">
+          <div className="p-4 rounded-lg bg-white/[0.04] border border-border flex items-center justify-between">
             <div>
               <span className="text-xs text-white/60">Source (latest)</span>
               <code className="block text-white/70 text-sm font-mono">{DEPLOYED_PROGRAM_ID}</code>
@@ -209,7 +209,7 @@ function ContractTab() {
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Record Type (Private)</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">Record Type (Private)</h3>
         <CodeBlock
           lang="leo"
           code={`record AccessPass {
@@ -224,7 +224,7 @@ function ContractTab() {
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Mappings (Public)—25 Total</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">Mappings (Public)—25 Total</h3>
         <CodeBlock
           lang="leo"
           code={`// v27: ALL mapping keys are Poseidon2 field hashes—ZERO raw addresses in finalize
@@ -266,12 +266,12 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Transitions (27 Total)</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">Transitions (27 Total)</h3>
         <p className="text-sm text-white/60 mb-4">Grouped by feature area for easier navigation.</p>
 
         {/* Subscription Core */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
             <span className="px-2 py-1 rounded-lg bg-violet-500/10 text-xs font-medium text-violet-300">Subscription Core</span>
             <span className="text-xs text-white/50">6 transitions</span>
           </div>
@@ -296,8 +296,8 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
         </div>
 
         {/* Privacy & BSP */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
             <span className="px-2 py-1 rounded-lg bg-green-500/10 text-xs font-medium text-green-300">Privacy & BSP</span>
             <span className="text-xs text-white/50">4 transitions</span>
           </div>
@@ -320,8 +320,8 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
         </div>
 
         {/* Tiers & Pricing */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
             <span className="px-2 py-1 rounded-lg bg-blue-500/10 text-xs font-medium text-blue-300">Tiers & Pricing</span>
             <span className="text-xs text-white/50">3 transitions</span>
           </div>
@@ -343,8 +343,8 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
         </div>
 
         {/* Content Management */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
             <span className="px-2 py-1 rounded-lg bg-amber-500/10 text-xs font-medium text-amber-300">Content Management</span>
             <span className="text-xs text-white/50">5 transitions</span>
           </div>
@@ -368,8 +368,8 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
         </div>
 
         {/* Tipping */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
             <span className="px-2 py-1 rounded-lg bg-pink-500/10 text-xs font-medium text-pink-300">Tipping</span>
             <span className="text-xs text-white/50">3 transitions</span>
           </div>
@@ -391,8 +391,8 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
         </div>
 
         {/* Gifting & Transfer */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
             <span className="px-2 py-1 rounded-lg bg-indigo-500/10 text-xs font-medium text-indigo-300">Gifting & Transfer</span>
             <span className="text-xs text-white/50">3 transitions</span>
           </div>
@@ -414,8 +414,8 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
         </div>
 
         {/* Admin */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
             <span className="px-2 py-1 rounded-lg bg-white/10 text-xs font-medium text-white/70">Admin</span>
             <span className="text-xs text-white/50">3 transitions</span>
           </div>
@@ -438,7 +438,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Error Codes (v27)</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">Error Codes (v27)</h3>
         <p className="text-sm text-white/70 mb-4">
           Every <code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">assert</code> in the contract has 102 unique error codes (range: ERR_001–ERR_119, with gaps) for debugging and frontend error mapping. Key ranges:
         </p>
@@ -473,7 +473,7 @@ function PrivacyModelTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Privacy Architecture</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">Privacy Architecture</h3>
         <p className="text-white/70 leading-relaxed mb-4">
           VeilSub&apos;s privacy is enforced by the Blind Subscription Protocol (BSP) at the program level.
           The Leo contract is designed so subscriber addresses physically cannot enter finalize. Additionally,
@@ -524,7 +524,7 @@ function PrivacyModelTab() {
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Key Guarantees</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">Key Guarantees</h3>
         <div className="space-y-4">
           {[
             {
@@ -560,7 +560,7 @@ function PrivacyModelTab() {
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">What Can&apos;t Be Inferred?</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">What Can&apos;t Be Inferred?</h3>
         <p className="text-white/70 leading-relaxed">
           Even with full access to the Aleo blockchain, an observer cannot determine:
         </p>
@@ -586,7 +586,7 @@ function ApiTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Reading Public Mappings</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">Reading Public Mappings</h3>
         <p className="text-white/70 mb-4">
           Public mapping data (tier prices, subscriber counts, revenue) can be read via the
           Provable REST API without any authentication.
@@ -605,7 +605,7 @@ curl https://api.explorer.provable.com/v1/testnet/program/${DEPLOYED_PROGRAM_ID}
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Wallet Integration</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">Wallet Integration</h3>
         <p className="text-white/70 mb-4">
           Use the Aleo wallet adapter to interact with VeilSub transitions.
         </p>
@@ -636,7 +636,7 @@ const txId = result?.transactionId`}
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Microcredits Conversion</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">Microcredits Conversion</h3>
         <div className="p-4 rounded-xl bg-surface-1 border border-border">
           <p className="text-sm text-white/70 mb-2">
             1 ALEO = 1,000,000 microcredits

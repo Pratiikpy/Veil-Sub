@@ -139,7 +139,7 @@ export default function TransferPassModal({
               className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base font-mono"
             />
             {recipientAddress && !isValidAddress && (
-              <p className="text-xs text-red-400 mt-2 flex items-center gap-1" role="alert">
+              <p className="text-xs text-red-400 mt-2 flex items-center gap-1" role="alert" aria-live="polite">
                 <AlertTriangle className="w-3 h-3" aria-hidden="true" />
                 Enter a valid Aleo address
               </p>

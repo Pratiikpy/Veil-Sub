@@ -283,7 +283,8 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
               <p className="text-xs text-white/70">Content metadata is now on-chain.</p>
               <button
                 onClick={handleReset}
-                className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
+                aria-label="Create another post"
+                className="mt-3 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50"
               >
                 Create Another Post
               </button>

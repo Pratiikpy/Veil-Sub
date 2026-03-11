@@ -35,9 +35,9 @@ export default function PrivacyPage() {
               background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.06) 0%, transparent 70%)',
             }}
           />
-          <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+          <div className="relative max-w-5xl mx-auto px-4 sm:px-8 lg:px-8 pt-20 pb-16">
             <m.div {...fadeUp} transition={{ duration: 0.6 }} className="text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-8">
                 <Shield className="w-4 h-4 text-violet-400" />
                 <span className="text-sm text-violet-300/90">Zero-Knowledge Privacy</span>
               </div>
@@ -47,7 +47,7 @@ export default function PrivacyPage() {
               >
                 How VeilSub Protects You
               </h1>
-              <p className="text-lg text-white/70 max-w-2xl mx-auto mb-6">
+              <p className="text-lg text-white/70 max-w-2xl mx-auto mb-8">
                 Built on Aleo&apos;s zero-knowledge proof system. The Blind Subscription Protocol (BSP)
                 prevents subscriber addresses from reaching finalize layer through three isolation mechanisms:
                 (1) private AccessPass records owned only by subscribers, (2) Poseidon2 field-hashed mapping keys
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
                 href={`https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-all"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-all"
               >
                 <Shield className="w-4 h-4" />
                 Verify on Aleoscan—audit the deployed contract yourself
@@ -70,7 +70,7 @@ export default function PrivacyPage() {
 
         {/* Section Navigation */}
         <nav className="sticky top-16 z-30 bg-black/80 backdrop-blur-xl border-b border-border/75 overflow-x-auto hidden md:block">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-1 py-2">
+          <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8 flex gap-1 py-2">
             {[
               { id: 'bsp', label: 'BSP Framework' },
               { id: 'zk-proofs', label: 'ZK Proofs' },
@@ -93,7 +93,7 @@ export default function PrivacyPage() {
 
         {/* Blind Subscription Protocol (BSP) */}
         <section id="bsp" className="py-16 scroll-mt-28">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-4">
                 <Layers className="w-4 h-4 text-violet-400" />
@@ -222,7 +222,7 @@ export default function PrivacyPage() {
               </div>
             </m.div>
 
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-8">
               {/* Layer 1 */}
               <m.div
                 initial={{ opacity: 0, y: 20 }}
@@ -231,12 +231,12 @@ export default function PrivacyPage() {
                 transition={{ delay: 0 }}
                 className="h-full"
               >
-                <div className="relative h-full rounded-xl border border-violet-500/20 bg-gradient-to-b from-violet-500/[0.06] to-transparent p-6">
+                <div className="relative h-full rounded-xl border border-violet-500/20 bg-gradient-to-b from-violet-500/[0.06] to-transparent p-8">
                   <div className="flex items-center gap-4 mb-4">
                     <span className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center text-sm font-bold text-violet-400">1</span>
                     <h3 className="text-white font-semibold">Blind Identity Rotation</h3>
                   </div>
-                  <p className="text-sm text-white/70 mb-4">
+                  <p className="text-sm text-white/70 mb-4 icon-container">
                     Each subscription generates a unique subscriber hash via nonce-rotated
                     Poseidon2. Creators cannot correlate renewals to the same person.
                   </p>
@@ -257,7 +257,7 @@ export default function PrivacyPage() {
                 transition={{ delay: 0.1 }}
                 className="h-full"
               >
-                <div className="relative h-full rounded-xl border border-green-500/20 bg-gradient-to-b from-green-500/[0.06] to-transparent p-6">
+                <div className="relative h-full rounded-xl border border-green-500/20 bg-gradient-to-b from-green-500/[0.06] to-transparent p-8">
                   <div className="flex items-center gap-4 mb-4">
                     <span className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-sm font-bold text-green-400">2</span>
                     <h3 className="text-white font-semibold">Zero-Address Finalize</h3>
@@ -283,7 +283,7 @@ export default function PrivacyPage() {
                 transition={{ delay: 0.2 }}
                 className="h-full"
               >
-                <div className="relative h-full rounded-xl border border-indigo-500/20 bg-gradient-to-b from-indigo-500/[0.06] to-transparent p-6">
+                <div className="relative h-full rounded-xl border border-indigo-500/20 bg-gradient-to-b from-indigo-500/[0.06] to-transparent p-8">
                   <div className="flex items-center gap-4 mb-4">
                     <span className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-sm font-bold text-indigo-400">3</span>
                     <h3 className="text-white font-semibold">Selective Disclosure</h3>
@@ -311,7 +311,7 @@ export default function PrivacyPage() {
               className="mt-8"
             >
               <div className="rounded-xl overflow-hidden border border-border">
-                <div className="px-5 py-3 bg-white/[0.02] border-b border-border">
+                <div className="px-4 py-4 bg-white/[0.02] border-b border-border">
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-violet-400" />
                     <h4 className="text-sm font-semibold text-white">BSP vs Other Privacy Approaches</h4>
@@ -353,7 +353,7 @@ export default function PrivacyPage() {
                     </tbody>
                   </table>
                 </div>
-                <div className="px-5 py-3 bg-white/[0.01] border-t border-border">
+                <div className="px-4 py-4 bg-white/[0.01] border-t border-border">
                   <p className="text-xs text-white/60">
                     BSP is the only multi-layer privacy framework in the Aleo buildathon that addresses
                     identity rotation, finalize isolation, and selective disclosure simultaneously.
@@ -366,7 +366,7 @@ export default function PrivacyPage() {
 
         {/* ZK Explainer */}
         <section id="zk-proofs" className="py-16 scroll-mt-28">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">What Are Zero-Knowledge Proofs?</h2>
               <p className="text-white/70 max-w-2xl mx-auto">
@@ -377,7 +377,7 @@ export default function PrivacyPage() {
               </p>
             </m.div>
 
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-8">
               <GlassCard shimmer delay={0}>
                 <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4">
                   <Fingerprint className="w-6 h-6 text-violet-400" />
@@ -424,7 +424,7 @@ export default function PrivacyPage() {
 
         {/* Zero-Footprint Hero Callout */}
         <section className="py-16">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial">
               <div className="relative rounded-xl overflow-hidden">
                 {/* Gradient border effect */}
@@ -486,7 +486,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
 
         {/* Private vs Public */}
         <section id="private-vs-public" className="py-16 scroll-mt-28">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">What&apos;s Private vs. Public</h2>
               <p className="text-white/70">
@@ -652,7 +652,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
 
         {/* Threat Model */}
         <section id="threat-model" className="py-16 scroll-mt-28">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Privacy Threat Model</h2>
               <p className="text-white/70">
@@ -660,7 +660,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               </p>
             </m.div>
 
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
               <GlassCard delay={0}>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
@@ -726,7 +726,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               </GlassCard>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-8">
               <GlassCard delay={0.2}>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center">
@@ -796,7 +796,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
 
         {/* Code Proof */}
         <section id="code-privacy" className="py-16 scroll-mt-28">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Privacy in the Code</h2>
               <p className="text-white/70">How each transition protects your identity.</p>
@@ -866,7 +866,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
 
             {/* Data Flow Diagram */}
             <div className="mb-8 grid md:grid-cols-2 gap-4">
-              <div className="p-6 rounded-xl bg-white/[0.04] border border-border">
+              <div className="p-8 rounded-xl bg-white/[0.04] border border-border">
                 <h4 className="text-sm font-medium text-white/70 mb-4">Subscribe Flow</h4>
                 <div className="space-y-2 text-xs text-white/70">
                   <div className="flex items-center gap-2">
@@ -887,7 +887,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
                   </div>
                 </div>
               </div>
-              <div className="p-6 rounded-xl bg-green-500/5 border border-green-500/15">
+              <div className="p-8 rounded-xl bg-green-500/5 border border-green-500/15">
                 <h4 className="text-sm font-medium text-green-300 mb-4">Verify Access Flow</h4>
                 <div className="space-y-2 text-xs text-white/70">
                   <div className="flex items-center gap-2">
@@ -993,7 +993,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
 
         {/* Comparison vs Traditional */}
         <section id="vs-traditional" className="py-16 scroll-mt-28">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">VeilSub vs. Traditional Platforms</h2>
             </m.div>
@@ -1030,7 +1030,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
 
         {/* Comparison vs Aleo Competitors */}
         <section id="vs-aleo" className="py-16 scroll-mt-28">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Privacy Comparison: Aleo Ecosystem</h2>
               <p className="text-white/70">

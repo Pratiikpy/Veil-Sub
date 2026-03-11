@@ -263,7 +263,7 @@ export default function ExplorePage() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/[0.06] border border-emerald-500/[0.12] mb-6">
               <Shield className="w-4 h-4 text-emerald-400" aria-hidden="true" />
               <span className="text-xs font-medium tracking-wide uppercase text-emerald-300">
-                Private Discovery
+                Zero-Footprint Discovery
               </span>
             </div>
             <h1
@@ -273,9 +273,9 @@ export default function ExplorePage() {
               Explore Creators
             </h1>
             <p className="text-lg text-white/70 max-w-lg mx-auto">
-              Subscribe with complete privacy.{' '}
-              <span className="text-white font-medium">Zero addresses on-chain, zero subscriber visibility to creators</span>
-              —only you prove you have access.
+              Subscribe with zero-footprint verification.{' '}
+              <span className="text-white font-medium">No addresses on-chain, no subscriber identities revealed</span>
+              —prove your AccessPass with ZK proof.
             </p>
           </m.div>
 
