@@ -201,7 +201,7 @@ function QuickMappingQueries() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setDemoMode(!demoMode)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+            className={`px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
               demoMode
                 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.15)]'
                 : 'bg-white/[0.05] text-white/60 border border-white/10 hover:bg-white/[0.08]'
@@ -212,7 +212,7 @@ function QuickMappingQueries() {
           </button>
           <button
             onClick={queryAll}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-500/10 text-violet-300 border border-violet-500/20 hover:bg-violet-500/20 transition-colors"
+            className="px-4 py-2 rounded-lg text-xs font-medium bg-violet-500/10 text-violet-300 border border-violet-500/20 hover:bg-violet-500/20 transition-colors"
           >
             Query Featured Creator
           </button>
@@ -222,7 +222,7 @@ function QuickMappingQueries() {
         Query on-chain mappings for the featured creator via privacy proxy. No wallet required—these are public aggregate values. Your IP is never sent to external APIs.
       </p>
       {demoMode && (
-        <div className="mb-4 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-center gap-2">
+        <div className="mb-4 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-center gap-2">
           <AlertCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
           <span>Demo mode: showing example data. Toggle off to see live on-chain values.</span>
         </div>
@@ -414,12 +414,12 @@ export default function ExplorerPage() {
               className="mb-10"
             >
               {statsError && (
-                <div className="mb-3 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-center gap-2">
+                <div className="mb-3 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-center gap-2">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                   <span>Could not fetch live stats. Showing cached values.</span>
                 </div>
               )}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <GlassCard delay={0}>
                 <div className="flex items-center gap-2 mb-2">
                   <Users className="w-4 h-4 text-violet-400" aria-hidden="true" />
@@ -467,7 +467,7 @@ export default function ExplorerPage() {
             transition={{ delay: 0.1 }}
             className="mb-10"
           >
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <div className="flex-1 relative group">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60 group-focus-within:text-violet-400 transition-colors" aria-hidden="true" />
                 <input
@@ -477,7 +477,7 @@ export default function ExplorerPage() {
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   placeholder={placeholder}
                   aria-label="Creator Aleo address"
-                  className={`w-full pl-12 pr-4 py-3.5 rounded-xl glass text-white placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300 text-base ${isAnimating ? 'placeholder-opacity-0' : 'placeholder-opacity-100'}`}
+                  className={`w-full pl-12 pr-4 py-4.5 rounded-xl glass text-white placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300 text-base ${isAnimating ? 'placeholder-opacity-0' : 'placeholder-opacity-100'}`}
                 />
               </div>
               <button
@@ -503,9 +503,9 @@ export default function ExplorerPage() {
             <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start justify-between gap-3"
+              className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start justify-between gap-4"
             >
-              <div className="flex items-start gap-3 flex-1">
+              <div className="flex items-start gap-4 flex-1">
                 <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
                 <p className="text-sm text-red-300">{error}</p>
               </div>
@@ -523,11 +523,11 @@ export default function ExplorerPage() {
             <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="space-y-6 mb-12"
+              className="space-y-8 mb-12"
             >
               {/* Creator Header */}
               <div className="flex items-center justify-between p-4 rounded-xl bg-surface-1 border border-border">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <AddressAvatar address={result.address} size={48} />
                   <div>
                     <p className="text-white font-medium font-mono">{shortenAddress(result.address)}</p>
@@ -541,14 +541,14 @@ export default function ExplorerPage() {
                     href={`https://testnet.explorer.provable.com/address/${result.address}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/60 hover:text-white flex items-center gap-1 transition-colors"
+                    className="px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/60 hover:text-white flex items-center gap-1 transition-colors"
                   >
                     Aleo Explorer <ExternalLink className="w-3 h-3" aria-hidden="true" />
                   </a>
                   {isRegistered && (
                     <a
                       href={`/creator/${result.address}`}
-                      className="px-3 py-2 rounded-lg bg-white/[0.06] border border-border text-xs text-white/60 hover:text-white flex items-center gap-1 transition-colors"
+                      className="px-4 py-2 rounded-lg bg-white/[0.06] border border-border text-xs text-white/60 hover:text-white flex items-center gap-1 transition-colors"
                     >
                       Subscribe <ArrowRight className="w-3 h-3" aria-hidden="true" />
                     </a>
@@ -654,7 +654,7 @@ export default function ExplorerPage() {
                     This address has not called <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300 text-xs">register_creator</code> on VeilSub.
                     No subscription data exists for this address.
                   </p>
-                  <div className="flex items-center justify-center gap-3">
+                  <div className="flex items-center justify-center gap-4">
                     <button
                       onClick={() => {
                         setAddress('')
@@ -717,7 +717,7 @@ export default function ExplorerPage() {
                   <button
                     key={filter}
                     onClick={() => { setEventFilter(filter); setEventsPage(0) }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${
                       eventFilter === filter
                         ? 'bg-violet-500/[0.08] text-violet-300 border border-violet-500/[0.15] shadow-accent-sm'
                         : 'text-white/60 hover:text-white/70 border border-transparent'
@@ -731,7 +731,7 @@ export default function ExplorerPage() {
 
             <div className="rounded-xl bg-surface-1 border border-border overflow-hidden">
               {/* Table Header — desktop only */}
-              <div className="hidden sm:grid grid-cols-[1fr_auto_auto_1.5fr_auto] gap-4 px-4 py-3 border-b border-border text-xs text-white/60 font-medium">
+              <div className="hidden sm:grid grid-cols-[1fr_auto_auto_1.5fr_auto] gap-4 px-4 py-4 border-b border-border text-xs text-white/60 font-medium">
                 <span>Time</span>
                 <span>Tier</span>
                 <span>Amount</span>
@@ -782,7 +782,7 @@ export default function ExplorerPage() {
                     return (
                       <div key={`${event.tx_id || i}-${i}`}>
                         {/* Desktop row */}
-                        <div className="hidden sm:grid grid-cols-[1fr_auto_auto_1.5fr_auto] gap-4 px-4 py-3 border-b border-white/[0.04] hover:bg-white/[0.04] transition-colors items-center">
+                        <div className="hidden sm:grid grid-cols-[1fr_auto_auto_1.5fr_auto] gap-4 px-4 py-4 border-b border-white/[0.04] hover:bg-white/[0.04] transition-colors items-center">
                           <span className="text-xs text-white/70">{timeAgo(event.created_at)}</span>
                           <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium border ${tier.color}`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${tier.dot}`} />
@@ -880,12 +880,12 @@ export default function ExplorerPage() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+                <div className="flex items-center justify-between px-4 py-4 border-t border-border">
                   <button
                     onClick={() => setEventsPage(Math.max(0, eventsPage - 1))}
                     disabled={eventsPage === 0}
                     title={eventsPage === 0 ? 'Already on first page' : 'Go to previous page'}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-white/60 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-white/60 transition-colors"
+                    className="flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-medium text-white/60 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-white/60 transition-colors"
                   >
                     <ChevronLeft className="w-3 h-3" aria-hidden="true" /> Prev
                   </button>
@@ -908,7 +908,7 @@ export default function ExplorerPage() {
                     onClick={() => setEventsPage(Math.min(totalPages - 1, eventsPage + 1))}
                     disabled={eventsPage >= totalPages - 1}
                     title={eventsPage >= totalPages - 1 ? 'Already on last page' : 'Go to next page'}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-white/60 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-white/60 transition-colors"
+                    className="flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-medium text-white/60 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-white/60 transition-colors"
                   >
                     Next <ChevronRight className="w-3 h-3" aria-hidden="true" />
                   </button>

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { decrypt } from '@/lib/encryption'
+import { CACHE_HEADERS } from '@/lib/config'
 
 export async function GET(req: NextRequest) {
   const supabase = getServerSupabase()
   if (!supabase) {
-    return NextResponse.json({ creators: [] })
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 })
   }
 
   const q = req.nextUrl.searchParams.get('q')?.trim().toLowerCase()
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await query
 
     if (error || !data) {
-      return NextResponse.json({ creators: [] })
+      return NextResponse.json({ error: 'Failed to load creators' }, { status: 500 })
     }
 
     // Decrypt addresses server-side
@@ -48,8 +49,10 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       creators: creators.filter(Boolean),
+    }, {
+      headers: { 'Cache-Control': CACHE_HEADERS.POSTS },
     })
   } catch {
-    return NextResponse.json({ creators: [] })
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }

@@ -84,7 +84,7 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative px-4 py-1.5 text-sm font-medium transition-colors duration-200 rounded-full ${
+                  className={`relative px-4 py-1.5 text-sm font-medium transition-colors duration-200 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-1 focus-visible:ring-offset-black ${
                     isActive(item.href)
                       ? 'text-white'
                       : 'text-white/60 hover:text-white/70'
@@ -136,7 +136,7 @@ export default function Header() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`block px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
+                  className={`block px-4 py-2.5 rounded-xl text-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${
                     isActive(item.href)
                       ? 'text-white bg-violet-500/[0.08] border border-violet-500/[0.12]'
                       : 'text-white/60 hover:text-white/70 hover:bg-white/[0.02]'

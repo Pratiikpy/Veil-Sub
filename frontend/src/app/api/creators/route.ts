@@ -22,10 +22,12 @@ export async function GET(req: NextRequest) {
     .single()
 
   if (error || !data) {
-    return NextResponse.json({ profile: null })
+    return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
   }
 
-  return NextResponse.json({ profile: data })
+  return NextResponse.json({ profile: data }, {
+    headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' },
+  })
 }
 
 export async function POST(req: NextRequest) {

@@ -83,7 +83,7 @@ export default function PrivacyPage() {
               <a
                 key={s.id}
                 href={`#${s.id}`}
-                className="px-3 py-1.5 rounded-lg text-xs text-white/60 hover:text-white hover:bg-white/[0.06] transition-all whitespace-nowrap"
+                className="px-4 py-2 rounded-lg text-xs text-white/60 hover:text-white hover:bg-white/[0.06] transition-all whitespace-nowrap"
               >
                 {s.label}
               </a>
@@ -207,7 +207,7 @@ export default function PrivacyPage() {
 
                 {/* Key Insight */}
                 <div className="mt-8 p-4 rounded-xl bg-green-500/10 border border-green-500/20">
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-4">
                     <ShieldCheck className="w-5 h-5 text-green-400 shrink-0 mt-0.5" aria-hidden="true" />
                     <div>
                       <p className="text-sm font-medium text-green-300">
@@ -240,7 +240,7 @@ export default function PrivacyPage() {
                     Each subscription generates a unique subscriber hash via nonce-rotated
                     Poseidon2. Creators cannot correlate renewals to the same person.
                   </p>
-                  <div className="p-3 rounded-xl bg-black/40 border border-border">
+                  <div className="p-4 rounded-xl bg-black/40 border border-border">
                     <code className="text-xs text-violet-300 font-mono leading-relaxed">
                       hash = Poseidon2(BlindKey{'{'} subscriber, nonce {'}'})
                     </code>
@@ -266,7 +266,7 @@ export default function PrivacyPage() {
                     All 25 mappings use Poseidon2 field-hashed keys. No raw address appears
                     in any finalize function—compiler-enforced, not policy.
                   </p>
-                  <div className="p-3 rounded-xl bg-black/40 border border-border">
+                  <div className="p-4 rounded-xl bg-black/40 border border-border">
                     <code className="text-xs text-green-300 font-mono leading-relaxed">
                       mapping key = Poseidon2(address) -&gt; field
                     </code>
@@ -292,7 +292,7 @@ export default function PrivacyPage() {
                     Audit tokens reveal tier and expiry without subscriber identity.
                     Commit-reveal tipping hides amounts. Reputation proofs without counts.
                   </p>
-                  <div className="p-3 rounded-xl bg-black/40 border border-border">
+                  <div className="p-4 rounded-xl bg-black/40 border border-border">
                     <code className="text-xs text-indigo-300 font-mono leading-relaxed">
                       AuditToken: tier + expiry (no subscriber addr)
                     </code>
@@ -435,13 +435,13 @@ export default function PrivacyPage() {
                       <Fingerprint className="w-7 h-7 text-green-400" />
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
+                      <div className="flex items-center gap-4 mb-4">
                         <h3 className="text-xl font-semibold text-white">Zero-Footprint Access Verification</h3>
                         <span className="px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-xs font-medium text-green-400">
                           Unique to VeilSub
                         </span>
                       </div>
-                      <div className="grid sm:grid-cols-2 gap-3 mb-5">
+                      <div className="grid sm:grid-cols-2 gap-4 mb-5">
                         {[
                           'verify_access finalize only checks revocation via pass_id—subscriber address never enters public state',
                           'No subscriber-identifying mapping writes, no counter increments tied to identity',
@@ -563,7 +563,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                     return (
                       <div
                         key={item.title}
-                        className="p-3 rounded-xl bg-white/[0.04] border border-border"
+                        className="p-4 rounded-xl bg-white/[0.04] border border-border"
                       >
                         <div className="flex items-center gap-2 mb-1">
                           <Icon className="w-4 h-4 text-white/70" />
@@ -634,7 +634,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                     return (
                       <div
                         key={item.title}
-                        className="p-3 rounded-xl bg-surface-1 border border-border"
+                        className="p-4 rounded-xl bg-surface-1 border border-border"
                       >
                         <div className="flex items-center gap-2 mb-1">
                           <Icon className="w-4 h-4 text-white/70" />
@@ -662,13 +662,13 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
 
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               <GlassCard delay={0}>
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-4 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
                     <Eye className="w-5 h-5 text-amber-400" />
                   </div>
                   <h3 className="text-white font-semibold">What an Adversary Could Learn</h3>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {[
                     {
                       title: 'Timing Correlation',
@@ -687,7 +687,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                       desc: 'Aleo gossip does not provide IP anonymity. Users should use VPN/Tor for network-level privacy. This applies to all blockchains.',
                     },
                   ].map((item) => (
-                    <div key={item.title} className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
+                    <div key={item.title} className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/10">
                       <p className="text-sm font-medium text-amber-300 mb-1">{item.title}</p>
                       <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                     </div>
@@ -696,13 +696,13 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               </GlassCard>
 
               <GlassCard delay={0.1}>
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-4 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
                     <EyeOff className="w-5 h-5 text-green-400" />
                   </div>
                   <h3 className="text-white font-semibold">What an Adversary Cannot Learn</h3>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {[
                     {
                       title: 'Subscriber Identity',
@@ -717,7 +717,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                       desc: 'All payments use credits.aleo/transfer_private. Per-subscriber amounts are hidden in the ZK proof.',
                     },
                   ].map((item) => (
-                    <div key={item.title} className="p-3 rounded-xl bg-green-500/5 border border-green-500/10">
+                    <div key={item.title} className="p-4 rounded-xl bg-green-500/5 border border-green-500/10">
                       <p className="text-sm font-medium text-green-300 mb-1">{item.title}</p>
                       <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                     </div>
@@ -728,13 +728,13 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
 
             <div className="grid md:grid-cols-2 gap-6">
               <GlassCard delay={0.2}>
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-4 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center">
                     <ShieldCheck className="w-5 h-5 text-white/70" />
                   </div>
                   <h3 className="text-white font-semibold">What We Mitigate</h3>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {[
                     {
                       title: 'API Proxy',
@@ -757,7 +757,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                       desc: 'Each subscription and renewal generates a unique subscriber hash via nonce rotation—creators cannot track renewal patterns or link transactions to the same person. BSP makes the entire subscriber lifecycle unlinkable.',
                     },
                   ].map((item) => (
-                    <div key={item.title} className="p-3 rounded-xl bg-white/[0.04] border border-border">
+                    <div key={item.title} className="p-4 rounded-xl bg-white/[0.04] border border-border">
                       <p className="text-sm font-medium text-white/70 mb-1">{item.title}</p>
                       <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                     </div>
@@ -766,13 +766,13 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               </GlassCard>
 
               <GlassCard delay={0.3}>
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-4 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center">
                     <Lock className="w-5 h-5 text-white/70" />
                   </div>
                   <h3 className="text-white font-semibold">Honest Limitations</h3>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {[
                     {
                       title: 'Wallet Key Loss',
@@ -783,7 +783,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                       desc: 'Since v24, verify_access and verify_tier_access enforce expires_at > block.height in finalize. This means expired passes are rejected on-chain. The tradeoff: finalize now receives pass_id + expires_at (both opaque values), but subscriber identity still never enters public state.',
                     },
                   ].map((item) => (
-                    <div key={item.title} className="p-3 rounded-xl bg-surface-1 border border-border">
+                    <div key={item.title} className="p-4 rounded-xl bg-surface-1 border border-border">
                       <p className="text-sm font-medium text-white/70 mb-1">{item.title}</p>
                       <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                     </div>
@@ -981,7 +981,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
                   transition={{ delay: i * 0.08 }}
                   className="flex items-start gap-4 p-4 rounded-xl bg-surface-1 border border-border hover:border-[rgba(255,255,255,0.1)] transition-colors"
                 >
-                  <code className="shrink-0 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-border text-white/70 text-sm font-mono">
+                  <code className="shrink-0 px-4 py-2 rounded-lg bg-white/[0.04] border border-border text-white/70 text-sm font-mono">
                     {item.fn}
                   </code>
                   <p className="text-sm text-white/70 pt-1">{item.guarantee}</p>
@@ -1002,9 +1002,9 @@ identity:     ████████████     // Poseidon2(BlindKey)
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 text-white/70 font-medium">Feature</th>
-                    <th className="text-center py-3 px-4 text-rose-400 font-medium">Patreon / Ko-fi</th>
-                    <th className="text-center py-3 px-4 text-green-400 font-medium">VeilSub</th>
+                    <th className="text-left py-4 px-4 text-white/70 font-medium">Feature</th>
+                    <th className="text-center py-4 px-4 text-rose-400 font-medium">Patreon / Ko-fi</th>
+                    <th className="text-center py-4 px-4 text-green-400 font-medium">VeilSub</th>
                   </tr>
                 </thead>
                 <tbody className="text-white/70">
@@ -1017,9 +1017,9 @@ identity:     ████████████     // Poseidon2(BlindKey)
                     ['Censorship resistance', 'Platform can ban', 'On-chain, unstoppable'],
                   ].map(([feature, trad, veilsub]) => (
                     <tr key={feature} className="border-b border-border">
-                      <td className="py-3 px-4 text-white">{feature}</td>
-                      <td className="py-3 px-4 text-center text-rose-300">{trad}</td>
-                      <td className="py-3 px-4 text-center text-green-300">{veilsub}</td>
+                      <td className="py-4 px-4 text-white">{feature}</td>
+                      <td className="py-4 px-4 text-center text-rose-300">{trad}</td>
+                      <td className="py-4 px-4 text-center text-green-300">{veilsub}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1042,11 +1042,11 @@ identity:     ████████████     // Poseidon2(BlindKey)
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-white/[0.02] border-b border-border">
-                    <th className="text-left py-3 px-4 text-white/70 font-medium">Privacy Feature</th>
-                    <th className="text-center py-3 px-4 text-violet-400 font-medium">VeilSub</th>
-                    <th className="text-center py-3 px-4 text-white/60 font-medium">NullPay</th>
-                    <th className="text-center py-3 px-4 text-white/60 font-medium">Veiled Markets</th>
-                    <th className="text-center py-3 px-4 text-white/60 font-medium">lasagna</th>
+                    <th className="text-left py-4 px-4 text-white/70 font-medium">Privacy Feature</th>
+                    <th className="text-center py-4 px-4 text-violet-400 font-medium">VeilSub</th>
+                    <th className="text-center py-4 px-4 text-white/60 font-medium">NullPay</th>
+                    <th className="text-center py-4 px-4 text-white/60 font-medium">Veiled Markets</th>
+                    <th className="text-center py-4 px-4 text-white/60 font-medium">lasagna</th>
                   </tr>
                 </thead>
                 <tbody className="text-white/70">

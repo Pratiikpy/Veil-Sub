@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRedis } from '@/lib/redis'
-import { ALEO_API_BASE_URL } from '@/lib/config'
+import { ALEO_API_BASE_URL, RATE_LIMITS, AUTH_CONFIG } from '@/lib/config'
 
 const ALEO_ADDRESS_RE = /^aleo1[a-z0-9]{58}$/
 
@@ -52,17 +52,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid timestamp' }, { status: 400 })
     }
 
-    // Rate limit: 30 requests per minute per wallet (always refresh TTL)
+    // Rate limit: unlock requests per minute per wallet (always refresh TTL)
     const rlKey = `veilsub:unlock-rl:${walletHash}`
     const count = await redis.incr(rlKey)
     await redis.expire(rlKey, 60)
-    if (count > 30) {
+    if (count > RATE_LIMITS.UNLOCK_PER_MINUTE) {
       return NextResponse.json({ error: 'Rate limited' }, { status: 429 })
     }
 
-    // Verify timestamp is recent (within 2 minutes) to limit replay attacks
+    // Verify timestamp is recent (within config window) to limit replay attacks
     const now = Date.now()
-    if (Math.abs(now - timestamp) > 2 * 60 * 1000) {
+    if (Math.abs(now - timestamp) > AUTH_CONFIG.TIMESTAMP_WINDOW_MS) {
       return NextResponse.json({ error: 'Request expired' }, { status: 403 })
     }
 

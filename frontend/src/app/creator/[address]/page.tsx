@@ -304,7 +304,7 @@ export default function CreatorPage({
               {bio && (
                 <p className="text-sm text-white/70 mb-1">{bio}</p>
               )}
-              <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-4 flex-wrap">
                 <a
                   href={`https://testnet.explorer.provable.com/address/${address}`}
                   target="_blank"
@@ -344,7 +344,7 @@ export default function CreatorPage({
 
           {/* Stats Row */}
           {isRegistered && (
-            <div className="flex flex-wrap gap-6 mb-6">
+            <div className="flex flex-wrap gap-8 mb-6">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-violet-400" />
                 <span className="text-sm text-white">
@@ -380,7 +380,7 @@ export default function CreatorPage({
             <p className="text-base text-white/60 font-mono mb-8">
               {shortenAddress(address)}
             </p>
-            <div className="flex items-center justify-center gap-3 flex-wrap">
+            <div className="flex items-center justify-center gap-4 flex-wrap">
               <Link
                 href="/#featured"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 transition-all duration-300 active:scale-[0.98]"
@@ -430,7 +430,7 @@ export default function CreatorPage({
                     return (
                       <div
                         key={pass.passId || i}
-                        className="flex flex-wrap items-center gap-2 sm:gap-3 p-2.5 rounded-lg bg-white/[0.02] border border-border"
+                        className="flex flex-wrap items-center gap-2 sm:gap-4 p-2.5 rounded-lg bg-white/[0.02] border border-border"
                       >
                         <span
                           className={`px-2 py-0.5 rounded-full text-xs font-medium border ${tierColor}`}
@@ -522,7 +522,7 @@ export default function CreatorPage({
 
             {/* Subscription Tiers */}
             <div>
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-4 mb-4">
                 <h2 className="text-lg font-semibold text-white">
                   Subscription Tiers
                 </h2>
@@ -550,14 +550,14 @@ export default function CreatorPage({
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
-                      className={`relative p-6 rounded-xl border hover:-translate-y-0.5 transition-all duration-300 ${
+                      className={`relative p-8 rounded-xl border hover:-translate-y-0.5 transition-all duration-300 ${
                         tier.id === 3
                           ? 'bg-surface-1 border-violet-500/[0.15] hover:border-violet-500/[0.25] hover:shadow-accent-md'
                           : 'bg-surface-1 border-border hover:border-glass-hover'
                       }`}
                     >
                       {tier.id === 3 && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15]">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15]">
                           <span className="text-xs font-medium text-violet-300">
                             Popular
                           </span>
@@ -627,7 +627,7 @@ export default function CreatorPage({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="p-6 rounded-xl bg-surface-1 border border-border"
+              className="p-8 rounded-xl bg-surface-1 border border-border"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
@@ -683,7 +683,7 @@ export default function CreatorPage({
 
             {/* Privacy Notice */}
             <div className="p-4 rounded-xl bg-surface-1 border border-border">
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-4">
                 <Shield className="w-5 h-5 text-violet-400 mt-0.5 shrink-0" />
                 <div className="text-xs text-white/70 space-y-1">
                   <p>

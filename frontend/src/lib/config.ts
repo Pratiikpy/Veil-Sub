@@ -85,6 +85,7 @@ export const RATE_LIMITS = {
   POSTS_PER_MINUTE: 5,
   EDITS_PER_MINUTE: 10,
   DELETES_PER_MINUTE: 10,
+  UNLOCK_PER_MINUTE: 30,
 } as const
 
 // Cache headers for API responses

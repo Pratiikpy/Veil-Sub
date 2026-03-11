@@ -340,7 +340,7 @@ export default function ExplorePage() {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+                  className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
                     selectedCategory === cat.id
                       ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
                       : 'bg-white/[0.03] text-white/60 border border-transparent hover:bg-white/[0.06] hover:text-white'
@@ -427,7 +427,7 @@ export default function ExplorePage() {
                         return aFeatured - bFeatured
                       }))
                     }}
-                    className={`px-2 py-0.5 rounded text-[10px] transition-colors ${sortBy === 'featured' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:text-white hover:bg-white/[0.06]'}`}
+                    className={`px-2 py-0.5 rounded text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${sortBy === 'featured' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:text-white hover:bg-white/[0.06]'}`}
                   >
                     Featured
                   </button>
@@ -436,7 +436,7 @@ export default function ExplorePage() {
                       setSortBy('newest')
                       setCreators(prev => [...prev].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()))
                     }}
-                    className={`px-2 py-0.5 rounded text-[10px] transition-colors ${sortBy === 'newest' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:text-white hover:bg-white/[0.06]'}`}
+                    className={`px-2 py-0.5 rounded text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${sortBy === 'newest' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:text-white hover:bg-white/[0.06]'}`}
                   >
                     Newest
                   </button>

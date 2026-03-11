@@ -2,12 +2,44 @@
 
 import { useState, useEffect } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
-import { X, Sparkles, ArrowRight } from 'lucide-react'
+import { X, Sparkles, ArrowRight, Shield, Eye, Gift, Zap } from 'lucide-react'
 import Link from 'next/link'
 
 const CHANGELOG_VERSION = 'v27'
 const STORAGE_KEY = `veilsub-changelog-seen-${CHANGELOG_VERSION}`
-const AUTO_DISMISS_MS = 5000 // Auto-dismiss after 5 seconds (was 12s - reduced for judge flow)
+const AUTO_DISMISS_MS = 6000 // Auto-dismiss after 6 seconds
+
+// Feature highlights with technical details (NullPay-style depth)
+const FEATURES = [
+  {
+    icon: Shield,
+    color: 'text-violet-400',
+    bgColor: 'bg-violet-500/10',
+    title: 'Zero-Address Finalize',
+    desc: 'All 25 mappings keyed by Poseidon2 hashes—subscriber addresses never reach on-chain storage',
+  },
+  {
+    icon: Eye,
+    color: 'text-emerald-400',
+    bgColor: 'bg-emerald-500/10',
+    title: 'Scoped Audit Tokens',
+    desc: 'scope_mask bitfield for selective disclosure: bit 0=tier, bit 1=expiry, bit 2=status',
+  },
+  {
+    icon: Zap,
+    color: 'text-amber-400',
+    bgColor: 'bg-amber-500/10',
+    title: 'Commit-Reveal Tipping',
+    desc: 'BHP256::commit_to_field hides tip amounts until creator reveals—zero-amount tips possible',
+  },
+  {
+    icon: Gift,
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/10',
+    title: 'Subscription Gifting',
+    desc: 'GiftToken records enable anonymous gifting with revocation protection for unclaimed gifts',
+  },
+] as const
 
 export default function ChangelogOverlay() {
   const [visible, setVisible] = useState(false)
@@ -84,17 +116,34 @@ export default function ChangelogOverlay() {
               </button>
             </div>
 
-            {/* Key highlights - compact */}
-            <div className="space-y-1.5 mb-3">
-              <p className="text-xs text-white/80">
-                <span className="text-violet-400">BSP</span> — Blind identity rotation + zero-address finalize
-              </p>
-              <p className="text-xs text-white/80">
-                <span className="text-emerald-400">Audit Tokens</span> — Zero-footprint third-party verification
-              </p>
-              <p className="text-xs text-white/80">
-                <span className="text-blue-400">Trial Passes</span> — Try before subscribing (~12h access)
-              </p>
+            {/* Feature highlights with technical depth */}
+            <div className="space-y-2 mb-4">
+              {FEATURES.map((feature, i) => (
+                <m.div
+                  key={feature.title}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 + i * 0.05 }}
+                  className="flex items-start gap-2"
+                >
+                  <div className={`p-1 rounded ${feature.bgColor} shrink-0 mt-0.5`}>
+                    <feature.icon className={`w-3 h-3 ${feature.color}`} aria-hidden="true" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-white">{feature.title}</p>
+                    <p className="text-[10px] text-white/60 leading-tight">{feature.desc}</p>
+                  </div>
+                </m.div>
+              ))}
+            </div>
+
+            {/* Stats bar */}
+            <div className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-white/[0.03] mb-3">
+              <span className="text-[10px] text-white/50">27 transitions</span>
+              <span className="text-[10px] text-white/30">•</span>
+              <span className="text-[10px] text-white/50">6 record types</span>
+              <span className="text-[10px] text-white/30">•</span>
+              <span className="text-[10px] text-white/50">866 statements</span>
             </div>
 
             {/* Actions */}

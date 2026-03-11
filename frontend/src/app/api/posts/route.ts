@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRedis } from '@/lib/redis'
+import { AUTH_CONFIG, RATE_LIMITS, CACHE_HEADERS, API_LIMITS } from '@/lib/config'
 
 const ALEO_ADDRESS_RE = /^aleo1[a-z0-9]{58}$/
-
-// Minimum decoded signature length (Aleo ed25519 signatures are 64 bytes)
-const MIN_SIG_BYTES = 64
-// Timestamp validity window: 2 minutes (tight to limit replay attacks)
-const TIMESTAMP_WINDOW_MS = 2 * 60 * 1000
 
 export async function GET(req: NextRequest) {
   const creator = req.nextUrl.searchParams.get('creator')
@@ -28,9 +24,7 @@ export async function GET(req: NextRequest) {
       } catch { return [] }
     })
     return NextResponse.json({ posts }, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120',
-      },
+      headers: { 'Cache-Control': CACHE_HEADERS.POSTS },
     })
   } catch {
     return NextResponse.json({ posts: [] })
@@ -69,7 +63,7 @@ async function verifyWalletAuth(
     return 'Invalid timestamp'
   }
   // Tight timestamp window (2 min) to limit replay attacks
-  if (Math.abs(Date.now() - timestamp) > TIMESTAMP_WINDOW_MS) {
+  if (Math.abs(Date.now() - timestamp) > AUTH_CONFIG.TIMESTAMP_WINDOW_MS) {
     return 'Request expired'
   }
   // Server-salted hash: SHA-256(address + salt).
@@ -90,7 +84,7 @@ async function verifyWalletAuth(
   }
   try {
     const decoded = Uint8Array.from(atob(signature), c => c.charCodeAt(0))
-    if (decoded.length < MIN_SIG_BYTES) {
+    if (decoded.length < AUTH_CONFIG.MIN_SIG_BYTES) {
       return 'Wallet signature too short'
     }
   } catch {
@@ -125,21 +119,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: authError }, { status: 403 })
     }
 
-    if (typeof title !== 'string' || title.length > 200) {
-      return NextResponse.json({ error: 'Title too long (max 200)' }, { status: 400 })
+    if (typeof title !== 'string' || title.length > API_LIMITS.MAX_POST_TITLE_LENGTH) {
+      return NextResponse.json({ error: `Title too long (max ${API_LIMITS.MAX_POST_TITLE_LENGTH})` }, { status: 400 })
     }
-    if (typeof body !== 'string' || body.length > 50000) {
-      return NextResponse.json({ error: 'Body too long (max 50000)' }, { status: 400 })
+    if (typeof body !== 'string' || body.length > API_LIMITS.MAX_POST_BODY_LENGTH) {
+      return NextResponse.json({ error: `Body too long (max ${API_LIMITS.MAX_POST_BODY_LENGTH})` }, { status: 400 })
     }
-    if (typeof minTier === 'number' && (minTier < 1 || minTier > 20)) {
-      return NextResponse.json({ error: 'Invalid tier (1-20)' }, { status: 400 })
+    if (typeof minTier === 'number' && (minTier < 1 || minTier > API_LIMITS.MAX_TIER_ID)) {
+      return NextResponse.json({ error: `Invalid tier (1-${API_LIMITS.MAX_TIER_ID})` }, { status: 400 })
     }
 
     // Validate optional image URL (prevent XSS via javascript: or data: schemes)
     let safeImageUrl: string | undefined
     if (imageUrl != null && imageUrl !== '') {
-      if (typeof imageUrl !== 'string' || imageUrl.length > 2000) {
-        return NextResponse.json({ error: 'Image URL too long (max 2000)' }, { status: 400 })
+      if (typeof imageUrl !== 'string' || imageUrl.length > API_LIMITS.MAX_IMAGE_URL_LENGTH) {
+        return NextResponse.json({ error: `Image URL too long (max ${API_LIMITS.MAX_IMAGE_URL_LENGTH})` }, { status: 400 })
       }
       try {
         const parsed = new URL(imageUrl)
@@ -152,16 +146,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Rate limit: 5 posts per minute per address (always refresh TTL to prevent orphaned keys)
+    // Rate limit: posts per minute per address (always refresh TTL to prevent orphaned keys)
     const rlKey = `veilsub:ratelimit:${creator}`
     const count = await redis.incr(rlKey)
     await redis.expire(rlKey, 60)
-    if (count > 5) {
+    if (count > RATE_LIMITS.POSTS_PER_MINUTE) {
       return NextResponse.json({ error: 'Rate limited' }, { status: 429 })
     }
 
     // Preview is an optional short teaser shown to non-subscribers
-    const safePreview = typeof preview === 'string' ? preview.slice(0, 300) : ''
+    const safePreview = typeof preview === 'string' ? preview.slice(0, API_LIMITS.MAX_PREVIEW_LENGTH) : ''
 
     const post = {
       id: `post-${crypto.randomUUID()}`,
@@ -170,7 +164,7 @@ export async function POST(req: NextRequest) {
       preview: safePreview,
       minTier: minTier ?? 1,
       createdAt: new Date().toISOString(),
-      contentId: typeof contentId === 'string' ? contentId.slice(0, 200) : '',
+      contentId: typeof contentId === 'string' ? contentId.slice(0, API_LIMITS.MAX_CONTENT_ID_LENGTH) : '',
       ...(safeImageUrl ? { imageUrl: safeImageUrl } : {}),
     }
 
@@ -213,21 +207,21 @@ export async function PUT(req: NextRequest) {
     if (typeof postId !== 'string' || postId.length > 100) {
       return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 })
     }
-    if (title !== undefined && (typeof title !== 'string' || title.length > 200)) {
-      return NextResponse.json({ error: 'Title too long (max 200)' }, { status: 400 })
+    if (title !== undefined && (typeof title !== 'string' || title.length > API_LIMITS.MAX_POST_TITLE_LENGTH)) {
+      return NextResponse.json({ error: `Title too long (max ${API_LIMITS.MAX_POST_TITLE_LENGTH})` }, { status: 400 })
     }
-    if (body !== undefined && (typeof body !== 'string' || body.length > 50000)) {
-      return NextResponse.json({ error: 'Body too long (max 50000)' }, { status: 400 })
+    if (body !== undefined && (typeof body !== 'string' || body.length > API_LIMITS.MAX_POST_BODY_LENGTH)) {
+      return NextResponse.json({ error: `Body too long (max ${API_LIMITS.MAX_POST_BODY_LENGTH})` }, { status: 400 })
     }
-    if (minTier !== undefined && (typeof minTier !== 'number' || minTier < 1 || minTier > 20)) {
-      return NextResponse.json({ error: 'Invalid tier (1-20)' }, { status: 400 })
+    if (minTier !== undefined && (typeof minTier !== 'number' || minTier < 1 || minTier > API_LIMITS.MAX_TIER_ID)) {
+      return NextResponse.json({ error: `Invalid tier (1-${API_LIMITS.MAX_TIER_ID})` }, { status: 400 })
     }
 
-    // Rate limit: 10 edits per minute per address
+    // Rate limit: edits per minute per address
     const rlKey = `veilsub:edit-rl:${creator}`
     const count = await redis.incr(rlKey)
     await redis.expire(rlKey, 60)
-    if (count > 10) {
+    if (count > RATE_LIMITS.EDITS_PER_MINUTE) {
       return NextResponse.json({ error: 'Rate limited' }, { status: 429 })
     }
 
@@ -256,7 +250,7 @@ export async function PUT(req: NextRequest) {
           ...post,
           ...(title !== undefined && { title }),
           ...(body !== undefined && { body }),
-          ...(preview !== undefined && { preview: typeof preview === 'string' ? preview.slice(0, 300) : post.preview }),
+          ...(preview !== undefined && { preview: typeof preview === 'string' ? preview.slice(0, API_LIMITS.MAX_PREVIEW_LENGTH) : post.preview }),
           ...(minTier !== undefined && { minTier }),
           ...(updatedImageUrl !== undefined && { imageUrl: updatedImageUrl || undefined }),
           updatedAt: new Date().toISOString(),
@@ -304,11 +298,11 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 })
     }
 
-    // Rate limit: 10 deletes per minute per address (always refresh TTL)
+    // Rate limit: deletes per minute per address (always refresh TTL)
     const rlKey = `veilsub:del-rl:${creator}`
     const count = await redis.incr(rlKey)
     await redis.expire(rlKey, 60)
-    if (count > 10) {
+    if (count > RATE_LIMITS.DELETES_PER_MINUTE) {
       return NextResponse.json({ error: 'Rate limited' }, { status: 429 })
     }
 

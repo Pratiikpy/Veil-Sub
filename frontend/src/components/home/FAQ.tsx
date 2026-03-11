@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import { m } from 'framer-motion'
 import { ChevronRight } from 'lucide-react'
 import Container from '@/components/ui/Container'
@@ -12,21 +12,37 @@ const FAQItem = React.memo(function FAQItem({
   question,
   answer,
   index,
+  onNavigate,
+  totalItems,
 }: {
   question: string
   answer: string
   index: number
+  onNavigate: (direction: 'up' | 'down') => void
+  totalItems: number
 }) {
   const [open, setOpen] = useState(false)
   const answerId = `faq-answer-${index}`
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowDown' && index < totalItems - 1) {
+      e.preventDefault()
+      onNavigate('down')
+    } else if (e.key === 'ArrowUp' && index > 0) {
+      e.preventDefault()
+      onNavigate('up')
+    }
+  }, [index, totalItems, onNavigate])
+
   return (
     <div className="rounded-2xl glass overflow-hidden hover:border-border-hover transition-colors">
       <button
         id={`faq-question-${index}`}
         onClick={() => setOpen(!open)}
+        onKeyDown={handleKeyDown}
         aria-expanded={open}
         aria-controls={answerId}
-        className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left"
+        className="w-full flex items-center justify-between gap-4 px-8 py-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-inset"
       >
         <span className="text-[15px] font-medium text-white">{question}</span>
         <m.span
@@ -46,7 +62,7 @@ const FAQItem = React.memo(function FAQItem({
         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
         className="overflow-hidden"
       >
-        <p className="px-6 pb-5 text-sm text-white/80 leading-relaxed">
+        <p className="px-8 pb-5 text-sm text-white/80 leading-relaxed">
           {answer}
         </p>
       </m.div>
@@ -98,6 +114,14 @@ const FAQ_DATA = [
 ]
 
 export default function FAQ() {
+  const buttonRefs = useRef<(HTMLButtonElement | null)[]>([])
+
+  const handleNavigate = useCallback((currentIndex: number, direction: 'up' | 'down') => {
+    const nextIndex = direction === 'down' ? currentIndex + 1 : currentIndex - 1
+    const nextButton = document.getElementById(`faq-question-${nextIndex}`) as HTMLButtonElement | null
+    nextButton?.focus()
+  }, [])
+
   return (
     <section className="py-24 lg:py-36 section-divider">
       <Container>
@@ -108,9 +132,16 @@ export default function FAQ() {
             subtitle="Technical details for curious builders."
           />
         </ScrollReveal>
-        <div className="mt-16 max-w-3xl mx-auto space-y-3">
+        <div className="mt-16 max-w-3xl mx-auto space-y-4">
           {FAQ_DATA.map((item, index) => (
-            <FAQItem key={item.q} question={item.q} answer={item.a} index={index} />
+            <FAQItem
+              key={item.q}
+              question={item.q}
+              answer={item.a}
+              index={index}
+              onNavigate={(dir) => handleNavigate(index, dir)}
+              totalItems={FAQ_DATA.length}
+            />
           ))}
         </div>
       </Container>

@@ -36,7 +36,7 @@ export default function ProtocolStats() {
                 </p>
               </div>
               <div className="mt-8 flex items-center justify-between">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.12] flex items-center justify-center">
                     <Shield className="w-5 h-5 text-violet-400/60" aria-hidden="true" />
                   </div>
@@ -46,7 +46,7 @@ export default function ProtocolStats() {
                   </div>
                 </div>
                 {!loading && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/[0.08] border border-emerald-500/20">
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/[0.08] border border-emerald-500/20">
                     <CheckCircle2 className={`w-4 h-4 ${stats.programDeployed ? 'text-emerald-400 animate-pulse' : 'text-white/50'}`} aria-hidden="true" />
                     <span className={`text-xs font-semibold ${stats.programDeployed ? 'text-emerald-400' : 'text-white/50'}`}>
                       {stats.programDeployed ? 'Live on Testnet' : 'Checking...'}
