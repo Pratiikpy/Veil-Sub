@@ -47,7 +47,7 @@ export default function RegistrationForm({
         {txStatus === 'idle' || txStatus === 'failed' ? (
           <>
             <div className="mb-6">
-              <label htmlFor="reg-price" className="block text-sm text-muted mb-2">
+              <label htmlFor="reg-price" className="block text-sm text-white/70 mb-2">
                 Base subscription price (ALEO credits)
               </label>
               <div className="relative">
@@ -63,7 +63,7 @@ export default function RegistrationForm({
                   onKeyDown={(e) => e.key === 'Enter' && onRegister()}
                   className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-subtle">
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/60">
                   ALEO
                 </span>
               </div>
@@ -72,13 +72,13 @@ export default function RegistrationForm({
                   Price must be greater than zero.
                 </p>
               )}
-              <p className="text-xs text-subtle mt-2">
+              <p className="text-xs text-white/60 mt-2">
                 Premium tier = 2x, VIP tier = 5x this price.
               </p>
             </div>
 
             <div className="mb-4">
-              <label htmlFor="reg-name" className="block text-sm text-muted mb-2">
+              <label htmlFor="reg-name" className="block text-sm text-white/70 mb-2">
                 Display name (optional)
               </label>
               <input
@@ -93,7 +93,7 @@ export default function RegistrationForm({
             </div>
 
             <div className="mb-6">
-              <label htmlFor="reg-bio" className="block text-sm text-muted mb-2">
+              <label htmlFor="reg-bio" className="block text-sm text-white/70 mb-2">
                 Bio (optional)
               </label>
               <textarea
@@ -110,7 +110,7 @@ export default function RegistrationForm({
             <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/10 mb-6">
               <div className="flex items-start gap-2">
                 <Info className="w-4 h-4 text-violet-400 mt-0.5 shrink-0" />
-                <p className="text-xs text-muted">
+                <p className="text-xs text-white/70">
                   You&apos;ll never see who subscribes—only aggregate
                   subscriber count and total revenue. Privacy is the core
                   feature. VeilSub takes a {PLATFORM_FEE_PCT}% platform fee on all subscriptions and tips.

@@ -23,8 +23,8 @@ const COMPARISON_ROWS: { feature: string; veilsub: boolean | string; patreon: bo
 
 function CellValue({ val, accent }: { val: boolean | string; accent: boolean }) {
   if (val === true) return <Check className="w-4 h-4 text-emerald-400 mx-auto" />
-  if (val === false) return <Minus className="w-4 h-4 text-subtle mx-auto" />
-  return <span className={accent ? 'text-emerald-400 font-medium' : 'text-subtle'}>{val}</span>
+  if (val === false) return <Minus className="w-4 h-4 text-white/60 mx-auto" />
+  return <span className={accent ? 'text-emerald-400 font-medium' : 'text-white/60'}>{val}</span>
 }
 
 export default function PlatformComparison() {
@@ -55,7 +55,7 @@ export default function PlatformComparison() {
                     ].map((col) => (
                       <div key={col.label} className="flex flex-col items-center gap-1.5">
                         <CellValue val={col.val} accent={col.accent} />
-                        <span className={`text-[10px] ${col.accent ? 'text-violet-400/80 font-medium' : 'text-subtle'}`}>
+                        <span className={`text-[10px] ${col.accent ? 'text-violet-400/80 font-medium' : 'text-white/60'}`}>
                           {col.label}
                         </span>
                       </div>
@@ -71,7 +71,7 @@ export default function PlatformComparison() {
         <ScrollReveal delay={0.3}>
           <div className="hidden sm:flex items-center justify-center gap-3 mt-10 py-4 px-6 rounded-2xl glass mx-auto max-w-md">
             <Shield className="w-5 h-5 text-violet-400/60" />
-            <p className="text-sm text-muted">
+            <p className="text-sm text-white/70">
               <span className="text-emerald-400 font-semibold">9 of 10</span> privacy features exclusive to VeilSub
             </p>
           </div>
@@ -91,7 +91,7 @@ export default function PlatformComparison() {
                     { label: 'Substack', val: row.substack, accent: false },
                   ].map((col) => (
                     <div key={col.label} className="flex flex-col items-center gap-1">
-                      <span className={col.accent ? 'text-violet-400 font-medium' : 'text-subtle'}>{col.label}</span>
+                      <span className={col.accent ? 'text-violet-400 font-medium' : 'text-white/60'}>{col.label}</span>
                       <CellValue val={col.val} accent={col.accent} />
                     </div>
                   ))}

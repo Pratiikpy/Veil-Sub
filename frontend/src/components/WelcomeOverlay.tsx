@@ -96,13 +96,13 @@ export default function WelcomeOverlay() {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-white">Welcome to VeilSub</h2>
-                  <p className="text-xs text-subtle">v27—Private Creator Subscriptions on Aleo</p>
+                  <p className="text-xs text-white/60">v27—Private Creator Subscriptions on Aleo</p>
                 </div>
               </div>
               <button
                 onClick={() => dismiss(false)}
                 aria-label="Close welcome dialog"
-                className="p-1.5 rounded-lg hover:bg-white/[0.05] text-subtle hover:text-white active:scale-[0.9] transition-all"
+                className="p-1.5 rounded-lg hover:bg-white/[0.05] text-white/60 hover:text-white active:scale-[0.9] transition-all"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -129,7 +129,7 @@ export default function WelcomeOverlay() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-white">{item.title}</p>
-                      <p className="text-xs text-muted leading-relaxed">{item.desc}</p>
+                      <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                     </div>
                   </m.div>
                 )
@@ -140,7 +140,7 @@ export default function WelcomeOverlay() {
             <div className="flex gap-3">
               <button
                 onClick={() => dismiss(false)}
-                className="flex-1 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-muted hover:text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
+                className="flex-1 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-white/70 hover:text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
               >
                 Remind Me Later
               </button>

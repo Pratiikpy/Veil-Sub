@@ -44,11 +44,11 @@ const FeaturedCreatorCard = React.memo(function FeaturedCreatorCard({
         <AddressAvatar address={address} />
         <div>
           <p className="text-white font-medium text-sm">{label}</p>
-          <p className="text-xs text-subtle font-mono">{shortenAddress(address)}</p>
+          <p className="text-xs text-white/60 font-mono">{shortenAddress(address)}</p>
         </div>
       </div>
       {stats && stats.tierPrice !== null && (
-        <div className="flex gap-4 text-xs text-subtle">
+        <div className="flex gap-4 text-xs text-white/60">
           <span className="flex items-center gap-1">
             <Users className="w-3 h-3" />
             {stats.subscriberCount} subscribers
@@ -59,7 +59,7 @@ const FeaturedCreatorCard = React.memo(function FeaturedCreatorCard({
           </span>
         </div>
       )}
-      <div className="mt-3 text-xs text-subtle group-hover:text-violet-300 flex items-center gap-1 transition-colors">
+      <div className="mt-3 text-xs text-white/60 group-hover:text-violet-300 flex items-center gap-1 transition-colors">
         View creator <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
       </div>
     </Link>
@@ -101,7 +101,7 @@ export default function ExploreCreators() {
         <ScrollReveal delay={0.2} className="max-w-xl mx-auto mt-10">
           <div className="flex gap-2">
             <div className="relative flex-1 group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle group-focus-within:text-violet-400 transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-violet-400 transition-colors" />
               <input
                 type="text"
                 value={searchAddress}
@@ -121,7 +121,7 @@ export default function ExploreCreators() {
             </Button>
           </div>
           <div className="flex items-center justify-center gap-4 mt-4">
-            <p className="text-xs text-subtle">
+            <p className="text-xs text-white/60">
               Know a creator&apos;s address? Paste it above to visit their page.
             </p>
             <Link

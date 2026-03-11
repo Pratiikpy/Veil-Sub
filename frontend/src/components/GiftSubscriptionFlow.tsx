@@ -107,7 +107,7 @@ export default function GiftSubscriptionFlow({
                 </div>
                 <h3 className="text-lg font-semibold text-white">Gift Subscription</h3>
               </div>
-              <button onClick={handleClose} aria-label="Close gift modal" className="rounded-lg p-1 text-muted hover:bg-white/[0.1] hover:text-white active:scale-[0.9] transition-all">
+              <button onClick={handleClose} aria-label="Close gift modal" className="rounded-lg p-1 text-white/70 hover:bg-white/[0.1] hover:text-white active:scale-[0.9] transition-all">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -117,8 +117,8 @@ export default function GiftSubscriptionFlow({
                 <div className="rounded-xl bg-surface-2 border border-border p-4 text-center">
                   <Sparkles className="mx-auto mb-2 h-8 w-8 text-green-400" />
                   <p className="text-sm font-medium text-green-400">Gift sent!</p>
-                  <p className="mt-1 text-xs text-subtle">Recipient will receive a GiftToken to redeem</p>
-                  {txId && <p className="mt-1 text-xs text-subtle break-all">Tx: {txId.slice(0, 20)}...</p>}
+                  <p className="mt-1 text-xs text-white/60">Recipient will receive a GiftToken to redeem</p>
+                  {txId && <p className="mt-1 text-xs text-white/60 break-all">Tx: {txId.slice(0, 20)}...</p>}
                 </div>
                 <button onClick={handleClose} className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all">
                   Close
@@ -129,18 +129,18 @@ export default function GiftSubscriptionFlow({
                 {/* Gift details */}
                 <div className="rounded-xl bg-surface-2 border border-border p-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted">Tier</span>
+                    <span className="text-white/70">Tier</span>
                     <span className="text-white font-medium">{tierName} (#{tierId})</span>
                   </div>
                   <div className="mt-2 flex justify-between text-sm">
-                    <span className="text-muted">Cost</span>
+                    <span className="text-white/70">Cost</span>
                     <span className="text-white font-medium">{priceAleo} ALEO</span>
                   </div>
                 </div>
 
                 {/* Recipient address */}
                 <div>
-                  <label htmlFor="gift-recipient" className="mb-2 block text-xs font-medium text-muted">Recipient Address</label>
+                  <label htmlFor="gift-recipient" className="mb-2 block text-xs font-medium text-white/70">Recipient Address</label>
                   <input
                     id="gift-recipient"
                     type="text"

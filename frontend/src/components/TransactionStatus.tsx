@@ -194,7 +194,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
               ) : (
                 <Icon
                   className={`w-4 h-4 ${
-                    isPending ? 'text-subtle' : 'text-muted'
+                    isPending ? 'text-white/60' : 'text-white/70'
                   }`}
                 />
               )}
@@ -204,10 +204,10 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
                 role={isActive ? 'status' : undefined}
                 className={`text-sm font-medium ${
                   isActive
-                    ? 'text-muted'
+                    ? 'text-white/70'
                     : isDone
                     ? 'text-green-400'
-                    : 'text-subtle'
+                    : 'text-white/60'
                 }`}
               >
                 {isDone ? step.doneMsg : step.label}
@@ -217,11 +217,11 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
                 <m.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="text-xs text-subtle mt-0.5"
+                  className="text-xs text-white/60 mt-0.5"
                 >
                   {step.activeMsg}
                   {(status === 'proving' || status === 'broadcasting') && elapsed > 0 && (
-                    <span className="text-subtle ml-1">
+                    <span className="text-white/60 ml-1">
                       ({elapsed >= 60 ? `${Math.floor(elapsed / 60)}m ${elapsed % 60}s` : `${elapsed}s`})
                     </span>
                   )}
@@ -239,15 +239,15 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
           animate={{ opacity: 1, y: 0 }}
           className="mt-3"
         >
-          <p className="text-xs text-subtle mb-2">Transaction ID</p>
+          <p className="text-xs text-white/60 mb-2">Transaction ID</p>
           {!txId.startsWith('at1') ? (
             <>
               <div className="flex items-center gap-2 p-3 rounded-xl bg-surface-1 border border-border">
-                <span className="text-xs text-subtle break-all flex-1 font-mono">
+                <span className="text-xs text-white/60 break-all flex-1 font-mono">
                   {txId}
                 </span>
               </div>
-              <p className="text-[11px] text-subtle mt-1.5">
+              <p className="text-[11px] text-white/60 mt-1.5">
                 Wallet returned a temporary ID. Your transaction is confirmed on-chain.
               </p>
               <a
@@ -256,10 +256,10 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 mt-2 p-2.5 rounded-xl bg-violet-500/5 border border-violet-500/15 hover:border-violet-500/30 hover:bg-violet-500/10 transition-all group"
               >
-                <span className="text-xs text-muted group-hover:text-white flex-1">
+                <span className="text-xs text-white/70 group-hover:text-white flex-1">
                   View program on Explorer
                 </span>
-                <ExternalLink className="w-3.5 h-3.5 text-muted group-hover:text-white shrink-0" />
+                <ExternalLink className="w-3.5 h-3.5 text-white/70 group-hover:text-white shrink-0" />
               </a>
             </>
           ) : (
@@ -269,10 +269,10 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
               rel="noopener noreferrer"
               className="flex items-center gap-2 p-3 rounded-xl bg-surface-1 border border-border hover:border-violet-500/30 hover:bg-violet-500/5 transition-all group"
             >
-              <span className="text-xs text-muted group-hover:text-white break-all flex-1 font-mono">
+              <span className="text-xs text-white/70 group-hover:text-white break-all flex-1 font-mono">
                 {txId}
               </span>
-              <ExternalLink className="w-4 h-4 text-muted group-hover:text-white shrink-0" />
+              <ExternalLink className="w-4 h-4 text-white/70 group-hover:text-white shrink-0" />
             </a>
           )}
         </m.div>

@@ -44,7 +44,7 @@ export default function HeroMockup() {
           <div className="flex-1 mx-4 sm:mx-8">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.04]">
               <Lock className="w-3 h-3 text-emerald-400/60 shrink-0" />
-              <span className="text-[11px] text-subtle/70 font-mono truncate">
+              <span className="text-[11px] text-white/60/70 font-mono truncate">
                 veilsub.vercel.app/creator/aleo1hp9...epyxs
               </span>
             </div>
@@ -70,9 +70,9 @@ export default function HeroMockup() {
                   Verified
                 </span>
               </div>
-              <span className="text-[11px] text-subtle/60 font-mono truncate">aleo1hp9m08f...epyxs</span>
+              <span className="text-[11px] text-white/60/60 font-mono truncate">aleo1hp9m08f...epyxs</span>
             </div>
-            <div className="ml-auto flex items-center gap-3 text-xs text-subtle/60">
+            <div className="ml-auto flex items-center gap-3 text-xs text-white/60/60">
               <span className="hidden sm:flex items-center gap-1">
                 <Users className="w-3 h-3" /> 42
               </span>
@@ -101,9 +101,9 @@ export default function HeroMockup() {
                     <span className="text-[8px] font-medium text-violet-300 uppercase tracking-wider">Popular</span>
                   </div>
                 )}
-                <p className="text-[10px] text-muted/80 mb-0.5 mt-1 uppercase tracking-wider">{tier.name}</p>
+                <p className="text-[10px] text-white/70/80 mb-0.5 mt-1 uppercase tracking-wider">{tier.name}</p>
                 <p className={`text-2xl sm:text-3xl font-bold leading-none ${tier.selected ? 'text-violet-200' : 'text-white'}`}>{tier.price}</p>
-                <p className="text-[9px] text-subtle/80 mt-1 font-medium">ALEO/mo</p>
+                <p className="text-[9px] text-white/60/80 mt-1 font-medium">ALEO/mo</p>
                 {tier.selected && (
                   <Check className="w-3.5 h-3.5 text-violet-400 mx-auto mt-2" />
                 )}
@@ -130,7 +130,7 @@ export default function HeroMockup() {
             className="flex items-center justify-center gap-2 mt-4"
           >
             <Shield className="w-3 h-3 text-violet-400/70" />
-            <span className="text-[11px] text-subtle/80">Your identity stays completely hidden</span>
+            <span className="text-[11px] text-white/60/80">Your identity stays completely hidden</span>
           </m.div>
         </div>
 

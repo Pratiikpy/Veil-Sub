@@ -17,11 +17,11 @@ export default function AnalyticsError({
           <AlertTriangle className="w-8 h-8 text-amber-400" />
         </div>
         <h2 className="text-2xl font-bold text-white mb-3">Analytics Error</h2>
-        <p className="text-muted mb-2">
+        <p className="text-white/70 mb-2">
           Could not load analytics data. Please try again.
         </p>
         {error.digest && (
-          <p className="text-xs text-subtle font-mono mb-6">
+          <p className="text-xs text-white/60 font-mono mb-6">
             Error ID: {error.digest}
           </p>
         )}

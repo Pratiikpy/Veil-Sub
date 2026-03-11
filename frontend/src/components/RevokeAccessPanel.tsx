@@ -59,7 +59,7 @@ export default function RevokeAccessPanel() {
         </div>
         <div>
           <h3 className="text-sm font-semibold text-white">Revoke Subscriber Access</h3>
-          <p className="text-xs text-subtle">Permanently revoke an AccessPass by ID</p>
+          <p className="text-xs text-white/60">Permanently revoke an AccessPass by ID</p>
         </div>
       </div>
 

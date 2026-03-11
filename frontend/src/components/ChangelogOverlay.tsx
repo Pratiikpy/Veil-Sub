@@ -109,12 +109,12 @@ export default function ChangelogOverlay() {
                     <Sparkles className="w-5 h-5 text-violet-400" />
                     <h2 className="text-lg font-medium text-white">What&apos;s New</h2>
                   </div>
-                  <p className="text-xs text-subtle">VeilSub {CHANGELOG_VERSION} — deployed on testnet</p>
+                  <p className="text-xs text-white/60">VeilSub {CHANGELOG_VERSION} — deployed on testnet</p>
                 </div>
                 <button
                   onClick={dismiss}
                   aria-label="Close changelog"
-                  className="p-1.5 rounded-lg hover:bg-white/[0.06] text-subtle transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/60 transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -141,7 +141,7 @@ export default function ChangelogOverlay() {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted leading-relaxed">{item.description}</p>
+                    <p className="text-xs text-white/70 leading-relaxed">{item.description}</p>
                   </div>
                 </m.div>
               ))}

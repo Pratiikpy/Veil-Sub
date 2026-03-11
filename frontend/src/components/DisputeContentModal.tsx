@@ -105,7 +105,7 @@ export default function DisputeContentModal({
           <button
             onClick={handleClose}
             aria-label="Close dispute modal"
-            className="absolute top-5 right-5 text-subtle hover:text-white active:scale-[0.9] transition-all"
+            className="absolute top-5 right-5 text-white/60 hover:text-white active:scale-[0.9] transition-all"
           >
             <X className="w-5 h-5" />
           </button>
@@ -117,7 +117,7 @@ export default function DisputeContentModal({
             </div>
             <div>
               <h3 className="text-lg font-semibold text-white">Dispute Content</h3>
-              <p className="text-xs text-subtle truncate max-w-[280px]">{contentTitle}</p>
+              <p className="text-xs text-white/60 truncate max-w-[280px]">{contentTitle}</p>
             </div>
           </div>
 
@@ -125,7 +125,7 @@ export default function DisputeContentModal({
           <div className="rounded-xl bg-surface-2 border border-border p-4 mb-6">
             <div className="flex gap-2">
               <Shield className="w-4 h-4 text-violet-400/60 mt-0.5 shrink-0" />
-              <p className="text-xs text-muted leading-relaxed">
+              <p className="text-xs text-white/70 leading-relaxed">
                 Disputes are Sybil-protected: only verified subscribers can dispute,
                 limited to 1 dispute per content per address. Your AccessPass proves eligibility
                 without revealing your identity.
@@ -135,7 +135,7 @@ export default function DisputeContentModal({
 
           {/* Reason selection */}
           <div className="mb-6">
-            <label id="dispute-reason-label" className="block text-xs text-muted font-medium uppercase tracking-wider mb-3">
+            <label id="dispute-reason-label" className="block text-xs text-white/70 font-medium uppercase tracking-wider mb-3">
               Reason for Dispute
             </label>
             <div ref={reasonGroupRef} className="space-y-2" role="radiogroup" aria-labelledby="dispute-reason-label">
@@ -149,7 +149,7 @@ export default function DisputeContentModal({
                   className={`w-full text-left px-4 py-3 rounded-lg border text-sm transition-all ${
                     selectedReason === reason.id
                       ? 'bg-violet-500/[0.08] border-violet-500/[0.2] text-white'
-                      : 'bg-white/[0.05] border-border text-subtle hover:border-violet-500/20 hover:text-muted'
+                      : 'bg-white/[0.05] border-border text-white/60 hover:border-violet-500/20 hover:text-white/70'
                   }`}
                 >
                   {reason.label}

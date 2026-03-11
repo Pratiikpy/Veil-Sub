@@ -66,20 +66,20 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
               )}
             </div>
             {creator.display_name && (
-              <p className="text-xs text-subtle font-mono truncate">
+              <p className="text-xs text-white/60 font-mono truncate">
                 {shortenAddress(creator.address)}
               </p>
             )}
           </div>
         </div>
         {creator.bio && (
-          <p className="text-sm text-muted mb-3 line-clamp-2">
+          <p className="text-sm text-white/70 mb-3 line-clamp-2">
             {creator.bio}
           </p>
         )}
         {/* On-chain stats */}
         {stats && stats.tierPrice !== null && (
-          <div className="flex gap-4 text-xs text-subtle mb-3">
+          <div className="flex gap-4 text-xs text-white/60 mb-3">
             <span className="flex items-center gap-1">
               <Users className="w-3 h-3" />
               {stats.subscriberCount} subscriber{stats.subscriberCount !== 1 ? 's' : ''}
@@ -91,10 +91,10 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
           </div>
         )}
         <div className="flex items-center justify-between">
-          <span className="text-xs text-subtle">
+          <span className="text-xs text-white/60">
             Joined {new Date(creator.created_at).toLocaleDateString()}
           </span>
-          <span className="text-xs text-subtle group-hover:text-violet-300 flex items-center gap-1 transition-colors">
+          <span className="text-xs text-white/60 group-hover:text-violet-300 flex items-center gap-1 transition-colors">
             View page <ArrowRight className="w-3 h-3" />
           </span>
         </div>
@@ -201,7 +201,7 @@ export default function ExplorePage() {
             >
               Explore Creators
             </h1>
-            <p className="text-lg text-muted max-w-lg mx-auto">
+            <p className="text-lg text-white/70 max-w-lg mx-auto">
               Discover creators and subscribe privately. Your identity stays hidden.
             </p>
           </m.div>
@@ -215,13 +215,13 @@ export default function ExplorePage() {
               className="flex items-center justify-center gap-6 mb-8"
             >
               {platformStats.creators !== null && (
-                <div className="flex items-center gap-1.5 text-xs text-subtle">
+                <div className="flex items-center gap-1.5 text-xs text-white/60">
                   <Users className="w-3.5 h-3.5 text-violet-400" />
                   <span className="text-white font-medium tabular-nums">{platformStats.creators}</span> registered creator{platformStats.creators !== 1 ? 's' : ''}
                 </div>
               )}
               {platformStats.content !== null && (
-                <div className="flex items-center gap-1.5 text-xs text-subtle">
+                <div className="flex items-center gap-1.5 text-xs text-white/60">
                   <Shield className="w-3.5 h-3.5 text-green-400" />
                   <span className="text-white font-medium tabular-nums">{platformStats.content}</span> published post{platformStats.content !== 1 ? 's' : ''}
                 </div>
@@ -237,7 +237,7 @@ export default function ExplorePage() {
             className="max-w-lg mx-auto mb-10"
           >
             <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle group-focus-within:text-violet-400 transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-violet-400 transition-colors" />
               {/* Debounce loading indicator */}
               {search !== debouncedSearch && search.trim() !== '' && (
                 <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -272,7 +272,7 @@ export default function ExplorePage() {
                   <div className="flex items-center gap-2">
                     <Shield className="w-4 h-4 text-violet-400" />
                     <span className="text-sm text-white">Go to creator page</span>
-                    <span className="text-xs text-subtle font-mono">{shortenAddress(search.trim())}</span>
+                    <span className="text-xs text-white/60 font-mono">{shortenAddress(search.trim())}</span>
                   </div>
                   <ArrowRight className="w-4 h-4 text-violet-400 group-hover:translate-x-0.5 transition-transform" />
                 </button>
@@ -283,12 +283,12 @@ export default function ExplorePage() {
           {/* Results header */}
           {!loading && !fetchError && creators.length > 0 && (
             <div className="flex items-center justify-between mb-4">
-              <p className="text-xs text-subtle">
+              <p className="text-xs text-white/60">
                 {creators.length} creator{creators.length !== 1 ? 's' : ''}{debouncedSearch ? ` matching "${debouncedSearch}"` : ''}
               </p>
               {!debouncedSearch && (
                 <div className="flex items-center gap-1">
-                  <span className="text-[10px] text-subtle mr-1">Sort:</span>
+                  <span className="text-[10px] text-white/60 mr-1">Sort:</span>
                   <button
                     onClick={() => {
                       setSortBy('featured')
@@ -298,7 +298,7 @@ export default function ExplorePage() {
                         return aFeatured - bFeatured
                       }))
                     }}
-                    className={`px-2 py-0.5 rounded text-[10px] transition-colors ${sortBy === 'featured' ? 'text-violet-300 bg-violet-500/10' : 'text-subtle hover:text-white hover:bg-white/[0.06]'}`}
+                    className={`px-2 py-0.5 rounded text-[10px] transition-colors ${sortBy === 'featured' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:text-white hover:bg-white/[0.06]'}`}
                   >
                     Featured
                   </button>
@@ -307,7 +307,7 @@ export default function ExplorePage() {
                       setSortBy('newest')
                       setCreators(prev => [...prev].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()))
                     }}
-                    className={`px-2 py-0.5 rounded text-[10px] transition-colors ${sortBy === 'newest' ? 'text-violet-300 bg-violet-500/10' : 'text-subtle hover:text-white hover:bg-white/[0.06]'}`}
+                    className={`px-2 py-0.5 rounded text-[10px] transition-colors ${sortBy === 'newest' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:text-white hover:bg-white/[0.06]'}`}
                   >
                     Newest
                   </button>
@@ -321,7 +321,7 @@ export default function ExplorePage() {
             <div className="text-center py-16">
               <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
               <h3 className="text-white font-medium mb-1">Failed to Load Creators</h3>
-              <p className="text-sm text-subtle mb-4">Could not reach the server. Please try again.</p>
+              <p className="text-sm text-white/60 mb-4">Could not reach the server. Please try again.</p>
               <button
                 onClick={() => setRetryKey(k => k + 1)}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-white hover:bg-white/10 transition-all duration-300"
@@ -353,13 +353,13 @@ export default function ExplorePage() {
               <div className="relative w-16 h-16 mx-auto mb-4">
                 <div className="absolute inset-0 rounded-2xl bg-violet-500/10 animate-pulse" />
                 <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-border flex items-center justify-center">
-                  <Users className="w-8 h-8 text-subtle" />
+                  <Users className="w-8 h-8 text-white/60" />
                 </div>
               </div>
               <h3 className="text-white font-medium mb-1">
                 {search ? 'No Creators Found' : 'No Creators Yet'}
               </h3>
-              <p className="text-sm text-subtle mb-6 max-w-sm mx-auto">
+              <p className="text-sm text-white/60 mb-6 max-w-sm mx-auto">
                 {search
                   ? 'Try a different search term, or paste a full aleo1... address above to go directly to any creator page.'
                   : 'Be the first to register as a creator on VeilSub!'}

@@ -93,7 +93,7 @@ export default function TransferPassModal({
           <button
             onClick={handleClose}
             aria-label="Close transfer modal"
-            className="absolute top-5 right-5 text-subtle hover:text-white transition-colors"
+            className="absolute top-5 right-5 text-white/60 hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -105,7 +105,7 @@ export default function TransferPassModal({
             </div>
             <div>
               <h3 className="text-lg font-semibold text-white">Transfer Subscription</h3>
-              <p className="text-xs text-subtle">Send your AccessPass to another address</p>
+              <p className="text-xs text-white/60">Send your AccessPass to another address</p>
             </div>
           </div>
 
@@ -115,7 +115,7 @@ export default function TransferPassModal({
               <Shield className="w-4 h-4 text-violet-400/60 mt-0.5 shrink-0" />
               <div>
                 <p className="text-xs text-violet-300/80 font-medium mb-1">Privacy Preserved</p>
-                <p className="text-xs text-subtle leading-relaxed">
+                <p className="text-xs text-white/60 leading-relaxed">
                   Your current pass is consumed and a new one is minted for the recipient.
                   The transfer is on-chain but the recipient&apos;s subscription details remain private.
                 </p>
@@ -125,7 +125,7 @@ export default function TransferPassModal({
 
           {/* Recipient input */}
           <div className="mb-6">
-            <label htmlFor="transfer-recipient" className="block text-xs text-muted font-medium uppercase tracking-wider mb-2">
+            <label htmlFor="transfer-recipient" className="block text-xs text-white/70 font-medium uppercase tracking-wider mb-2">
               Recipient Address
             </label>
             <input

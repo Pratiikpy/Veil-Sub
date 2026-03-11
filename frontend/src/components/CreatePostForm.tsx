@@ -141,7 +141,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
       className="p-6 rounded-sm bg-surface-1 border border-border scroll-mt-24"
     >
       <div className="flex items-center gap-2 mb-4">
-        <FileText className="w-5 h-5 text-muted" />
+        <FileText className="w-5 h-5 text-white/70" />
         <h2 className="text-lg font-semibold text-white">Create Post</h2>
       </div>
 
@@ -149,7 +149,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
         <>
           <div className="space-y-4">
             <div>
-              <label htmlFor="post-title" className="block text-sm text-muted mb-1.5">Title</label>
+              <label htmlFor="post-title" className="block text-sm text-white/70 mb-1.5">Title</label>
               <input
                 id="post-title"
                 type="text"
@@ -160,7 +160,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
               />
             </div>
             <div>
-              <label htmlFor="post-content" className="block text-sm text-muted mb-1.5">Content</label>
+              <label htmlFor="post-content" className="block text-sm text-white/70 mb-1.5">Content</label>
               <textarea
                 id="post-content"
                 value={body}
@@ -171,8 +171,8 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
               />
             </div>
             <div>
-              <label htmlFor="post-preview" className="block text-sm text-muted mb-1.5">
-                Preview <span className="text-subtle">(optional — shown to non-subscribers)</span>
+              <label htmlFor="post-preview" className="block text-sm text-white/70 mb-1.5">
+                Preview <span className="text-white/60">(optional — shown to non-subscribers)</span>
               </label>
               <textarea
                 id="post-preview"
@@ -182,15 +182,15 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                 rows={2}
                 className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base resize-none"
               />
-              <p className="text-[10px] text-subtle mt-0.5">{preview.length}/300</p>
+              <p className="text-[10px] text-white/60 mt-0.5">{preview.length}/300</p>
             </div>
             <div>
-              <label htmlFor="post-image-url" className="block text-sm text-muted mb-1.5">
-                Image <span className="text-subtle">(optional — paste a URL)</span>
+              <label htmlFor="post-image-url" className="block text-sm text-white/70 mb-1.5">
+                Image <span className="text-white/60">(optional — paste a URL)</span>
               </label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle pointer-events-none" />
+                  <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
                   <input
                     id="post-image-url"
                     type="url"
@@ -204,7 +204,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                   <button
                     type="button"
                     onClick={() => { setImageUrl(''); setImageError(false) }}
-                    className="px-2.5 rounded-xl bg-white/[0.05] border border-border text-subtle hover:text-white hover:bg-white/[0.08] transition-colors"
+                    className="px-2.5 rounded-xl bg-white/[0.05] border border-border text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors"
                     aria-label="Clear image"
                   >
                     <X className="w-4 h-4" />
@@ -227,7 +227,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
               )}
             </div>
             <div>
-              <label className="block text-sm text-muted mb-1.5">Minimum tier required</label>
+              <label className="block text-sm text-white/70 mb-1.5">Minimum tier required</label>
               <div className="flex flex-wrap gap-2" role="group" aria-label="Minimum tier selection">
                 {[1, 2, 3].map((tier) => (
                   <button
@@ -238,7 +238,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                     className={`py-2.5 px-3 rounded-lg text-xs font-medium transition-all ${
                       minTier === tier
                         ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
-                        : 'bg-white/[0.05] border border-border text-muted hover:bg-white/[0.08] hover:border-white/15'
+                        : 'bg-white/[0.05] border border-border text-white/70 hover:bg-white/[0.08] hover:border-white/15'
                     }`}
                   >
                     {tierLabels[tier] || `Tier ${tier}`}
@@ -254,7 +254,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
             </div>
           )}
 
-          <p className="mt-3 text-xs text-subtle">
+          <p className="mt-3 text-xs text-white/60">
             Publishing registers content metadata on-chain (content ID + minimum tier). The post body is stored off-chain and persists across devices.
           </p>
 
@@ -277,7 +277,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
               className="mt-4 text-center"
             >
               <p className="text-green-400 font-medium mb-1">Published!</p>
-              <p className="text-xs text-muted">Content metadata is now on-chain.</p>
+              <p className="text-xs text-white/70">Content metadata is now on-chain.</p>
               <button
                 onClick={handleReset}
                 className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"

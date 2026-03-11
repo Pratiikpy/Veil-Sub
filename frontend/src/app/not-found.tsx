@@ -27,7 +27,7 @@ export default function NotFound() {
         >
           Page Not Found
         </h2>
-        <p className="text-muted mb-8 leading-relaxed">
+        <p className="text-white/70 mb-8 leading-relaxed">
           The page you&apos;re looking for doesn&apos;t exist or has been moved.
         </p>
         <div className="flex items-center justify-center gap-3 flex-wrap">
@@ -40,7 +40,7 @@ export default function NotFound() {
           </Link>
           <Link
             href="/explore"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/[0.05] border border-border text-muted text-sm hover:bg-white/[0.08] hover:border-border-hover transition-all active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/[0.05] border border-border text-white/70 text-sm hover:bg-white/[0.08] hover:border-border-hover transition-all active:scale-[0.98]"
           >
             Explore Creators
           </Link>

@@ -65,7 +65,7 @@ export default function PostsList({ address }: PostsListProps) {
       <div className="flex items-center gap-2 mb-4">
         <FileText className="w-5 h-5 text-violet-400" />
         <h2 className="text-lg font-semibold text-white">Your Posts</h2>
-        <span className="text-xs text-subtle ml-auto">{posts.length} posts</span>
+        <span className="text-xs text-white/60 ml-auto">{posts.length} posts</span>
       </div>
       {posts.length === 0 ? (
         <p className="text-sm text-white/60">No gated content yet. Create your first post above to start earning from subscribers.</p>
@@ -85,7 +85,7 @@ export default function PostsList({ address }: PostsListProps) {
                       {tier.name}
                     </span>
                     {post.createdAt && (
-                      <span className="text-xs text-subtle">
+                      <span className="text-xs text-white/60">
                         {new Date(post.createdAt).toLocaleDateString()}
                       </span>
                     )}
@@ -96,7 +96,7 @@ export default function PostsList({ address }: PostsListProps) {
                 </div>
                 <button
                   onClick={() => handleDelete(post.id)}
-                  className="p-2 rounded-lg hover:bg-red-500/10 text-subtle hover:text-red-400 active:scale-[0.9] transition-all duration-300"
+                  className="p-2 rounded-lg hover:bg-red-500/10 text-white/60 hover:text-red-400 active:scale-[0.9] transition-all duration-300"
                   aria-label="Delete post"
                 >
                   <Trash2 className="w-4 h-4" />

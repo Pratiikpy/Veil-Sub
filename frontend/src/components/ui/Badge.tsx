@@ -10,7 +10,7 @@ interface Props {
 
 const variantClasses: Record<Variant, string> = {
   default:
-    'text-muted border-border',
+    'text-white/70 border-border',
   accent:
     'text-violet-300 border-violet-500/[0.2] bg-violet-500/[0.06]',
   success:

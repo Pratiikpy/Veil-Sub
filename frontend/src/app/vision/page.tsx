@@ -89,7 +89,7 @@ export default function VisionPage() {
               >
                 Vision &amp; Use Cases
               </h1>
-              <p className="text-lg text-muted max-w-2xl mx-auto">
+              <p className="text-lg text-white/70 max-w-2xl mx-auto">
                 VeilSub is more than a subscription platform—it's a reusable
                 zero-knowledge access control primitive. The AccessPass record can gate
                 anything.
@@ -110,7 +110,7 @@ export default function VisionPage() {
                       <Icon className={`w-6 h-6 ${useCase.color}`} />
                     </div>
                     <h3 className="text-white font-semibold mb-2">{useCase.title}</h3>
-                    <p className="text-sm text-muted leading-relaxed">
+                    <p className="text-sm text-white/70 leading-relaxed">
                       {useCase.description}
                     </p>
                   </GlassCard>
@@ -125,8 +125,8 @@ export default function VisionPage() {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Composable Privacy Primitive</h2>
-              <p className="text-muted max-w-2xl mx-auto">
-                Any Aleo program can verify AccessPass ownership via <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">verify_access</code> —
+              <p className="text-white/70 max-w-2xl mx-auto">
+                Any Aleo program can verify AccessPass ownership via <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">verify_access</code> —
                 a minimal-footprint transition whose finalize only checks revocation—subscriber identity never enters public state.
               </p>
             </m.div>
@@ -149,7 +149,7 @@ export default function VisionPage() {
                     {item.stat}
                   </p>
                   <p className="text-sm font-medium text-white mt-1">{item.label}</p>
-                  <p className="text-xs text-subtle mt-0.5">{item.desc}</p>
+                  <p className="text-xs text-white/60 mt-0.5">{item.desc}</p>
                 </m.div>
               ))}
             </div>
@@ -161,7 +161,7 @@ export default function VisionPage() {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Roadmap</h2>
-              <p className="text-muted">From buildathon to production.</p>
+              <p className="text-white/70">From buildathon to production.</p>
             </m.div>
 
             <div className="space-y-4">
@@ -190,13 +190,13 @@ export default function VisionPage() {
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                         item.status === 'done' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
                         item.status === 'current' ? 'bg-violet-500/10 text-violet-400 border border-violet-500/20' :
-                        item.status === 'next' ? 'bg-white/[0.05] text-subtle border border-border' :
-                        'bg-white/[0.02] text-subtle border border-border'
+                        item.status === 'next' ? 'bg-white/[0.05] text-white/60 border border-border' :
+                        'bg-white/[0.02] text-white/60 border border-border'
                       }`}>
                         {item.status === 'done' ? 'Complete' : item.status === 'current' ? 'In Progress' : item.status === 'next' ? 'Planned' : 'Future'}
                       </span>
                     </div>
-                    <p className="text-xs text-muted mt-0.5">{item.items}</p>
+                    <p className="text-xs text-white/70 mt-0.5">{item.items}</p>
                   </div>
                 </m.div>
               ))}
@@ -222,7 +222,7 @@ export default function VisionPage() {
                 <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-3">
                   Ready to explore?
                 </h2>
-                <p className="text-muted max-w-lg mx-auto mb-6">
+                <p className="text-white/70 max-w-lg mx-auto mb-6">
                   Try VeilSub on Aleo Testnet—connect a wallet, subscribe to a creator, and verify your privacy guarantees on-chain.
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-3">

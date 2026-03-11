@@ -17,7 +17,7 @@ const variantStyles: Record<Variant, string> = {
   secondary:
     'bg-transparent text-white border border-border hover:border-border-hover hover:bg-white/[0.03] active:scale-[0.98]',
   ghost:
-    'text-muted hover:text-white hover:bg-white/[0.04] active:scale-[0.98]',
+    'text-white/70 hover:text-white hover:bg-white/[0.04] active:scale-[0.98]',
   accent:
     'bg-violet-600 text-white hover:bg-violet-500 active:scale-[0.98] hover:shadow-accent-lg',
 }

@@ -19,11 +19,11 @@ export default function CreatorError({
         <h2 className="text-2xl font-bold text-white mb-3">
           Creator Page Error
         </h2>
-        <p className="text-muted mb-2">
+        <p className="text-white/70 mb-2">
           Could not load this creator&apos;s profile. The address may be invalid or the network may be unavailable.
         </p>
         {error.digest && (
-          <p className="text-xs text-subtle font-mono mb-6">
+          <p className="text-xs text-white/60 font-mono mb-6">
             Error ID: {error.digest}
           </p>
         )}

@@ -19,11 +19,11 @@ export default function Error({
         <h2 className="text-2xl font-bold text-white mb-3">
           Something Went Wrong
         </h2>
-        <p className="text-muted mb-2">
+        <p className="text-white/70 mb-2">
           An unexpected error occurred. This might be a temporary issue.
         </p>
         {error.digest && (
-          <p className="text-xs text-subtle font-mono mb-6">
+          <p className="text-xs text-white/60 font-mono mb-6">
             Error ID: {error.digest}
           </p>
         )}

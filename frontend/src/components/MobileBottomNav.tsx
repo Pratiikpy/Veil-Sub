@@ -40,7 +40,7 @@ export default function MobileBottomNav() {
               className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-2 rounded-lg transition-all duration-200 ${
                 active
                   ? 'text-white'
-                  : 'text-subtle active:text-muted active:scale-95'
+                  : 'text-white/60 active:text-white/70 active:scale-95'
               }`}
             >
               <div className="relative">

@@ -244,7 +244,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       <h2 className="text-lg font-semibold text-white mb-2">
         Exclusive Content
       </h2>
-      <p className="text-xs text-subtle mb-4">
+      <p className="text-xs text-white/60 mb-4">
         Content is server-gated—locked posts are never sent to your browser until your AccessPass is verified.
       </p>
 
@@ -265,9 +265,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         <div className="space-y-4">
           {posts.length === 0 && (
             <div className="p-8 rounded-sm bg-surface-1 border border-white/[0.05] text-center">
-              <FileText className="w-10 h-10 text-subtle mx-auto mb-3" />
+              <FileText className="w-10 h-10 text-white/60 mx-auto mb-3" />
               <h3 className="text-white font-medium mb-1">No Posts Yet</h3>
-              <p className="text-sm text-subtle">
+              <p className="text-sm text-white/60">
                 This creator hasn&apos;t published any exclusive content yet. Check back soon!
               </p>
             </div>
@@ -306,15 +306,15 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       {unlocked ? (
                         <Icon className={`w-4 h-4 ${tier.text}`} />
                       ) : isUnlocking ? (
-                        <Loader2 className="w-4 h-4 text-muted animate-spin" />
+                        <Loader2 className="w-4 h-4 text-white/70 animate-spin" />
                       ) : (
-                        <Lock className="w-4 h-4 text-subtle" />
+                        <Lock className="w-4 h-4 text-white/60" />
                       )}
                     </div>
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <h3
                         className={`font-medium truncate ${
-                          unlocked ? 'text-white' : 'text-subtle'
+                          unlocked ? 'text-white' : 'text-white/60'
                         }`}
                       >
                         {post.title}
@@ -323,7 +323,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                         className={`px-2 py-0.5 rounded-full text-xs border shrink-0 ${
                           unlocked
                             ? `${tier.text} ${tier.lockBg} ${tier.border}`
-                            : 'text-subtle bg-surface-1 border-border'
+                            : 'text-white/60 bg-surface-1 border-border'
                         }`}
                       >
                         {tier.name}
@@ -337,7 +337,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                   {/* Gated image placeholder — shown when post has image but content is locked */}
                   {!unlocked && post.hasImage && !isUnlocking && (
                     <div className="mb-3 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-28">
-                      <div className="flex items-center gap-2 text-subtle">
+                      <div className="flex items-center gap-2 text-white/60">
                         <ImageIcon className="w-5 h-5" />
                         <span className="text-xs">Image content—subscribe to view</span>
                       </div>
@@ -359,13 +359,13 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                   )}
 
                   {unlocked && displayBody ? (
-                    <p className="text-sm text-muted leading-relaxed">
+                    <p className="text-sm text-white/70 leading-relaxed">
                       {displayBody}
                     </p>
                   ) : isUnlocking ? (
                     <div className="flex items-center gap-2 py-3">
                       <Loader2 className="w-4 h-4 text-violet-400 animate-spin" />
-                      <p className="text-sm text-muted">Verifying access pass...</p>
+                      <p className="text-sm text-white/70">Verifying access pass...</p>
                     </div>
                   ) : isFailed && hasAccess ? (
                     <div className="flex items-center gap-3 py-3">
@@ -383,7 +383,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       {/* Preview text for non-subscribers */}
                       {post.preview ? (
                         <div className="mb-4">
-                          <p className="text-sm text-muted/80 leading-relaxed italic">
+                          <p className="text-sm text-white/70/80 leading-relaxed italic">
                             {post.preview}
                           </p>
                           <div className="mt-2 h-px bg-gradient-to-r from-white/[0.08] via-white/[0.04] to-transparent" />
@@ -413,7 +413,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                             : 'Connect wallet to unlock'}
                           <ArrowRight className="w-3 h-3" />
                         </button>
-                        <p className="text-xs text-subtle">
+                        <p className="text-xs text-white/60">
                           Content is server-protected—not visible in network requests
                         </p>
                       </div>
@@ -422,7 +422,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
                   <div className="flex items-center justify-between mt-2">
                     {post.contentId !== 'seed' && (
-                      <p className="text-xs text-subtle">
+                      <p className="text-xs text-white/60">
                         Published on-chain
                       </p>
                     )}
@@ -430,14 +430,14 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       {unlocked && post.contentId !== 'seed' && (
                         <button
                           onClick={() => setDisputePost({ contentId: post.contentId, title: post.title })}
-                          className="text-xs text-subtle hover:text-red-400 transition-colors flex items-center gap-1"
+                          className="text-xs text-white/60 hover:text-red-400 transition-colors flex items-center gap-1"
                         >
                           <Flag className="w-3 h-3" />
                           Dispute
                         </button>
                       )}
                       {post.createdAt && (
-                        <p className="text-xs text-subtle">
+                        <p className="text-xs text-white/60">
                           {timeAgo(post.createdAt)}
                           {post.updatedAt && ' (edited)'}
                         </p>
@@ -452,8 +452,8 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       )}
       <div className="mt-4 p-3 rounded-lg bg-violet-500/5 border border-violet-500/10">
         <div className="flex items-center gap-2">
-          <Shield className="w-3.5 h-3.5 text-muted shrink-0" />
-          <p className="text-xs text-subtle">
+          <Shield className="w-3.5 h-3.5 text-white/70 shrink-0" />
+          <p className="text-xs text-white/60">
             Gated content is server-protected. Bodies are only delivered after AccessPass verification—never exposed in network requests.
           </p>
         </div>

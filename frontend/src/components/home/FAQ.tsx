@@ -34,7 +34,7 @@ const FAQItem = React.memo(function FAQItem({
           transition={{ duration: 0.2 }}
           className="shrink-0"
         >
-          <ChevronRight className="w-4 h-4 text-subtle" />
+          <ChevronRight className="w-4 h-4 text-white/60" />
         </m.span>
       </button>
       <m.div

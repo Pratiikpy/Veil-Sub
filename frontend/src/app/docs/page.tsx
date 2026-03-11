@@ -41,16 +41,16 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
   return (
     <div className="relative group rounded-sm overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2 bg-white/[0.04] border-b border-border">
-        <span className="text-xs text-subtle">{lang}</span>
+        <span className="text-xs text-white/60">{lang}</span>
         <button
           onClick={copy}
-          className="text-xs text-subtle hover:text-white flex items-center gap-1 transition-colors"
+          className="text-xs text-white/60 hover:text-white flex items-center gap-1 transition-colors"
         >
           {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
           {copied ? 'Copied' : 'Copy'}
         </button>
       </div>
-      <pre className="p-4 bg-surface-1 overflow-x-auto text-sm font-mono text-muted leading-relaxed">
+      <pre className="p-4 bg-surface-1 overflow-x-auto text-sm font-mono text-white/70 leading-relaxed">
         <code>{code}</code>
       </pre>
     </div>
@@ -77,7 +77,7 @@ function OverviewTab() {
               href={link.href}
               target={link.href.startsWith('http') ? '_blank' : undefined}
               rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/[0.04] border border-border/75 text-xs text-muted hover:text-white hover:border-violet-500/20 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/[0.04] border border-border/75 text-xs text-white/70 hover:text-white hover:border-violet-500/20 transition-colors"
             >
               <ExternalLink className="w-3 h-3 shrink-0" />
               {link.label}
@@ -88,7 +88,7 @@ function OverviewTab() {
 
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">What is VeilSub?</h3>
-        <p className="text-muted leading-relaxed">
+        <p className="text-white/70 leading-relaxed">
           VeilSub is a privacy-first creator subscription platform built on the Aleo blockchain.
           Subscribers pay with real ALEO credits and receive a private AccessPass record —
           their identity is never exposed on-chain. Creators see aggregate stats (total subscribers,
@@ -98,17 +98,17 @@ function OverviewTab() {
 
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Video Demo</h3>
-        <p className="text-muted leading-relaxed mb-3">
+        <p className="text-white/70 leading-relaxed mb-3">
           Watch the full end-to-end walkthrough showing wallet connection, creator registration,
           private subscription, and on-chain verification.
         </p>
         <div className="p-4 rounded-sm bg-white/[0.04] border border-border flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center shrink-0">
-            <BookOpen className="w-5 h-5 text-muted" />
+            <BookOpen className="w-5 h-5 text-white/60" />
           </div>
           <div>
             <p className="text-sm text-white font-medium">Video Demo</p>
-            <p className="text-xs text-muted">
+            <p className="text-xs text-white/70">
               See the project README for the latest demo video link and walkthrough instructions.
             </p>
           </div>
@@ -156,7 +156,7 @@ function OverviewTab() {
               key={item.label}
               className="p-3 rounded-lg bg-surface-1 border border-border"
             >
-              <span className="text-xs text-subtle">{item.label}</span>
+              <span className="text-xs text-white/60">{item.label}</span>
               <p className="text-sm text-white">{item.value}</p>
             </div>
           ))}
@@ -174,24 +174,24 @@ function ContractTab() {
         <div className="space-y-2">
           <div className="p-3 rounded-lg bg-white/[0.04] border border-border flex items-center justify-between">
             <div>
-              <span className="text-xs text-subtle">Deployed (testnet)</span>
-              <code className="block text-muted text-sm font-mono">{DEPLOYED_PROGRAM_ID}</code>
+              <span className="text-xs text-white/60">Deployed (testnet)</span>
+              <code className="block text-white/70 text-sm font-mono">{DEPLOYED_PROGRAM_ID}</code>
             </div>
             <a
               href={`https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-muted hover:text-white flex items-center gap-1"
+              className="text-xs text-white/70 hover:text-white flex items-center gap-1"
             >
               View on Explorer <ExternalLink className="w-3 h-3" />
             </a>
           </div>
           <div className="p-3 rounded-lg bg-white/[0.04] border border-border flex items-center justify-between">
             <div>
-              <span className="text-xs text-subtle">Source (latest)</span>
-              <code className="block text-muted text-sm font-mono">{DEPLOYED_PROGRAM_ID}</code>
+              <span className="text-xs text-white/60">Source (latest)</span>
+              <code className="block text-white/70 text-sm font-mono">{DEPLOYED_PROGRAM_ID}</code>
             </div>
-            <span className="text-xs text-subtle">27 transitions · 25 mappings</span>
+            <span className="text-xs text-white/60">27 transitions · 25 mappings</span>
           </div>
         </div>
       </div>
@@ -398,7 +398,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
               className="p-4 rounded-sm bg-surface-1 border border-border"
             >
               <div className="flex items-center gap-2 mb-2">
-                <code className="text-sm text-muted font-mono">{t.name}</code>
+                <code className="text-sm text-white/70 font-mono">{t.name}</code>
                 <span
                   className={`px-2 py-0.5 rounded-full text-xs ${
                     t.type === 'async'
@@ -409,7 +409,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
                   {t.type}
                 </span>
               </div>
-              <p className="text-sm text-muted">{t.desc}</p>
+              <p className="text-sm text-white/70">{t.desc}</p>
             </div>
           ))}
         </div>
@@ -417,8 +417,8 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
 
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Error Codes (v27)</h3>
-        <p className="text-sm text-muted mb-4">
-          Every <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">assert</code> in the contract has 102 unique error codes (range: ERR_001–ERR_119, with gaps) for debugging and frontend error mapping. Key ranges:
+        <p className="text-sm text-white/70 mb-4">
+          Every <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">assert</code> in the contract has 102 unique error codes (range: ERR_001–ERR_119, with gaps) for debugging and frontend error mapping. Key ranges:
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {[
@@ -438,7 +438,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
           ].map((e) => (
             <div key={e.range} className="p-2 rounded-lg bg-white/[0.03] border border-border/75">
               <code className="text-xs text-violet-300/80 font-mono">{e.range}</code>
-              <p className="text-xs text-subtle mt-0.5">{e.desc}</p>
+              <p className="text-xs text-white/60 mt-0.5">{e.desc}</p>
             </div>
           ))}
         </div>
@@ -452,7 +452,7 @@ function PrivacyModelTab() {
     <div className="space-y-8">
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Privacy Architecture</h3>
-        <p className="text-muted leading-relaxed mb-4">
+        <p className="text-white/70 leading-relaxed mb-4">
           VeilSub&apos;s privacy model is enforced at the program level. The Leo smart contract
           is designed so that subscriber addresses physically cannot enter the finalize scope
           (the only part of a transaction that writes to public state).
@@ -461,12 +461,12 @@ function PrivacyModelTab() {
 
       <div className="p-4 rounded-sm bg-green-500/5 border border-green-500/20">
         <h4 className="text-green-300 font-semibold mb-2">Minimal-Footprint Access Verification</h4>
-        <p className="text-sm text-muted leading-relaxed">
-          <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">verify_access</code> has
+        <p className="text-sm text-white/70 leading-relaxed">
+          <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">verify_access</code> has
           a <strong className="text-white">minimal finalize</strong> that only checks revocation status via pass_id.
           The subscriber address never enters finalize—no identity-linked mapping writes, no counter increments,
           no on-chain evidence of <em>who</em> verified. This is a deliberate privacy design: the finalize only
-          reads <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">access_revoked</code> to
+          reads <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">access_revoked</code> to
           enforce pass revocation, without exposing subscriber identity. Access proof relies on Aleo&apos;s native
           record ownership system—no manual nullifiers or ZK proof verification needed.
         </p>
@@ -474,28 +474,28 @@ function PrivacyModelTab() {
 
       <div className="p-4 rounded-sm bg-violet-500/5 border border-violet-500/20">
         <h4 className="text-violet-300 font-semibold mb-2">v23: ZERO Addresses in Finalize—Full Poseidon2 Privacy Overhaul</h4>
-        <p className="text-sm text-muted leading-relaxed mb-3">
+        <p className="text-sm text-white/70 leading-relaxed mb-3">
           v23 represents a fundamental privacy overhaul: <strong className="text-white">no raw addresses appear in any
           finalize block</strong>. Every mapping key that previously used a plain address is now a Poseidon2
           field hash. This means on-chain observers cannot correlate mapping reads with wallet addresses —
           even public aggregate data like subscriber counts and revenue are keyed by opaque field values.
         </p>
-        <p className="text-sm text-muted leading-relaxed mb-3">
-          The Pedersen proof transitions (<code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">subscribe_private_count</code>,{' '}
-          <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">prove_sub_count</code>,{' '}
-          <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">prove_revenue_range</code>) were removed
+        <p className="text-sm text-white/70 leading-relaxed mb-3">
+          The Pedersen proof transitions (<code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">subscribe_private_count</code>,{' '}
+          <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">prove_sub_count</code>,{' '}
+          <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">prove_revenue_range</code>) were removed
           in favor of the more comprehensive Poseidon2 approach, which provides stronger privacy guarantees
           across all transitions without requiring separate proof circuits. Analytics-only mappings
-          (<code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">content_version</code>,{' '}
-          <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">subscription_epoch</code>,{' '}
-          <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">creator_last_active</code>,{' '}
-          <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">total_subscriptions</code>) were also removed to reduce the variable count.
+          (<code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">content_version</code>,{' '}
+          <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">subscription_epoch</code>,{' '}
+          <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">creator_last_active</code>,{' '}
+          <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">total_subscriptions</code>) were also removed to reduce the variable count.
         </p>
-        <p className="text-sm text-muted leading-relaxed">
+        <p className="text-sm text-white/70 leading-relaxed">
           The result: 27 transitions, 25 mappings, 6 record types, 5 structs, 866 statements,
           and 102 error codes—a leaner, more private contract that fits within testnet deployment limits.
           Commit-reveal tipping uses{' '}
-          <code className="px-1 py-0.5 rounded bg-white/10 text-muted text-xs">BHP256::commit_to_field</code> —
+          <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">BHP256::commit_to_field</code> —
           a novel cryptographic commitment scheme for hidden tip amounts.
         </p>
       </div>
@@ -530,7 +530,7 @@ function PrivacyModelTab() {
               className="p-4 rounded-sm bg-surface-1 border border-border"
             >
               <h4 className="text-white font-medium mb-1">{item.title}</h4>
-              <p className="text-sm text-muted">{item.detail}</p>
+              <p className="text-sm text-white/70">{item.detail}</p>
             </div>
           ))}
         </div>
@@ -538,7 +538,7 @@ function PrivacyModelTab() {
 
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">What Can&apos;t Be Inferred?</h3>
-        <p className="text-muted leading-relaxed">
+        <p className="text-white/70 leading-relaxed">
           Even with full access to the Aleo blockchain, an observer cannot determine:
         </p>
         <ul className="mt-3 space-y-2">
@@ -548,8 +548,8 @@ function PrivacyModelTab() {
             'Whether a specific address holds an AccessPass',
             'The relationship between a subscriber and creator',
           ].map((item) => (
-            <li key={item} className="flex items-center gap-2 text-sm text-muted">
-              <Shield className="w-4 h-4 text-muted shrink-0" />
+            <li key={item} className="flex items-center gap-2 text-sm text-white/70">
+              <Shield className="w-4 h-4 text-white/60 shrink-0" />
               {item}
             </li>
           ))}
@@ -564,7 +564,7 @@ function ApiTab() {
     <div className="space-y-8">
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Reading Public Mappings</h3>
-        <p className="text-muted mb-4">
+        <p className="text-white/70 mb-4">
           Public mapping data (tier prices, subscriber counts, revenue) can be read via the
           Provable REST API without any authentication.
         </p>
@@ -583,7 +583,7 @@ curl https://api.explorer.provable.com/v1/testnet/program/${DEPLOYED_PROGRAM_ID}
 
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Wallet Integration</h3>
-        <p className="text-muted mb-4">
+        <p className="text-white/70 mb-4">
           Use the Aleo wallet adapter to interact with VeilSub transitions.
         </p>
         <CodeBlock
@@ -615,21 +615,21 @@ const txId = result?.transactionId`}
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Microcredits Conversion</h3>
         <div className="p-4 rounded-sm bg-surface-1 border border-border">
-          <p className="text-sm text-muted mb-2">
+          <p className="text-sm text-white/70 mb-2">
             1 ALEO = 1,000,000 microcredits
           </p>
           <div className="space-y-1 text-sm">
-            <div className="flex justify-between text-muted">
+            <div className="flex justify-between text-white/70">
               <span>0.5 ALEO</span>
-              <span className="text-subtle">500,000 microcredits</span>
+              <span className="text-white/60">500,000 microcredits</span>
             </div>
-            <div className="flex justify-between text-muted">
+            <div className="flex justify-between text-white/70">
               <span>5 ALEO</span>
-              <span className="text-subtle">5,000,000 microcredits</span>
+              <span className="text-white/60">5,000,000 microcredits</span>
             </div>
-            <div className="flex justify-between text-muted">
+            <div className="flex justify-between text-white/70">
               <span>25 ALEO</span>
-              <span className="text-subtle">25,000,000 microcredits</span>
+              <span className="text-white/60">25,000,000 microcredits</span>
             </div>
           </div>
         </div>
@@ -650,7 +650,7 @@ function FaqItem({ q, a, index }: { q: string; a: string; index: number }) {
         aria-controls={`docs-faq-answer-${index}`}
       >
         <h4 className="text-white font-medium pr-4">{q}</h4>
-        <ChevronDown className={`w-4 h-4 text-subtle shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-white/60 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
       <AnimatePresence initial={false}>
         {open && (
@@ -664,7 +664,7 @@ function FaqItem({ q, a, index }: { q: string; a: string; index: number }) {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <p className="px-4 pb-4 text-sm text-muted leading-relaxed">{a}</p>
+            <p className="px-4 pb-4 text-sm text-white/70 leading-relaxed">{a}</p>
           </m.div>
         )}
       </AnimatePresence>
@@ -768,7 +768,7 @@ export default function DocsPage() {
             className="mb-8"
           >
             <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-2" style={{ letterSpacing: '-0.03em' }}>Documentation</h1>
-            <p className="text-muted">
+            <p className="text-white/70">
               Everything you need to understand and integrate with VeilSub.
             </p>
           </m.div>
@@ -786,7 +786,7 @@ export default function DocsPage() {
                       className={`relative flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm whitespace-nowrap transition-all duration-200 ${
                         activeTab === tab.id
                           ? 'text-white bg-violet-500/[0.08] border border-violet-500/[0.15] shadow-accent-sm'
-                          : 'text-muted hover:text-white hover:bg-white/[0.03] border border-transparent'
+                          : 'text-white/70 hover:text-white hover:bg-white/[0.03] border border-transparent'
                       }`}
                     >
                       <Icon className="w-4 h-4" />

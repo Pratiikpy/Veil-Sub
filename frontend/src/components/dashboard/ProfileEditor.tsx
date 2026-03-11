@@ -68,7 +68,7 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
       </div>
       <div className="space-y-3">
         <div>
-          <label htmlFor="profile-name" className="block text-sm text-muted mb-1.5">Display name</label>
+          <label htmlFor="profile-name" className="block text-sm text-white/70 mb-1.5">Display name</label>
           <input
             id="profile-name"
             type="text"
@@ -80,7 +80,7 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
           />
         </div>
         <div>
-          <label htmlFor="profile-bio" className="block text-sm text-muted mb-1.5">Bio</label>
+          <label htmlFor="profile-bio" className="block text-sm text-white/70 mb-1.5">Bio</label>
           <textarea
             id="profile-bio"
             value={bio}

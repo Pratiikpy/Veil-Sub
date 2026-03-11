@@ -24,7 +24,7 @@ export default function ProblemSolution() {
               <br />
               Exposes You.
             </h2>
-            <p className="mt-6 text-muted leading-relaxed">
+            <p className="mt-6 text-white/70 leading-relaxed">
               Every major platform—Patreon, Ko-fi, YouTube memberships—publicly
               links subscribers to creators. Fans fear judgment. Creators lose
               privacy-conscious supporters.

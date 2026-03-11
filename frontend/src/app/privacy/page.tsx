@@ -47,7 +47,7 @@ export default function PrivacyPage() {
               >
                 How VeilSub Protects You
               </h1>
-              <p className="text-lg text-muted max-w-2xl mx-auto mb-6">
+              <p className="text-lg text-white/70 max-w-2xl mx-auto mb-6">
                 Built on Aleo&apos;s zero-knowledge proof system. Subscriber addresses
                 never enter the finalize scope—enforced by the Leo compiler.
               </p>
@@ -80,7 +80,7 @@ export default function PrivacyPage() {
               <a
                 key={s.id}
                 href={`#${s.id}`}
-                className="px-3 py-1.5 rounded-lg text-xs text-subtle hover:text-white hover:bg-white/[0.06] transition-all whitespace-nowrap"
+                className="px-3 py-1.5 rounded-lg text-xs text-white/60 hover:text-white hover:bg-white/[0.06] transition-all whitespace-nowrap"
               >
                 {s.label}
               </a>
@@ -100,7 +100,7 @@ export default function PrivacyPage() {
                 Blind Subscription Protocol
                 <span className="ml-2 text-violet-400">(BSP)</span>
               </h2>
-              <p className="text-muted max-w-2xl mx-auto">
+              <p className="text-white/70 max-w-2xl mx-auto">
                 A three-layer privacy architecture that makes the entire subscriber lifecycle
                 unlinkable—from first subscription through every renewal, tip, and verification.
               </p>
@@ -120,7 +120,7 @@ export default function PrivacyPage() {
                     <span className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center text-sm font-bold text-violet-400">1</span>
                     <h3 className="text-white font-semibold">Blind Identity Rotation</h3>
                   </div>
-                  <p className="text-sm text-muted mb-4">
+                  <p className="text-sm text-white/70 mb-4">
                     Each subscription generates a unique subscriber hash via nonce-rotated
                     Poseidon2. Creators cannot correlate renewals to the same person.
                   </p>
@@ -128,7 +128,7 @@ export default function PrivacyPage() {
                     <code className="text-xs text-violet-300 font-mono leading-relaxed">
                       hash = Poseidon2(BlindKey{'{'} subscriber, nonce {'}'})
                     </code>
-                    <p className="text-xs text-subtle mt-1.5">Different nonce per renewal = different hash = unlinkable identity</p>
+                    <p className="text-xs text-white/60 mt-1.5">Different nonce per renewal = different hash = unlinkable identity</p>
                   </div>
                 </div>
               </m.div>
@@ -146,7 +146,7 @@ export default function PrivacyPage() {
                     <span className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-sm font-bold text-green-400">2</span>
                     <h3 className="text-white font-semibold">Zero-Address Finalize</h3>
                   </div>
-                  <p className="text-sm text-muted mb-4">
+                  <p className="text-sm text-white/70 mb-4">
                     All 25 mappings use Poseidon2 field-hashed keys. No raw address appears
                     in any finalize function—compiler-enforced, not policy.
                   </p>
@@ -154,7 +154,7 @@ export default function PrivacyPage() {
                     <code className="text-xs text-green-300 font-mono leading-relaxed">
                       mapping key = Poseidon2(address) -&gt; field
                     </code>
-                    <p className="text-xs text-subtle mt-1.5">Irreversible hash—cannot recover wallet address from on-chain data</p>
+                    <p className="text-xs text-white/60 mt-1.5">Irreversible hash—cannot recover wallet address from on-chain data</p>
                   </div>
                 </div>
               </m.div>
@@ -172,7 +172,7 @@ export default function PrivacyPage() {
                     <span className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-sm font-bold text-indigo-400">3</span>
                     <h3 className="text-white font-semibold">Selective Disclosure</h3>
                   </div>
-                  <p className="text-sm text-muted mb-4">
+                  <p className="text-sm text-white/70 mb-4">
                     Audit tokens reveal tier and expiry without subscriber identity.
                     Commit-reveal tipping hides amounts. Reputation proofs without counts.
                   </p>
@@ -180,7 +180,7 @@ export default function PrivacyPage() {
                     <code className="text-xs text-indigo-300 font-mono leading-relaxed">
                       AuditToken: tier + expiry (no subscriber addr)
                     </code>
-                    <p className="text-xs text-subtle mt-1.5">Prove membership without revealing who you are</p>
+                    <p className="text-xs text-white/60 mt-1.5">Prove membership without revealing who you are</p>
                   </div>
                 </div>
               </m.div>
@@ -205,13 +205,13 @@ export default function PrivacyPage() {
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b border-border">
-                        <th className="text-left py-2.5 px-4 text-subtle font-medium">Capability</th>
+                        <th className="text-left py-2.5 px-4 text-white/60 font-medium">Capability</th>
                         <th className="text-center py-2.5 px-4 text-violet-400 font-medium">VeilSub BSP</th>
-                        <th className="text-center py-2.5 px-4 text-subtle font-medium">lasagna DAR</th>
-                        <th className="text-center py-2.5 px-4 text-subtle font-medium">NullPay Dual-Record</th>
+                        <th className="text-center py-2.5 px-4 text-white/60 font-medium">lasagna DAR</th>
+                        <th className="text-center py-2.5 px-4 text-white/60 font-medium">NullPay Dual-Record</th>
                       </tr>
                     </thead>
-                    <tbody className="text-muted">
+                    <tbody className="text-white/70">
                       {[
                         ['Identity rotation across txns', true, false, false],
                         ['Zero addresses in finalize', true, false, true],
@@ -224,13 +224,13 @@ export default function PrivacyPage() {
                         <tr key={feature as string} className="border-b border-border/75">
                           <td className="py-2 px-4 text-white/80">{feature as string}</td>
                           <td className="py-2 px-4 text-center">
-                            {bsp ? <span className="text-green-400 font-medium">Yes</span> : <span className="text-subtle">No</span>}
+                            {bsp ? <span className="text-green-400 font-medium">Yes</span> : <span className="text-white/60">No</span>}
                           </td>
                           <td className="py-2 px-4 text-center">
-                            {dar ? <span className="text-green-400/80">Yes</span> : <span className="text-subtle">No</span>}
+                            {dar ? <span className="text-green-400/80">Yes</span> : <span className="text-white/60">No</span>}
                           </td>
                           <td className="py-2 px-4 text-center">
-                            {np ? <span className="text-green-400/80">Yes</span> : <span className="text-subtle">No</span>}
+                            {np ? <span className="text-green-400/80">Yes</span> : <span className="text-white/60">No</span>}
                           </td>
                         </tr>
                       ))}
@@ -238,7 +238,7 @@ export default function PrivacyPage() {
                   </table>
                 </div>
                 <div className="px-5 py-3 bg-white/[0.01] border-t border-border">
-                  <p className="text-xs text-subtle">
+                  <p className="text-xs text-white/60">
                     BSP is the only multi-layer privacy framework in the Aleo buildathon that addresses
                     identity rotation, finalize isolation, and selective disclosure simultaneously.
                   </p>
@@ -253,7 +253,7 @@ export default function PrivacyPage() {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">What Are Zero-Knowledge Proofs?</h2>
-              <p className="text-muted max-w-2xl mx-auto">
+              <p className="text-white/70 max-w-2xl mx-auto">
                 A ZK proof lets you prove something is true without revealing the underlying data.
                 Like proving you&apos;re over 21 without showing your ID.
               </p>
@@ -265,7 +265,7 @@ export default function PrivacyPage() {
                   <Fingerprint className="w-6 h-6 text-violet-400" />
                 </div>
                 <h3 className="text-white font-semibold mb-2">Prove Without Revealing</h3>
-                <p className="text-sm text-muted">
+                <p className="text-sm text-white/70">
                   When you subscribe, a <Tooltip content="Zero-knowledge proof: cryptographic method to prove a statement is true without revealing the underlying data">
                     <span className="border-b border-dotted border-subtle cursor-help">ZK proof</span>
                   </Tooltip> confirms your payment is valid without exposing
@@ -278,7 +278,7 @@ export default function PrivacyPage() {
                   <Lock className="w-6 h-6 text-indigo-400" />
                 </div>
                 <h3 className="text-white font-semibold mb-2">Encrypted Records</h3>
-                <p className="text-sm text-muted">
+                <p className="text-sm text-white/70">
                   Your <Tooltip content="AccessPass: a private Aleo record proving your subscription. Only visible to your wallet.">
                     <span className="border-b border-dotted border-subtle cursor-help">AccessPass</span>
                   </Tooltip> is a private record encrypted with your wallet key. Only you
@@ -291,7 +291,7 @@ export default function PrivacyPage() {
                   <ShieldCheck className="w-6 h-6 text-purple-400" />
                 </div>
                 <h3 className="text-white font-semibold mb-2">Mathematically Guaranteed</h3>
-                <p className="text-sm text-muted">
+                <p className="text-sm text-white/70">
                   The <Tooltip content="Leo: the programming language for Aleo smart contracts, with built-in privacy constraints">
                     <span className="border-b border-dotted border-subtle cursor-help">Leo compiler</span>
                   </Tooltip> rejects any code path where subscriber addresses
@@ -332,12 +332,12 @@ export default function PrivacyPage() {
                         ].map((point, idx) => (
                           <div key={idx} className="flex items-start gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0 mt-1.5" />
-                            <p className="text-sm text-muted leading-relaxed">{point}</p>
+                            <p className="text-sm text-white/70 leading-relaxed">{point}</p>
                           </div>
                         ))}
                       </div>
                       <div className="p-4 rounded-sm bg-surface-1 border border-border">
-                        <pre className="text-xs text-muted font-mono leading-relaxed overflow-x-auto">
+                        <pre className="text-xs text-white/70 font-mono leading-relaxed overflow-x-auto">
                           <code>{`async transition verify_access(pass: AccessPass, creator: address) -> (AccessPass, Future) {
     assert_eq(pass.creator, creator);
     let new_pass: AccessPass = AccessPass { owner: pass.owner, creator: pass.creator,
@@ -354,7 +354,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
 // Revocation + expiry enforced on-chain, zero identity exposure.`}</code>
                         </pre>
                       </div>
-                      <p className="text-xs text-subtle mt-3">
+                      <p className="text-xs text-white/60 mt-3">
                         Unique design: revocation enforcement + zero subscriber exposure. The finalize only checks
                         a boolean mapping keyed by pass_id—no subscriber address ever reaches public state.
                       </p>
@@ -371,7 +371,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">What&apos;s Private vs. Public</h2>
-              <p className="text-muted">
+              <p className="text-white/70">
                 Full transparency on what stays hidden and what&apos;s verifiable.
               </p>
             </m.div>
@@ -381,11 +381,11 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               <GlassCard hover={false}>
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-sm bg-white/[0.04] flex items-center justify-center">
-                    <EyeOff className="w-5 h-5 text-muted" />
+                    <EyeOff className="w-5 h-5 text-white/70" />
                   </div>
                   <div>
                     <h3 className="text-white font-semibold">Private Data</h3>
-                    <p className="text-xs text-subtle">ZK records—only you can see</p>
+                    <p className="text-xs text-white/60">ZK records—only you can see</p>
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -448,10 +448,10 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                         className="p-3 rounded-sm bg-white/[0.04] border border-border"
                       >
                         <div className="flex items-center gap-2 mb-1">
-                          <Icon className="w-4 h-4 text-muted" />
+                          <Icon className="w-4 h-4 text-white/70" />
                           <span className="text-sm font-medium text-white">{item.title}</span>
                         </div>
-                        <p className="text-xs text-muted leading-relaxed">{item.desc}</p>
+                        <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                       </div>
                     )
                   })}
@@ -462,11 +462,11 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               <GlassCard hover={false}>
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-sm bg-white/[0.08] flex items-center justify-center">
-                    <Eye className="w-5 h-5 text-muted" />
+                    <Eye className="w-5 h-5 text-white/70" />
                   </div>
                   <div>
                     <h3 className="text-white font-semibold">Public Data</h3>
-                    <p className="text-xs text-subtle">Mappings—verifiable by everyone</p>
+                    <p className="text-xs text-white/60">Mappings—verifiable by everyone</p>
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -519,10 +519,10 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                         className="p-3 rounded-sm bg-surface-1 border border-border"
                       >
                         <div className="flex items-center gap-2 mb-1">
-                          <Icon className="w-4 h-4 text-muted" />
+                          <Icon className="w-4 h-4 text-white/70" />
                           <span className="text-sm font-medium text-white">{item.title}</span>
                         </div>
-                        <p className="text-xs text-muted leading-relaxed">{item.desc}</p>
+                        <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                       </div>
                     )
                   })}
@@ -537,7 +537,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Privacy Threat Model</h2>
-              <p className="text-muted">
+              <p className="text-white/70">
                 Honest analysis of what an adversary could and cannot learn.
               </p>
             </m.div>
@@ -571,7 +571,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                   ].map((item) => (
                     <div key={item.title} className="p-3 rounded-sm bg-amber-500/5 border border-amber-500/10">
                       <p className="text-sm font-medium text-amber-300 mb-1">{item.title}</p>
-                      <p className="text-xs text-muted leading-relaxed">{item.desc}</p>
+                      <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -601,7 +601,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                   ].map((item) => (
                     <div key={item.title} className="p-3 rounded-sm bg-green-500/5 border border-green-500/10">
                       <p className="text-sm font-medium text-green-300 mb-1">{item.title}</p>
-                      <p className="text-xs text-muted leading-relaxed">{item.desc}</p>
+                      <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -612,7 +612,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               <GlassCard delay={0.2}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-sm bg-white/[0.04] flex items-center justify-center">
-                    <ShieldCheck className="w-5 h-5 text-muted" />
+                    <ShieldCheck className="w-5 h-5 text-white/70" />
                   </div>
                   <h3 className="text-white font-semibold">What We Mitigate</h3>
                 </div>
@@ -640,8 +640,8 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                     },
                   ].map((item) => (
                     <div key={item.title} className="p-3 rounded-sm bg-white/[0.04] border border-border">
-                      <p className="text-sm font-medium text-muted mb-1">{item.title}</p>
-                      <p className="text-xs text-muted leading-relaxed">{item.desc}</p>
+                      <p className="text-sm font-medium text-white/70 mb-1">{item.title}</p>
+                      <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -650,7 +650,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               <GlassCard delay={0.3}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-sm bg-white/[0.06] flex items-center justify-center">
-                    <Lock className="w-5 h-5 text-muted" />
+                    <Lock className="w-5 h-5 text-white/70" />
                   </div>
                   <h3 className="text-white font-semibold">Honest Limitations</h3>
                 </div>
@@ -666,8 +666,8 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                     },
                   ].map((item) => (
                     <div key={item.title} className="p-3 rounded-sm bg-surface-1 border border-border">
-                      <p className="text-sm font-medium text-muted mb-1">{item.title}</p>
-                      <p className="text-xs text-muted leading-relaxed">{item.desc}</p>
+                      <p className="text-sm font-medium text-white/70 mb-1">{item.title}</p>
+                      <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -681,7 +681,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Privacy in the Code</h2>
-              <p className="text-muted">How each transition protects your identity.</p>
+              <p className="text-white/70">How each transition protects your identity.</p>
             </m.div>
 
             {/* Before vs After: What an Observer Sees */}
@@ -741,7 +741,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-subtle text-center mt-3">
+              <p className="text-xs text-white/60 text-center mt-3">
                 Left: typical on-chain subscription. Right: VeilSub&apos;s BSP—subscriber address never enters any public mapping.
               </p>
             </m.div>
@@ -749,8 +749,8 @@ identity:     ████████████     // Poseidon2(BlindKey)
             {/* Data Flow Diagram */}
             <div className="mb-8 grid md:grid-cols-2 gap-4">
               <div className="p-5 rounded-sm bg-white/[0.04] border border-border">
-                <h4 className="text-sm font-medium text-muted mb-3">Subscribe Flow</h4>
-                <div className="space-y-2 text-xs text-muted">
+                <h4 className="text-sm font-medium text-white/70 mb-3">Subscribe Flow</h4>
+                <div className="space-y-2 text-xs text-white/70">
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-white/20 shrink-0" />
                     <span>Wallet sends payment via ZK proof</span>
@@ -771,7 +771,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
               </div>
               <div className="p-5 rounded-sm bg-green-500/5 border border-green-500/15">
                 <h4 className="text-sm font-medium text-green-300 mb-3">Verify Access Flow</h4>
-                <div className="space-y-2 text-xs text-muted">
+                <div className="space-y-2 text-xs text-white/70">
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
                     <span>Wallet submits AccessPass to transition</span>
@@ -863,10 +863,10 @@ identity:     ████████████     // Poseidon2(BlindKey)
                   transition={{ delay: i * 0.08 }}
                   className="flex items-start gap-4 p-4 rounded-sm bg-surface-1 border border-border hover:border-[rgba(255,255,255,0.1)] transition-colors"
                 >
-                  <code className="shrink-0 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-border text-muted text-sm font-mono">
+                  <code className="shrink-0 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-border text-white/70 text-sm font-mono">
                     {item.fn}
                   </code>
-                  <p className="text-sm text-muted pt-1">{item.guarantee}</p>
+                  <p className="text-sm text-white/70 pt-1">{item.guarantee}</p>
                 </m.div>
               ))}
             </div>
@@ -884,12 +884,12 @@ identity:     ████████████     // Poseidon2(BlindKey)
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 text-muted font-medium">Feature</th>
+                    <th className="text-left py-3 px-4 text-white/70 font-medium">Feature</th>
                     <th className="text-center py-3 px-4 text-rose-400 font-medium">Patreon / Ko-fi</th>
                     <th className="text-center py-3 px-4 text-green-400 font-medium">VeilSub</th>
                   </tr>
                 </thead>
-                <tbody className="text-muted">
+                <tbody className="text-white/70">
                   {[
                     ['Subscriber identity', 'Public', 'Private (ZK)'],
                     ['Transaction history', 'Permanent & visible', 'Hidden on-chain'],
@@ -915,7 +915,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Privacy Comparison: Aleo Ecosystem</h2>
-              <p className="text-muted">
+              <p className="text-white/70">
                 How VeilSub&apos;s privacy model compares to other projects in the Aleo Privacy Buildathon.
               </p>
             </m.div>
@@ -924,14 +924,14 @@ identity:     ████████████     // Poseidon2(BlindKey)
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-white/[0.02] border-b border-border">
-                    <th className="text-left py-3 px-4 text-muted font-medium">Privacy Feature</th>
+                    <th className="text-left py-3 px-4 text-white/70 font-medium">Privacy Feature</th>
                     <th className="text-center py-3 px-4 text-violet-400 font-medium">VeilSub</th>
-                    <th className="text-center py-3 px-4 text-subtle font-medium">NullPay</th>
-                    <th className="text-center py-3 px-4 text-subtle font-medium">Veiled Markets</th>
-                    <th className="text-center py-3 px-4 text-subtle font-medium">lasagna</th>
+                    <th className="text-center py-3 px-4 text-white/60 font-medium">NullPay</th>
+                    <th className="text-center py-3 px-4 text-white/60 font-medium">Veiled Markets</th>
+                    <th className="text-center py-3 px-4 text-white/60 font-medium">lasagna</th>
                   </tr>
                 </thead>
-                <tbody className="text-muted">
+                <tbody className="text-white/70">
                   {[
                     ['Subscriber never in finalize', true, true, 'N/A', 'N/A'],
                     ['Zero-footprint verification', true, false, false, false],
@@ -952,9 +952,9 @@ identity:     ████████████     // Poseidon2(BlindKey)
                           {val === true ? (
                             <span className={`text-xs font-medium ${i === 0 ? 'text-green-400' : 'text-green-400/80'}`}>Yes</span>
                           ) : val === false ? (
-                            <span className="text-xs text-subtle">No</span>
+                            <span className="text-xs text-white/60">No</span>
                           ) : (
-                            <span className={`text-xs font-medium ${i === 0 ? 'text-violet-400' : 'text-subtle'}`}>{val as string}</span>
+                            <span className={`text-xs font-medium ${i === 0 ? 'text-violet-400' : 'text-white/60'}`}>{val as string}</span>
                           )}
                         </td>
                       ))}
@@ -963,7 +963,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
                 </tbody>
               </table>
             </div>
-            <p className="text-xs text-subtle mt-4 text-center">
+            <p className="text-xs text-white/60 mt-4 text-center">
               Comparison based on publicly available source code. NullPay v18, Veiled Markets v16, lasagna latest.
               N/A = not applicable (different domain—AMM or prediction market).
             </p>

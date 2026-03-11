@@ -300,7 +300,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
               <button
                 onClick={handleModalClose}
                 aria-label="Close tip dialog"
-                className="p-1 rounded-lg hover:bg-white/[0.05] text-muted hover:text-white active:scale-[0.9] transition-all"
+                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -319,12 +319,12 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                       className={`p-2.5 rounded-lg border text-center transition-all ${
                         tipMode === 'direct'
                           ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300 shadow-accent-sm'
-                          : 'border-border/75 bg-transparent text-subtle hover:border-glass-hover hover:text-muted'
+                          : 'border-border/75 bg-transparent text-white/60 hover:border-glass-hover hover:text-white/70'
                       }`}
                     >
                       <Eye className="w-4 h-4 mx-auto mb-1" />
                       <span className="text-[11px] font-medium block">Direct Tip</span>
-                      <span className="text-[9px] text-subtle block">Instant transfer</span>
+                      <span className="text-[9px] text-white/60 block">Instant transfer</span>
                     </button>
                     <button
                       role="radio"
@@ -334,12 +334,12 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                       className={`p-2.5 rounded-lg border text-center transition-all ${
                         tipMode === 'private'
                           ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300 shadow-accent-sm'
-                          : 'border-border/75 bg-transparent text-subtle hover:border-glass-hover hover:text-muted'
+                          : 'border-border/75 bg-transparent text-white/60 hover:border-glass-hover hover:text-white/70'
                       }`}
                     >
                       <EyeOff className="w-4 h-4 mx-auto mb-1" />
                       <span className="text-[11px] font-medium block">Private Tip</span>
-                      <span className="text-[9px] text-subtle block">Commit-reveal</span>
+                      <span className="text-[9px] text-white/60 block">Commit-reveal</span>
                     </button>
                   </div>
                 )}
@@ -348,7 +348,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                 {isRevealReady && (
                   <div className="p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-4">
                     <p className="text-xs text-violet-300 font-medium mb-1">Phase 2: Reveal Your Tip</p>
-                    <p className="text-[11px] text-muted">
+                    <p className="text-[11px] text-white/70">
                       Your commitment is on-chain. Click below to reveal {formatCredits(savedAmount)} ALEO
                       and transfer it to the creator.
                     </p>
@@ -369,7 +369,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                           className={`py-3 rounded-xl text-sm font-medium transition-all ${
                             selectedAmount === amount && !customAmount
                               ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
-                              : 'bg-white/5 border border-white/10 text-muted hover:bg-white/10 hover:border-white/15'
+                              : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:border-white/15'
                           }`}
                         >
                           {amount}
@@ -392,9 +392,9 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                         step="0.1"
                         className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base pr-16"
                       />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-subtle">ALEO</span>
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/60">ALEO</span>
                     </div>
-                    <p className="text-center text-sm text-muted mb-3">
+                    <p className="text-center text-sm text-white/70 mb-3">
                       {customAmount ? `${customAmount} ALEO credits` : `${selectedAmount} ALEO credits`}
                     </p>
                   </>
@@ -407,7 +407,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                       <p className="text-[11px] text-green-400/80">
                         Your identity stays private. The creator receives payment but never knows who tipped.
                       </p>
-                      <p className="text-[11px] text-subtle">
+                      <p className="text-[11px] text-white/60">
                         Est. network fee: ~{formatCredits(currentFee)} ALEO
                       </p>
                     </>
@@ -424,7 +424,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                           )}
                         </div>
                       </div>
-                      <p className="text-[11px] text-subtle">
+                      <p className="text-[11px] text-white/60">
                         Est. network fee: ~{formatCredits(currentFee)} ALEO ({commitPhase === 'commit' ? 'commit' : 'reveal'} phase)
                       </p>
                     </>
@@ -466,7 +466,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
               <div className="py-2">
                 {statusMessage && (
                   <div className="mb-3 p-3 rounded-xl bg-surface-2 border border-border">
-                    <p className="text-xs text-muted animate-pulse">{statusMessage}</p>
+                    <p className="text-xs text-white/70 animate-pulse">{statusMessage}</p>
                   </div>
                 )}
                 <TransactionStatus status={txStatus} txId={txId} errorMessage={error} />
@@ -492,7 +492,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                     className="mt-4 text-center"
                   >
                     <p className="text-green-400 font-medium">Private tip revealed and sent!</p>
-                    <p className="text-xs text-muted mt-1">
+                    <p className="text-xs text-white/70 mt-1">
                       The creator has received {formatCredits(savedAmount)} ALEO. Both phases are verified on-chain.
                     </p>
                     <button

@@ -70,7 +70,7 @@ export default function BalanceConverter({
           <h4 className="text-yellow-300 font-medium text-sm mb-1">
             Insufficient Private Balance
           </h4>
-          <p className="text-xs text-muted">
+          <p className="text-xs text-white/70">
             You need at least{' '}
             <strong className="text-white">{requiredDisplay} ALEO</strong> in
             a single private credit record to complete this transaction.
@@ -91,21 +91,21 @@ export default function BalanceConverter({
           {error && (
             <p className="text-xs text-red-400 text-center" role="alert">{error}</p>
           )}
-          <p className="text-[11px] text-subtle text-center">
+          <p className="text-[11px] text-white/60 text-center">
             Converts public credits to a private record via credits.aleo/transfer_public_to_private
           </p>
         </div>
       ) : status === 'converting' ? (
         <div className="flex items-center gap-3 p-3 rounded-xl bg-violet-500/10 border border-violet-500/20 animate-pulse">
           <Loader2 className="w-4 h-4 text-violet-400 animate-spin" />
-          <span className="text-sm text-muted">Approve conversion in wallet...</span>
+          <span className="text-sm text-white/70">Approve conversion in wallet...</span>
         </div>
       ) : status === 'waiting' ? (
         <div className="flex items-center gap-3 p-3 rounded-xl bg-violet-500/10 border border-violet-500/20 animate-pulse">
           <Loader2 className="w-4 h-4 text-violet-400 animate-spin" />
           <div>
-            <p className="text-sm text-muted">Converting public → private...</p>
-            <p className="text-[11px] text-subtle mt-0.5">This takes ~30-60 seconds. Will auto-continue.</p>
+            <p className="text-sm text-white/70">Converting public → private...</p>
+            <p className="text-[11px] text-white/60 mt-0.5">This takes ~30-60 seconds. Will auto-continue.</p>
           </div>
         </div>
       ) : status === 'done' ? (
@@ -113,7 +113,7 @@ export default function BalanceConverter({
           <Check className="w-4 h-4 text-green-400" />
           <div>
             <p className="text-sm text-green-300">Conversion confirmed!</p>
-            <p className="text-[11px] text-subtle mt-0.5">Syncing records... will retry automatically.</p>
+            <p className="text-[11px] text-white/60 mt-0.5">Syncing records... will retry automatically.</p>
           </div>
         </div>
       ) : null}
@@ -129,16 +129,16 @@ export default function BalanceConverter({
           <span className="text-sm text-white font-medium">
             Get Testnet Credits
           </span>
-          <ExternalLink className="w-3.5 h-3.5 text-subtle" />
+          <ExternalLink className="w-3.5 h-3.5 text-white/60" />
         </div>
-        <p className="text-xs text-muted">
+        <p className="text-xs text-white/70">
           No public balance? Request free ALEO from the testnet faucet.
         </p>
       </a>
 
       <div className="p-2.5 rounded-lg bg-violet-500/5 border border-violet-500/10">
-        <p className="text-xs text-muted">
-          <strong className="text-muted">Why private credits?</strong>{' '}
+        <p className="text-xs text-white/70">
+          <strong className="text-white/70">Why private credits?</strong>{' '}
           VeilSub uses transfer_private to keep your subscription anonymous.
           Public transfers would expose your identity on-chain.
         </p>

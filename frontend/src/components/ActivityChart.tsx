@@ -67,10 +67,10 @@ export default function ActivityChart({ creatorAddress }: Props) {
     return (
       <div className="rounded-sm bg-surface-1 border border-border p-5">
         <div className="flex items-center gap-2 mb-3">
-          <BarChart3 className="w-4 h-4 text-muted" />
+          <BarChart3 className="w-4 h-4 text-white/70" />
           <h3 className="text-sm font-medium text-white">Subscription Activity</h3>
         </div>
-        <p className="text-xs text-subtle">Unable to load activity data.</p>
+        <p className="text-xs text-white/60">Unable to load activity data.</p>
       </div>
     )
   }
@@ -80,9 +80,9 @@ export default function ActivityChart({ creatorAddress }: Props) {
   return (
     <div className="rounded-sm bg-surface-1 border border-border p-5">
       <div className="flex items-center gap-2 mb-4">
-        <BarChart3 className="w-4 h-4 text-muted" />
+        <BarChart3 className="w-4 h-4 text-white/70" />
         <h3 className="text-sm font-medium text-white">Subscription Activity</h3>
-        <span className="text-xs text-subtle ml-auto">Last 30 days</span>
+        <span className="text-xs text-white/60 ml-auto">Last 30 days</span>
       </div>
 
       {/* Bar chart */}
@@ -112,7 +112,7 @@ export default function ActivityChart({ creatorAddress }: Props) {
               {/* Tooltip */}
               <div className="absolute bottom-full mb-2 hidden group-hover:block z-10">
                 <div className="px-2 py-1 rounded bg-surface-2 border border-border text-xs whitespace-nowrap shadow-lg">
-                  <p className="text-muted">{day.date}</p>
+                  <p className="text-white/70">{day.date}</p>
                   <p className="text-white">{day.subscriptions} subs</p>
                 </div>
               </div>
@@ -123,13 +123,13 @@ export default function ActivityChart({ creatorAddress }: Props) {
 
       {/* X-axis labels */}
       <div className="flex justify-between mt-2">
-        <span className="text-[10px] text-subtle">
+        <span className="text-[10px] text-white/60">
           {data[0]?.date.slice(5) || ''}
         </span>
-        <span className="text-[10px] text-subtle">
+        <span className="text-[10px] text-white/60">
           {data[Math.floor(data.length / 2)]?.date.slice(5) || ''}
         </span>
-        <span className="text-[10px] text-subtle">
+        <span className="text-[10px] text-white/60">
           {data[data.length - 1]?.date.slice(5) || ''}
         </span>
       </div>
@@ -137,19 +137,19 @@ export default function ActivityChart({ creatorAddress }: Props) {
       {/* Summary row */}
       <div className="flex gap-6 mt-4 pt-3 border-t border-border">
         <div>
-          <p className="text-xs text-subtle">Total Subs (30d)</p>
+          <p className="text-xs text-white/60">Total Subs (30d)</p>
           <p className="text-sm font-medium text-white">
             {data.reduce((sum, d) => sum + d.subscriptions, 0)}
           </p>
         </div>
         <div>
-          <p className="text-xs text-subtle">Tips (30d)</p>
+          <p className="text-xs text-white/60">Tips (30d)</p>
           <p className="text-sm font-medium text-white">
             {data.reduce((sum, d) => sum + d.tips, 0)}
           </p>
         </div>
         <div>
-          <p className="text-xs text-subtle">Peak Day</p>
+          <p className="text-xs text-white/60">Peak Day</p>
           <p className="text-sm font-medium text-white">
             {Math.max(...data.map((d) => d.subscriptions))} subs
           </p>

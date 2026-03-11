@@ -161,7 +161,7 @@ function QuickMappingQueries() {
           Query Featured Creator
         </button>
       </div>
-      <p className="text-xs text-subtle mb-4">
+      <p className="text-xs text-white/60 mb-4">
         Query on-chain mappings for the featured creator via privacy proxy. No wallet required—these are public aggregate values. Your IP is never sent to external APIs.
       </p>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -175,16 +175,16 @@ function QuickMappingQueries() {
               <button
                 onClick={() => queryMapping(q.mapping, q.key)}
                 disabled={loadingMap[q.mapping]}
-                className="px-2 py-1 rounded text-[10px] font-medium bg-white/[0.06] text-muted hover:text-white hover:bg-white/[0.1] transition-colors disabled:opacity-40"
+                className="px-2 py-1 rounded text-[10px] font-medium bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.1] transition-colors disabled:opacity-40"
               >
                 {loadingMap[q.mapping] ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Query'}
               </button>
             </div>
-            <p className="text-[10px] text-subtle mb-2">{q.desc}</p>
+            <p className="text-[10px] text-white/60 mb-2">{q.desc}</p>
             {results[q.mapping] !== undefined && (
               <div className="pt-2 border-t border-border/75">
                 <span className="text-sm font-mono text-white">
-                  {results[q.mapping] ?? <span className="text-subtle">not set</span>}
+                  {results[q.mapping] ?? <span className="text-white/60">not set</span>}
                 </span>
               </div>
             )}
@@ -307,7 +307,7 @@ export default function ExplorerPage() {
             className="text-center mb-10"
           >
             <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-2" style={{ letterSpacing: '-0.03em' }}>On-Chain Explorer</h1>
-            <p className="text-muted">
+            <p className="text-white/70">
               Look up any creator&apos;s public stats directly from the Aleo blockchain.
               Only aggregate data is visible—subscriber identities are always private.
             </p>
@@ -324,7 +324,7 @@ export default function ExplorerPage() {
               <GlassCard delay={0}>
                 <div className="flex items-center gap-2 mb-2">
                   <Users className="w-4 h-4 text-violet-400" />
-                  <span className="text-xs text-muted">Total Creators</span>
+                  <span className="text-xs text-white/70">Total Creators</span>
                 </div>
                 <p className="text-3xl font-semibold text-white">
                   <AnimatedCounter target={globalStats.totalCreators} />
@@ -333,7 +333,7 @@ export default function ExplorerPage() {
               <GlassCard delay={0.05}>
                 <div className="flex items-center gap-2 mb-2">
                   <Activity className="w-4 h-4 text-green-400" />
-                  <span className="text-xs text-muted">Total Subscriptions</span>
+                  <span className="text-xs text-white/70">Total Subscriptions</span>
                 </div>
                 <p className="text-3xl font-semibold text-white">
                   <AnimatedCounter target={globalStats.totalSubscriptions} />
@@ -342,16 +342,16 @@ export default function ExplorerPage() {
               <GlassCard delay={0.1}>
                 <div className="flex items-center gap-2 mb-2">
                   <Coins className="w-4 h-4 text-amber-400" />
-                  <span className="text-xs text-muted">Platform Revenue</span>
+                  <span className="text-xs text-white/70">Platform Revenue</span>
                 </div>
                 <p className="text-3xl font-semibold text-white">
-                  {formatCredits(globalStats.totalRevenue)} <span className="text-sm text-muted">ALEO</span>
+                  {formatCredits(globalStats.totalRevenue)} <span className="text-sm text-white/70">ALEO</span>
                 </p>
               </GlassCard>
               <GlassCard delay={0.15}>
                 <div className="flex items-center gap-2 mb-2">
                   <Shield className="w-4 h-4 text-blue-400" />
-                  <span className="text-xs text-muted">Active Programs</span>
+                  <span className="text-xs text-white/70">Active Programs</span>
                 </div>
                 <p className="text-3xl font-semibold text-white">
                   <AnimatedCounter target={globalStats.activePrograms} />
@@ -369,7 +369,7 @@ export default function ExplorerPage() {
           >
             <div className="flex gap-3">
               <div className="flex-1 relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-subtle group-focus-within:text-violet-400 transition-colors" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60 group-focus-within:text-violet-400 transition-colors" />
                 <input
                   type="text"
                   value={address}
@@ -422,7 +422,7 @@ export default function ExplorerPage() {
                   <AddressAvatar address={result.address} size={48} />
                   <div>
                     <p className="text-white font-medium font-mono">{shortenAddress(result.address)}</p>
-                    <p className="text-xs text-subtle">
+                    <p className="text-xs text-white/60">
                       {isRegistered ? 'Registered Creator' : 'Not Registered'}
                     </p>
                   </div>
@@ -432,14 +432,14 @@ export default function ExplorerPage() {
                     href={`https://testnet.explorer.provable.com/address/${result.address}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-subtle hover:text-white flex items-center gap-1 transition-colors"
+                    className="px-3 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/60 hover:text-white flex items-center gap-1 transition-colors"
                   >
                     Aleo Explorer <ExternalLink className="w-3 h-3" />
                   </a>
                   {isRegistered && (
                     <a
                       href={`/creator/${result.address}`}
-                      className="px-3 py-2 rounded-lg bg-white/[0.06] border border-border text-xs text-subtle hover:text-white flex items-center gap-1 transition-colors"
+                      className="px-3 py-2 rounded-lg bg-white/[0.06] border border-border text-xs text-white/60 hover:text-white flex items-center gap-1 transition-colors"
                     >
                       Subscribe <ArrowRight className="w-3 h-3" />
                     </a>
@@ -455,7 +455,7 @@ export default function ExplorerPage() {
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <Users className="w-4 h-4 text-violet-400" />
-                          <span className="text-xs text-muted">Subscribers</span>
+                          <span className="text-xs text-white/70">Subscribers</span>
                         </div>
                         <OnChainVerify
                           creatorAddress={result.address}
@@ -474,7 +474,7 @@ export default function ExplorerPage() {
                           </div>
                         )}
                       </div>
-                      <p className="text-xs text-subtle mt-1">
+                      <p className="text-xs text-white/60 mt-1">
                         Aggregate count only—no individual IDs visible
                       </p>
                     </GlassCard>
@@ -483,7 +483,7 @@ export default function ExplorerPage() {
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <Coins className="w-4 h-4 text-green-400" />
-                          <span className="text-xs text-muted">Total Revenue</span>
+                          <span className="text-xs text-white/70">Total Revenue</span>
                         </div>
                         <OnChainVerify
                           creatorAddress={result.address}
@@ -492,9 +492,9 @@ export default function ExplorerPage() {
                         />
                       </div>
                       <p className="text-3xl font-semibold text-white">
-                        {formatCredits(result.totalRevenue)} <span className="text-sm text-muted">ALEO</span>
+                        {formatCredits(result.totalRevenue)} <span className="text-sm text-white/70">ALEO</span>
                       </p>
-                      <p className="text-xs text-subtle mt-1">
+                      <p className="text-xs text-white/60 mt-1">
                         Sum of all subscriptions and tips
                       </p>
                     </GlassCard>
@@ -503,7 +503,7 @@ export default function ExplorerPage() {
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <Tag className="w-4 h-4 text-blue-400" />
-                          <span className="text-xs text-muted">Base Price</span>
+                          <span className="text-xs text-white/70">Base Price</span>
                         </div>
                         <OnChainVerify
                           creatorAddress={result.address}
@@ -512,9 +512,9 @@ export default function ExplorerPage() {
                         />
                       </div>
                       <p className="text-3xl font-semibold text-white">
-                        {formatCredits(result.tierPrice ?? 0)} <span className="text-sm text-muted">ALEO</span>
+                        {formatCredits(result.tierPrice ?? 0)} <span className="text-sm text-white/70">ALEO</span>
                       </p>
-                      <p className="text-xs text-subtle mt-1">
+                      <p className="text-xs text-white/60 mt-1">
                         Premium = 2x, VIP = 5x this price
                       </p>
                     </GlassCard>
@@ -524,7 +524,7 @@ export default function ExplorerPage() {
                   <ActivityChart creatorAddress={result.address} />
 
                   {/* Data Source */}
-                  <div className="p-3 rounded-xl bg-surface-1 border border-border text-xs text-subtle">
+                  <div className="p-3 rounded-xl bg-surface-1 border border-border text-xs text-white/60">
                     <p>
                       Data fetched from on-chain mappings via privacy proxy{' '}
                       <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300">
@@ -537,11 +537,11 @@ export default function ExplorerPage() {
                 </>
               ) : (
                 <div className="text-center py-12">
-                  <AlertCircle className="w-10 h-10 text-subtle mx-auto mb-3" />
+                  <AlertCircle className="w-10 h-10 text-white/60 mx-auto mb-3" />
                   <h3 className="text-lg font-semibold text-white mb-1">
                     Creator Not Registered
                   </h3>
-                  <p className="text-sm text-muted">
+                  <p className="text-sm text-white/70">
                     This address has not called <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300 text-xs">register_creator</code> on VeilSub.
                     No subscription data exists for this address.
                   </p>
@@ -558,11 +558,11 @@ export default function ExplorerPage() {
               transition={{ delay: 0.3 }}
               className="text-center py-12"
             >
-              <Search className="w-10 h-10 text-subtle mx-auto mb-3" />
-              <p className="text-subtle text-sm">
+              <Search className="w-10 h-10 text-white/60 mx-auto mb-3" />
+              <p className="text-white/60 text-sm">
                 Enter a creator&apos;s Aleo address to view their public on-chain stats.
               </p>
-              <p className="text-subtle text-xs mt-2">
+              <p className="text-white/60 text-xs mt-2">
                 Only aggregate data (subscriber count, total revenue, tier price) is publicly visible.
               </p>
             </m.div>
@@ -593,7 +593,7 @@ export default function ExplorerPage() {
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                       eventFilter === filter
                         ? 'bg-violet-500/[0.08] text-violet-300 border border-violet-500/[0.15] shadow-accent-sm'
-                        : 'text-subtle hover:text-muted border border-transparent'
+                        : 'text-white/60 hover:text-white/70 border border-transparent'
                     }`}
                   >
                     {filter.charAt(0).toUpperCase() + filter.slice(1)}
@@ -604,7 +604,7 @@ export default function ExplorerPage() {
 
             <div className="rounded-sm bg-surface-1 border border-border overflow-hidden">
               {/* Table Header — desktop only */}
-              <div className="hidden sm:grid grid-cols-[1fr_auto_auto_1.5fr_auto] gap-4 px-4 py-3 border-b border-border text-xs text-subtle font-medium">
+              <div className="hidden sm:grid grid-cols-[1fr_auto_auto_1.5fr_auto] gap-4 px-4 py-3 border-b border-border text-xs text-white/60 font-medium">
                 <span>Time</span>
                 <span>Tier</span>
                 <span>Amount</span>
@@ -627,9 +627,9 @@ export default function ExplorerPage() {
                 </div>
               ) : paginatedEvents.length === 0 ? (
                 <div className="text-center py-12">
-                  <Activity className="w-8 h-8 text-subtle mx-auto mb-3" />
-                  <p className="text-sm text-subtle mb-1">No events found</p>
-                  <p className="text-xs text-subtle">Subscription and tip activity will appear here once transactions are confirmed on-chain.</p>
+                  <Activity className="w-8 h-8 text-white/60 mx-auto mb-3" />
+                  <p className="text-sm text-white/60 mb-1">No events found</p>
+                  <p className="text-xs text-white/60">Subscription and tip activity will appear here once transactions are confirmed on-chain.</p>
                 </div>
               ) : (
                 <div>
@@ -644,7 +644,7 @@ export default function ExplorerPage() {
                       <div key={`${event.tx_id || i}-${i}`}>
                         {/* Desktop row */}
                         <div className="hidden sm:grid grid-cols-[1fr_auto_auto_1.5fr_auto] gap-4 px-4 py-3 border-b border-white/[0.04] hover:bg-white/[0.04] transition-colors items-center">
-                          <span className="text-xs text-muted">{timeAgo(event.created_at)}</span>
+                          <span className="text-xs text-white/70">{timeAgo(event.created_at)}</span>
                           <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium border ${tier.color}`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${tier.dot}`} />
                             {tier.name}
@@ -653,12 +653,12 @@ export default function ExplorerPage() {
                             {formatCredits(event.amount_microcredits)}
                           </span>
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <code className="text-xs text-muted font-mono truncate">{txShort}</code>
+                            <code className="text-xs text-white/70 font-mono truncate">{txShort}</code>
                             {event.tx_id && (
                               <>
                                 <button
                                   onClick={() => copyTxId(event.tx_id!)}
-                                  className="shrink-0 p-1 rounded hover:bg-white/10 text-subtle hover:text-white transition-colors"
+                                  className="shrink-0 p-1 rounded hover:bg-white/10 text-white/60 hover:text-white transition-colors"
                                   aria-label="Copy transaction ID"
                                 >
                                   {copiedTxId === event.tx_id ? (
@@ -671,7 +671,7 @@ export default function ExplorerPage() {
                                   href={explorerUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="shrink-0 p-1 rounded hover:bg-white/10 text-subtle hover:text-white transition-colors"
+                                  className="shrink-0 p-1 rounded hover:bg-white/10 text-white/60 hover:text-white transition-colors"
                                   aria-label="View on explorer"
                                 >
                                   <ExternalLink className="w-3 h-3" />
@@ -686,7 +686,7 @@ export default function ExplorerPage() {
                             className={`px-2 py-1 rounded-md text-xs font-medium transition-all ${
                               event.tx_id
                                 ? 'bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20'
-                                : 'bg-white/5 border border-white/10 text-subtle cursor-default'
+                                : 'bg-white/5 border border-white/10 text-white/60 cursor-default'
                             }`}
                           >
                             Verify
@@ -704,13 +704,13 @@ export default function ExplorerPage() {
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs text-subtle">{timeAgo(event.created_at)}</span>
+                            <span className="text-xs text-white/60">{timeAgo(event.created_at)}</span>
                             <div className="flex items-center gap-1">
                               {event.tx_id && (
                                 <>
                                   <button
                                     onClick={() => copyTxId(event.tx_id!)}
-                                    className="p-1.5 rounded hover:bg-white/10 text-subtle hover:text-white transition-colors"
+                                    className="p-1.5 rounded hover:bg-white/10 text-white/60 hover:text-white transition-colors"
                                     aria-label="Copy transaction ID"
                                   >
                                     {copiedTxId === event.tx_id ? (
@@ -723,7 +723,7 @@ export default function ExplorerPage() {
                                     href={explorerUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-1.5 rounded hover:bg-white/10 text-subtle hover:text-white transition-colors"
+                                    className="p-1.5 rounded hover:bg-white/10 text-white/60 hover:text-white transition-colors"
                                     aria-label="View on explorer"
                                   >
                                     <ExternalLink className="w-3.5 h-3.5" />
@@ -745,7 +745,7 @@ export default function ExplorerPage() {
                   <button
                     onClick={() => setEventsPage(Math.max(0, eventsPage - 1))}
                     disabled={eventsPage === 0}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-subtle hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-white/60 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
                     <ChevronLeft className="w-3 h-3" /> Prev
                   </button>
@@ -757,7 +757,7 @@ export default function ExplorerPage() {
                         className={`w-7 h-7 rounded-lg text-xs font-medium transition-all ${
                           eventsPage === i
                             ? 'bg-violet-500/[0.08] text-violet-300 border border-violet-500/[0.15]'
-                            : 'text-subtle hover:text-muted border border-transparent'
+                            : 'text-white/60 hover:text-white/70 border border-transparent'
                         }`}
                       >
                         {i + 1}
@@ -767,7 +767,7 @@ export default function ExplorerPage() {
                   <button
                     onClick={() => setEventsPage(Math.min(totalPages - 1, eventsPage + 1))}
                     disabled={eventsPage >= totalPages - 1}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-subtle hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-white/60 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
                     Next <ChevronRight className="w-3 h-3" />
                   </button>

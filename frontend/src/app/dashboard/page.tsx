@@ -168,7 +168,7 @@ export default function DashboardPage() {
           >
             Creator Dashboard
           </h1>
-          <p className="text-muted">
+          <p className="text-white/70">
             {isRegistered
               ? 'Manage your subscription settings and view aggregate stats.'
               : 'Register as a creator to start accepting private subscriptions.'}
@@ -191,7 +191,7 @@ export default function DashboardPage() {
             <h2 className="text-3xl font-bold text-white mb-3">
               You&apos;re Registered!
             </h2>
-            <p className="text-muted text-center max-w-md mb-8">
+            <p className="text-white/70 text-center max-w-md mb-8">
               Your creator profile is live on-chain. Subscribers can now find you and subscribe privately.
             </p>
             <m.div
@@ -200,7 +200,7 @@ export default function DashboardPage() {
               transition={{ delay: 1 }}
               className="space-y-3 text-center"
             >
-              <p className="text-xs text-subtle uppercase tracking-wider font-medium">Next steps</p>
+              <p className="text-xs text-white/60 uppercase tracking-wider font-medium">Next steps</p>
               <div className="flex items-center gap-3 flex-wrap justify-center">
                 <Link
                   href={`/creator/${publicKey}`}
@@ -211,7 +211,7 @@ export default function DashboardPage() {
                 </Link>
                 <button
                   onClick={copyLink}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-muted hover:bg-white/[0.08] transition-all duration-300"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-white/70 hover:bg-white/[0.08] transition-all duration-300"
                 >
                   <Share2 className="w-4 h-4" />
                   Share your link

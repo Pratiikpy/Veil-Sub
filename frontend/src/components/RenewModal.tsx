@@ -187,7 +187,7 @@ export default function RenewModal({
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <RefreshCw className="w-5 h-5 text-muted" />
+                <RefreshCw className="w-5 h-5 text-white/70" />
                 <h3 className="text-lg font-semibold text-white">
                   Renew Subscription
                 </h3>
@@ -195,7 +195,7 @@ export default function RenewModal({
               <button
                 onClick={handleModalClose}
                 aria-label="Close renewal dialog"
-                className="p-1 rounded-lg hover:bg-white/[0.05] text-muted hover:text-white active:scale-[0.9] transition-all"
+                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -205,7 +205,7 @@ export default function RenewModal({
               <>
                 {/* Current Status */}
                 <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4">
-                  <p className="text-xs text-subtle mb-1">Current pass</p>
+                  <p className="text-xs text-white/60 mb-1">Current pass</p>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-white">
                       {TIERS.find((t) => t.id === pass.tier)?.name ?? `Custom Tier ${pass.tier}`}
@@ -215,7 +215,7 @@ export default function RenewModal({
                         Expired
                       </span>
                     ) : (
-                      <span className="text-xs text-muted">
+                      <span className="text-xs text-white/70">
                         ~{daysRemaining} days left
                       </span>
                     )}
@@ -224,7 +224,7 @@ export default function RenewModal({
 
                 {/* Tier Selector */}
                 <div className="mb-4">
-                  <p className="text-xs text-muted mb-2">Renew as:</p>
+                  <p className="text-xs text-white/70 mb-2">Renew as:</p>
                   <div ref={tierGroupRef} className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Subscription tier">
                     {TIERS.map((tier) => (
                       <button
@@ -236,7 +236,7 @@ export default function RenewModal({
                         className={`py-2.5 px-3 rounded-lg text-xs font-medium transition-all ${
                           selectedTier.id === tier.id
                             ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
-                            : 'bg-white/5 border border-white/10 text-muted hover:bg-white/10 hover:border-white/15'
+                            : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:border-white/15'
                         }`}
                       >
                         {tier.name}
@@ -247,7 +247,7 @@ export default function RenewModal({
 
                 {/* Privacy Mode Selector */}
                 <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4">
-                    <p className="text-xs text-subtle mb-2 font-medium">Privacy Level</p>
+                    <p className="text-xs text-white/60 mb-2 font-medium">Privacy Level</p>
                     <div ref={privacyGroupRef} className="grid grid-cols-2 gap-1.5" role="radiogroup" aria-label="Privacy level">
                       {([
                         { key: 'standard' as const, label: 'Standard', desc: 'BHP256 hash' },
@@ -262,11 +262,11 @@ export default function RenewModal({
                           className={`p-2 rounded-lg border text-center transition-all ${
                             privacyMode === mode.key
                               ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300 shadow-accent-sm'
-                              : 'border-border/75 bg-transparent text-subtle hover:border-glass-hover hover:text-muted'
+                              : 'border-border/75 bg-transparent text-white/60 hover:border-glass-hover hover:text-white/70'
                           }`}
                         >
                           <span className="text-[11px] font-medium block">{mode.label}</span>
-                          <span className="text-[9px] text-subtle block">{mode.desc}</span>
+                          <span className="text-[9px] text-white/60 block">{mode.desc}</span>
                         </button>
                       ))}
                     </div>
@@ -279,13 +279,13 @@ export default function RenewModal({
 
                 {/* Payment Breakdown */}
                 <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
-                  <span className="text-xs text-subtle uppercase tracking-wider font-medium">
+                  <span className="text-xs text-white/60 uppercase tracking-wider font-medium">
                     {selectedTier.name}
                   </span>
                   <p className="text-2xl font-bold text-white mt-1 mb-2">
-                    {formatCredits(totalPrice)} <span className="text-sm font-medium text-muted">ALEO</span>
+                    {formatCredits(totalPrice)} <span className="text-sm font-medium text-white/70">ALEO</span>
                   </p>
-                  <div className="text-xs text-subtle space-y-1">
+                  <div className="text-xs text-white/60 space-y-1">
                     <div className="flex justify-between">
                       <span>Creator ({100 - PLATFORM_FEE_PCT}%)</span>
                       <span>{formatCredits(creatorCut)} ALEO</span>
@@ -295,7 +295,7 @@ export default function RenewModal({
                       <span>{formatCredits(platformCut)} ALEO</span>
                     </div>
                   </div>
-                  <div className="mt-2 pt-2 border-t border-white/5 text-xs text-muted space-y-1">
+                  <div className="mt-2 pt-2 border-t border-white/5 text-xs text-white/70 space-y-1">
                     <div>Access for ~30 days ({SUBSCRIPTION_DURATION_BLOCKS.toLocaleString()} blocks)</div>
                     <div>Est. network fee: ~{formatCredits(privacyMode === 'standard' ? FEES.RENEW : FEES.RENEW_BLIND)} ALEO</div>
                   </div>
@@ -344,7 +344,7 @@ export default function RenewModal({
               <div className="py-2">
                 {statusMessage && (
                   <div className="mb-3 p-3 rounded-xl bg-surface-2 border border-border">
-                    <p className="text-xs text-muted animate-pulse">{statusMessage}</p>
+                    <p className="text-xs text-white/70 animate-pulse">{statusMessage}</p>
                   </div>
                 )}
                 <TransactionStatus status={txStatus} txId={txId} errorMessage={error} />
@@ -355,7 +355,7 @@ export default function RenewModal({
                     className="mt-4 text-center"
                   >
                     <p className="text-green-400 font-medium mb-1">Renewed!</p>
-                    <p className="text-xs text-muted">
+                    <p className="text-xs text-white/70">
                       Your new AccessPass is in your wallet.
                     </p>
                     <button

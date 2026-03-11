@@ -141,7 +141,7 @@ export default function OnChainExplorer() {
         >
           On-Chain Explorer
         </h2>
-        <p className="text-muted text-sm max-w-xl mx-auto">
+        <p className="text-white/70 text-sm max-w-xl mx-auto">
           Query on-chain data directly from Aleo testnet. No wallet connection needed.
           Verify creator registrations, content metadata, and program deployment.
         </p>
@@ -162,7 +162,7 @@ export default function OnChainExplorer() {
                 onChange={(e) => setCreatorAddr(e.target.value)}
                 placeholder="Poseidon2 field hash or aleo1..."
                 aria-label="Creator address or hash"
-                className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white text-base placeholder:text-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
+                className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white text-base placeholder:text-white/60 focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
               />
               <button
                 type="button"
@@ -195,23 +195,23 @@ export default function OnChainExplorer() {
                 {creatorStats.registered && (
                   <>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted">Base Price</span>
+                      <span className="text-white/70">Base Price</span>
                       <span className="text-white font-mono">
                         {creatorStats.basePrice !== null ? `${(creatorStats.basePrice / 1_000_000).toFixed(2)} ALEO` : '—'}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted">Subscribers</span>
+                      <span className="text-white/70">Subscribers</span>
                       <span className="text-white font-mono">{creatorStats.subscriberCount ?? '—'}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted">Total Revenue</span>
+                      <span className="text-white/70">Total Revenue</span>
                       <span className="text-white font-mono">
                         {creatorStats.totalRevenue !== null ? `${(creatorStats.totalRevenue / 1_000_000).toFixed(2)} ALEO` : '—'}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted">Content Published</span>
+                      <span className="text-white/70">Content Published</span>
                       <span className="text-white font-mono">{creatorStats.contentCount ?? '—'}</span>
                     </div>
                   </>
@@ -237,7 +237,7 @@ export default function OnChainExplorer() {
                   onChange={(e) => setContentId(e.target.value)}
                   placeholder="Content hash (field value)"
                   aria-label="Content hash to verify"
-                  className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white text-base placeholder:text-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
+                  className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white text-base placeholder:text-white/60 focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
                 />
               </div>
               <button
@@ -263,12 +263,12 @@ export default function OnChainExplorer() {
                   {contentInfo.found && (
                     <>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted">Min Tier Required</span>
+                        <span className="text-white/70">Min Tier Required</span>
                         <span className="text-white">{TIERS.find(t => t.id === contentInfo.minTier)?.name || `Tier ${contentInfo.minTier}`}</span>
                       </div>
                       {contentInfo.contentHash && (
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted">Integrity Hash</span>
+                          <span className="text-white/70">Integrity Hash</span>
                           <span className="text-white font-mono text-xs truncate max-w-[160px]">{contentInfo.contentHash}</span>
                         </div>
                       )}
@@ -286,7 +286,7 @@ export default function OnChainExplorer() {
                 <Database className="w-5 h-5 text-violet-400" />
                 <h3 className="text-white font-semibold">Program Deployment</h3>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted">
+              <div className="flex items-center gap-2 text-sm text-white/70">
                 <Coins className="w-4 h-4" />
                 <span className="font-mono text-xs break-all">{DEPLOYED_PROGRAM_ID}</span>
               </div>

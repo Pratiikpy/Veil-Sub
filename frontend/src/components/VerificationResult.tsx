@@ -47,7 +47,7 @@ export default function VerificationResult({
           >
             {success ? 'Access Verified' : 'Verification Failed'}
           </p>
-          <p className="text-xs text-subtle">
+          <p className="text-xs text-white/60">
             {success
               ? 'ZK proof confirms valid AccessPass ownership'
               : 'Could not verify this AccessPass'}
@@ -58,12 +58,12 @@ export default function VerificationResult({
       {success && passTier && passCreator && (
         <div className="space-y-2 mb-3">
           <div className="flex justify-between text-xs">
-            <span className="text-subtle">Tier</span>
+            <span className="text-white/60">Tier</span>
             <span className="text-white">{passTier}</span>
           </div>
           <div className="flex justify-between text-xs">
-            <span className="text-subtle">Creator</span>
-            <span className="text-muted font-mono text-[10px]">
+            <span className="text-white/60">Creator</span>
+            <span className="text-white/70 font-mono text-[10px]">
               {passCreator}
             </span>
           </div>
@@ -76,7 +76,7 @@ export default function VerificationResult({
             href={`https://testnet.explorer.provable.com/transaction/${txId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-muted hover:text-white"
+            className="inline-flex items-center gap-1 text-xs text-white/70 hover:text-white"
           >
             View on Explorer
             <ExternalLink className="w-3 h-3" />
@@ -86,7 +86,7 @@ export default function VerificationResult({
             href={`https://testnet.aleoscan.io/program?id=${PROGRAM_ID}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-muted hover:text-white"
+            className="inline-flex items-center gap-1 text-xs text-white/70 hover:text-white"
           >
             View program on Explorer
             <ExternalLink className="w-3 h-3" />

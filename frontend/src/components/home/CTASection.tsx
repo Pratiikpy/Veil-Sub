@@ -35,7 +35,7 @@ export default function CTASection() {
               >
                 Ready to Go Private?
               </h2>
-              <p className="mt-6 text-lg text-muted max-w-lg mx-auto leading-relaxed">
+              <p className="mt-6 text-lg text-white/70 max-w-lg mx-auto leading-relaxed">
                 Start earning from subscribers who value privacy. No lists. No traces. No compromise.
               </p>
               <div className="flex items-center justify-center gap-4 flex-wrap mt-10">

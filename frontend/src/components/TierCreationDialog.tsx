@@ -98,11 +98,11 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="rounded-lg bg-violet-500/20 p-2">
-                  <Layers className="h-5 w-5 text-muted" />
+                  <Layers className="h-5 w-5 text-white/70" />
                 </div>
                 <h3 className="text-lg font-semibold text-white">Create Custom Tier</h3>
               </div>
-              <button onClick={handleClose} aria-label="Close tier creation dialog" className="rounded-lg p-1 text-muted hover:bg-white/[0.1] hover:text-white active:scale-[0.9] transition-all">
+              <button onClick={handleClose} aria-label="Close tier creation dialog" className="rounded-lg p-1 text-white/70 hover:bg-white/[0.1] hover:text-white active:scale-[0.9] transition-all">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -112,7 +112,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                 <div className="rounded-xl bg-surface-2 border border-border p-4 text-center">
                   <Sparkles className="mx-auto mb-2 h-8 w-8 text-green-400" />
                   <p className="text-sm font-medium text-green-400">Tier #{tierId} created!</p>
-                  {txId && <p className="mt-1 text-xs text-subtle break-all">Tx: {txId.slice(0, 20)}...</p>}
+                  {txId && <p className="mt-1 text-xs text-white/60 break-all">Tx: {txId.slice(0, 20)}...</p>}
                 </div>
                 <button onClick={handleClose} className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all">
                   Close
@@ -122,7 +122,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
               <div className="space-y-4">
                 {/* Tier ID Selector */}
                 <div>
-                  <label className="mb-2 block text-xs font-medium text-muted">Tier ID</label>
+                  <label className="mb-2 block text-xs font-medium text-white/70">Tier ID</label>
                   <div className="grid grid-cols-5 gap-2">
                     {availableIds.map((id) => (
                       <button
@@ -133,7 +133,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                         className={`rounded-lg py-2 text-xs font-medium transition-all ${
                           tierId === id
                             ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
-                            : 'bg-white/5 border border-white/10 text-muted hover:bg-white/10 hover:border-white/15'
+                            : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:border-white/15'
                         }`}
                       >
                         #{id}
@@ -144,7 +144,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
 
                 {/* Tier Name */}
                 <div>
-                  <label htmlFor="tier-name" className="mb-2 block text-xs font-medium text-muted">Tier Name</label>
+                  <label htmlFor="tier-name" className="mb-2 block text-xs font-medium text-white/70">Tier Name</label>
                   <input
                     id="tier-name"
                     type="text"
@@ -158,7 +158,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
 
                 {/* Price */}
                 <div>
-                  <label htmlFor="tier-price" className="mb-2 block text-xs font-medium text-muted">Price (ALEO credits)</label>
+                  <label htmlFor="tier-price" className="mb-2 block text-xs font-medium text-white/70">Price (ALEO credits)</label>
                   <input
                     id="tier-price"
                     type="number"
@@ -171,7 +171,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                     className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base"
                   />
                   {priceAleo && (
-                    <p className="mt-1 text-xs text-subtle">
+                    <p className="mt-1 text-xs text-white/60">
                       = {Math.round(parseFloat(priceAleo || '0') * MICROCREDITS_PER_CREDIT).toLocaleString()} microcredits
                     </p>
                   )}

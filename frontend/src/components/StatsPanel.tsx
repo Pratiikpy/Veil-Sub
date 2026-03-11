@@ -57,7 +57,7 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
       label: 'Subscribers',
       value: stats.subscriberCount.toString(),
       icon: Users,
-      color: 'text-muted',
+      color: 'text-white/70',
     },
     {
       label: 'Revenue',
@@ -89,7 +89,7 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
           >
             <div className="flex items-center gap-2 mb-2">
               <Icon className={`w-4 h-4 ${item.color}`} />
-              <span className="text-xs text-muted">{item.label}</span>
+              <span className="text-xs text-white/70">{item.label}</span>
             </div>
             <p className="text-xl font-bold text-white">{item.value}</p>
           </m.div>

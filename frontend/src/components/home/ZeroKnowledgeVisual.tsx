@@ -31,7 +31,7 @@ export default function ZeroKnowledgeVisual() {
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.08]">
                 <Server className="w-4 h-4 text-violet-400/60" />
-                <span className="text-[11px] font-semibold tracking-[0.2em] text-muted uppercase">Architecture</span>
+                <span className="text-[11px] font-semibold tracking-[0.2em] text-white/70 uppercase">Architecture</span>
               </div>
               <h2
                 className="text-4xl sm:text-5xl lg:text-6xl font-serif italic text-white"
@@ -42,7 +42,7 @@ export default function ZeroKnowledgeVisual() {
                   Aleo
                 </span>
               </h2>
-              <p className="text-lg text-muted leading-relaxed">
+              <p className="text-lg text-white/70 leading-relaxed">
                 Aleo is a Layer-1 blockchain purpose-built for zero-knowledge applications. Unlike Ethereum or Solana where privacy is an afterthought, Aleo makes ZK-proofs a native, first-class feature.
               </p>
               <div className="space-y-4 pt-2">

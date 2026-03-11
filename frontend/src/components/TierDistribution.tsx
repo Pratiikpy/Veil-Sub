@@ -50,10 +50,10 @@ export default function TierDistribution({ creatorAddress }: Props) {
     return (
       <div className="rounded-sm bg-surface-1 border border-border p-5">
         <div className="flex items-center gap-2 mb-3">
-          <Users className="w-4 h-4 text-muted" />
+          <Users className="w-4 h-4 text-white/70" />
           <h3 className="text-sm font-medium text-white">Tier Breakdown</h3>
         </div>
-        <p className="text-xs text-subtle">Unable to load tier data.</p>
+        <p className="text-xs text-white/60">Unable to load tier data.</p>
       </div>
     )
   }
@@ -63,9 +63,9 @@ export default function TierDistribution({ creatorAddress }: Props) {
   return (
     <div className="rounded-sm bg-surface-1 border border-border p-5">
       <div className="flex items-center gap-2 mb-4">
-        <Users className="w-4 h-4 text-muted" />
+        <Users className="w-4 h-4 text-white/70" />
         <h3 className="text-sm font-medium text-white">Tier Breakdown</h3>
-        <span className="text-xs text-subtle ml-auto">{total} total</span>
+        <span className="text-xs text-white/60 ml-auto">{total} total</span>
       </div>
 
       <div className="space-y-3">
@@ -78,8 +78,8 @@ export default function TierDistribution({ creatorAddress }: Props) {
           return (
             <div key={tierId} className="group relative">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-muted">{config.name}</span>
-                <span className="text-xs text-subtle">
+                <span className="text-xs text-white/70">{config.name}</span>
+                <span className="text-xs text-white/60">
                   {count} ({pct.toFixed(0)}%)
                 </span>
               </div>
@@ -92,7 +92,7 @@ export default function TierDistribution({ creatorAddress }: Props) {
                 <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block z-10">
                   <div className="px-2.5 py-1.5 rounded bg-surface-2 border border-border text-xs whitespace-nowrap shadow-lg">
                     <p className="text-white font-medium">{count} subscribers</p>
-                    <p className="text-muted">{pct.toFixed(1)}% of total</p>
+                    <p className="text-white/70">{pct.toFixed(1)}% of total</p>
                   </div>
                 </div>
               </div>

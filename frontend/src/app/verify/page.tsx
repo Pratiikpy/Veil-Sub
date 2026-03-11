@@ -170,7 +170,7 @@ export default function VerifyPage() {
               >
                 Verify Your Access
               </h1>
-              <p className="text-lg text-muted max-w-2xl mx-auto leading-relaxed">
+              <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
                 Prove you hold a valid AccessPass using a zero-knowledge proof.
                 Your identity stays completely private.
               </p>
@@ -195,15 +195,15 @@ export default function VerifyPage() {
               <h2 className="text-xl font-semibold text-white mb-2">
                 Connect Wallet to Verify
               </h2>
-              <p className="text-muted text-sm mb-6">
+              <p className="text-white/70 text-sm mb-6">
                 Connect your wallet to view your AccessPasses and generate zero-knowledge proofs.
               </p>
               <div className="p-4 rounded-xl glass text-left">
-                <p className="text-xs text-muted leading-relaxed">
+                <p className="text-xs text-white/70 leading-relaxed">
                   <strong className="text-violet-300">How it works:</strong> Select an AccessPass from your wallet, then click Verify. VeilSub generates a ZK proof that confirms your subscription without revealing your identity. The verification has zero public footprint.
                 </p>
               </div>
-              <p className="text-xs text-subtle mt-4">
+              <p className="text-xs text-white/60 mt-4">
                 Scroll down to use the On-Chain Explorer without a wallet.
               </p>
             </m.div>
@@ -219,7 +219,7 @@ export default function VerifyPage() {
                     onClick={loadPasses}
                     disabled={loading}
                     aria-label="Refresh access passes"
-                    className="p-2 rounded-lg bg-white/[0.05] border border-border text-subtle hover:text-white hover:bg-white/[0.08] transition-all duration-300"
+                    className="p-2 rounded-lg bg-white/[0.05] border border-border text-white/60 hover:text-white hover:bg-white/[0.08] transition-all duration-300"
                   >
                     <RefreshCw
                       className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
@@ -282,17 +282,17 @@ export default function VerifyPage() {
                           }`}
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <span className={`font-medium text-sm ${isExpired ? 'text-muted' : 'text-white'}`}>
+                            <span className={`font-medium text-sm ${isExpired ? 'text-white/70' : 'text-white'}`}>
                               {tierInfo?.name || `Tier ${pass.tier}`}
                             </span>
                             <StatusBadge status={isExpired ? 'expired' : 'active'} size="sm" />
                           </div>
                           <div className="flex items-center justify-between">
-                            <p className="text-xs text-subtle font-mono">
+                            <p className="text-xs text-white/60 font-mono">
                               Creator: {shortenAddress(pass.creator)}
                             </p>
                             {daysLeft !== null && !isExpired && (
-                              <span className="flex items-center gap-1 text-xs text-subtle">
+                              <span className="flex items-center gap-1 text-xs text-white/60">
                                 <Clock className="w-3 h-3" />
                                 {daysLeft}d left
                               </span>
@@ -307,18 +307,18 @@ export default function VerifyPage() {
                     <div className="relative w-14 h-14 mx-auto mb-4">
                       <div className="absolute inset-0 rounded-xl bg-violet-500/10 animate-pulse" />
                       <div className="relative w-full h-full rounded-xl bg-surface-1 border border-border flex items-center justify-center">
-                        <Lock className="w-7 h-7 text-subtle" />
+                        <Lock className="w-7 h-7 text-white/60" />
                       </div>
                     </div>
                     <p className="text-white font-medium text-sm mb-1">
                       No Access Passes Found
                     </p>
-                    <p className="text-subtle text-xs mb-4">
+                    <p className="text-white/60 text-xs mb-4">
                       Subscribe to a creator to receive your first AccessPass.
                     </p>
                     <Link
                       href="/explore"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-muted hover:text-white hover:bg-white/[0.08] transition-all"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/70 hover:text-white hover:bg-white/[0.08] transition-all"
                     >
                       <Search className="w-3 h-3" />
                       Explore Creators
@@ -339,32 +339,32 @@ export default function VerifyPage() {
                     <GlassCard hover={false}>
                       <div className="space-y-3">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted">Pass ID</span>
+                          <span className="text-white/70">Pass ID</span>
                           <span className="text-white font-mono text-xs">
                             {selectedPass.passId.slice(0, 12)}...
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted">Creator</span>
+                          <span className="text-white/70">Creator</span>
                           <span className="text-white font-mono text-xs">
                             {shortenAddress(selectedPass.creator)}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted">Tier</span>
+                          <span className="text-white/70">Tier</span>
                           <span className="text-white">
                             {TIERS.find((t) => t.id === selectedPass.tier)
                               ?.name || `Tier ${selectedPass.tier}`}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted">Status</span>
+                          <span className="text-white/70">Status</span>
                           {(() => {
                             const status = getPassStatus(selectedPass)
                             const days = getPassDaysLeft(selectedPass)
                             if (status === 'expired') return <span className="text-red-400 font-medium">Expired</span>
                             if (days !== null) return <span className="text-green-400">{days}d remaining</span>
-                            return <span className="text-muted">Unknown</span>
+                            return <span className="text-white/70">Unknown</span>
                           })()}
                         </div>
                       </div>
@@ -376,7 +376,7 @@ export default function VerifyPage() {
                         <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
                         <div>
                           <p className="text-xs text-red-300 mb-1">This pass has expired.</p>
-                          <p className="text-xs text-subtle">Verification will fail. Visit the creator&apos;s page to renew.</p>
+                          <p className="text-xs text-white/60">Verification will fail. Visit the creator&apos;s page to renew.</p>
                         </div>
                       </div>
                     )}
@@ -438,7 +438,7 @@ export default function VerifyPage() {
                               {(verifyError.includes('revoked') || verifyError.includes('ERR_027')) && (
                                 <Link
                                   href={`/creator/${selectedPass.creator}`}
-                                  className="px-3 py-1.5 rounded-lg bg-white/[0.05] border border-border text-xs text-muted hover:bg-white/[0.08] transition-all inline-flex items-center gap-1"
+                                  className="px-3 py-1.5 rounded-lg bg-white/[0.05] border border-border text-xs text-white/70 hover:bg-white/[0.08] transition-all inline-flex items-center gap-1"
                                 >
                                   Re-subscribe
                                 </Link>
@@ -464,8 +464,8 @@ export default function VerifyPage() {
                   </div>
                 ) : (
                   <div className="text-center py-16 rounded-xl bg-surface-1 border border-border">
-                    <ShieldCheck className="w-10 h-10 text-subtle mx-auto mb-3" />
-                    <p className="text-muted text-sm">
+                    <ShieldCheck className="w-10 h-10 text-white/60 mx-auto mb-3" />
+                    <p className="text-white/70 text-sm">
                       Select a pass to begin verification
                     </p>
                   </div>
@@ -492,7 +492,7 @@ export default function VerifyPage() {
             >
               How ZK Verification Works
             </h2>
-            <p className="text-muted text-sm">
+            <p className="text-white/70 text-sm">
               Three steps, zero identity exposure.
             </p>
           </m.div>
@@ -528,7 +528,7 @@ export default function VerifyPage() {
                     <h3 className="text-white font-semibold mb-2">
                       {step.title}
                     </h3>
-                    <p className="text-sm text-muted">{step.desc}</p>
+                    <p className="text-sm text-white/70">{step.desc}</p>
                   </div>
                 </GlassCard>
               )
@@ -540,7 +540,7 @@ export default function VerifyPage() {
             viewport={{ once: true }}
             className="mt-8 p-4 rounded-xl bg-violet-500/5 border border-violet-500/10 text-center"
           >
-            <p className="text-xs text-muted">
+            <p className="text-xs text-white/70">
               <strong className="text-violet-300">Minimal footprint:</strong> VeilSub&apos;s verify_access finalize only checks revocation via pass_id—subscriber identity never touches public state. No subscriber-identifying mapping writes occur when proving access.
             </p>
           </m.div>

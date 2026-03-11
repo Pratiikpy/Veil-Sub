@@ -122,7 +122,7 @@ export default function AnalyticsPage() {
             <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-3" style={{ letterSpacing: '-0.03em' }}>
               Platform Analytics
             </h1>
-            <p className="text-muted text-base max-w-2xl leading-relaxed">
+            <p className="text-white/70 text-base max-w-2xl leading-relaxed">
               Aggregate statistics from on-chain mappings. All data is public—no subscriber
               identities exposed.
             </p>
@@ -179,7 +179,7 @@ export default function AnalyticsPage() {
                   <div>
                     <p className="text-2xl font-semibold text-white mb-1">0</p>
                     <p className="text-sm font-medium text-white mb-1">Identity Leaks</p>
-                    <p className="text-sm text-subtle leading-relaxed">
+                    <p className="text-sm text-white/60 leading-relaxed">
                       Subscriber addresses never appear in finalize blocks. On-chain state reveals
                       nothing about who subscribes to whom.
                     </p>
@@ -196,7 +196,7 @@ export default function AnalyticsPage() {
                     <p className="text-sm font-medium text-white mb-1">
                       Footprint Verifications
                     </p>
-                    <p className="text-sm text-subtle leading-relaxed">
+                    <p className="text-sm text-white/60 leading-relaxed">
                       verify_access finalize only checks revocation via pass_id—subscriber
                       identity never touches public state.
                     </p>
@@ -211,7 +211,7 @@ export default function AnalyticsPage() {
                   <div>
                     <p className="text-2xl font-semibold text-white mb-1">100%</p>
                     <p className="text-sm font-medium text-white mb-1">Private Payments</p>
-                    <p className="text-sm text-subtle leading-relaxed">
+                    <p className="text-sm text-white/60 leading-relaxed">
                       All payments use transfer_private. Transaction amounts and participants
                       are never publicly visible.
                     </p>
@@ -230,33 +230,33 @@ export default function AnalyticsPage() {
                   <ShieldCheck className="w-4 h-4 text-green-400" />
                   <span className="text-sm font-medium text-white">Standard</span>
                 </div>
-                <p className="text-xs text-subtle leading-relaxed mb-3">
+                <p className="text-xs text-white/60 leading-relaxed mb-3">
                   Private payment via transfer_private. Subscriber address never in finalize.
                   Creator sees hashed subscriber ID.
                 </p>
-                <div className="text-xs text-subtle">subscribe · renew</div>
+                <div className="text-xs text-white/60">subscribe · renew</div>
               </GlassCard>
               <GlassCard delay={0.05} variant="accent">
                 <div className="flex items-center gap-2 mb-3">
                   <EyeOff className="w-4 h-4 text-violet-400" />
                   <span className="text-sm font-medium text-white">Blind</span>
                 </div>
-                <p className="text-xs text-subtle leading-relaxed mb-3">
+                <p className="text-xs text-white/60 leading-relaxed mb-3">
                   Nonce-rotated identity—each renewal uses BHP256(caller, unique_nonce).
                   Creator sees a different subscriber each time.
                 </p>
-                <div className="text-xs text-subtle">subscribe_blind · renew_blind</div>
+                <div className="text-xs text-white/60">subscribe_blind · renew_blind</div>
               </GlassCard>
               <GlassCard delay={0.1}>
                 <div className="flex items-center gap-2 mb-3">
                   <Lock className="w-4 h-4 text-purple-400" />
                   <span className="text-sm font-medium text-white">Maximum (v27)</span>
                 </div>
-                <p className="text-xs text-subtle leading-relaxed mb-3">
+                <p className="text-xs text-white/60 leading-relaxed mb-3">
                   All mapping keys are Poseidon2 field hashes—zero raw addresses
                   in any finalize block. Full address unlinkability.
                 </p>
-                <div className="text-xs text-subtle">all transitions · Poseidon2 keys</div>
+                <div className="text-xs text-white/60">all transitions · Poseidon2 keys</div>
               </GlassCard>
             </div>
           </section>
@@ -280,9 +280,9 @@ export default function AnalyticsPage() {
                     }`}
                   >
                     <div className="flex items-center gap-3 shrink-0">
-                      <GitBranch className={`w-4 h-4 ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-subtle'}`} />
+                      <GitBranch className={`w-4 h-4 ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-white/60'}`} />
                       <span
-                        className={`text-sm font-mono font-medium ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-muted'}`}
+                        className={`text-sm font-mono font-medium ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-white/70'}`}
                       >
                         {item.version}
                       </span>
@@ -292,7 +292,7 @@ export default function AnalyticsPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-subtle leading-relaxed">{item.description}</p>
+                    <p className="text-sm text-white/60 leading-relaxed">{item.description}</p>
                   </m.div>
                 ))}
               </div>
@@ -309,7 +309,7 @@ export default function AnalyticsPage() {
             >
               <Search className="w-8 h-8 text-violet-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-white mb-2">Query the chain yourself</h3>
-              <p className="text-sm text-muted max-w-md mx-auto mb-5">
+              <p className="text-sm text-white/70 max-w-md mx-auto mb-5">
                 Look up any creator&apos;s public stats, query on-chain mappings directly, and verify data with no wallet required.
               </p>
               <Link
@@ -341,8 +341,8 @@ function StatsCard({
   return (
     <GlassCard delay={delay}>
       <div className="flex items-center gap-3 mb-3">
-        <Icon className="w-4 h-4 text-subtle" />
-        <span className="text-xs text-subtle uppercase tracking-wider">{label}</span>
+        <Icon className="w-4 h-4 text-white/60" />
+        <span className="text-xs text-white/60 uppercase tracking-wider">{label}</span>
       </div>
       <p className="text-2xl font-semibold text-white">{value}</p>
     </GlassCard>
@@ -363,9 +363,9 @@ function ProtocolStat({
   return (
     <GlassCard delay={delay}>
       <div className="text-center">
-        <Icon className="w-5 h-5 text-muted mx-auto mb-3" />
+        <Icon className="w-5 h-5 text-white/70 mx-auto mb-3" />
         <p className="text-2xl font-semibold text-white mb-1">{value}</p>
-        <p className="text-sm text-subtle">{label}</p>
+        <p className="text-sm text-white/60">{label}</p>
       </div>
     </GlassCard>
   )

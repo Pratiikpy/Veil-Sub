@@ -90,7 +90,7 @@ function GiftDropdown({
         onClick={() => setOpen((prev) => !prev)}
         aria-haspopup="true"
         aria-expanded={open}
-        className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-muted font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+        className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white/70 font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
       >
         <Sparkles className="w-4 h-4" />
         Gift
@@ -108,10 +108,10 @@ function GiftDropdown({
                 onSelect({ id: tier.id, name: tier.name, price: basePrice * tier.priceMultiplier })
                 setOpen(false)
               }}
-              className="w-full text-left px-4 py-2 text-sm text-muted hover:text-white hover:bg-white/[0.04] transition-colors flex items-center justify-between"
+              className="w-full text-left px-4 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center justify-between"
             >
               <span>{tier.name}</span>
-              <span className="text-xs text-subtle">{formatCredits(basePrice * tier.priceMultiplier)}</span>
+              <span className="text-xs text-white/60">{formatCredits(basePrice * tier.priceMultiplier)}</span>
             </button>
           ))}
         </div>
@@ -210,7 +210,7 @@ export default function CreatorPage({
           <div className="p-8 rounded-sm border border-red-500/15 bg-red-500/5 text-center">
             <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
             <h2 className="text-xl font-semibold text-white mb-2">Failed to Load Creator</h2>
-            <p className="text-sm text-muted mb-4">Could not fetch creator data. Please check your connection and try again.</p>
+            <p className="text-sm text-white/70 mb-4">Could not fetch creator data. Please check your connection and try again.</p>
             <button
               onClick={() => window.location.reload()}
               className="px-6 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 inline-flex items-center gap-2"
@@ -268,12 +268,12 @@ export default function CreatorPage({
     <PageTransition className="min-h-screen">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-1.5 text-xs text-subtle mb-6" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-muted transition-colors">Home</Link>
+        <nav className="flex items-center gap-1.5 text-xs text-white/60 mb-6" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-white/70 transition-colors">Home</Link>
           <span>/</span>
-          <Link href="/explore" className="hover:text-muted transition-colors">Explore</Link>
+          <Link href="/explore" className="hover:text-white/70 transition-colors">Explore</Link>
           <span>/</span>
-          <span className="text-muted font-mono">{displayName || shortenAddress(address)}</span>
+          <span className="text-white/70 font-mono">{displayName || shortenAddress(address)}</span>
         </nav>
 
         {/* Creator Header */}
@@ -292,26 +292,26 @@ export default function CreatorPage({
                 {displayName || shortenAddress(address)}
               </h1>
               {displayName && (
-                <p className="text-base text-subtle font-mono mb-1">
+                <p className="text-base text-white/60 font-mono mb-1">
                   {shortenAddress(address)}
                 </p>
               )}
               {bio && (
-                <p className="text-sm text-muted mb-1">{bio}</p>
+                <p className="text-sm text-white/70 mb-1">{bio}</p>
               )}
               <div className="flex items-center gap-3 flex-wrap">
                 <a
                   href={`https://testnet.explorer.provable.com/address/${address}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-sm text-muted hover:text-white transition-colors"
+                  className="inline-flex items-center gap-1 text-sm text-white/70 hover:text-white transition-colors"
                 >
                   View on Explorer
                   <ExternalLink className="w-3 h-3" />
                 </a>
                 <button
                   onClick={copyAddress}
-                  className="inline-flex items-center gap-1 text-sm text-subtle hover:text-muted transition-colors"
+                  className="inline-flex items-center gap-1 text-sm text-white/60 hover:text-white/70 transition-colors"
                   aria-label="Copy creator address"
                 >
                   {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
@@ -327,7 +327,7 @@ export default function CreatorPage({
                       setTimeout(() => setCopied(false), 2000)
                     }
                   }}
-                  className="inline-flex items-center gap-1 text-sm text-subtle hover:text-muted transition-colors"
+                  className="inline-flex items-center gap-1 text-sm text-white/60 hover:text-white/70 transition-colors"
                   aria-label="Share creator page"
                 >
                   <Share2 className="w-3 h-3" />
@@ -369,10 +369,10 @@ export default function CreatorPage({
             <h2 className="text-2xl font-semibold text-white mb-3">
               Creator Not Found
             </h2>
-            <p className="text-muted max-w-md mx-auto mb-2">
+            <p className="text-white/70 max-w-md mx-auto mb-2">
               This address hasn&apos;t registered as a creator on VeilSub yet.
             </p>
-            <p className="text-base text-subtle font-mono mb-8">
+            <p className="text-base text-white/60 font-mono mb-8">
               {shortenAddress(address)}
             </p>
             <div className="flex items-center justify-center gap-3 flex-wrap">
@@ -385,7 +385,7 @@ export default function CreatorPage({
               </Link>
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.05] border border-border text-muted text-sm hover:bg-white/[0.08] transition-all duration-300"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.05] border border-border text-white/70 text-sm hover:bg-white/[0.08] transition-all duration-300"
               >
                 Register as a Creator
                 <ArrowRight className="w-4 h-4" />
@@ -406,7 +406,7 @@ export default function CreatorPage({
                   <span className="text-sm font-medium text-green-300">
                     Your AccessPasses ({userPasses.length})
                   </span>
-                  <span className="text-xs text-subtle ml-auto">Only you can see this</span>
+                  <span className="text-xs text-white/60 ml-auto">Only you can see this</span>
                 </div>
                 <div className="space-y-2">
                   {userPasses.map((pass, i) => {
@@ -419,7 +419,7 @@ export default function CreatorPage({
                       4: 'text-amber-300 bg-amber-500/10 border-amber-500/20',
                       5: 'text-pink-300 bg-pink-500/10 border-pink-500/20',
                     }
-                    const tierColor = tierColorMap[pass.tier] || 'text-muted bg-white/5 border-border'
+                    const tierColor = tierColorMap[pass.tier] || 'text-white/70 bg-white/5 border-border'
                     const expiry = getPassExpiry(pass)
 
                     return (
@@ -432,7 +432,7 @@ export default function CreatorPage({
                         >
                           {tierInfo?.name ?? `Tier ${pass.tier}`}
                         </span>
-                        <span className="text-xs text-subtle font-mono hidden sm:inline">
+                        <span className="text-xs text-white/60 font-mono hidden sm:inline">
                           ID: {pass.passId ? (pass.passId.length > 16 ? `${pass.passId.slice(0, 8)}...${pass.passId.slice(-6)}` : pass.passId) : '\u2014'}
                         </span>
 
@@ -441,7 +441,7 @@ export default function CreatorPage({
                           <span className="ml-auto flex flex-wrap items-center gap-2">
                             {expiry.expired ? (
                               <>
-                                <span className="px-2 py-0.5 rounded-full text-xs font-medium border bg-white/[0.05] text-subtle border-border">
+                                <span className="px-2 py-0.5 rounded-full text-xs font-medium border bg-white/[0.05] text-white/60 border-border">
                                   Expired
                                 </span>
                                 <button
@@ -453,7 +453,7 @@ export default function CreatorPage({
                                 </button>
                                 <button
                                   onClick={() => setTransferPass(pass)}
-                                  className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-border text-xs text-muted hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
+                                  className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-border text-xs text-white/70 hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
                                 >
                                   <ArrowLeftRight className="w-3 h-3" />
                                   Transfer
@@ -485,7 +485,7 @@ export default function CreatorPage({
                                   </span>
                                   <button
                                     onClick={() => setTransferPass(pass)}
-                                    className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-border text-xs text-muted hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
+                                    className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-border text-xs text-white/70 hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
                                   >
                                     <ArrowLeftRight className="w-3 h-3" />
                                     Transfer
@@ -517,7 +517,7 @@ export default function CreatorPage({
                   Subscription Tiers
                 </h2>
                 {tiersLoading ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/[0.05] border border-border text-[10px] text-subtle font-medium animate-pulse">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/[0.05] border border-border text-[10px] text-white/60 font-medium animate-pulse">
                     Loading tiers...
                   </span>
                 ) : hasOnChainTiers ? (
@@ -559,11 +559,11 @@ export default function CreatorPage({
                       </h3>
                       <p className="text-2xl font-bold text-white mb-1">
                         {formatCredits(tierPrice)}{' '}
-                        <span className="text-sm font-normal text-muted">
+                        <span className="text-sm font-normal text-white/70">
                           ALEO
                         </span>
                       </p>
-                      <p className="text-xs text-subtle mb-4">
+                      <p className="text-xs text-white/60 mb-4">
                         {tier.description}
                       </p>
 
@@ -571,7 +571,7 @@ export default function CreatorPage({
                         {tier.features.map((f) => (
                           <li
                             key={f}
-                            className="flex items-center gap-2 text-xs text-muted"
+                            className="flex items-center gap-2 text-xs text-white/70"
                           >
                             <Sparkles className="w-3 h-3 text-violet-400" />
                             {f}
@@ -623,7 +623,7 @@ export default function CreatorPage({
                   <h2 className="text-lg font-semibold text-white mb-1">
                     Send a Private Tip
                   </h2>
-                  <p className="text-sm text-muted">
+                  <p className="text-sm text-white/70">
                     Show appreciation with a private ALEO transfer. The creator
                     receives 95% via private transfer—5% platform fee.
                   </p>
@@ -641,7 +641,7 @@ export default function CreatorPage({
                   <button
                     onClick={() => setShowTip(true)}
                     disabled={!connected}
-                    className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-muted font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white/70 font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Heart className="w-4 h-4" />
                     Tip
@@ -649,7 +649,7 @@ export default function CreatorPage({
                   {userPasses.length > 0 && (
                     <button
                       onClick={() => setDisputeContentId('general')}
-                      className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-muted font-medium text-sm hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 transition-all duration-300 flex items-center gap-2"
+                      className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white/70 font-medium text-sm hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 transition-all duration-300 flex items-center gap-2"
                     >
                       <Flag className="w-4 h-4" />
                       Dispute
@@ -672,7 +672,7 @@ export default function CreatorPage({
             <div className="p-4 rounded-xl bg-surface-1 border border-border">
               <div className="flex items-start gap-3">
                 <Shield className="w-5 h-5 text-violet-400 mt-0.5 shrink-0" />
-                <div className="text-xs text-muted space-y-1">
+                <div className="text-xs text-white/70 space-y-1">
                   <p>
                     <strong className="text-violet-300">
                       Privacy guarantee:

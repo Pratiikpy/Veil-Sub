@@ -184,7 +184,7 @@ export default function SubscribeModal({
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-muted" />
+                <Shield className="w-5 h-5 text-white/70" />
                 <h3 className="text-lg font-semibold text-white">
                   Private Subscription
                 </h3>
@@ -192,7 +192,7 @@ export default function SubscribeModal({
               <button
                 onClick={handleModalClose}
                 aria-label="Close subscription dialog"
-                className="p-1 rounded-lg hover:bg-white/[0.05] text-muted hover:text-white active:scale-[0.9] transition-all"
+                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -203,21 +203,21 @@ export default function SubscribeModal({
                 {/* Tier Info */}
                 <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-subtle uppercase tracking-wider font-medium">
+                    <span className="text-xs text-white/60 uppercase tracking-wider font-medium">
                       {tier.name}
                     </span>
                   </div>
                   <p className="text-2xl font-bold text-white mb-2">
-                    {formatCredits(totalPrice)} <span className="text-sm font-medium text-muted">ALEO</span>
+                    {formatCredits(totalPrice)} <span className="text-sm font-medium text-white/70">ALEO</span>
                   </p>
-                  <p className="text-sm text-muted">{tier.description}</p>
+                  <p className="text-sm text-white/70">{tier.description}</p>
                   <ul className="mt-3 space-y-1">
                     {tier.features.map((f) => (
                       <li
                         key={f}
-                        className="text-xs text-muted flex items-center gap-2"
+                        className="text-xs text-white/70 flex items-center gap-2"
                       >
-                        <Sparkles className="w-3 h-3 text-muted" />
+                        <Sparkles className="w-3 h-3 text-white/70" />
                         {f}
                       </li>
                     ))}
@@ -226,16 +226,16 @@ export default function SubscribeModal({
 
                 {/* Fee Breakdown */}
                 <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4">
-                  <div className="text-xs text-subtle space-y-1">
+                  <div className="text-xs text-white/60 space-y-1">
                     <div className="flex justify-between">
                       <span>Creator ({100 - PLATFORM_FEE_PCT}%)</span>
-                      <span className="text-muted">{formatCredits(creatorCut)} ALEO</span>
+                      <span className="text-white/70">{formatCredits(creatorCut)} ALEO</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Platform fee ({PLATFORM_FEE_PCT}%)</span>
-                      <span className="text-muted">{formatCredits(platformCut)} ALEO</span>
+                      <span className="text-white/70">{formatCredits(platformCut)} ALEO</span>
                     </div>
-                    <div className="pt-1.5 mt-1.5 border-t border-white/5 flex justify-between text-muted">
+                    <div className="pt-1.5 mt-1.5 border-t border-white/5 flex justify-between text-white/70">
                       <span>Duration</span>
                       <span>
                         {privacyMode === 'trial'
@@ -256,7 +256,7 @@ export default function SubscribeModal({
 
                 {/* Privacy Mode Selector */}
                 <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4">
-                    <p className="text-xs text-subtle mb-2 font-medium">Privacy Level</p>
+                    <p className="text-xs text-white/60 mb-2 font-medium">Privacy Level</p>
                     <div ref={privacyGroupRef} className="grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="Privacy level">
                       {([
                         { key: 'standard' as const, label: 'Standard', desc: '30 days' },
@@ -272,11 +272,11 @@ export default function SubscribeModal({
                           className={`p-2 rounded-lg border text-center transition-all ${
                             privacyMode === mode.key
                               ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300 shadow-accent-sm'
-                              : 'border-border/75 bg-transparent text-subtle hover:border-glass-hover hover:text-muted'
+                              : 'border-border/75 bg-transparent text-white/60 hover:border-glass-hover hover:text-white/70'
                           }`}
                         >
                           <span className="text-[11px] font-medium block">{mode.label}</span>
-                          <span className="text-[9px] text-subtle block">{mode.desc}</span>
+                          <span className="text-[9px] text-white/60 block">{mode.desc}</span>
                         </button>
                       ))}
                     </div>
@@ -353,11 +353,11 @@ export default function SubscribeModal({
                     <p className="text-green-400 font-medium mb-1">
                       Subscribed!
                     </p>
-                    <p className="text-xs text-muted">
+                    <p className="text-xs text-white/70">
                       Your AccessPass is now in your wallet. {privacyMode === 'trial' ? 'Trial access for ~12 hours.' : 'Access for ~30 days.'}
                     </p>
                     {txId && (
-                      <p className="text-[11px] text-subtle mt-2 font-mono break-all">
+                      <p className="text-[11px] text-white/60 mt-2 font-mono break-all">
                         TX: {txId.slice(0, 16)}...{txId.slice(-8)}
                       </p>
                     )}

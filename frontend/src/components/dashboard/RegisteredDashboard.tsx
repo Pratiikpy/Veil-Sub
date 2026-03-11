@@ -190,7 +190,7 @@ export default function RegisteredDashboard({
                 className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all duration-200 border-b-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
                   isActive
                     ? 'border-[var(--accent)] text-white'
-                    : 'border-transparent text-subtle hover:text-muted hover:border-white/10'
+                    : 'border-transparent text-white/60 hover:text-white/70 hover:border-white/10'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -225,14 +225,14 @@ export default function RegisteredDashboard({
                 <p className="text-sm text-violet-300 font-medium mb-1">
                   Your creator page
                 </p>
-                <p className="text-xs text-muted break-all">
+                <p className="text-xs text-white/70 break-all">
                   {creatorLink || `/creator/${shortenAddress(publicKey || '')}`}
                 </p>
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={copyLink}
-                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-muted hover:bg-white/10 transition-all duration-300 flex items-center gap-2 active:scale-[0.98]"
+                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white/70 hover:bg-white/10 transition-all duration-300 flex items-center gap-2 active:scale-[0.98]"
                 >
                   {copied ? (
                     <Check className="w-4 h-4 text-green-400" />
@@ -243,7 +243,7 @@ export default function RegisteredDashboard({
                 </button>
                 <Link
                   href={`/creator/${publicKey}`}
-                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-muted hover:bg-white/10 transition-all duration-300 flex items-center gap-2 active:scale-[0.98]"
+                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white/70 hover:bg-white/10 transition-all duration-300 flex items-center gap-2 active:scale-[0.98]"
                 >
                   <ExternalLink className="w-4 h-4" />
                   View
@@ -292,13 +292,13 @@ export default function RegisteredDashboard({
                       {step.done ? (
                         <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
                       ) : (
-                        <Circle className="w-5 h-5 text-subtle shrink-0" />
+                        <Circle className="w-5 h-5 text-white/60 shrink-0" />
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm ${step.done ? 'text-subtle line-through' : 'text-white'}`}>
+                        <p className={`text-sm ${step.done ? 'text-white/60 line-through' : 'text-white'}`}>
                           {step.label}
                         </p>
-                        <p className="text-xs text-subtle">{step.detail}</p>
+                        <p className="text-xs text-white/60">{step.detail}</p>
                       </div>
                       {!step.done && step.action && (
                         <button
@@ -362,7 +362,7 @@ export default function RegisteredDashboard({
                   Share Your Page
                 </h2>
               </div>
-              <p className="text-sm text-muted mb-4">
+              <p className="text-sm text-white/70 mb-4">
                 Copy a ready-made message to share on social media or messaging apps.
               </p>
               <ShareText
@@ -370,7 +370,7 @@ export default function RegisteredDashboard({
               />
               <div className="mt-4 pt-4 border-t border-border/75">
                 <p className="text-xs text-violet-300 font-medium mb-2">Direct Link</p>
-                <p className="text-[11px] text-subtle mb-2">
+                <p className="text-[11px] text-white/60 mb-2">
                   Share your creator page link. Subscribers pay privately — you receive a CreatorReceipt record but cannot identify individual subscribers.
                 </p>
                 <ShareText
@@ -465,7 +465,7 @@ export default function RegisteredDashboard({
               <h2 className="text-lg font-semibold text-white mb-3">
                 How Content Gating Works
               </h2>
-              <div className="space-y-3 text-sm text-muted">
+              <div className="space-y-3 text-sm text-white/70">
                 <p>
                   Subscribers receive a private <strong className="text-white">AccessPass</strong> record
                   in their wallet with an expiry of ~30 days. This record proves they have access without
@@ -506,7 +506,7 @@ export default function RegisteredDashboard({
                   <p className="text-sm text-green-300 font-medium mb-1">
                     Exclusive content is live
                   </p>
-                  <p className="text-xs text-muted">
+                  <p className="text-xs text-white/70">
                     Your subscribers can now see tier-gated exclusive content on your creator page.
                     Content visibility is determined by each subscriber&apos;s AccessPass — checked
                     locally in their browser, with no server involved. Subscriptions expire after ~30 days
@@ -539,7 +539,7 @@ export default function RegisteredDashboard({
                 <h2 className="text-lg font-semibold text-white">
                   Analytics
                 </h2>
-                <span className="text-xs text-subtle">All values verified on-chain</span>
+                <span className="text-xs text-white/60">All values verified on-chain</span>
               </div>
 
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
@@ -556,10 +556,10 @@ export default function RegisteredDashboard({
                     transition={{ delay: i * 0.04 }}
                     className="p-4 rounded-xl bg-surface-1 border border-border hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.1)] transition-all duration-300"
                   >
-                    <p className="text-[11px] text-subtle uppercase tracking-wider mb-1.5">{stat.label}</p>
+                    <p className="text-[11px] text-white/60 uppercase tracking-wider mb-1.5">{stat.label}</p>
                     <p className="text-2xl font-bold text-white tabular-nums">
                       {stat.value}
-                      {stat.suffix && <span className="text-xs font-normal text-subtle ml-1">{stat.suffix}</span>}
+                      {stat.suffix && <span className="text-xs font-normal text-white/60 ml-1">{stat.suffix}</span>}
                     </p>
                   </m.div>
                 ))}
@@ -613,9 +613,9 @@ export default function RegisteredDashboard({
                         </p>
                         <p className="text-xl font-bold text-white">
                           {formatCredits(tierPrice)}{' '}
-                          <span className="text-xs font-normal text-subtle">ALEO</span>
+                          <span className="text-xs font-normal text-white/60">ALEO</span>
                         </p>
-                        <p className="text-xs text-subtle mt-1">
+                        <p className="text-xs text-white/60 mt-1">
                           {custom ? 'Custom price' : `${tier.priceMultiplier}x base price`}
                         </p>
                       </div>
@@ -636,7 +636,7 @@ export default function RegisteredDashboard({
                 <Percent className="w-4 h-4 text-violet-400" />
                 <h3 className="text-sm font-medium text-white">Platform Fee</h3>
               </div>
-              <p className="text-xs text-muted">
+              <p className="text-xs text-white/70">
                 VeilSub takes a {PLATFORM_FEE_PCT}% platform fee on subscriptions and tips.
                 {100 - PLATFORM_FEE_PCT}% goes directly to you via private transfer.
                 Both payments are private — subscribers remain anonymous to you and to the platform.
@@ -681,7 +681,7 @@ export default function RegisteredDashboard({
                   + New Tier
                 </button>
               </div>
-              <p className="text-xs text-subtle mb-3">
+              <p className="text-xs text-white/60 mb-3">
                 Create custom subscription tiers with flexible pricing. Subscribers choose from your tiers when subscribing.
                 {creatorTierCount > 0 && ' Your custom tiers are stored on-chain via create_custom_tier.'}
               </p>
@@ -694,7 +694,7 @@ export default function RegisteredDashboard({
                     return (
                       <div key={id} className={`p-3 rounded-lg border text-center ${colors}`}>
                         <p className={`text-xs font-medium ${textColor}`}>{tier.name}</p>
-                        <p className="text-sm font-bold text-white mt-0.5">{formatCredits(tier.price)} <span className="text-[10px] font-normal text-subtle">ALEO</span></p>
+                        <p className="text-sm font-bold text-white mt-0.5">{formatCredits(tier.price)} <span className="text-[10px] font-normal text-white/60">ALEO</span></p>
                       </div>
                     )
                   })
@@ -702,7 +702,7 @@ export default function RegisteredDashboard({
                   [{id: 1, name: 'Supporter', mult: '1x'}, {id: 2, name: 'Premium', mult: '2x'}, {id: 3, name: 'VIP', mult: '5x'}].map((t) => (
                     <div key={t.id} className="p-3 rounded-lg bg-white/[0.03] border border-border text-center">
                       <p className="text-xs font-medium text-white">{t.name}</p>
-                      <p className="text-[10px] text-subtle">Default {t.mult} base</p>
+                      <p className="text-[10px] text-white/60">Default {t.mult} base</p>
                     </div>
                   ))
                 )}
@@ -728,18 +728,18 @@ export default function RegisteredDashboard({
                   Generate Proof
                 </button>
               </div>
-              <p className="text-xs text-subtle mb-2">
+              <p className="text-xs text-white/60 mb-2">
                 Prove your subscriber count exceeds a threshold without revealing the exact number.
                 Uses zero-knowledge verification on-chain — third parties see only that the proof succeeded.
               </p>
               <div className="flex gap-2">
                 <div className="flex-1 p-3 rounded-lg bg-white/[0.03] border border-border">
-                  <p className="text-[10px] text-subtle uppercase tracking-wider mb-0.5">Current Subscribers</p>
+                  <p className="text-[10px] text-white/60 uppercase tracking-wider mb-0.5">Current Subscribers</p>
                   <p className="text-lg font-bold text-white tabular-nums">{stats?.subscriberCount ?? 0}</p>
                 </div>
                 <div className="flex-1 p-3 rounded-lg bg-violet-500/[0.04] border border-violet-500/10">
                   <p className="text-[10px] text-violet-300/70 uppercase tracking-wider mb-0.5">Privacy Benefit</p>
-                  <p className="text-xs text-muted">Prove &quot;at least N&quot; without revealing exact count</p>
+                  <p className="text-xs text-white/70">Prove &quot;at least N&quot; without revealing exact count</p>
                 </div>
               </div>
             </m.div>
@@ -757,7 +757,7 @@ export default function RegisteredDashboard({
                   {publicKey === PLATFORM_ADDRESS ? 'Withdraw Funds' : 'Withdraw Earnings'}
                 </h3>
               </div>
-              <p className="text-xs text-subtle mb-3">
+              <p className="text-xs text-white/60 mb-3">
                 {publicKey === PLATFORM_ADDRESS
                   ? `Withdraw your creator revenue or accumulated ${PLATFORM_FEE_PCT}% platform fees.`
                   : `Withdraw your accumulated subscription and tip revenue. ${100 - PLATFORM_FEE_PCT}% of all payments are yours.`}
