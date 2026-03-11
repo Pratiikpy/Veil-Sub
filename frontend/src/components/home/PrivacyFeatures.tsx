@@ -32,7 +32,7 @@ const FEATURES_SMALL = [
 
 export default function PrivacyFeatures() {
   return (
-    <section className="py-24 lg:py-36 section-divider">
+    <section className="py-20 lg:py-28 section-divider">
       <Container>
         <ScrollReveal>
           <SectionHeader
@@ -55,8 +55,8 @@ export default function PrivacyFeatures() {
                   className="group relative p-8 sm:p-10 rounded-3xl glass glass-accent h-full transition-all duration-300 overflow-hidden"
                   spotlightSize={400}
                 >
-                  {/* Subtle corner glow */}
-                  <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-violet-500/[0.04] blur-2xl pointer-events-none group-hover:bg-violet-500/[0.08] transition-all duration-500" />
+                  {/* Corner glow - enhanced visibility */}
+                  <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-violet-500/[0.08] blur-2xl pointer-events-none group-hover:bg-violet-500/[0.15] transition-all duration-500" />
                   <div className="relative">
                   <div className="w-12 h-12 rounded-2xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center mb-6 group-hover:bg-violet-500/[0.1] group-hover:border-violet-500/[0.2] transition-all">
                     <Icon className="w-6 h-6 text-violet-400/60 group-hover:text-violet-400 transition-colors" aria-hidden="true" />

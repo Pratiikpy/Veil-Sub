@@ -135,9 +135,9 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
               <Coins className="w-3 h-3" aria-hidden="true" />
               from {formatCredits(stats.tierPrice)} ALEO
             </span>
-            <span className="flex items-center gap-1 text-green-400/80">
-              <Shield className="w-3 h-3" aria-hidden="true" />
-              BSP zero-footprint
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">
+              <Shield className="w-3 h-3 text-emerald-400" aria-hidden="true" />
+              <span className="text-[11px] font-medium text-emerald-300">Zero-Knowledge</span>
             </span>
           </div>
         )}
@@ -255,10 +255,10 @@ export default function ExplorePage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-10"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/[0.06] border border-violet-500/[0.12] mb-6">
-              <Shield className="w-4 h-4 text-violet-400" aria-hidden="true" />
-              <span className="text-xs font-medium tracking-wide uppercase text-violet-300">
-                Browse Creators
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/[0.06] border border-emerald-500/[0.12] mb-6">
+              <Shield className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+              <span className="text-xs font-medium tracking-wide uppercase text-emerald-300">
+                Private Discovery
               </span>
             </div>
             <h1
@@ -268,7 +268,9 @@ export default function ExplorePage() {
               Explore Creators
             </h1>
             <p className="text-lg text-white/70 max-w-lg mx-auto">
-              Discover creators on VeilSub and subscribe via BSP—your wallet never enters finalize, your AccessPass proves membership without identity. Gift subscriptions privately to friends.
+              Subscribe with complete privacy.{' '}
+              <span className="text-white font-medium">Zero addresses on-chain, zero subscriber visibility to creators</span>
+              —only you prove you have access.
             </p>
           </m.div>
 

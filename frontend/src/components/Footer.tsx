@@ -46,9 +46,12 @@ export default function Footer() {
         </div>
         {/* Bottom bar */}
         <div className="pt-5 border-t border-border/75 flex items-center justify-between text-xs text-white/60">
-          <div className="flex items-center gap-2">
-            <Shield className="w-3 h-3 text-violet-400/50" aria-hidden="true" />
-            <span>Built on Aleo—zero-knowledge by default</span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Shield className="w-3 h-3 text-violet-400/50" aria-hidden="true" />
+              <span>Built on Aleo—zero-knowledge by default</span>
+            </div>
+            <span className="text-white/40">© 2025 VeilSub</span>
           </div>
           <a
             href={`https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`}
@@ -81,9 +84,12 @@ export default function Footer() {
           <Link href="/vision" className="text-xs text-white/60 hover:text-white transition-colors">Vision</Link>
           <Link href="/explorer" className="text-xs text-white/60 hover:text-white transition-colors">On-Chain</Link>
         </div>
-        <div className="pt-3 border-t border-border/75 flex items-center gap-2 text-[10px] text-white/60">
-          <Shield className="w-3 h-3 text-violet-400/50 shrink-0" aria-hidden="true" />
-          <span>Built on Aleo—zero-knowledge by default</span>
+        <div className="pt-3 border-t border-border/75 flex items-center justify-between text-[10px] text-white/60">
+          <div className="flex items-center gap-2">
+            <Shield className="w-3 h-3 text-violet-400/50 shrink-0" aria-hidden="true" />
+            <span>Zero-knowledge by default</span>
+          </div>
+          <span className="text-white/40">© 2025 VeilSub</span>
         </div>
       </div>
     </footer>

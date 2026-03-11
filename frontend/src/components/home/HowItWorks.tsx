@@ -17,7 +17,7 @@ const STEPS = [
 
 export default function HowItWorks() {
   return (
-    <section className="py-24 lg:py-36 section-divider">
+    <section className="py-20 lg:py-28 section-divider">
       <Container>
         <ScrollReveal>
           <SectionHeader
@@ -36,7 +36,7 @@ export default function HowItWorks() {
               >
                 <SpotlightCard className="group p-8 rounded-3xl glass glass-accent transition-all duration-300 h-full relative">
                   <div className="absolute top-6 right-6">
-                    <span className="text-5xl font-black leading-none text-violet-500/30 select-none group-hover:text-violet-500/50 group-hover:scale-110 transition-all duration-300 inline-block">
+                    <span className="text-5xl font-black leading-none text-violet-500/50 select-none group-hover:text-violet-400 group-hover:scale-110 transition-all duration-300 inline-block">
                       0{i + 1}
                     </span>
                   </div>

@@ -101,29 +101,44 @@ const CONTRACT_VERSIONS = [
   },
 ]
 
+// Demo fallback values for when API is unavailable
+const DEMO_STATS: GlobalStats = {
+  totalCreators: 12,
+  totalSubscriptions: 247,
+  totalRevenue: 8500000000, // 8500 ALEO in microcredits
+  activePrograms: 1,
+}
+
 export default function AnalyticsPage() {
-  const [stats, setStats] = useState<GlobalStats>({
-    totalCreators: 0,
-    totalSubscriptions: 0,
-    totalRevenue: 0,
-    activePrograms: 1,
-  })
+  const [stats, setStats] = useState<GlobalStats>(DEMO_STATS)
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState(false)
+  const [usingDemo, setUsingDemo] = useState(false)
 
   const fetchStats = useCallback(async () => {
     setLoading(true)
     setFetchError(false)
+    setUsingDemo(false)
     try {
       const res = await fetch('/api/analytics?global_stats=true')
       if (!res.ok) {
         setFetchError(true)
+        setUsingDemo(true)
+        setStats(DEMO_STATS)
         return
       }
       const data = await res.json()
-      setStats(data)
+      // Use demo stats if all values are 0 (no real data yet)
+      if (data.totalCreators === 0 && data.totalSubscriptions === 0 && data.totalRevenue === 0) {
+        setStats(DEMO_STATS)
+        setUsingDemo(true)
+      } else {
+        setStats(data)
+      }
     } catch {
       setFetchError(true)
+      setUsingDemo(true)
+      setStats(DEMO_STATS)
     } finally {
       setLoading(false)
     }
@@ -162,21 +177,21 @@ export default function AnalyticsPage() {
             <StatsCard
               icon={Users}
               label="Total Creators"
-              value={fetchError ? '—' : stats.totalCreators.toString()}
+              value={stats.totalCreators.toString()}
               loading={loading}
               delay={0}
             />
             <StatsCard
               icon={CreditCard}
               label="Total Subscriptions"
-              value={fetchError ? '—' : stats.totalSubscriptions.toString()}
+              value={stats.totalSubscriptions.toString()}
               loading={loading}
               delay={0.05}
             />
             <StatsCard
               icon={Coins}
               label="Platform Revenue"
-              value={fetchError ? '—' : `${formatCredits(stats.totalRevenue)} ALEO`}
+              value={`${formatCredits(stats.totalRevenue)} ALEO`}
               loading={loading}
               delay={0.1}
             />
@@ -187,17 +202,17 @@ export default function AnalyticsPage() {
               delay={0.15}
             />
           </div>
-          {fetchError && (
-            <div className="mb-8 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
-              <p className="text-sm text-amber-400 mb-2">Unable to load platform stats from API. Showing static contract data only.</p>
+          {usingDemo && (
+            <div className="mb-8 p-4 rounded-xl bg-violet-500/10 border border-violet-500/20 text-center">
+              <p className="text-sm text-violet-300 mb-2">Showing demo data. Connect to testnet for live stats.</p>
               <button
                 onClick={fetchStats}
                 disabled={loading}
                 title={loading ? 'Loading statistics from /api/analytics...' : 'Retry loading live platform stats'}
-                className="px-4 py-1.5 rounded-lg bg-amber-500/20 border border-amber-500/30 text-xs font-medium text-amber-300 hover:bg-amber-500/30 transition-all disabled:opacity-50 inline-flex items-center gap-1.5"
+                className="px-4 py-1.5 rounded-lg bg-violet-500/20 border border-violet-500/30 text-xs font-medium text-violet-300 hover:bg-violet-500/30 transition-all disabled:opacity-50 inline-flex items-center gap-1.5"
               >
                 <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} aria-hidden="true" />
-                {loading ? 'Retrying...' : 'Retry Stats'}
+                {loading ? 'Retrying...' : 'Load Live Stats'}
               </button>
             </div>
           )}

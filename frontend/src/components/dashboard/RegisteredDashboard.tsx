@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import {
@@ -18,9 +18,12 @@ import {
   LayoutDashboard,
   FileText,
   BarChart3,
+  Sparkles,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import dynamic from 'next/dynamic'
+
+const CelebrationBurst = dynamic(() => import('@/components/CelebrationBurst'), { ssr: false })
 import StatsPanel from '@/components/StatsPanel'
 import CreatorQRCode from '@/components/CreatorQRCode'
 import CreatePostForm from '@/components/CreatePostForm'
@@ -74,10 +77,30 @@ export default function RegisteredDashboard({
   const [withdrawTxStatus, setWithdrawTxStatus] = useState<TxStatus>('idle')
   const [withdrawTxId, setWithdrawTxId] = useState<string | null>(null)
   const [withdrawError, setWithdrawError] = useState<string | null>(null)
+  const [showConfetti, setShowConfetti] = useState(false)
+  const [hasShownConfetti, setHasShownConfetti] = useState(false)
   const { withdrawCreatorRevenue, withdrawPlatformFees } = useVeilSub()
   const { tiers: creatorTiers, tierCount: creatorTierCount, refetch: refetchTiers } = useCreatorTiers(publicKey)
   const { startPolling, stopPolling } = useTransactionPoller()
   const tabListRef = useRef<HTMLDivElement>(null)
+
+  // Calculate completion status for confetti trigger
+  const completedSteps = [
+    true, // Registration always done
+    Object.keys(creatorTiers).length > 0, // Custom tier
+    (stats?.contentCount ?? 0) > 0, // Posted content
+    copied, // Shared link (tracks manual action)
+  ].filter(Boolean).length
+
+  // Trigger confetti when all 4 steps complete (only once per session)
+  useEffect(() => {
+    if (completedSteps === 4 && !hasShownConfetti) {
+      setShowConfetti(true)
+      setHasShownConfetti(true)
+      const timer = setTimeout(() => setShowConfetti(false), 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [completedSteps, hasShownConfetti])
 
   const copyLink = async () => {
     try {
@@ -263,27 +286,39 @@ export default function RegisteredDashboard({
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 }}
-                className="p-6 rounded-2xl bg-gradient-to-br from-violet-600/10 via-violet-500/5 to-transparent border border-violet-500/20"
+                className="p-6 rounded-2xl bg-gradient-to-br from-violet-600/10 via-violet-500/5 to-transparent border border-violet-500/20 relative overflow-hidden"
               >
+                {/* Confetti on 4/4 completion */}
+                {showConfetti && <CelebrationBurst color="bg-green-400" />}
+
                 {/* Header with Progress Ring */}
                 {(() => {
                   const steps = [
                     { done: true },
                     { done: Object.keys(creatorTiers).length > 0 },
                     { done: (stats?.contentCount ?? 0) > 0 },
-                    { done: false },
+                    { done: copied }, // Track copied state for "Share your page"
                   ]
-                  const completedCount = steps.filter((s) => s.done).length
-                  const percentage = (completedCount / steps.length) * 100
+                  const localCompletedCount = steps.filter((s) => s.done).length
+                  const percentage = (localCompletedCount / steps.length) * 100
                   const circumference = 2 * Math.PI * 28
                   const strokeDashoffset = circumference - (percentage / 100) * circumference
 
                   return (
                     <div className="flex items-center justify-between mb-5">
                       <div>
-                        <h2 className="text-lg font-semibold text-white mb-1">Welcome to VeilSub!</h2>
+                        <h2 className="text-lg font-semibold text-white mb-1 flex items-center gap-2">
+                          {localCompletedCount === 4 ? (
+                            <>
+                              <Sparkles className="w-5 h-5 text-green-400" aria-hidden="true" />
+                              All Set!
+                            </>
+                          ) : (
+                            'Welcome to VeilSub!'
+                          )}
+                        </h2>
                         <p className="text-sm text-white/60">
-                          {completedCount === 4 ? "You're all set!" : `${4 - completedCount} step${4 - completedCount !== 1 ? 's' : ''} to launch`}
+                          {localCompletedCount === 4 ? "Your creator profile is ready for subscribers" : `${4 - localCompletedCount} step${4 - localCompletedCount !== 1 ? 's' : ''} to launch`}
                         </p>
                       </div>
                       <div className="relative w-16 h-16">
@@ -307,11 +342,11 @@ export default function RegisteredDashboard({
                             strokeDasharray={circumference}
                             strokeDashoffset={strokeDashoffset}
                             strokeLinecap="round"
-                            className="text-green-400 transition-all duration-500"
+                            className={`transition-all duration-500 ${localCompletedCount === 4 ? 'text-green-400' : 'text-violet-400'}`}
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-lg font-bold text-white">{completedCount}/4</span>
+                          <span className={`text-lg font-bold ${localCompletedCount === 4 ? 'text-green-400' : 'text-white'}`}>{localCompletedCount}/4</span>
                         </div>
                       </div>
                     </div>
@@ -343,9 +378,9 @@ export default function RegisteredDashboard({
                       icon: FileText,
                     },
                     {
-                      done: false,
+                      done: copied,
                       label: 'Share your page',
-                      detail: 'Invite subscribers',
+                      detail: copied ? 'Link copied!' : 'Invite subscribers',
                       action: copyLink,
                       actionLabel: 'Copy Link',
                       icon: Share2,

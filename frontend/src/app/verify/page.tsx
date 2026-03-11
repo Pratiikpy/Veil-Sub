@@ -289,11 +289,17 @@ export default function VerifyPage() {
                       </m.div>
                     </div>
 
-                    {/* Key insight */}
-                    <div className="mt-4 p-3 rounded-lg bg-black/30 border border-white/5">
-                      <p className="text-xs text-white/70">
-                        <span className="text-green-400 font-medium">Zero footprint:</span> Your address never appears in any mapping. Only pass_id is checked against revocation list.
-                      </p>
+                    {/* Key insight - enhanced */}
+                    <div className="mt-4 p-4 rounded-lg bg-gradient-to-r from-green-500/10 via-transparent to-violet-500/10 border border-green-500/20">
+                      <div className="flex items-start gap-3">
+                        <ShieldCheck className="w-5 h-5 text-green-400 mt-0.5 shrink-0" aria-hidden="true" />
+                        <div>
+                          <p className="text-sm font-semibold text-white mb-1">Zero Public Footprint</p>
+                          <p className="text-xs text-white/70 leading-relaxed">
+                            Your address never appears in mappings. Only pass_id checked against revocation list. Subscribers remain completely anonymous on-chain.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -334,6 +340,33 @@ export default function VerifyPage() {
                     </p>
                   </div>
                 </div>
+              </div>
+
+              {/* After Verification - Content Delivery Examples */}
+              <div className="p-6 rounded-xl bg-gradient-to-br from-green-500/5 to-transparent border border-green-500/15">
+                <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-green-400" aria-hidden="true" />
+                  After Verification: Content Unlocked
+                </h3>
+                <p className="text-xs text-white/70 mb-4">
+                  Once verified on-chain, creators can confidently serve gated content:
+                </p>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {[
+                    { label: 'Video streams with access token', icon: '▶' },
+                    { label: 'Private content URLs (time-limited)', icon: '🔗' },
+                    { label: 'Exclusive downloads & assets', icon: '📥' },
+                    { label: 'Direct messages from creator', icon: '💬' },
+                  ].map((item) => (
+                    <div key={item.label} className="flex items-center gap-2 p-2 rounded-lg bg-white/[0.02]">
+                      <span className="text-xs font-bold text-green-400 bg-green-500/15 w-6 h-6 rounded flex items-center justify-center">{item.icon}</span>
+                      <span className="text-xs text-white/80">{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-white/50 italic mt-4">
+                  All powered by your AccessPass proof—never revealing who owns the subscription.
+                </p>
               </div>
 
               <p className="text-xs text-white/60 text-center">

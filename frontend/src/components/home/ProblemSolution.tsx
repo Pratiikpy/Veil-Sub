@@ -11,7 +11,7 @@ const COMPARISON_ROWS = [
 
 export default function ProblemSolution() {
   return (
-    <section className="py-24 lg:py-36 section-divider">
+    <section className="py-20 lg:py-28 section-divider">
       <Container>
         <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-start">
           <ScrollReveal>
