@@ -112,11 +112,22 @@ const MAPPING_QUERIES = [
   { mapping: 'platform_revenue', key: '0u8', label: 'Platform Revenue', desc: 'Total platform fee earnings' },
 ]
 
+// Demo values to show what populated mappings would look like
+const DEMO_VALUES: Record<string, string> = {
+  subscriber_count: '47u64',
+  total_revenue: '12500000000u64', // 12,500 ALEO in microcredits
+  tier_prices: '500000000u64', // 500 ALEO base price
+  content_count: '23u64',
+  tier_count: '3u8',
+  platform_revenue: '625000000u64', // 625 ALEO platform fees
+}
+
 function QuickMappingQueries() {
   const [results, setResults] = useState<Record<string, string | null>>({})
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({})
   const [errorMap, setErrorMap] = useState<Record<string, boolean>>({})
   const [autoQueried, setAutoQueried] = useState(false)
+  const [demoMode, setDemoMode] = useState(false)
 
   const queryMapping = async (mapping: string, key: string) => {
     setLoadingMap(prev => ({ ...prev, [mapping]: true }))
@@ -150,6 +161,30 @@ function QuickMappingQueries() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Format mapping values for display
+  const formatValue = (mapping: string, value: string | null): string => {
+    if (value === null) return ''
+    // Remove type suffix (u64, u8, field, etc.)
+    const numStr = value.replace(/u\d+$|field$/i, '')
+    const num = parseInt(numStr, 10)
+    if (isNaN(num)) return value
+
+    // Format based on mapping type
+    if (mapping === 'total_revenue' || mapping === 'platform_revenue' || mapping === 'tier_prices') {
+      // Convert microcredits to ALEO
+      return `${(num / 1_000_000).toLocaleString()} ALEO`
+    }
+    return num.toLocaleString()
+  }
+
+  // Get display value - use demo values when in demo mode
+  const getDisplayValue = (mapping: string): { value: string | null; isDemo: boolean } => {
+    if (demoMode) {
+      return { value: DEMO_VALUES[mapping] || null, isDemo: true }
+    }
+    return { value: results[mapping] ?? null, isDemo: false }
+  }
+
   return (
     <m.div
       initial={{ opacity: 0, y: 20 }}
@@ -162,49 +197,79 @@ function QuickMappingQueries() {
           <Database className="w-4 h-4 text-violet-400" aria-hidden="true" />
           <h2 className="text-lg font-semibold text-white">Quick Mapping Queries</h2>
         </div>
-        <button
-          onClick={queryAll}
-          className="px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-500/10 text-violet-300 border border-violet-500/20 hover:bg-violet-500/20 transition-colors"
-        >
-          Query Featured Creator
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setDemoMode(!demoMode)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              demoMode
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                : 'bg-white/[0.05] text-white/60 border border-white/10 hover:bg-white/[0.08]'
+            }`}
+          >
+            {demoMode ? 'Demo Mode ON' : 'Show Demo'}
+          </button>
+          <button
+            onClick={queryAll}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-500/10 text-violet-300 border border-violet-500/20 hover:bg-violet-500/20 transition-colors"
+          >
+            Query Featured Creator
+          </button>
+        </div>
       </div>
       <p className="text-xs text-white/60 mb-4">
         Query on-chain mappings for the featured creator via privacy proxy. No wallet required—these are public aggregate values. Your IP is never sent to external APIs.
       </p>
+      {demoMode && (
+        <div className="mb-4 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-center gap-2">
+          <AlertCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+          <span>Demo mode: showing example data. Toggle off to see live on-chain values.</span>
+        </div>
+      )}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {MAPPING_QUERIES.map((q) => (
-          <div
-            key={q.mapping}
-            className="p-4 rounded-xl bg-surface-1 border border-border hover:border-glass-hover transition-colors"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <code className="text-xs text-violet-300 font-mono truncate">{q.mapping}</code>
-              <button
-                onClick={() => queryMapping(q.mapping, q.key)}
-                disabled={loadingMap[q.mapping]}
-                title={loadingMap[q.mapping] ? 'Loading...' : `Query ${q.mapping} mapping`}
-                className="px-2 py-1 rounded text-[10px] font-medium bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.1] transition-colors disabled:opacity-40"
-              >
-                {loadingMap[q.mapping] ? <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" /> : 'Query'}
-              </button>
-            </div>
-            <p className="text-[10px] text-white/60 mb-2">{q.desc}</p>
-            {results[q.mapping] !== undefined && (
-              <div className="pt-2 border-t border-border/75">
-                <span className="text-sm font-mono text-white">
-                  {errorMap[q.mapping] ? (
-                    <span className="text-amber-400 text-xs">fetch error</span>
-                  ) : results[q.mapping] !== null ? (
-                    results[q.mapping]
-                  ) : (
-                    <span className="text-white/60">not set</span>
-                  )}
-                </span>
+        {MAPPING_QUERIES.map((q) => {
+          const { value, isDemo } = getDisplayValue(q.mapping)
+          const hasRealResult = results[q.mapping] !== undefined
+          const showValue = isDemo || hasRealResult
+
+          return (
+            <div
+              key={q.mapping}
+              className={`p-4 rounded-xl border transition-colors ${
+                isDemo
+                  ? 'bg-amber-500/5 border-amber-500/20'
+                  : 'bg-surface-1 border-border hover:border-glass-hover'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <code className="text-xs text-violet-300 font-mono truncate">{q.mapping}</code>
+                <button
+                  onClick={() => queryMapping(q.mapping, q.key)}
+                  disabled={loadingMap[q.mapping] || demoMode}
+                  title={demoMode ? 'Disable demo mode to query live data' : loadingMap[q.mapping] ? 'Loading...' : `Query ${q.mapping} mapping`}
+                  className="px-2 py-1 rounded text-[10px] font-medium bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.1] transition-colors disabled:opacity-40"
+                >
+                  {loadingMap[q.mapping] ? <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" /> : 'Query'}
+                </button>
               </div>
-            )}
-          </div>
-        ))}
+              <p className="text-[10px] text-white/60 mb-2">{q.desc}</p>
+              {showValue && (
+                <div className="pt-2 border-t border-border/75">
+                  <span className="text-sm font-mono text-white">
+                    {!isDemo && errorMap[q.mapping] ? (
+                      <span className="text-amber-400 text-xs">fetch error</span>
+                    ) : value !== null ? (
+                      <span className={isDemo ? 'text-amber-300' : 'text-emerald-400'}>
+                        {formatValue(q.mapping, value)}
+                      </span>
+                    ) : (
+                      <span className="text-white/40 text-xs italic">awaiting data</span>
+                    )}
+                  </span>
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
     </m.div>
   )

@@ -2,54 +2,49 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
-import { Shield, Eye, Zap, Heart, X } from 'lucide-react'
-import { useFocusTrap } from '@/hooks/useFocusTrap'
+import { Shield, X, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 
 const STORAGE_KEY = 'veilsub-welcome-dismissed'
-
-const HIGHLIGHTS = [
-  {
-    icon: Shield,
-    title: 'Zero-Knowledge Subscriptions',
-    desc: 'Your identity is never exposed on-chain. Subscribe privately with real ALEO credits.',
-    color: 'text-violet-400',
-    bg: 'bg-violet-500/10',
-  },
-  {
-    icon: Eye,
-    title: 'Zero-Footprint Verification',
-    desc: 'Prove access without any public state change. No on-chain evidence verification occurred.',
-    color: 'text-green-400',
-    bg: 'bg-green-500/10',
-  },
-  {
-    icon: Zap,
-    title: 'Single-Record Payments',
-    desc: 'One record handles everything—no splitting required. CreatorReceipts for private payment proofs.',
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/10',
-  },
-  {
-    icon: Heart,
-    title: 'Private Tipping & Renewal',
-    desc: 'Tip creators or renew subscriptions. The creator receives payment but never knows who.',
-    color: 'text-pink-400',
-    bg: 'bg-pink-500/10',
-  },
-]
+const AUTO_DISMISS_MS = 4000 // Auto-dismiss after 4 seconds (was 10s - reduced for judge flow)
 
 export default function WelcomeOverlay() {
   const [show, setShow] = useState(false)
-  const focusTrapRef = useFocusTrap(show)
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Check for ?judge=1 or ?demo=1 query param to skip overlays entirely
+    const params = new URLSearchParams(window.location.search)
+    const skipOverlay = params.get('judge') === '1' || params.get('demo') === '1'
+    if (skipOverlay) return
+
+    // Show after a brief delay to let page load
+    const showTimer = setTimeout(() => {
       if (!localStorage.getItem(STORAGE_KEY)) {
         setShow(true)
       }
-    }, 1200)
-    return () => clearTimeout(timer)
+    }, 600) // Reduced from 800ms
+
+    return () => clearTimeout(showTimer)
   }, [])
+
+  // Escape key to dismiss
+  useEffect(() => {
+    if (!show) return
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShow(false)
+    }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, [show])
+
+  // Auto-dismiss after 10 seconds
+  useEffect(() => {
+    if (!show) return
+    const autoDismiss = setTimeout(() => {
+      setShow(false)
+    }, AUTO_DISMISS_MS)
+    return () => clearTimeout(autoDismiss)
+  }, [show])
 
   const dismiss = useCallback((remember: boolean) => {
     if (remember) {
@@ -58,100 +53,68 @@ export default function WelcomeOverlay() {
     setShow(false)
   }, [])
 
-  // Escape key to close
-  useEffect(() => {
-    if (!show) return
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') dismiss(false) }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [show, dismiss])
-
   return (
     <AnimatePresence>
       {show && (
         <m.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-          onClick={() => dismiss(false)}
+          initial={{ opacity: 0, y: 100 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 100 }}
+          transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
+          className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:max-w-md z-50"
         >
-          <m.div
-            ref={focusTrapRef}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Welcome to VeilSub"
-            initial={{ scale: 0.9, opacity: 0, filter: 'blur(10px)' }}
-            animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
-            exit={{ scale: 0.9, opacity: 0, filter: 'blur(10px)' }}
-            transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-black/95 border border-glass-hover p-6 shadow-[0_8px_60px_rgba(0,0,0,0.8)]"
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-white" aria-hidden="true" />
+          <div className="rounded-xl bg-black/95 border border-violet-500/30 p-4 shadow-[0_8px_40px_rgba(139,92,246,0.15)] backdrop-blur-xl">
+            {/* Header row */}
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center shrink-0">
+                  <Shield className="w-5 h-5 text-violet-400" aria-hidden="true" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-white">Welcome to VeilSub</h2>
-                  <p className="text-xs text-white/60">v27—Private Creator Subscriptions on Aleo</p>
+                  <h3 className="text-sm font-semibold text-white">Welcome to VeilSub v27</h3>
+                  <p className="text-xs text-white/60">Privacy-first creator subscriptions on Aleo</p>
                 </div>
               </div>
               <button
                 onClick={() => dismiss(false)}
-                aria-label="Close welcome dialog"
-                className="p-1.5 rounded-lg hover:bg-white/[0.05] text-white/60 hover:text-white active:scale-[0.9] transition-all"
+                aria-label="Dismiss"
+                className="p-1 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 
-            {/* Highlights */}
-            <div className="space-y-4 mb-6">
-              {HIGHLIGHTS.map((item, i) => {
-                const Icon = item.icon
-                return (
-                  <m.div
-                    key={item.title}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{
-                      type: 'spring',
-                      bounce: 0.3,
-                      delay: 0.15 + i * 0.1,
-                    }}
-                    className="flex items-start gap-4 p-4 rounded-xl bg-surface-1 border border-border hover:border-glass-hover transition-colors"
-                  >
-                    <div className={`shrink-0 w-9 h-9 rounded-lg ${item.bg} flex items-center justify-center`}>
-                      <Icon className={`w-4 h-4 ${item.color}`} aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-white">{item.title}</p>
-                      <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
-                    </div>
-                  </m.div>
-                )
-              })}
-            </div>
+            {/* Key value prop */}
+            <p className="text-xs text-white/70 mb-3 leading-relaxed">
+              Subscribe to creators with zero on-chain identity exposure. Your AccessPass proves access without revealing who you are.
+            </p>
 
             {/* Actions */}
-            <div className="flex gap-4">
-              <button
-                onClick={() => dismiss(false)}
-                className="flex-1 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-white/70 hover:text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
+            <div className="flex items-center gap-3">
+              <Link
+                href="/docs"
+                onClick={() => dismiss(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-xs font-medium text-white transition-colors"
               >
-                Remind Me Later
-              </button>
+                Learn how it works
+                <ArrowRight className="w-3 h-3" aria-hidden="true" />
+              </Link>
               <button
                 onClick={() => dismiss(true)}
-                className="flex-1 py-2.5 rounded-xl bg-white text-sm text-black font-medium hover:bg-white/90 active:scale-[0.98] transition-all btn-shimmer"
+                className="text-xs text-white/50 hover:text-white transition-colors"
               >
-                Got it!
+                Don&apos;t show again
               </button>
             </div>
-          </m.div>
+
+            {/* Auto-dismiss progress bar */}
+            <m.div
+              className="absolute bottom-0 left-0 h-0.5 bg-violet-500/50 rounded-full"
+              initial={{ width: '100%' }}
+              animate={{ width: '0%' }}
+              transition={{ duration: AUTO_DISMISS_MS / 1000, ease: 'linear' }}
+            />
+          </div>
         </m.div>
       )}
     </AnimatePresence>

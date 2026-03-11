@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { m } from 'framer-motion'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import { Settings, Loader2 } from 'lucide-react'
+import { Settings, Loader2, AlertTriangle, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { useSupabase } from '@/hooks/useSupabase'
 
@@ -13,28 +13,33 @@ interface ProfileEditorProps {
 
 export default function ProfileEditor({ address }: ProfileEditorProps) {
   const { signMessage } = useWallet()
-  const { getCreatorProfile, upsertCreatorProfile } = useSupabase()
+  const { getCreatorProfile, upsertCreatorProfile, error: supabaseError, clearError } = useSupabase()
   const [name, setName] = useState('')
   const [bio, setBio] = useState('')
   const [saved, setSaved] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [profileLoaded, setProfileLoaded] = useState(false)
+  const [loadError, setLoadError] = useState(false)
 
-  useEffect(() => {
-    let cancelled = false
+  const loadProfile = () => {
+    setLoadError(false)
+    clearError()
     getCreatorProfile(address).then((profile) => {
-      if (cancelled) return
       if (profile) {
         setName(profile.display_name || '')
         setBio(profile.bio || '')
       }
       setProfileLoaded(true)
     }).catch(() => {
-      if (cancelled) return
+      setLoadError(true)
       setProfileLoaded(true)
     })
-    return () => { cancelled = true }
-  }, [address, getCreatorProfile])
+  }
+
+  useEffect(() => {
+    loadProfile()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address])
 
   const handleSave = async () => {
     if (isSaving) return // Prevent double-submit
@@ -61,6 +66,32 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
   }
 
   if (!profileLoaded) return null
+
+  // Show load error with retry option
+  if (loadError || supabaseError) {
+    return (
+      <m.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="p-6 rounded-xl bg-surface-1 border border-amber-500/20"
+      >
+        <div className="flex items-center gap-2 mb-3">
+          <AlertTriangle className="w-5 h-5 text-amber-400" aria-hidden="true" />
+          <h2 className="text-lg font-semibold text-white">Profile</h2>
+        </div>
+        <p className="text-sm text-white/70 mb-4">
+          {supabaseError?.message || 'Failed to load profile. Your network connection may be unstable.'}
+        </p>
+        <button
+          onClick={loadProfile}
+          className="px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300 hover:bg-amber-500/20 transition-all inline-flex items-center gap-2"
+        >
+          <RefreshCw className="w-4 h-4" aria-hidden="true" />
+          Retry
+        </button>
+      </m.div>
+    )
+  }
 
   return (
     <m.div
@@ -101,6 +132,7 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
         <button
           onClick={handleSave}
           disabled={isSaving}
+          title={isSaving ? 'Saving profile to server...' : 'Save your display name and bio'}
           className="px-5 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-all duration-300 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-2"
         >
           {isSaving && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}

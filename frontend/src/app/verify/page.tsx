@@ -192,27 +192,152 @@ export default function VerifyPage() {
             <m.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="max-w-md mx-auto text-center py-12"
+              className="max-w-3xl mx-auto py-8"
             >
-              <div className="relative w-16 h-16 mx-auto mb-6">
-                <div className="absolute inset-0 rounded-2xl bg-violet-500/20 animate-pulse" />
-                <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-violet-500/20 flex items-center justify-center">
-                  <Fingerprint className="w-8 h-8 text-violet-400" aria-hidden="true" />
+              {/* Interactive Demo Section */}
+              <div className="grid md:grid-cols-2 gap-8 mb-12">
+                {/* Left: Demo Animation */}
+                <div className="relative">
+                  <div className="absolute -inset-4 bg-gradient-to-r from-violet-500/10 to-transparent rounded-2xl blur-xl" />
+                  <div className="relative p-6 rounded-xl bg-surface-1 border border-violet-500/20">
+                    <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                      Live Demo: ZK Verification Flow
+                    </h3>
+
+                    {/* Animated flow visualization */}
+                    <div className="space-y-4">
+                      {/* Step 1: AccessPass */}
+                      <m.div
+                        initial={{ opacity: 0.5 }}
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 2, repeat: Infinity, delay: 0 }}
+                        className="flex items-center gap-3 p-3 rounded-lg bg-violet-500/10 border border-violet-500/20"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center shrink-0">
+                          <Lock className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-white">AccessPass Record</p>
+                          <p className="text-xs text-white/50 truncate font-mono">pass_id: 7f3a...9b2c</p>
+                        </div>
+                        <m.div
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                          className="text-xs text-violet-400"
+                        >
+                          INPUT
+                        </m.div>
+                      </m.div>
+
+                      {/* Arrow */}
+                      <div className="flex justify-center">
+                        <m.div
+                          animate={{ y: [0, 4, 0] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                          className="w-0.5 h-6 bg-gradient-to-b from-violet-500/50 to-transparent"
+                        />
+                      </div>
+
+                      {/* Step 2: ZK Proof */}
+                      <m.div
+                        initial={{ opacity: 0.5 }}
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                        className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center shrink-0">
+                          <Fingerprint className="w-4 h-4 text-green-400" aria-hidden="true" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-white">ZK Proof Generated</p>
+                          <p className="text-xs text-white/50 truncate">Proves ownership without revealing identity</p>
+                        </div>
+                        <m.div
+                          animate={{ rotate: [0, 360] }}
+                          transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                          className="text-green-400"
+                        >
+                          <RefreshCw className="w-3 h-3" aria-hidden="true" />
+                        </m.div>
+                      </m.div>
+
+                      {/* Arrow */}
+                      <div className="flex justify-center">
+                        <m.div
+                          animate={{ y: [0, 4, 0] }}
+                          transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
+                          className="w-0.5 h-6 bg-gradient-to-b from-green-500/50 to-transparent"
+                        />
+                      </div>
+
+                      {/* Step 3: Finalize */}
+                      <m.div
+                        initial={{ opacity: 0.5 }}
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 2, repeat: Infinity, delay: 2 }}
+                        className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
+                          <ShieldCheck className="w-4 h-4 text-blue-400" aria-hidden="true" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-white">Finalize (On-Chain)</p>
+                          <p className="text-xs text-white/50 truncate">Only checks: pass_id, expires_at</p>
+                        </div>
+                        <span className="text-xs text-blue-400 font-medium">VERIFIED</span>
+                      </m.div>
+                    </div>
+
+                    {/* Key insight */}
+                    <div className="mt-4 p-3 rounded-lg bg-black/30 border border-white/5">
+                      <p className="text-xs text-white/70">
+                        <span className="text-green-400 font-medium">Zero footprint:</span> Your address never appears in any mapping. Only pass_id is checked against revocation list.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Connect CTA */}
+                <div className="flex flex-col justify-center">
+                  <div className="relative w-16 h-16 mx-auto mb-6">
+                    <div className="absolute inset-0 rounded-2xl bg-violet-500/20 animate-pulse" />
+                    <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-violet-500/20 flex items-center justify-center">
+                      <Fingerprint className="w-8 h-8 text-violet-400" aria-hidden="true" />
+                    </div>
+                  </div>
+                  <h2 className="text-xl font-semibold text-white mb-2 text-center">
+                    Connect Wallet to Verify
+                  </h2>
+                  <p className="text-white/70 text-sm mb-6 text-center">
+                    Connect your wallet to view your AccessPasses and generate zero-knowledge proofs.
+                  </p>
+
+                  {/* What gets verified */}
+                  <div className="space-y-2 mb-6">
+                    {[
+                      { label: 'Pass not revoked', desc: 'access_revoked[pass_id] == false' },
+                      { label: 'Not expired', desc: 'expires_at > block.height' },
+                      { label: 'Valid creator', desc: 'pass_creator[pass_id] matches' },
+                    ].map((item) => (
+                      <div key={item.label} className="flex items-center gap-2 text-sm">
+                        <ShieldCheck className="w-4 h-4 text-green-400 shrink-0" aria-hidden="true" />
+                        <span className="text-white/90">{item.label}</span>
+                        <span className="text-white/40 text-xs font-mono hidden sm:inline">({item.desc})</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="p-4 rounded-xl glass text-left">
+                    <p className="text-xs text-white/70 leading-relaxed">
+                      <strong className="text-violet-300">UTXO pattern:</strong> verify_access consumes your pass, checks validity in finalize, then re-creates an identical pass. Your wallet address is never written to public state.
+                    </p>
+                  </div>
                 </div>
               </div>
-              <h2 className="text-xl font-semibold text-white mb-2">
-                Connect Wallet to Verify
-              </h2>
-              <p className="text-white/70 text-sm mb-6">
-                Connect your wallet to view your AccessPasses and generate zero-knowledge proofs.
-              </p>
-              <div className="p-4 rounded-xl glass text-left">
-                <p className="text-xs text-white/70 leading-relaxed">
-                  <strong className="text-violet-300">How it works:</strong> Select an AccessPass from your wallet, then click Verify. verify_access consumes your pass (UTXO pattern), checks access_revoked[pass_id] and expires_at &gt; block.height in finalize, then re-creates the pass. Zero subscriber-identifying mapping writes occur.
-                </p>
-              </div>
-              <p className="text-xs text-white/60 mt-4">
-                Scroll down to use the On-Chain Explorer without a wallet.
+
+              <p className="text-xs text-white/60 text-center">
+                Scroll down to use the On-Chain Explorer without connecting a wallet.
               </p>
             </m.div>
           ) : (
