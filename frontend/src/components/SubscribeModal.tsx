@@ -76,7 +76,7 @@ export default function SubscribeModal({
       return
     }
     if (blockHeight === null) {
-      setError('Could not fetch current block height. Please try again.')
+      setError('Could not sync with Aleo network. Check your connection and try again.')
       return
     }
 
@@ -138,7 +138,7 @@ export default function SubscribeModal({
             toast.success('Subscribed!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            setError('Transaction failed on-chain.')
+            setError('Subscription failed. Check your wallet and try again.')
             toast.error('Subscription failed')
           }
         })
@@ -260,7 +260,7 @@ export default function SubscribeModal({
                     <div ref={privacyGroupRef} className="grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="Privacy level">
                       {([
                         { key: 'standard' as const, label: 'Standard', desc: '30 days' },
-                        { key: 'blind' as const, label: 'Blind', desc: 'Nonce rotation' },
+                        { key: 'blind' as const, label: 'Blind', desc: 'Identity masked' },
                         { key: 'trial' as const, label: 'Trial', desc: '~12 hrs / 20%' },
                       ]).map((mode) => (
                         <button
@@ -282,12 +282,12 @@ export default function SubscribeModal({
                     </div>
                     {privacyMode === 'standard' && (
                       <p className="text-[11px] text-violet-400/80 mt-2">
-                        Zero-address finalize: creator sees aggregate count only, never your address.
+                        Creator sees total subscriber count only—never which individuals subscribed.
                       </p>
                     )}
                     {privacyMode === 'blind' && (
                       <p className="text-[11px] text-violet-400/80 mt-2">
-                        BSP nonce rotation—unlinkable renewals via Poseidon2 hashing.
+                        Each renewal looks different to the creator—they cannot track you across renewals.
                       </p>
                     )}
                     {privacyMode === 'trial' && (
@@ -299,14 +299,14 @@ export default function SubscribeModal({
 
                 {/* Privacy Notice */}
                 <div className="p-4 rounded-xl bg-surface-2 border border-border mb-6 space-y-2">
-                  <p className="text-xs text-green-400 font-medium">Zero-Knowledge Privacy</p>
+                  <p className="text-xs text-green-400 font-medium">Your Privacy Guaranteed</p>
                   <ul className="text-[11px] text-green-400/80 space-y-1 list-none">
                     <li>Your address is never published on-chain</li>
-                    {privacyMode === 'standard' && <li>Aggregate subscriber count updates publicly</li>}
-                    {privacyMode === 'blind' && <li>Identity hash rotated—unlinkable renewals</li>}
+                    {privacyMode === 'standard' && <li>Creator sees total count, not individuals</li>}
+                    {privacyMode === 'blind' && <li>Identity masked—renewals are unlinkable</li>}
                     {privacyMode === 'trial' && <li>Short-lived pass—20% cost, ~12 hour access</li>}
                     <li>AccessPass stored privately in your wallet</li>
-                    <li>Payment via credits.aleo/transfer_private</li>
+                    <li>Payment sent privately to creator</li>
                   </ul>
                 </div>
 

@@ -12,6 +12,7 @@ import {
   Copy,
   Check,
   ChevronDown,
+  Fingerprint,
 } from 'lucide-react'
 import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
@@ -106,22 +107,22 @@ function OverviewTab() {
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-4">Video Demo</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">Zero-Footprint Verification</h3>
         <p className="text-white/70 leading-relaxed mb-4">
-          Watch zero-footprint verification in action: v27&apos;s verify_access finalize performs a single
+          See zero-footprint verification in action: v27&apos;s verify_access finalize performs a single
           read of the access_revoked mapping keyed by pass_id—no subscriber address, no identity-linked
           writes, zero on-chain footprint. The entire subscription lifecycle stays private: subscribe
           uses credits.aleo/transfer_private, renew supports nonce-based blinding to prevent renewal
           pattern tracking, and verify_access never increments subscriber-linked counters.
         </p>
-        <div className="p-4 rounded-xl bg-white/[0.04] border border-border flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center shrink-0">
-            <BookOpen className="w-5 h-5 text-white/60" />
+        <div className="p-4 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.12] flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0">
+            <Fingerprint className="w-5 h-5 text-violet-300" />
           </div>
           <div>
-            <p className="text-sm text-white font-medium">Video Demo</p>
+            <p className="text-sm text-white font-medium">Try It Yourself</p>
             <p className="text-xs text-white/70">
-              See the project README for the latest demo video link and walkthrough instructions.
+              Connect a wallet, subscribe to any creator, then verify access on the Verify page. The entire flow demonstrates BSP privacy—your address never reaches finalize.
             </p>
           </div>
         </div>

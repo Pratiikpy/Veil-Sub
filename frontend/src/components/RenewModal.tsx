@@ -80,7 +80,7 @@ export default function RenewModal({
       return
     }
     if (blockHeight === null) {
-      setError('Could not fetch current block height. Please try again.')
+      setError('Could not sync with Aleo network. Check your connection and try again.')
       return
     }
 
@@ -147,10 +147,10 @@ export default function RenewModal({
               ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
               : null
             logSubscriptionEvent(pass.creator, selectedTier?.id || 1, totalPrice, result.resolvedTxId || id, wrappedSign)
-            toast.success('AccessPass renewed—zero-address finalize confirmed')
+            toast.success('Subscription renewed privately')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            setError('Transaction failed on-chain.')
+            setError('Renewal failed. Check your wallet and try again.')
             toast.error('Renewal failed')
           }
         })
@@ -258,8 +258,8 @@ export default function RenewModal({
                     <p className="text-xs text-white/60 mb-2 font-medium">Privacy Level</p>
                     <div ref={privacyGroupRef} className="grid grid-cols-2 gap-1.5" role="radiogroup" aria-label="Privacy level">
                       {([
-                        { key: 'standard' as const, label: 'Standard', desc: 'BHP256 hash' },
-                        { key: 'blind' as const, label: 'Blind', desc: 'Nonce rotation' },
+                        { key: 'standard' as const, label: 'Standard', desc: 'Secure renewal' },
+                        { key: 'blind' as const, label: 'Blind', desc: 'Identity masked' },
                       ]).map((mode) => (
                         <button
                           key={mode.key}
@@ -280,7 +280,7 @@ export default function RenewModal({
                     </div>
                     {privacyMode === 'blind' && (
                       <p className="text-[10px] text-violet-400/70 mt-2">
-                        Each renewal uses a unique identity hash. Creator cannot link renewals to the same person.
+                        Each renewal looks different to the creator—they cannot track you across renewals.
                       </p>
                     )}
                 </div>
@@ -371,7 +371,7 @@ export default function RenewModal({
                   >
                     <p className="text-green-400 font-medium mb-1">Renewal Confirmed</p>
                     <p className="text-xs text-white/60">
-                      New AccessPass record minted to your wallet. Zero-address finalize completed.
+                      Your subscription is renewed and saved privately to your wallet.
                     </p>
                     <button
                       onClick={handleModalClose}

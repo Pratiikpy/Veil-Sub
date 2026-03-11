@@ -140,7 +140,7 @@ export default function RegisteredDashboard({
             toast.success(`${type === 'platform' ? 'Platform fee' : 'Revenue'} withdrawal confirmed!`)
           } else if (pollResult.status === 'failed') {
             setWithdrawTxStatus('failed')
-            setWithdrawError('Transaction failed on-chain')
+            setWithdrawError('Withdrawal failed. Check your wallet and try again.')
             stopPolling()
           }
         })

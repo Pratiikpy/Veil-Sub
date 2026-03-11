@@ -73,7 +73,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
             toast.success('Audit token created!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            setError('Transaction failed on-chain.')
+            setError('Token creation failed. Check your wallet and try again.')
             toast.error('Audit token creation failed')
           }
         })

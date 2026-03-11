@@ -123,7 +123,7 @@ export default function RegistrationForm({
 
             {txStatus === 'failed' && (
               <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 mb-4">
-                <p className="text-xs text-red-400">Registration failed. Please try again.</p>
+                <p className="text-xs text-red-400">Creator registration failed. Check your wallet connection and network status.</p>
               </div>
             )}
 

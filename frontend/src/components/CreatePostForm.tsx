@@ -110,7 +110,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             toast.dismiss('post-optimistic')
-            setError('Transaction failed on-chain.')
+            setError('Content publish failed. Check your wallet and try again.')
             toast.error('Publish failed')
           }
         })

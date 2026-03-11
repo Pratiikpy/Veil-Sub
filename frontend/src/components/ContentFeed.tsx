@@ -280,7 +280,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
               <FileText className="w-10 h-10 text-white/60 mx-auto mb-4" aria-hidden="true" />
               <h3 className="text-white font-medium mb-1">No Exclusive Content Yet</h3>
               <p className="text-sm text-white/60">
-                This creator hasn&apos;t published any AccessPass-gated content yet. Check back soon!
+                This creator hasn&apos;t published any AccessPass-gated content yet. Subscribe to unlock posts when available.
               </p>
             </div>
           )}

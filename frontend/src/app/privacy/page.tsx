@@ -365,7 +365,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* ZK Explainer */}
-        <section id="zk-proofs" className="py-16 scroll-mt-28">
+        <section id="zk-proofs" className="py-12 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">What Are Zero-Knowledge Proofs?</h2>
@@ -423,13 +423,13 @@ export default function PrivacyPage() {
         </section>
 
         {/* Zero-Footprint Hero Callout */}
-        <section className="py-16">
+        <section className="py-8">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial">
               <div className="relative rounded-xl overflow-hidden">
                 {/* Gradient border effect */}
-                <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-violet-500 via-green-400 to-violet-500 opacity-60" />
-                <div className="relative rounded-xl bg-surface-1 p-8">
+                <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-violet-500 via-green-400 to-violet-500 opacity-80" />
+                <div className="relative rounded-xl bg-gradient-to-b from-violet-500/[0.08] to-green-500/[0.04] p-8">
                   <div className="flex items-start gap-4">
                     <div className="shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-violet-500/20 to-green-500/20 flex items-center justify-center">
                       <Fingerprint className="w-7 h-7 text-green-400" />
@@ -454,8 +454,8 @@ export default function PrivacyPage() {
                           </div>
                         ))}
                       </div>
-                      <div className="p-4 rounded-xl bg-surface-1 border border-border">
-                        <pre className="text-xs text-white/70 font-mono leading-relaxed overflow-x-auto">
+                      <div className="p-4 rounded-xl bg-black/60 border border-border">
+                        <pre className="text-xs text-white/80 font-mono leading-relaxed overflow-x-auto">
                           <code>{`async transition verify_access(pass: AccessPass, creator: address) -> (AccessPass, Future) {
     assert_eq(pass.creator, creator);
     let new_pass: AccessPass = AccessPass { owner: pass.owner, creator: pass.creator,
@@ -485,7 +485,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
         </section>
 
         {/* Private vs Public */}
-        <section id="private-vs-public" className="py-16 scroll-mt-28">
+        <section id="private-vs-public" className="py-12 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">What&apos;s Private vs. Public</h2>
@@ -651,7 +651,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
         </section>
 
         {/* Threat Model */}
-        <section id="threat-model" className="py-16 scroll-mt-28">
+        <section id="threat-model" className="py-12 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Privacy Threat Model</h2>
@@ -795,7 +795,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
         </section>
 
         {/* Code Proof */}
-        <section id="code-privacy" className="py-16 scroll-mt-28">
+        <section id="code-privacy" className="py-12 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Privacy in the Code</h2>
@@ -992,7 +992,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
         </section>
 
         {/* Comparison vs Traditional */}
-        <section id="vs-traditional" className="py-16 scroll-mt-28">
+        <section id="vs-traditional" className="py-12 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">VeilSub vs. Traditional Platforms</h2>
@@ -1029,7 +1029,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
         </section>
 
         {/* Comparison vs Aleo Competitors */}
-        <section id="vs-aleo" className="py-16 scroll-mt-28">
+        <section id="vs-aleo" className="py-12 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Privacy Comparison: Aleo Ecosystem</h2>
