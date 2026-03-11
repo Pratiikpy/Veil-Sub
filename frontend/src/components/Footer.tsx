@@ -16,8 +16,8 @@ export default function Footer() {
                 v27
               </span>
             </div>
-            <p className="text-xs text-white/60 leading-relaxed max-w-[240px]">
-              Privacy-first creator subscriptions powered by zero-knowledge proofs on Aleo.
+            <p className="text-xs text-white/60 leading-relaxed max-w-[260px]">
+              Subscribe privately. Prove access. Nobody sees who you support. Zero-address finalize makes subscriber identities cryptographically unreachable.
             </p>
           </div>
           {/* Navigation */}
@@ -49,7 +49,7 @@ export default function Footer() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <Shield className="w-3 h-3 text-violet-400/50" aria-hidden="true" />
-              <span>Built on Aleo—zero-knowledge by default</span>
+              <span>27 transitions • BSP blind renewals • Zero-address finalize</span>
             </div>
             <span className="text-white/40">© 2025 VeilSub</span>
           </div>
@@ -87,7 +87,7 @@ export default function Footer() {
         <div className="pt-3 border-t border-border/75 flex items-center justify-between text-[10px] text-white/60">
           <div className="flex items-center gap-2">
             <Shield className="w-3 h-3 text-violet-400/50 shrink-0" aria-hidden="true" />
-            <span>Zero-knowledge by default</span>
+            <span>Zero-address finalize</span>
           </div>
           <span className="text-white/40">© 2025 VeilSub</span>
         </div>

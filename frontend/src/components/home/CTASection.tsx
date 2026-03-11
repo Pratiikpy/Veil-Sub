@@ -24,7 +24,7 @@ export default function CTASection() {
                 className="text-4xl sm:text-5xl lg:text-6xl font-serif italic text-white"
                 style={{ letterSpacing: '-0.03em' }}
               >
-                Ready to Monetize Privately?
+                Earn While They Stay Hidden
               </h2>
               <p className="mt-6 text-lg text-white/80 max-w-lg mx-auto leading-relaxed">
                 Earn ALEO from privacy-conscious subscribers. Zero subscriber enumeration. BSP nonce rotation. Poseidon2 field-hashed mappings.

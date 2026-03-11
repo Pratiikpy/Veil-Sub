@@ -106,7 +106,7 @@ export default function TransferPassModal({
               <ArrowLeftRight className="w-5 h-5 text-violet-400" aria-hidden="true" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">transfer_pass Transition</h3>
+              <h3 className="text-lg font-semibold text-white">Transfer Subscription</h3>
               <p className="text-xs text-white/60">Transfer your AccessPass to another wallet</p>
             </div>
           </div>
@@ -190,11 +190,11 @@ export default function TransferPassModal({
                 !confirmed ? 'Confirm that you understand this is irreversible' :
                 txStatus === 'signing' ? 'Waiting for wallet signature...' :
                 txStatus === 'broadcasting' ? 'Broadcasting transaction...' :
-                'Execute transfer_pass transition'
+                'Transfer your subscription to this address'
               }
               className="flex-1"
             >
-              {txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Broadcasting...' : 'Execute transfer_pass'}
+              {txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Broadcasting...' : 'Transfer Pass'}
             </Button>
           </div>
         </m.div>

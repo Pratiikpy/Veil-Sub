@@ -166,7 +166,14 @@ export default function HeroSection() {
             <span className="text-white/50">•</span>
             <span className="text-white/70 font-medium">BSP Zero-Footprint Verify</span>
             <span className="text-white/50">•</span>
-            <span className="text-white/70 font-medium">v27 Deployed</span>
+            <a
+              href="https://testnet.aleo.info/program/veilsub_v27.aleo"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-violet-300 font-medium hover:text-violet-200 transition-colors underline decoration-violet-500/30 underline-offset-2"
+            >
+              v27 Deployed ↗
+            </a>
           </m.p>
         </m.div>
 

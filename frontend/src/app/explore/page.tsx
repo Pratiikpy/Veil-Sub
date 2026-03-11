@@ -11,7 +11,6 @@ import {
   ArrowRight,
   AlertTriangle,
   Star,
-  TrendingUp,
   Sparkles,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -48,13 +47,10 @@ function TrendingCard({ creator, growth }: { creator: Creator; growth: string })
             {creator.display_name || shortenAddress(creator.address)}
           </p>
           <div className="flex items-center gap-1.5">
-            <TrendingUp className="w-3 h-3 text-green-400" aria-hidden="true" />
-            <span className="text-xs text-green-400 font-medium">{growth}</span>
+            <Star className="w-3 h-3 text-violet-400" aria-hidden="true" />
+            <span className="text-xs text-violet-400 font-medium">{growth}</span>
           </div>
         </div>
-        {isFeatured && (
-          <Star className="w-4 h-4 text-violet-400 shrink-0" aria-hidden="true" />
-        )}
       </div>
       {creator.bio && (
         <p className="text-xs text-white/60 line-clamp-2 mb-2">{creator.bio}</p>
@@ -167,13 +163,13 @@ export default function ExplorePage() {
   const [platformStats, setPlatformStats] = useState<{ creators: number | null; content: number | null }>({ creators: null, content: null })
   const [platformStatsError, setPlatformStatsError] = useState(false)
 
-  // Get trending creators (featured creators with mock growth data)
-  const trendingCreators = FEATURED_CREATORS.slice(0, 4).map((fc, i) => ({
+  // Get featured creators for highlight section
+  const trendingCreators = FEATURED_CREATORS.slice(0, 4).map((fc) => ({
     address: fc.address,
     display_name: fc.label,
     bio: fc.bio ?? null,
     created_at: new Date().toISOString(),
-    growth: ['+45%', '+32%', '+28%', '+19%'][i] || '+15%',
+    growth: 'Featured',
   }))
 
   // Fetch platform-wide stats (total_creators, total_content mappings, key=0u8)
@@ -315,9 +311,9 @@ export default function ExplorePage() {
               className="mb-10"
             >
               <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20">
-                  <Sparkles className="w-3.5 h-3.5 text-green-400" aria-hidden="true" />
-                  <span className="text-xs font-medium text-green-400">Trending This Week</span>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-500/10 border border-violet-500/20">
+                  <Sparkles className="w-3.5 h-3.5 text-violet-400" aria-hidden="true" />
+                  <span className="text-xs font-medium text-violet-400">Featured Creators</span>
                 </div>
               </div>
               <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">

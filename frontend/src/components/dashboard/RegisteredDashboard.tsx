@@ -397,13 +397,13 @@ export default function RegisteredDashboard({
                         }`}
                       >
                         <div className="flex items-start gap-3">
-                          <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${
-                            step.done ? 'bg-green-500/15' : 'bg-violet-500/10'
+                          <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${
+                            step.done ? 'bg-green-500/15 ring-1 ring-green-500/20' : 'bg-violet-500/10 ring-1 ring-violet-500/15'
                           }`}>
                             {step.done ? (
-                              <CheckCircle2 className="w-4 h-4 text-green-400" aria-hidden="true" />
+                              <CheckCircle2 className="w-5 h-5 text-green-400" aria-hidden="true" />
                             ) : (
-                              <Icon className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                              <Icon className="w-5 h-5 text-violet-400" aria-hidden="true" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">

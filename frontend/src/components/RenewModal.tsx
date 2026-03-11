@@ -197,7 +197,7 @@ export default function RenewModal({
               <div className="flex items-center gap-2">
                 <RefreshCw className="w-5 h-5 text-white/70" aria-hidden="true" />
                 <h3 className="text-lg font-semibold text-white">
-                  Renew via BSP
+                  Renew Subscription
                 </h3>
               </div>
               <button
@@ -315,7 +315,7 @@ export default function RenewModal({
                   <ul className="text-[11px] text-green-400/80 space-y-1 list-none">
                     <li>Your address is never published on-chain</li>
                     {privacyMode === 'standard' && <li>Aggregate subscriber count updates publicly</li>}
-                    {privacyMode === 'blind' && <li>Identity hash rotated -- unlinkable renewals</li>}
+                    {privacyMode === 'blind' && <li>Identity hash rotated—unlinkable renewals</li>}
                     <li>AccessPass stored privately in your wallet</li>
                     <li>Payment via credits.aleo/transfer_private</li>
                   </ul>
@@ -350,7 +350,7 @@ export default function RenewModal({
                   }
                   className="w-full"
                 >
-                  Execute renew_subscription
+                  Renew Privately
                 </Button>
               </>
             ) : (
@@ -367,7 +367,7 @@ export default function RenewModal({
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-4 text-center"
                   >
-                    <p className="text-green-400 font-medium mb-1">renew_subscription Confirmed</p>
+                    <p className="text-green-400 font-medium mb-1">Renewal Confirmed</p>
                     <p className="text-xs text-white/60">
                       New AccessPass record minted to your wallet. Zero-address finalize completed.
                     </p>
