@@ -36,7 +36,7 @@ export default function PrivacyFeatures() {
           <SectionHeader
             badge="Privacy Stack"
             title="How your identity stays hidden"
-            subtitle="Six cryptographic techniques keep subscriber identity private at every layer."
+            subtitle="Three-layer privacy: zero-address finalize, nonce-rotated hashing, and selective disclosure."
           />
         </ScrollReveal>
 
@@ -57,12 +57,12 @@ export default function PrivacyFeatures() {
                   <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-violet-500/[0.04] blur-2xl pointer-events-none group-hover:bg-violet-500/[0.08] transition-all duration-500" />
                   <div className="relative">
                   <div className="w-12 h-12 rounded-2xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center mb-6 group-hover:bg-violet-500/[0.1] group-hover:border-violet-500/[0.2] transition-all">
-                    <Icon className="w-6 h-6 text-violet-400/60 group-hover:text-violet-400 transition-colors" />
+                    <Icon className="w-6 h-6 text-violet-400/60 group-hover:text-violet-400 transition-colors" aria-hidden="true" />
                   </div>
                   <h3 className="text-xl font-medium text-white mb-3">
                     {feature.title}
                   </h3>
-                  <p className="text-white/70 text-sm leading-relaxed">
+                  <p className="text-white/80 text-sm leading-relaxed">
                     {feature.desc}
                   </p>
                   </div>
@@ -76,12 +76,12 @@ export default function PrivacyFeatures() {
               <m.div key={feature.title} variants={staggerItemVariants}>
                 <SpotlightCard className="group p-7 rounded-3xl glass glass-accent h-full transition-all duration-300">
                   <div className="w-9 h-9 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center mb-4 group-hover:bg-violet-500/[0.1] group-hover:border-violet-500/[0.2] transition-all">
-                    <Icon className="w-4 h-4 text-violet-400/60 group-hover:text-violet-400 transition-colors" />
+                    <Icon className="w-4 h-4 text-violet-400/60 group-hover:text-violet-400 transition-colors" aria-hidden="true" />
                   </div>
                   <h3 className="text-sm font-medium text-white mb-1.5">
                     {feature.title}
                   </h3>
-                  <p className="text-xs text-white/70 leading-relaxed">
+                  <p className="text-xs text-white/80 leading-relaxed">
                     {feature.desc}
                   </p>
                 </SpotlightCard>

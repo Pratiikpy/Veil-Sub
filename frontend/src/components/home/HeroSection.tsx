@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { m, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, Code, ChevronDown } from 'lucide-react'
@@ -15,6 +15,15 @@ import { FEATURED_CREATORS } from '@/lib/config'
 export default function HeroSection() {
   const { connected } = useWallet()
   const sectionRef = useRef<HTMLElement>(null)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setPrefersReducedMotion(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -22,9 +31,10 @@ export default function HeroSection() {
   })
 
   // Parallax: heading moves slower, description and buttons move faster
-  const headingY = useTransform(scrollYProgress, [0, 1], [0, -60])
-  const descY = useTransform(scrollYProgress, [0, 1], [0, -30])
-  const diagramY = useTransform(scrollYProgress, [0, 1], [0, 40])
+  // Disabled when user prefers reduced motion
+  const headingY = useTransform(scrollYProgress, [0, 1], prefersReducedMotion ? [0, 0] : [0, -60])
+  const descY = useTransform(scrollYProgress, [0, 1], prefersReducedMotion ? [0, 0] : [0, -30])
+  const diagramY = useTransform(scrollYProgress, [0, 1], prefersReducedMotion ? [0, 0] : [0, 40])
   const opacityFade = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
   return (
@@ -88,7 +98,7 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.7 }}
-            className="mt-8 text-base sm:text-lg text-white/70 max-w-[520px] mx-auto leading-relaxed"
+            className="mt-8 text-base sm:text-lg text-white/80 max-w-[520px] mx-auto leading-relaxed"
             style={{ y: descY }}
           >
             Blind Subscription Protocol with nonce-rotated Poseidon2 hashing.
@@ -107,7 +117,7 @@ export default function HeroSection() {
                 <Link href="/dashboard">
                   <Button variant="accent" size="lg" className="rounded-full shadow-accent-lg">
                     Go to Dashboard
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
                   </Button>
                 </Link>
                 <Link href={`/creator/${FEATURED_CREATORS[0]?.address || ''}`}>
@@ -121,7 +131,7 @@ export default function HeroSection() {
                 <Link href={`/creator/${FEATURED_CREATORS[0]?.address || ''}`}>
                   <Button variant="accent" size="lg" className="rounded-full shadow-accent-lg">
                     Start Subscribing
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
                   </Button>
                 </Link>
                 <a
@@ -130,7 +140,7 @@ export default function HeroSection() {
                   rel="noopener noreferrer"
                 >
                   <Button variant="secondary" size="lg" className="rounded-full">
-                    <Code className="w-4 h-4" />
+                    <Code className="w-4 h-4" aria-hidden="true" />
                     View Source
                   </Button>
                 </a>
@@ -159,7 +169,7 @@ export default function HeroSection() {
               testnet
             </span>
             <span className="text-white/50">•</span>
-            <span className="text-white/70 font-medium">Zero-Knowledge Proofs</span>
+            <span className="text-white/70 font-medium">BSP Zero-Footprint Verify</span>
             <span className="text-white/50">•</span>
             <span className="text-white/70 font-medium">v27 Deployed</span>
           </m.p>

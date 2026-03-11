@@ -42,7 +42,7 @@ export default function HowItWorks() {
                     <Icon className="w-5 h-5 text-violet-400/60 group-hover:text-violet-400 transition-colors" aria-hidden="true" />
                   </div>
                   <h3 className="text-white font-medium mb-2">{step.title}</h3>
-                  <p className="text-sm text-white/70 leading-relaxed">{step.desc}</p>
+                  <p className="text-sm text-white/80 leading-relaxed">{step.desc}</p>
                 </SpotlightCard>
               </m.div>
             )

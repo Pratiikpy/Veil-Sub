@@ -83,9 +83,9 @@ html {
   --font-serif: var(--font-instrument-serif);
 
   /* ─── Shadows ─── */
-  --shadow-accent-sm: 0 0 12px rgba(139, 92, 246, 0.1);
-  --shadow-accent-md: 0 0 20px rgba(139, 92, 246, 0.08);
-  --shadow-accent-lg: 0 0 30px rgba(139, 92, 246, 0.08);
+  --shadow-accent-sm: 0 0 12px rgba(139, 92, 246, 0.15);
+  --shadow-accent-md: 0 0 24px rgba(139, 92, 246, 0.12);
+  --shadow-accent-lg: 0 0 40px rgba(139, 92, 246, 0.16);
 
   /* ─── Radius ─── */
   --radius-xs: 8px;

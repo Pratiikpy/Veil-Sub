@@ -24,7 +24,7 @@ export default function ProblemSolution() {
               <br />
               Exposes You.
             </h2>
-            <p className="mt-6 text-white/70 leading-relaxed">
+            <p className="mt-6 text-white/80 leading-relaxed">
               Patreon, Ko-fi, and YouTube memberships display subscriber names
               in public tier lists. On Ethereum, on-chain payments are forever
               traceable. Privacy-conscious supporters avoid subscribing at all.

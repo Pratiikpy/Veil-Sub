@@ -43,7 +43,7 @@ export default function ContractShowcase() {
         <ScrollReveal>
           <SectionHeader
             badge="v8 → v27 Evolution"
-            title="What changed across nineteen deploys"
+            title="What changed across twenty deploys"
             subtitle="Each iteration adds novel cryptographic features. Built in public, deployed on testnet."
           />
         </ScrollReveal>
@@ -74,7 +74,7 @@ export default function ContractShowcase() {
                     <h3 className="text-sm font-medium text-white mb-1.5">
                       {feature.title}
                     </h3>
-                    <p className="text-xs text-white/70 leading-relaxed">
+                    <p className="text-xs text-white/80 leading-relaxed">
                       {feature.desc}
                     </p>
                   </SpotlightCard>

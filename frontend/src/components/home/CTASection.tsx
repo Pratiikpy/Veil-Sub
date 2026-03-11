@@ -35,14 +35,14 @@ export default function CTASection() {
               >
                 Ready to Monetize Privately?
               </h2>
-              <p className="mt-6 text-lg text-white/70 max-w-lg mx-auto leading-relaxed">
+              <p className="mt-6 text-lg text-white/80 max-w-lg mx-auto leading-relaxed">
                 Earn ALEO from privacy-conscious subscribers. Zero subscriber enumeration. BSP nonce rotation. Poseidon2 field-hashed mappings.
               </p>
               <div className="flex items-center justify-center gap-4 flex-wrap mt-10">
                 <Link href="/dashboard">
                   <Button variant="accent" size="lg" className="rounded-full px-10 shadow-accent-lg">
                     Become a Creator
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-5 h-5" aria-hidden="true" />
                   </Button>
                 </Link>
                 <a
@@ -51,7 +51,7 @@ export default function CTASection() {
                   rel="noopener noreferrer"
                 >
                   <Button variant="ghost" size="lg" className="rounded-full">
-                    <Github className="w-4 h-4" />
+                    <Github className="w-4 h-4" aria-hidden="true" />
                     View on GitHub
                   </Button>
                 </a>

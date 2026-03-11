@@ -55,7 +55,7 @@ export default function SpotlightCard({
       ref={ref}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
-      className={`relative overflow-hidden ${className}`}
+      className={`relative overflow-hidden cursor-pointer ${className}`}
       style={{
         transform: transform || undefined,
         transition: transform ? 'transform 0.1s ease-out' : 'transform 0.4s ease-out',
