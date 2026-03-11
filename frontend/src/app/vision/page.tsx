@@ -252,7 +252,7 @@ export default function VisionPage() {
               <div className="absolute inset-0 bg-gradient-to-br from-violet-500/[0.04] to-transparent pointer-events-none" />
               <div className="relative">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-4">
-                  <Shield className="w-3.5 h-3.5 text-violet-400" />
+                  <Shield className="w-3.5 h-3.5 text-violet-400" aria-hidden="true" />
                   <span className="text-xs text-violet-300/90">Privacy by Default</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-4">
@@ -267,7 +267,7 @@ export default function VisionPage() {
                     className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 transition-all active:scale-[0.98] btn-shimmer"
                   >
                     Explore Creators
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
                   </Link>
                   <Link
                     href="/docs"

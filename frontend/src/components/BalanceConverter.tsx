@@ -65,7 +65,7 @@ export default function BalanceConverter({
   return (
     <div className="p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/20 space-y-4">
       <div className="flex items-start gap-4">
-        <AlertTriangle className="w-5 h-5 text-yellow-400 shrink-0 mt-1" />
+        <AlertTriangle className="w-5 h-5 text-yellow-400 shrink-0 mt-1" aria-hidden="true" />
         <div>
           <h4 className="text-yellow-300 font-medium text-sm mb-1">
             Insufficient Private Balance
@@ -129,7 +129,7 @@ export default function BalanceConverter({
           <span className="text-sm text-white font-medium">
             Get Testnet Credits
           </span>
-          <ExternalLink className="w-3.5 h-3.5 text-white/60" />
+          <ExternalLink className="w-3.5 h-3.5 text-white/60" aria-hidden="true" />
         </div>
         <p className="text-xs text-white/70">
           No public balance? Request free ALEO from the testnet faucet.

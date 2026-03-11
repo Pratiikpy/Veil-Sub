@@ -30,7 +30,7 @@ export default function ZeroKnowledgeVisual() {
             {/* Left: Text content */}
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.08]">
-                <Server className="w-4 h-4 text-violet-400/60" />
+                <Server className="w-4 h-4 text-violet-400/60" aria-hidden="true" />
                 <span className="text-[11px] font-semibold tracking-[0.2em] text-white/70 uppercase">Architecture</span>
               </div>
               <h2
@@ -56,7 +56,7 @@ export default function ZeroKnowledgeVisual() {
                     className="flex items-start gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] hover:border-violet-500/10 transition-all duration-300"
                   >
                     <div className="w-8 h-8 rounded-lg bg-violet-500/[0.06] flex items-center justify-center shrink-0 mt-0.5 border border-violet-500/[0.1]">
-                      <Zap className="w-4 h-4 text-violet-400" />
+                      <Zap className="w-4 h-4 text-violet-400" aria-hidden="true" />
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-white mb-1">{item.label}</h4>

@@ -208,7 +208,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                       aria-label="Close proof confirmation dialog"
                       className="mt-4 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50"
                     >
-                      Done
+                      Proof Confirmed
                     </button>
                   </m.div>
                 )}

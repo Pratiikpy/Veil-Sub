@@ -615,7 +615,7 @@ export default function RegisteredDashboard({
               className="p-4 rounded-xl bg-surface-1 border border-border"
             >
               <div className="flex items-start gap-4">
-                <Lock className="w-5 h-5 text-green-400 mt-0.5 shrink-0" />
+                <Lock className="w-5 h-5 text-green-400 mt-0.5 shrink-0" aria-hidden="true" />
                 <div>
                   <p className="text-sm text-green-300 font-medium mb-1">
                     Exclusive content is live
@@ -779,7 +779,7 @@ export default function RegisteredDashboard({
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-violet-400" />
+                  <Settings className="w-5 h-5 text-violet-400" aria-hidden="true" />
                   <h2 className="text-lg font-semibold text-white">Custom Tiers</h2>
                   {creatorTierCount > 0 && (
                     <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] text-green-400 font-medium">

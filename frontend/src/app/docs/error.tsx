@@ -14,7 +14,7 @@ export default function DocsError({
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center max-w-md px-4" role="alert">
         <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-6">
-          <AlertTriangle className="w-8 h-8 text-amber-400" />
+          <AlertTriangle className="w-8 h-8 text-amber-400" aria-hidden="true" />
         </div>
         <h2 className="text-2xl font-bold text-white mb-4">Documentation Error</h2>
         <p className="text-white/70 mb-2">

@@ -184,12 +184,12 @@ export default function DisputeContentModal({
           <div className="flex gap-4">
             {txStatus === 'confirmed' ? (
               <Button variant="accent" onClick={handleClose} className="w-full">
-                Done
+                Dispute Submitted
               </Button>
             ) : (
               <>
                 <Button variant="secondary" onClick={handleClose} className="flex-1">
-                  Cancel
+                  Cancel Dispute
                 </Button>
                 <Button
                   onClick={handleDispute}

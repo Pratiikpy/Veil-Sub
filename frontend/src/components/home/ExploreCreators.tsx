@@ -50,17 +50,17 @@ const FeaturedCreatorCard = React.memo(function FeaturedCreatorCard({
       {stats && stats.tierPrice !== null && (
         <div className="flex gap-4 text-xs text-white/60">
           <span className="flex items-center gap-1">
-            <Users className="w-3 h-3" />
+            <Users className="w-3 h-3" aria-hidden="true" />
             {stats.subscriberCount} subscribers
           </span>
           <span className="flex items-center gap-1">
-            <Coins className="w-3 h-3" />
+            <Coins className="w-3 h-3" aria-hidden="true" />
             {formatCredits(stats.tierPrice)} ALEO
           </span>
         </div>
       )}
       <div className="mt-4 text-xs text-white/60 group-hover:text-violet-300 flex items-center gap-1 transition-colors">
-        View creator <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+        View creator <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
       </div>
     </Link>
   )
@@ -101,7 +101,7 @@ export default function ExploreCreators() {
         <ScrollReveal delay={0.2} className="max-w-xl mx-auto mt-10">
           <div className="flex gap-4">
             <div className="relative flex-1 group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-violet-400 transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-violet-400 transition-colors" aria-hidden="true" />
               <input
                 type="text"
                 id="creator-search"
@@ -130,7 +130,7 @@ export default function ExploreCreators() {
               href="/explore"
               className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors whitespace-nowrap"
             >
-              View all creators <ArrowRight className="w-3 h-3" />
+              View all creators <ArrowRight className="w-3 h-3" aria-hidden="true" />
             </Link>
           </div>
         </ScrollReveal>

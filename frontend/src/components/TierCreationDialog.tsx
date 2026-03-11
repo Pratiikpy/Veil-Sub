@@ -115,8 +115,8 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                   <p className="text-sm font-medium text-green-400">Tier #{tierId} created!</p>
                   {txId && <p className="mt-1 text-xs text-white/60 break-all">Tx: {txId.slice(0, 20)}...</p>}
                 </div>
-                <button onClick={handleClose} aria-label="Done creating tier - close dialog" className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50">
-                  Done Creating Tier
+                <button onClick={handleClose} aria-label="Tier created successfully - close dialog" className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50">
+                  Tier Created
                 </button>
               </div>
             ) : (
