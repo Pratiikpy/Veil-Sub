@@ -68,7 +68,7 @@ export default function PostsList({ address }: PostsListProps) {
         <span className="text-xs text-subtle ml-auto">{posts.length} posts</span>
       </div>
       {posts.length === 0 ? (
-        <p className="text-sm text-subtle">No posts yet. Create your first post above.</p>
+        <p className="text-sm text-white/60">No gated content yet. Create your first post above to start earning from subscribers.</p>
       ) : (
         <div className="space-y-2">
           {posts.map((post) => {

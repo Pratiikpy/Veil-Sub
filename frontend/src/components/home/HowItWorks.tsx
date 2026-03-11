@@ -26,7 +26,7 @@ export default function HowItWorks() {
           />
         </ScrollReveal>
 
-        <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-14">
+        <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-10 sm:mt-14">
           {STEPS.map((step, i) => {
             const Icon = step.icon
             return (
@@ -35,14 +35,14 @@ export default function HowItWorks() {
                 variants={staggerItemVariants}
               >
                 <SpotlightCard className="group p-8 rounded-3xl glass glass-accent transition-all duration-300 h-full">
-                  <span className="text-4xl font-bold leading-none text-violet-500/20 select-none">
+                  <span className="text-4xl font-bold leading-none text-violet-500/20 select-none group-hover:text-violet-500/40 group-hover:scale-110 transition-all duration-300 inline-block">
                     0{i + 1}
                   </span>
                   <div className="mt-4 mb-3 w-10 h-10 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center group-hover:bg-violet-500/[0.1] group-hover:border-violet-500/[0.2] transition-all">
                     <Icon className="w-5 h-5 text-violet-400/60 group-hover:text-violet-400 transition-colors" />
                   </div>
                   <h3 className="text-white font-medium mb-2">{step.title}</h3>
-                  <p className="text-sm text-subtle leading-relaxed">{step.desc}</p>
+                  <p className="text-sm text-white/70 leading-relaxed">{step.desc}</p>
                 </SpotlightCard>
               </m.div>
             )

@@ -52,15 +52,15 @@ export default function ZeroKnowledgeVisual() {
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: i * 0.1 }}
-                    className="flex items-start gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] transition-colors"
+                    transition={{ duration: 0.5, delay: 0.1 + i * 0.15 }}
+                    className="flex items-start gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] hover:border-violet-500/10 transition-all duration-300"
                   >
                     <div className="w-8 h-8 rounded-lg bg-violet-500/[0.06] flex items-center justify-center shrink-0 mt-0.5 border border-violet-500/[0.1]">
-                      <Zap className="w-4 h-4 text-violet-400/60" />
+                      <Zap className="w-4 h-4 text-violet-400" />
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-white mb-1">{item.label}</h4>
-                      <p className="text-xs text-subtle leading-relaxed">{item.desc}</p>
+                      <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                     </div>
                   </m.div>
                 ))}

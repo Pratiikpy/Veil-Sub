@@ -109,7 +109,7 @@ export default function ExploreCreators() {
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="Search by Aleo address..."
                 aria-label="Enter creator Aleo address"
-                className="w-full pl-11 pr-4 py-3 rounded-full glass text-white placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300 text-base"
+                className="w-full pl-11 pr-4 py-3 rounded-full glass text-white placeholder-subtle focus:outline-none focus:border-violet-500/40 focus:shadow-accent-lg focus:scale-[1.01] transition-all duration-300 text-base"
               />
             </div>
             <Button

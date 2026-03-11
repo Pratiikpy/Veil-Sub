@@ -23,7 +23,7 @@ export default function ConnectWalletPrompt() {
             <h2 className="text-2xl font-bold text-white mb-2">
               Creator Dashboard
             </h2>
-            <p className="text-muted mb-8">
+            <p className="text-white/70 mb-8">
               Connect your wallet to register as a creator or manage your subscriptions.
             </p>
           </m.div>
@@ -43,7 +43,7 @@ export default function ConnectWalletPrompt() {
               ].map((item) => (
                 <div key={item.step} className="flex gap-3 items-start">
                   <span className="shrink-0 w-6 h-6 rounded-full bg-violet-500/20 text-violet-400 text-xs font-bold flex items-center justify-center">{item.step}</span>
-                  <p className="text-sm text-muted">{item.text}</p>
+                  <p className="text-sm text-white/70">{item.text}</p>
                 </div>
               ))}
             </div>
@@ -55,7 +55,7 @@ export default function ConnectWalletPrompt() {
             transition={{ delay: 0.2 }}
             className="mt-4 p-4 rounded-xl bg-violet-500/5 border border-violet-500/10"
           >
-            <p className="text-xs text-muted text-center">
+            <p className="text-xs text-white/60 text-center">
               Your identity stays private—creators only see aggregate subscriber counts and revenue. VeilSub never exposes who subscribes.
             </p>
           </m.div>

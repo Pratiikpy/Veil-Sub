@@ -62,7 +62,7 @@ export default function PrivacyFeatures() {
                   <h3 className="text-xl font-medium text-white mb-3">
                     {feature.title}
                   </h3>
-                  <p className="text-muted text-sm leading-relaxed">
+                  <p className="text-white/70 text-sm leading-relaxed">
                     {feature.desc}
                   </p>
                   </div>
@@ -81,7 +81,7 @@ export default function PrivacyFeatures() {
                   <h3 className="text-sm font-medium text-white mb-1.5">
                     {feature.title}
                   </h3>
-                  <p className="text-xs text-subtle leading-relaxed">
+                  <p className="text-xs text-white/70 leading-relaxed">
                     {feature.desc}
                   </p>
                 </SpotlightCard>

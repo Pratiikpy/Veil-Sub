@@ -105,7 +105,7 @@ export default function HeroSection() {
             {connected ? (
               <>
                 <Link href="/dashboard">
-                  <Button size="lg" className="rounded-full">
+                  <Button variant="accent" size="lg" className="rounded-full shadow-accent-lg">
                     Go to Dashboard
                     <ArrowRight className="w-4 h-4" />
                   </Button>
@@ -119,7 +119,7 @@ export default function HeroSection() {
             ) : (
               <>
                 <Link href={`/creator/${FEATURED_CREATORS[0]?.address || ''}`}>
-                  <Button size="lg" className="rounded-full">
+                  <Button variant="accent" size="lg" className="rounded-full shadow-accent-lg">
                     Start Subscribing
                     <ArrowRight className="w-4 h-4" />
                   </Button>
@@ -152,16 +152,16 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 1.1 }}
-            className="mt-6 text-xs text-subtle inline-flex items-center gap-2 justify-center"
+            className="mt-8 text-xs inline-flex items-center gap-3 justify-center flex-wrap"
           >
-            <span className="inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[10px] font-medium text-violet-400/70 bg-violet-500/[0.08] border border-violet-500/[0.12] rounded">
+            <span className="inline-flex items-center gap-1.5 px-2 py-1 text-[11px] font-semibold text-violet-400/80 bg-violet-500/[0.08] border border-violet-500/[0.15] rounded-md">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               testnet
             </span>
-            <span className="text-subtle">·</span>
-            Zero-Knowledge Proofs
-            <span className="text-subtle">·</span>
-            v27 Deployed
+            <span className="text-white/50">•</span>
+            <span className="text-white/70 font-medium">Zero-Knowledge Proofs</span>
+            <span className="text-white/50">•</span>
+            <span className="text-white/70 font-medium">v27 Deployed</span>
           </m.p>
         </m.div>
 

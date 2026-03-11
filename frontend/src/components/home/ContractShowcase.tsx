@@ -67,14 +67,14 @@ export default function ContractShowcase() {
                       <div className="w-9 h-9 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center group-hover:bg-violet-500/[0.1] group-hover:border-violet-500/[0.2] transition-all">
                         <Icon className="w-4 h-4 text-violet-400/60 group-hover:text-violet-400 transition-colors" />
                       </div>
-                      <span className="text-[10px] font-mono text-violet-400/80 bg-violet-500/[0.06] px-2.5 py-1 rounded-full border border-violet-500/[0.12]">
+                      <span className="text-[11px] font-mono text-violet-400 bg-violet-500/[0.06] px-2.5 py-1 rounded-full border border-violet-500/[0.12]">
                         {feature.version}
                       </span>
                     </div>
                     <h3 className="text-sm font-medium text-white mb-1.5">
                       {feature.title}
                     </h3>
-                    <p className="text-xs text-subtle leading-relaxed">
+                    <p className="text-xs text-white/70 leading-relaxed">
                       {feature.desc}
                     </p>
                   </SpotlightCard>
@@ -84,9 +84,9 @@ export default function ContractShowcase() {
           </StaggerContainer>
 
           {/* Swipe hint — mobile only */}
-          <div className="flex items-center justify-center gap-1.5 mt-3 sm:hidden" aria-hidden="true">
-            <span className="text-[11px] text-zinc-500 tracking-wide">Swipe to explore</span>
-            <ChevronRight className="w-3 h-3 text-violet-400/60 animate-pulse" />
+          <div className="flex items-center justify-center gap-2 mt-4 sm:hidden" aria-hidden="true">
+            <span className="text-xs text-zinc-400 tracking-wide font-medium">Swipe to explore</span>
+            <ChevronRight className="w-3.5 h-3.5 text-violet-400/70 animate-pulse" />
           </div>
         </div>
       </Container>

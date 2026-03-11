@@ -38,11 +38,11 @@ export default function CTASection() {
               <p className="mt-6 text-lg text-muted max-w-lg mx-auto leading-relaxed">
                 Start earning from subscribers who value privacy. No lists. No traces. No compromise.
               </p>
-              <div className="flex items-center justify-center gap-3 flex-wrap mt-10">
+              <div className="flex items-center justify-center gap-4 flex-wrap mt-10">
                 <Link href="/dashboard">
-                  <Button size="lg" className="rounded-full">
+                  <Button variant="accent" size="lg" className="rounded-full px-10 shadow-accent-lg">
                     Become a Creator
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-5 h-5" />
                   </Button>
                 </Link>
                 <a
@@ -50,7 +50,7 @@ export default function CTASection() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Button variant="secondary" size="lg" className="rounded-full">
+                  <Button variant="ghost" size="lg" className="rounded-full">
                     <Github className="w-4 h-4" />
                     View on GitHub
                   </Button>

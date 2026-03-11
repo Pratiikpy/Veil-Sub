@@ -46,7 +46,7 @@ const FAQItem = React.memo(function FAQItem({
         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
         className="overflow-hidden"
       >
-        <p className="px-6 pb-5 text-sm text-muted leading-relaxed">
+        <p className="px-6 pb-5 text-sm text-white/70 leading-relaxed">
           {answer}
         </p>
       </m.div>

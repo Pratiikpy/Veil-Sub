@@ -45,7 +45,7 @@ export default function ProblemSolution() {
                         <span className="text-[10px] uppercase tracking-wider text-red-400 font-medium">
                           Traditional
                         </span>
-                        <p className="text-sm text-subtle mt-0.5">{row.traditional}</p>
+                        <p className="text-sm text-white/60 mt-0.5">{row.traditional}</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2.5 p-5">

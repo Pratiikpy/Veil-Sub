@@ -42,13 +42,13 @@ export default function ProtocolStats() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-white">VeilSub Protocol</p>
-                    <p className="text-xs text-subtle">Built on Aleo</p>
+                    <p className="text-xs text-white/60">Built on Aleo</p>
                   </div>
                 </div>
                 {!loading && (
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className={`w-3.5 h-3.5 ${stats.programDeployed ? 'text-emerald-400' : 'text-subtle'}`} />
-                    <span className={`text-xs font-medium ${stats.programDeployed ? 'text-emerald-400' : 'text-subtle'}`}>
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/[0.08] border border-emerald-500/20">
+                    <CheckCircle2 className={`w-4 h-4 ${stats.programDeployed ? 'text-emerald-400 animate-pulse' : 'text-white/50'}`} />
+                    <span className={`text-xs font-semibold ${stats.programDeployed ? 'text-emerald-400' : 'text-white/50'}`}>
                       {stats.programDeployed ? 'Live on Testnet' : 'Checking...'}
                     </span>
                   </div>
@@ -70,8 +70,8 @@ export default function ProtocolStats() {
                   className="text-4xl font-bold tracking-tight text-white"
                 />
                 <div className="mt-4">
-                  <p className="text-sm text-muted font-medium">{stat.label}</p>
-                  <p className="text-xs text-subtle mt-0.5">{stat.sublabel}</p>
+                  <p className="text-sm text-white/80 font-medium">{stat.label}</p>
+                  <p className="text-xs text-white/60 mt-0.5">{stat.sublabel}</p>
                 </div>
               </SpotlightCard>
             ))}
