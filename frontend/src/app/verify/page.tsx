@@ -208,7 +208,7 @@ export default function VerifyPage() {
               </p>
               <div className="p-4 rounded-xl glass text-left">
                 <p className="text-xs text-white/70 leading-relaxed">
-                  <strong className="text-violet-300">How it works:</strong> Select an AccessPass from your wallet, then click Verify. verify_access consumes your pass (UTXO pattern), checks access_revoked[pass_id] and expires_at &gt; block.height in finalize, then re-creates the pass. Zero subscriber-identifying mapping writes.
+                  <strong className="text-violet-300">How it works:</strong> Select an AccessPass from your wallet, then click Verify. verify_access consumes your pass (UTXO pattern), checks access_revoked[pass_id] and expires_at &gt; block.height in finalize, then re-creates the pass. Zero subscriber-identifying mapping writes occur.
                 </p>
               </div>
               <p className="text-xs text-white/60 mt-4">

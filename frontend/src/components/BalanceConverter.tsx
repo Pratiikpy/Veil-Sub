@@ -63,7 +63,7 @@ export default function BalanceConverter({
   }
 
   return (
-    <div className="p-4 rounded-sm bg-yellow-500/5 border border-yellow-500/20 space-y-4">
+    <div className="p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/20 space-y-4">
       <div className="flex items-start gap-3">
         <AlertTriangle className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
         <div>

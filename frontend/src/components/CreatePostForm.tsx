@@ -137,7 +137,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
       id="create-post"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 rounded-sm bg-surface-1 border border-border scroll-mt-24"
+      className="p-6 rounded-xl bg-surface-1 border border-border scroll-mt-24"
     >
       <div className="flex items-center gap-2 mb-4">
         <FileText className="w-5 h-5 text-white/70" aria-hidden="true" />

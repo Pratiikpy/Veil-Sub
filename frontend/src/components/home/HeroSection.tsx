@@ -149,7 +149,7 @@ export default function HeroSection() {
               transition={{ duration: 0.5, delay: 1.0 }}
               className="mt-4 text-xs text-white/50 text-center"
             >
-              Browse publicly—connect Shield or Leo Wallet to subscribe privately
+              Browse publicly—connect Shield or Leo Wallet to subscribe privately.
             </m.p>
           )}
 

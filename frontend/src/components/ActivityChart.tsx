@@ -59,13 +59,13 @@ export default function ActivityChart({ creatorAddress }: Props) {
 
   if (loading) {
     return (
-      <div className="h-48 rounded-sm bg-surface-1 border border-border animate-pulse" />
+      <div className="h-48 rounded-xl bg-surface-1 border border-border animate-pulse" />
     )
   }
 
   if (fetchError) {
     return (
-      <div className="rounded-sm bg-surface-1 border border-border p-5">
+      <div className="rounded-xl bg-surface-1 border border-border p-5">
         <div className="flex items-center gap-2 mb-3">
           <BarChart3 className="w-4 h-4 text-white/70" aria-hidden="true" />
           <h3 className="text-sm font-medium text-white">Subscription Activity</h3>
@@ -78,7 +78,7 @@ export default function ActivityChart({ creatorAddress }: Props) {
   const maxSubs = Math.max(...data.map((d) => d.subscriptions), 1)
 
   return (
-    <div className="rounded-sm bg-surface-1 border border-border p-5">
+    <div className="rounded-xl bg-surface-1 border border-border p-5">
       <div className="flex items-center gap-2 mb-4">
         <BarChart3 className="w-4 h-4 text-white/70" aria-hidden="true" />
         <h3 className="text-sm font-medium text-white">Subscription Activity</h3>

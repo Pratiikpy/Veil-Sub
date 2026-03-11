@@ -86,7 +86,7 @@ export default function WelcomeOverlay() {
             exit={{ scale: 0.9, opacity: 0, filter: 'blur(10px)' }}
             transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-sm bg-black/95 border border-glass-hover p-6 shadow-[0_8px_60px_rgba(0,0,0,0.8)]"
+            className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-black/95 border border-glass-hover p-6 shadow-[0_8px_60px_rgba(0,0,0,0.8)]"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
