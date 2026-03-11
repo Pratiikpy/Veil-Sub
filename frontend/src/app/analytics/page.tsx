@@ -226,7 +226,7 @@ export default function AnalyticsPage() {
                   <TrendingUp className="w-4 h-4 text-green-400" aria-hidden="true" />
                   <h3 className="text-sm font-medium text-white">Subscription Growth</h3>
                 </div>
-                <span className="text-xs text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">+35% this wave</span>
+                <span className="text-xs text-green-400 bg-green-500/10 px-3 py-1 rounded-full">+35% this wave</span>
               </div>
               <div className="flex items-end justify-between gap-2 h-48 mb-4">
                 {ACTIVITY_DATA.map((week, i) => {

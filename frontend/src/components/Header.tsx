@@ -72,7 +72,7 @@ export default function Header() {
             >
               <span className="relative z-10">VeilSub</span>
               <span className="absolute -inset-2 rounded-lg bg-violet-500/0 group-hover:bg-violet-500/[0.06] transition-colors duration-300" />
-              <span className="relative z-10 flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-sans not-italic font-medium text-violet-400/70 bg-violet-500/[0.08] border border-violet-500/[0.12] rounded">
+              <span className="relative z-10 flex items-center gap-1 px-2 py-1 text-[10px] font-sans not-italic font-medium text-violet-400/70 bg-violet-500/[0.08] border border-violet-500/[0.12] rounded">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 testnet
               </span>
@@ -107,7 +107,7 @@ export default function Header() {
               ))}
             </nav>
 
-            <div className="flex items-center gap-3" aria-live="polite">
+            <div className="flex items-center gap-4" aria-live="polite">
               <WalletMultiButton />
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}

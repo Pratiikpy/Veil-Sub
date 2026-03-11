@@ -66,7 +66,7 @@ export default function HeroMockup() {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-white">Alice Privacy</span>
-                <span className="px-1.5 py-0.5 text-[9px] font-medium text-emerald-400 bg-emerald-500/[0.08] border border-emerald-500/[0.15] rounded">
+                <span className="px-2 py-1 text-[9px] font-medium text-emerald-400 bg-emerald-500/[0.08] border border-emerald-500/[0.15] rounded">
                   Verified
                 </span>
               </div>
@@ -97,7 +97,7 @@ export default function HeroMockup() {
                 }`}
               >
                 {tier.selected && (
-                  <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-violet-500/20 border border-violet-500/30">
+                  <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 px-2 py-1 rounded-full bg-violet-500/20 border border-violet-500/30">
                     <span className="text-[8px] font-medium text-violet-300 uppercase tracking-wider">Popular</span>
                   </div>
                 )}

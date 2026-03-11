@@ -433,7 +433,7 @@ export default function CreatorPage({
                         className="flex flex-wrap items-center gap-2 sm:gap-4 p-2.5 rounded-lg bg-white/[0.02] border border-border"
                       >
                         <span
-                          className={`px-2 py-0.5 rounded-full text-xs font-medium border ${tierColor}`}
+                          className={`px-3 py-1 rounded-full text-xs font-medium border ${tierColor}`}
                         >
                           {tierInfo?.name ?? `Tier ${pass.tier}`}
                         </span>
@@ -446,7 +446,7 @@ export default function CreatorPage({
                           <span className="ml-auto flex flex-wrap items-center gap-2">
                             {expiry.expired ? (
                               <>
-                                <span className="px-2 py-0.5 rounded-full text-xs font-medium border bg-white/[0.05] text-white/60 border-border">
+                                <span className="px-3 py-1 rounded-full text-xs font-medium border bg-white/[0.05] text-white/60 border-border">
                                   Expired
                                 </span>
                                 <button
@@ -488,7 +488,7 @@ export default function CreatorPage({
                                       className={`h-full rounded-full ${colors.bar}`}
                                     />
                                   </div>
-                                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${colors.bg} ${colors.text} ${colors.border}`}>
+                                  <span className={`px-3 py-1 rounded-full text-xs font-medium border ${colors.bg} ${colors.text} ${colors.border}`}>
                                     {expiry.daysLeft}d left
                                   </span>
                                   <button
@@ -527,11 +527,11 @@ export default function CreatorPage({
                   Subscription Tiers
                 </h2>
                 {tiersLoading ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/[0.05] border border-border text-[10px] text-white/60 font-medium animate-pulse">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/[0.05] border border-border text-[10px] text-white/60 font-medium animate-pulse">
                     Loading tiers...
                   </span>
                 ) : hasOnChainTiers ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] text-green-400 font-medium">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] text-green-400 font-medium">
                     <Shield className="w-3 h-3" aria-hidden="true" />
                     {onChainTierCount} custom tier{onChainTierCount !== 1 ? 's' : ''} on-chain
                   </span>

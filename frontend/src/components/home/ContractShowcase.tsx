@@ -134,7 +134,7 @@ export default function ContractShowcase() {
                           }`}
                         >
                           {isHero && (
-                            <div className="absolute -top-2.5 left-4 text-[10px] font-medium text-violet-300 bg-violet-600/30 px-2.5 py-0.5 rounded-full border border-violet-400/30">
+                            <div className="absolute -top-2.5 left-4 text-[10px] font-medium text-violet-300 bg-violet-600/30 px-3 py-1 rounded-full border border-violet-400/30">
                               Latest
                             </div>
                           )}

@@ -78,12 +78,12 @@ export default function PostsList({ address }: PostsListProps) {
             return (
               <div
                 key={post.id}
-                className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-border"
+                className="flex items-center gap-4 p-4 rounded-lg bg-white/[0.02] border border-border"
               >
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-white truncate">{post.title}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className={`px-2 py-0.5 rounded-full text-xs border ${tier.color}`}>
+                    <span className={`px-3 py-1 rounded-full text-xs border ${tier.color}`}>
                       {tier.name}
                     </span>
                     {post.createdAt && (

@@ -782,7 +782,7 @@ export default function RegisteredDashboard({
                   <Settings className="w-5 h-5 text-violet-400" />
                   <h2 className="text-lg font-semibold text-white">Custom Tiers</h2>
                   {creatorTierCount > 0 && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] text-green-400 font-medium">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] text-green-400 font-medium">
                       <Shield className="w-3 h-3" aria-hidden="true" />
                       {creatorTierCount} on-chain
                     </span>

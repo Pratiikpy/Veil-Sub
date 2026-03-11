@@ -287,7 +287,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
               <div key={t.name} className="p-4 rounded-xl bg-surface-1 border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <code className="text-sm text-white/70 font-mono">{t.name}</code>
-                  <span className={`px-2 py-0.5 rounded-full text-xs ${t.type === 'async' ? 'bg-blue-500/10 text-blue-300 border border-blue-500/20' : 'bg-green-500/10 text-green-300 border border-green-500/20'}`}>{t.type}</span>
+                  <span className={`px-3 py-1 rounded-full text-xs ${t.type === 'async' ? 'bg-blue-500/10 text-blue-300 border border-blue-500/20' : 'bg-green-500/10 text-green-300 border border-green-500/20'}`}>{t.type}</span>
                 </div>
                 <p className="text-sm text-white/70">{t.desc}</p>
               </div>
@@ -311,7 +311,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
               <div key={t.name} className="p-4 rounded-xl bg-surface-1 border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <code className="text-sm text-white/70 font-mono">{t.name}</code>
-                  <span className={`px-2 py-0.5 rounded-full text-xs ${t.type === 'async' ? 'bg-blue-500/10 text-blue-300 border border-blue-500/20' : 'bg-green-500/10 text-green-300 border border-green-500/20'}`}>{t.type}</span>
+                  <span className={`px-3 py-1 rounded-full text-xs ${t.type === 'async' ? 'bg-blue-500/10 text-blue-300 border border-blue-500/20' : 'bg-green-500/10 text-green-300 border border-green-500/20'}`}>{t.type}</span>
                 </div>
                 <p className="text-sm text-white/70">{t.desc}</p>
               </div>
@@ -334,7 +334,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
               <div key={t.name} className="p-4 rounded-xl bg-surface-1 border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <code className="text-sm text-white/70 font-mono">{t.name}</code>
-                  <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">{t.type}</span>
+                  <span className="px-3 py-1 rounded-full text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">{t.type}</span>
                 </div>
                 <p className="text-sm text-white/70">{t.desc}</p>
               </div>
@@ -359,7 +359,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
               <div key={t.name} className="p-4 rounded-xl bg-surface-1 border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <code className="text-sm text-white/70 font-mono">{t.name}</code>
-                  <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">{t.type}</span>
+                  <span className="px-3 py-1 rounded-full text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">{t.type}</span>
                 </div>
                 <p className="text-sm text-white/70">{t.desc}</p>
               </div>
@@ -382,7 +382,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
               <div key={t.name} className="p-4 rounded-xl bg-surface-1 border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <code className="text-sm text-white/70 font-mono">{t.name}</code>
-                  <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">{t.type}</span>
+                  <span className="px-3 py-1 rounded-full text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">{t.type}</span>
                 </div>
                 <p className="text-sm text-white/70">{t.desc}</p>
               </div>
@@ -405,7 +405,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
               <div key={t.name} className="p-4 rounded-xl bg-surface-1 border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <code className="text-sm text-white/70 font-mono">{t.name}</code>
-                  <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">{t.type}</span>
+                  <span className="px-3 py-1 rounded-full text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">{t.type}</span>
                 </div>
                 <p className="text-sm text-white/70">{t.desc}</p>
               </div>
@@ -428,7 +428,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
               <div key={t.name} className="p-4 rounded-xl bg-surface-1 border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <code className="text-sm text-white/70 font-mono">{t.name}</code>
-                  <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">{t.type}</span>
+                  <span className="px-3 py-1 rounded-full text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">{t.type}</span>
                 </div>
                 <p className="text-sm text-white/70">{t.desc}</p>
               </div>

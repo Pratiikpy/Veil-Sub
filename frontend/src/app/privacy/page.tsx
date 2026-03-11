@@ -129,7 +129,7 @@ export default function PrivacyPage() {
                 <div className="hidden sm:flex items-center justify-between gap-2 md:gap-4">
                   {/* Box 1: User */}
                   <div className="flex-1 text-center">
-                    <div className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-xl bg-white/10 border-2 border-white/30 flex items-center justify-center mb-3">
+                    <div className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-xl bg-white/10 border-2 border-white/30 flex items-center justify-center mb-4">
                       <Fingerprint className="w-8 h-8 md:w-10 md:h-10 text-white/80" aria-hidden="true" />
                     </div>
                     <p className="text-sm font-medium text-white">Subscriber</p>
@@ -147,7 +147,7 @@ export default function PrivacyPage() {
 
                   {/* Box 2: Transition Layer */}
                   <div className="flex-1 text-center">
-                    <div className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-xl bg-violet-500/20 border-2 border-violet-400 flex items-center justify-center mb-3">
+                    <div className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-xl bg-violet-500/20 border-2 border-violet-400 flex items-center justify-center mb-4">
                       <Lock className="w-8 h-8 md:w-10 md:h-10 text-violet-400" aria-hidden="true" />
                     </div>
                     <p className="text-sm font-medium text-white">Transition</p>
@@ -166,7 +166,7 @@ export default function PrivacyPage() {
 
                   {/* Box 3: Finalize Layer */}
                   <div className="flex-1 text-center">
-                    <div className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-xl bg-green-500/20 border-2 border-green-400 flex items-center justify-center mb-3">
+                    <div className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-xl bg-green-500/20 border-2 border-green-400 flex items-center justify-center mb-4">
                       <Database className="w-8 h-8 md:w-10 md:h-10 text-green-400" aria-hidden="true" />
                     </div>
                     <p className="text-sm font-medium text-white">Finalize</p>
@@ -472,7 +472,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
 // Revocation + expiry enforced on-chain, zero identity exposure.`}</code>
                         </pre>
                       </div>
-                      <p className="text-xs text-white/60 mt-3">
+                      <p className="text-xs text-white/60 mt-4">
                         Unique design: revocation enforcement + zero subscriber exposure. The finalize only checks
                         a boolean mapping keyed by pass_id—no subscriber address ever reaches public state.
                       </p>

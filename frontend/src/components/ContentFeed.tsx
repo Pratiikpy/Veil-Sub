@@ -332,7 +332,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                         {post.title}
                       </h3>
                       <span
-                        className={`px-2 py-0.5 rounded-full text-xs border shrink-0 ${
+                        className={`px-3 py-1 rounded-full text-xs border shrink-0 ${
                           unlocked
                             ? `${tier.text} ${tier.lockBg} ${tier.border}`
                             : 'text-white/60 bg-surface-1 border-border'

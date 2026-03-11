@@ -45,7 +45,7 @@ export default function StatusBadge({
   const Icon = config.icon
 
   const sizeClasses =
-    size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm'
+    size === 'sm' ? 'px-3 py-1 text-xs' : 'px-4 py-1 text-sm'
 
   return (
     <span

@@ -102,7 +102,7 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
                 {creator.display_name || shortenAddress(creator.address)}
               </p>
               {isFeatured && (
-                <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-violet-500/10 border border-violet-500/20 text-[10px] text-violet-400 font-medium">
+                <span className="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded bg-violet-500/10 border border-violet-500/20 text-[10px] text-violet-400 font-medium">
                   <Star className="w-2.5 h-2.5" aria-hidden="true" />
                   Featured
                 </span>
@@ -436,7 +436,7 @@ export default function ExplorePage() {
                         return aFeatured - bFeatured
                       }))
                     }}
-                    className={`px-2 py-0.5 rounded text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${sortBy === 'featured' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:text-white hover:bg-white/[0.06]'}`}
+                    className={`px-3 py-1 rounded text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${sortBy === 'featured' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:text-white hover:bg-white/[0.06]'}`}
                   >
                     Featured
                   </button>
@@ -445,7 +445,7 @@ export default function ExplorePage() {
                       setSortBy('newest')
                       setCreators(prev => [...prev].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()))
                     }}
-                    className={`px-2 py-0.5 rounded text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${sortBy === 'newest' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:text-white hover:bg-white/[0.06]'}`}
+                    className={`px-3 py-1 rounded text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${sortBy === 'newest' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:text-white hover:bg-white/[0.06]'}`}
                   >
                     Newest
                   </button>

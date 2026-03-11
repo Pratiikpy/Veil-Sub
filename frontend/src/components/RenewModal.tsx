@@ -219,7 +219,7 @@ export default function RenewModal({
                       {TIERS.find((t) => t.id === pass.tier)?.name ?? `Custom Tier ${pass.tier}`}
                     </span>
                     {isExpired ? (
-                      <span className="px-2 py-0.5 rounded-full text-xs bg-red-500/10 text-red-400 border border-red-500/20">
+                      <span className="px-3 py-1 rounded-full text-xs bg-red-500/10 text-red-400 border border-red-500/20">
                         Expired
                       </span>
                     ) : (

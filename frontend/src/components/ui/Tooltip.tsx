@@ -29,7 +29,7 @@ export default function Tooltip({ content, children, side = 'top' }: TooltipProp
             exit={{ opacity: 0, y: side === 'top' ? 4 : -4 }}
             transition={{ duration: 0.15 }}
             role="tooltip"
-            className={`absolute left-1/2 -translate-x-1/2 z-50 px-3 py-1.5 text-xs text-white bg-surface-3 border border-border rounded-lg shadow-lg whitespace-nowrap pointer-events-none ${
+            className={`absolute left-1/2 -translate-x-1/2 z-50 px-4 py-2 text-xs text-white bg-surface-3 border border-border rounded-lg shadow-lg whitespace-nowrap pointer-events-none ${
               side === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'
             }`}
           >

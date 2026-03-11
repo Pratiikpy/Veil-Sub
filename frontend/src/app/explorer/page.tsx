@@ -784,7 +784,7 @@ export default function ExplorerPage() {
                         {/* Desktop row */}
                         <div className="hidden sm:grid grid-cols-[1fr_auto_auto_1.5fr_auto] gap-4 px-4 py-4 border-b border-white/[0.04] hover:bg-white/[0.04] transition-colors items-center">
                           <span className="text-xs text-white/70">{timeAgo(event.created_at)}</span>
-                          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium border ${tier.color}`}>
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium border ${tier.color}`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${tier.dot}`} />
                             {tier.name}
                           </span>
@@ -834,7 +834,7 @@ export default function ExplorerPage() {
                         {/* Mobile card */}
                         <div className="sm:hidden p-4 border-b border-white/[0.04]">
                           <div className="flex items-center justify-between mb-2">
-                            <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium border ${tier.color}`}>
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium border ${tier.color}`}>
                               <span className={`w-1.5 h-1.5 rounded-full ${tier.dot}`} />
                               {tier.name}
                             </span>

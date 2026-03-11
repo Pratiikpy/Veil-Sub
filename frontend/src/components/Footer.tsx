@@ -12,7 +12,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <span className="font-serif italic text-white text-lg">VeilSub</span>
-              <span className="px-1.5 py-0.5 text-[10px] font-medium text-violet-400/70 bg-violet-500/[0.08] border border-violet-500/[0.12] rounded">
+              <span className="px-2 py-1 text-[10px] font-medium text-violet-400/70 bg-violet-500/[0.08] border border-violet-500/[0.12] rounded">
                 v27
               </span>
             </div>
@@ -70,7 +70,7 @@ export default function Footer() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <span className="font-serif italic text-white text-sm">VeilSub</span>
-            <span className="px-1.5 py-0.5 text-[9px] font-medium text-violet-400/70 bg-violet-500/[0.08] border border-violet-500/[0.12] rounded">
+            <span className="px-2 py-1 text-[9px] font-medium text-violet-400/70 bg-violet-500/[0.08] border border-violet-500/[0.12] rounded">
               v27
             </span>
           </div>
