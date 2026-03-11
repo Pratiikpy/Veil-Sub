@@ -43,7 +43,7 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
   }
 
   return (
-    <div className="relative group rounded-sm overflow-hidden">
+    <div className="relative group rounded-xl overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2 bg-white/[0.04] border-b border-border">
         <span className="text-xs text-white/60">{lang}</span>
         <button
@@ -68,7 +68,7 @@ function OverviewTab() {
   return (
     <div className="space-y-8">
       {/* Quick Links for Judges */}
-      <div className="p-4 rounded-sm bg-violet-500/[0.06] border border-violet-500/[0.12]">
+      <div className="p-4 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.12]">
         <h3 className="text-sm font-semibold text-violet-300 mb-3">Quick Links</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {[
@@ -114,7 +114,7 @@ function OverviewTab() {
           uses credits.aleo/transfer_private, renew supports nonce-based blinding to prevent renewal
           pattern tracking, and verify_access never increments subscriber-linked counters.
         </p>
-        <div className="p-4 rounded-sm bg-white/[0.04] border border-border flex items-center gap-3">
+        <div className="p-4 rounded-xl bg-white/[0.04] border border-border flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center shrink-0">
             <BookOpen className="w-5 h-5 text-white/60" />
           </div>
@@ -407,7 +407,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
           ].map((t) => (
             <div
               key={t.name}
-              className="p-4 rounded-sm bg-surface-1 border border-border"
+              className="p-4 rounded-xl bg-surface-1 border border-border"
             >
               <div className="flex items-center gap-2 mb-2">
                 <code className="text-sm text-white/70 font-mono">{t.name}</code>
@@ -472,7 +472,7 @@ function PrivacyModelTab() {
         </p>
       </div>
 
-      <div className="p-4 rounded-sm bg-green-500/5 border border-green-500/20">
+      <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/20">
         <h4 className="text-green-300 font-semibold mb-2">Minimal-Footprint Access Verification</h4>
         <p className="text-sm text-white/70 leading-relaxed">
           <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">verify_access</code> has
@@ -485,7 +485,7 @@ function PrivacyModelTab() {
         </p>
       </div>
 
-      <div className="p-4 rounded-sm bg-violet-500/5 border border-violet-500/20">
+      <div className="p-4 rounded-xl bg-violet-500/5 border border-violet-500/20">
         <h4 className="text-violet-300 font-semibold mb-2">v23: ZERO Addresses in Finalize—Full Poseidon2 Privacy Overhaul</h4>
         <p className="text-sm text-white/70 leading-relaxed mb-3">
           v23 represents a fundamental privacy overhaul: <strong className="text-white">no raw addresses appear in any
@@ -540,7 +540,7 @@ function PrivacyModelTab() {
           ].map((item) => (
             <div
               key={item.title}
-              className="p-4 rounded-sm bg-surface-1 border border-border"
+              className="p-4 rounded-xl bg-surface-1 border border-border"
             >
               <h4 className="text-white font-medium mb-1">{item.title}</h4>
               <p className="text-sm text-white/70">{item.detail}</p>
@@ -627,7 +627,7 @@ const txId = result?.transactionId`}
 
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Microcredits Conversion</h3>
-        <div className="p-4 rounded-sm bg-surface-1 border border-border">
+        <div className="p-4 rounded-xl bg-surface-1 border border-border">
           <p className="text-sm text-white/70 mb-2">
             1 ALEO = 1,000,000 microcredits
           </p>
@@ -654,7 +654,7 @@ const txId = result?.transactionId`}
 function FaqItem({ q, a, index }: { q: string; a: string; index: number }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="rounded-sm bg-surface-1 border border-border overflow-hidden transition-colors hover:border-glass-hover">
+    <div className="rounded-xl bg-surface-1 border border-border overflow-hidden transition-colors hover:border-glass-hover">
       <button
         id={`docs-faq-${index}`}
         onClick={() => setOpen(!open)}

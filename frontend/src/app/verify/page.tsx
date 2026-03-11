@@ -236,7 +236,7 @@ export default function VerifyPage() {
                 </div>
 
                 {loading ? (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {[0, 1, 2].map((i) => (
                       <div
                         key={i}
@@ -260,7 +260,7 @@ export default function VerifyPage() {
                     </button>
                   </div>
                 ) : passes.length > 0 ? (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {passes.map((pass) => {
                       const tierInfo = TIERS.find((t) => t.id === pass.tier)
                       const isSelected =
@@ -472,7 +472,7 @@ export default function VerifyPage() {
                   </div>
                 ) : (
                   <div className="text-center py-16 rounded-xl bg-surface-1 border border-border">
-                    <ShieldCheck className="w-10 h-10 text-white/60 mx-auto mb-3" aria-hidden="true" />
+                    <ShieldCheck className="w-10 h-10 text-white/60 mx-auto mb-4" aria-hidden="true" />
                     <p className="text-white font-medium text-sm mb-1">
                       Select a Pass to Verify
                     </p>

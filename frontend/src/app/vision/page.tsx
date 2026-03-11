@@ -109,7 +109,7 @@ export default function VisionPage() {
                 const Icon = useCase.icon
                 return (
                   <GlassCard key={useCase.title} shimmer delay={i * 0.08}>
-                    <div className={`w-12 h-12 rounded-sm ${useCase.bg} flex items-center justify-center mb-4`}>
+                    <div className={`w-12 h-12 rounded-xl ${useCase.bg} flex items-center justify-center mb-4`}>
                       <Icon className={`w-6 h-6 ${useCase.color}`} aria-hidden="true" />
                     </div>
                     <h3 className="text-white font-semibold mb-2">{useCase.title}</h3>
@@ -146,7 +146,7 @@ export default function VisionPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="text-center p-4 rounded-sm glass hover:border-border-accent transition-colors"
+                  className="text-center p-4 rounded-xl glass hover:border-border-accent transition-colors"
                 >
                   <p className="text-3xl font-bold text-white">
                     {item.stat}
@@ -180,7 +180,7 @@ export default function VisionPage() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="flex items-start gap-4 p-4 rounded-sm bg-surface-1 border border-border"
+                  className="flex items-start gap-4 p-4 rounded-xl bg-surface-1 border border-border"
                 >
                   <div className={`shrink-0 mt-0.5 w-3 h-3 rounded-full ${
                     item.status === 'done' ? 'bg-green-400' :

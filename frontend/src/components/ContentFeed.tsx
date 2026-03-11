@@ -71,7 +71,7 @@ function LoadingSkeleton() {
       {[1, 2, 3].map((i) => (
         <div
           key={i}
-          className="rounded-sm border border-white/[0.05] bg-white/[0.01] p-5 animate-pulse"
+          className="rounded-xl border border-white/[0.05] bg-white/[0.01] p-5 animate-pulse"
         >
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-lg bg-white/[0.05]" />
@@ -253,7 +253,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       {initialLoad && loading ? (
         <LoadingSkeleton />
       ) : error ? (
-        <div className="p-6 rounded-sm border border-red-500/20 bg-red-500/5 text-center">
+        <div className="p-6 rounded-xl border border-red-500/20 bg-red-500/5 text-center">
           <p className="text-sm text-red-400 mb-3">Failed to load posts</p>
           <button
             onClick={fetchPosts}
@@ -266,7 +266,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       ) : (
         <div className="space-y-4">
           {posts.length === 0 && (
-            <div className="p-8 rounded-sm bg-surface-1 border border-white/[0.05] text-center">
+            <div className="p-8 rounded-xl bg-surface-1 border border-white/[0.05] text-center">
               <FileText className="w-10 h-10 text-white/60 mx-auto mb-3" aria-hidden="true" />
               <h3 className="text-white font-medium mb-1">No Exclusive Content Yet</h3>
               <p className="text-sm text-white/60">
@@ -292,7 +292,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
-                className={`relative rounded-sm border overflow-hidden ${
+                className={`relative rounded-xl border overflow-hidden ${
                   unlocked
                     ? `${tier.border} ${tier.bg}`
                     : 'border-white/5 bg-white/[0.01]'

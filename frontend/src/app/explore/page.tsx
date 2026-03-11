@@ -352,7 +352,7 @@ export default function ExplorePage() {
                   className="p-5 rounded-xl bg-surface-1 border border-border animate-pulse"
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-sm bg-white/[0.06]" />
+                    <div className="w-10 h-10 rounded-xl bg-white/[0.06]" />
                     <div>
                       <div className="h-4 w-24 rounded bg-white/[0.06] mb-1" />
                       <div className="h-3 w-16 rounded bg-white/[0.04]" />

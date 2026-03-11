@@ -118,8 +118,8 @@ export default function PrivacyPage() {
                 transition={{ delay: 0 }}
                 className="h-full"
               >
-                <div className="relative h-full rounded-sm border border-violet-500/20 bg-gradient-to-b from-violet-500/[0.06] to-transparent p-6">
-                  <div className="flex items-center gap-3 mb-4">
+                <div className="relative h-full rounded-xl border border-violet-500/20 bg-gradient-to-b from-violet-500/[0.06] to-transparent p-6">
+                  <div className="flex items-center gap-4 mb-4">
                     <span className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center text-sm font-bold text-violet-400">1</span>
                     <h3 className="text-white font-semibold">Blind Identity Rotation</h3>
                   </div>
@@ -144,8 +144,8 @@ export default function PrivacyPage() {
                 transition={{ delay: 0.1 }}
                 className="h-full"
               >
-                <div className="relative h-full rounded-sm border border-green-500/20 bg-gradient-to-b from-green-500/[0.06] to-transparent p-6">
-                  <div className="flex items-center gap-3 mb-4">
+                <div className="relative h-full rounded-xl border border-green-500/20 bg-gradient-to-b from-green-500/[0.06] to-transparent p-6">
+                  <div className="flex items-center gap-4 mb-4">
                     <span className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-sm font-bold text-green-400">2</span>
                     <h3 className="text-white font-semibold">Zero-Address Finalize</h3>
                   </div>
@@ -170,8 +170,8 @@ export default function PrivacyPage() {
                 transition={{ delay: 0.2 }}
                 className="h-full"
               >
-                <div className="relative h-full rounded-sm border border-indigo-500/20 bg-gradient-to-b from-indigo-500/[0.06] to-transparent p-6">
-                  <div className="flex items-center gap-3 mb-4">
+                <div className="relative h-full rounded-xl border border-indigo-500/20 bg-gradient-to-b from-indigo-500/[0.06] to-transparent p-6">
+                  <div className="flex items-center gap-4 mb-4">
                     <span className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-sm font-bold text-indigo-400">3</span>
                     <h3 className="text-white font-semibold">Selective Disclosure</h3>
                   </div>
@@ -197,7 +197,7 @@ export default function PrivacyPage() {
               transition={{ delay: 0.3 }}
               className="mt-8"
             >
-              <div className="rounded-sm overflow-hidden border border-border">
+              <div className="rounded-xl overflow-hidden border border-border">
                 <div className="px-5 py-3 bg-white/[0.02] border-b border-border">
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-violet-400" />
@@ -266,7 +266,7 @@ export default function PrivacyPage() {
 
             <div className="grid md:grid-cols-3 gap-6">
               <GlassCard shimmer delay={0}>
-                <div className="w-12 h-12 rounded-sm bg-violet-500/10 flex items-center justify-center mb-4">
+                <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4">
                   <Fingerprint className="w-6 h-6 text-violet-400" />
                 </div>
                 <h3 className="text-white font-semibold mb-2">Prove Without Revealing</h3>
@@ -279,7 +279,7 @@ export default function PrivacyPage() {
               </GlassCard>
 
               <GlassCard shimmer delay={0.1}>
-                <div className="w-12 h-12 rounded-sm bg-indigo-500/10 flex items-center justify-center mb-4">
+                <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center mb-4">
                   <Lock className="w-6 h-6 text-indigo-400" />
                 </div>
                 <h3 className="text-white font-semibold mb-2">Encrypted Records</h3>
@@ -292,8 +292,8 @@ export default function PrivacyPage() {
               </GlassCard>
 
               <GlassCard shimmer delay={0.2}>
-                <div className="w-12 h-12 rounded-sm bg-purple-500/10 flex items-center justify-center mb-4">
-                  <ShieldCheck className="w-6 h-6 text-purple-400" />
+                <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4">
+                  <ShieldCheck className="w-6 h-6 text-violet-400" />
                 </div>
                 <h3 className="text-white font-semibold mb-2">Mathematically Guaranteed</h3>
                 <p className="text-sm text-white/70">
@@ -313,12 +313,12 @@ export default function PrivacyPage() {
         <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial">
-              <div className="relative rounded-sm overflow-hidden">
+              <div className="relative rounded-xl overflow-hidden">
                 {/* Gradient border effect */}
-                <div className="absolute -inset-[1px] rounded-sm bg-gradient-to-r from-violet-500 via-green-400 to-violet-500 opacity-60" />
-                <div className="relative rounded-sm bg-surface-1 p-8">
+                <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-violet-500 via-green-400 to-violet-500 opacity-60" />
+                <div className="relative rounded-xl bg-surface-1 p-8">
                   <div className="flex items-start gap-5">
-                    <div className="shrink-0 w-14 h-14 rounded-sm bg-gradient-to-br from-violet-500/20 to-green-500/20 flex items-center justify-center">
+                    <div className="shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-violet-500/20 to-green-500/20 flex items-center justify-center">
                       <Fingerprint className="w-7 h-7 text-green-400" />
                     </div>
                     <div className="flex-1">
@@ -341,7 +341,7 @@ export default function PrivacyPage() {
                           </div>
                         ))}
                       </div>
-                      <div className="p-4 rounded-sm bg-surface-1 border border-border">
+                      <div className="p-4 rounded-xl bg-surface-1 border border-border">
                         <pre className="text-xs text-white/70 font-mono leading-relaxed overflow-x-auto">
                           <code>{`async transition verify_access(pass: AccessPass, creator: address) -> (AccessPass, Future) {
     assert_eq(pass.creator, creator);
@@ -384,8 +384,8 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
             <div className="grid md:grid-cols-2 gap-8">
               {/* Private Column */}
               <GlassCard hover={false}>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-sm bg-white/[0.04] flex items-center justify-center">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center">
                     <EyeOff className="w-5 h-5 text-white/70" />
                   </div>
                   <div>
@@ -450,7 +450,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                     return (
                       <div
                         key={item.title}
-                        className="p-3 rounded-sm bg-white/[0.04] border border-border"
+                        className="p-3 rounded-xl bg-white/[0.04] border border-border"
                       >
                         <div className="flex items-center gap-2 mb-1">
                           <Icon className="w-4 h-4 text-white/70" />
@@ -465,8 +465,8 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
 
               {/* Public Column */}
               <GlassCard hover={false}>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-sm bg-white/[0.08] flex items-center justify-center">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-white/[0.08] flex items-center justify-center">
                     <Eye className="w-5 h-5 text-white/70" />
                   </div>
                   <div>
@@ -521,7 +521,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                     return (
                       <div
                         key={item.title}
-                        className="p-3 rounded-sm bg-surface-1 border border-border"
+                        className="p-3 rounded-xl bg-surface-1 border border-border"
                       >
                         <div className="flex items-center gap-2 mb-1">
                           <Icon className="w-4 h-4 text-white/70" />
@@ -550,7 +550,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               <GlassCard delay={0}>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-sm bg-amber-500/10 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
                     <Eye className="w-5 h-5 text-amber-400" />
                   </div>
                   <h3 className="text-white font-semibold">What an Adversary Could Learn</h3>
@@ -574,7 +574,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                       desc: 'Aleo gossip does not provide IP anonymity. Users should use VPN/Tor for network-level privacy. This applies to all blockchains.',
                     },
                   ].map((item) => (
-                    <div key={item.title} className="p-3 rounded-sm bg-amber-500/5 border border-amber-500/10">
+                    <div key={item.title} className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
                       <p className="text-sm font-medium text-amber-300 mb-1">{item.title}</p>
                       <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                     </div>
@@ -584,7 +584,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
 
               <GlassCard delay={0.1}>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-sm bg-green-500/10 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
                     <EyeOff className="w-5 h-5 text-green-400" />
                   </div>
                   <h3 className="text-white font-semibold">What an Adversary Cannot Learn</h3>
@@ -604,7 +604,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                       desc: 'All payments use credits.aleo/transfer_private. Per-subscriber amounts are hidden in the ZK proof.',
                     },
                   ].map((item) => (
-                    <div key={item.title} className="p-3 rounded-sm bg-green-500/5 border border-green-500/10">
+                    <div key={item.title} className="p-3 rounded-xl bg-green-500/5 border border-green-500/10">
                       <p className="text-sm font-medium text-green-300 mb-1">{item.title}</p>
                       <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                     </div>
@@ -616,7 +616,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
             <div className="grid md:grid-cols-2 gap-6">
               <GlassCard delay={0.2}>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-sm bg-white/[0.04] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center">
                     <ShieldCheck className="w-5 h-5 text-white/70" />
                   </div>
                   <h3 className="text-white font-semibold">What We Mitigate</h3>
@@ -644,7 +644,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                       desc: 'Each subscription and renewal generates a unique subscriber hash via nonce rotation—creators cannot track renewal patterns or link transactions to the same person. BSP makes the entire subscriber lifecycle unlinkable.',
                     },
                   ].map((item) => (
-                    <div key={item.title} className="p-3 rounded-sm bg-white/[0.04] border border-border">
+                    <div key={item.title} className="p-3 rounded-xl bg-white/[0.04] border border-border">
                       <p className="text-sm font-medium text-white/70 mb-1">{item.title}</p>
                       <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                     </div>
@@ -654,7 +654,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
 
               <GlassCard delay={0.3}>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-sm bg-white/[0.06] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center">
                     <Lock className="w-5 h-5 text-white/70" />
                   </div>
                   <h3 className="text-white font-semibold">Honest Limitations</h3>
@@ -670,7 +670,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                       desc: 'Since v24, verify_access and verify_tier_access enforce expires_at > block.height in finalize. This means expired passes are rejected on-chain. The tradeoff: finalize now receives pass_id + expires_at (both opaque values), but subscriber identity still never enters public state.',
                     },
                   ].map((item) => (
-                    <div key={item.title} className="p-3 rounded-sm bg-surface-1 border border-border">
+                    <div key={item.title} className="p-3 rounded-xl bg-surface-1 border border-border">
                       <p className="text-sm font-medium text-white/70 mb-1">{item.title}</p>
                       <p className="text-xs text-white/70 leading-relaxed">{item.desc}</p>
                     </div>
@@ -701,7 +701,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
                 {/* Traditional Platform */}
-                <div className="rounded-sm border border-red-500/20 overflow-hidden">
+                <div className="rounded-xl border border-red-500/20 overflow-hidden">
                   <div className="px-4 py-2.5 bg-red-500/10 border-b border-red-500/20 flex items-center gap-2">
                     <Eye className="w-4 h-4 text-red-400" />
                     <span className="text-sm font-medium text-red-300">Traditional Platform</span>
@@ -723,7 +723,7 @@ mapping payments[aleo1abc]   → 5 ALEO
                   </div>
                 </div>
                 {/* VeilSub */}
-                <div className="rounded-sm border border-green-500/20 overflow-hidden">
+                <div className="rounded-xl border border-green-500/20 overflow-hidden">
                   <div className="px-4 py-2.5 bg-green-500/10 border-b border-green-500/20 flex items-center gap-2">
                     <EyeOff className="w-4 h-4 text-green-400" />
                     <span className="text-sm font-medium text-green-300">VeilSub (BSP)</span>
@@ -753,7 +753,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
 
             {/* Data Flow Diagram */}
             <div className="mb-8 grid md:grid-cols-2 gap-4">
-              <div className="p-5 rounded-sm bg-white/[0.04] border border-border">
+              <div className="p-5 rounded-xl bg-white/[0.04] border border-border">
                 <h4 className="text-sm font-medium text-white/70 mb-3">Subscribe Flow</h4>
                 <div className="space-y-2 text-xs text-white/70">
                   <div className="flex items-center gap-2">
@@ -774,7 +774,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
                   </div>
                 </div>
               </div>
-              <div className="p-5 rounded-sm bg-green-500/5 border border-green-500/15">
+              <div className="p-5 rounded-xl bg-green-500/5 border border-green-500/15">
                 <h4 className="text-sm font-medium text-green-300 mb-3">Verify Access Flow</h4>
                 <div className="space-y-2 text-xs text-white/70">
                   <div className="flex items-center gap-2">
@@ -866,7 +866,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.08 }}
-                  className="flex items-start gap-4 p-4 rounded-sm bg-surface-1 border border-border hover:border-[rgba(255,255,255,0.1)] transition-colors"
+                  className="flex items-start gap-4 p-4 rounded-xl bg-surface-1 border border-border hover:border-[rgba(255,255,255,0.1)] transition-colors"
                 >
                   <code className="shrink-0 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-border text-white/70 text-sm font-mono">
                     {item.fn}
@@ -925,7 +925,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
               </p>
             </m.div>
 
-            <div className="overflow-x-auto rounded-sm border border-border">
+            <div className="overflow-x-auto rounded-xl border border-border">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-white/[0.02] border-b border-border">

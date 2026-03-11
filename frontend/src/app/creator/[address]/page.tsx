@@ -212,7 +212,7 @@ export default function CreatorPage({
     return (
       <PageTransition className="min-h-screen">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="p-8 rounded-sm border border-red-500/15 bg-red-500/5 text-center">
+          <div className="p-8 rounded-xl border border-red-500/15 bg-red-500/5 text-center">
             <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" aria-hidden="true" />
             <h2 className="text-xl font-semibold text-white mb-2">Failed to Load Creator</h2>
             <p className="text-sm text-white/70 mb-4">Could not fetch creator data. Please check your connection and try again.</p>

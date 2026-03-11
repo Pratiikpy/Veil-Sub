@@ -172,11 +172,11 @@ function QuickMappingQueries() {
       <p className="text-xs text-white/60 mb-4">
         Query on-chain mappings for the featured creator via privacy proxy. No wallet required—these are public aggregate values. Your IP is never sent to external APIs.
       </p>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {MAPPING_QUERIES.map((q) => (
           <div
             key={q.mapping}
-            className="p-4 rounded-sm bg-surface-1 border border-border hover:border-glass-hover transition-colors"
+            className="p-4 rounded-xl bg-surface-1 border border-border hover:border-glass-hover transition-colors"
           >
             <div className="flex items-center justify-between mb-2">
               <code className="text-xs text-violet-300 font-mono truncate">{q.mapping}</code>
@@ -459,7 +459,7 @@ export default function ExplorerPage() {
               className="space-y-6 mb-12"
             >
               {/* Creator Header */}
-              <div className="flex items-center justify-between p-4 rounded-sm bg-surface-1 border border-border">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-surface-1 border border-border">
                 <div className="flex items-center gap-3">
                   <AddressAvatar address={result.address} size={48} />
                   <div>
@@ -662,7 +662,7 @@ export default function ExplorerPage() {
               </div>
             </div>
 
-            <div className="rounded-sm bg-surface-1 border border-border overflow-hidden">
+            <div className="rounded-xl bg-surface-1 border border-border overflow-hidden">
               {/* Table Header — desktop only */}
               <div className="hidden sm:grid grid-cols-[1fr_auto_auto_1.5fr_auto] gap-4 px-4 py-3 border-b border-border text-xs text-white/60 font-medium">
                 <span>Time</span>

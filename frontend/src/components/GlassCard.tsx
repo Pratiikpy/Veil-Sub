@@ -39,19 +39,19 @@ export default memo(function GlassCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay, duration: 0.5 }}
-      className={`group relative rounded-3xl ${variantClasses[variant]} p-8 h-full transition-all duration-300 ${
+      className={`group relative rounded-2xl ${variantClasses[variant]} p-8 h-full transition-all duration-300 ${
         hover ? 'hover:-translate-y-0.5' : ''
       } ${className}`}
     >
       {/* Top-edge highlight — Liquid Glass inspired depth cue */}
       <div
-        className="absolute inset-x-0 top-0 h-px rounded-t-3xl pointer-events-none"
+        className="absolute inset-x-0 top-0 h-px rounded-t-2xl pointer-events-none"
         style={{
           background: 'linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.08) 50%, transparent 90%)',
         }}
       />
       {shimmer && (
-        <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
           <div
             className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
             style={{
