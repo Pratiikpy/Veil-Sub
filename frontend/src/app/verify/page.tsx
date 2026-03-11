@@ -70,9 +70,17 @@ export default function VerifyPage() {
         .map((r) => parseAccessPass(r))
         .filter((p): p is NonNullable<typeof p> => p !== null && p.creator !== '')
       setPasses(parsed)
-    } catch {
+    } catch (err) {
       setPasses([])
-      setLoadError('Failed to load passes. Check your wallet connection and try again.')
+      // Distinguish wallet vs network errors
+      const message = err instanceof Error ? err.message.toLowerCase() : ''
+      if (message.includes('connect') || message.includes('wallet') || message.includes('extension')) {
+        setLoadError('Wallet connection lost. Please check your wallet extension is unlocked and refresh.')
+      } else if (message.includes('network') || message.includes('timeout') || message.includes('fetch')) {
+        setLoadError('Network error while loading passes. Check your connection and try again.')
+      } else {
+        setLoadError('Failed to load passes. Your wallet may need to sync or reconnect.')
+      }
     }
     setLoading(false)
   }, [getAccessPasses])

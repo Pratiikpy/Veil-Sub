@@ -95,7 +95,7 @@ export default function TransferPassModal({
             aria-label="Close transfer modal"
             className="absolute top-5 right-5 text-white/60 hover:text-white transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
 
           {/* Header */}

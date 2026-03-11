@@ -397,14 +397,14 @@ export default function ExplorerPage() {
               <button
                 onClick={handleSearch}
                 disabled={loading || !address.trim()}
-                className="px-6 rounded-xl bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 btn-shimmer"
+                className="px-4 sm:px-6 rounded-xl bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 btn-shimmer shrink-0"
               >
                 {loading ? (
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-label="Searching" />
                 ) : (
                   <>
-                    Search
-                    <ArrowRight className="w-4 h-4" />
+                    <span className="hidden sm:inline">Search</span>
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
                   </>
                 )}
               </button>

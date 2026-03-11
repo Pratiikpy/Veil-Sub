@@ -80,7 +80,7 @@ export default function CreatorQRCode({ creatorAddress, delay = 0 }: Props) {
     <GlassCard delay={delay}>
       <div className="flex flex-col items-center gap-4">
         <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-white/70" />
+          <Shield className="w-4 h-4 text-white/70" aria-hidden="true" />
           <h3 className="text-white font-semibold text-sm">
             Share This Creator
           </h3>
@@ -102,14 +102,14 @@ export default function CreatorQRCode({ creatorAddress, delay = 0 }: Props) {
             onClick={handleDownload}
             className="flex-1 px-3 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white hover:bg-white/[0.08] transition-colors flex items-center justify-center gap-1.5"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-3.5 h-3.5" aria-hidden="true" />
             Download
           </button>
           <button
             onClick={handleShare}
             className="flex-1 px-3 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-white/70 hover:bg-violet-500/20 transition-colors flex items-center justify-center gap-1.5"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Share2 className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-green-400" aria-hidden="true" /> : <Share2 className="w-3.5 h-3.5" aria-hidden="true" />}
             {copied ? 'Copied' : 'Share'}
           </button>
         </div>

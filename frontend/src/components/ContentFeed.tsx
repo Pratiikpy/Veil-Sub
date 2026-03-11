@@ -355,8 +355,20 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                         alt={`Image for ${post.title}`}
                         className="w-full max-h-72 object-cover"
                         loading="lazy"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                        onError={(e) => {
+                          const img = e.target as HTMLImageElement
+                          img.style.display = 'none'
+                          // Show a fallback placeholder sibling
+                          const fallback = img.nextElementSibling as HTMLElement | null
+                          if (fallback) fallback.classList.remove('hidden')
+                        }}
                       />
+                      <div className="hidden h-28 bg-white/[0.02] border-t border-white/[0.06] flex items-center justify-center">
+                        <div className="flex items-center gap-2 text-white/50">
+                          <ImageIcon className="w-5 h-5" aria-hidden="true" />
+                          <span className="text-xs">Image unavailable</span>
+                        </div>
+                      </div>
                     </div>
                   )}
 

@@ -139,19 +139,22 @@ export default function AnalyticsPage() {
             <StatsCard
               icon={Users}
               label="Total Creators"
-              value={loading ? '...' : fetchError ? '—' : stats.totalCreators.toString()}
+              value={fetchError ? '—' : stats.totalCreators.toString()}
+              loading={loading}
               delay={0}
             />
             <StatsCard
               icon={CreditCard}
               label="Total Subscriptions"
-              value={loading ? '...' : fetchError ? '—' : stats.totalSubscriptions.toString()}
+              value={fetchError ? '—' : stats.totalSubscriptions.toString()}
+              loading={loading}
               delay={0.05}
             />
             <StatsCard
               icon={Coins}
               label="Platform Revenue"
-              value={loading ? '...' : fetchError ? '—' : `${formatCredits(stats.totalRevenue)} ALEO`}
+              value={fetchError ? '—' : `${formatCredits(stats.totalRevenue)} ALEO`}
+              loading={loading}
               delay={0.1}
             />
             <StatsCard
@@ -349,20 +352,28 @@ function StatsCard({
   icon: Icon,
   label,
   value,
+  loading,
   delay,
 }: {
   icon: typeof Users
   label: string
   value: string
+  loading?: boolean
   delay: number
 }) {
   return (
     <GlassCard delay={delay}>
       <div className="flex items-center gap-3 mb-3">
-        <Icon className="w-4 h-4 text-white/60" />
+        <Icon className="w-4 h-4 text-white/60" aria-hidden="true" />
         <span className="text-xs text-white/60 uppercase tracking-wider">{label}</span>
       </div>
-      <p className="text-2xl font-semibold text-white">{value}</p>
+      {loading ? (
+        <div className="h-8 flex items-center">
+          <div className="w-6 h-6 border-2 border-violet-400/30 border-t-violet-400 rounded-full animate-spin" aria-label="Loading" />
+        </div>
+      ) : (
+        <p className="text-2xl font-semibold text-white">{value}</p>
+      )}
     </GlassCard>
   )
 }

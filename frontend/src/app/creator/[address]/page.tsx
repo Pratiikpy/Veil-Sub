@@ -527,7 +527,7 @@ export default function CreatorPage({
                   </span>
                 ) : null}
               </div>
-              <div className="grid sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {displayTiers.map((tier, i) => {
                   const tierPrice = basePrice * tier.priceMultiplier
                   const hasThisTier = userPasses.some(

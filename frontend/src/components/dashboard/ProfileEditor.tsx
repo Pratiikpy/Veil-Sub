@@ -70,7 +70,7 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
       className="p-6 rounded-xl bg-surface-1 border border-border"
     >
       <div className="flex items-center gap-2 mb-4">
-        <Settings className="w-5 h-5 text-violet-400" />
+        <Settings className="w-5 h-5 text-violet-400" aria-hidden="true" />
         <h2 className="text-lg font-semibold text-white">Profile</h2>
       </div>
       <div className="space-y-3">
