@@ -112,7 +112,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
               <button
                 onClick={handleClose}
                 aria-label="Close reputation proof dialog"
-                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all"
+                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
               >
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
@@ -214,7 +214,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                 )}
                 {txStatus === 'failed' && (
                   <div className="mt-4 text-center">
-                    {error && <p role="alert" className="text-xs text-red-400 mb-3">{error}</p>}
+                    {error && <p role="alert" className="text-xs text-red-400 mb-4">{error}</p>}
                     <button
                       onClick={() => resetFlow()}
                       className="px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"

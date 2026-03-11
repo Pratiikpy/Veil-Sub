@@ -121,7 +121,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
               <button
                 onClick={handleClose}
                 aria-label="Close audit token dialog"
-                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all"
+                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
               >
                 <X className="w-5 h-5" />
               </button>

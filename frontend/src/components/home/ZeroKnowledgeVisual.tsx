@@ -28,7 +28,7 @@ export default function ZeroKnowledgeVisual() {
         <ScrollReveal>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left: Text content */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.08]">
                 <Server className="w-4 h-4 text-violet-400/60" />
                 <span className="text-[11px] font-semibold tracking-[0.2em] text-white/70 uppercase">Architecture</span>

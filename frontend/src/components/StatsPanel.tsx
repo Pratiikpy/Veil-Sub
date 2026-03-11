@@ -45,7 +45,7 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
   if (!stats && fetchError) {
     return (
       <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/15 text-center">
-        <p className="text-xs text-red-300">Failed to load stats. Check your connection and refresh.</p>
+        <p className="text-xs text-red-300">Could not load creator analytics. Verify your connection and try again.</p>
       </div>
     )
   }

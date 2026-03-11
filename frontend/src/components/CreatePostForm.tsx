@@ -43,7 +43,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
   useEffect(() => {
     if (!connected && (txStatus === 'signing' || txStatus === 'proving' || txStatus === 'broadcasting')) {
       setTxStatus('failed')
-      setError('Wallet disconnected. Please reconnect and try again.')
+      setError('Wallet disconnected. Reconnect to publish content to subscribers.')
       stopPolling()
       submittingRef.current = false
     }
@@ -158,7 +158,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Post title..."
+                placeholder="Exclusive content title..."
                 className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base"
               />
             </div>

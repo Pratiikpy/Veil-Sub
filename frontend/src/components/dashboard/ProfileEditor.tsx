@@ -75,7 +75,7 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
         animate={{ opacity: 1, y: 0 }}
         className="p-6 rounded-xl bg-surface-1 border border-amber-500/20"
       >
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2 mb-4">
           <AlertTriangle className="w-5 h-5 text-amber-400" aria-hidden="true" />
           <h2 className="text-lg font-semibold text-white">Profile</h2>
         </div>

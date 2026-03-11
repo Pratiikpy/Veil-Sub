@@ -170,7 +170,7 @@ export default function HeroSection() {
               href="https://testnet.aleo.info/program/veilsub_v27.aleo"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-violet-300 font-medium hover:text-violet-200 transition-colors underline decoration-violet-500/30 underline-offset-2"
+              className="text-violet-300 font-medium hover:text-violet-200 transition-colors underline decoration-violet-500/30 underline-offset-2 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded px-1"
             >
               v27 Deployed ↗
             </a>

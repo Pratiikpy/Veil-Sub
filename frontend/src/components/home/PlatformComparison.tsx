@@ -135,7 +135,7 @@ export default function PlatformComparison() {
         </ScrollReveal>
 
         {/* Privacy Features - Hero Grid */}
-        <div className="mt-16 space-y-6">
+        <div className="mt-16 space-y-4">
           <ScrollReveal delay={0.2}>
             <div className="flex items-center gap-4 mb-6">
               <Shield className="w-5 h-5 text-violet-400/60" aria-hidden="true" />
@@ -209,7 +209,7 @@ export default function PlatformComparison() {
           <div className="mt-12">
             <SpotlightCard className="p-8 rounded-2xl glass max-w-2xl mx-auto">
               <h3 className="text-lg font-semibold text-white mb-6 text-center">Platform Fee Comparison</h3>
-              <div className="space-y-5">
+              <div className="space-y-4">
                 <ProgressBar percentage={50} label="VeilSub (5%)" color="text-emerald-400" delay={0} />
                 <ProgressBar percentage={100} label="Patreon (8-12%)" color="text-orange-400" delay={0.1} />
                 <ProgressBar percentage={100} label="Substack (10%)" color="text-red-400" delay={0.2} />

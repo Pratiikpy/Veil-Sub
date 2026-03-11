@@ -139,7 +139,7 @@ export default function ContractShowcase() {
                             </div>
                           )}
 
-                          <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center justify-between mb-4">
                             <div
                               className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
                                 isHero

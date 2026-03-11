@@ -305,7 +305,7 @@ export default function RegisteredDashboard({
                   const strokeDashoffset = circumference - (percentage / 100) * circumference
 
                   return (
-                    <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center justify-between mb-4">
                       <div>
                         <h2 className="text-lg font-semibold text-white mb-1 flex items-center gap-2">
                           {localCompletedCount === 4 ? (

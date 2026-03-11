@@ -238,7 +238,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
         <m.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-3"
+          className="mt-4"
         >
           <p className="text-xs text-white/60 mb-2">Transaction ID</p>
           {!txId.startsWith('at1') ? (

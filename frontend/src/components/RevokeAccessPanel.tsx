@@ -70,7 +70,7 @@ export default function RevokeAccessPanel() {
         </p>
       </div>
 
-      <div className="flex gap-2 mb-3">
+      <div className="flex gap-2 mb-4">
         <input
           type="text"
           value={passId}

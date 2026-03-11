@@ -255,7 +255,7 @@ export default function VisionPage() {
                   <Shield className="w-3.5 h-3.5 text-violet-400" />
                   <span className="text-xs text-violet-300/90">Privacy by Default</span>
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-3">
+                <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-4">
                   Ready to explore?
                 </h2>
                 <p className="text-white/60 max-w-lg mx-auto mb-6">

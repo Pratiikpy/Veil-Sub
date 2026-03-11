@@ -35,7 +35,7 @@ export default function NotFound() {
             href="/"
             className="inline-flex items-center gap-2 px-6 py-4 rounded-full bg-white text-black font-medium text-sm hover:bg-white/90 hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all active:scale-[0.98] btn-shimmer"
           >
-            Go Home
+            Return Home
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Link>
           <Link

@@ -12,7 +12,7 @@ export default function CreatorSkeleton() {
             </div>
           </div>
           {/* Stats row skeleton */}
-          <div className="flex gap-6">
+          <div className="flex gap-8">
             <div className="h-4 w-32 rounded-lg bg-white/[0.04]" />
             <div className="h-4 w-36 rounded-lg bg-white/[0.04]" />
           </div>
@@ -21,7 +21,7 @@ export default function CreatorSkeleton() {
         <div className="grid sm:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
             <div key={i} className="animate-pulse p-6 rounded-xl border border-border bg-surface-1">
-              <div className="h-5 w-24 rounded-lg bg-white/[0.06] mb-3" />
+              <div className="h-5 w-24 rounded-lg bg-white/[0.06] mb-4" />
               <div className="h-8 w-20 rounded-lg bg-white/[0.06] mb-1" />
               <div className="h-3 w-36 rounded-lg bg-white/[0.04] mb-4" />
               <div className="space-y-2 mb-6">

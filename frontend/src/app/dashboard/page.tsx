@@ -168,7 +168,8 @@ export default function DashboardPage() {
             <p className="text-sm text-red-300 mb-4">Could not load your creator status. This may be a network issue.</p>
             <button
               onClick={() => setRefreshKey((k) => k + 1)}
-              className="px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] transition-all"
+              aria-label="Retry loading creator stats"
+              className="px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
             >
               Retry
             </button>
@@ -236,7 +237,8 @@ export default function DashboardPage() {
                 </Link>
                 <button
                   onClick={copyLink}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-white/70 hover:bg-white/[0.08] transition-all duration-300"
+                  aria-label="Copy your creator profile link to clipboard"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-white/70 hover:bg-white/[0.08] transition-all duration-300 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
                 >
                   <Share2 className="w-4 h-4" aria-hidden="true" />
                   Share your link

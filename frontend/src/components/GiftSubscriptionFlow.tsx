@@ -47,7 +47,7 @@ export default function GiftSubscriptionFlow({
     setError(null)
     try {
       const records = await getCreditsRecords()
-      if (!records || records.length === 0) throw new Error('No private credits available. Convert public credits first.')
+      if (!records || records.length === 0) throw new Error('Insufficient private credits. Use the credits converter to convert public ALEO.')
       const firstRecord = records[0]
       const paymentRecord = typeof firstRecord === 'string'
         ? firstRecord

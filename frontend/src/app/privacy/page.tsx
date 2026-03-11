@@ -430,7 +430,7 @@ export default function PrivacyPage() {
                 {/* Gradient border effect */}
                 <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-violet-500 via-green-400 to-violet-500 opacity-60" />
                 <div className="relative rounded-xl bg-surface-1 p-8">
-                  <div className="flex items-start gap-5">
+                  <div className="flex items-start gap-4">
                     <div className="shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-violet-500/20 to-green-500/20 flex items-center justify-center">
                       <Fingerprint className="w-7 h-7 text-green-400" />
                     </div>
@@ -441,7 +441,7 @@ export default function PrivacyPage() {
                           Unique to VeilSub
                         </span>
                       </div>
-                      <div className="grid sm:grid-cols-2 gap-4 mb-5">
+                      <div className="grid sm:grid-cols-2 gap-4 mb-4">
                         {[
                           'verify_access finalize only checks revocation via pass_id—subscriber address never enters public state',
                           'No subscriber-identifying mapping writes, no counter increments tied to identity',
@@ -859,7 +859,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-white/60 text-center mt-3">
+              <p className="text-xs text-white/60 text-center mt-4">
                 Left: typical on-chain subscription. Right: VeilSub&apos;s BSP—subscriber address never enters any public mapping.
               </p>
             </m.div>

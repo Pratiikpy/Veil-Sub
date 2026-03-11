@@ -6,7 +6,7 @@ export default function PrivacyLoading() {
           <div className="h-8 w-48 rounded-lg bg-white/[0.06] mb-4" />
           <div className="h-4 w-72 rounded-lg bg-white/[0.04]" />
         </div>
-        <div className="space-y-6">
+        <div className="space-y-8">
           {[1, 2, 3].map((i) => (
             <div key={i} className="p-8 rounded-2xl bg-white/[0.02] border border-border animate-pulse">
               <div className="h-5 w-40 rounded bg-white/[0.06] mb-4" />

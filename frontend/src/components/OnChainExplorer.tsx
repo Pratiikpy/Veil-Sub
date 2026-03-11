@@ -142,7 +142,7 @@ export default function OnChainExplorer() {
           </span>
         </div>
         <h2
-          className="text-2xl sm:text-3xl font-serif italic text-white mb-3"
+          className="text-2xl sm:text-3xl font-serif italic text-white mb-4"
           style={{ letterSpacing: '-0.02em' }}
         >
           On-Chain Explorer
@@ -153,7 +153,7 @@ export default function OnChainExplorer() {
         </p>
       </m.div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 gap-8">
         {/* Creator Lookup */}
         <GlassCard hover={false}>
           <div className="space-y-4">
@@ -228,7 +228,7 @@ export default function OnChainExplorer() {
         </GlassCard>
 
         {/* Right Column: Content + Deployment */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Content Lookup */}
           <GlassCard hover={false}>
             <div className="space-y-4">

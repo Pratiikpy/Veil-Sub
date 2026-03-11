@@ -100,6 +100,7 @@ function GiftDropdown({
       {connected && open && (
         <div
           role="menu"
+          aria-label="Gift subscription tier selection"
           className="absolute right-0 top-full mt-1 z-20 min-w-[180px] py-1 rounded-xl bg-surface-1 border border-border shadow-xl animate-in fade-in slide-in-from-top-1 duration-150"
         >
           {tiers.map((tier) => (

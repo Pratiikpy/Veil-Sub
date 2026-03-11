@@ -497,13 +497,13 @@ function PrivacyModelTab() {
 
       <div className="p-4 rounded-xl bg-violet-500/5 border border-violet-500/20">
         <h4 className="text-violet-300 font-semibold mb-2">v23: ZERO Addresses in Finalize—Full Poseidon2 Privacy Overhaul</h4>
-        <p className="text-sm text-white/70 leading-relaxed mb-3">
+        <p className="text-sm text-white/70 leading-relaxed mb-4">
           v23 represents a fundamental privacy overhaul: <strong className="text-white">no raw addresses appear in any
           finalize block</strong>. Every mapping key that previously used a plain address is now a Poseidon2
           field hash. This means on-chain observers cannot correlate mapping reads with wallet addresses —
           even public aggregate data like subscriber counts and revenue are keyed by opaque field values.
         </p>
-        <p className="text-sm text-white/70 leading-relaxed mb-3">
+        <p className="text-sm text-white/70 leading-relaxed mb-4">
           The Pedersen proof transitions (<code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">subscribe_private_count</code>,{' '}
           <code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">prove_sub_count</code>,{' '}
           <code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">prove_revenue_range</code>) were removed
@@ -564,7 +564,7 @@ function PrivacyModelTab() {
         <p className="text-white/70 leading-relaxed">
           Even with full access to the Aleo blockchain, an observer cannot determine:
         </p>
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-4 space-y-2">
           {[
             'Which addresses subscribe to which creators',
             'How much any individual subscriber paid',

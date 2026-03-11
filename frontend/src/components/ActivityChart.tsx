@@ -135,7 +135,7 @@ export default function ActivityChart({ creatorAddress }: Props) {
       </div>
 
       {/* Summary row */}
-      <div className="flex gap-6 mt-4 pt-4 border-t border-border">
+      <div className="flex gap-8 mt-4 pt-4 border-t border-border">
         <div>
           <p className="text-xs text-white/60">Total Subs (30d)</p>
           <p className="text-sm font-medium text-white">

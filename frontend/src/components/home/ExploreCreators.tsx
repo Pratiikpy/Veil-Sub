@@ -59,7 +59,7 @@ const FeaturedCreatorCard = React.memo(function FeaturedCreatorCard({
           </span>
         </div>
       )}
-      <div className="mt-3 text-xs text-white/60 group-hover:text-violet-300 flex items-center gap-1 transition-colors">
+      <div className="mt-4 text-xs text-white/60 group-hover:text-violet-300 flex items-center gap-1 transition-colors">
         View creator <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
       </div>
     </Link>

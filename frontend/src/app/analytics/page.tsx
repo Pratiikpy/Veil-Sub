@@ -420,7 +420,7 @@ export default function AnalyticsPage() {
                         : ''
                     }`}
                   >
-                    <div className="flex items-center gap-3 shrink-0">
+                    <div className="flex items-center gap-4 shrink-0">
                       <GitBranch className={`w-4 h-4 ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-white/60'}`} aria-hidden="true" />
                       <span
                         className={`text-sm font-mono font-medium ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-white/70'}`}
@@ -482,7 +482,7 @@ function StatsCard({
 }) {
   return (
     <GlassCard delay={delay}>
-      <div className="flex items-center gap-3 mb-3">
+      <div className="flex items-center gap-4 mb-4">
         <Icon className="w-4 h-4 text-white/60" aria-hidden="true" />
         <span className="text-xs text-white/60 uppercase tracking-wider">{label}</span>
       </div>

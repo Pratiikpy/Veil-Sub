@@ -314,7 +314,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
-            className="mt-5 text-center"
+            className="mt-4 text-center"
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20">
               <Check className="w-4 h-4 text-green-400" aria-hidden="true" />
@@ -332,7 +332,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             role="alert"
-            className="mt-5 flex items-start gap-2.5 p-4 rounded-xl bg-red-500/10 border border-red-500/20"
+            className="mt-4 flex items-start gap-2.5 p-4 rounded-xl bg-red-500/10 border border-red-500/20"
           >
             <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
             <p className="text-xs text-red-400">{error}</p>
@@ -345,7 +345,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
-            className="mt-5 text-center"
+            className="mt-4 text-center"
             role="status"
             aria-live="polite"
             aria-atomic="true"

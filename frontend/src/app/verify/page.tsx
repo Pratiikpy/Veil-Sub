@@ -671,7 +671,7 @@ export default function VerifyPage() {
             </p>
           </m.div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-8">
             {[
               {
                 icon: Lock,

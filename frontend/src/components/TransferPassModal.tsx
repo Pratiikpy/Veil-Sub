@@ -148,11 +148,11 @@ export default function TransferPassModal({
 
           {/* Warning + Confirmation */}
           <div className="rounded-xl bg-red-500/10 border border-red-500/15 p-4 mb-6">
-            <p className="text-xs text-red-300 flex items-center gap-2 mb-3">
+            <p className="text-xs text-red-300 flex items-center gap-2 mb-4">
               <AlertTriangle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
               Irreversible on-chain operation. Your AccessPass record will be consumed; the recipient receives a new one.
             </p>
-            <label className="flex items-start gap-3 cursor-pointer group">
+            <label className="flex items-start gap-4 cursor-pointer group">
               <input
                 type="checkbox"
                 checked={confirmed}
