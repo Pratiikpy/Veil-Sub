@@ -469,7 +469,16 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
                 <Button
                   onClick={handleAction}
-                  disabled={txStatus !== 'idle' && !isRevealReady}
+                  disabled={(txStatus !== 'idle' && !isRevealReady) || !connected}
+                  title={
+                    !connected ? 'Connect your wallet to send a tip' :
+                    (txStatus !== 'idle' && !isRevealReady) ? 'Transaction in progress...' :
+                    tipMode === 'direct'
+                      ? `Send ${getTipAmount()} ALEO tip privately`
+                      : commitPhase === 'commit'
+                        ? 'Commit hidden tip amount (BHP256 hash)'
+                        : 'Reveal tip amount and send payment'
+                  }
                   className="w-full"
                 >
                   {tipMode === 'direct'

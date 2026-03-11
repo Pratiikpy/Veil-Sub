@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRedis } from '@/lib/redis'
+import { ALEO_API_BASE_URL } from '@/lib/config'
 
 const ALEO_ADDRESS_RE = /^aleo1[a-z0-9]{58}$/
 
@@ -91,7 +92,7 @@ export async function POST(req: NextRequest) {
     let currentHeight = 0
     try {
       const heightRes = await fetch(
-        'https://api.explorer.provable.com/v1/testnet/latest/height',
+        `${ALEO_API_BASE_URL}/latest/height`,
         { next: { revalidate: 15 } }
       )
       if (heightRes.ok) {

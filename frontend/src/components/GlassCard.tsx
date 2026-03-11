@@ -1,7 +1,6 @@
 'use client'
 
 import { memo, ReactNode } from 'react'
-import { m } from 'framer-motion'
 
 type Variant = 'default' | 'heavy' | 'light' | 'accent'
 
@@ -30,15 +29,13 @@ export default memo(function GlassCard({
   className = '',
   shimmer = false,
   hover = true,
+  // delay is kept for API compatibility but no longer used since animations are disabled
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   delay = 0,
   variant = 'default',
 }: Props) {
   return (
-    <m.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay, duration: 0.5 }}
+    <div
       className={`group relative rounded-2xl ${variantClasses[variant]} p-8 h-full transition-all duration-300 ${
         hover ? 'hover:-translate-y-0.5' : ''
       } ${className}`}
@@ -62,6 +59,6 @@ export default memo(function GlassCard({
         </div>
       )}
       {children}
-    </m.div>
+    </div>
   )
 })

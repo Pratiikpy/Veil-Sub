@@ -397,10 +397,8 @@ export default function AnalyticsPage() {
                 {CONTRACT_VERSIONS.map((item, i) => (
                   <m.div
                     key={item.version}
-                    initial={{ opacity: 0, x: -8 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.04, duration: 0.3 }}
+                    initial={{ opacity: 1, x: 0 }}
+                    animate={{ opacity: 1, x: 0 }}
                     className={`flex items-start gap-4 py-4 ${
                       i < CONTRACT_VERSIONS.length - 1
                         ? 'border-b border-border'
@@ -430,9 +428,8 @@ export default function AnalyticsPage() {
           {/* CTA — Explore on-chain */}
           <section>
             <m.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              initial={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
               className="rounded-2xl glass p-8 text-center"
             >
               <Search className="w-8 h-8 text-violet-400 mx-auto mb-4" aria-hidden="true" />

@@ -56,6 +56,9 @@ export const MICROCREDITS_PER_CREDIT = 1_000_000
 export const SECONDS_PER_BLOCK = 3
 export const SECONDS_PER_DAY = 86400
 
+// Aleo API endpoints (server-side direct calls, not routed through Next.js rewrites)
+export const ALEO_API_BASE_URL = 'https://api.explorer.provable.com/v1/testnet'
+
 // Wallet request timeouts (ms)
 export const WALLET_REQUEST_TIMEOUT_MS = 15_000
 export const POLLING_INTERVAL_MS = 3_000

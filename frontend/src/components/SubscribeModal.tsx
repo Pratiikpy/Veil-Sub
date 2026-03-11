@@ -332,7 +332,12 @@ export default function SubscribeModal({
                 {/* Subscribe Button */}
                 <Button
                   onClick={handleSubscribe}
-                  disabled={txStatus !== 'idle'}
+                  disabled={txStatus !== 'idle' || !connected}
+                  title={
+                    !connected ? 'Connect your wallet to subscribe' :
+                    txStatus !== 'idle' ? 'Transaction in progress...' :
+                    `Subscribe to ${tier.name} tier for ${formatCredits(totalPrice)} ALEO`
+                  }
                   className="w-full"
                 >
                   {txStatus !== 'idle' ? 'Processing...' : 'Subscribe Privately'}

@@ -342,7 +342,12 @@ export default function RenewModal({
 
                 <Button
                   onClick={handleRenew}
-                  disabled={txStatus !== 'idle'}
+                  disabled={txStatus !== 'idle' || !connected}
+                  title={
+                    !connected ? 'Connect your wallet to renew subscription' :
+                    txStatus !== 'idle' ? 'Transaction in progress...' :
+                    `Renew subscription for ${formatCredits(totalPrice)} ALEO`
+                  }
                   className="w-full"
                 >
                   Execute renew_subscription

@@ -33,8 +33,10 @@ export default function TransferPassModal({
   const focusTrapRef = useFocusTrap(isOpen, handleClose)
 
   const [recipientAddress, setRecipientAddress] = useState('')
+  const [confirmed, setConfirmed] = useState(false)
 
   const isValidAddress = recipientAddress.startsWith('aleo1') && recipientAddress.length === 63
+  const canTransfer = isValidAddress && confirmed && txStatus !== 'signing' && txStatus !== 'broadcasting'
 
   const handleTransfer = async () => {
     if (!connected || submittingRef.current || !isValidAddress) return
@@ -144,12 +146,23 @@ export default function TransferPassModal({
             )}
           </div>
 
-          {/* Warning */}
-          <div className="rounded-xl bg-red-500/10 border border-red-500/15 p-3 mb-6">
-            <p className="text-xs text-red-300 flex items-center gap-2">
+          {/* Warning + Confirmation */}
+          <div className="rounded-xl bg-red-500/10 border border-red-500/15 p-4 mb-6">
+            <p className="text-xs text-red-300 flex items-center gap-2 mb-3">
               <AlertTriangle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
               Irreversible on-chain operation. Your AccessPass record will be consumed; the recipient receives a new one.
             </p>
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={confirmed}
+                onChange={(e) => setConfirmed(e.target.checked)}
+                className="mt-0.5 w-4 h-4 rounded border-red-500/30 bg-red-500/10 text-red-400 focus:ring-red-500/30 focus:ring-offset-0 cursor-pointer"
+              />
+              <span className="text-xs text-red-200/80 leading-relaxed group-hover:text-red-200 transition-colors">
+                I understand this transfer is irreversible and my AccessPass will be permanently moved to the recipient
+              </span>
+            </label>
           </div>
 
           {/* Status */}
@@ -171,7 +184,14 @@ export default function TransferPassModal({
             <Button
               variant="accent"
               onClick={handleTransfer}
-              disabled={!isValidAddress || txStatus === 'signing' || txStatus === 'broadcasting'}
+              disabled={!canTransfer}
+              title={
+                !isValidAddress ? 'Enter a valid Aleo address starting with aleo1' :
+                !confirmed ? 'Confirm that you understand this is irreversible' :
+                txStatus === 'signing' ? 'Waiting for wallet signature...' :
+                txStatus === 'broadcasting' ? 'Broadcasting transaction...' :
+                'Execute transfer_pass transition'
+              }
               className="flex-1"
             >
               {txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Broadcasting...' : 'Execute transfer_pass'}

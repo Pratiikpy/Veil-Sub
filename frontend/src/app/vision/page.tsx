@@ -67,7 +67,7 @@ const USE_CASES = [
 ]
 
 const fadeUp = {
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 1, y: 0 },
   animate: { opacity: 1, y: 0 },
 }
 
@@ -126,7 +126,7 @@ export default function VisionPage() {
         {/* Composability Section */}
         <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+            <m.div {...fadeUp} animate="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Composable Privacy Primitive</h2>
               <p className="text-white/60 max-w-2xl mx-auto">
                 Any Aleo program can verify AccessPass ownership via <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">verify_access</code> —
@@ -142,10 +142,8 @@ export default function VisionPage() {
               ].map((item, i) => (
                 <m.div
                   key={item.label}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
+                  initial={{ opacity: 1, y: 0 }}
+                  animate={{ opacity: 1, y: 0 }}
                   className="text-center p-4 rounded-xl glass hover:border-border-accent transition-colors"
                 >
                   <p className="text-3xl font-bold text-white">
@@ -162,7 +160,7 @@ export default function VisionPage() {
         {/* Roadmap */}
         <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+            <m.div {...fadeUp} animate="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Roadmap</h2>
               <p className="text-white/70">From buildathon to production.</p>
             </m.div>
@@ -176,10 +174,8 @@ export default function VisionPage() {
               ].map((item, i) => (
                 <m.div
                   key={item.phase}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
+                  initial={{ opacity: 1, x: 0 }}
+                  animate={{ opacity: 1, x: 0 }}
                   className="flex items-start gap-4 p-4 rounded-xl bg-surface-1 border border-border"
                 >
                   <div className={`shrink-0 mt-0.5 w-3 h-3 rounded-full ${
@@ -211,9 +207,8 @@ export default function VisionPage() {
         <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <m.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              initial={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
               className="relative rounded-3xl glass p-8 sm:p-12 text-center overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-violet-500/[0.04] to-transparent pointer-events-none" />
