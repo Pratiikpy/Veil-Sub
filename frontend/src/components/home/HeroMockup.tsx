@@ -36,7 +36,7 @@ export default function HeroMockup() {
       >
         {/* Browser chrome */}
         <div className="flex items-center gap-2 px-4 py-4 border-b border-white/[0.06]">
-          <div className="flex gap-1.5">
+          <div className="flex gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-white/[0.08]" />
             <div className="w-2.5 h-2.5 rounded-full bg-white/[0.08]" />
             <div className="w-2.5 h-2.5 rounded-full bg-white/[0.08]" />
@@ -101,7 +101,7 @@ export default function HeroMockup() {
                     <span className="text-[8px] font-medium text-violet-300 uppercase tracking-wider">Popular</span>
                   </div>
                 )}
-                <p className="text-[10px] text-white/70 mb-0.5 mt-1 uppercase tracking-wider">{tier.name}</p>
+                <p className="text-[10px] text-white/70 mb-1 mt-1 uppercase tracking-wider">{tier.name}</p>
                 <p className={`text-2xl sm:text-3xl font-bold leading-none ${tier.selected ? 'text-violet-200' : 'text-white'}`}>{tier.price}</p>
                 <p className="text-[10px] text-white/60 mt-1 font-medium">ALEO/mo</p>
                 {tier.selected && (

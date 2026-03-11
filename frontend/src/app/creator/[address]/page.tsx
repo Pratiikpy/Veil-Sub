@@ -528,8 +528,8 @@ export default function CreatorPage({
                   Subscription Tiers
                 </h2>
                 {tiersLoading ? (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/[0.05] border border-border text-[10px] text-white/60 font-medium animate-pulse">
-                    Loading tiers...
+                  <span className="inline-flex items-center gap-1 px-4 py-1 rounded-full bg-white/[0.05] border border-border text-[10px] text-white/60 font-medium animate-pulse">
+                    Fetching on-chain tiers...
                   </span>
                 ) : hasOnChainTiers ? (
                   <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] text-green-400 font-medium">

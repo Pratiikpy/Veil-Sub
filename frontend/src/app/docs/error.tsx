@@ -18,7 +18,7 @@ export default function DocsError({
         </div>
         <h2 className="text-2xl font-bold text-white mb-4">Documentation Error</h2>
         <p className="text-white/70 mb-2">
-          Could not load documentation. Please try again.
+          Could not load VeilSub documentation. Check network and retry.
         </p>
         {error.digest && (
           <p className="text-xs text-white/60 font-mono mb-6">
@@ -36,7 +36,7 @@ export default function DocsError({
             href="/"
             className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-white/[0.05] border border-border text-white text-sm hover:bg-white/[0.08] transition-all active:scale-[0.98]"
           >
-            Go Home
+            Return Home
           </Link>
         </div>
       </div>

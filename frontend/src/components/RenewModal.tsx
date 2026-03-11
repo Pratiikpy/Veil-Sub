@@ -76,7 +76,7 @@ export default function RenewModal({
   const handleRenew = async () => {
     if (submittingRef.current) return
     if (!connected) {
-      setError('Please connect your wallet first.')
+      setError('Connect wallet to renew your AccessPass privately.')
       return
     }
     if (blockHeight === null) {
@@ -310,7 +310,7 @@ export default function RenewModal({
                 </div>
 
                 {/* Privacy Notice */}
-                <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4 space-y-1.5">
+                <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4 space-y-2">
                   <p className="text-xs text-green-400 font-medium">Zero-Knowledge Privacy</p>
                   <ul className="text-[11px] text-green-400/80 space-y-1 list-none">
                     <li>Your address is never published on-chain</li>

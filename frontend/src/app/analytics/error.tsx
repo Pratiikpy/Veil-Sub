@@ -18,7 +18,7 @@ export default function AnalyticsError({
         </div>
         <h2 className="text-2xl font-bold text-white mb-4">Analytics Error</h2>
         <p className="text-white/70 mb-2">
-          Could not load analytics data. Please try again.
+          Could not load VeilSub analytics. Check network connection and retry.
         </p>
         {error.digest && (
           <p className="text-xs text-white/60 font-mono mb-6">

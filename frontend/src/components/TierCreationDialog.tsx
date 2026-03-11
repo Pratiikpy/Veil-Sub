@@ -179,7 +179,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                 </div>
 
                 {/* Privacy note */}
-                <div className="rounded-xl bg-surface-2 border border-border p-3">
+                <div className="rounded-xl bg-surface-2 border border-border p-4">
                   <p className="text-xs text-green-400/80">
                     Tier price is stored on-chain. Tier name is hashed — only you know the real name.
                   </p>
@@ -187,8 +187,8 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
 
                 {/* Error */}
                 {error && (
-                  <div role="alert" className="flex items-start gap-2 rounded-xl bg-red-500/10 border border-red-500/15 p-3">
-                    <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-400" aria-hidden="true" />
+                  <div role="alert" className="flex items-start gap-2 rounded-xl bg-red-500/10 border border-red-500/15 p-4">
+                    <AlertCircle className="mt-1 h-4 w-4 flex-shrink-0 text-red-400" aria-hidden="true" />
                     <p className="text-xs text-red-400">{error}</p>
                   </div>
                 )}

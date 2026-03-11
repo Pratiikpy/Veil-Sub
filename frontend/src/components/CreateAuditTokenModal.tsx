@@ -41,7 +41,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
   const handleCreate = async () => {
     if (submittingRef.current) return
     if (!connected) {
-      setError('Please connect your wallet first.')
+      setError('Connect wallet to create a scoped audit token.')
       return
     }
     if (!verifierAddress.startsWith('aleo1') || verifierAddress.length < 60) {

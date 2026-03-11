@@ -110,7 +110,7 @@ export default function ChangelogOverlay() {
               <button
                 onClick={() => dismiss(false)}
                 aria-label="Dismiss"
-                className="p-1 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+                className="p-1 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
               >
                 <X className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
@@ -151,14 +151,14 @@ export default function ChangelogOverlay() {
               <Link
                 href="/docs"
                 onClick={() => dismiss(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 border border-amber-500/30 text-xs font-medium text-amber-300 hover:bg-amber-500/30 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 border border-amber-500/30 text-xs font-medium text-amber-300 hover:bg-amber-500/30 transition-colors focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none"
               >
                 See all features
                 <ArrowRight className="w-3 h-3" aria-hidden="true" />
               </Link>
               <button
                 onClick={() => dismiss(true)}
-                className="text-xs text-white/40 hover:text-white/70 transition-colors"
+                className="text-xs text-white/40 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
               >
                 Dismiss
               </button>

@@ -298,7 +298,7 @@ export default function SubscribeModal({
                 </div>
 
                 {/* Privacy Notice */}
-                <div className="p-4 rounded-xl bg-surface-2 border border-border mb-6 space-y-1.5">
+                <div className="p-4 rounded-xl bg-surface-2 border border-border mb-6 space-y-2">
                   <p className="text-xs text-green-400 font-medium">Zero-Knowledge Privacy</p>
                   <ul className="text-[11px] text-green-400/80 space-y-1 list-none">
                     <li>Your address is never published on-chain</li>
@@ -370,7 +370,7 @@ export default function SubscribeModal({
                     )}
                     <button
                       onClick={handleModalClose}
-                      className="mt-4 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
+                      className="mt-4 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
                     >
                       Done
                     </button>
@@ -380,7 +380,7 @@ export default function SubscribeModal({
                   <div className="text-center">
                     <button
                       onClick={() => resetFlow()}
-                      className="px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
+                      className="px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
                     >
                       Retry Subscription
                     </button>

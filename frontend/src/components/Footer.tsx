@@ -24,23 +24,23 @@ export default function Footer() {
           <div>
             <p className="text-xs font-medium text-white/70 mb-4 uppercase tracking-wider">Platform</p>
             <div className="space-y-2">
-              <Link href="/explore" className="block text-xs text-white/60 hover:text-white transition-colors">Explore Creators</Link>
-              <Link href="/verify" className="block text-xs text-white/60 hover:text-white transition-colors">Verify Access</Link>
-              <Link href="/explorer" className="block text-xs text-white/60 hover:text-white transition-colors">On-Chain Explorer</Link>
-              <Link href="/dashboard" className="block text-xs text-white/60 hover:text-white transition-colors">Creator Dashboard</Link>
-              <Link href="/analytics" className="block text-xs text-white/60 hover:text-white transition-colors">Platform Analytics</Link>
+              <Link href="/explore" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">Explore Creators</Link>
+              <Link href="/verify" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">Verify Access</Link>
+              <Link href="/explorer" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">On-Chain Explorer</Link>
+              <Link href="/dashboard" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">Creator Dashboard</Link>
+              <Link href="/analytics" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">Platform Analytics</Link>
             </div>
           </div>
           {/* Resources */}
           <div>
             <p className="text-xs font-medium text-white/70 mb-4 uppercase tracking-wider">Resources</p>
             <div className="space-y-2">
-              <Link href="/docs" className="block text-xs text-white/60 hover:text-white transition-colors">Documentation</Link>
-              <Link href="/privacy" className="block text-xs text-white/60 hover:text-white transition-colors">Privacy Model</Link>
-              <a href="https://github.com/Pratiikpy/Veil-Sub" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-white/60 hover:text-white transition-colors">
+              <Link href="/docs" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">Documentation</Link>
+              <Link href="/privacy" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">Privacy Model</Link>
+              <a href="https://github.com/Pratiikpy/Veil-Sub" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">
                 <Github className="w-3 h-3" aria-hidden="true" /> GitHub
               </a>
-              <Link href="/vision" className="block text-xs text-white/60 hover:text-white transition-colors">Vision & Roadmap</Link>
+              <Link href="/vision" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">Vision & Roadmap</Link>
             </div>
           </div>
         </div>
@@ -58,7 +58,7 @@ export default function Footer() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`View ${DEPLOYED_PROGRAM_ID} on Aleoscan`}
-            className="flex items-center gap-1 hover:text-white/70 transition-colors font-mono"
+            className="flex items-center gap-1 hover:text-white/70 transition-colors font-mono focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
           >
             {DEPLOYED_PROGRAM_ID}
             <ExternalLink className="w-3 h-3" aria-hidden="true" />
@@ -74,15 +74,15 @@ export default function Footer() {
               v27
             </span>
           </div>
-          <a href="https://github.com/Pratiikpy/Veil-Sub" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository" className="flex items-center gap-1 text-xs text-white/60 hover:text-white/70 transition-colors">
+          <a href="https://github.com/Pratiikpy/Veil-Sub" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository" className="flex items-center gap-1 text-xs text-white/60 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">
             <Github className="w-3.5 h-3.5" aria-hidden="true" />
           </a>
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-4">
-          <Link href="/docs" className="text-xs text-white/60 hover:text-white transition-colors">Docs</Link>
-          <Link href="/privacy" className="text-xs text-white/60 hover:text-white transition-colors">Privacy</Link>
-          <Link href="/vision" className="text-xs text-white/60 hover:text-white transition-colors">Vision</Link>
-          <Link href="/explorer" className="text-xs text-white/60 hover:text-white transition-colors">On-Chain</Link>
+          <Link href="/docs" className="text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">Docs</Link>
+          <Link href="/privacy" className="text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">Privacy</Link>
+          <Link href="/vision" className="text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">Vision</Link>
+          <Link href="/explorer" className="text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">On-Chain</Link>
         </div>
         <div className="pt-3 border-t border-border/75 flex items-center justify-between text-[10px] text-white/60">
           <div className="flex items-center gap-2">

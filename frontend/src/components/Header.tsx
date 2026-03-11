@@ -79,7 +79,7 @@ export default function Header() {
             </Link>
 
             {/* Desktop nav with spring-physics indicator */}
-            <nav aria-label="Main navigation" className="hidden md:flex items-center gap-0.5 rounded-full bg-white/[0.03] border border-border/75 px-1 py-1">
+            <nav aria-label="Main navigation" className="hidden md:flex items-center gap-1 rounded-full bg-white/[0.03] border border-border/75 px-1 py-1">
               {allItems.map((item) => (
                 <Link
                   key={item.href}

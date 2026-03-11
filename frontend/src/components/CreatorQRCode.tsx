@@ -86,7 +86,7 @@ export default function CreatorQRCode({ creatorAddress, delay = 0 }: Props) {
           </h3>
         </div>
 
-        <div ref={qrRef} className="p-3 rounded-xl bg-white">
+        <div ref={qrRef} className="p-4 rounded-xl bg-white">
           <QRCodeSVG
             value={creatorUrl}
             size={160}
@@ -100,14 +100,14 @@ export default function CreatorQRCode({ creatorAddress, delay = 0 }: Props) {
         <div className="flex gap-2 w-full">
           <button
             onClick={handleDownload}
-            className="flex-1 px-3 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white hover:bg-white/[0.08] transition-colors flex items-center justify-center gap-1.5"
+            className="flex-1 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white hover:bg-white/[0.08] transition-colors flex items-center justify-center gap-2"
           >
             <Download className="w-3.5 h-3.5" aria-hidden="true" />
             Download
           </button>
           <button
             onClick={handleShare}
-            className="flex-1 px-3 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-white/70 hover:bg-violet-500/20 transition-colors flex items-center justify-center gap-1.5"
+            className="flex-1 px-4 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-white/70 hover:bg-violet-500/20 transition-colors flex items-center justify-center gap-2"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-green-400" aria-hidden="true" /> : <Share2 className="w-3.5 h-3.5" aria-hidden="true" />}
             {copied ? 'Copied' : 'Share'}

@@ -111,7 +111,7 @@ export default function GiftSubscriptionFlow({
                 </div>
                 <h3 className="text-lg font-semibold text-white">Gift Subscription</h3>
               </div>
-              <button onClick={handleClose} aria-label="Close gift modal" className="rounded-lg p-1 text-white/70 hover:bg-white/[0.1] hover:text-white active:scale-[0.9] transition-all">
+              <button onClick={handleClose} aria-label="Close gift modal" className="rounded-lg p-1 text-white/70 hover:bg-white/[0.1] hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none">
                 <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
@@ -124,7 +124,7 @@ export default function GiftSubscriptionFlow({
                   <p className="mt-1 text-xs text-white/60">Recipient will receive a GiftToken to redeem</p>
                   {txId && <p className="mt-1 text-xs text-white/60 break-all">Tx: {txId.slice(0, 20)}...</p>}
                 </div>
-                <button onClick={handleClose} className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all">
+                <button onClick={handleClose} className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none">
                   Done
                 </button>
               </div>
@@ -191,7 +191,7 @@ export default function GiftSubscriptionFlow({
                 {/* Privacy note */}
                 <div className="rounded-xl bg-surface-2 border border-border p-4">
                   <div className="flex items-start gap-2">
-                    <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-400" aria-hidden="true" />
+                    <Shield className="mt-1 h-4 w-4 flex-shrink-0 text-green-400" aria-hidden="true" />
                     <p className="text-xs text-green-400/80">
                       Gift is private—only the recipient can see and redeem the GiftToken. Your identity is hashed.
                     </p>
@@ -200,7 +200,7 @@ export default function GiftSubscriptionFlow({
 
                 {/* Error */}
                 {error && (
-                  <div className="flex items-start gap-2 rounded-xl bg-red-500/10 border border-red-500/15 p-3" role="alert">
+                  <div className="flex items-start gap-2 rounded-xl bg-red-500/10 border border-red-500/15 p-4" role="alert">
                     <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-400" aria-hidden="true" />
                     <p className="text-xs text-red-400">{error}</p>
                   </div>

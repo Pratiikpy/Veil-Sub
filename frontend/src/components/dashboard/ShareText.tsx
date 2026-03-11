@@ -19,7 +19,7 @@ export default function ShareText({ text }: { text: string }) {
 
   return (
     <div className="relative">
-      <div className="p-3 rounded-lg bg-white/[0.03] border border-border text-sm text-white whitespace-pre-wrap break-all">
+      <div className="p-4 rounded-lg bg-white/[0.03] border border-border text-sm text-white whitespace-pre-wrap break-all">
         {text}
       </div>
       <button

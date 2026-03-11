@@ -18,7 +18,7 @@ export default function VerifyError({
         </div>
         <h2 className="text-2xl font-bold text-white mb-4">Verification Error</h2>
         <p className="text-white/70 mb-2">
-          Could not complete verification. Please ensure your wallet is connected.
+          Zero-footprint verification failed. Reconnect your wallet and try again.
         </p>
         {error.digest && (
           <p className="text-xs text-white/60 font-mono mb-6">
@@ -36,7 +36,7 @@ export default function VerifyError({
             href="/"
             className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-white/[0.05] border border-border text-white text-sm hover:bg-white/[0.08] transition-all active:scale-[0.98]"
           >
-            Go Home
+            Return Home
           </Link>
         </div>
       </div>

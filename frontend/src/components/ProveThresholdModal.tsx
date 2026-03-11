@@ -36,7 +36,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
   const handleProve = async () => {
     if (submittingRef.current) return
     if (!connected) {
-      setError('Please connect your wallet first.')
+      setError('Connect wallet to generate a reputation proof.')
       return
     }
     const thresholdNum = parseInt(threshold, 10)

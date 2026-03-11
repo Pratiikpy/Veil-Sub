@@ -87,10 +87,10 @@ export default function VerificationResult({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-4 p-3 rounded-lg bg-green-500/5 border border-green-500/10"
+            className="mb-4 p-4 rounded-lg bg-green-500/5 border border-green-500/10"
           >
             <p className="text-xs text-green-300/90 font-medium mb-2">What was proven:</p>
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               {[
                 { icon: CheckCircle2, text: 'Valid AccessPass ownership' },
                 { icon: Lock, text: 'Pass not revoked (on-chain check)' },
