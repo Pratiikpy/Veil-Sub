@@ -141,7 +141,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
       className="p-6 rounded-sm bg-surface-1 border border-border scroll-mt-24"
     >
       <div className="flex items-center gap-2 mb-4">
-        <FileText className="w-5 h-5 text-white/70" />
+        <FileText className="w-5 h-5 text-white/70" aria-hidden="true" />
         <h2 className="text-lg font-semibold text-white">Create Post</h2>
       </div>
 
@@ -207,7 +207,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                     className="px-2.5 rounded-xl bg-white/[0.05] border border-border text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors"
                     aria-label="Clear image"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-4 h-4" aria-hidden="true" />
                   </button>
                 )}
               </div>

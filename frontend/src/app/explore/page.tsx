@@ -113,10 +113,12 @@ export default function ExplorePage() {
   const [retryKey, setRetryKey] = useState(0)
   const [sortBy, setSortBy] = useState<'featured' | 'newest'>('featured')
   const [platformStats, setPlatformStats] = useState<{ creators: number | null; content: number | null }>({ creators: null, content: null })
+  const [platformStatsError, setPlatformStatsError] = useState(false)
 
   // Fetch platform-wide stats (total_creators, total_content mappings, key=0u8)
   useEffect(() => {
     const base = `/api/aleo/program/${encodeURIComponent(DEPLOYED_PROGRAM_ID)}/mapping`
+    setPlatformStatsError(false)
     Promise.all([
       fetch(`${base}/total_creators/0u8`).then(r => r.ok ? r.text() : null),
       fetch(`${base}/total_content/0u8`).then(r => r.ok ? r.text() : null),
@@ -127,7 +129,9 @@ export default function ExplorePage() {
         return Number.isFinite(n) ? n : null
       }
       setPlatformStats({ creators: parse(c), content: parse(p) })
-    }).catch(() => {})
+    }).catch(() => {
+      setPlatformStatsError(true)
+    })
   }, [])
 
   // Debounce search input by 400ms
@@ -207,24 +211,33 @@ export default function ExplorePage() {
           </m.div>
 
           {/* Platform Stats Bar */}
-          {(platformStats.creators !== null || platformStats.content !== null) && (
+          {(platformStats.creators !== null || platformStats.content !== null || platformStatsError) && (
             <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.05 }}
               className="flex items-center justify-center gap-6 mb-8"
             >
-              {platformStats.creators !== null && (
-                <div className="flex items-center gap-1.5 text-xs text-white/60">
-                  <Users className="w-3.5 h-3.5 text-violet-400" />
-                  <span className="text-white font-medium tabular-nums">{platformStats.creators}</span> registered creator{platformStats.creators !== 1 ? 's' : ''}
+              {platformStatsError ? (
+                <div className="flex items-center gap-1.5 text-xs text-amber-400/80">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  <span>On-chain stats unavailable</span>
                 </div>
-              )}
-              {platformStats.content !== null && (
-                <div className="flex items-center gap-1.5 text-xs text-white/60">
-                  <Shield className="w-3.5 h-3.5 text-green-400" />
-                  <span className="text-white font-medium tabular-nums">{platformStats.content}</span> published post{platformStats.content !== 1 ? 's' : ''}
-                </div>
+              ) : (
+                <>
+                  {platformStats.creators !== null && (
+                    <div className="flex items-center gap-1.5 text-xs text-white/60">
+                      <Users className="w-3.5 h-3.5 text-violet-400" />
+                      <span className="text-white font-medium tabular-nums">{platformStats.creators}</span> registered creator{platformStats.creators !== 1 ? 's' : ''}
+                    </div>
+                  )}
+                  {platformStats.content !== null && (
+                    <div className="flex items-center gap-1.5 text-xs text-white/60">
+                      <Shield className="w-3.5 h-3.5 text-green-400" />
+                      <span className="text-white font-medium tabular-nums">{platformStats.content}</span> published post{platformStats.content !== 1 ? 's' : ''}
+                    </div>
+                  )}
+                </>
               )}
             </m.div>
           )}

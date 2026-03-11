@@ -85,7 +85,7 @@ export default function BalanceConverter({
             onClick={handleConvert}
             className="w-full py-2.5 rounded-xl bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 btn-shimmer"
           >
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
             Convert {(convertAmount / 1_000_000).toFixed(2)} ALEO to Private
           </button>
           {error && (
@@ -97,12 +97,12 @@ export default function BalanceConverter({
         </div>
       ) : status === 'converting' ? (
         <div className="flex items-center gap-3 p-3 rounded-xl bg-violet-500/10 border border-violet-500/20 animate-pulse">
-          <Loader2 className="w-4 h-4 text-violet-400 animate-spin" />
+          <Loader2 className="w-4 h-4 text-violet-400 animate-spin" aria-hidden="true" />
           <span className="text-sm text-white/70">Approve conversion in wallet...</span>
         </div>
       ) : status === 'waiting' ? (
         <div className="flex items-center gap-3 p-3 rounded-xl bg-violet-500/10 border border-violet-500/20 animate-pulse">
-          <Loader2 className="w-4 h-4 text-violet-400 animate-spin" />
+          <Loader2 className="w-4 h-4 text-violet-400 animate-spin" aria-hidden="true" />
           <div>
             <p className="text-sm text-white/70">Converting public → private...</p>
             <p className="text-[11px] text-white/60 mt-0.5">This takes ~30-60 seconds. Will auto-continue.</p>
@@ -110,7 +110,7 @@ export default function BalanceConverter({
         </div>
       ) : status === 'done' ? (
         <div className="flex items-center gap-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20">
-          <Check className="w-4 h-4 text-green-400" />
+          <Check className="w-4 h-4 text-green-400" aria-hidden="true" />
           <div>
             <p className="text-sm text-green-300">Conversion confirmed!</p>
             <p className="text-[11px] text-white/60 mt-0.5">Syncing records... will retry automatically.</p>

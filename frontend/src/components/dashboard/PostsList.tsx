@@ -63,7 +63,7 @@ export default function PostsList({ address }: PostsListProps) {
       className="p-6 rounded-xl bg-surface-1 border border-border"
     >
       <div className="flex items-center gap-2 mb-4">
-        <FileText className="w-5 h-5 text-violet-400" />
+        <FileText className="w-5 h-5 text-violet-400" aria-hidden="true" />
         <h2 className="text-lg font-semibold text-white">Your Posts</h2>
         <span className="text-xs text-white/60 ml-auto">{posts.length} posts</span>
       </div>

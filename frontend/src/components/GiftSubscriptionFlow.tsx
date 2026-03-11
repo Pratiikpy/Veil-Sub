@@ -112,7 +112,7 @@ export default function GiftSubscriptionFlow({
                 <h3 className="text-lg font-semibold text-white">Gift Subscription</h3>
               </div>
               <button onClick={handleClose} aria-label="Close gift modal" className="rounded-lg p-1 text-white/70 hover:bg-white/[0.1] hover:text-white active:scale-[0.9] transition-all">
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 

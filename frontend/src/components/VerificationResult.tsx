@@ -34,9 +34,9 @@ export default function VerificationResult({
           }`}
         >
           {success ? (
-            <ShieldCheck className="w-5 h-5 text-green-400" />
+            <ShieldCheck className="w-5 h-5 text-green-400" aria-hidden="true" />
           ) : (
-            <X className="w-5 h-5 text-red-400" />
+            <X className="w-5 h-5 text-red-400" aria-hidden="true" />
           )}
         </div>
         <div>

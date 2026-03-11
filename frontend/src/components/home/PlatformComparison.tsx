@@ -70,7 +70,7 @@ export default function PlatformComparison() {
         {/* Desktop: Summary stat */}
         <ScrollReveal delay={0.3}>
           <div className="hidden sm:flex items-center justify-center gap-3 mt-10 py-4 px-6 rounded-2xl glass mx-auto max-w-md">
-            <Shield className="w-5 h-5 text-violet-400/60" />
+            <Shield className="w-5 h-5 text-violet-400/60" aria-hidden="true" />
             <p className="text-sm text-white/70">
               <span className="text-emerald-400 font-semibold">9 of 10</span> privacy features exclusive to VeilSub
             </p>

@@ -104,7 +104,7 @@ export default function WelcomeOverlay() {
                 aria-label="Close welcome dialog"
                 className="p-1.5 rounded-lg hover:bg-white/[0.05] text-white/60 hover:text-white active:scale-[0.9] transition-all"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 

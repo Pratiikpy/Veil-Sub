@@ -114,7 +114,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                 aria-label="Close reputation proof dialog"
                 className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 

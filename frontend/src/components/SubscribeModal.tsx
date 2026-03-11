@@ -282,7 +282,7 @@ export default function SubscribeModal({
                     </div>
                     {privacyMode === 'standard' && (
                       <p className="text-[11px] text-violet-400/80 mt-2">
-                        Your subscriber identity is linked to your wallet address.
+                        Zero-address finalize: creator sees aggregate count only, never your address.
                       </p>
                     )}
                     {privacyMode === 'blind' && (

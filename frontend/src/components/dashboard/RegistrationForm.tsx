@@ -103,7 +103,7 @@ export default function RegistrationForm({
                 id="reg-bio"
                 value={bioText}
                 onChange={(e) => setBioText(e.target.value)}
-                placeholder="Tell subscribers what you create..."
+                placeholder="What you publish (your subscriber list stays private on-chain)..."
                 maxLength={200}
                 rows={2}
                 className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300 resize-none"

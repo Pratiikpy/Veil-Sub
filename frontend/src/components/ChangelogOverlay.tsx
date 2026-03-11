@@ -117,7 +117,7 @@ export default function ChangelogOverlay() {
                   aria-label="Close changelog"
                   className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
             </div>
