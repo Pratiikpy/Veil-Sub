@@ -167,7 +167,7 @@ export default function VerifyPage() {
               animate={{ opacity: 1, y: 0 }}
               className="text-center"
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/[0.06] border border-violet-500/[0.12] mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.06] border border-violet-500/[0.12] mb-6">
                 <ShieldCheck className="w-4 h-4 text-violet-400" aria-hidden="true" />
                 <span className="text-xs font-medium tracking-wide uppercase text-violet-300">
                   BSP Zero-Footprint Verify
@@ -199,7 +199,7 @@ export default function VerifyPage() {
                 {/* Left: Demo Animation */}
                 <div className="relative">
                   <div className="absolute -inset-4 bg-gradient-to-r from-violet-500/10 to-transparent rounded-2xl blur-xl" />
-                  <div className="relative p-6 rounded-xl bg-surface-1 border border-violet-500/20">
+                  <div className="relative p-8 rounded-xl bg-surface-1 border border-violet-500/20">
                     <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
                       <Zap className="w-4 h-4 text-violet-400" aria-hidden="true" />
                       Live Demo: ZK Verification Flow
@@ -291,7 +291,7 @@ export default function VerifyPage() {
 
                     {/* Key insight - enhanced */}
                     <div className="mt-4 p-4 rounded-lg bg-gradient-to-r from-green-500/10 via-transparent to-violet-500/10 border border-green-500/20">
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-4">
                         <ShieldCheck className="w-5 h-5 text-green-400 mt-0.5 shrink-0" aria-hidden="true" />
                         <div>
                           <p className="text-sm font-semibold text-white mb-1">Zero Public Footprint</p>
@@ -343,7 +343,7 @@ export default function VerifyPage() {
               </div>
 
               {/* After Verification - Content Delivery Examples */}
-              <div className="p-6 rounded-xl bg-gradient-to-br from-green-500/5 to-transparent border border-green-500/15">
+              <div className="p-8 rounded-xl bg-gradient-to-br from-green-500/5 to-transparent border border-green-500/15">
                 <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
                   <Shield className="w-4 h-4 text-green-400" aria-hidden="true" />
                   After Verification: Content Unlocked
@@ -551,7 +551,7 @@ export default function VerifyPage() {
                       getPassStatus(selectedPass) === 'expired' ? (
                         <Link
                           href={`/creator/${selectedPass.creator}`}
-                          className="w-full py-3 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-300 font-medium hover:bg-violet-500/20 transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98]"
+                          className="w-full py-4 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-300 font-medium hover:bg-violet-500/20 transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98]"
                         >
                           <RefreshCw className="w-4 h-4" aria-hidden="true" />
                           Renew This Pass
@@ -559,7 +559,7 @@ export default function VerifyPage() {
                       ) : (
                         <button
                           onClick={() => handleVerify(selectedPass)}
-                          className="w-full py-3 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] btn-shimmer"
+                          className="w-full py-4 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] btn-shimmer"
                         >
                           <Zap className="w-4 h-4" aria-hidden="true" />
                           Verify with ZK Proof
@@ -595,7 +595,7 @@ export default function VerifyPage() {
                               {(verifyError.includes('expired') || verifyError.includes('renew')) && (
                                 <Link
                                   href={`/creator/${selectedPass.creator}`}
-                                  className="px-3 py-1.5 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-all inline-flex items-center gap-1"
+                                  className="px-4 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-all inline-flex items-center gap-1"
                                 >
                                   <RefreshCw className="w-3 h-3" aria-hidden="true" />
                                   Renew Subscription
@@ -604,7 +604,7 @@ export default function VerifyPage() {
                               {(verifyError.includes('revoked') || verifyError.includes('ERR_027')) && (
                                 <Link
                                   href={`/creator/${selectedPass.creator}`}
-                                  className="px-3 py-1.5 rounded-lg bg-white/[0.05] border border-border text-xs text-white/70 hover:bg-white/[0.08] transition-all inline-flex items-center gap-1"
+                                  className="px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/70 hover:bg-white/[0.08] transition-all inline-flex items-center gap-1"
                                 >
                                   Re-subscribe
                                 </Link>

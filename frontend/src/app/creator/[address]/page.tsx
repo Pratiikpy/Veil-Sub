@@ -701,7 +701,7 @@ export default function CreatorPage({
                   </p>
                   <p className="flex items-center gap-2 pt-1">
                     <Link href="/privacy" className="text-violet-400/70 hover:text-violet-300 transition-colors inline-flex items-center gap-1">
-                      Learn more about our privacy model
+                      See how zero-address finalize protects you
                       <ArrowRight className="w-3 h-3" aria-hidden="true" />
                     </Link>
                   </p>

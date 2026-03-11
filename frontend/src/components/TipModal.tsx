@@ -305,7 +305,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
             role="dialog"
             aria-modal="true"
             aria-label="Send a private tip"
-            className="w-full max-w-sm rounded-xl bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-sm rounded-xl bg-surface-1 border border-border shadow-2xl p-8 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
@@ -363,7 +363,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
                 {/* Reveal Phase Banner */}
                 {isRevealReady && (
-                  <div className="p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-4">
+                  <div className="p-4 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-4">
                     <p className="text-xs text-violet-300 font-medium mb-1">Phase 2: Reveal Your Tip</p>
                     <p className="text-[11px] text-white/70">
                       Your commitment is on-chain. Click below to reveal {formatCredits(savedAmount)} ALEO
@@ -449,7 +449,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                 </div>
 
                 {error && (
-                  <div role="alert" className="p-3 rounded-xl bg-red-500/10 border border-red-500/15 mb-4">
+                  <div role="alert" className="p-4 rounded-xl bg-red-500/10 border border-red-500/15 mb-4">
                     <p className="text-xs text-red-400">{error}</p>
                   </div>
                 )}

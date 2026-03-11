@@ -76,7 +76,7 @@ function ScoreCard({
 }) {
   return (
     <SpotlightCard
-      className={`p-6 rounded-2xl glass transition-all duration-300 ${
+      className={`p-8 rounded-2xl glass transition-all duration-300 ${
         highlight ? 'glass-accent ring-1 ring-violet-500/20' : ''
       }`}
     >
@@ -147,7 +147,7 @@ export default function PlatformComparison() {
           <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {PRIVACY_FEATURES.map((row) => (
               <m.div key={row.feature} variants={staggerItemVariants}>
-                <SpotlightCard className="p-5 rounded-2xl glass-accent h-full">
+                <SpotlightCard className="p-4 rounded-2xl glass-accent h-full">
                   <p className="text-sm font-medium text-white mb-4 leading-snug">{row.feature}</p>
                   <div className="grid grid-cols-3 gap-4 text-center">
                     {[
@@ -182,7 +182,7 @@ export default function PlatformComparison() {
           <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {FEATURE_PARITY.map((row) => (
               <m.div key={row.feature} variants={staggerItemVariants}>
-                <SpotlightCard className="p-5 rounded-2xl glass">
+                <SpotlightCard className="p-4 rounded-2xl glass">
                   <p className="text-sm font-medium text-white mb-4">{row.feature}</p>
                   <div className="grid grid-cols-3 gap-4 text-center">
                     {[
@@ -224,15 +224,15 @@ export default function PlatformComparison() {
         {/* Summary Stats */}
         <ScrollReveal delay={0.5}>
           <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            <div className="p-6 rounded-2xl glass text-center">
+            <div className="p-8 rounded-2xl glass text-center">
               <div className="text-3xl font-bold text-emerald-400 mb-2">7</div>
               <p className="text-xs text-white/60">Exclusive privacy features</p>
             </div>
-            <div className="p-6 rounded-2xl glass text-center">
+            <div className="p-8 rounded-2xl glass text-center">
               <div className="text-3xl font-bold text-violet-400 mb-2">100%</div>
               <p className="text-xs text-white/60">On-chain verification</p>
             </div>
-            <div className="p-6 rounded-2xl glass text-center">
+            <div className="p-8 rounded-2xl glass text-center">
               <div className="text-3xl font-bold text-emerald-400 mb-2">50%</div>
               <p className="text-xs text-white/60">Lower fees than competitors</p>
             </div>

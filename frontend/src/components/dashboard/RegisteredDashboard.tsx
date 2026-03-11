@@ -286,7 +286,7 @@ export default function RegisteredDashboard({
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 }}
-                className="p-6 rounded-2xl bg-gradient-to-br from-violet-600/10 via-violet-500/5 to-transparent border border-violet-500/20 relative overflow-hidden"
+                className="p-8 rounded-2xl bg-gradient-to-br from-violet-600/10 via-violet-500/5 to-transparent border border-violet-500/20 relative overflow-hidden"
               >
                 {/* Confetti on 4/4 completion */}
                 {showConfetti && <CelebrationBurst color="bg-green-400" />}
@@ -314,7 +314,7 @@ export default function RegisteredDashboard({
                               All Set!
                             </>
                           ) : (
-                            'Welcome to VeilSub!'
+                            'Your Profile is Live!'
                           )}
                         </h2>
                         <p className="text-sm text-white/60">
@@ -354,7 +354,7 @@ export default function RegisteredDashboard({
                 })()}
 
                 {/* Steps Grid */}
-                <div className="grid sm:grid-cols-2 gap-3">
+                <div className="grid sm:grid-cols-2 gap-4">
                   {[
                     {
                       done: true,
@@ -396,7 +396,7 @@ export default function RegisteredDashboard({
                             : 'bg-white/[0.03] border-border hover:border-violet-500/20'
                         }`}
                       >
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-start gap-4">
                           <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${
                             step.done ? 'bg-green-500/15 ring-1 ring-green-500/20' : 'bg-violet-500/10 ring-1 ring-violet-500/15'
                           }`}>
@@ -414,7 +414,7 @@ export default function RegisteredDashboard({
                             {!step.done && step.action && (
                               <button
                                 onClick={step.action}
-                                className="mt-2 px-3 py-1.5 rounded-lg bg-violet-500/15 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/25 transition-all"
+                                className="mt-2 px-4 py-2 rounded-lg bg-violet-500/15 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/25 transition-all"
                               >
                                 {step.actionLabel}
                               </button>
@@ -422,7 +422,7 @@ export default function RegisteredDashboard({
                             {!step.done && 'tabSwitch' in step && step.tabSwitch && (
                               <button
                                 onClick={() => setActiveTab(step.tabSwitch as TabId)}
-                                className="mt-2 px-3 py-1.5 rounded-lg bg-violet-500/15 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/25 transition-all"
+                                className="mt-2 px-4 py-2 rounded-lg bg-violet-500/15 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/25 transition-all"
                               >
                                 Go to Content
                               </button>
@@ -504,12 +504,12 @@ export default function RegisteredDashboard({
                 <Shield className="w-4 h-4 text-green-400" aria-hidden="true" />
                 <h3 className="text-sm font-medium text-green-300">Verified On-Chain</h3>
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-4">
                 <a
                   href={`https://testnet.explorer.provable.com/program/${DEPLOYED_PROGRAM_ID}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-border text-xs text-white hover:text-white hover:border-green-500/30 transition-all"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.03] border border-border text-xs text-white hover:text-white hover:border-green-500/30 transition-all"
                 >
                   <ExternalLink className="w-3 h-3" aria-hidden="true" />
                   View on Provable Explorer
@@ -518,7 +518,7 @@ export default function RegisteredDashboard({
                   href={`https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-border text-xs text-white hover:text-white hover:border-green-500/30 transition-all"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.03] border border-border text-xs text-white hover:text-white hover:border-green-500/30 transition-all"
                 >
                   <ExternalLink className="w-3 h-3" aria-hidden="true" />
                   View on Aleoscan
@@ -527,7 +527,7 @@ export default function RegisteredDashboard({
                   href={`https://testnet.explorer.provable.com/program/${DEPLOYED_PROGRAM_ID}/mapping/tier_prices/${publicKey}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-border text-xs text-white hover:text-white hover:border-green-500/30 transition-all"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.03] border border-border text-xs text-white hover:text-white hover:border-green-500/30 transition-all"
                 >
                   <ExternalLink className="w-3 h-3" aria-hidden="true" />
                   Your tier_prices mapping
@@ -579,7 +579,7 @@ export default function RegisteredDashboard({
               <h2 className="text-lg font-semibold text-white mb-3">
                 How VeilSub Content Gating Works
               </h2>
-              <div className="space-y-3 text-sm text-white/70">
+              <div className="space-y-4 text-sm text-white/70">
                 <p>
                   Subscribers receive a private <strong className="text-white">AccessPass</strong> record
                   in their wallet with an expiry of ~30 days (259,200 blocks). This record proves they have access via BSP
@@ -614,7 +614,7 @@ export default function RegisteredDashboard({
               transition={{ delay: 0.2 }}
               className="p-4 rounded-xl bg-surface-1 border border-border"
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-4">
                 <Lock className="w-5 h-5 text-green-400 mt-0.5 shrink-0" />
                 <div>
                   <p className="text-sm text-green-300 font-medium mb-1">
@@ -656,7 +656,7 @@ export default function RegisteredDashboard({
                 <span className="text-xs text-white/60">All values verified on-chain</span>
               </div>
 
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 {[
                   { label: 'Subscribers', value: stats?.subscriberCount ?? 0, suffix: '' },
                   { label: 'Total Revenue', value: stats?.totalRevenue ? formatCredits(stats.totalRevenue) : '0', suffix: 'ALEO' },
@@ -692,7 +692,7 @@ export default function RegisteredDashboard({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
               >
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-4 mb-4">
                   <h2 className="text-lg font-semibold text-white">
                     Your Tier Pricing
                   </h2>
@@ -700,7 +700,7 @@ export default function RegisteredDashboard({
                     <span className="text-xs text-green-400/80">Custom prices active</span>
                   )}
                 </div>
-                <div className="grid sm:grid-cols-3 gap-3">
+                <div className="grid sm:grid-cols-3 gap-4">
                   {TIERS.map((tier) => {
                     const custom = creatorTiers[tier.id]
                     const tierPrice = custom ? custom.price : (stats?.tierPrice ?? 0) * tier.priceMultiplier
@@ -775,7 +775,7 @@ export default function RegisteredDashboard({
             <m.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-5 rounded-xl bg-surface-1 border border-border"
+              className="p-4 rounded-xl bg-surface-1 border border-border"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -790,7 +790,7 @@ export default function RegisteredDashboard({
                 </div>
                 <button
                   onClick={() => setShowTierDialog(true)}
-                  className="px-3 py-1.5 rounded-lg bg-white text-xs font-medium text-black hover:bg-white/90 transition-all duration-300 active:scale-[0.98]"
+                  className="px-4 py-2 rounded-lg bg-white text-xs font-medium text-black hover:bg-white/90 transition-all duration-300 active:scale-[0.98]"
                 >
                   + New Tier
                 </button>
@@ -806,7 +806,7 @@ export default function RegisteredDashboard({
                     const colors = id === 3 ? 'border-violet-500/20 bg-violet-500/5' : id === 2 ? 'border-blue-500/20 bg-blue-500/5' : 'border-green-500/20 bg-green-500/5'
                     const textColor = id === 3 ? 'text-violet-300' : id === 2 ? 'text-blue-300' : 'text-green-300'
                     return (
-                      <div key={id} className={`p-3 rounded-lg border text-center ${colors}`}>
+                      <div key={id} className={`p-4 rounded-lg border text-center ${colors}`}>
                         <p className={`text-xs font-medium ${textColor}`}>{tier.name}</p>
                         <p className="text-sm font-bold text-white mt-0.5">{formatCredits(tier.price)} <span className="text-[10px] font-normal text-white/60">ALEO</span></p>
                       </div>
@@ -814,7 +814,7 @@ export default function RegisteredDashboard({
                   })
                 ) : (
                   [{id: 1, name: 'Supporter', mult: '1x'}, {id: 2, name: 'Premium', mult: '2x'}, {id: 3, name: 'VIP', mult: '5x'}].map((t) => (
-                    <div key={t.id} className="p-3 rounded-lg bg-white/[0.03] border border-border text-center">
+                    <div key={t.id} className="p-4 rounded-lg bg-white/[0.03] border border-border text-center">
                       <p className="text-xs font-medium text-white">{t.name}</p>
                       <p className="text-[10px] text-white/60">Default {t.mult} base</p>
                     </div>
@@ -828,7 +828,7 @@ export default function RegisteredDashboard({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 }}
-              className="p-5 rounded-xl bg-surface-1 border border-border"
+              className="p-4 rounded-xl bg-surface-1 border border-border"
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -837,7 +837,7 @@ export default function RegisteredDashboard({
                 </div>
                 <button
                   onClick={() => setShowProveThreshold(true)}
-                  className="px-3 py-1.5 rounded-lg bg-white text-xs font-medium text-black hover:bg-white/90 transition-all duration-300 active:scale-[0.98]"
+                  className="px-4 py-2 rounded-lg bg-white text-xs font-medium text-black hover:bg-white/90 transition-all duration-300 active:scale-[0.98]"
                 >
                   Generate Proof
                 </button>
@@ -847,11 +847,11 @@ export default function RegisteredDashboard({
                 Uses prove_subscriber_threshold on-chain — third parties see only that the proof succeeded.
               </p>
               <div className="flex gap-2">
-                <div className="flex-1 p-3 rounded-lg bg-white/[0.03] border border-border">
+                <div className="flex-1 p-4 rounded-lg bg-white/[0.03] border border-border">
                   <p className="text-[10px] text-white/60 uppercase tracking-wider mb-0.5">Current Subscribers</p>
                   <p className="text-lg font-bold text-white tabular-nums">{stats?.subscriberCount ?? 0}</p>
                 </div>
-                <div className="flex-1 p-3 rounded-lg bg-violet-500/[0.04] border border-violet-500/10">
+                <div className="flex-1 p-4 rounded-lg bg-violet-500/[0.04] border border-violet-500/10">
                   <p className="text-[10px] text-violet-300/70 uppercase tracking-wider mb-0.5">Privacy Benefit</p>
                   <p className="text-xs text-white/70">Prove &quot;at least N&quot; without revealing exact count</p>
                 </div>
@@ -863,7 +863,7 @@ export default function RegisteredDashboard({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="p-5 rounded-xl bg-surface-1 border border-border"
+              className="p-4 rounded-xl bg-surface-1 border border-border"
             >
               <div className="flex items-center gap-2 mb-3">
                 <Percent className="w-5 h-5 text-green-400" aria-hidden="true" />

@@ -201,7 +201,7 @@ export const SEED_CONTENT: SeedContent[] = [
   {
     id: 'seed-3',
     title: 'VIP Lounge: Ask Me Anything',
-    body: 'Welcome to the inner circle. VIP members get direct access — submit questions for our weekly AMA, request custom content topics, and get priority responses. This month\'s spotlight: advanced Leo patterns for privacy-preserving DeFi.',
+    body: 'VIP tier unlocks encrypted AMA access, custom content requests, and priority responses—all while your identity stays hidden via zero-address finalize. This month\'s spotlight: advanced Leo patterns for privacy-preserving DeFi on Aleo.',
     preview: 'Direct access to weekly AMAs, custom content requests, and priority responses...',
     minTier: 3,
     createdAt: '2026-02-05T09:00:00Z',

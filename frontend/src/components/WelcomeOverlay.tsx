@@ -71,7 +71,7 @@ export default function WelcomeOverlay() {
                   <Shield className="w-5 h-5 text-violet-400" aria-hidden="true" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-white">Welcome to VeilSub v27</h3>
+                  <h3 className="text-sm font-semibold text-white">Zero-Footprint Subscriptions</h3>
                   <p className="text-xs text-white/60">Privacy-first creator subscriptions on Aleo</p>
                 </div>
               </div>

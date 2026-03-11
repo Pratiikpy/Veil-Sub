@@ -179,7 +179,7 @@ export default function SubscribeModal({
             role="dialog"
             aria-modal="true"
             aria-label="Subscribe to creator"
-            className="w-full max-w-md rounded-xl bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-md rounded-xl bg-surface-1 border border-border shadow-2xl p-8 max-h-[90vh] overflow-y-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
@@ -225,7 +225,7 @@ export default function SubscribeModal({
                 </div>
 
                 {/* Fee Breakdown */}
-                <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4">
+                <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
                   <div className="text-xs text-white/60 space-y-1">
                     <div className="flex justify-between">
                       <span>Creator ({100 - PLATFORM_FEE_PCT}%)</span>
@@ -255,7 +255,7 @@ export default function SubscribeModal({
                 </div>
 
                 {/* Privacy Mode Selector */}
-                <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4">
+                <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
                     <p className="text-xs text-white/60 mb-2 font-medium">Privacy Level</p>
                     <div ref={privacyGroupRef} className="grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="Privacy level">
                       {([
@@ -298,7 +298,7 @@ export default function SubscribeModal({
                 </div>
 
                 {/* Privacy Notice */}
-                <div className="p-3 rounded-xl bg-surface-2 border border-border mb-6 space-y-1.5">
+                <div className="p-4 rounded-xl bg-surface-2 border border-border mb-6 space-y-1.5">
                   <p className="text-xs text-green-400 font-medium">Zero-Knowledge Privacy</p>
                   <ul className="text-[11px] text-green-400/80 space-y-1 list-none">
                     <li>Your address is never published on-chain</li>
@@ -311,7 +311,7 @@ export default function SubscribeModal({
                 </div>
 
                 {error && (
-                  <div role="alert" className="p-3 rounded-xl bg-red-500/10 border border-red-500/15 mb-4">
+                  <div role="alert" className="p-4 rounded-xl bg-red-500/10 border border-red-500/15 mb-4">
                     <p className="text-xs text-red-400">{error}</p>
                   </div>
                 )}
