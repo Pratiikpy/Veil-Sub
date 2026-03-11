@@ -268,8 +268,7 @@ export default function ExplorePage() {
               Explore Creators
             </h1>
             <p className="text-lg text-white/70 max-w-lg mx-auto">
-              Discover creators on VeilSub and subscribe via BSP—your wallet never enters
-              finalize, your AccessPass proves membership without identity. Gift subscriptions privately to friends.
+              Discover creators on VeilSub and subscribe via BSP—your wallet never enters finalize, your AccessPass proves membership without identity. Gift subscriptions privately to friends.
             </p>
           </m.div>
 
@@ -494,7 +493,7 @@ export default function ExplorePage() {
               <p className="text-sm text-white/60 mb-6 max-w-sm mx-auto">
                 {search
                   ? 'Try a different search term, or paste a full aleo1... address above to go directly to any creator page.'
-                  : 'Be the first to register as a creator on VeilSub!'}
+                  : 'Be the first creator to offer private subscription tiers—only VeilSub hides subscriber identity from the blockchain.'}
               </p>
               <div className="flex items-center justify-center gap-3 flex-wrap">
                 {search ? (

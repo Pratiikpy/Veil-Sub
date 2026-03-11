@@ -310,7 +310,7 @@ export default function VerifyPage() {
                     Connect Wallet to Verify
                   </h2>
                   <p className="text-white/70 text-sm mb-6 text-center">
-                    Connect your wallet to view your AccessPasses and generate zero-knowledge proofs.
+                    Connect to view AccessPasses. verify_access proves subscription validity without revealing your address—finalize only checks pass_id, not who owns it.
                   </p>
 
                   {/* What gets verified */}
@@ -337,7 +337,7 @@ export default function VerifyPage() {
               </div>
 
               <p className="text-xs text-white/60 text-center">
-                Scroll down to use the On-Chain Explorer without connecting a wallet.
+                Scroll down to explore on-chain verification without connecting—see how subscriber proofs stay off public state.
               </p>
             </m.div>
           ) : (

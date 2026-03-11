@@ -90,7 +90,16 @@ export default function TransactionProgress({ currentStep, error }: Props) {
   const estimatedRemaining = useMemo(() => {
     if (!currentStepDef) return null
     const remaining = currentStepDef.estimatedSeconds - elapsed
-    if (remaining <= 0) return null
+    if (remaining <= 0) {
+      // Proof is taking longer than estimated - show reassurance
+      if (currentStepDef.key === 'proving') {
+        if (elapsed >= 120) {
+          return 'Still computing... (this is normal for complex proofs)'
+        }
+        return 'Still generating proof...'
+      }
+      return null
+    }
     if (remaining >= 60) {
       const m = Math.floor(remaining / 60)
       const s = remaining % 60
@@ -359,11 +368,24 @@ export default function TransactionProgress({ currentStep, error }: Props) {
         <m.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
-          className="mt-4 flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20"
+          className="mt-4 space-y-2"
         >
-          <span className="text-amber-400 text-[11px] font-medium">
-            Do not close this tab while your ZK proof is being generated.
-          </span>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+            <span className="text-amber-400 text-[11px] font-medium">
+              Do not close this tab while your ZK proof is being generated.
+            </span>
+          </div>
+          {currentStep === 'proving' && elapsed >= 90 && (
+            <m.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="px-3 py-2 rounded-lg bg-white/5 border border-white/10"
+            >
+              <p className="text-[11px] text-white/50">
+                ZK proofs can take 1-2 minutes depending on your device. If stuck beyond 3 minutes, try refreshing and retrying.
+              </p>
+            </m.div>
+          )}
         </m.div>
       )}
     </div>

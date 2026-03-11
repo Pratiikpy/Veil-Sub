@@ -20,6 +20,7 @@ import {
   BarChart3,
   Database,
   Loader2,
+  Sparkles,
 } from 'lucide-react'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { formatCredits, isValidAleoAddress, shortenAddress } from '@/lib/utils'
@@ -127,7 +128,7 @@ function QuickMappingQueries() {
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({})
   const [errorMap, setErrorMap] = useState<Record<string, boolean>>({})
   const [autoQueried, setAutoQueried] = useState(false)
-  const [demoMode, setDemoMode] = useState(false)
+  const [demoMode, setDemoMode] = useState(true)
 
   const queryMapping = async (mapping: string, key: string) => {
     setLoadingMap(prev => ({ ...prev, [mapping]: true }))
@@ -200,13 +201,14 @@ function QuickMappingQueries() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setDemoMode(!demoMode)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
               demoMode
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.15)]'
                 : 'bg-white/[0.05] text-white/60 border border-white/10 hover:bg-white/[0.08]'
             }`}
           >
-            {demoMode ? 'Demo Mode ON' : 'Show Demo'}
+            <Sparkles className={`w-3 h-3 ${demoMode ? 'text-amber-400' : ''}`} aria-hidden="true" />
+            {demoMode ? 'Demo Data ON' : 'Show Demo Data'}
           </button>
           <button
             onClick={queryAll}

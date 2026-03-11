@@ -213,7 +213,7 @@ export default function AnalyticsPage() {
                 </div>
                 <span className="text-xs text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">+35% this wave</span>
               </div>
-              <div className="flex items-end justify-between gap-2 h-32 mb-4">
+              <div className="flex items-end justify-between gap-2 h-48 mb-4">
                 {ACTIVITY_DATA.map((week, i) => {
                   const maxSubs = Math.max(...ACTIVITY_DATA.map(w => w.subscriptions))
                   const height = (week.subscriptions / maxSubs) * 100
@@ -262,12 +262,12 @@ export default function AnalyticsPage() {
                       <span className="text-white/80">{tier.name}</span>
                       <span className="text-white font-medium">{tier.value}%</span>
                     </div>
-                    <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-6 bg-white/5 rounded-lg overflow-hidden">
                       <m.div
                         initial={{ width: 0 }}
                         animate={{ width: `${tier.value}%` }}
                         transition={{ delay: 0.3 + i * 0.1, duration: 0.6, ease: 'easeOut' }}
-                        className={`h-full ${tier.color} rounded-full`}
+                        className={`h-full ${tier.color} rounded-lg shadow-lg`}
                       />
                     </div>
                   </m.div>
