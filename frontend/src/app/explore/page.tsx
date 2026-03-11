@@ -79,7 +79,7 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
         )}
         {/* On-chain stats */}
         {stats && stats.tierPrice !== null && (
-          <div className="flex gap-4 text-xs text-white/60 mb-3">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/60 mb-3">
             <span className="flex items-center gap-1">
               <Users className="w-3 h-3" aria-hidden="true" />
               {stats.subscriberCount} subscriber{stats.subscriberCount !== 1 ? 's' : ''}
@@ -87,6 +87,10 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
             <span className="flex items-center gap-1">
               <Coins className="w-3 h-3" aria-hidden="true" />
               from {formatCredits(stats.tierPrice)} ALEO
+            </span>
+            <span className="flex items-center gap-1 text-green-400/80">
+              <Shield className="w-3 h-3" aria-hidden="true" />
+              BSP zero-footprint
             </span>
           </div>
         )}

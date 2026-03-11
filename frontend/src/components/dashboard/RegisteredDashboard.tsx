@@ -283,7 +283,7 @@ export default function RegisteredDashboard({
                     {
                       done: (stats?.contentCount ?? 0) > 0,
                       label: 'Publish your first post',
-                      detail: 'Create AccessPass-gated content for subscribers',
+                      detail: 'Publish tier-gated content—subscribers prove access via verify_access with zero finalize footprint',
                       tabSwitch: 'content' as TabId,
                     },
                     {
@@ -372,12 +372,12 @@ export default function RegisteredDashboard({
                 Copy a ready-made message to share on social media or messaging apps.
               </p>
               <ShareText
-                text={`Support me privately on VeilSub — no one will know you subscribed. Powered by Aleo zero-knowledge proofs.\n${creatorLink || `/creator/${publicKey}`}`}
+                text={`Support me on VeilSub — your AccessPass proves membership via BSP without revealing your identity to the creator or platform.\n${creatorLink || `/creator/${publicKey}`}`}
               />
               <div className="mt-4 pt-4 border-t border-border/75">
                 <p className="text-xs text-violet-300 font-medium mb-2">Direct Link</p>
                 <p className="text-[11px] text-white/60 mb-2">
-                  Share your creator page link. Subscribers pay privately via credits.aleo/transfer_private — you receive a CreatorReceipt record but cannot identify individual subscribers (zero-address finalize).
+                  Share your creator page link. Subscribers pay via credits.aleo/transfer_private—you receive aggregate revenue in total_revenue[Poseidon2(your_address)] but cannot identify individual subscribers (BSP zero-address finalize).
                 </p>
                 <ShareText
                   text={`${creatorLink || `/creator/${publicKey}`}`}

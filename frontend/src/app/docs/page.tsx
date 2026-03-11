@@ -266,164 +266,174 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-white mb-3">Transitions</h3>
-        <div className="space-y-3">
-          {[
-            {
-              name: 'register_creator(price: u64)',
-              type: 'async',
-              desc: 'Creator sets tier price and initializes counters. Price is in microcredits (1 ALEO = 1,000,000).',
-            },
-            {
-              name: 'subscribe(payment, creator, tier, amount, pass_id)',
-              type: 'async',
-              desc: 'Pay with private credits, get a private AccessPass. Finalize enforces tier-based pricing via creator_tiers mapping. Subscriber identity never enters finalize.',
-            },
-            {
-              name: 'verify_access(pass, creator)',
-              type: 'async',
-              desc: 'Consume and re-create AccessPass to prove access. Finalize checks revocation and expiry (v24+) via pass_id and expires_at—subscriber address never reaches public state.',
-            },
-            {
-              name: 'tip(payment, creator, amount)',
-              type: 'async',
-              desc: 'Private tip to creator. Only aggregate revenue updated. Tipper identity stays private.',
-            },
-            {
-              name: 'renew(old_pass, payment, new_tier, amount, pass_id, expires_at)',
-              type: 'async',
-              desc: 'Consumes expired (or active) pass, pays again, and creates a new AccessPass with extended expiry. Allows tier changes. Revenue updated, subscriber_count NOT incremented (renewal, not new sub).',
-            },
-            {
-              name: 'publish_content(content_id, min_tier)',
-              type: 'async',
-              desc: 'Creator publishes content metadata on-chain. Records content existence and minimum tier required for access. Content body stays off-chain—only tier-gating is enforced on-chain.',
-            },
-            {
-              name: 'create_custom_tier(tier_id, price, name_hash)',
-              type: 'async',
-              desc: 'Creator dynamically creates custom tiers (replaces hardcoded 1x/2x/5x). Stores tier metadata in creator_tiers mapping via Poseidon2(caller + tier_id). Enables unlimited tier flexibility.',
-            },
-            {
-              name: 'update_tier_price(creator, tier_id, new_price)',
-              type: 'async',
-              desc: 'Update the price of an existing custom tier. Price changes apply only to new subscriptions.',
-            },
-            {
-              name: 'deprecate_tier(creator, tier_id)',
-              type: 'async',
-              desc: 'Mark a tier as deprecated—prevents new subscriptions, but existing subscribers retain access.',
-            },
-            {
-              name: 'update_content(content_id, new_min_tier)',
-              type: 'async',
-              desc: 'Creator updates the tier requirement for published content. Does not delete—only updates access level.',
-            },
-            {
-              name: 'delete_content(content_id)',
-              type: 'async',
-              desc: 'Creator marks content as deleted on-chain. Records proof of deletion in content_deleted mapping.',
-            },
-            {
-              name: 'gift_subscription(payment, creator, recipient, tier, amount, gift_id, expires_at)',
-              type: 'async',
-              desc: 'Gift a subscription to another address. Transfers credits, creates GiftToken for recipient. Records gift in gift_issued mapping keyed by gift_id.',
-            },
-            {
-              name: 'redeem_gift(gift_token)',
-              type: 'async',
-              desc: 'Recipient redeems a GiftToken to receive an AccessPass. Records redemption in gift_redeemed mapping.',
-            },
-            {
-              name: 'withdraw_platform_fees()',
-              type: 'async',
-              desc: 'Platform owner withdraws accumulated platform fees from all subscriptions.',
-            },
-            {
-              name: 'withdraw_creator_rev(amount)',
-              type: 'async',
-              desc: 'Creator withdraws accumulated subscription revenue (decrements total_revenue mapping).',
-            },
-            {
-              name: 'subscribe_blind(payment, creator, tier_id, amount, nonce)',
-              type: 'async',
-              desc: 'Subscribe using nonce-based blinding—generates blind subscriber hash. Prevents subscription pattern tracking.',
-            },
-            {
-              name: 'renew_blind(old_pass, payment, new_tier_id, amount, nonce)',
-              type: 'async',
-              desc: 'Renew subscription with new nonce—each renewal uses unique nonce, preventing creator from tracking renewal patterns.',
-            },
-            {
-              name: 'verify_tier_access(pass, creator, required_tier)',
-              type: 'async',
-              desc: 'Verify that AccessPass grants access to required_tier without revealing subscriber identity or full tier.',
-            },
-            {
-              name: 'publish_encrypted_content(content_id, min_tier, encryption_commitment)',
-              type: 'async',
-              desc: 'Publish content with encryption commitment on-chain. Proves encryption without revealing content body.',
-            },
-            {
-              name: 'revoke_access(pass_id)',
-              type: 'async',
-              desc: 'Creator revokes an AccessPass (e.g., for ToS violation). Only affects that specific pass.',
-            },
-            {
-              name: 'dispute_content(content_id, reason_hash)',
-              type: 'async',
-              desc: 'Subscriber disputes content quality/copyright. Creates dispute record for platform review.',
-            },
-            {
-              name: 'transfer_pass(pass, recipient)',
-              type: 'async',
-              desc: 'Transfer an AccessPass to another address. The original pass is consumed and a new one is created for the recipient. Checks revocation before allowing transfer.',
-            },
-            {
-              name: 'commit_tip(creator, amount, salt)',
-              type: 'async',
-              desc: 'Phase 1 of commit-reveal tipping. Commits to a tip amount using BHP256 commitment scheme. The tip value is hidden on-chain until voluntary reveal.',
-            },
-            {
-              name: 'reveal_tip(payment, creator, amount, salt)',
-              type: 'async',
-              desc: 'Phase 2—reveals the committed tip and executes the transfer. Recomputes the commitment, verifies it matches, then transfers credits to the creator.',
-            },
-            {
-              name: 'create_audit_token(pass, verifier, scope_mask)',
-              type: 'sync',
-              desc: 'v27: Creates a scoped AuditToken for third-party verification. scope_mask bitfield controls which fields the verifier can see (bit 0=creator, 1=tier, 2=expiry, 3=subscriber). Zero finalize footprint.',
-            },
-            {
-              name: 'prove_subscriber_threshold(threshold)',
-              type: 'async',
-              desc: 'v25: Privacy-preserving reputation proof. Proves a creator has at least N subscribers without revealing exact count. Uses Poseidon2 creator hash.',
-            },
-            {
-              name: 'subscribe_trial(payment, creator, tier, amount, pass_id, expires_at)',
-              type: 'async',
-              desc: 'Ephemeral trial at 20% of tier price, ~12hr/1000 blocks. v27 adds one-per-creator rate limiting via trial_used mapping. Creates AccessPass with privacy_level=2.',
-            },
-          ].map((t) => (
-            <div
-              key={t.name}
-              className="p-4 rounded-xl bg-surface-1 border border-border"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <code className="text-sm text-white/70 font-mono">{t.name}</code>
-                <span
-                  className={`px-2 py-0.5 rounded-full text-xs ${
-                    t.type === 'async'
-                      ? 'bg-blue-500/10 text-blue-300 border border-blue-500/20'
-                      : 'bg-green-500/10 text-green-300 border border-green-500/20'
-                  }`}
-                >
-                  {t.type}
-                </span>
+        <h3 className="text-xl font-semibold text-white mb-3">Transitions (27 Total)</h3>
+        <p className="text-sm text-white/60 mb-4">Grouped by feature area for easier navigation.</p>
+
+        {/* Subscription Core */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="px-2 py-1 rounded-lg bg-violet-500/10 text-xs font-medium text-violet-300">Subscription Core</span>
+            <span className="text-xs text-white/50">6 transitions</span>
+          </div>
+          <div className="space-y-3">
+            {[
+              { name: 'register_creator(price: u64)', type: 'async', desc: 'Creator sets tier price and initializes counters. Price is in microcredits (1 ALEO = 1,000,000).' },
+              { name: 'subscribe(payment, creator, tier, amount, pass_id)', type: 'async', desc: 'Pay with private credits, get a private AccessPass. Finalize enforces tier-based pricing via creator_tiers mapping. Subscriber identity never enters finalize.' },
+              { name: 'renew(old_pass, payment, new_tier, amount, pass_id, expires_at)', type: 'async', desc: 'Consumes expired (or active) pass, pays again, and creates a new AccessPass with extended expiry. Allows tier changes. Revenue updated, subscriber_count NOT incremented (renewal, not new sub).' },
+              { name: 'verify_access(pass, creator)', type: 'async', desc: 'Consume and re-create AccessPass to prove access. Finalize checks revocation and expiry (v24+) via pass_id and expires_at—subscriber address never reaches public state.' },
+              { name: 'verify_tier_access(pass, creator, required_tier)', type: 'async', desc: 'Verify that AccessPass grants access to required_tier without revealing subscriber identity or full tier.' },
+              { name: 'subscribe_trial(payment, creator, tier, amount, pass_id, expires_at)', type: 'async', desc: 'Ephemeral trial at 20% of tier price, ~12hr/1000 blocks. v27 adds one-per-creator rate limiting via trial_used mapping. Creates AccessPass with privacy_level=2.' },
+            ].map((t) => (
+              <div key={t.name} className="p-4 rounded-xl bg-surface-1 border border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <code className="text-sm text-white/70 font-mono">{t.name}</code>
+                  <span className={`px-2 py-0.5 rounded-full text-xs ${t.type === 'async' ? 'bg-blue-500/10 text-blue-300 border border-blue-500/20' : 'bg-green-500/10 text-green-300 border border-green-500/20'}`}>{t.type}</span>
+                </div>
+                <p className="text-sm text-white/70">{t.desc}</p>
               </div>
-              <p className="text-sm text-white/70">{t.desc}</p>
-            </div>
-          ))}
+            ))}
+          </div>
+        </div>
+
+        {/* Privacy & BSP */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="px-2 py-1 rounded-lg bg-green-500/10 text-xs font-medium text-green-300">Privacy & BSP</span>
+            <span className="text-xs text-white/50">4 transitions</span>
+          </div>
+          <div className="space-y-3">
+            {[
+              { name: 'subscribe_blind(payment, creator, tier_id, amount, nonce)', type: 'async', desc: 'Subscribe using nonce-based blinding—generates blind subscriber hash. Prevents subscription pattern tracking.' },
+              { name: 'renew_blind(old_pass, payment, new_tier_id, amount, nonce)', type: 'async', desc: 'Renew subscription with new nonce—each renewal uses unique nonce, preventing creator from tracking renewal patterns.' },
+              { name: 'create_audit_token(pass, verifier, scope_mask)', type: 'sync', desc: 'v27: Creates a scoped AuditToken for third-party verification. scope_mask bitfield controls which fields the verifier can see (bit 0=creator, 1=tier, 2=expiry, 3=subscriber). Zero finalize footprint.' },
+              { name: 'prove_subscriber_threshold(threshold)', type: 'async', desc: 'v25: Privacy-preserving reputation proof. Proves a creator has at least N subscribers without revealing exact count. Uses Poseidon2 creator hash.' },
+            ].map((t) => (
+              <div key={t.name} className="p-4 rounded-xl bg-surface-1 border border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <code className="text-sm text-white/70 font-mono">{t.name}</code>
+                  <span className={`px-2 py-0.5 rounded-full text-xs ${t.type === 'async' ? 'bg-blue-500/10 text-blue-300 border border-blue-500/20' : 'bg-green-500/10 text-green-300 border border-green-500/20'}`}>{t.type}</span>
+                </div>
+                <p className="text-sm text-white/70">{t.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tiers & Pricing */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="px-2 py-1 rounded-lg bg-blue-500/10 text-xs font-medium text-blue-300">Tiers & Pricing</span>
+            <span className="text-xs text-white/50">3 transitions</span>
+          </div>
+          <div className="space-y-3">
+            {[
+              { name: 'create_custom_tier(tier_id, price, name_hash)', type: 'async', desc: 'Creator dynamically creates custom tiers (replaces hardcoded 1x/2x/5x). Stores tier metadata in creator_tiers mapping via Poseidon2(caller + tier_id). Enables unlimited tier flexibility.' },
+              { name: 'update_tier_price(creator, tier_id, new_price)', type: 'async', desc: 'Update the price of an existing custom tier. Price changes apply only to new subscriptions.' },
+              { name: 'deprecate_tier(creator, tier_id)', type: 'async', desc: 'Mark a tier as deprecated—prevents new subscriptions, but existing subscribers retain access.' },
+            ].map((t) => (
+              <div key={t.name} className="p-4 rounded-xl bg-surface-1 border border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <code className="text-sm text-white/70 font-mono">{t.name}</code>
+                  <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">{t.type}</span>
+                </div>
+                <p className="text-sm text-white/70">{t.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Content Management */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="px-2 py-1 rounded-lg bg-amber-500/10 text-xs font-medium text-amber-300">Content Management</span>
+            <span className="text-xs text-white/50">5 transitions</span>
+          </div>
+          <div className="space-y-3">
+            {[
+              { name: 'publish_content(content_id, min_tier)', type: 'async', desc: 'Creator publishes content metadata on-chain. Records content existence and minimum tier required for access. Content body stays off-chain—only tier-gating is enforced on-chain.' },
+              { name: 'publish_encrypted_content(content_id, min_tier, encryption_commitment)', type: 'async', desc: 'Publish content with encryption commitment on-chain. Proves encryption without revealing content body.' },
+              { name: 'update_content(content_id, new_min_tier)', type: 'async', desc: 'Creator updates the tier requirement for published content. Does not delete—only updates access level.' },
+              { name: 'delete_content(content_id)', type: 'async', desc: 'Creator marks content as deleted on-chain. Records proof of deletion in content_deleted mapping.' },
+              { name: 'dispute_content(content_id, reason_hash)', type: 'async', desc: 'Subscriber disputes content quality/copyright. Creates dispute record for platform review.' },
+            ].map((t) => (
+              <div key={t.name} className="p-4 rounded-xl bg-surface-1 border border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <code className="text-sm text-white/70 font-mono">{t.name}</code>
+                  <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">{t.type}</span>
+                </div>
+                <p className="text-sm text-white/70">{t.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tipping */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="px-2 py-1 rounded-lg bg-pink-500/10 text-xs font-medium text-pink-300">Tipping</span>
+            <span className="text-xs text-white/50">3 transitions</span>
+          </div>
+          <div className="space-y-3">
+            {[
+              { name: 'tip(payment, creator, amount)', type: 'async', desc: 'Private tip to creator. Only aggregate revenue updated. Tipper identity stays private.' },
+              { name: 'commit_tip(creator, amount, salt)', type: 'async', desc: 'Phase 1 of commit-reveal tipping. Commits to a tip amount using BHP256 commitment scheme. The tip value is hidden on-chain until voluntary reveal.' },
+              { name: 'reveal_tip(payment, creator, amount, salt)', type: 'async', desc: 'Phase 2—reveals the committed tip and executes the transfer. Recomputes the commitment, verifies it matches, then transfers credits to the creator.' },
+            ].map((t) => (
+              <div key={t.name} className="p-4 rounded-xl bg-surface-1 border border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <code className="text-sm text-white/70 font-mono">{t.name}</code>
+                  <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">{t.type}</span>
+                </div>
+                <p className="text-sm text-white/70">{t.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Gifting & Transfer */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="px-2 py-1 rounded-lg bg-indigo-500/10 text-xs font-medium text-indigo-300">Gifting & Transfer</span>
+            <span className="text-xs text-white/50">3 transitions</span>
+          </div>
+          <div className="space-y-3">
+            {[
+              { name: 'gift_subscription(payment, creator, recipient, tier, amount, gift_id, expires_at)', type: 'async', desc: 'Gift a subscription to another address. Transfers credits, creates GiftToken for recipient. Records gift in gift_issued mapping keyed by gift_id.' },
+              { name: 'redeem_gift(gift_token)', type: 'async', desc: 'Recipient redeems a GiftToken to receive an AccessPass. Records redemption in gift_redeemed mapping.' },
+              { name: 'transfer_pass(pass, recipient)', type: 'async', desc: 'Transfer an AccessPass to another address. The original pass is consumed and a new one is created for the recipient. Checks revocation before allowing transfer.' },
+            ].map((t) => (
+              <div key={t.name} className="p-4 rounded-xl bg-surface-1 border border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <code className="text-sm text-white/70 font-mono">{t.name}</code>
+                  <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">{t.type}</span>
+                </div>
+                <p className="text-sm text-white/70">{t.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Admin */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="px-2 py-1 rounded-lg bg-white/10 text-xs font-medium text-white/70">Admin</span>
+            <span className="text-xs text-white/50">3 transitions</span>
+          </div>
+          <div className="space-y-3">
+            {[
+              { name: 'withdraw_platform_fees()', type: 'async', desc: 'Platform owner withdraws accumulated platform fees from all subscriptions.' },
+              { name: 'withdraw_creator_rev(amount)', type: 'async', desc: 'Creator withdraws accumulated subscription revenue (decrements total_revenue mapping).' },
+              { name: 'revoke_access(pass_id)', type: 'async', desc: 'Creator revokes an AccessPass (e.g., for ToS violation). Only affects that specific pass.' },
+            ].map((t) => (
+              <div key={t.name} className="p-4 rounded-xl bg-surface-1 border border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <code className="text-sm text-white/70 font-mono">{t.name}</code>
+                  <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">{t.type}</span>
+                </div>
+                <p className="text-sm text-white/70">{t.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
