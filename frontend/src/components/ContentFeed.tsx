@@ -352,7 +352,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={displayImage}
-                        alt={post.title}
+                        alt={`Image for ${post.title}`}
                         className="w-full max-h-72 object-cover"
                         loading="lazy"
                         onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}

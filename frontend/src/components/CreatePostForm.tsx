@@ -216,7 +216,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={imageUrl}
-                    alt="Preview"
+                    alt={title ? `Preview image for ${title}` : 'Post image preview'}
                     className="w-full max-h-48 object-cover"
                     onError={() => setImageError(true)}
                   />

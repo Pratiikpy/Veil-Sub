@@ -457,7 +457,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                 {insufficientBalance && (
                   <div className="mb-4">
                     <BalanceConverter
-                      requiredAmount={creditsToMicrocredits(parseFloat(customAmount) || selectedAmount)}
+                      requiredAmount={creditsToMicrocredits(Number.isFinite(parseFloat(customAmount)) ? parseFloat(customAmount) : selectedAmount)}
                       onConverted={() => {
                         setInsufficientBalance(false)
                         setError(null)

@@ -172,6 +172,8 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                         key={key}
                         type="button"
                         onClick={() => setScopeFlags(prev => ({ ...prev, [key]: !prev[key] }))}
+                        aria-pressed={scopeFlags[key]}
+                        aria-label={`${label}: ${desc}`}
                         className={`p-2.5 rounded-lg border text-left transition-all ${
                           scopeFlags[key]
                             ? 'border-violet-500/50 bg-violet-500/10 text-white'

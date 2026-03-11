@@ -183,7 +183,7 @@ export default function OnChainExplorer() {
               disabled={creatorLoading || (!creatorAddr.startsWith('aleo1') && !creatorAddr.endsWith('field'))}
               className="w-full py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-shimmer"
             >
-              {creatorLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+              {creatorLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-label="Loading" /> : <Search className="w-4 h-4" aria-hidden="true" />}
               Query On-Chain
             </button>
             {creatorStats && (
@@ -251,7 +251,7 @@ export default function OnChainExplorer() {
                 disabled={contentLoading || !contentId}
                 className="w-full py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-shimmer"
               >
-                {contentLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                {contentLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-label="Loading" /> : <Search className="w-4 h-4" aria-hidden="true" />}
                 Verify Content
               </button>
               {contentInfo && (
@@ -301,7 +301,7 @@ export default function OnChainExplorer() {
                 disabled={deployLoading}
                 className="w-full py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-shimmer"
               >
-                {deployLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                {deployLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-label="Loading" /> : <Search className="w-4 h-4" aria-hidden="true" />}
                 Check Deployment
               </button>
               {programDeployed !== null && (

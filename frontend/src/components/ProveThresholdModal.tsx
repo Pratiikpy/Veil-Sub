@@ -40,7 +40,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
       return
     }
     const thresholdNum = parseInt(threshold, 10)
-    if (!thresholdNum || thresholdNum <= 0) {
+    if (!Number.isFinite(thresholdNum) || thresholdNum <= 0) {
       setError('Threshold must be a positive number.')
       return
     }
