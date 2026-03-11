@@ -74,12 +74,17 @@ export default function OnChainExplorer() {
         queryMapping('total_revenue', key),
         queryMapping('content_count', key),
       ])
+      const parseNum = (s: string | null): number | null => {
+        if (!s) return null
+        const n = parseInt(s.replace('u64', ''), 10)
+        return Number.isFinite(n) ? n : null
+      }
       setCreatorStats({
         registered: price !== null,
-        basePrice: price ? parseInt(price.replace('u64', '')) : null,
-        subscriberCount: subs ? parseInt(subs.replace('u64', '')) : null,
-        totalRevenue: rev ? parseInt(rev.replace('u64', '')) : null,
-        contentCount: content ? parseInt(content.replace('u64', '')) : null,
+        basePrice: parseNum(price),
+        subscriberCount: parseNum(subs),
+        totalRevenue: parseNum(rev),
+        contentCount: parseNum(content),
       })
     } catch {
       setCreatorStats({ registered: false, basePrice: null, subscriberCount: null, totalRevenue: null, contentCount: null })
@@ -98,9 +103,10 @@ export default function OnChainExplorer() {
         queryMapping('content_meta', contentId),
         queryMapping('content_hashes', contentId),
       ])
+      const parsedTier = tier ? parseInt(tier.replace('u8', ''), 10) : null
       setContentInfo({
         found: tier !== null,
-        minTier: tier ? parseInt(tier.replace('u8', '')) : null,
+        minTier: Number.isFinite(parsedTier) ? parsedTier : null,
         contentHash: hash || null,
       })
     } catch {

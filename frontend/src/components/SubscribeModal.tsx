@@ -87,10 +87,10 @@ export default function SubscribeModal({
 
     try {
       const balanceResult = await checkBalance(totalPrice)
-      if (balanceResult.error) {
+      if (balanceResult.error || !balanceResult.records?.length) {
         toast.dismiss('subscribe-optimistic')
         if (balanceResult.insufficientBalance) setInsufficientBalance(true)
-        setError(balanceResult.error)
+        setError(balanceResult.error || 'No credit records available.')
         setTxStatus('idle')
         submittingRef.current = false
         return

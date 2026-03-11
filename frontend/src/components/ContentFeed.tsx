@@ -182,8 +182,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
         if (result) {
           setUnlockedBodies((prev) => ({ ...prev, [post.id]: result.body }))
-          if (result.imageUrl) {
-            setUnlockedImages((prev) => ({ ...prev, [post.id]: result.imageUrl! }))
+          const imgUrl = result.imageUrl
+          if (imgUrl) {
+            setUnlockedImages((prev) => ({ ...prev, [post.id]: imgUrl }))
           }
         } else {
           failedUnlocksRef.current.add(post.id)
@@ -230,8 +231,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
     if (result) {
       setUnlockedBodies((prev) => ({ ...prev, [post.id]: result.body }))
-      if (result.imageUrl) {
-        setUnlockedImages((prev) => ({ ...prev, [post.id]: result.imageUrl! }))
+      const imgUrl = result.imageUrl
+      if (imgUrl) {
+        setUnlockedImages((prev) => ({ ...prev, [post.id]: imgUrl }))
       }
     } else {
       failedUnlocksRef.current.add(post.id)

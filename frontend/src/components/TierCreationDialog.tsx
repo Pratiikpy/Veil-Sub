@@ -51,8 +51,9 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
     setTxStatus('signing')
     setError(null)
     try {
-      const priceMicrocredits = Math.round(parseFloat(priceAleo) * MICROCREDITS_PER_CREDIT)
-      if (priceMicrocredits <= 0) throw new Error('Price must be greater than 0')
+      const parsedPrice = parseFloat(priceAleo)
+      if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) throw new Error('Price must be greater than 0')
+      const priceMicrocredits = Math.round(parsedPrice * MICROCREDITS_PER_CREDIT)
       const nameHash = hashName(tierName.trim())
       const result = await createCustomTier(tierId, priceMicrocredits, nameHash)
       setTxId(result)

@@ -86,7 +86,7 @@ export default function DashboardPage() {
   const handleRegister = async () => {
     if (txStatus !== 'idle' && txStatus !== 'failed') return
     const priceNum = parseFloat(price)
-    if (!priceNum || priceNum <= 0) return
+    if (!Number.isFinite(priceNum) || priceNum <= 0) return
 
     setTxStatus('signing')
     try {

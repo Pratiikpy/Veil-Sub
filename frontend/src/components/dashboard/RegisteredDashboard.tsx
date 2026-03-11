@@ -95,7 +95,7 @@ export default function RegisteredDashboard({
   const handleWithdraw = async (type: 'creator' | 'platform') => {
     if (withdrawTxStatus === 'signing' || withdrawTxStatus === 'broadcasting') return
     const amount = parseFloat(withdrawAmount)
-    if (!amount || amount <= 0) {
+    if (!Number.isFinite(amount) || amount <= 0) {
       toast.error('Enter a valid amount')
       return
     }

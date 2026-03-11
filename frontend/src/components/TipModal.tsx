@@ -54,7 +54,10 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
   useRovingTabIndex(tipGroupRef)
   useRovingTabIndex(modeGroupRef)
 
-  const getTipAmount = () => parseFloat(customAmount) || selectedAmount
+  const getTipAmount = () => {
+    const parsed = parseFloat(customAmount)
+    return Number.isFinite(parsed) ? parsed : selectedAmount
+  }
 
   const handleDirectTip = async () => {
     if (submittingRef.current) return

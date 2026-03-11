@@ -188,7 +188,7 @@ export default function CreatorPage({
     let cancelled = false
     getAccessPasses().then((records) => {
       if (cancelled) return
-      const passes = records
+      const passes = (records ?? [])
         .map((r) => parseAccessPass(r))
         .filter((p): p is NonNullable<typeof p> => p !== null && p.creator === address)
       setUserPasses(passes)
@@ -568,7 +568,7 @@ export default function CreatorPage({
                       </p>
 
                       <ul className="space-y-2 mb-6">
-                        {tier.features.map((f) => (
+                        {(tier.features ?? []).map((f) => (
                           <li
                             key={f}
                             className="flex items-center gap-2 text-xs text-white/70"

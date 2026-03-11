@@ -67,7 +67,7 @@ export default function RegistrationForm({
                   ALEO
                 </span>
               </div>
-              {price && parseFloat(price) <= 0 && (
+              {price && (Number.isNaN(parseFloat(price)) || parseFloat(price) <= 0) && (
                 <p className="text-xs text-red-400 mt-2" role="alert">
                   Price must be greater than zero.
                 </p>
@@ -126,7 +126,7 @@ export default function RegistrationForm({
 
             <Button
               onClick={onRegister}
-              disabled={!price || parseFloat(price) <= 0}
+              disabled={!price || !Number.isFinite(parseFloat(price)) || parseFloat(price) <= 0}
               className="w-full"
             >
               {txStatus === 'failed' ? 'Retry' : 'Register as Creator'}
