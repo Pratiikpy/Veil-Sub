@@ -414,7 +414,7 @@ export default function ExplorerPage() {
               className="mb-10"
             >
               {statsError && (
-                <div className="mb-3 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-center gap-2">
+                <div className="mb-4 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-center gap-2">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                   <span>Could not fetch live stats. Showing cached values.</span>
                 </div>
@@ -646,7 +646,7 @@ export default function ExplorerPage() {
                 </>
               ) : (
                 <div className="text-center py-12">
-                  <AlertCircle className="w-10 h-10 text-white/60 mx-auto mb-3" aria-hidden="true" />
+                  <AlertCircle className="w-10 h-10 text-white/60 mx-auto mb-4" aria-hidden="true" />
                   <h3 className="text-lg font-semibold text-white mb-1">
                     Creator Not Registered
                   </h3>
@@ -685,7 +685,7 @@ export default function ExplorerPage() {
               transition={{ delay: 0.3 }}
               className="text-center py-12"
             >
-              <Search className="w-10 h-10 text-white/60 mx-auto mb-3" aria-hidden="true" />
+              <Search className="w-10 h-10 text-white/60 mx-auto mb-4" aria-hidden="true" />
               <p className="text-white/60 text-sm">
                 Enter a creator&apos;s Aleo address to view their public on-chain stats.
               </p>
@@ -754,7 +754,7 @@ export default function ExplorerPage() {
                 </div>
               ) : eventsError ? (
                 <div className="text-center py-12">
-                  <AlertCircle className="w-8 h-8 text-amber-400 mx-auto mb-3" aria-hidden="true" />
+                  <AlertCircle className="w-8 h-8 text-amber-400 mx-auto mb-4" aria-hidden="true" />
                   <p className="text-sm text-white/70 mb-1">Failed to load recent activity</p>
                   <p className="text-xs text-white/60 mb-4">Could not fetch events from the analytics API.</p>
                   <button
@@ -766,7 +766,7 @@ export default function ExplorerPage() {
                 </div>
               ) : paginatedEvents.length === 0 ? (
                 <div className="text-center py-12">
-                  <Activity className="w-8 h-8 text-white/60 mx-auto mb-3" aria-hidden="true" />
+                  <Activity className="w-8 h-8 text-white/60 mx-auto mb-4" aria-hidden="true" />
                   <p className="text-sm text-white/60 mb-1">No events found</p>
                   <p className="text-xs text-white/60">Subscription and tip activity will appear here once transactions are confirmed on-chain.</p>
                 </div>

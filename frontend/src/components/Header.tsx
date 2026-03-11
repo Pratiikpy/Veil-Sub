@@ -130,7 +130,7 @@ export default function Header() {
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden border-b border-border/75 bg-black/95 backdrop-blur-xl overflow-hidden"
           >
-            <nav aria-label="Mobile navigation" className="px-6 py-3 space-y-1">
+            <nav aria-label="Mobile navigation" className="px-6 py-4 space-y-2">
               {allItems.map((item) => (
                 <Link
                   key={item.href}

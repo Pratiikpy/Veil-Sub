@@ -189,7 +189,7 @@ export default function GiftSubscriptionFlow({
                 </div>
 
                 {/* Privacy note */}
-                <div className="rounded-xl bg-surface-2 border border-border p-3">
+                <div className="rounded-xl bg-surface-2 border border-border p-4">
                   <div className="flex items-start gap-2">
                     <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-400" aria-hidden="true" />
                     <p className="text-xs text-green-400/80">

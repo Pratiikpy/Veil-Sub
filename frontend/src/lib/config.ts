@@ -100,6 +100,9 @@ export const AUTH_CONFIG = {
   MIN_SIG_BYTES: 64,
 } as const
 
+// Aleo address validation pattern (shared across API routes)
+export const ALEO_ADDRESS_RE = /^aleo1[a-z0-9]{58}$/
+
 // Platform fee configuration
 // PLATFORM_ADDRESS must match the PLATFORM_ADDR constant hardcoded in the Leo contract.
 export const PLATFORM_ADDRESS = 'aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk'

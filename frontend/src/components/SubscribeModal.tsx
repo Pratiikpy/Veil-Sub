@@ -211,7 +211,7 @@ export default function SubscribeModal({
                     {formatCredits(totalPrice)} <span className="text-sm font-medium text-white/70">ALEO</span>
                   </p>
                   <p className="text-sm text-white/70">{tier.description}</p>
-                  <ul className="mt-3 space-y-1">
+                  <ul className="mt-4 space-y-1">
                     {tier.features.map((f) => (
                       <li
                         key={f}

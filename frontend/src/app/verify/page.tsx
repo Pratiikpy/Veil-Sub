@@ -408,7 +408,7 @@ export default function VerifyPage() {
                 ) : loadError ? (
                   <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/20 text-center">
                     <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-2" aria-hidden="true" />
-                    <p className="text-sm text-red-300 mb-3">{loadError}</p>
+                    <p className="text-sm text-red-300 mb-4">{loadError}</p>
                     <button
                       onClick={loadPasses}
                       className="px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white hover:bg-white/[0.08] transition-all inline-flex items-center gap-1.5"
@@ -661,7 +661,7 @@ export default function VerifyPage() {
             className="text-center mb-12"
           >
             <h2
-              className="text-2xl sm:text-3xl font-serif italic text-white mb-3"
+              className="text-2xl sm:text-3xl font-serif italic text-white mb-4"
               style={{ letterSpacing: '-0.02em' }}
             >
               How ZK Verification Works
@@ -693,7 +693,7 @@ export default function VerifyPage() {
               return (
                 <GlassCard key={step.title} delay={i * 0.1}>
                   <div className="text-center">
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-violet-500/20 text-violet-400 text-xs font-bold mb-3">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-violet-500/20 text-violet-400 text-xs font-bold mb-4">
                       {i + 1}
                     </span>
                     <div className="w-12 h-12 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center mx-auto mb-4">

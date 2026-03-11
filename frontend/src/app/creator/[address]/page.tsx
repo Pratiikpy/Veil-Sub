@@ -213,7 +213,7 @@ export default function CreatorPage({
       <PageTransition className="min-h-screen">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="p-8 rounded-xl border border-red-500/15 bg-red-500/5 text-center">
-            <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" aria-hidden="true" />
+            <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-4" aria-hidden="true" />
             <h2 className="text-xl font-semibold text-white mb-2">Failed to Load Creator</h2>
             <p className="text-sm text-white/70 mb-4">Could not fetch creator data. Please check your connection and try again.</p>
             <button
@@ -371,7 +371,7 @@ export default function CreatorPage({
             <div className="mx-auto mb-6 w-16 h-16">
               <AddressAvatar address={address} size={64} />
             </div>
-            <h2 className="text-2xl font-semibold text-white mb-3">
+            <h2 className="text-2xl font-semibold text-white mb-4">
               Creator Not Found
             </h2>
             <p className="text-white/70 max-w-md mx-auto mb-2">
@@ -383,14 +383,14 @@ export default function CreatorPage({
             <div className="flex items-center justify-center gap-4 flex-wrap">
               <Link
                 href="/#featured"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 transition-all duration-300 active:scale-[0.98]"
+                className="inline-flex items-center gap-2 px-6 py-4 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 transition-all duration-300 active:scale-[0.98]"
               >
                 <Search className="w-4 h-4" aria-hidden="true" />
                 Browse Featured Creators
               </Link>
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.05] border border-border text-white/70 text-sm hover:bg-white/[0.08] transition-all duration-300"
+                className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-white/[0.05] border border-border text-white/70 text-sm hover:bg-white/[0.08] transition-all duration-300"
               >
                 Register as a Creator
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -406,7 +406,7 @@ export default function CreatorPage({
                 animate={{ opacity: 1 }}
                 className="p-4 rounded-xl bg-green-500/5 border border-green-500/20"
               >
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 mb-4">
                   <Shield className="w-4 h-4 text-green-400" />
                   <span className="text-sm font-medium text-green-300">
                     Your AccessPasses ({userPasses.length})

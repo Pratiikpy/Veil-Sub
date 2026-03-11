@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRedis } from '@/lib/redis'
-import { AUTH_CONFIG, RATE_LIMITS, CACHE_HEADERS, API_LIMITS } from '@/lib/config'
-
-const ALEO_ADDRESS_RE = /^aleo1[a-z0-9]{58}$/
+import { AUTH_CONFIG, RATE_LIMITS, CACHE_HEADERS, API_LIMITS, ALEO_ADDRESS_RE } from '@/lib/config'
 
 export async function GET(req: NextRequest) {
   const creator = req.nextUrl.searchParams.get('creator')

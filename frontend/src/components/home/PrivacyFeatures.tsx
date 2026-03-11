@@ -61,7 +61,7 @@ export default function PrivacyFeatures() {
                   <div className="w-12 h-12 rounded-2xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center mb-6 group-hover:bg-violet-500/[0.1] group-hover:border-violet-500/[0.2] transition-all">
                     <Icon className="w-6 h-6 text-violet-400/60 group-hover:text-violet-400 transition-colors" aria-hidden="true" />
                   </div>
-                  <h3 className="text-xl font-medium text-white mb-3">
+                  <h3 className="text-xl font-medium text-white mb-4">
                     {feature.title}
                   </h3>
                   <p className="text-white/80 text-sm leading-relaxed">

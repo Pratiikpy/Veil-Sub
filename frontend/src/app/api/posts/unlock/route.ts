@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRedis } from '@/lib/redis'
-import { ALEO_API_BASE_URL, RATE_LIMITS, AUTH_CONFIG } from '@/lib/config'
-
-const ALEO_ADDRESS_RE = /^aleo1[a-z0-9]{58}$/
+import { ALEO_API_BASE_URL, RATE_LIMITS, AUTH_CONFIG, ALEO_ADDRESS_RE } from '@/lib/config'
 
 export async function POST(req: NextRequest) {
   const redis = getRedis()

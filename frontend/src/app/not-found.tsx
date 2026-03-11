@@ -22,7 +22,7 @@ export default function NotFound() {
           404
         </p>
         <h2
-          className="text-3xl font-serif italic text-white mb-3"
+          className="text-3xl font-serif italic text-white mb-4"
           style={{ letterSpacing: '-0.03em' }}
         >
           Page Not Found
@@ -33,14 +33,14 @@ export default function NotFound() {
         <div className="flex items-center justify-center gap-4 flex-wrap">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-medium text-sm hover:bg-white/90 hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all active:scale-[0.98] btn-shimmer"
+            className="inline-flex items-center gap-2 px-6 py-4 rounded-full bg-white text-black font-medium text-sm hover:bg-white/90 hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all active:scale-[0.98] btn-shimmer"
           >
             Go Home
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Link>
           <Link
             href="/explore"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/[0.05] border border-border text-white/70 text-sm hover:bg-white/[0.08] hover:border-border-hover transition-all active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-6 py-4 rounded-full bg-white/[0.05] border border-border text-white/70 text-sm hover:bg-white/[0.08] hover:border-border-hover transition-all active:scale-[0.98]"
           >
             Explore Creators
           </Link>

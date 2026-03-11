@@ -5,7 +5,7 @@ export default function DashboardSkeleton() {
     <div className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
-          <div className="h-8 w-52 rounded-lg skeleton mb-3" />
+          <div className="h-8 w-52 rounded-lg skeleton mb-4" />
           <div className="h-4 w-80 rounded-lg skeleton" />
         </div>
         <div className="max-w-lg">

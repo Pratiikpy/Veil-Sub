@@ -111,7 +111,7 @@ export default function ExploreCreators() {
                 placeholder="Search by Aleo address..."
                 aria-label="Enter creator Aleo address"
                 aria-describedby="creator-search-help"
-                className="w-full pl-11 pr-4 py-3 rounded-full glass text-white placeholder-subtle focus:outline-none focus:border-violet-500/40 focus:shadow-accent-lg focus:scale-[1.01] transition-all duration-300 text-base"
+                className="w-full pl-11 pr-4 py-4 rounded-full glass text-white placeholder-subtle focus:outline-none focus:border-violet-500/40 focus:shadow-accent-lg focus:scale-[1.01] transition-all duration-300 text-base"
               />
             </div>
             <Button

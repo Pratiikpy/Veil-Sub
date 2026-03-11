@@ -3,7 +3,7 @@ export default function ExploreLoading() {
     <div className="min-h-screen">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="animate-pulse mb-8">
-          <div className="h-8 w-48 rounded-lg bg-white/[0.06] mb-3" />
+          <div className="h-8 w-48 rounded-lg bg-white/[0.06] mb-4" />
           <div className="h-4 w-72 rounded-lg bg-white/[0.04]" />
         </div>
         <div className="h-12 w-full rounded-xl bg-white/[0.04] mb-8 animate-pulse" />

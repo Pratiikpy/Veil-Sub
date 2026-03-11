@@ -135,7 +135,7 @@ export default function DisputeContentModal({
 
           {/* Reason selection */}
           <div className="mb-6">
-            <label id="dispute-reason-label" className="block text-xs text-white/70 font-medium uppercase tracking-wider mb-3">
+            <label id="dispute-reason-label" className="block text-xs text-white/70 font-medium uppercase tracking-wider mb-4">
               Reason for Dispute
             </label>
             <div ref={reasonGroupRef} className="space-y-2" role="radiogroup" aria-labelledby="dispute-reason-label">

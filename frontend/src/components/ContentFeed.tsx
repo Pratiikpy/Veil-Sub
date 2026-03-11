@@ -348,7 +348,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
                   {/* Gated image placeholder — shown when post has image but content is locked */}
                   {!unlocked && post.hasImage && !isUnlocking && (
-                    <div className="mb-3 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-28">
+                    <div className="mb-4 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-28">
                       <div className="flex items-center gap-2 text-white/60">
                         <ImageIcon className="w-5 h-5" aria-hidden="true" />
                         <span className="text-xs">Image content—AccessPass required</span>
@@ -358,7 +358,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
                   {/* Unlocked image */}
                   {unlocked && displayImage && (
-                    <div className="mb-3 rounded-lg overflow-hidden border border-white/[0.06] aspect-video bg-white/[0.02]">
+                    <div className="mb-4 rounded-lg overflow-hidden border border-white/[0.06] aspect-video bg-white/[0.02]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={displayImage}

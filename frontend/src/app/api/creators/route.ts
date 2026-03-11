@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { encrypt, hashAddress } from '@/lib/encryption'
-
-const ALEO_ADDRESS_RE = /^aleo1[a-z0-9]{58}$/
+import { ALEO_ADDRESS_RE } from '@/lib/config'
 
 export async function GET(req: NextRequest) {
   const addressHash = req.nextUrl.searchParams.get('address_hash')

@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { hashAddress } from '@/lib/encryption'
 import { getRedis } from '@/lib/redis'
-import { API_LIMITS, RATE_LIMITS, CACHE_HEADERS, AUTH_CONFIG } from '@/lib/config'
-
-const ALEO_ADDRESS_RE = /^aleo1[a-z0-9]{58}$/
+import { API_LIMITS, RATE_LIMITS, CACHE_HEADERS, AUTH_CONFIG, ALEO_ADDRESS_RE } from '@/lib/config'
 
 export async function GET(req: NextRequest) {
   const addressHash = req.nextUrl.searchParams.get('creator_address_hash')

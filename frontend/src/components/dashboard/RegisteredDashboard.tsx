@@ -468,7 +468,7 @@ export default function RegisteredDashboard({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="p-6 rounded-xl bg-surface-1 border border-border"
+              className="p-8 rounded-xl bg-surface-1 border border-border"
             >
               <div className="flex items-center gap-2 mb-4">
                 <Share2 className="w-5 h-5 text-violet-400" aria-hidden="true" />
@@ -500,7 +500,7 @@ export default function RegisteredDashboard({
               transition={{ delay: 0.25 }}
               className="p-4 rounded-xl bg-surface-1 border border-border"
             >
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-4">
                 <Shield className="w-4 h-4 text-green-400" aria-hidden="true" />
                 <h3 className="text-sm font-medium text-green-300">Verified On-Chain</h3>
               </div>
@@ -574,9 +574,9 @@ export default function RegisteredDashboard({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="p-6 rounded-xl bg-surface-1 border border-border"
+              className="p-8 rounded-xl bg-surface-1 border border-border"
             >
-              <h2 className="text-lg font-semibold text-white mb-3">
+              <h2 className="text-lg font-semibold text-white mb-4">
                 How VeilSub Content Gating Works
               </h2>
               <div className="space-y-4 text-sm text-white/70">
@@ -795,7 +795,7 @@ export default function RegisteredDashboard({
                   + New Tier
                 </button>
               </div>
-              <p className="text-xs text-white/60 mb-3">
+              <p className="text-xs text-white/60 mb-4">
                 Create custom subscription tiers with flexible pricing. Subscribers choose from your tiers when subscribing.
                 {creatorTierCount > 0 && ' Your custom tiers are stored on-chain via create_custom_tier.'}
               </p>
@@ -830,7 +830,7 @@ export default function RegisteredDashboard({
               transition={{ delay: 0.05 }}
               className="p-4 rounded-xl bg-surface-1 border border-border"
             >
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Award className="w-5 h-5 text-violet-400" aria-hidden="true" />
                   <h2 className="text-lg font-semibold text-white">Prove Reputation</h2>
@@ -865,18 +865,18 @@ export default function RegisteredDashboard({
               transition={{ delay: 0.1 }}
               className="p-4 rounded-xl bg-surface-1 border border-border"
             >
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-4">
                 <Percent className="w-5 h-5 text-green-400" aria-hidden="true" />
                 <h3 className="text-sm font-semibold text-white">
                   {publicKey === PLATFORM_ADDRESS ? 'Withdraw Funds' : 'Withdraw Earnings'}
                 </h3>
               </div>
-              <p className="text-xs text-white/60 mb-3">
+              <p className="text-xs text-white/60 mb-4">
                 {publicKey === PLATFORM_ADDRESS
                   ? `Withdraw your creator revenue or accumulated ${PLATFORM_FEE_PCT}% platform fees.`
                   : `Withdraw your accumulated subscription and tip revenue. ${100 - PLATFORM_FEE_PCT}% of all payments are yours.`}
               </p>
-              <div className="flex gap-2 mb-3">
+              <div className="flex gap-2 mb-4">
                 <input
                   type="number"
                   inputMode="decimal"
@@ -900,7 +900,7 @@ export default function RegisteredDashboard({
                 <button
                   onClick={() => handleWithdraw('platform')}
                   disabled={withdrawTxStatus === 'signing' || withdrawTxStatus === 'broadcasting' || !withdrawAmount}
-                  className="w-full px-4 py-2 rounded-lg bg-amber-600/80 text-sm font-medium text-white hover:bg-amber-600 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed mb-3"
+                  className="w-full px-4 py-2 rounded-lg bg-amber-600/80 text-sm font-medium text-white hover:bg-amber-600 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed mb-4"
                 >
                   Withdraw Platform Fees
                 </button>

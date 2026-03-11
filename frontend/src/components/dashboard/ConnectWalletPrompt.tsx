@@ -52,7 +52,7 @@ export default function ConnectWalletPrompt() {
                 <Shield className="w-10 h-10 text-violet-400" aria-hidden="true" />
               </div>
             </div>
-            <h2 className="text-3xl font-bold text-white mb-3">
+            <h2 className="text-3xl font-bold text-white mb-4">
               Creator Dashboard
             </h2>
             <p className="text-lg text-white/70 mb-8 max-w-sm mx-auto">
@@ -137,7 +137,7 @@ export default function ConnectWalletPrompt() {
             transition={{ delay: 0.25 }}
             className="mt-6 text-center"
           >
-            <p className="text-xs text-white/50 mb-3">Want to subscribe instead?</p>
+            <p className="text-xs text-white/50 mb-4">Want to subscribe instead?</p>
             <Link
               href="/explore"
               className="inline-flex items-center gap-2 text-sm text-violet-400 hover:text-violet-300 transition-colors group"

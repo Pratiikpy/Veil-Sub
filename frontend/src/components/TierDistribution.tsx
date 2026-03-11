@@ -72,7 +72,7 @@ export default function TierDistribution({ creatorAddress }: Props) {
         <span className="text-xs text-white/60 ml-auto">{total} total</span>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {['1', '2', '3'].map((tierId) => {
           const config = TIER_CONFIG[tierId] || DEFAULT_TIER_CONFIG
           const count = distribution[tierId] || 0

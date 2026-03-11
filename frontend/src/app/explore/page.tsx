@@ -92,7 +92,7 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
     >
       <Link
         href={`/creator/${creator.address}`}
-        className="block p-5 rounded-xl glass hover:-translate-y-0.5 hover:border-violet-500/[0.2] hover:shadow-accent-lg transition-all duration-300 group"
+        className="block p-6 rounded-xl glass hover:-translate-y-0.5 hover:border-violet-500/[0.2] hover:shadow-accent-lg transition-all duration-300 group"
       >
         <div className="flex items-center gap-4 mb-4">
           <AddressAvatar address={creator.address} size={40} />
@@ -116,13 +116,13 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
           </div>
         </div>
         {creator.bio && (
-          <p className="text-sm text-white/70 mb-3 line-clamp-2">
+          <p className="text-sm text-white/70 mb-4 line-clamp-2">
             {creator.bio}
           </p>
         )}
         {/* On-chain stats */}
         {stats && stats.tierPrice !== null && (
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/60 mb-3">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/60 mb-4">
             <span className="flex items-center gap-1">
               <Users className="w-3 h-3" aria-hidden="true" />
               {stats.subscriberCount} subscriber{stats.subscriberCount !== 1 ? 's' : ''}
@@ -267,7 +267,7 @@ export default function ExplorePage() {
               </span>
             </div>
             <h1
-              className="text-4xl sm:text-5xl font-serif italic text-white mb-3"
+              className="text-4xl sm:text-5xl font-serif italic text-white mb-4"
               style={{ letterSpacing: '-0.03em' }}
             >
               Explore Creators
@@ -400,7 +400,7 @@ export default function ExplorePage() {
               >
                 <button
                   onClick={() => router.push(`/creator/${search.trim()}`)}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/15 transition-all duration-200 group"
+                  className="w-full flex items-center justify-between px-4 py-4 rounded-xl bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/15 transition-all duration-200 group"
                 >
                   <div className="flex items-center gap-2">
                     <Shield className="w-4 h-4 text-violet-400" aria-hidden="true" />
@@ -472,7 +472,7 @@ export default function ExplorePage() {
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
-                  className="p-5 rounded-xl bg-surface-1 border border-border animate-pulse"
+                  className="p-6 rounded-xl bg-surface-1 border border-border animate-pulse"
                 >
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-10 h-10 rounded-xl bg-white/[0.06]" />
@@ -502,7 +502,7 @@ export default function ExplorePage() {
                   ? 'Try a different search term, or paste a full aleo1... address above to go directly to any creator page.'
                   : 'Be the first creator to offer private subscription tiers—only VeilSub hides subscriber identity from the blockchain.'}
               </p>
-              <div className="flex items-center justify-center gap-3 flex-wrap">
+              <div className="flex items-center justify-center gap-4 flex-wrap">
                 {search ? (
                   <button
                     onClick={() => setSearch('')}
@@ -513,7 +513,7 @@ export default function ExplorePage() {
                 ) : (
                   <Link
                     href="/dashboard"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 transition-all duration-300 active:scale-[0.98]"
+                    className="inline-flex items-center gap-2 px-6 py-4 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 transition-all duration-300 active:scale-[0.98]"
                   >
                     Become a Creator
                     <ArrowRight className="w-4 h-4" aria-hidden="true" />
