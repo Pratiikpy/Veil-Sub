@@ -51,7 +51,13 @@ export default function Odometer({
   const digits = String(safeEnd).split('')
 
   return (
-    <span ref={ref} className={`inline-flex items-baseline tabular-nums ${className}`}>
+    <m.span
+      ref={ref}
+      className={`inline-flex items-baseline tabular-nums ${className}`}
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={triggered ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+    >
       {prefix && <span>{prefix}</span>}
       {end < 0 && <span>-</span>}
       {triggered
@@ -69,6 +75,6 @@ export default function Odometer({
           })
         : <span>{String(end)}</span>}
       {suffix && <span>{suffix}</span>}
-    </span>
+    </m.span>
   )
 }

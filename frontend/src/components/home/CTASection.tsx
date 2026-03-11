@@ -50,7 +50,7 @@ export default function CTASection() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Button variant="ghost" size="lg" className="rounded-full">
+                  <Button variant="secondary" size="lg" className="rounded-full hover:scale-105 transition-transform">
                     <Github className="w-4 h-4" aria-hidden="true" />
                     View on GitHub
                   </Button>

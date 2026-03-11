@@ -31,14 +31,14 @@ export default function ProtocolStats() {
                   className="mt-6 text-2xl sm:text-3xl font-serif italic text-white leading-snug"
                   style={{ letterSpacing: '-0.02em' }}
                 >
-                  &ldquo;Zero addresses in finalize—even the smart contract
-                  never learns who subscribes to whom.&rdquo;
+                  <span className="text-violet-400">&ldquo;</span>Zero addresses in finalize—even the smart contract
+                  never learns who subscribes to whom.<span className="text-violet-400">&rdquo;</span>
                 </p>
               </div>
               <div className="mt-8 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.12] flex items-center justify-center">
-                    <Shield className="w-5 h-5 text-violet-400/60" />
+                    <Shield className="w-5 h-5 text-violet-400/60" aria-hidden="true" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-white">VeilSub Protocol</p>
@@ -47,7 +47,7 @@ export default function ProtocolStats() {
                 </div>
                 {!loading && (
                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/[0.08] border border-emerald-500/20">
-                    <CheckCircle2 className={`w-4 h-4 ${stats.programDeployed ? 'text-emerald-400 animate-pulse' : 'text-white/50'}`} />
+                    <CheckCircle2 className={`w-4 h-4 ${stats.programDeployed ? 'text-emerald-400 animate-pulse' : 'text-white/50'}`} aria-hidden="true" />
                     <span className={`text-xs font-semibold ${stats.programDeployed ? 'text-emerald-400' : 'text-white/50'}`}>
                       {stats.programDeployed ? 'Live on Testnet' : 'Checking...'}
                     </span>

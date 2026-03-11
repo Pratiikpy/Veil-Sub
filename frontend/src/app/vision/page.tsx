@@ -80,7 +80,7 @@ export default function VisionPage() {
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
             <m.div {...fadeUp} transition={{ duration: 0.6 }} className="text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-6">
-                <Code2 className="w-4 h-4 text-violet-400" />
+                <Code2 className="w-4 h-4 text-violet-400" aria-hidden="true" />
                 <span className="text-sm text-violet-300/90">Beyond Subscriptions</span>
               </div>
               <h1
@@ -90,9 +90,10 @@ export default function VisionPage() {
                 Vision &amp; Use Cases
               </h1>
               <p className="text-lg text-white/70 max-w-2xl mx-auto">
-                VeilSub is more than a subscription platform—it's a reusable
-                zero-knowledge access control primitive. The AccessPass record can gate
-                anything.
+                VeilSub is more than a subscription platform—it's a composable zero-knowledge access
+                control primitive using Aleo records. Any program can call verify_access to gate features
+                behind AccessPass ownership. The minimal-footprint finalize (only checks revocation via pass_id)
+                means third-party integrations inherit VeilSub's zero-subscriber-footprint privacy guarantee.
               </p>
             </m.div>
           </div>
@@ -107,7 +108,7 @@ export default function VisionPage() {
                 return (
                   <GlassCard key={useCase.title} shimmer delay={i * 0.08}>
                     <div className={`w-12 h-12 rounded-sm ${useCase.bg} flex items-center justify-center mb-4`}>
-                      <Icon className={`w-6 h-6 ${useCase.color}`} />
+                      <Icon className={`w-6 h-6 ${useCase.color}`} aria-hidden="true" />
                     </div>
                     <h3 className="text-white font-semibold mb-2">{useCase.title}</h3>
                     <p className="text-sm text-white/70 leading-relaxed">

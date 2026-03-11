@@ -189,7 +189,10 @@ body::after {
   100% { transform: translateX(-50%); }
 }
 .animate-marquee {
-  animation: marquee 38s linear infinite;
+  animation: marquee 40s ease-in-out infinite;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
 
 /* ─── Skeleton loading (branded violet sweep) ─── */

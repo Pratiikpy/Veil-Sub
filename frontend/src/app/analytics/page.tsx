@@ -130,8 +130,9 @@ export default function AnalyticsPage() {
               Platform Analytics
             </h1>
             <p className="text-white/70 text-base max-w-2xl leading-relaxed">
-              Aggregate statistics from on-chain mappings. All data is public—no subscriber
-              identities exposed.
+              Public aggregate statistics from Poseidon2-hashed mappings. Creator-scoped metrics
+              (subscriber count, revenue) are queried by mapping hash, not address. Zero individual
+              subscriber identities in any mapping—enforced by BSP finalize design.
             </p>
           </div>
 
@@ -204,8 +205,8 @@ export default function AnalyticsPage() {
                     <p className="text-2xl font-semibold text-white mb-1">0</p>
                     <p className="text-sm font-medium text-white mb-1">Identity Leaks</p>
                     <p className="text-sm text-white/60 leading-relaxed">
-                      Subscriber addresses never appear in finalize blocks. On-chain state reveals
-                      nothing about who subscribes to whom.
+                      Subscriber addresses are cryptographically excluded from finalize via BSP architecture.
+                      Even hashed mappings use Poseidon2(creator_address) as keys, not subscriber data.
                     </p>
                   </div>
                 </div>
@@ -221,8 +222,8 @@ export default function AnalyticsPage() {
                       Footprint Verifications
                     </p>
                     <p className="text-sm text-white/60 leading-relaxed">
-                      verify_access finalize only checks revocation via pass_id—subscriber
-                      identity never touches public state.
+                      verify_access finalize only reads access_revoked mapping keyed by pass_id.
+                      Zero subscriber address writes, zero subscriber-linked state changes—proof of access requires zero on-chain footprint.
                     </p>
                   </div>
                 </div>
@@ -255,8 +256,8 @@ export default function AnalyticsPage() {
                   <span className="text-sm font-medium text-white">Standard</span>
                 </div>
                 <p className="text-xs text-white/60 leading-relaxed mb-3">
-                  Private payment via transfer_private. Subscriber address never in finalize.
-                  Creator sees hashed subscriber ID.
+                  Private payment via credits.aleo/transfer_private. Subscriber address excluded from
+                  finalize layer via BSP. Creator sees only aggregate count—no per-subscriber mapping entries.
                 </p>
                 <div className="text-xs text-white/60">subscribe · renew</div>
               </GlassCard>
@@ -266,8 +267,8 @@ export default function AnalyticsPage() {
                   <span className="text-sm font-medium text-white">Blind</span>
                 </div>
                 <p className="text-xs text-white/60 leading-relaxed mb-3">
-                  Nonce-rotated identity—each renewal uses BHP256(caller, unique_nonce).
-                  Creator sees a different subscriber each time.
+                  Nonce-rotated identity per action—each renewal computes BHP256(caller, unique_nonce)
+                  for identity hashing. Creator sees different subscriber hash each time, breaking renewal pattern tracking.
                 </p>
                 <div className="text-xs text-white/60">subscribe_blind · renew_blind</div>
               </GlassCard>
@@ -277,8 +278,8 @@ export default function AnalyticsPage() {
                   <span className="text-sm font-medium text-white">Maximum (v27)</span>
                 </div>
                 <p className="text-xs text-white/60 leading-relaxed mb-3">
-                  All mapping keys are Poseidon2 field hashes—zero raw addresses
-                  in any finalize block. Full address unlinkability.
+                  All mapping keys are Poseidon2(address, context) hashes (v23+ privacy overhaul).
+                  Zero raw addresses in any finalize block. On-chain analytics keyed by field hashes, preventing address-to-data linking.
                 </p>
                 <div className="text-xs text-white/60">all transitions · Poseidon2 keys</div>
               </GlassCard>

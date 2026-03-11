@@ -164,7 +164,7 @@ export default function HeroSection() {
             transition={{ duration: 0.6, delay: 1.1 }}
             className="mt-8 text-xs inline-flex items-center gap-3 justify-center flex-wrap"
           >
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 text-[11px] font-semibold text-violet-400/80 bg-violet-500/[0.08] border border-violet-500/[0.15] rounded-md">
+            <span className="inline-flex items-center gap-1.5 px-2 py-1 text-[11px] font-semibold text-violet-300 bg-violet-500/[0.08] border border-violet-500/[0.15] rounded-md">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               testnet
             </span>

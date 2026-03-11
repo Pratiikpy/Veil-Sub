@@ -34,7 +34,7 @@ const FAQItem = React.memo(function FAQItem({
           transition={{ duration: 0.2 }}
           className="shrink-0"
         >
-          <ChevronRight className="w-4 h-4 text-white/60" aria-hidden="true" />
+          <ChevronRight className={`w-4 h-4 transition-colors ${open ? 'text-violet-400' : 'text-white/60'}`} aria-hidden="true" />
         </m.span>
       </button>
       <m.div

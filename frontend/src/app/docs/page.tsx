@@ -96,18 +96,20 @@ function OverviewTab() {
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">What is VeilSub?</h3>
         <p className="text-white/70 leading-relaxed">
-          VeilSub is a privacy-first creator subscription platform built on the Aleo blockchain.
-          Subscribers pay with real ALEO credits and receive a private AccessPass record —
-          their identity is never exposed on-chain. Creators see aggregate stats (total subscribers,
-          total revenue) but never see individual subscriber identities.
+          VeilSub is a privacy-first creator subscription platform where the Aleo blockchain enforces
+          zero-footprint subscriptions via the Blind Subscription Protocol (BSP). Subscribers execute
+          subscribe() with private credits—their address never enters the finalize layer. Creators
+          see aggregate statistics only (total count, total revenue). v27 uses Poseidon2-hashed mapping
+          keys: even on-chain observers cannot correlate public data with wallet addresses.
         </p>
       </div>
 
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Video Demo</h3>
         <p className="text-white/70 leading-relaxed mb-3">
-          Watch the full end-to-end walkthrough showing wallet connection, creator registration,
-          private subscription, and on-chain verification.
+          Watch zero-footprint verification in action: subscriber connects wallet, subscribes privately
+          (payment via transfer_private), receives AccessPass, then calls verify_access to prove access
+          without revealing identity—finalize only checks pass_id and revocation status.
         </p>
         <div className="p-4 rounded-sm bg-white/[0.04] border border-border flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center shrink-0">
@@ -152,7 +154,7 @@ function OverviewTab() {
         <h3 className="text-xl font-semibold text-white mb-3">Tech Stack</h3>
         <div className="grid sm:grid-cols-2 gap-3">
           {[
-            { label: 'Smart Contract', value: 'Leo 3.4.0 on Aleo Testnet' },
+            { label: 'Smart Contract', value: 'Leo 3.4.0 — v27: 27 transitions, 25 mappings, BSP + Poseidon2' },
             { label: 'Frontend', value: 'Next.js 16, React 19, TypeScript' },
             { label: 'Styling', value: 'Tailwind CSS 4, Framer Motion' },
             { label: 'Wallet', value: '@provablehq/aleo-wallet-adaptor' },
@@ -460,9 +462,10 @@ function PrivacyModelTab() {
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Privacy Architecture</h3>
         <p className="text-white/70 leading-relaxed mb-4">
-          VeilSub&apos;s privacy model is enforced at the program level. The Leo smart contract
-          is designed so that subscriber addresses physically cannot enter the finalize scope
-          (the only part of a transaction that writes to public state).
+          VeilSub&apos;s privacy is enforced by the Blind Subscription Protocol (BSP) at the program level.
+          The Leo contract is designed so subscriber addresses physically cannot enter finalize. Additionally,
+          all mapping keys are Poseidon2 field hashes (v23+), preventing address-to-data correlation even
+          when examining public on-chain state.
         </p>
       </div>
 
