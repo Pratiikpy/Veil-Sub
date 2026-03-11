@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { m } from 'framer-motion'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import { Settings } from 'lucide-react'
+import { Settings, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useSupabase } from '@/hooks/useSupabase'
 
@@ -17,6 +17,7 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
   const [name, setName] = useState('')
   const [bio, setBio] = useState('')
   const [saved, setSaved] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const [profileLoaded, setProfileLoaded] = useState(false)
 
   useEffect(() => {
@@ -36,20 +37,26 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
   }, [address, getCreatorProfile])
 
   const handleSave = async () => {
-    const wrappedSign = signMessage
-      ? async (msg: Uint8Array) => {
-          const result = await signMessage(msg)
-          if (!result) throw new Error('Signing cancelled')
-          return result
-        }
-      : null
-    const result = await upsertCreatorProfile(address, name || undefined, bio || undefined, wrappedSign)
-    if (result) {
-      setSaved(true)
-      toast.success('Profile saved!')
-      setTimeout(() => setSaved(false), 2000)
-    } else {
-      toast.error('Failed to save profile. Please try again.')
+    if (isSaving) return // Prevent double-submit
+    setIsSaving(true)
+    try {
+      const wrappedSign = signMessage
+        ? async (msg: Uint8Array) => {
+            const result = await signMessage(msg)
+            if (!result) throw new Error('Signing cancelled')
+            return result
+          }
+        : null
+      const result = await upsertCreatorProfile(address, name || undefined, bio || undefined, wrappedSign)
+      if (result) {
+        setSaved(true)
+        toast.success('Profile saved!')
+        setTimeout(() => setSaved(false), 2000)
+      } else {
+        toast.error('Failed to save profile. Please try again.')
+      }
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -93,9 +100,11 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
         </div>
         <button
           onClick={handleSave}
-          className="px-5 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-all duration-300 active:scale-[0.98]"
+          disabled={isSaving}
+          className="px-5 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-all duration-300 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-2"
         >
-          {saved ? 'Saved!' : 'Save Profile'}
+          {isSaving && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
+          {saved ? 'Saved!' : isSaving ? 'Saving...' : 'Save Profile'}
         </button>
       </div>
     </m.div>

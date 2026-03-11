@@ -340,7 +340,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                   {!unlocked && post.hasImage && !isUnlocking && (
                     <div className="mb-3 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-28">
                       <div className="flex items-center gap-2 text-white/60">
-                        <ImageIcon className="w-5 h-5" />
+                        <ImageIcon className="w-5 h-5" aria-hidden="true" />
                         <span className="text-xs">Image content—subscribe to view</span>
                       </div>
                     </div>

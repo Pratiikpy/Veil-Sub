@@ -190,7 +190,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
               </label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
+                  <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" aria-hidden="true" />
                   <input
                     id="post-image-url"
                     type="url"

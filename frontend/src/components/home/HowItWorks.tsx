@@ -9,10 +9,10 @@ import StaggerContainer, { staggerItemVariants } from '@/components/StaggerConta
 import SpotlightCard from '@/components/ui/SpotlightCard'
 
 const STEPS = [
-  { icon: Wallet, title: 'Connect Wallet', desc: 'Link your Shield or Leo Wallet. Your address stays private.' },
-  { icon: UserCheck, title: 'Find a Creator', desc: 'Browse creators and see public stats: price and subscriber count.' },
-  { icon: Lock, title: 'Subscribe Privately', desc: 'Pay with ALEO credits. A private AccessPass appears in your wallet.' },
-  { icon: Zap, title: 'Prove Access', desc: 'Show your AccessPass to unlock content—without revealing your identity.' },
+  { icon: Wallet, title: 'Connect Wallet', desc: 'Link Shield or Leo Wallet—your address never enters finalize scope.' },
+  { icon: UserCheck, title: 'Find a Creator', desc: 'Browse creators with Poseidon2-hashed aggregate stats: tier prices and subscriber counts.' },
+  { icon: Lock, title: 'Subscribe Privately', desc: 'Pay via credits.aleo/transfer_private. AccessPass record encrypted to your wallet key.' },
+  { icon: Zap, title: 'Prove Access', desc: 'verify_access checks only pass_id + revocation—zero subscriber address exposure.' },
 ]
 
 export default function HowItWorks() {
@@ -39,7 +39,7 @@ export default function HowItWorks() {
                     0{i + 1}
                   </span>
                   <div className="mt-4 mb-3 w-10 h-10 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center group-hover:bg-violet-500/[0.1] group-hover:border-violet-500/[0.2] transition-all">
-                    <Icon className="w-5 h-5 text-violet-400/60 group-hover:text-violet-400 transition-colors" />
+                    <Icon className="w-5 h-5 text-violet-400/60 group-hover:text-violet-400 transition-colors" aria-hidden="true" />
                   </div>
                   <h3 className="text-white font-medium mb-2">{step.title}</h3>
                   <p className="text-sm text-white/70 leading-relaxed">{step.desc}</p>

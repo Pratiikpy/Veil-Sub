@@ -339,7 +339,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                           : 'border-border/75 bg-transparent text-white/60 hover:border-glass-hover hover:text-white/70'
                       }`}
                     >
-                      <Eye className="w-4 h-4 mx-auto mb-1" />
+                      <Eye className="w-4 h-4 mx-auto mb-1" aria-hidden="true" />
                       <span className="text-[11px] font-medium block">Direct Tip</span>
                       <span className="text-[9px] text-white/60 block">Instant transfer</span>
                     </button>
@@ -354,7 +354,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                           : 'border-border/75 bg-transparent text-white/60 hover:border-glass-hover hover:text-white/70'
                       }`}
                     >
-                      <EyeOff className="w-4 h-4 mx-auto mb-1" />
+                      <EyeOff className="w-4 h-4 mx-auto mb-1" aria-hidden="true" />
                       <span className="text-[11px] font-medium block">Private Tip</span>
                       <span className="text-[9px] text-white/60 block">Commit-reveal</span>
                     </button>
@@ -431,7 +431,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                   ) : (
                     <>
                       <div className="flex gap-1.5 items-start">
-                        <Shield className="w-3.5 h-3.5 text-green-400 mt-0.5 shrink-0" />
+                        <Shield className="w-3.5 h-3.5 text-green-400 mt-0.5 shrink-0" aria-hidden="true" />
                         <div className="text-[11px] text-green-400/80 space-y-0.5">
                           <p className="font-medium text-green-400">Commit-Reveal Privacy</p>
                           {commitPhase === 'commit' ? (

@@ -115,7 +115,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <FileKey className="w-5 h-5 text-violet-400" />
+                <FileKey className="w-5 h-5 text-violet-400" aria-hidden="true" />
                 <h3 className="text-lg font-semibold text-white">Create Audit Token</h3>
               </div>
               <button
@@ -149,7 +149,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                 {/* Privacy Explanation */}
                 <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4">
                   <div className="flex gap-2">
-                    <Shield className="w-4 h-4 text-green-400 mt-0.5 shrink-0" />
+                    <Shield className="w-4 h-4 text-green-400 mt-0.5 shrink-0" aria-hidden="true" />
                     <div className="text-[11px] text-green-400/80 space-y-1">
                       <p className="font-medium text-green-400">Selective Disclosure</p>
                       <p>Generate a lightweight proof token. Share it to prove your subscription without exposing your AccessPass.</p>

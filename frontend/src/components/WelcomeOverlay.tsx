@@ -92,7 +92,7 @@ export default function WelcomeOverlay() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-white" />
+                  <Shield className="w-5 h-5 text-white" aria-hidden="true" />
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-white">Welcome to VeilSub</h2>
@@ -125,7 +125,7 @@ export default function WelcomeOverlay() {
                     className="flex items-start gap-3 p-3 rounded-xl bg-surface-1 border border-border hover:border-glass-hover transition-colors"
                   >
                     <div className={`shrink-0 w-9 h-9 rounded-lg ${item.bg} flex items-center justify-center`}>
-                      <Icon className={`w-4 h-4 ${item.color}`} />
+                      <Icon className={`w-4 h-4 ${item.color}`} aria-hidden="true" />
                     </div>
                     <div>
                       <p className="text-sm font-medium text-white">{item.title}</p>

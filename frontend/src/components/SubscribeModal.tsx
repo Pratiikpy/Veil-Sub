@@ -194,7 +194,7 @@ export default function SubscribeModal({
                 aria-label="Close subscription dialog"
                 className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -217,7 +217,7 @@ export default function SubscribeModal({
                         key={f}
                         className="text-xs text-white/70 flex items-center gap-2"
                       >
-                        <Sparkles className="w-3 h-3 text-white/70" />
+                        <Sparkles className="w-3 h-3 text-white/70" aria-hidden="true" />
                         {f}
                       </li>
                     ))}
@@ -276,22 +276,22 @@ export default function SubscribeModal({
                           }`}
                         >
                           <span className="text-[11px] font-medium block">{mode.label}</span>
-                          <span className="text-[9px] text-white/60 block">{mode.desc}</span>
+                          <span className="text-[10px] text-white/50 block">{mode.desc}</span>
                         </button>
                       ))}
                     </div>
                     {privacyMode === 'standard' && (
-                      <p className="text-[10px] text-violet-400/70 mt-2">
+                      <p className="text-[11px] text-violet-400/80 mt-2">
                         Your subscriber identity is linked to your wallet address.
                       </p>
                     )}
                     {privacyMode === 'blind' && (
-                      <p className="text-[10px] text-violet-400/70 mt-2">
-                        Your identity is rotated each subscription—unlinkable across renewals.
+                      <p className="text-[11px] text-violet-400/80 mt-2">
+                        BSP nonce rotation—unlinkable renewals via Poseidon2 hashing.
                       </p>
                     )}
                     {privacyMode === 'trial' && (
-                      <p className="text-[10px] text-violet-400/70 mt-2">
+                      <p className="text-[11px] text-violet-400/80 mt-2">
                         Short-term pass (~12 hours / 1,000 blocks) at 20% of tier price.
                       </p>
                     )}

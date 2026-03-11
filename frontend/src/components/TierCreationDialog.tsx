@@ -99,7 +99,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="rounded-lg bg-violet-500/20 p-2">
-                  <Layers className="h-5 w-5 text-white/70" />
+                  <Layers className="h-5 w-5 text-white/70" aria-hidden="true" />
                 </div>
                 <h3 className="text-lg font-semibold text-white">Create Custom Tier</h3>
               </div>
@@ -111,7 +111,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
             {status === 'success' ? (
               <div className="space-y-4">
                 <div className="rounded-xl bg-surface-2 border border-border p-4 text-center">
-                  <Sparkles className="mx-auto mb-2 h-8 w-8 text-green-400" />
+                  <Sparkles className="mx-auto mb-2 h-8 w-8 text-green-400" aria-hidden="true" />
                   <p className="text-sm font-medium text-green-400">Tier #{tierId} created!</p>
                   {txId && <p className="mt-1 text-xs text-white/60 break-all">Tx: {txId.slice(0, 20)}...</p>}
                 </div>
@@ -188,7 +188,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                 {/* Error */}
                 {error && (
                   <div role="alert" className="flex items-start gap-2 rounded-xl bg-red-500/10 border border-red-500/15 p-3">
-                    <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-400" />
+                    <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-400" aria-hidden="true" />
                     <p className="text-xs text-red-400">{error}</p>
                   </div>
                 )}
@@ -197,6 +197,14 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                 <Button
                   onClick={handleSubmit}
                   disabled={status === 'submitting' || tierId === 0 || !tierName.trim() || !priceAleo || !connected}
+                  title={
+                    !connected ? 'Connect wallet first'
+                      : tierId === 0 ? 'Select a tier ID'
+                      : !tierName.trim() ? 'Enter tier name'
+                      : !priceAleo ? 'Enter tier price'
+                      : status === 'submitting' ? 'Creating tier...'
+                      : undefined
+                  }
                   className="w-full"
                 >
                   {status === 'submitting' ? (
@@ -206,7 +214,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
                     </>
                   ) : (
                     <>
-                      <Plus className="h-4 w-4" />
+                      <Plus className="h-4 w-4" aria-hidden="true" />
                       Create Tier #{tierId || '?'}
                     </>
                   )}

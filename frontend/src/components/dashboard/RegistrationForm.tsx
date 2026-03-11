@@ -133,6 +133,7 @@ export default function RegistrationForm({
                 const parsedPrice = parseFloat(price)
                 return !price || !Number.isFinite(parsedPrice) || parsedPrice <= 0
               })()}
+              title={!price ? 'Enter subscription price' : 'Price must be greater than zero'}
               className="w-full"
             >
               {txStatus === 'failed' ? 'Retry' : 'Register as Creator'}

@@ -145,14 +145,47 @@ export default function GiftSubscriptionFlow({
                 {/* Recipient address */}
                 <div>
                   <label htmlFor="gift-recipient" className="mb-2 block text-xs font-medium text-white/70">Recipient Address</label>
-                  <input
-                    id="gift-recipient"
-                    type="text"
-                    value={recipientAddress}
-                    onChange={(e) => setRecipientAddress(e.target.value)}
-                    placeholder="aleo1..."
-                    className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base font-mono"
-                  />
+                  <div className="relative">
+                    <input
+                      id="gift-recipient"
+                      type="text"
+                      value={recipientAddress}
+                      onChange={(e) => setRecipientAddress(e.target.value)}
+                      placeholder="aleo1..."
+                      className={`w-full rounded-lg bg-white/[0.05] border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:ring-1 transition-all text-base font-mono pr-10 ${
+                        recipientAddress.length === 0
+                          ? 'border-border focus:border-violet-500/50 focus:ring-violet-500/30'
+                          : recipientAddress.startsWith('aleo1') && recipientAddress.length === 63
+                          ? 'border-green-500/50 focus:border-green-500/50 focus:ring-green-500/30'
+                          : 'border-red-500/50 focus:border-red-500/50 focus:ring-red-500/30'
+                      }`}
+                      aria-describedby="address-validation"
+                    />
+                    {recipientAddress.length > 0 && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {recipientAddress.startsWith('aleo1') && recipientAddress.length === 63 ? (
+                          <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center">
+                            <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                        ) : (
+                          <div className="w-5 h-5 rounded-full bg-red-500/20 flex items-center justify-center">
+                            <svg className="w-3 h-3 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {recipientAddress.length > 0 && !(recipientAddress.startsWith('aleo1') && recipientAddress.length === 63) && (
+                    <p id="address-validation" className="mt-1.5 text-xs text-red-400">
+                      {!recipientAddress.startsWith('aleo1')
+                        ? 'Address must start with "aleo1"'
+                        : `Address must be 63 characters (currently ${recipientAddress.length})`}
+                    </p>
+                  )}
                 </div>
 
                 {/* Privacy note */}
@@ -183,9 +216,16 @@ export default function GiftSubscriptionFlow({
                   <Button
                     onClick={handleGift}
                     disabled={!recipientAddress.startsWith('aleo1') || recipientAddress.length !== 63 || !connected}
+                    title={
+                      !connected ? 'Connect wallet first'
+                        : !recipientAddress ? 'Enter recipient address'
+                        : !recipientAddress.startsWith('aleo1') ? 'Address must start with aleo1'
+                        : recipientAddress.length !== 63 ? 'Address must be 63 characters'
+                        : undefined
+                    }
                     className="w-full"
                   >
-                    <Send className="h-4 w-4" />
+                    <Send className="h-4 w-4" aria-hidden="true" />
                     Send Gift
                   </Button>
                 )}

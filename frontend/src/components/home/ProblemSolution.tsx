@@ -5,8 +5,8 @@ import ScrollReveal from '@/components/ScrollReveal'
 
 const COMPARISON_ROWS = [
   { traditional: 'Subscriber lists are public', veilsub: 'Subscriber identity is never exposed' },
-  { traditional: 'Transaction history is permanent', veilsub: 'Payments are cryptographically hidden' },
-  { traditional: 'Everyone knows who pays whom', veilsub: 'Zero subscription graph exists' },
+  { traditional: 'Transaction history is permanent', veilsub: 'Payments via credits.aleo transfer_private—ZK proven' },
+  { traditional: 'Everyone knows who pays whom', veilsub: 'Poseidon2 field keys—no subscriber-to-creator mapping' },
 ]
 
 export default function ProblemSolution() {
@@ -40,7 +40,7 @@ export default function ProblemSolution() {
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border/75">
                     <div className="flex items-start gap-2.5 p-5">
-                      <XIcon className="w-4 h-4 text-red-400/50 mt-0.5 shrink-0" />
+                      <XIcon className="w-4 h-4 text-red-400/50 mt-0.5 shrink-0" aria-hidden="true" />
                       <div>
                         <span className="text-[10px] uppercase tracking-wider text-red-400 font-medium">
                           Traditional
@@ -49,7 +49,7 @@ export default function ProblemSolution() {
                       </div>
                     </div>
                     <div className="flex items-start gap-2.5 p-5">
-                      <Check className="w-4 h-4 text-emerald-400/50 mt-0.5 shrink-0" />
+                      <Check className="w-4 h-4 text-emerald-400/50 mt-0.5 shrink-0" aria-hidden="true" />
                       <div>
                         <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-medium">
                           VeilSub

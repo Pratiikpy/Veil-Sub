@@ -101,7 +101,7 @@ export default function TransferPassModal({
           {/* Header */}
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-2xl bg-violet-500/[0.08] border border-violet-500/[0.12] flex items-center justify-center">
-              <ArrowLeftRight className="w-5 h-5 text-violet-400" />
+              <ArrowLeftRight className="w-5 h-5 text-violet-400" aria-hidden="true" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-white">Transfer Subscription</h3>
@@ -112,7 +112,7 @@ export default function TransferPassModal({
           {/* Privacy notice */}
           <div className="rounded-xl bg-surface-2 border border-border p-4 mb-6">
             <div className="flex gap-2">
-              <Shield className="w-4 h-4 text-violet-400/60 mt-0.5 shrink-0" />
+              <Shield className="w-4 h-4 text-violet-400/60 mt-0.5 shrink-0" aria-hidden="true" />
               <div>
                 <p className="text-xs text-violet-300/80 font-medium mb-1">Privacy Preserved</p>
                 <p className="text-xs text-white/60 leading-relaxed">
@@ -147,7 +147,7 @@ export default function TransferPassModal({
           {/* Warning */}
           <div className="rounded-xl bg-red-500/10 border border-red-500/15 p-3 mb-6">
             <p className="text-xs text-red-300 flex items-center gap-2">
-              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
               This action is irreversible. Your access will be revoked after transfer.
             </p>
           </div>

@@ -65,7 +65,7 @@ export default function ContractShowcase() {
                   <SpotlightCard className="group relative p-7 rounded-3xl glass glass-accent transition-all duration-300 h-full">
                     <div className="flex items-center justify-between mb-4">
                       <div className="w-9 h-9 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.1] flex items-center justify-center group-hover:bg-violet-500/[0.1] group-hover:border-violet-500/[0.2] transition-all">
-                        <Icon className="w-4 h-4 text-violet-400/60 group-hover:text-violet-400 transition-colors" />
+                        <Icon className="w-4 h-4 text-violet-400/60 group-hover:text-violet-400 transition-colors" aria-hidden="true" />
                       </div>
                       <span className="text-[11px] font-mono text-violet-400 bg-violet-500/[0.06] px-2.5 py-1 rounded-full border border-violet-500/[0.12]">
                         {feature.version}

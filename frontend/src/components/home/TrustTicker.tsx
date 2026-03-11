@@ -37,7 +37,7 @@ export default function TrustTicker() {
                   key={`${dupeIdx}-${item.text}`}
                   className="inline-flex items-center gap-2.5 text-sm text-white/70 font-semibold tracking-wide"
                 >
-                  <Icon className="w-3.5 h-3.5 text-violet-400" />
+                  <Icon className="w-3.5 h-3.5 text-violet-400" aria-hidden="true" />
                   {item.text}
                 </span>
               )

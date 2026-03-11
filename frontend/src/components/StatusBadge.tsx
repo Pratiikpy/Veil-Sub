@@ -32,7 +32,7 @@ const STATUS_CONFIG: Record<
   verified: {
     label: 'Verified',
     icon: ShieldCheck,
-    className: 'bg-blue-500/10 border-blue-500/20 text-blue-300',
+    className: 'bg-blue-500/10 border-blue-500/20 text-blue-200',
   },
 }
 

@@ -160,9 +160,9 @@ export default function VerifyPage() {
               className="text-center"
             >
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/[0.06] border border-violet-500/[0.12] mb-6">
-                <ShieldCheck className="w-4 h-4 text-violet-400" />
+                <ShieldCheck className="w-4 h-4 text-violet-400" aria-hidden="true" />
                 <span className="text-xs font-medium tracking-wide uppercase text-violet-300">
-                  Zero-Knowledge Verification
+                  BSP Zero-Footprint Verify
                 </span>
               </div>
               <h1
@@ -172,8 +172,7 @@ export default function VerifyPage() {
                 Verify Your Access
               </h1>
               <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
-                Prove you hold a valid AccessPass using a zero-knowledge proof.
-                Your identity stays completely private.
+                Run verify_access to prove subscription. Finalize only checks pass_id + expires_at—your address never touches public state.
               </p>
             </m.div>
           </div>
@@ -201,7 +200,7 @@ export default function VerifyPage() {
               </p>
               <div className="p-4 rounded-xl glass text-left">
                 <p className="text-xs text-white/70 leading-relaxed">
-                  <strong className="text-violet-300">How it works:</strong> Select an AccessPass from your wallet, then click Verify. VeilSub generates a ZK proof that confirms your subscription without revealing your identity. The verification has zero public footprint.
+                  <strong className="text-violet-300">How it works:</strong> Select an AccessPass from your wallet, then click Verify. verify_access consumes your pass (UTXO pattern), checks access_revoked[pass_id] and expires_at &gt; block.height in finalize, then re-creates the pass. Zero subscriber-identifying mapping writes.
                 </p>
               </div>
               <p className="text-xs text-white/60 mt-4">
@@ -508,7 +507,7 @@ export default function VerifyPage() {
               {
                 icon: Fingerprint,
                 title: 'ZK Proof Generated',
-                desc: 'A zero-knowledge proof is created that proves you owned a valid pass, without revealing your identity.',
+                desc: 'A ZK proof confirms pass ownership. Finalize receives only pass_id + expires_at—subscriber address excluded at compile time.',
               },
               {
                 icon: Shield,

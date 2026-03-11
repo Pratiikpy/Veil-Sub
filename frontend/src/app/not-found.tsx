@@ -15,7 +15,7 @@ export default function NotFound() {
         <div className="relative w-16 h-16 mx-auto mb-6">
           <div className="absolute inset-0 rounded-2xl bg-violet-500/10 animate-pulse" />
           <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-border flex items-center justify-center">
-            <Shield className="w-8 h-8 text-violet-400" />
+            <Shield className="w-8 h-8 text-violet-400" aria-hidden="true" />
           </div>
         </div>
         <p className="text-7xl font-bold text-white/10 mb-4 select-none">
@@ -36,13 +36,26 @@ export default function NotFound() {
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-medium text-sm hover:bg-white/90 hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all active:scale-[0.98] btn-shimmer"
           >
             Go Home
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Link>
           <Link
             href="/explore"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/[0.05] border border-border text-white/70 text-sm hover:bg-white/[0.08] hover:border-border-hover transition-all active:scale-[0.98]"
           >
             Explore Creators
+          </Link>
+        </div>
+        <div className="mt-4 flex items-center justify-center gap-4 text-sm text-white/40">
+          <Link href="/docs" className="hover:text-white/70 transition-colors">
+            Documentation
+          </Link>
+          <span>·</span>
+          <Link href="/verify" className="hover:text-white/70 transition-colors">
+            Verify Access
+          </Link>
+          <span>·</span>
+          <Link href="/privacy" className="hover:text-white/70 transition-colors">
+            Privacy Model
           </Link>
         </div>
       </div>

@@ -115,7 +115,7 @@ export default function Header() {
                 aria-expanded={mobileOpen}
                 className="md:hidden p-2 rounded-lg hover:bg-white/[0.04] text-white/60 active:scale-[0.9] transition-all"
               >
-                {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {mobileOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
               </button>
             </div>
           </div>

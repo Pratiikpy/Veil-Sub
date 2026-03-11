@@ -33,10 +33,10 @@ export default function CTASection() {
                 className="text-4xl sm:text-5xl lg:text-6xl font-serif italic text-white"
                 style={{ letterSpacing: '-0.03em' }}
               >
-                Ready to Go Private?
+                Ready to Monetize Privately?
               </h2>
               <p className="mt-6 text-lg text-white/70 max-w-lg mx-auto leading-relaxed">
-                Start earning from subscribers who value privacy. No lists. No traces. No compromise.
+                Earn ALEO from privacy-conscious subscribers. Zero subscriber enumeration. BSP nonce rotation. Poseidon2 field-hashed mappings.
               </p>
               <div className="flex items-center justify-center gap-4 flex-wrap mt-10">
                 <Link href="/dashboard">

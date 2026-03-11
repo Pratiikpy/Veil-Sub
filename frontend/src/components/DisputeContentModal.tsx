@@ -113,7 +113,7 @@ export default function DisputeContentModal({
           {/* Header */}
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-2xl bg-red-500/[0.08] border border-red-500/[0.12] flex items-center justify-center">
-              <Flag className="w-5 h-5 text-red-400" />
+              <Flag className="w-5 h-5 text-red-400" aria-hidden="true" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-white">Dispute Content</h3>
@@ -124,7 +124,7 @@ export default function DisputeContentModal({
           {/* Sybil protection notice */}
           <div className="rounded-xl bg-surface-2 border border-border p-4 mb-6">
             <div className="flex gap-2">
-              <Shield className="w-4 h-4 text-violet-400/60 mt-0.5 shrink-0" />
+              <Shield className="w-4 h-4 text-violet-400/60 mt-0.5 shrink-0" aria-hidden="true" />
               <p className="text-xs text-white/70 leading-relaxed">
                 Disputes are Sybil-protected: only verified subscribers can dispute,
                 limited to 1 dispute per content per address. Your AccessPass proves eligibility
