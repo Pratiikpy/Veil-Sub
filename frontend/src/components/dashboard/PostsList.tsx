@@ -13,7 +13,7 @@ interface PostsListProps {
 
 export default function PostsList({ address }: PostsListProps) {
   const { signMessage } = useWallet()
-  const { getPostsForCreator, deletePost } = useContentFeed()
+  const { getPostsForCreator, deletePost, error: feedError, clearError } = useContentFeed()
   const [posts, setPosts] = useState<{ id: string; title: string; minTier: number; createdAt?: string; contentId?: string }[]>([])
   const [postsLoaded, setPostsLoaded] = useState(false)
 
@@ -49,7 +49,9 @@ export default function PostsList({ address }: PostsListProps) {
       setPosts((prev) => prev.filter((p) => p.id !== postId))
       toast.success('Post deleted')
     } else {
-      toast.error('Failed to delete post')
+      const msg = feedError?.message || 'Failed to delete post'
+      toast.error(msg)
+      if (feedError) clearError()
     }
   }
 

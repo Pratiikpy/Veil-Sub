@@ -370,7 +370,7 @@ export default function SubscribeModal({
                       onClick={handleModalClose}
                       className="mt-4 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                     >
-                      Done
+                      Close Subscription
                     </button>
                   </m.div>
                 )}
@@ -380,7 +380,7 @@ export default function SubscribeModal({
                       onClick={() => resetFlow()}
                       className="px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                     >
-                      Try Again
+                      Retry Subscription
                     </button>
                   </div>
                 )}

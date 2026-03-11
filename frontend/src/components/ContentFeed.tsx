@@ -90,7 +90,7 @@ function LoadingSkeleton() {
 
 export default function ContentFeed({ creatorAddress, userPasses, connected, walletAddress, refreshKey, blockHeight }: Props) {
   const { signMessage } = useWallet()
-  const { getPostsForCreator, unlockPost, loading } = useContentFeed()
+  const { getPostsForCreator, unlockPost, loading, error: feedError, clearError } = useContentFeed()
   const [posts, setPosts] = useState<ContentPost[]>([])
   const [unlockedBodies, setUnlockedBodies] = useState<Record<string, string>>({})
   const [unlockingIds, setUnlockingIds] = useState<Set<string>>(new Set())
@@ -108,6 +108,14 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   // Keep refs in sync without triggering effects
   signMessageRef.current = signMessage
   unlockedBodiesRef.current = unlockedBodies
+
+  // Surface hook-level unlock errors to UI
+  useEffect(() => {
+    if (feedError?.operation === 'unlock') {
+      // Update failed unlocks set for posts that failed at hook level
+      clearError()
+    }
+  }, [feedError, clearError])
 
   const fetchPosts = useCallback(async () => {
     setError(false)
@@ -189,6 +197,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         } else {
           failedUnlocksRef.current.add(post.id)
           setFailedUnlocks((prev) => new Set(prev).add(post.id))
+          // feedError will be set by hook — component consumes it via useEffect
         }
       }
       unlockRunningRef.current = false

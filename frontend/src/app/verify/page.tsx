@@ -212,7 +212,7 @@ export default function VerifyPage() {
                         initial={{ opacity: 0.5 }}
                         animate={{ opacity: [0.5, 1, 0.5] }}
                         transition={{ duration: 2, repeat: Infinity, delay: 0 }}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-violet-500/10 border border-violet-500/20"
+                        className="flex items-center gap-4 p-4 rounded-lg bg-violet-500/10 border border-violet-500/20"
                       >
                         <div className="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center shrink-0">
                           <Lock className="w-4 h-4 text-violet-400" aria-hidden="true" />
@@ -244,7 +244,7 @@ export default function VerifyPage() {
                         initial={{ opacity: 0.5 }}
                         animate={{ opacity: [0.5, 1, 0.5] }}
                         transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20"
+                        className="flex items-center gap-4 p-4 rounded-lg bg-green-500/10 border border-green-500/20"
                       >
                         <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center shrink-0">
                           <Fingerprint className="w-4 h-4 text-green-400" aria-hidden="true" />
@@ -276,7 +276,7 @@ export default function VerifyPage() {
                         initial={{ opacity: 0.5 }}
                         animate={{ opacity: [0.5, 1, 0.5] }}
                         transition={{ duration: 2, repeat: Infinity, delay: 2 }}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20"
+                        className="flex items-center gap-4 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20"
                       >
                         <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
                           <ShieldCheck className="w-4 h-4 text-blue-400" aria-hidden="true" />
@@ -351,7 +351,7 @@ export default function VerifyPage() {
                 <p className="text-xs text-white/70 mb-4">
                   Once verified on-chain, creators can confidently serve gated content:
                 </p>
-                <div className="grid sm:grid-cols-2 gap-3">
+                <div className="grid sm:grid-cols-2 gap-4">
                   {[
                     { label: 'Video streams with access token', icon: '▶' },
                     { label: 'Private content URLs (time-limited)', icon: '🔗' },
@@ -503,7 +503,7 @@ export default function VerifyPage() {
                   <div className="space-y-4">
                     {/* Selected Pass Info */}
                     <GlassCard hover={false}>
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         <div className="flex justify-between text-sm">
                           <span className="text-white/70">Pass ID</span>
                           <span className="text-white font-mono text-xs">
@@ -538,7 +538,7 @@ export default function VerifyPage() {
 
                     {/* Expired pass warning */}
                     {getPassStatus(selectedPass) === 'expired' && verifyResult === 'idle' && (
-                      <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/15 flex items-start gap-2">
+                      <div className="p-4 rounded-lg bg-red-500/5 border border-red-500/15 flex items-start gap-2">
                         <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" aria-hidden="true" />
                         <div>
                           <p className="text-xs text-red-300 mb-1">This pass has expired.</p>
@@ -589,7 +589,7 @@ export default function VerifyPage() {
 
                         {/* Recovery guidance on failure */}
                         {verifyResult === 'failed' && verifyError && (
-                          <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/15">
+                          <div className="p-4 rounded-lg bg-red-500/5 border border-red-500/15">
                             <p className="text-xs text-red-300 mb-2">{verifyError}</p>
                             <div className="flex flex-wrap gap-2">
                               {(verifyError.includes('expired') || verifyError.includes('renew')) && (
@@ -637,7 +637,7 @@ export default function VerifyPage() {
                     <p className="text-white/60 text-xs mb-4 max-w-xs mx-auto">
                       Click on any AccessPass from the list on the left. Once selected, you can run verify_access to prove your subscription on-chain.
                     </p>
-                    <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/10 mx-4">
+                    <div className="p-4 rounded-lg bg-violet-500/5 border border-violet-500/10 mx-4">
                       <p className="text-xs text-white/60">
                         <strong className="text-violet-300">What happens:</strong> Your pass is consumed and re-created (UTXO pattern). Finalize only checks pass_id—your address never appears on-chain.
                       </p>

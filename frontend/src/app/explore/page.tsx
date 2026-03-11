@@ -40,7 +40,7 @@ function TrendingCard({ creator, growth }: { creator: Creator; growth: string })
       href={`/creator/${creator.address}`}
       className="flex-shrink-0 w-64 p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-transparent border border-violet-500/20 hover:border-violet-500/40 transition-all group"
     >
-      <div className="flex items-center gap-3 mb-2">
+      <div className="flex items-center gap-4 mb-2">
         <AddressAvatar address={creator.address} size={36} />
         <div className="min-w-0 flex-1">
           <p className="text-white font-medium text-sm truncate">
@@ -94,7 +94,7 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
         href={`/creator/${creator.address}`}
         className="block p-5 rounded-xl glass hover:-translate-y-0.5 hover:border-violet-500/[0.2] hover:shadow-accent-lg transition-all duration-300 group"
       >
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-4 mb-4">
           <AddressAvatar address={creator.address} size={40} />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
@@ -379,7 +379,7 @@ export default function ExplorePage() {
                   }
                 }}
                 placeholder="Search creators by name or paste aleo1... address"
-                className="w-full pl-11 pr-4 py-3 rounded-xl glass text-white placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300 text-base"
+                className="w-full pl-11 pr-4 py-4 rounded-xl glass text-white placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300 text-base"
               />
             </div>
             {/* Direct address navigation hint */}

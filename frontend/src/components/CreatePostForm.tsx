@@ -21,7 +21,7 @@ interface Props {
 export default function CreatePostForm({ creatorAddress, onPostCreated }: Props) {
   const { signMessage, connected } = useWallet()
   const { publishContent } = useVeilSub()
-  const { createPost } = useContentFeed()
+  const { createPost, error: postError, clearError } = useContentFeed()
   const { startPolling, stopPolling } = useTransactionPoller()
 
   const [title, setTitle] = useState('')
@@ -92,7 +92,11 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
               : null
             const saved = await createPost(creatorAddress, postTitle, postBody, postTier, contentId, wrappedSign, postImageUrl)
             if (!saved) {
-              toast.error('Post confirmed on-chain but failed to save content. Try re-publishing.')
+              const msg = postError
+                ? `Save failed: ${postError.message}`
+                : 'Post confirmed on-chain but failed to save content. Try re-publishing.'
+              toast.error(msg)
+              if (postError) clearError()
             } else {
               toast.success('Post published on-chain!')
             }
@@ -281,7 +285,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                 onClick={handleReset}
                 className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
               >
-                Create Another
+                Create Another Post
               </button>
             </m.div>
           )}

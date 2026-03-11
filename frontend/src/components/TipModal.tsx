@@ -507,7 +507,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                       onClick={handleModalClose}
                       className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                     >
-                      Done
+                      Close Tip
                     </button>
                   </m.div>
                 )}
@@ -525,7 +525,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                       onClick={handleModalClose}
                       className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                     >
-                      Done
+                      Close Tip
                     </button>
                   </m.div>
                 )}
@@ -538,7 +538,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                       onClick={() => resetFlow()}
                       className="px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                     >
-                      Try Again
+                      Retry Tip
                     </button>
                   </div>
                 )}

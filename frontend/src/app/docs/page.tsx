@@ -114,7 +114,7 @@ function OverviewTab() {
           uses credits.aleo/transfer_private, renew supports nonce-based blinding to prevent renewal
           pattern tracking, and verify_access never increments subscriber-linked counters.
         </p>
-        <div className="p-4 rounded-xl bg-white/[0.04] border border-border flex items-center gap-3">
+        <div className="p-4 rounded-xl bg-white/[0.04] border border-border flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center shrink-0">
             <BookOpen className="w-5 h-5 text-white/60" />
           </div>
@@ -155,7 +155,7 @@ function OverviewTab() {
 
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Tech Stack</h3>
-        <div className="grid sm:grid-cols-2 gap-3">
+        <div className="grid sm:grid-cols-2 gap-4">
           {[
             { label: 'Smart Contract', value: 'Leo 3.4.0 — v27: 27 transitions, 25 mappings, 102 asserts with error codes, Poseidon2-hashed keys, BSP + commit-reveal tipping + blind renewal' },
             { label: 'Frontend', value: 'Next.js 16, React 19, TypeScript' },
@@ -275,7 +275,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
             <span className="px-2 py-1 rounded-lg bg-violet-500/10 text-xs font-medium text-violet-300">Subscription Core</span>
             <span className="text-xs text-white/50">6 transitions</span>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[
               { name: 'register_creator(price: u64)', type: 'async', desc: 'Creator sets tier price and initializes counters. Price is in microcredits (1 ALEO = 1,000,000).' },
               { name: 'subscribe(payment, creator, tier, amount, pass_id)', type: 'async', desc: 'Pay with private credits, get a private AccessPass. Finalize enforces tier-based pricing via creator_tiers mapping. Subscriber identity never enters finalize.' },
@@ -301,7 +301,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
             <span className="px-2 py-1 rounded-lg bg-green-500/10 text-xs font-medium text-green-300">Privacy & BSP</span>
             <span className="text-xs text-white/50">4 transitions</span>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[
               { name: 'subscribe_blind(payment, creator, tier_id, amount, nonce)', type: 'async', desc: 'Subscribe using nonce-based blinding—generates blind subscriber hash. Prevents subscription pattern tracking.' },
               { name: 'renew_blind(old_pass, payment, new_tier_id, amount, nonce)', type: 'async', desc: 'Renew subscription with new nonce—each renewal uses unique nonce, preventing creator from tracking renewal patterns.' },
@@ -325,7 +325,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
             <span className="px-2 py-1 rounded-lg bg-blue-500/10 text-xs font-medium text-blue-300">Tiers & Pricing</span>
             <span className="text-xs text-white/50">3 transitions</span>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[
               { name: 'create_custom_tier(tier_id, price, name_hash)', type: 'async', desc: 'Creator dynamically creates custom tiers (replaces hardcoded 1x/2x/5x). Stores tier metadata in creator_tiers mapping via Poseidon2(caller + tier_id). Enables unlimited tier flexibility.' },
               { name: 'update_tier_price(creator, tier_id, new_price)', type: 'async', desc: 'Update the price of an existing custom tier. Price changes apply only to new subscriptions.' },
@@ -348,7 +348,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
             <span className="px-2 py-1 rounded-lg bg-amber-500/10 text-xs font-medium text-amber-300">Content Management</span>
             <span className="text-xs text-white/50">5 transitions</span>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[
               { name: 'publish_content(content_id, min_tier)', type: 'async', desc: 'Creator publishes content metadata on-chain. Records content existence and minimum tier required for access. Content body stays off-chain—only tier-gating is enforced on-chain.' },
               { name: 'publish_encrypted_content(content_id, min_tier, encryption_commitment)', type: 'async', desc: 'Publish content with encryption commitment on-chain. Proves encryption without revealing content body.' },
@@ -373,7 +373,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
             <span className="px-2 py-1 rounded-lg bg-pink-500/10 text-xs font-medium text-pink-300">Tipping</span>
             <span className="text-xs text-white/50">3 transitions</span>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[
               { name: 'tip(payment, creator, amount)', type: 'async', desc: 'Private tip to creator. Only aggregate revenue updated. Tipper identity stays private.' },
               { name: 'commit_tip(creator, amount, salt)', type: 'async', desc: 'Phase 1 of commit-reveal tipping. Commits to a tip amount using BHP256 commitment scheme. The tip value is hidden on-chain until voluntary reveal.' },
@@ -396,7 +396,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
             <span className="px-2 py-1 rounded-lg bg-indigo-500/10 text-xs font-medium text-indigo-300">Gifting & Transfer</span>
             <span className="text-xs text-white/50">3 transitions</span>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[
               { name: 'gift_subscription(payment, creator, recipient, tier, amount, gift_id, expires_at)', type: 'async', desc: 'Gift a subscription to another address. Transfers credits, creates GiftToken for recipient. Records gift in gift_issued mapping keyed by gift_id.' },
               { name: 'redeem_gift(gift_token)', type: 'async', desc: 'Recipient redeems a GiftToken to receive an AccessPass. Records redemption in gift_redeemed mapping.' },
@@ -419,7 +419,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
             <span className="px-2 py-1 rounded-lg bg-white/10 text-xs font-medium text-white/70">Admin</span>
             <span className="text-xs text-white/50">3 transitions</span>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[
               { name: 'withdraw_platform_fees()', type: 'async', desc: 'Platform owner withdraws accumulated platform fees from all subscriptions.' },
               { name: 'withdraw_creator_rev(amount)', type: 'async', desc: 'Creator withdraws accumulated subscription revenue (decrements total_revenue mapping).' },
@@ -525,7 +525,7 @@ function PrivacyModelTab() {
 
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Key Guarantees</h3>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {[
             {
               title: 'No subscriber address in finalize',
