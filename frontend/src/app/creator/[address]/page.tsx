@@ -91,9 +91,10 @@ function GiftDropdown({
         onClick={() => setOpen((prev) => !prev)}
         aria-haspopup="true"
         aria-expanded={open}
+        title={!connected ? 'Connect your wallet to gift a subscription' : 'Gift a subscription to another wallet'}
         className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white/70 font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        <Sparkles className="w-4 h-4" />
+        <Sparkles className="w-4 h-4" aria-hidden="true" />
         Gift
       </button>
       {connected && open && (
@@ -212,14 +213,14 @@ export default function CreatorPage({
       <PageTransition className="min-h-screen">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="p-8 rounded-sm border border-red-500/15 bg-red-500/5 text-center">
-            <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
+            <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" aria-hidden="true" />
             <h2 className="text-xl font-semibold text-white mb-2">Failed to Load Creator</h2>
             <p className="text-sm text-white/70 mb-4">Could not fetch creator data. Please check your connection and try again.</p>
             <button
               onClick={() => window.location.reload()}
               className="px-6 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 inline-flex items-center gap-2"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="w-4 h-4" aria-hidden="true" />
               Retry
             </button>
           </div>
@@ -311,14 +312,14 @@ export default function CreatorPage({
                   className="inline-flex items-center gap-1 text-sm text-white/70 hover:text-white transition-colors"
                 >
                   View on Explorer
-                  <ExternalLink className="w-3 h-3" />
+                  <ExternalLink className="w-3 h-3" aria-hidden="true" />
                 </a>
                 <button
                   onClick={copyAddress}
                   className="inline-flex items-center gap-1 text-sm text-white/60 hover:text-white/70 transition-colors"
                   aria-label="Copy creator address"
                 >
-                  {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+                  {copied ? <Check className="w-3 h-3 text-green-400" aria-hidden="true" /> : <Copy className="w-3 h-3" aria-hidden="true" />}
                   {copied ? 'Copied' : 'Copy'}
                 </button>
                 <button
@@ -334,7 +335,7 @@ export default function CreatorPage({
                   className="inline-flex items-center gap-1 text-sm text-white/60 hover:text-white/70 transition-colors"
                   aria-label="Share creator page"
                 >
-                  <Share2 className="w-3 h-3" />
+                  <Share2 className="w-3 h-3" aria-hidden="true" />
                   Share
                 </button>
               </div>
@@ -384,7 +385,7 @@ export default function CreatorPage({
                 href="/#featured"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 transition-all duration-300 active:scale-[0.98]"
               >
-                <Search className="w-4 h-4" />
+                <Search className="w-4 h-4" aria-hidden="true" />
                 Browse Featured Creators
               </Link>
               <Link
@@ -392,7 +393,7 @@ export default function CreatorPage({
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.05] border border-border text-white/70 text-sm hover:bg-white/[0.08] transition-all duration-300"
               >
                 Register as a Creator
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </Link>
             </div>
           </m.div>
@@ -450,24 +451,27 @@ export default function CreatorPage({
                                 </span>
                                 <button
                                   onClick={() => setRenewPass(pass)}
+                                  title="Extend your subscription with a new payment"
                                   className="px-2.5 py-1 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
                                 >
-                                  <RefreshCw className="w-3 h-3" />
+                                  <RefreshCw className="w-3 h-3" aria-hidden="true" />
                                   Renew
                                 </button>
                                 <button
                                   onClick={() => setTransferPass(pass)}
+                                  title="Transfer this pass to another wallet address"
                                   className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-border text-xs text-white/70 hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
                                 >
-                                  <ArrowLeftRight className="w-3 h-3" />
+                                  <ArrowLeftRight className="w-3 h-3" aria-hidden="true" />
                                   Transfer
                                 </button>
                                 <button
                                   onClick={() => setAuditTokenPass(pass)}
+                                  title="Create a scoped token for third-party verification (e.g., prove tier access without revealing subscriber identity)"
                                   className="px-2.5 py-1 rounded-lg bg-violet-500/[0.06] border border-violet-500/15 text-xs text-violet-300 hover:bg-violet-500/10 transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
                                   aria-label="Create audit token for this pass"
                                 >
-                                  <FileKey className="w-3 h-3" />
+                                  <FileKey className="w-3 h-3" aria-hidden="true" />
                                   Audit Token
                                 </button>
                               </>
@@ -489,17 +493,19 @@ export default function CreatorPage({
                                   </span>
                                   <button
                                     onClick={() => setTransferPass(pass)}
+                                    title="Transfer this pass to another wallet address"
                                     className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-border text-xs text-white/70 hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
                                   >
-                                    <ArrowLeftRight className="w-3 h-3" />
+                                    <ArrowLeftRight className="w-3 h-3" aria-hidden="true" />
                                     Transfer
                                   </button>
                                   <button
                                     onClick={() => setAuditTokenPass(pass)}
+                                    title="Create a scoped token for third-party verification (e.g., prove tier access without revealing subscriber identity)"
                                     className="px-2.5 py-1 rounded-lg bg-violet-500/[0.06] border border-violet-500/15 text-xs text-violet-300 hover:bg-violet-500/10 transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
                                     aria-label="Create audit token for this pass"
                                   >
-                                    <FileKey className="w-3 h-3" />
+                                    <FileKey className="w-3 h-3" aria-hidden="true" />
                                     Audit Token
                                   </button>
                                 </>
@@ -526,7 +532,7 @@ export default function CreatorPage({
                   </span>
                 ) : hasOnChainTiers ? (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] text-green-400 font-medium">
-                    <Shield className="w-3 h-3" />
+                    <Shield className="w-3 h-3" aria-hidden="true" />
                     {onChainTierCount} custom tier{onChainTierCount !== 1 ? 's' : ''} on-chain
                   </span>
                 ) : null}
@@ -591,6 +597,7 @@ export default function CreatorPage({
                         <button
                           onClick={() => setSelectedTier(tier)}
                           disabled={!connected}
+                          title={!connected ? 'Connect your wallet to subscribe' : undefined}
                           className={`w-full py-2.5 rounded-lg font-medium text-sm transition-all duration-300 active:scale-[0.98] btn-shimmer ${
                             tier.id === 3
                               ? 'bg-white text-black hover:bg-white/90'
@@ -645,17 +652,19 @@ export default function CreatorPage({
                   <button
                     onClick={() => setShowTip(true)}
                     disabled={!connected}
+                    title={!connected ? 'Connect your wallet to send a tip' : 'Send a private tip to this creator'}
                     className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white/70 font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    <Heart className="w-4 h-4" />
+                    <Heart className="w-4 h-4" aria-hidden="true" />
                     Tip
                   </button>
                   {userPasses.length > 0 && (
                     <button
                       onClick={() => setDisputeContentId('general')}
+                      title="Report content or quality issues with this creator"
                       className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white/70 font-medium text-sm hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 transition-all duration-300 flex items-center gap-2"
                     >
-                      <Flag className="w-4 h-4" />
+                      <Flag className="w-4 h-4" aria-hidden="true" />
                       Dispute
                     </button>
                   )}
@@ -693,7 +702,7 @@ export default function CreatorPage({
                   <p className="flex items-center gap-2 pt-1">
                     <Link href="/privacy" className="text-violet-400/70 hover:text-violet-300 transition-colors inline-flex items-center gap-1">
                       Learn more about our privacy model
-                      <ArrowRight className="w-3 h-3" />
+                      <ArrowRight className="w-3 h-3" aria-hidden="true" />
                     </Link>
                   </p>
                 </div>

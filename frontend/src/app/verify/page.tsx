@@ -473,9 +473,17 @@ export default function VerifyPage() {
                 ) : (
                   <div className="text-center py-16 rounded-xl bg-surface-1 border border-border">
                     <ShieldCheck className="w-10 h-10 text-white/60 mx-auto mb-3" aria-hidden="true" />
-                    <p className="text-white/70 text-sm">
-                      Select a pass to begin verification
+                    <p className="text-white font-medium text-sm mb-1">
+                      Select a Pass to Verify
                     </p>
+                    <p className="text-white/60 text-xs mb-4 max-w-xs mx-auto">
+                      Click on any AccessPass from the list on the left. Once selected, you can run verify_access to prove your subscription on-chain.
+                    </p>
+                    <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/10 mx-4">
+                      <p className="text-xs text-white/60">
+                        <strong className="text-violet-300">What happens:</strong> Your pass is consumed and re-created (UTXO pattern). Finalize only checks pass_id—your address never appears on-chain.
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>

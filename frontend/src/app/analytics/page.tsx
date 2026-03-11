@@ -17,6 +17,7 @@ import {
   Code,
   ArrowRight,
   Search,
+  RefreshCw,
 } from 'lucide-react'
 import Link from 'next/link'
 import GlassCard from '@/components/GlassCard'
@@ -166,14 +167,15 @@ export default function AnalyticsPage() {
           </div>
           {fetchError && (
             <div className="mb-8 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
-              <p className="text-sm text-amber-400 mb-2">Unable to load platform stats. Showing static data only.</p>
+              <p className="text-sm text-amber-400 mb-2">Unable to load platform stats from API. Showing static contract data only.</p>
               <button
                 onClick={fetchStats}
                 disabled={loading}
-                title={loading ? 'Loading statistics...' : 'Retry loading platform stats'}
-                className="px-4 py-1.5 rounded-lg bg-amber-500/20 border border-amber-500/30 text-xs font-medium text-amber-300 hover:bg-amber-500/30 transition-all disabled:opacity-50"
+                title={loading ? 'Loading statistics from /api/analytics...' : 'Retry loading live platform stats'}
+                className="px-4 py-1.5 rounded-lg bg-amber-500/20 border border-amber-500/30 text-xs font-medium text-amber-300 hover:bg-amber-500/30 transition-all disabled:opacity-50 inline-flex items-center gap-1.5"
               >
-                {loading ? 'Retrying...' : 'Retry'}
+                <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} aria-hidden="true" />
+                {loading ? 'Retrying...' : 'Retry Stats'}
               </button>
             </div>
           )}

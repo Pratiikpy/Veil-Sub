@@ -27,14 +27,18 @@ const TABS: { id: TabId; label: string; icon: typeof BookOpen }[] = [
 
 function CodeBlock({ code, lang }: { code: string; lang: string }) {
   const [copied, setCopied] = useState(false)
+  const [copyError, setCopyError] = useState(false)
 
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(code)
       setCopied(true)
+      setCopyError(false)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      setCopied(false) // silently fail — text is still selectable
+      // Clipboard API unavailable (e.g., insecure context, permission denied)
+      setCopyError(true)
+      setTimeout(() => setCopyError(false), 3000)
     }
   }
 
@@ -44,10 +48,13 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
         <span className="text-xs text-white/60">{lang}</span>
         <button
           onClick={copy}
-          className="text-xs text-white/60 hover:text-white flex items-center gap-1 transition-colors"
+          title={copyError ? 'Clipboard unavailable — select and copy manually' : 'Copy code to clipboard'}
+          className={`text-xs flex items-center gap-1 transition-colors ${
+            copyError ? 'text-red-400' : copied ? 'text-green-400' : 'text-white/60 hover:text-white'
+          }`}
         >
-          {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-          {copied ? 'Copied' : 'Copy'}
+          {copied ? <Check className="w-3 h-3" aria-hidden="true" /> : <Copy className="w-3 h-3" aria-hidden="true" />}
+          {copyError ? 'Copy failed' : copied ? 'Copied' : 'Copy'}
         </button>
       </div>
       <pre className="p-4 bg-surface-1 overflow-x-auto text-sm font-mono text-white/70 leading-relaxed">
