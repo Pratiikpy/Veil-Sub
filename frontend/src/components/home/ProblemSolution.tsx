@@ -32,14 +32,14 @@ export default function ProblemSolution() {
           </ScrollReveal>
 
           <ScrollReveal delay={0.15}>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {COMPARISON_ROWS.map((row) => (
                 <div
                   key={row.traditional}
                   className="rounded-2xl glass overflow-hidden hover:border-border-hover transition-colors duration-300"
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border/75">
-                    <div className="flex items-start gap-3 p-6">
+                    <div className="flex items-start gap-4 p-6">
                       <XIcon className="w-4 h-4 text-red-400/50 mt-0.5 shrink-0" aria-hidden="true" />
                       <div>
                         <span className="text-[10px] uppercase tracking-wider text-red-400 font-medium">
@@ -48,7 +48,7 @@ export default function ProblemSolution() {
                         <p className="text-sm text-white/60 mt-0.5">{row.traditional}</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3 p-6">
+                    <div className="flex items-start gap-4 p-6">
                       <Check className="w-4 h-4 text-emerald-400/50 mt-0.5 shrink-0" aria-hidden="true" />
                       <div>
                         <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-medium">

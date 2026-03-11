@@ -40,7 +40,7 @@ const FeaturedCreatorCard = React.memo(function FeaturedCreatorCard({
       href={`/creator/${address}`}
       className="group block p-6 rounded-3xl glass glass-accent transition-all duration-300"
     >
-      <div className="flex items-center gap-3 mb-3">
+      <div className="flex items-center gap-4 mb-4">
         <AddressAvatar address={address} />
         <div>
           <p className="text-white font-medium text-sm">{label}</p>
@@ -99,7 +99,7 @@ export default function ExploreCreators() {
         )}
 
         <ScrollReveal delay={0.2} className="max-w-xl mx-auto mt-10">
-          <div className="flex gap-2">
+          <div className="flex gap-4">
             <div className="relative flex-1 group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-violet-400 transition-colors" />
               <input

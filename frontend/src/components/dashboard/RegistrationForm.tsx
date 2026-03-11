@@ -36,7 +36,7 @@ export default function RegistrationForm({
       animate={{ opacity: 1, y: 0 }}
       className="max-w-lg"
     >
-      <div className="p-6 rounded-xl bg-surface-1 border border-border">
+      <div className="p-8 rounded-xl bg-surface-1 border border-border">
         <div className="flex items-center gap-2 mb-6">
           <Settings className="w-5 h-5 text-violet-400" />
           <h2 className="text-lg font-semibold text-white">
@@ -61,7 +61,7 @@ export default function RegistrationForm({
                   min="0.000001"
                   step="0.1"
                   onKeyDown={(e) => e.key === 'Enter' && onRegister()}
-                  className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
+                  className="w-full px-4 py-4 rounded-lg bg-surface-1 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/60">
                   ALEO
@@ -91,7 +91,7 @@ export default function RegistrationForm({
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Your creator name"
                 maxLength={50}
-                className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
+                className="w-full px-4 py-4 rounded-lg bg-surface-1 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
               />
             </div>
 
@@ -110,7 +110,7 @@ export default function RegistrationForm({
               />
             </div>
 
-            <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/10 mb-6">
+            <div className="p-4 rounded-lg bg-violet-500/5 border border-violet-500/10 mb-6">
               <div className="flex items-start gap-2">
                 <Info className="w-4 h-4 text-violet-400 mt-0.5 shrink-0" aria-hidden="true" />
                 <p className="text-xs text-white/70">
@@ -122,7 +122,7 @@ export default function RegistrationForm({
             </div>
 
             {txStatus === 'failed' && (
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 mb-4">
+              <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 mb-4">
                 <p className="text-xs text-red-400">Registration failed. Please try again.</p>
               </div>
             )}

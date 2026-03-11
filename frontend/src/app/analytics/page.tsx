@@ -251,9 +251,9 @@ export default function AnalyticsPage() {
                   )
                 })}
               </div>
-              <div className="flex justify-between text-xs text-white/40">
+              <div className="flex justify-between text-sm text-white/60">
                 {ACTIVITY_DATA.map((week) => (
-                  <span key={week.label} className="flex-1 text-center">{week.label}</span>
+                  <span key={week.label} className="flex-1 text-center font-medium">{week.label}</span>
                 ))}
               </div>
             </GlassCard>

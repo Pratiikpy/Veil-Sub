@@ -51,7 +51,7 @@ export default function OnChainVerify({
       <button
         onClick={verify}
         aria-label={`Verify ${mappingName} on-chain`}
-        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-white/[0.05] border border-border text-white/70 hover:text-white hover:bg-white/[0.08] transition-all"
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-white/[0.05] border border-border text-white/70 hover:text-white hover:bg-white/[0.08] focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none transition-all"
       >
         <ShieldCheck className="w-3 h-3" aria-hidden="true" />
         Verify
@@ -81,7 +81,8 @@ export default function OnChainVerify({
     return (
       <button
         onClick={verify}
-        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all"
+        aria-label="Retry on-chain verification"
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none transition-all"
       >
         <WifiOff className="w-3 h-3" aria-hidden="true" />
         Retry
@@ -92,7 +93,8 @@ export default function OnChainVerify({
   return (
     <button
       onClick={verify}
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 hover:bg-yellow-500/20 transition-all"
+      aria-label="Retry on-chain verification after mismatch"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 hover:bg-yellow-500/20 focus-visible:ring-2 focus-visible:ring-yellow-400 focus-visible:outline-none transition-all"
     >
       <AlertCircle className="w-3 h-3" aria-hidden="true" />
       Mismatch — Retry

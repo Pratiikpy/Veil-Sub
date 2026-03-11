@@ -99,14 +99,14 @@ export default function ContractShowcase() {
             return (
               <div key={group.category}>
                 {/* Group Header */}
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-4 mb-4">
                   <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${group.colorClass} flex items-center justify-center shadow-lg`}>
                     <CategoryIcon className="w-5 h-5 text-white" aria-hidden="true" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 flex-wrap">
+                    <div className="flex items-center gap-4 flex-wrap">
                       <h3 className="text-lg font-semibold text-white">{group.category}</h3>
-                      <span className="text-[10px] font-medium uppercase tracking-wider text-white/50 bg-white/[0.04] px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-medium uppercase tracking-wider text-white/50 bg-white/[0.04] px-2 py-1 rounded-full">
                         {group.badge}
                       </span>
                     </div>
@@ -127,7 +127,7 @@ export default function ContractShowcase() {
                         className={isHero ? 'sm:col-span-2 lg:col-span-1' : ''}
                       >
                         <SpotlightCard
-                          className={`group relative p-6 rounded-2xl transition-all duration-300 h-full ${
+                          className={`group relative p-8 rounded-2xl transition-all duration-300 h-full ${
                             isHero
                               ? 'ring-1 ring-violet-400/40 bg-gradient-to-br from-violet-950/30 to-violet-900/10'
                               : 'glass glass-accent'

@@ -260,7 +260,7 @@ export default function ExplorePage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-10"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/[0.06] border border-emerald-500/[0.12] mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/[0.06] border border-emerald-500/[0.12] mb-6">
               <Shield className="w-4 h-4 text-emerald-400" aria-hidden="true" />
               <span className="text-xs font-medium tracking-wide uppercase text-emerald-300">
                 Private Discovery
@@ -320,7 +320,7 @@ export default function ExplorePage() {
               className="mb-10"
             >
               <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-500/10 border border-violet-500/20">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20">
                   <Sparkles className="w-3.5 h-3.5 text-violet-400" aria-hidden="true" />
                   <span className="text-xs font-medium text-violet-400">Featured Creators</span>
                 </div>
@@ -474,14 +474,14 @@ export default function ExplorePage() {
                   key={i}
                   className="p-5 rounded-xl bg-surface-1 border border-border animate-pulse"
                 >
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="flex items-center gap-4 mb-4">
                     <div className="w-10 h-10 rounded-xl bg-white/[0.06]" />
                     <div>
                       <div className="h-4 w-24 rounded bg-white/[0.06] mb-1" />
                       <div className="h-3 w-16 rounded bg-white/[0.04]" />
                     </div>
                   </div>
-                  <div className="h-3 w-full rounded bg-white/[0.03] mb-2" />
+                  <div className="h-4 w-full rounded bg-white/[0.03] mb-2" />
                   <div className="h-3 w-2/3 rounded bg-white/[0.03]" />
                 </div>
               ))}

@@ -102,7 +102,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
             role="dialog"
             aria-modal="true"
             aria-label="Prove subscriber threshold"
-            className="w-full max-w-md rounded-xl bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-md rounded-xl bg-surface-1 border border-border shadow-2xl p-8 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
@@ -121,7 +121,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
             {txStatus === 'idle' ? (
               <>
                 {/* Explanation */}
-                <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4">
+                <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
                   <div className="flex gap-2">
                     <Shield className="w-4 h-4 text-green-400 mt-0.5 shrink-0" aria-hidden="true" />
                     <div className="text-[11px] text-green-400/80 space-y-1">
@@ -139,7 +139,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                 </div>
 
                 {currentSubscriberCount !== undefined && currentSubscriberCount > 0 && (
-                  <div className="p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-4">
+                  <div className="p-4 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-4">
                     <p className="text-[11px] text-violet-300">
                       Your current subscriber count is visible to you: <span className="font-bold">{currentSubscriberCount}</span>.
                       Choose a threshold at or below this number for the proof to succeed.
@@ -175,7 +175,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                 </div>
 
                 {error && (
-                  <div role="alert" className="p-3 rounded-xl bg-red-500/10 border border-red-500/15 mb-4">
+                  <div role="alert" className="p-4 rounded-xl bg-red-500/10 border border-red-500/15 mb-4">
                     <p className="text-xs text-red-400">{error}</p>
                   </div>
                 )}
@@ -187,7 +187,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
             ) : (
               <div className="py-2">
                 {statusMessage && (
-                  <div className="mb-3 p-3 rounded-xl bg-surface-2 border border-border">
+                  <div className="mb-4 p-4 rounded-xl bg-surface-2 border border-border">
                     <p className="text-xs text-white/70 animate-pulse">{statusMessage}</p>
                   </div>
                 )}

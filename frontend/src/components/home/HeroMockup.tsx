@@ -35,14 +35,14 @@ export default function HeroMockup() {
         }}
       >
         {/* Browser chrome */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-white/[0.06]">
+        <div className="flex items-center gap-2 px-4 py-4 border-b border-white/[0.06]">
           <div className="flex gap-1.5">
             <div className="w-2.5 h-2.5 rounded-full bg-white/[0.08]" />
             <div className="w-2.5 h-2.5 rounded-full bg-white/[0.08]" />
             <div className="w-2.5 h-2.5 rounded-full bg-white/[0.08]" />
           </div>
           <div className="flex-1 mx-4 sm:mx-8">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.04]">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.04]">
               <Lock className="w-3 h-3 text-emerald-400/60 shrink-0" />
               <span className="text-[11px] text-white/60 font-mono truncate">
                 veilsub.vercel.app/creator/aleo1hp9...epyxs
@@ -52,13 +52,13 @@ export default function HeroMockup() {
         </div>
 
         {/* App content */}
-        <div className="p-5 sm:p-8">
+        <div className="p-4 sm:p-8">
           {/* Creator header */}
           <m.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 1.2 }}
-            className="flex items-center gap-3 mb-6"
+            className="flex items-center gap-4 mb-6"
           >
             <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500/25 to-violet-600/10 border border-violet-500/20 flex items-center justify-center shrink-0">
               <span className="text-sm font-semibold text-violet-300">A</span>
@@ -90,7 +90,7 @@ export default function HeroMockup() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 1.4 + i * 0.08 }}
-                className={`relative p-3 sm:p-4 rounded-xl border text-center transition-all ${
+                className={`relative p-4 rounded-xl border text-center transition-all ${
                   tier.selected
                     ? 'bg-violet-500/[0.08] border-violet-500/30 shadow-[0_0_20px_rgba(139,92,246,0.08)]'
                     : 'bg-white/[0.02] border-white/[0.06]'
@@ -117,7 +117,7 @@ export default function HeroMockup() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 1.7 }}
           >
-            <div className="w-full py-3 rounded-xl bg-violet-500 hover:bg-violet-400 text-white text-sm font-semibold text-center transition-colors cursor-pointer">
+            <div className="w-full py-4 rounded-xl bg-violet-500 hover:bg-violet-400 text-white text-sm font-semibold text-center transition-colors cursor-pointer">
               Subscribe Privately
             </div>
           </m.div>

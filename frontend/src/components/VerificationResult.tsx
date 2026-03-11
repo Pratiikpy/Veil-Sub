@@ -93,7 +93,7 @@ export default function VerificationResult({
             <div className="space-y-1.5">
               {[
                 { icon: CheckCircle2, text: 'Valid AccessPass ownership' },
-                { icon: Lock, text: 'Pass not revoked (pass_id check)' },
+                { icon: Lock, text: 'Pass not revoked (on-chain check)' },
                 { icon: EyeOff, text: 'Your address never reached finalize' },
               ].map((item, i) => {
                 const Icon = item.icon

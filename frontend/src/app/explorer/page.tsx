@@ -633,10 +633,10 @@ export default function ExplorerPage() {
                   <ActivityChart creatorAddress={result.address} />
 
                   {/* Data Source */}
-                  <div className="p-3 rounded-xl bg-surface-1 border border-border text-xs text-white/60">
+                  <div className="p-4 rounded-xl bg-surface-1 border border-border text-xs text-white/60">
                     <p>
                       Data fetched from on-chain mappings via privacy proxy{' '}
-                      <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300">
+                      <code className="px-2 py-1 rounded bg-white/10 text-violet-300">
                         /api/aleo
                       </code>
                       . Your IP is never sent to external APIs. All values are public aggregate data—no subscriber identities are
@@ -651,7 +651,7 @@ export default function ExplorerPage() {
                     Creator Not Registered
                   </h3>
                   <p className="text-sm text-white/70 mb-4">
-                    This address has not called <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300 text-xs">register_creator</code> on VeilSub.
+                    This address has not called <code className="px-2 py-1 rounded bg-white/10 text-violet-300 text-xs">register_creator</code> on VeilSub.
                     No subscription data exists for this address.
                   </p>
                   <div className="flex items-center justify-center gap-4">

@@ -129,12 +129,12 @@ export default function VisionPage() {
             <m.div {...fadeUp} animate="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Composable Privacy Primitive</h2>
               <p className="text-white/60 max-w-2xl mx-auto">
-                Any Aleo program can verify AccessPass ownership via <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">verify_access</code> —
+                Any Aleo program can verify AccessPass ownership via <code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">verify_access</code> —
                 a minimal-footprint transition whose finalize only checks revocation—subscriber identity never enters public state.
               </p>
             </m.div>
 
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-3 gap-6">
               {[
                 { stat: '27', label: 'Transitions', desc: 'Complete subscription lifecycle' },
                 { stat: '25', label: 'Mappings', desc: 'Aggregate-only public state' },
@@ -167,35 +167,73 @@ export default function VisionPage() {
 
             <div className="space-y-4">
               {[
-                { phase: 'Wave 2', status: 'done', items: 'v8 multi-token, CreatorReceipt, AuditToken, content hashes, walletless explorer, mobile nav' },
-                { phase: 'Wave 3', status: 'current', items: 'v27 on testnet (27 transitions, 25 mappings, 6 records, 5 structs): scoped audit tokens, trial rate-limiting, gift revocation fix, ZERO addresses in finalize, Poseidon2 field-hashed mapping keys, commit-reveal tipping, blind renewal, gifting, disputes, subscription transfer, trial passes, content auth, expiry enforcement, prove_subscriber_threshold' },
-                { phase: 'Wave 4', status: 'next', items: 'Private tier selection, decoy subscriber hashes, creator analytics dashboard, batch subscriptions, TypeScript SDK' },
-                { phase: 'Mainnet', status: 'future', items: 'Production deployment, TypeScript SDK, DAO governance, mobile wallet support' },
+                {
+                  phase: 'Wave 2',
+                  status: 'done',
+                  summary: 'Core infrastructure',
+                  items: ['Multi-token support (v8)', 'CreatorReceipt + AuditToken records', 'Content hash storage', 'Walletless explorer', 'Mobile navigation']
+                },
+                {
+                  phase: 'Wave 3',
+                  status: 'current',
+                  summary: 'v27 deployed on testnet',
+                  highlight: '27 transitions • 25 mappings • 6 record types • 866 statements',
+                  items: ['Scoped audit tokens (bitfield disclosure)', 'Trial passes with rate-limiting', 'ZERO addresses in finalize layer', 'Poseidon2 field-hashed mapping keys', 'Commit-reveal tipping (BHP256)', 'Blind renewal + subscription transfer']
+                },
+                {
+                  phase: 'Wave 4',
+                  status: 'next',
+                  summary: 'Enhanced privacy',
+                  items: ['Private tier selection', 'Decoy subscriber hashes', 'Batch subscriptions', 'TypeScript SDK']
+                },
+                {
+                  phase: 'Mainnet',
+                  status: 'future',
+                  summary: 'Production ready',
+                  items: ['Production deployment', 'DAO governance', 'Mobile wallet support']
+                },
               ].map((item, i) => (
                 <m.div
                   key={item.phase}
                   initial={{ opacity: 1, x: 0 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="flex items-start gap-4 p-4 rounded-xl bg-surface-1 border border-border"
+                  className={`flex items-start gap-4 p-6 rounded-xl border ${
+                    item.status === 'current'
+                      ? 'bg-violet-500/[0.08] border-violet-500/30'
+                      : 'bg-surface-1 border-border'
+                  }`}
                 >
-                  <div className={`shrink-0 mt-0.5 w-3 h-3 rounded-full ${
+                  <div className={`shrink-0 mt-1 w-4 h-4 rounded-full ${
                     item.status === 'done' ? 'bg-green-400' :
-                    item.status === 'current' ? 'bg-violet-400 animate-pulse' :
+                    item.status === 'current' ? 'bg-violet-400 animate-pulse ring-4 ring-violet-400/20' :
                     item.status === 'next' ? 'bg-white/30' : 'bg-white/15'
                   }`} />
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-white">{item.phase}</p>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <p className="text-base font-semibold text-white">{item.phase}</p>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
                         item.status === 'done' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
-                        item.status === 'current' ? 'bg-violet-500/10 text-violet-400 border border-violet-500/20' :
+                        item.status === 'current' ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30' :
                         item.status === 'next' ? 'bg-white/[0.05] text-white/60 border border-border' :
-                        'bg-white/[0.02] text-white/60 border border-border'
+                        'bg-white/[0.02] text-white/50 border border-border'
                       }`}>
                         {item.status === 'done' ? 'Complete' : item.status === 'current' ? 'In Progress' : item.status === 'next' ? 'Planned' : 'Future'}
                       </span>
+                      <span className="text-sm text-white/60">— {item.summary}</span>
                     </div>
-                    <p className="text-xs text-white/60 mt-1">{item.items}</p>
+                    {'highlight' in item && item.highlight && (
+                      <p className="text-xs font-mono text-violet-300 bg-violet-500/10 px-2 py-1 rounded mb-2 inline-block">
+                        {item.highlight}
+                      </p>
+                    )}
+                    <ul className="grid sm:grid-cols-2 gap-x-4 gap-y-1">
+                      {item.items.map((feature) => (
+                        <li key={feature} className="text-sm text-white/60 flex items-center gap-2">
+                          <span className="w-1 h-1 rounded-full bg-white/40" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </m.div>
               ))}
@@ -213,7 +251,7 @@ export default function VisionPage() {
             >
               <div className="absolute inset-0 bg-gradient-to-br from-violet-500/[0.04] to-transparent pointer-events-none" />
               <div className="relative">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-4">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-4">
                   <Shield className="w-3.5 h-3.5 text-violet-400" />
                   <span className="text-xs text-violet-300/90">Privacy by Default</span>
                 </div>
@@ -223,7 +261,7 @@ export default function VisionPage() {
                 <p className="text-white/60 max-w-lg mx-auto mb-6">
                   Try VeilSub on Aleo Testnet—connect a wallet, subscribe to a creator, and verify your privacy guarantees on-chain.
                 </p>
-                <div className="flex flex-wrap items-center justify-center gap-3">
+                <div className="flex flex-wrap items-center justify-center gap-4">
                   <Link
                     href="/explore"
                     className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 transition-all active:scale-[0.98] btn-shimmer"

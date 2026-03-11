@@ -22,7 +22,7 @@ export default function HowItWorks() {
         <ScrollReveal>
           <SectionHeader
             badge="How It Works"
-            title="Four steps to private subscriptions"
+            title="Four steps to zero-footprint subscriptions"
           />
         </ScrollReveal>
 

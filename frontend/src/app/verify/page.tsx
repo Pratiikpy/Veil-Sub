@@ -180,7 +180,7 @@ export default function VerifyPage() {
                 Verify Your Access
               </h1>
               <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
-                Run verify_access to prove subscription. Finalize only checks pass_id + expires_at—your address never touches public state.
+                Prove your subscription with zero-knowledge cryptography. On-chain verification only checks expiry and revocation—your address never touches public state.
               </p>
             </m.div>
           </div>
@@ -219,7 +219,7 @@ export default function VerifyPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium text-white">AccessPass Record</p>
-                          <p className="text-xs text-white/50 truncate font-mono">pass_id: 7f3a...9b2c</p>
+                          <p className="text-xs text-white/50 truncate font-mono">Access ID: 7f3a...9b2c</p>
                         </div>
                         <m.div
                           animate={{ scale: [1, 1.2, 1] }}

@@ -440,7 +440,7 @@ mapping trial_used: field => bool;               // hash(caller, creator) => alr
       <div>
         <h3 className="text-xl font-semibold text-white mb-3">Error Codes (v27)</h3>
         <p className="text-sm text-white/70 mb-4">
-          Every <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">assert</code> in the contract has 102 unique error codes (range: ERR_001–ERR_119, with gaps) for debugging and frontend error mapping. Key ranges:
+          Every <code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">assert</code> in the contract has 102 unique error codes (range: ERR_001–ERR_119, with gaps) for debugging and frontend error mapping. Key ranges:
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {[
@@ -485,11 +485,11 @@ function PrivacyModelTab() {
       <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/20">
         <h4 className="text-green-300 font-semibold mb-2">Minimal-Footprint Access Verification</h4>
         <p className="text-sm text-white/70 leading-relaxed">
-          <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">verify_access</code> has
+          <code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">verify_access</code> has
           a <strong className="text-white">minimal finalize</strong> that only checks revocation status via pass_id.
           The subscriber address never enters finalize—no identity-linked mapping writes, no counter increments,
           no on-chain evidence of <em>who</em> verified. This is a deliberate privacy design: the finalize only
-          reads <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">access_revoked</code> to
+          reads <code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">access_revoked</code> to
           enforce pass revocation, without exposing subscriber identity. Access proof relies on Aleo&apos;s native
           record ownership system—no manual nullifiers or ZK proof verification needed.
         </p>
@@ -504,21 +504,21 @@ function PrivacyModelTab() {
           even public aggregate data like subscriber counts and revenue are keyed by opaque field values.
         </p>
         <p className="text-sm text-white/70 leading-relaxed mb-3">
-          The Pedersen proof transitions (<code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">subscribe_private_count</code>,{' '}
-          <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">prove_sub_count</code>,{' '}
-          <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">prove_revenue_range</code>) were removed
+          The Pedersen proof transitions (<code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">subscribe_private_count</code>,{' '}
+          <code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">prove_sub_count</code>,{' '}
+          <code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">prove_revenue_range</code>) were removed
           in favor of the more comprehensive Poseidon2 approach, which provides stronger privacy guarantees
           across all transitions without requiring separate proof circuits. Analytics-only mappings
-          (<code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">content_version</code>,{' '}
-          <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">subscription_epoch</code>,{' '}
-          <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">creator_last_active</code>,{' '}
-          <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">total_subscriptions</code>) were also removed to reduce the variable count.
+          (<code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">content_version</code>,{' '}
+          <code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">subscription_epoch</code>,{' '}
+          <code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">creator_last_active</code>,{' '}
+          <code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">total_subscriptions</code>) were also removed to reduce the variable count.
         </p>
         <p className="text-sm text-white/70 leading-relaxed">
           The result: 27 transitions, 25 mappings, 6 record types, 5 structs, 866 statements,
           and 102 error codes—a leaner, more private contract that fits within testnet deployment limits.
           Commit-reveal tipping uses{' '}
-          <code className="px-1 py-0.5 rounded bg-white/10 text-white/70 text-xs">BHP256::commit_to_field</code> —
+          <code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">BHP256::commit_to_field</code> —
           a novel cryptographic commitment scheme for hidden tip amounts.
         </p>
       </div>

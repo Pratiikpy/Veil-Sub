@@ -118,7 +118,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
     : 0
 
   return (
-    <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6">
+    <div className="bg-white/5 backdrop-blur-md rounded-2xl p-8">
       {/* ── Horizontal layout (sm+) ── */}
       <div className="hidden sm:block">
         {/* Step circles + connecting line */}
@@ -212,7 +212,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
             const isLast = i === STEPS.length - 1
 
             return (
-              <div key={step.key} className="relative flex items-start gap-3">
+              <div key={step.key} className="relative flex items-start gap-4">
                 {/* Vertical line + circle column */}
                 <div className="flex flex-col items-center">
                   <m.div
@@ -332,7 +332,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             role="alert"
-            className="mt-5 flex items-start gap-2.5 p-3 rounded-xl bg-red-500/10 border border-red-500/20"
+            className="mt-5 flex items-start gap-2.5 p-4 rounded-xl bg-red-500/10 border border-red-500/20"
           >
             <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
             <p className="text-xs text-red-400">{error}</p>
@@ -370,7 +370,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
           animate={{ opacity: 1, height: 'auto' }}
           className="mt-4 space-y-2"
         >
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
             <span className="text-amber-400 text-[11px] font-medium">
               Do not close this tab while your Aleo ZK proof is being generated.
             </span>
@@ -379,7 +379,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
             <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="px-3 py-2 rounded-lg bg-white/5 border border-white/10"
+              className="px-4 py-2 rounded-lg bg-white/5 border border-white/10"
             >
               <p className="text-[11px] text-white/50">
                 Aleo ZK proofs can take 1-2 minutes depending on your device. If stuck beyond 3 minutes, try refreshing and retrying.
