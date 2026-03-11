@@ -135,6 +135,9 @@ export default function RegisteredDashboard({
   const handleTabKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       const tabIds = TABS.map((t) => t.id)
+      // Guard against empty tabs array (defensive)
+      if (tabIds.length === 0) return
+
       const currentIndex = tabIds.indexOf(activeTab)
       let nextIndex = currentIndex
 
@@ -153,6 +156,9 @@ export default function RegisteredDashboard({
       } else {
         return
       }
+
+      // Bounds check (should always pass but defensive)
+      if (nextIndex < 0 || nextIndex >= tabIds.length) return
 
       setActiveTab(tabIds[nextIndex])
       const nextButton = tabListRef.current?.querySelector(

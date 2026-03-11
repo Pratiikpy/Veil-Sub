@@ -19,7 +19,7 @@ export function useRovingTabIndex(containerRef: RefObject<HTMLElement | null>) {
       const currentIndex = radios.indexOf(document.activeElement as HTMLElement)
       if (currentIndex === -1) return
 
-      let nextIndex: number | null = null
+      let nextIndex: number
 
       switch (e.key) {
         case 'ArrowRight':
@@ -33,6 +33,9 @@ export function useRovingTabIndex(containerRef: RefObject<HTMLElement | null>) {
         default:
           return
       }
+
+      // Guard against out-of-bounds access (should never happen but defensive)
+      if (nextIndex < 0 || nextIndex >= radios.length) return
 
       e.preventDefault()
       radios[currentIndex].setAttribute('tabindex', '-1')

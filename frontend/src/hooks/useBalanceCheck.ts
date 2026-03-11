@@ -106,7 +106,8 @@ export function useBalanceCheck(
 
       // Step 5: Check total available vs required
       const totalAvailable = records.reduce((sum, r) => sum + parseMicrocredits(r), 0)
-      const largest = parseMicrocredits(records[0])
+      // Safe access — records.length >= 1 guaranteed by check above
+      const largest = records.length > 0 ? parseMicrocredits(records[0]) : 0
 
       if (totalAvailable < requiredAmount) {
         setLoading(false)

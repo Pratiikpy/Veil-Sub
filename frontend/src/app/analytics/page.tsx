@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { m } from 'framer-motion'
 import {
   Users,
@@ -91,25 +91,27 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true)
   const [fetchError, setFetchError] = useState(false)
 
-  useEffect(() => {
-    async function fetchStats() {
-      setFetchError(false)
-      try {
-        const res = await fetch('/api/analytics?global_stats=true')
-        if (!res.ok) {
-          setFetchError(true)
-          return
-        }
-        const data = await res.json()
-        setStats(data)
-      } catch {
+  const fetchStats = useCallback(async () => {
+    setLoading(true)
+    setFetchError(false)
+    try {
+      const res = await fetch('/api/analytics?global_stats=true')
+      if (!res.ok) {
         setFetchError(true)
-      } finally {
-        setLoading(false)
+        return
       }
+      const data = await res.json()
+      setStats(data)
+    } catch {
+      setFetchError(true)
+    } finally {
+      setLoading(false)
     }
-    fetchStats()
   }, [])
+
+  useEffect(() => {
+    fetchStats()
+  }, [fetchStats])
 
   return (
     <PageTransition>
@@ -161,7 +163,14 @@ export default function AnalyticsPage() {
           </div>
           {fetchError && (
             <div className="mb-8 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
-              <p className="text-sm text-amber-400">Unable to load platform stats. Showing static data only.</p>
+              <p className="text-sm text-amber-400 mb-2">Unable to load platform stats. Showing static data only.</p>
+              <button
+                onClick={fetchStats}
+                disabled={loading}
+                className="px-4 py-1.5 rounded-lg bg-amber-500/20 border border-amber-500/30 text-xs font-medium text-amber-300 hover:bg-amber-500/30 transition-all disabled:opacity-50"
+              >
+                {loading ? 'Retrying...' : 'Retry'}
+              </button>
             </div>
           )}
 

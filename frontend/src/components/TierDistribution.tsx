@@ -60,7 +60,9 @@ export default function TierDistribution({ creatorAddress }: Props) {
     )
   }
 
-  const maxCount = Math.max(...Object.values(distribution), 1)
+  // Guard against null/empty distribution — Object.values on null throws
+  const distValues = distribution && typeof distribution === 'object' ? Object.values(distribution) : []
+  const maxCount = distValues.length > 0 ? Math.max(...distValues.filter((v): v is number => typeof v === 'number'), 1) : 1
 
   return (
     <div className="rounded-sm bg-surface-1 border border-border p-5">

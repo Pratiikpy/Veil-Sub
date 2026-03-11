@@ -97,6 +97,11 @@ export function useTransactionFlow({
             'Validators are verifying the proof...',
             'Finalizing on-chain state...',
           ]
+    // Guard against empty messages array (defensive)
+    if (messages.length === 0) {
+      setStatusMessage(null)
+      return
+    }
     let idx = 0
     setStatusMessage(messages[0])
     const interval = setInterval(() => {

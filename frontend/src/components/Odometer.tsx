@@ -46,19 +46,27 @@ export default function Odometer({
     if (isInView && !triggered) setTriggered(true)
   }, [isInView, triggered])
 
-  const digits = String(end).split('')
+  // Use absolute value to handle negatives; parseInt on '-' returns NaN
+  const safeEnd = Math.abs(Math.round(end))
+  const digits = String(safeEnd).split('')
 
   return (
     <span ref={ref} className={`inline-flex items-baseline tabular-nums ${className}`}>
       {prefix && <span>{prefix}</span>}
+      {end < 0 && <span>-</span>}
       {triggered
-        ? digits.map((d, i) => (
-            <Digit
-              key={`${i}-${d}`}
-              value={parseInt(d)}
-              duration={duration + i * 0.1}
-            />
-          ))
+        ? digits.map((d, i) => {
+            const parsed = parseInt(d, 10)
+            // Skip non-numeric characters (defensive)
+            if (!Number.isFinite(parsed)) return null
+            return (
+              <Digit
+                key={`${i}-${d}`}
+                value={parsed}
+                duration={duration + i * 0.1}
+              />
+            )
+          })
         : <span>{String(end)}</span>}
       {suffix && <span>{suffix}</span>}
     </span>
