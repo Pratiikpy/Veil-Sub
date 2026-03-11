@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { hashAddress } from '@/lib/encryption'
 import { getRedis } from '@/lib/redis'
+import { API_LIMITS, RATE_LIMITS, CACHE_HEADERS, AUTH_CONFIG } from '@/lib/config'
 
 const ALEO_ADDRESS_RE = /^aleo1[a-z0-9]{58}$/
 
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
         activePrograms: 1,
       }, {
         headers: {
-          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+          'Cache-Control': CACHE_HEADERS.ANALYTICS,
         },
       })
     }
@@ -50,7 +51,7 @@ export async function GET(req: NextRequest) {
       activePrograms: 1, // veilsub_v27.aleo (deployed)
     }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+        'Cache-Control': CACHE_HEADERS.ANALYTICS,
       },
     })
   }
@@ -60,7 +61,7 @@ export async function GET(req: NextRequest) {
     if (!supabase) {
       return NextResponse.json({ events: [] }, {
         headers: {
-          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+          'Cache-Control': CACHE_HEADERS.ANALYTICS,
         },
       })
     }
@@ -69,11 +70,11 @@ export async function GET(req: NextRequest) {
       .from('subscription_events')
       .select('tier, amount_microcredits, tx_id, created_at')
       .order('created_at', { ascending: false })
-      .limit(50)
+      .limit(API_LIMITS.ANALYTICS_EVENTS_LIMIT)
 
     return NextResponse.json({ events: data || [] }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+        'Cache-Control': CACHE_HEADERS.ANALYTICS,
       },
     })
   }
@@ -92,19 +93,17 @@ export async function GET(req: NextRequest) {
     .select('tier, amount_microcredits, tx_id, created_at')
     .eq('creator_address_hash', addressHash)
     .order('created_at', { ascending: false })
-    .limit(50)
+    .limit(API_LIMITS.ANALYTICS_EVENTS_LIMIT)
 
   return NextResponse.json({ events: data || [] }, {
     headers: {
-      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      'Cache-Control': CACHE_HEADERS.ANALYTICS,
     },
   })
 }
 
-// Minimum decoded signature length (Aleo ed25519 signatures are 64 bytes)
-const MIN_SIG_BYTES = 64
-// Timestamp validity window: 2 minutes
-const TIMESTAMP_WINDOW_MS = 2 * 60 * 1000
+// Use centralized auth config
+const { MIN_SIG_BYTES, TIMESTAMP_WINDOW_MS } = AUTH_CONFIG
 
 /**
  * Verify wallet auth for analytics events.
@@ -177,14 +176,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: authError }, { status: 403 })
     }
 
-    if (typeof tier !== 'number' || !Number.isInteger(tier) || tier < 0 || tier > 20) {
-      return NextResponse.json({ error: 'Invalid tier (must be 0-20)' }, { status: 400 })
+    if (typeof tier !== 'number' || !Number.isInteger(tier) || tier < 0 || tier > API_LIMITS.MAX_TIER_ID) {
+      return NextResponse.json({ error: `Invalid tier (must be 0-${API_LIMITS.MAX_TIER_ID})` }, { status: 400 })
     }
-    if (typeof amount_microcredits !== 'number' || amount_microcredits < 0 || amount_microcredits > 1_000_000_000_000) {
+    if (typeof amount_microcredits !== 'number' || amount_microcredits < 0 || amount_microcredits > API_LIMITS.MAX_MICROCREDITS) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 })
     }
     // tx_id must be a non-empty string if provided
-    if (tx_id !== undefined && tx_id !== null && (typeof tx_id !== 'string' || tx_id.length > 200)) {
+    if (tx_id !== undefined && tx_id !== null && (typeof tx_id !== 'string' || tx_id.length > API_LIMITS.MAX_TX_ID_LENGTH)) {
       return NextResponse.json({ error: 'Invalid tx_id' }, { status: 400 })
     }
 
@@ -194,7 +193,7 @@ export async function POST(req: NextRequest) {
       const rlKey = `veilsub:analytics-rl:${walletHash}`
       const count = await redis.incr(rlKey)
       await redis.expire(rlKey, 60)
-      if (count > 10) {
+      if (count > RATE_LIMITS.ANALYTICS_PER_MINUTE) {
         return NextResponse.json({ error: 'Rate limited' }, { status: 429 })
       }
     }

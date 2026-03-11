@@ -100,7 +100,10 @@ export async function hashAddress(address: string): Promise<string> {
     // Fallback for non-secure contexts (HTTP dev environments only)
     // SECURITY: This produces a weak hash — acceptable only in dev over HTTP.
     // Production MUST use HTTPS where crypto.subtle is always available.
-    console.warn('[VeilSub] crypto.subtle unavailable — using weak hash fallback. Ensure HTTPS in production.')
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('crypto.subtle unavailable. VeilSub requires HTTPS in production.')
+    }
+    // Dev-only weak hash fallback
     let hash = 0
     for (let i = 0; i < address.length; i++) {
       hash = ((hash << 5) - hash) + address.charCodeAt(i)

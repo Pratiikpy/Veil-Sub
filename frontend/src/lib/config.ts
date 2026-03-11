@@ -65,6 +65,40 @@ export const POLLING_INTERVAL_MS = 3_000
 export const MAX_POLL_ATTEMPTS = 120
 export const INITIAL_POLL_DELAY_MS = 1_000
 
+// API validation limits — centralized to avoid magic numbers in routes
+export const API_LIMITS = {
+  MAX_TIER_ID: 20,
+  MAX_MICROCREDITS: 1_000_000_000_000,
+  MAX_TX_ID_LENGTH: 200,
+  MAX_POST_TITLE_LENGTH: 200,
+  MAX_POST_BODY_LENGTH: 50_000,
+  MAX_IMAGE_URL_LENGTH: 2_000,
+  MAX_PREVIEW_LENGTH: 300,
+  MAX_CONTENT_ID_LENGTH: 200,
+  ANALYTICS_EVENTS_LIMIT: 50,
+  ANALYTICS_RECENT_LIMIT: 50,
+} as const
+
+// API rate limits (requests per minute)
+export const RATE_LIMITS = {
+  ANALYTICS_PER_MINUTE: 10,
+  POSTS_PER_MINUTE: 5,
+  EDITS_PER_MINUTE: 10,
+  DELETES_PER_MINUTE: 10,
+} as const
+
+// Cache headers for API responses
+export const CACHE_HEADERS = {
+  ANALYTICS: 'public, s-maxage=60, stale-while-revalidate=300',
+  POSTS: 'public, s-maxage=30, stale-while-revalidate=120',
+} as const
+
+// Auth configuration
+export const AUTH_CONFIG = {
+  TIMESTAMP_WINDOW_MS: 2 * 60 * 1000, // 2 minutes
+  MIN_SIG_BYTES: 64,
+} as const
+
 // Platform fee configuration
 // PLATFORM_ADDRESS must match the PLATFORM_ADDR constant hardcoded in the Leo contract.
 export const PLATFORM_ADDRESS = 'aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk'

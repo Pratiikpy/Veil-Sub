@@ -341,7 +341,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                     >
                       <Eye className="w-4 h-4 mx-auto mb-1" aria-hidden="true" />
                       <span className="text-[11px] font-medium block">Direct Tip</span>
-                      <span className="text-[9px] text-white/60 block">via transfer_private</span>
+                      <span className="text-[9px] text-white/60 block">Private transfer</span>
                     </button>
                     <button
                       role="radio"
@@ -422,7 +422,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                   {tipMode === 'direct' ? (
                     <>
                       <p className="text-[11px] text-green-400/80">
-                        Your identity stays private via transfer_private. The creator receives payment but never knows who tipped.
+                        Your identity stays completely private. The creator receives payment but never knows who tipped.
                       </p>
                       <p className="text-[11px] text-white/60">
                         Est. network fee: ~{formatCredits(currentFee)} ALEO
@@ -433,11 +433,11 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                       <div className="flex gap-1.5 items-start">
                         <Shield className="w-3.5 h-3.5 text-green-400 mt-0.5 shrink-0" aria-hidden="true" />
                         <div className="text-[11px] text-green-400/80 space-y-0.5">
-                          <p className="font-medium text-green-400">Commit-Reveal Privacy (BHP256)</p>
+                          <p className="font-medium text-green-400">Commit-Reveal Privacy</p>
                           {commitPhase === 'commit' ? (
-                            <p>Phase 1: commit_tip hashes your amount with BHP256. The creator sees only the hash until you reveal.</p>
+                            <p>Phase 1: Commits your tip amount cryptographically. The creator sees only the commitment until you reveal.</p>
                           ) : (
-                            <p>Phase 2: reveal_tip verifies your commitment and transfers the actual payment via transfer_private.</p>
+                            <p>Phase 2: Verifies your commitment and transfers the payment privately.</p>
                           )}
                         </div>
                       </div>
@@ -519,7 +519,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                   >
                     <p className="text-green-400 font-medium">Private tip revealed and sent!</p>
                     <p className="text-xs text-white/70 mt-1">
-                      The creator has received {formatCredits(savedAmount)} ALEO via transfer_private. Both phases verified on veilsub_v27.aleo.
+                      The creator has received {formatCredits(savedAmount)} ALEO privately. Both phases verified on-chain.
                     </p>
                     <button
                       onClick={handleModalClose}

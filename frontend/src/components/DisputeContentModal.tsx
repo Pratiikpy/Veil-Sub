@@ -116,7 +116,7 @@ export default function DisputeContentModal({
               <Flag className="w-5 h-5 text-red-400" aria-hidden="true" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">dispute_content Transition</h3>
+              <h3 className="text-lg font-semibold text-white">Dispute Content</h3>
               <p className="text-xs text-white/60 truncate max-w-[280px]">{contentTitle}</p>
             </div>
           </div>
@@ -169,18 +169,43 @@ export default function DisputeContentModal({
             <p className="text-xs text-red-400 mb-4" role="alert">{error}</p>
           )}
 
+          {/* Success State */}
+          {txStatus === 'confirmed' && (
+            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4 mb-4">
+              <p className="text-sm text-emerald-300 font-medium mb-2">Dispute Submitted</p>
+              <p className="text-xs text-white/60 leading-relaxed">
+                Your dispute has been recorded on-chain. The creator and platform will review your concern.
+                Your subscriber identity remains private via hash commitment.
+              </p>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex gap-4">
-            <Button variant="secondary" onClick={handleClose} className="flex-1">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleDispute}
-              disabled={!selectedReason || txStatus === 'signing' || txStatus === 'broadcasting'}
-              className="flex-1 bg-red-500/80 text-white hover:bg-red-500/90 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]"
-            >
-              {txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Submitting...' : 'Execute dispute_content'}
-            </Button>
+            {txStatus === 'confirmed' ? (
+              <Button variant="accent" onClick={handleClose} className="w-full">
+                Done
+              </Button>
+            ) : (
+              <>
+                <Button variant="secondary" onClick={handleClose} className="flex-1">
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDispute}
+                  disabled={!selectedReason || txStatus === 'signing' || txStatus === 'broadcasting'}
+                  title={
+                    !selectedReason ? 'Select a reason for the dispute' :
+                    txStatus === 'signing' ? 'Waiting for wallet signature...' :
+                    txStatus === 'broadcasting' ? 'Submitting dispute...' :
+                    'Submit dispute for this content'
+                  }
+                  className="flex-1 bg-red-500/80 text-white hover:bg-red-500/90 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]"
+                >
+                  {txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Submitting...' : 'Submit Dispute'}
+                </Button>
+              </>
+            )}
           </div>
         </m.div>
       </m.div>

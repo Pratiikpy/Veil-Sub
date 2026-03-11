@@ -118,8 +118,8 @@ export default function TransferPassModal({
               <div>
                 <p className="text-xs text-violet-300/80 font-medium mb-1">BSP Transfer Privacy</p>
                 <p className="text-xs text-white/60 leading-relaxed">
-                  Your AccessPass record is consumed via veilsub_v27.aleo. A fresh AccessPass is minted
-                  to the recipient. Poseidon2-hashed subscriber identity prevents linkage.
+                  Your subscription pass is transferred securely. The recipient receives a new pass with
+                  cryptographic privacy protecting both identities.
                 </p>
               </div>
             </div>
@@ -176,26 +176,45 @@ export default function TransferPassModal({
             <p className="text-xs text-red-400 mb-4" role="alert">{error}</p>
           )}
 
+          {/* Success State */}
+          {txStatus === 'confirmed' && (
+            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4 mb-4">
+              <p className="text-sm text-emerald-300 font-medium mb-2">Transfer Complete</p>
+              <p className="text-xs text-white/60 leading-relaxed">
+                Your AccessPass has been transferred to <span className="font-mono text-violet-300">{recipientAddress.slice(0, 12)}...{recipientAddress.slice(-6)}</span>.
+                The recipient now owns this subscription.
+              </p>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex gap-4">
-            <Button variant="secondary" onClick={handleClose} className="flex-1">
-              Cancel
-            </Button>
-            <Button
-              variant="accent"
-              onClick={handleTransfer}
-              disabled={!canTransfer}
-              title={
-                !isValidAddress ? 'Enter a valid Aleo address starting with aleo1' :
-                !confirmed ? 'Confirm that you understand this is irreversible' :
-                txStatus === 'signing' ? 'Waiting for wallet signature...' :
-                txStatus === 'broadcasting' ? 'Broadcasting transaction...' :
-                'Transfer your subscription to this address'
-              }
-              className="flex-1"
-            >
-              {txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Broadcasting...' : 'Transfer Pass'}
-            </Button>
+            {txStatus === 'confirmed' ? (
+              <Button variant="accent" onClick={handleClose} className="w-full">
+                Done
+              </Button>
+            ) : (
+              <>
+                <Button variant="secondary" onClick={handleClose} className="flex-1">
+                  Cancel
+                </Button>
+                <Button
+                  variant="accent"
+                  onClick={handleTransfer}
+                  disabled={!canTransfer}
+                  title={
+                    !isValidAddress ? 'Enter a valid Aleo address starting with aleo1' :
+                    !confirmed ? 'Confirm that you understand this is irreversible' :
+                    txStatus === 'signing' ? 'Waiting for wallet signature...' :
+                    txStatus === 'broadcasting' ? 'Broadcasting transaction...' :
+                    'Transfer your subscription to this address'
+                  }
+                  className="flex-1"
+                >
+                  {txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Broadcasting...' : 'Transfer Pass'}
+                </Button>
+              </>
+            )}
           </div>
         </m.div>
       </m.div>

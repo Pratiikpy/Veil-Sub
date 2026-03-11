@@ -69,6 +69,10 @@ export function useContractExecute() {
     decrypt,
   } = useWallet()
 
+  // ZK proof timeout: 3 minutes max before we surface an error to the user.
+  // Prevents indefinite hangs during proof generation.
+  const ZK_PROOF_TIMEOUT_MS = 3 * 60 * 1000
+
   // Generic execute helper -- uses new @provablehq executeTransaction API
   const execute = useCallback(
     async (
@@ -81,13 +85,18 @@ export function useContractExecute() {
         throw new Error('Wallet not connected')
       }
 
-      const result = await executeTransaction({
-        program: program || DEPLOYED_PROGRAM_ID,
-        function: functionName,
-        inputs,
-        fee,
-        privateFee: false,
-      })
+      // Wrap executeTransaction with timeout to prevent indefinite ZK proof hangs
+      const result = await withTimeout(
+        executeTransaction({
+          program: program || DEPLOYED_PROGRAM_ID,
+          function: functionName,
+          inputs,
+          fee,
+          privateFee: false,
+        }),
+        ZK_PROOF_TIMEOUT_MS,
+        `ZK proof for ${functionName}`
+      )
       return result?.transactionId ?? null
     },
     [address, executeTransaction]

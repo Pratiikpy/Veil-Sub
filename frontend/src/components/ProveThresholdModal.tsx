@@ -107,7 +107,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <Award className="w-5 h-5 text-violet-400" aria-hidden="true" />
-                <h3 className="text-lg font-semibold text-white">prove_subscriber_threshold</h3>
+                <h3 className="text-lg font-semibold text-white">Prove Subscriber Threshold</h3>
               </div>
               <button
                 onClick={handleClose}
@@ -125,15 +125,14 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                   <div className="flex gap-2">
                     <Shield className="w-4 h-4 text-green-400 mt-0.5 shrink-0" aria-hidden="true" />
                     <div className="text-[11px] text-green-400/80 space-y-1">
-                      <p className="font-medium text-green-400">ZK Reputation via veilsub_v27.aleo</p>
+                      <p className="font-medium text-green-400">Zero-Knowledge Reputation Proof</p>
                       <p>
-                        The prove_subscriber_threshold transition reads subscriber_count
-                        from the on-chain mapping and verifies count &gt;= threshold. Finalize
-                        is read-only—no mapping writes.
+                        Generates a cryptographic proof that you have at least the specified
+                        number of subscribers. No on-chain changes—just verification.
                       </p>
                       <p>
-                        Third parties see only that the proof succeeded for a given
-                        threshold — never your actual subscriber count.
+                        Third parties see only that the proof succeeded—your actual
+                        subscriber count stays private.
                       </p>
                     </div>
                   </div>
@@ -171,7 +170,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                 {/* Fee Info */}
                 <div className="p-2.5 rounded-xl bg-surface-2 border border-border mb-4">
                   <p className="text-[11px] text-white/60">
-                    Est. network fee: ~{formatCredits(FEES.PROVE_THRESHOLD)} ALEO. Read-only finalize via prove_subscriber_threshold—no mapping writes.
+                    Est. network fee: ~{formatCredits(FEES.PROVE_THRESHOLD)} ALEO. Read-only operation—no on-chain state changes.
                   </p>
                 </div>
 
@@ -182,7 +181,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                 )}
 
                 <Button onClick={handleProve} disabled={txStatus !== 'idle'} className="w-full">
-                  Execute prove_subscriber_threshold
+                  Generate Proof
                 </Button>
               </>
             ) : (
@@ -199,7 +198,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-4 text-center"
                   >
-                    <p className="text-green-400 font-medium mb-1">prove_subscriber_threshold Confirmed</p>
+                    <p className="text-green-400 font-medium mb-1">Reputation Proof Confirmed</p>
                     <p className="text-xs text-white/60">
                       On-chain proof confirmed: you have at least <span className="text-white font-bold">{provenThreshold}</span> subscribers.
                       The exact count remains private.
