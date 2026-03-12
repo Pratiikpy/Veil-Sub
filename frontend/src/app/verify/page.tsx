@@ -160,7 +160,7 @@ export default function VerifyPage() {
 
   return (
     <PageTransition>
-      <div className="min-h-screen">
+      <div className="min-h-screen overflow-x-hidden">
         {/* Hero */}
         <section className="relative overflow-hidden">
           <div
@@ -206,8 +206,8 @@ export default function VerifyPage() {
               {/* Interactive Demo Section */}
               <div className="grid md:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
                 {/* Left: Demo Animation */}
-                <div className="relative">
-                  <div className="absolute -inset-4 bg-gradient-to-r from-violet-500/10 to-transparent rounded-2xl blur-xl" />
+                <div className="relative overflow-hidden">
+                  <div className="absolute -inset-2 bg-gradient-to-r from-violet-500/10 to-transparent rounded-2xl blur-xl" />
                   <div className="relative p-4 sm:p-8 rounded-xl bg-surface-1 border border-violet-500/20">
                     <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
                       <Zap className="w-4 h-4 text-violet-400" aria-hidden="true" />
@@ -680,7 +680,7 @@ export default function VerifyPage() {
             </p>
           </m.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-4 md:gap-8">
             {[
               {
                 icon: Lock,

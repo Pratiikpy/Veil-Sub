@@ -13,7 +13,7 @@ const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
 
 export default function CTASection() {
   return (
-    <section className="relative py-24 lg:py-36 section-divider overflow-hidden">
+    <section className="relative py-12 sm:py-24 lg:py-36 section-divider overflow-hidden">
       {/* CTA ambient glow (responsive) */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[800px] h-[200px] sm:h-[400px] pointer-events-none"
@@ -24,7 +24,7 @@ export default function CTASection() {
           <div className="relative max-w-3xl mx-auto rounded-3xl overflow-hidden">
             {/* Gradient border */}
             <div className="gradient-border-accent" />
-            <div className="relative p-10 sm:p-16 text-center bg-white/[0.01]">
+            <div className="relative p-6 sm:p-10 lg:p-16 text-center bg-white/[0.01]">
               <h2
                 className="text-4xl sm:text-5xl lg:text-6xl font-serif italic text-white"
                 style={LETTER_SPACING_STYLE}

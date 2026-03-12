@@ -76,7 +76,7 @@ function ScoreCard({
 }) {
   return (
     <SpotlightCard
-      className={`p-8 rounded-2xl glass transition-all duration-300 ${
+      className={`p-4 sm:p-8 rounded-2xl glass transition-all duration-300 ${
         highlight ? 'glass-accent ring-1 ring-violet-500/20' : ''
       }`}
     >
@@ -115,7 +115,7 @@ function CellValue({ val, accent }: { val: boolean | string; accent: boolean }) 
 
 export default function PlatformComparison() {
   return (
-    <section className="py-24 lg:py-36 section-divider">
+    <section className="py-12 sm:py-24 lg:py-36 section-divider">
       <Container>
         <ScrollReveal>
           <SectionHeader
@@ -127,7 +127,7 @@ export default function PlatformComparison() {
 
         {/* Overall Score Comparison */}
         <ScrollReveal delay={0.1}>
-          <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="mt-8 sm:mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4">
             <ScoreCard platform="VeilSub" score={PLATFORM_SCORES.veilsub} highlight />
             <ScoreCard platform="Patreon" score={PLATFORM_SCORES.patreon} />
             <ScoreCard platform="Substack" score={PLATFORM_SCORES.substack} />
@@ -207,7 +207,7 @@ export default function PlatformComparison() {
         {/* Platform Fee Comparison */}
         <ScrollReveal delay={0.4}>
           <div className="mt-12">
-            <SpotlightCard className="p-8 rounded-2xl glass max-w-2xl mx-auto">
+            <SpotlightCard className="p-4 sm:p-8 rounded-2xl glass max-w-2xl mx-auto">
               <h3 className="text-lg font-semibold text-white mb-6 text-center">Platform Fee Comparison</h3>
               <div className="space-y-4">
                 <ProgressBar percentage={50} label="VeilSub (5%)" color="text-emerald-400" delay={0} />
@@ -224,15 +224,15 @@ export default function PlatformComparison() {
         {/* Summary Stats */}
         <ScrollReveal delay={0.5}>
           <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            <div className="p-8 rounded-2xl glass text-center">
+            <div className="p-4 sm:p-8 rounded-2xl glass text-center">
               <div className="text-3xl font-bold text-emerald-400 mb-2">7</div>
               <p className="text-xs text-white/60">Exclusive privacy features</p>
             </div>
-            <div className="p-8 rounded-2xl glass text-center">
+            <div className="p-4 sm:p-8 rounded-2xl glass text-center">
               <div className="text-3xl font-bold text-violet-400 mb-2">100%</div>
               <p className="text-xs text-white/60">On-chain verification</p>
             </div>
-            <div className="p-8 rounded-2xl glass text-center">
+            <div className="p-4 sm:p-8 rounded-2xl glass text-center">
               <div className="text-3xl font-bold text-emerald-400 mb-2">50%</div>
               <p className="text-xs text-white/60">Lower fees than competitors</p>
             </div>

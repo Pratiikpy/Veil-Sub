@@ -65,7 +65,7 @@ export default function HeroSection() {
         style={HERO_BLUR_STYLE}
       />
 
-      <Container className="relative pt-20 sm:pt-40 lg:pt-44 pb-16 sm:pb-28 lg:pb-36">
+      <Container className="relative pt-12 sm:pt-40 lg:pt-44 pb-16 sm:pb-28 lg:pb-36">
         <m.div
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}

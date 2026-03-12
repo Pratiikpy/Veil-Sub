@@ -22,7 +22,7 @@ export default function ProtocolStats() {
   const { stats, loading } = useProtocolStats()
 
   return (
-    <section className="py-24 lg:py-36 section-divider">
+    <section className="py-12 sm:py-24 lg:py-36 section-divider">
       <Container>
         <ScrollReveal>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

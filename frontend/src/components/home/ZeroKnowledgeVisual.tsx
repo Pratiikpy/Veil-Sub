@@ -26,10 +26,10 @@ const ARCHITECTURE_POINTS = [
 
 export default function ZeroKnowledgeVisual() {
   return (
-    <section className="py-24 lg:py-36 section-divider">
+    <section className="py-12 sm:py-24 lg:py-36 section-divider">
       <Container>
         <ScrollReveal>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             {/* Left: Text content */}
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.08]">

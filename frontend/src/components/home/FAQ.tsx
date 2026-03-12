@@ -42,7 +42,7 @@ const FAQItem = React.memo(function FAQItem({
         onKeyDown={handleKeyDown}
         aria-expanded={open}
         aria-controls={answerId}
-        className="w-full flex items-center justify-between gap-4 px-8 py-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-inset"
+        className="w-full flex items-center justify-between gap-4 px-4 sm:px-8 py-4 sm:py-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-inset"
       >
         <span className="text-[15px] font-medium text-white">{question}</span>
         <m.span
@@ -62,7 +62,7 @@ const FAQItem = React.memo(function FAQItem({
         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
         className="overflow-hidden"
       >
-        <p className="px-8 pb-5 text-sm text-white/80 leading-relaxed">
+        <p className="px-4 sm:px-8 pb-5 text-sm text-white/80 leading-relaxed">
           {answer}
         </p>
       </m.div>
@@ -129,7 +129,7 @@ export default function FAQ() {
   )
 
   return (
-    <section className="py-24 lg:py-36 section-divider">
+    <section className="py-12 sm:py-24 lg:py-36 section-divider">
       <Container>
         <ScrollReveal>
           <SectionHeader
@@ -138,7 +138,7 @@ export default function FAQ() {
             subtitle="Technical details for curious builders."
           />
         </ScrollReveal>
-        <div className="mt-16 max-w-3xl mx-auto space-y-4">
+        <div className="mt-8 sm:mt-16 max-w-3xl mx-auto space-y-4">
           {FAQ_DATA.map((item, index) => (
             <FAQItem
               key={item.q}

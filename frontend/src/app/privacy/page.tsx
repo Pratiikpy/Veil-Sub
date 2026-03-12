@@ -33,11 +33,11 @@ const fadeUp = {
 export default function PrivacyPage() {
   return (
     <PageTransition>
-      <div className="min-h-screen">
+      <div className="min-h-screen overflow-x-hidden">
         {/* Hero */}
         <section className="relative overflow-hidden">
           <div
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none"
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[800px] h-[200px] sm:h-[400px] pointer-events-none"
             style={HERO_GLOW_STYLE}
           />
           <div className="relative max-w-5xl mx-auto px-4 sm:px-8 lg:px-8 pt-12 sm:pt-20 pb-8 sm:pb-16">
@@ -97,9 +97,9 @@ export default function PrivacyPage() {
         </nav>
 
         {/* Blind Subscription Protocol (BSP) */}
-        <section id="bsp" className="py-16 scroll-mt-28">
+        <section id="bsp" className="py-8 sm:py-16 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
-            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-6 sm:mb-12">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-4">
                 <Layers className="w-4 h-4 text-violet-400" aria-hidden="true" />
                 <span className="text-sm text-violet-300/90">Novel Privacy Framework</span>
@@ -227,7 +227,7 @@ export default function PrivacyPage() {
               </div>
             </m.div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-4 md:gap-8">
               {/* Layer 1 */}
               <m.div
                 initial={{ opacity: 0, y: 20 }}
@@ -236,7 +236,7 @@ export default function PrivacyPage() {
                 transition={{ delay: 0 }}
                 className="h-full"
               >
-                <div className="relative h-full rounded-xl border border-violet-500/20 bg-gradient-to-b from-violet-500/[0.06] to-transparent p-8">
+                <div className="relative h-full rounded-xl border border-violet-500/20 bg-gradient-to-b from-violet-500/[0.06] to-transparent p-4 sm:p-8">
                   <div className="flex items-center gap-4 mb-4">
                     <span className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center text-sm font-bold text-violet-400">1</span>
                     <h3 className="text-white font-semibold">Blind Identity Rotation</h3>
@@ -370,9 +370,9 @@ export default function PrivacyPage() {
         </section>
 
         {/* ZK Explainer */}
-        <section id="zk-proofs" className="py-12 scroll-mt-28">
+        <section id="zk-proofs" className="py-8 sm:py-12 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
-            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-6 sm:mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">What Are Zero-Knowledge Proofs?</h2>
               <p className="text-white/70 max-w-2xl mx-auto">
                 VeilSub&apos;s ZK privacy is enforced at the language level: Leo compiles away subscriber
@@ -382,7 +382,7 @@ export default function PrivacyPage() {
               </p>
             </m.div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-4 md:gap-8">
               <GlassCard shimmer delay={0}>
                 <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4">
                   <Fingerprint className="w-6 h-6 text-violet-400" aria-hidden="true" />
@@ -440,7 +440,7 @@ export default function PrivacyPage() {
                       <Fingerprint className="w-7 h-7 text-green-400" aria-hidden="true" />
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center gap-4 mb-4">
+                      <div className="flex items-center gap-4 mb-4 flex-wrap">
                         <h3 className="text-xl font-semibold text-white">Zero-Footprint Access Verification</h3>
                         <span className="px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-xs font-medium text-green-400">
                           Unique to VeilSub
@@ -490,16 +490,16 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
         </section>
 
         {/* Private vs Public */}
-        <section id="private-vs-public" className="py-12 scroll-mt-28">
+        <section id="private-vs-public" className="py-8 sm:py-12 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
-            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-6 sm:mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">What&apos;s Private vs. Public</h2>
               <p className="text-white/70">
                 Full transparency on what stays hidden and what&apos;s verifiable.
               </p>
             </m.div>
 
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-8">
               {/* Private Column */}
               <GlassCard hover={false}>
                 <div className="flex items-center gap-4 mb-6">
@@ -656,16 +656,16 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
         </section>
 
         {/* Threat Model */}
-        <section id="threat-model" className="py-12 scroll-mt-28">
+        <section id="threat-model" className="py-8 sm:py-12 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
-            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-6 sm:mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Privacy Threat Model</h2>
               <p className="text-white/70">
                 Honest analysis of what an adversary could and cannot learn.
               </p>
             </m.div>
 
-            <div className="grid md:grid-cols-2 gap-8 mb-8">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-8 mb-8">
               <GlassCard delay={0}>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
@@ -731,7 +731,7 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
               </GlassCard>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-8">
               <GlassCard delay={0.2}>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center">
@@ -800,9 +800,9 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
         </section>
 
         {/* Code Proof */}
-        <section id="code-privacy" className="py-12 scroll-mt-28">
+        <section id="code-privacy" className="py-8 sm:py-12 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
-            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-6 sm:mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Privacy in the Code</h2>
               <p className="text-white/70">How each transition protects your identity.</p>
             </m.div>
@@ -871,7 +871,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
 
             {/* Data Flow Diagram */}
             <div className="mb-8 grid md:grid-cols-2 gap-4">
-              <div className="p-8 rounded-xl bg-white/[0.04] border border-border">
+              <div className="p-4 sm:p-8 rounded-xl bg-white/[0.04] border border-border">
                 <h4 className="text-sm font-medium text-white/70 mb-4">Subscribe Flow</h4>
                 <div className="space-y-2 text-xs text-white/70">
                   <div className="flex items-center gap-2">
@@ -892,7 +892,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
                   </div>
                 </div>
               </div>
-              <div className="p-8 rounded-xl bg-green-500/5 border border-green-500/15">
+              <div className="p-4 sm:p-8 rounded-xl bg-green-500/5 border border-green-500/15">
                 <h4 className="text-sm font-medium text-green-300 mb-4">Verify Access Flow</h4>
                 <div className="space-y-2 text-xs text-white/70">
                   <div className="flex items-center gap-2">
@@ -984,9 +984,9 @@ identity:     ████████████     // Poseidon2(BlindKey)
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.08 }}
-                  className="flex items-start gap-4 p-4 rounded-xl bg-surface-1 border border-border hover:border-[rgba(255,255,255,0.1)] transition-colors"
+                  className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-4 rounded-xl bg-surface-1 border border-border hover:border-[rgba(255,255,255,0.1)] transition-colors"
                 >
-                  <code className="shrink-0 px-4 py-2 rounded-lg bg-white/[0.04] border border-border text-white/70 text-sm font-mono">
+                  <code className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-white/[0.04] border border-border text-white/70 text-xs sm:text-sm font-mono">
                     {item.fn}
                   </code>
                   <p className="text-sm text-white/70 pt-1">{item.guarantee}</p>
@@ -997,9 +997,9 @@ identity:     ████████████     // Poseidon2(BlindKey)
         </section>
 
         {/* Comparison vs Traditional */}
-        <section id="vs-traditional" className="py-12 scroll-mt-28">
+        <section id="vs-traditional" className="py-8 sm:py-12 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
-            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-6 sm:mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">VeilSub vs. Traditional Platforms</h2>
             </m.div>
 
@@ -1034,9 +1034,9 @@ identity:     ████████████     // Poseidon2(BlindKey)
         </section>
 
         {/* Comparison vs Web2 Platforms */}
-        <section id="vs-aleo" className="py-12 scroll-mt-28">
+        <section id="vs-aleo" className="py-8 sm:py-12 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
-            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
+            <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-6 sm:mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">VeilSub vs the World</h2>
               <p className="text-white/70 max-w-2xl mx-auto">
                 Existing creator platforms leak your identity by design. VeilSub is the first subscription platform where subscriber privacy is cryptographically guaranteed — not a policy.

@@ -290,7 +290,7 @@ export default function ExplorePage() {
 
   return (
     <PageTransition>
-      <div className="min-h-screen relative">
+      <div className="min-h-screen relative overflow-x-hidden">
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[800px] h-[200px] sm:h-[400px] pointer-events-none"
           style={GRADIENT_STYLE}
@@ -328,7 +328,7 @@ export default function ExplorePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.05 }}
-              className="flex items-center justify-center gap-8 mb-8"
+              className="flex items-center justify-center gap-4 sm:gap-8 mb-8"
             >
               {platformStatsError ? (
                 <div className="flex items-center gap-1.5 text-xs text-amber-400/80">

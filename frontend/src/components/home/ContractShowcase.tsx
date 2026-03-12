@@ -127,7 +127,7 @@ export default function ContractShowcase() {
                         className={isHero ? 'sm:col-span-2 lg:col-span-1' : ''}
                       >
                         <SpotlightCard
-                          className={`group relative p-8 rounded-2xl transition-all duration-300 h-full ${
+                          className={`group relative p-4 sm:p-8 rounded-2xl transition-all duration-300 h-full ${
                             isHero
                               ? 'ring-1 ring-violet-400/40 bg-gradient-to-br from-violet-950/30 to-violet-900/10'
                               : 'glass glass-accent'

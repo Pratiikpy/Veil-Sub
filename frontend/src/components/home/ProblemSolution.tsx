@@ -16,7 +16,7 @@ export default function ProblemSolution() {
   return (
     <section className="py-20 lg:py-28 section-divider">
       <Container>
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-start">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-12 lg:gap-20 items-start">
           <ScrollReveal>
             <Badge>The Problem</Badge>
             <h2
