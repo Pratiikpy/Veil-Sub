@@ -20,6 +20,9 @@ import GlassCard from '@/components/GlassCard'
 // Use Next.js rewrite proxy to avoid leaking user IP to Provable API
 const ALEO_API = '/api/aleo'
 
+// Extracted static style to prevent re-renders
+const HEADING_TIGHT_STYLE = { letterSpacing: '-0.02em' } as const
+
 async function queryMapping(mappingName: string, key: string): Promise<string | null> {
   try {
     const res = await fetch(`${ALEO_API}/program/${DEPLOYED_PROGRAM_ID}/mapping/${mappingName}/${key}`)
@@ -143,7 +146,7 @@ export default function OnChainExplorer() {
         </div>
         <h2
           className="text-2xl sm:text-3xl font-serif italic text-white mb-4"
-          style={{ letterSpacing: '-0.02em' }}
+          style={HEADING_TIGHT_STYLE}
         >
           On-Chain Explorer
         </h2>

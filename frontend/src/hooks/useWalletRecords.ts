@@ -24,6 +24,7 @@ export function useWalletRecords() {
         15000,
         `requestRecords(${DEPLOYED_PROGRAM_ID})`
       )
+      if (!Array.isArray(records)) return []
       const results: string[] = []
       for (const r of records as WalletRecord[]) {
         if (r?.spent) continue
@@ -43,6 +44,7 @@ export function useWalletRecords() {
         15000,
         `requestRecords(${DEPLOYED_PROGRAM_ID})`
       )
+      if (!Array.isArray(records)) return []
       const results: string[] = []
       for (const r of records as WalletRecord[]) {
         if (r?.spent) continue
@@ -89,6 +91,7 @@ export function useWalletRecords() {
         15000,
         'requestRecords(token_registry.aleo)'
       )
+      if (!Array.isArray(records)) return []
       const results: { plaintext: string; amount: number }[] = []
 
       for (const r of records as WalletRecord[]) {
@@ -124,7 +127,7 @@ export function useWalletRecords() {
         15000,
         'requestRecords(credits.aleo, true)'
       )
-      recordsArr = records as WalletRecord[]
+      if (Array.isArray(records)) recordsArr = records as WalletRecord[]
     } catch {
       // Leo Wallet throws NOT_GRANTED when includePlaintext is true
     }
@@ -138,7 +141,7 @@ export function useWalletRecords() {
           15000,
           'requestRecords(credits.aleo, false)'
         )
-        recordsArr = records as WalletRecord[]
+        if (Array.isArray(records)) recordsArr = records as WalletRecord[]
       } catch (falseErr) {
         throw falseErr
       }
@@ -180,6 +183,7 @@ export function useWalletRecords() {
         15000,
         `requestRecords(${DEPLOYED_PROGRAM_ID})`
       )
+      if (!Array.isArray(records)) return []
       const results: string[] = []
 
       for (const r of records as WalletRecord[]) {
@@ -203,6 +207,7 @@ export function useWalletRecords() {
         15000,
         `requestRecords(${DEPLOYED_PROGRAM_ID})`
       )
+      if (!Array.isArray(records)) return []
       const results: string[] = []
 
       for (const r of records as WalletRecord[]) {
@@ -226,6 +231,7 @@ export function useWalletRecords() {
         15000,
         `requestRecords(${DEPLOYED_PROGRAM_ID})`
       )
+      if (!Array.isArray(records)) return []
       const results: string[] = []
 
       for (const r of records as WalletRecord[]) {

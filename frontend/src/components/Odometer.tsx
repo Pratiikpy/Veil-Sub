@@ -3,6 +3,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { m, useInView } from 'framer-motion'
 
+// Extracted static styles to prevent re-renders
+const DIGIT_CONTAINER_STYLE = { height: '1em', lineHeight: 1 } as const
+const DIGIT_LINE_HEIGHT_STYLE = { lineHeight: 1 } as const
+const DIGIT_HEIGHT_STYLE = { height: '1em' } as const
+
 interface Props {
   end: number
   prefix?: string
@@ -15,23 +20,23 @@ function Digit({ value, duration, reduceMotion }: { value: number; duration: num
   // If user prefers reduced motion, show final value immediately without animation
   if (reduceMotion) {
     return (
-      <span className="inline-block" style={{ height: '1em', lineHeight: 1 }}>
+      <span className="inline-block" style={DIGIT_CONTAINER_STYLE}>
         {value}
       </span>
     )
   }
 
   return (
-    <span className="inline-block overflow-hidden" style={{ height: '1em', lineHeight: 1 }}>
+    <span className="inline-block overflow-hidden" style={DIGIT_CONTAINER_STYLE}>
       <m.span
         className="inline-flex flex-col"
         initial={{ y: 0 }}
         animate={{ y: `-${value}em` }}
         transition={{ duration, ease: [0.16, 1, 0.3, 1] }}
-        style={{ lineHeight: 1 }}
+        style={DIGIT_LINE_HEIGHT_STYLE}
       >
         {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
-          <span key={d} className="block" style={{ height: '1em' }}>
+          <span key={d} className="block" style={DIGIT_HEIGHT_STYLE}>
             {d}
           </span>
         ))}

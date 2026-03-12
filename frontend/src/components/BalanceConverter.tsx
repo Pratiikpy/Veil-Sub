@@ -83,7 +83,8 @@ export default function BalanceConverter({
         <div className="space-y-2">
           <button
             onClick={handleConvert}
-            className="w-full py-2.5 rounded-xl bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 btn-shimmer"
+            aria-label={`Convert ${(convertAmount / 1_000_000).toFixed(2)} ALEO credits from public to private`}
+            className="w-full py-2.5 rounded-xl bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 btn-shimmer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
           >
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
             Convert {(convertAmount / 1_000_000).toFixed(2)} ALEO to Private

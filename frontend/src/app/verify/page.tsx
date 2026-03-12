@@ -35,6 +35,7 @@ const HERO_GLOW_STYLE = {
 } as const
 
 const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
+const HEADING_TIGHT_STYLE = { letterSpacing: '-0.02em' } as const
 
 export default function VerifyPage() {
   const { connected } = useWallet()
@@ -670,7 +671,7 @@ export default function VerifyPage() {
           >
             <h2
               className="text-2xl sm:text-3xl font-serif italic text-white mb-4"
-              style={{ letterSpacing: '-0.02em' }}
+              style={HEADING_TIGHT_STYLE}
             >
               How ZK Verification Works
             </h2>

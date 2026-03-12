@@ -1,5 +1,8 @@
 import Badge from './Badge'
 
+// Extracted static style to prevent re-renders
+const SECTION_TITLE_STYLE = { letterSpacing: '-0.025em', lineHeight: 1.15 } as const
+
 interface Props {
   badge?: string
   title: string
@@ -24,7 +27,7 @@ export default function SectionHeader({
       )}
       <h2
         className="text-3xl sm:text-4xl font-serif italic text-white"
-        style={{ letterSpacing: '-0.025em', lineHeight: 1.15 }}
+        style={SECTION_TITLE_STYLE}
       >
         {title}
       </h2>

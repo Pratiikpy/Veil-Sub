@@ -50,6 +50,9 @@ import type { CreatorProfile, SubscriptionTier, AccessPass } from '@/types'
 import CreatorSkeleton from '@/components/CreatorSkeleton'
 import AddressAvatar from '@/components/ui/AddressAvatar'
 
+// Extracted static style to prevent re-renders
+const HEADING_TIGHT_STYLE = { letterSpacing: '-0.02em' } as const
+
 function GiftDropdown({
   connected,
   tiers,
@@ -293,7 +296,7 @@ export default function CreatorPage({
             <div className="flex-1 min-w-0">
               <h1
                 className="text-2xl sm:text-3xl font-serif italic text-white mb-1"
-                style={{ letterSpacing: '-0.02em' }}
+                style={HEADING_TIGHT_STYLE}
               >
                 {displayName || shortenAddress(address)}
               </h1>

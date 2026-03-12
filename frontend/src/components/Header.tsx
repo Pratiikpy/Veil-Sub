@@ -18,6 +18,9 @@ const NAV_ITEMS = [
 
 const DASHBOARD_ITEM = { href: '/dashboard', label: 'Dashboard' }
 
+// Extracted static style to prevent re-renders
+const NAV_ACTIVE_GLOW_STYLE = { boxShadow: '0 0 12px rgba(139, 92, 246, 0.1)' } as const
+
 export default function Header() {
   const { connected } = useWallet()
   const pathname = usePathname()
@@ -94,7 +97,7 @@ export default function Header() {
                     <m.span
                       layoutId="nav-active"
                       className="absolute inset-0 rounded-full bg-white/[0.08] border border-border"
-                      style={{ boxShadow: '0 0 12px rgba(139, 92, 246, 0.1)' }}
+                      style={NAV_ACTIVE_GLOW_STYLE}
                       transition={{
                         type: 'spring',
                         stiffness: 400,

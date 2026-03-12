@@ -24,6 +24,16 @@ const variantClasses: Record<Variant, string> = {
     'glass hover:border-violet-500/25 hover:shadow-accent-lg',
 }
 
+// Extracted static styles to prevent re-renders
+const TOP_EDGE_GRADIENT_STYLE = {
+  background: 'linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.08) 50%, transparent 90%)',
+} as const
+
+const SHIMMER_GRADIENT_STYLE = {
+  background:
+    'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.03) 55%, transparent 60%)',
+} as const
+
 export default memo(function GlassCard({
   children,
   className = '',
@@ -43,18 +53,13 @@ export default memo(function GlassCard({
       {/* Top-edge highlight — Liquid Glass inspired depth cue */}
       <div
         className="absolute inset-x-0 top-0 h-px rounded-t-2xl pointer-events-none"
-        style={{
-          background: 'linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.08) 50%, transparent 90%)',
-        }}
+        style={TOP_EDGE_GRADIENT_STYLE}
       />
       {shimmer && (
         <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
           <div
             className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-            style={{
-              background:
-                'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.03) 55%, transparent 60%)',
-            }}
+            style={SHIMMER_GRADIENT_STYLE}
           />
         </div>
       )}

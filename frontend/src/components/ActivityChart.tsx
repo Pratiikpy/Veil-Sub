@@ -75,7 +75,7 @@ export default function ActivityChart({ creatorAddress }: Props) {
     )
   }
 
-  const maxSubs = Math.max(...data.map((d) => d.subscriptions), 1)
+  const maxSubs = data.length > 0 ? Math.max(...data.map((d) => d.subscriptions), 1) : 1
 
   return (
     <div className="rounded-xl bg-surface-1 border border-border p-6">
