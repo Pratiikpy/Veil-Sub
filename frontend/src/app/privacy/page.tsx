@@ -83,7 +83,7 @@ export default function PrivacyPage() {
               { id: 'threat-model', label: 'Threat Model' },
               { id: 'code-privacy', label: 'In the Code' },
               { id: 'vs-traditional', label: 'vs Traditional' },
-              { id: 'vs-aleo', label: 'vs Aleo Ecosystem' },
+              { id: 'vs-aleo', label: 'vs Web2 Platforms' },
             ].map((s) => (
               <a
                 key={s.id}
@@ -1033,13 +1033,13 @@ identity:     ████████████     // Poseidon2(BlindKey)
           </div>
         </section>
 
-        {/* Comparison vs Aleo Competitors */}
+        {/* Comparison vs Web2 Platforms */}
         <section id="vs-aleo" className="py-12 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">
             <m.div {...fadeUp} viewport={{ once: true }} whileInView="animate" initial="initial" className="text-center mb-12">
-              <h2 className="text-3xl font-semibold text-white mb-4">Privacy Comparison: Aleo Ecosystem</h2>
-              <p className="text-white/70">
-                How VeilSub&apos;s privacy model compares to other projects in the Aleo Privacy Buildathon.
+              <h2 className="text-3xl font-semibold text-white mb-4">VeilSub vs the World</h2>
+              <p className="text-white/70 max-w-2xl mx-auto">
+                Existing creator platforms leak your identity by design. VeilSub is the first subscription platform where subscriber privacy is cryptographically guaranteed — not a policy.
               </p>
             </m.div>
 
@@ -1047,35 +1047,35 @@ identity:     ████████████     // Poseidon2(BlindKey)
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-white/[0.02] border-b border-border">
-                    <th className="text-left py-4 px-4 text-white/70 font-medium">Privacy Feature</th>
+                    <th className="text-left py-4 px-4 text-white/70 font-medium">Feature</th>
                     <th className="text-center py-4 px-4 text-violet-400 font-medium">VeilSub</th>
-                    <th className="text-center py-4 px-4 text-white/60 font-medium">NullPay</th>
-                    <th className="text-center py-4 px-4 text-white/60 font-medium">Veiled Markets</th>
-                    <th className="text-center py-4 px-4 text-white/60 font-medium">lasagna</th>
+                    <th className="text-center py-4 px-4 text-white/60 font-medium">Patreon</th>
+                    <th className="text-center py-4 px-4 text-white/60 font-medium">Substack</th>
+                    <th className="text-center py-4 px-4 text-white/60 font-medium">Mirror.xyz</th>
                   </tr>
                 </thead>
                 <tbody className="text-white/70">
                   {[
-                    ['Subscriber never in finalize', true, true, 'N/A', 'N/A'],
-                    ['Zero-footprint verification', true, false, false, false],
-                    ['Blind renewal (unlinkable)', true, false, false, false],
-                    ['BHP256 commit-reveal tipping', true, false, false, false],
-                    ['Sync verification (no finalize)', '2', '0', '0', '0'],
-                    ['Privacy modes', '3', '1', '1', '1'],
-                    ['Ephemeral trial passes', true, false, false, false],
-                    ['Poseidon2 field-key mappings', true, false, false, false],
-                    ['Subscription transfer', true, false, false, false],
+                    ['Subscriber identity hidden', true, false, false, false],
+                    ['No platform fee on identity', true, false, false, false],
+                    ['Verifiable without a server', true, false, false, false],
+                    ['Self-custodial payments', true, false, false, true],
+                    ['Censorship resistant', true, false, false, true],
+                    ['Subscriber list not visible', true, false, false, false],
+                    ['ZK access proof (offline)', true, false, false, false],
                     ['Encrypted content delivery', true, false, false, false],
-                    ['Poseidon2 optimization', true, false, false, false],
-                  ].map(([feature, vs, np, vm, lg]) => (
+                    ['Subscription transferable', true, false, false, false],
+                    ['No email required', true, false, false, true],
+                    ['Platform fee', '5%', '8–12%', '10%', '0%'],
+                  ].map(([feature, vs, pt, ss, mx]) => (
                     <tr key={feature as string} className="border-b border-border/75">
                       <td className="py-2.5 px-4 text-white text-xs">{feature as string}</td>
-                      {[vs, np, vm, lg].map((val, i) => (
+                      {[vs, pt, ss, mx].map((val, i) => (
                         <td key={i} className="py-2.5 px-4 text-center">
                           {val === true ? (
                             <span className={`text-xs font-medium ${i === 0 ? 'text-green-400' : 'text-green-400/80'}`}>Yes</span>
                           ) : val === false ? (
-                            <span className="text-xs text-white/60">No</span>
+                            <span className="text-xs text-red-400/70">No</span>
                           ) : (
                             <span className={`text-xs font-medium ${i === 0 ? 'text-violet-400' : 'text-white/60'}`}>{val as string}</span>
                           )}
@@ -1087,8 +1087,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
               </table>
             </div>
             <p className="text-xs text-white/60 mt-4 text-center">
-              Comparison based on publicly available source code. NullPay v18, Veiled Markets v16, lasagna latest.
-              N/A = not applicable (different domain—AMM or prediction market).
+              Privacy claims based on published platform policies and on-chain data transparency. VeilSub runs on Aleo testnet.
             </p>
           </div>
         </section>
