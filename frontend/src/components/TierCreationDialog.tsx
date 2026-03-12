@@ -59,7 +59,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
       const result = await createCustomTier(tierId, priceMicrocredits, nameHash)
       setTxId(result)
       setTxStatus('confirmed')
-      // Persist tier to localStorage so the UI reflects it immediately without config changes
+      // Persist tier — localStorage for instant UI update, Supabase for cross-browser sync
       if (creatorAddress) {
         try {
           const storageKey = `veilsub_creator_tiers_${creatorAddress}`
@@ -67,6 +67,18 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
           existing[tierId] = { name: tierName.trim(), price: priceMicrocredits }
           localStorage.setItem(storageKey, JSON.stringify(existing))
         } catch { /* localStorage unavailable */ }
+
+        // Sync to Supabase — fire-and-forget, doesn't block UI
+        fetch('/api/tiers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            address: creatorAddress,
+            tier_id: tierId,
+            name: tierName.trim(),
+            price_microcredits: priceMicrocredits,
+          }),
+        }).catch(() => { /* non-critical — localStorage already saved */ })
       }
       onSuccess?.(tierId)
     } catch (err: unknown) {

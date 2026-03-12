@@ -122,17 +122,37 @@ export function useCreatorTiers(creatorAddress: string): CreatorTierResult {
       try {
         const creatorHash = getCreatorHash(creatorAddress)
 
-        // Load tiers from localStorage (saved when creator creates a tier via UI)
+        // Load tiers from localStorage (written on create — instant, no latency)
         let localTiers: Record<number, CustomTierInfo> = {}
         try {
           const stored = localStorage.getItem(`veilsub_creator_tiers_${creatorAddress}`)
           if (stored) localTiers = JSON.parse(stored)
         } catch { /* ignore */ }
 
-        // Offline fallback: known tiers from config, overridden by localStorage
+        // Fetch from Supabase — cross-browser, persists for all users
+        let dbTiers: Record<number, CustomTierInfo> = {}
+        try {
+          const res = await fetch(`/api/tiers?address=${encodeURIComponent(creatorAddress)}`, {
+            signal: controller.signal,
+          })
+          if (res.ok) {
+            const json = await res.json()
+            for (const row of json.tiers ?? []) {
+              dbTiers[row.tier_id] = { name: row.name, price: row.price_microcredits }
+            }
+          }
+        } catch (err) {
+          if (err instanceof Error && err.name === 'AbortError') throw err
+          // Non-critical — fall through to config
+        }
+
+        if (cancelled) return
+
+        // Priority: localStorage (most recent) > Supabase DB > hardcoded config
         const fallbackTiers: Record<number, CustomTierInfo> = {
           ...(CREATOR_CUSTOM_TIERS[creatorAddress] ?? {}),
-          ...localTiers, // localStorage wins — most recent on-chain data
+          ...dbTiers,
+          ...localTiers,
         }
 
         if (!creatorHash) {
