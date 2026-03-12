@@ -12,6 +12,7 @@ import Button from './ui/Button'
 import { generatePassId } from '@/lib/utils'
 import TransactionStatus from './TransactionStatus'
 import type { TxStatus } from '@/types'
+import { useCreatorTiers } from '@/hooks/useCreatorTiers'
 
 interface Props {
   creatorAddress: string
@@ -34,6 +35,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
   const [txId, setTxId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const submittingRef = useRef(false)
+  const { tiers: onChainTiers } = useCreatorTiers(creatorAddress)
 
   useEffect(() => {
     return () => stopPolling()
@@ -134,7 +136,14 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
     setError(null)
   }
 
-  const tierLabels: Record<number, string> = { 1: 'Supporter', 2: 'Premium', 3: 'VIP' }
+  // Build tier options from actual on-chain tiers — always shows real tiers including tier 4+
+  const tierOptions: { id: number; name: string }[] = [
+    { id: 1, name: 'Supporter' },
+    ...Object.entries(onChainTiers)
+      .filter(([, t]) => t.price > 0)
+      .map(([id, t]) => ({ id: Number(id), name: t.name }))
+      .sort((a, b) => a.id - b.id),
+  ]
 
   return (
     <m.div
@@ -232,19 +241,19 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
             <div>
               <label className="block text-sm text-white/70 mb-1.5">Minimum tier required</label>
               <div className="flex flex-wrap gap-2" role="group" aria-label="Minimum tier selection">
-                {[1, 2, 3].map((tier) => (
+                {tierOptions.map(({ id, name }) => (
                   <button
-                    key={tier}
-                    onClick={() => setMinTier(tier)}
-                    aria-label={`Set minimum tier to ${tierLabels[tier] || `Tier ${tier}`}`}
-                    aria-pressed={minTier === tier}
+                    key={id}
+                    onClick={() => setMinTier(id)}
+                    aria-label={`Set minimum tier to ${name}`}
+                    aria-pressed={minTier === id}
                     className={`py-2.5 px-4 rounded-lg text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50 focus-visible:ring-offset-0 ${
-                      minTier === tier
+                      minTier === id
                         ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
                         : 'bg-white/[0.05] border border-border text-white/70 hover:bg-white/[0.08] hover:border-white/15'
                     }`}
                   >
-                    {tierLabels[tier] || `Tier ${tier}`}
+                    {name}
                   </button>
                 ))}
               </div>
