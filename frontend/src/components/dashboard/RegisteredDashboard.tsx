@@ -575,7 +575,7 @@ export default function RegisteredDashboard({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 }}
             >
-              <PostsList address={publicKey} />
+              <PostsList key={refreshKey} address={publicKey} />
             </m.div>
 
             {/* Content Gating Explainer */}

@@ -6,6 +6,7 @@ import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { FileText, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useContentFeed } from '@/hooks/useContentFeed'
+import { useCreatorTiers } from '@/hooks/useCreatorTiers'
 
 interface PostsListProps {
   address: string
@@ -14,13 +15,22 @@ interface PostsListProps {
 export default function PostsList({ address }: PostsListProps) {
   const { signMessage } = useWallet()
   const { getPostsForCreator, deletePost, error: feedError, clearError } = useContentFeed()
+  const { tiers: onChainTiers } = useCreatorTiers(address)
   const [posts, setPosts] = useState<{ id: string; title: string; minTier: number; createdAt?: string; contentId?: string }[]>([])
   const [postsLoaded, setPostsLoaded] = useState(false)
 
-  const tierLabels: Record<number, { name: string; color: string }> = {
-    1: { name: 'Supporter', color: 'text-green-300 bg-green-500/10 border-green-500/20' },
-    2: { name: 'Premium', color: 'text-blue-300 bg-blue-500/10 border-blue-500/20' },
-    3: { name: 'VIP', color: 'text-violet-300 bg-violet-500/10 border-violet-500/20' },
+  const TIER_COLORS = [
+    'text-green-300 bg-green-500/10 border-green-500/20',
+    'text-blue-300 bg-blue-500/10 border-blue-500/20',
+    'text-violet-300 bg-violet-500/10 border-violet-500/20',
+    'text-pink-300 bg-pink-500/10 border-pink-500/20',
+    'text-amber-300 bg-amber-500/10 border-amber-500/20',
+  ]
+  const getTierLabel = (tierId: number) => {
+    const custom = onChainTiers[tierId]
+    const name = custom?.name || (tierId === 1 ? 'Supporter' : `Tier ${tierId}`)
+    const color = TIER_COLORS[(tierId - 1) % TIER_COLORS.length]
+    return { name, color }
   }
 
   const fetchPosts = useCallback(async () => {
@@ -74,7 +84,7 @@ export default function PostsList({ address }: PostsListProps) {
       ) : (
         <div className="space-y-2">
           {posts.map((post) => {
-            const tier = tierLabels[post.minTier] || tierLabels[1]
+            const tier = getTierLabel(post.minTier)
             return (
               <div
                 key={post.id}
