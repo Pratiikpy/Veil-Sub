@@ -40,7 +40,7 @@ export default function PrivacyPage() {
             className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none"
             style={HERO_GLOW_STYLE}
           />
-          <div className="relative max-w-5xl mx-auto px-4 sm:px-8 lg:px-8 pt-20 pb-16">
+          <div className="relative max-w-5xl mx-auto px-4 sm:px-8 lg:px-8 pt-12 sm:pt-20 pb-8 sm:pb-16">
             <m.div {...fadeUp} transition={{ duration: 0.6 }} className="text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-8">
                 <Shield className="w-4 h-4 text-violet-400" aria-hidden="true" />

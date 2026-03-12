@@ -128,8 +128,8 @@ function ContractVersionsSection() {
   const hiddenCount = CONTRACT_VERSIONS.length - displayedVersions.length
 
   return (
-    <section className="mb-16">
-      <div className="flex items-center justify-between mb-8">
+    <section className="mb-10 sm:mb-16">
+      <div className="flex items-center justify-between mb-6 sm:mb-8">
         <h2 className="text-lg font-medium text-white">Contract Versions</h2>
         {hiddenCount > 0 && !showAll && (
           <button
@@ -234,15 +234,15 @@ export default function AnalyticsPage() {
 
   return (
     <PageTransition>
-      <main className="min-h-screen bg-background py-12 relative">
+      <main className="min-h-screen bg-background py-8 sm:py-12 relative">
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none"
           style={HERO_GLOW_STYLE}
         />
-        <div className="relative max-w-[1120px] mx-auto px-8">
+        <div className="relative max-w-[1120px] mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero */}
-          <div className="mb-16">
-            <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-4" style={LETTER_SPACING_STYLE}>
+          <div className="mb-8 sm:mb-16">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif italic text-white mb-4" style={LETTER_SPACING_STYLE}>
               Platform Analytics
             </h1>
             <p className="text-white/70 text-base max-w-2xl leading-relaxed">
@@ -252,7 +252,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10 sm:mb-16">
             <StatsCard
               icon={Users}
               label="Total Creators"
@@ -297,7 +297,7 @@ export default function AnalyticsPage() {
           )}
 
           {/* Visual Charts Section */}
-          <section className="grid md:grid-cols-2 gap-8 mb-16">
+          <section className="grid md:grid-cols-2 gap-6 sm:gap-8 mb-10 sm:mb-16">
             {/* Subscription Growth Chart */}
             <GlassCard delay={0}>
               <div className="flex items-center justify-between mb-6">
@@ -377,9 +377,9 @@ export default function AnalyticsPage() {
           </section>
 
           {/* Protocol Stats */}
-          <section className="mb-16">
-            <h2 className="text-lg font-medium text-white mb-8">Protocol Stats</h2>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <section className="mb-10 sm:mb-16">
+            <h2 className="text-lg font-medium text-white mb-6 sm:mb-8">Protocol Stats</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <ProtocolStat icon={Activity} value="27" label="Transitions" delay={0} />
               <ProtocolStat icon={Layers} value="6" label="Record Types" delay={0.05} />
               <ProtocolStat icon={Database} value="25" label="Mappings" delay={0.1} />
@@ -388,9 +388,9 @@ export default function AnalyticsPage() {
           </section>
 
           {/* Privacy Guarantees */}
-          <section className="mb-16">
-            <h2 className="text-lg font-medium text-white mb-8">Privacy Guarantees</h2>
-            <div className="grid md:grid-cols-3 gap-4">
+          <section className="mb-10 sm:mb-16">
+            <h2 className="text-lg font-medium text-white mb-6 sm:mb-8">Privacy Guarantees</h2>
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
               <GlassCard delay={0}>
                 <div className="flex items-start gap-4">
                   <div className="p-2 rounded-lg bg-white/[0.06]">
@@ -442,9 +442,9 @@ export default function AnalyticsPage() {
           </section>
 
           {/* Privacy Modes */}
-          <section className="mb-16">
-            <h2 className="text-lg font-medium text-white mb-8">Privacy Modes</h2>
-            <div className="grid md:grid-cols-3 gap-4">
+          <section className="mb-10 sm:mb-16">
+            <h2 className="text-lg font-medium text-white mb-6 sm:mb-8">Privacy Modes</h2>
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
               <GlassCard delay={0}>
                 <div className="flex items-center gap-2 mb-4">
                   <ShieldCheck className="w-4 h-4 text-green-400" aria-hidden="true" />

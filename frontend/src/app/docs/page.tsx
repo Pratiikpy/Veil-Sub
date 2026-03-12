@@ -927,7 +927,7 @@ export default function DocsPage() {
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar Navigation */}
             <div className="lg:w-56 shrink-0">
-              <nav className="lg:sticky lg:top-24 flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 no-scrollbar" role="tablist" aria-label="Documentation sections">
+              <nav className="lg:sticky lg:top-24 flex lg:flex-col gap-1.5 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 -mx-4 px-4 lg:mx-0 lg:px-0 snap-x snap-mandatory" role="tablist" aria-label="Documentation sections">
                 {TABS.map((tab) => {
                   const Icon = tab.icon
                   const isActive = activeTab === tab.id
@@ -940,7 +940,7 @@ export default function DocsPage() {
                       aria-controls="docs-tabpanel"
                       id={`tab-${tab.id}`}
                       tabIndex={isActive ? 0 : -1}
-                      className={`relative flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm whitespace-nowrap transition-all duration-200 ${
+                      className={`relative flex items-center gap-2 px-3 py-2 rounded-lg text-xs lg:text-sm whitespace-nowrap snap-start transition-all duration-200 shrink-0 ${
                         isActive
                           ? 'text-white bg-violet-500/[0.08] border border-violet-500/[0.15] shadow-accent-sm'
                           : 'text-white/60 hover:text-white/80 hover:bg-white/[0.03] border border-transparent'
@@ -954,7 +954,7 @@ export default function DocsPage() {
                           transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                         />
                       )}
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-violet-400' : ''}`} aria-hidden="true" />
+                      <Icon className={`w-3.5 h-3.5 lg:w-4 lg:h-4 ${isActive ? 'text-violet-400' : ''}`} aria-hidden="true" />
                       {tab.label}
                     </button>
                   )

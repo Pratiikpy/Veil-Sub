@@ -80,7 +80,7 @@ export default function VisionPage() {
       <div className="min-h-screen">
         {/* Hero */}
         <section className="relative overflow-hidden">
-          <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+          <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 pb-8 sm:pb-16">
             <m.div {...fadeUp} transition={{ duration: 0.6 }} className="text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-6">
                 <Code2 className="w-4 h-4 text-violet-400" aria-hidden="true" />

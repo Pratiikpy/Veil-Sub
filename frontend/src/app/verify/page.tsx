@@ -167,7 +167,7 @@ export default function VerifyPage() {
             className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[800px] h-[200px] sm:h-[400px] pointer-events-none"
             style={HERO_GLOW_STYLE}
           />
-          <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+          <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 pb-8 sm:pb-16">
             <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -196,15 +196,15 @@ export default function VerifyPage() {
         </section>
 
         {/* Main Content */}
-        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
           {!connected ? (
             <m.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="max-w-3xl mx-auto py-8"
+              className="max-w-3xl mx-auto py-4 sm:py-8"
             >
               {/* Interactive Demo Section */}
-              <div className="grid md:grid-cols-2 gap-8 mb-12">
+              <div className="grid md:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
                 {/* Left: Demo Animation */}
                 <div className="relative">
                   <div className="absolute -inset-4 bg-gradient-to-r from-violet-500/10 to-transparent rounded-2xl blur-xl" />
