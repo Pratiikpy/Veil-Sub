@@ -96,70 +96,70 @@ Phase 2 (reveal):  recompute commitment, verify match, transfer credits
 
 ### Subscription Flow
 
-```
-  Subscriber                          Aleo Network                         Creator
-  ─────────                          ────────────                         ───────
-      │                                                                      │
-      │  1. subscribe(creator, tier, payment)                                │
-      │─────────────────────────────►│                                       │
-      │                              │  ZK Proof generated locally           │
-      │                              │  (subscriber identity NEVER leaves)   │
-      │                              │                                       │
-      │  ◄── AccessPass (encrypted)  │  finalize:                            │
-      │       only subscriber can    │    subscriber_count[hash(creator)]++  │
-      │       decrypt this record    │    total_revenue[hash(creator)] +=    │
-      │                              │    platform_revenue += 5%             │
-      │                              │    pass_creator[pass_id] = hash(cr)   │
-      │                              │                                       │
-      │                              │  ──── CreatorReceipt (encrypted) ────►│
-      │                              │       creator sees: tier, amount      │
-      │                              │       creator CANNOT see: who paid    │
-      │                                                                      │
-      │  2. verify_access(pass)                                              │
-      │─────────────────────────────►│                                       │
-      │                              │  finalize: check revocation ONLY      │
-      │  ◄── verified (no trace)     │  NO subscriber identity stored        │
-      │                                                                      │
+```mermaid
+sequenceDiagram
+    participant S as Subscriber
+    participant A as Aleo Network
+    participant C as Creator
+
+    S->>A: subscribe(creator, tier, payment)
+    Note over A: ZK Proof generated locally<br/>subscriber identity NEVER leaves
+
+    A-->>S: AccessPass (encrypted)<br/>only subscriber can decrypt
+    Note over A: finalize:<br/>subscriber_count[hash(creator)]++<br/>total_revenue[hash(creator)] += amount<br/>platform_revenue += 5%<br/>pass_creator[pass_id] = hash(creator)
+    A-->>C: CreatorReceipt (encrypted)<br/>sees: tier, amount<br/>CANNOT see: who paid
+
+    S->>A: verify_access(pass)
+    Note over A: finalize: check revocation ONLY<br/>NO subscriber identity stored
+    A-->>S: verified (zero trace left)
 ```
 
 ### Blind Renewal (BSP)
 
-```
-  Renewal 1:  hash(subscriber + nonce_A)  →  subscriber_hash_X  ─── unlinkable
-  Renewal 2:  hash(subscriber + nonce_B)  →  subscriber_hash_Y  ─── unlinkable
-  Renewal 3:  hash(subscriber + nonce_C)  →  subscriber_hash_Z  ─── unlinkable
+```mermaid
+flowchart LR
+    subgraph Same Subscriber
+        N1["nonce_A"] --> H1["Poseidon2(subscriber + nonce_A)"]
+        N2["nonce_B"] --> H2["Poseidon2(subscriber + nonce_B)"]
+        N3["nonce_C"] --> H3["Poseidon2(subscriber + nonce_C)"]
+    end
 
-  Same person, different hash each time. Creator sees 3 "different" subscribers.
+    H1 --> R1["subscriber_hash_X"]
+    H2 --> R2["subscriber_hash_Y"]
+    H3 --> R3["subscriber_hash_Z"]
+
+    R1 -.- U["Unlinkable — creator sees<br/>3 'different' subscribers"]
+    R2 -.- U
+    R3 -.- U
 ```
 
 ### Privacy Layers
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    PRIVATE LAYER                         │
-│              (Records — owner-encrypted)                 │
-│                                                         │
-│  AccessPass  CreatorReceipt  AuditToken  GiftToken      │
-│  SubscriptionTier  ContentDeletion  + all payments      │
-│                                                         │
-├─────────────────────────────────────────────────────────┤
-│                    PUBLIC LAYER                          │
-│         (Mappings — ALL field-keyed, ZERO addresses)    │
-│                                                         │
-│  Poseidon2(creator) → tier prices, counts, revenue      │
-│  Poseidon2(TierKey) → custom tier prices                │
-│  Poseidon2(content_id) → metadata, hashes               │
-│  BHP256 commitments → tip amounts (hidden until reveal) │
-│  Singletons → platform_revenue, total_creators          │
-│                                                         │
-├─────────────────────────────────────────────────────────┤
-│                    NOVEL TECHNIQUES                      │
-│                                                         │
-│  Zero-Address Finalize    Blind Subscription Protocol   │
-│  Commit-Reveal Tipping    Zero-Footprint Verification   │
-│  Subscription Transfer    Trial Passes                  │
-│  Scoped Audit Tokens      Threshold Proofs              │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph Private["PRIVATE LAYER — Records (owner-encrypted)"]
+        direction LR
+        AP["AccessPass"] ~~~ CR["CreatorReceipt"] ~~~ AT["AuditToken"]
+        GT["GiftToken"] ~~~ ST["SubscriptionTier"] ~~~ CD["ContentDeletion"]
+    end
+
+    subgraph Public["PUBLIC LAYER — Mappings (ALL field-keyed, ZERO addresses)"]
+        direction TB
+        P1["Poseidon2(creator) → tier prices, counts, revenue"]
+        P2["Poseidon2(TierKey) → custom tier prices"]
+        P3["Poseidon2(content_id) → metadata, hashes"]
+        P4["BHP256 commitments → tip amounts (hidden until reveal)"]
+        P5["Singletons → platform_revenue, total_creators"]
+    end
+
+    subgraph Novel["NOVEL TECHNIQUES"]
+        direction LR
+        T1["Zero-Address Finalize"] ~~~ T2["Blind Subscription Protocol"]
+        T3["Commit-Reveal Tipping"] ~~~ T4["Zero-Footprint Verification"]
+        T5["Trial Passes / Transfer"] ~~~ T6["Scoped Audit Tokens"]
+    end
+
+    Private --> Public --> Novel
 ```
 
 ### What Observers Learn vs. Cannot Learn
@@ -177,45 +177,38 @@ Phase 2 (reveal):  recompute commitment, verify match, transfer credits
 
 ## System Architecture
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                        FRONTEND                               │
-│              Next.js 16 + React 19 + Tailwind 4              │
-│                                                              │
-│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
-│   │  Shield   │  │   Leo    │  │   Fox    │  │  Puzzle  │   │
-│   │  Wallet   │  │  Wallet  │  │  Wallet  │  │  Wallet  │   │
-│   └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘   │
-│        └──────────────┴──────────────┴──────────────┘        │
-│                         │                                     │
-│   67 components  ·  19 hooks  ·  10 routes  ·  279 tests     │
-└──────────────────────────┬───────────────────────────────────┘
-                           │
-                    ┌──────┴──────┐
-                    │  API Layer  │
-                    │  (Next.js)  │
-                    └──┬───┬───┬──┘
-                       │   │   │
-          ┌────────────┘   │   └────────────┐
-          ▼                ▼                ▼
-   ┌─────────────┐  ┌───────────┐  ┌──────────────┐
-   │   Supabase  │  │  Upstash  │  │ /api/aleo/*  │
-   │  (profiles) │  │  Redis    │  │  IP proxy    │
-   │  encrypted  │  │  (posts,  │  │  (hides user │
-   │  addresses  │  │  rate     │  │  from node)  │
-   └─────────────┘  │  limits)  │  └──────┬───────┘
-                    └───────────┘         │
-                                         ▼
-                    ┌─────────────────────────────┐
-                    │    ALEO TESTNET              │
-                    │    veilsub_v27.aleo          │
-                    │                             │
-                    │  27 transitions             │
-                    │  25 mappings (field-keyed)   │
-                    │  6 records · 5 structs      │
-                    │  866 statements             │
-                    │  ZERO addresses in finalize  │
-                    └─────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Frontend["Frontend — Next.js 16 + React 19 + Tailwind 4"]
+        direction LR
+        W1[Shield Wallet]
+        W2[Leo Wallet]
+        W3[Fox Wallet]
+        W4[Puzzle Wallet]
+        W5[Soter Wallet]
+    end
+
+    Frontend -->|"67 components · 19 hooks · 10 routes · 279 tests"| API
+
+    subgraph API["API Layer — Next.js"]
+        direction LR
+        A1["/api/creators"]
+        A2["/api/posts"]
+        A3["/api/aleo/*<br/>IP proxy"]
+    end
+
+    A1 --> Supa["Supabase<br/>Encrypted profiles<br/>Analytics"]
+    A2 --> Redis["Upstash Redis<br/>Posts · Rate limits"]
+    A3 --> Aleo
+
+    subgraph Aleo["Aleo Testnet — veilsub_v27.aleo"]
+        direction LR
+        T["27 transitions"]
+        M["25 mappings<br/>(field-keyed)"]
+        R["6 records · 5 structs"]
+        S["866 statements"]
+        Z["ZERO addresses<br/>in finalize"]
+    end
 ```
 
 ---
