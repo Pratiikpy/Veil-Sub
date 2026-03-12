@@ -152,9 +152,7 @@ export function parseMicrocredits(plaintext: string): number {
  * for off-chain Redis content storage.
  */
 export async function computeWalletHash(address: string): Promise<string> {
-  const salt = typeof window === 'undefined'
-    ? (process.env.NEXT_PUBLIC_WALLET_AUTH_SALT || process.env.SUPABASE_ENCRYPTION_KEY || '')
-    : (process.env.NEXT_PUBLIC_WALLET_AUTH_SALT || '')
+  const salt = process.env.NEXT_PUBLIC_WALLET_AUTH_SALT || ''
   const encoder = new TextEncoder()
   const hashBuf = await crypto.subtle.digest('SHA-256', encoder.encode(address + salt))
   return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')

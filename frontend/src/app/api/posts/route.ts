@@ -67,7 +67,7 @@ async function verifyWalletAuth(
   // Server-salted hash: SHA-256(address + salt).
   // Client uses NEXT_PUBLIC_WALLET_AUTH_SALT; server checks the same value.
   // Falls back to SUPABASE_ENCRYPTION_KEY if the public salt isn't configured.
-  const salt = process.env.NEXT_PUBLIC_WALLET_AUTH_SALT || process.env.SUPABASE_ENCRYPTION_KEY || ''
+  const salt = process.env.NEXT_PUBLIC_WALLET_AUTH_SALT || ''
   const encoder = new TextEncoder()
   const hashBuf = await crypto.subtle.digest('SHA-256', encoder.encode(creator + salt))
   const expectedHash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
