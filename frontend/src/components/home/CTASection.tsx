@@ -4,15 +4,20 @@ import Container from '@/components/ui/Container'
 import Button from '@/components/ui/Button'
 import ScrollReveal from '@/components/ScrollReveal'
 
+// Extracted style constants to prevent re-renders
+const CTA_GLOW_STYLE = {
+  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.08) 0%, transparent 70%)',
+} as const
+
+const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
+
 export default function CTASection() {
   return (
     <section className="relative py-24 lg:py-36 section-divider overflow-hidden">
       {/* CTA ambient glow (responsive) */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[800px] h-[200px] sm:h-[400px] pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.08) 0%, transparent 70%)',
-        }}
+        style={CTA_GLOW_STYLE}
       />
       <Container className="relative">
         <ScrollReveal>
@@ -22,7 +27,7 @@ export default function CTASection() {
             <div className="relative p-10 sm:p-16 text-center bg-white/[0.01]">
               <h2
                 className="text-4xl sm:text-5xl lg:text-6xl font-serif italic text-white"
-                style={{ letterSpacing: '-0.03em' }}
+                style={LETTER_SPACING_STYLE}
               >
                 Earn While They Stay Hidden
               </h2>

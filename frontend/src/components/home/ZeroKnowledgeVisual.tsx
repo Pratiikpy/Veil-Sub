@@ -6,6 +6,9 @@ import Container from '@/components/ui/Container'
 import ScrollReveal from '@/components/ScrollReveal'
 import PrivacyRings from '@/components/home/PrivacyRings'
 
+// Extracted style constants to prevent re-renders
+const HEADING_STYLE = { letterSpacing: '-0.025em', lineHeight: 1.1 } as const
+
 const ARCHITECTURE_POINTS = [
   {
     label: 'Blind Subscription Protocol',
@@ -35,7 +38,7 @@ export default function ZeroKnowledgeVisual() {
               </div>
               <h2
                 className="text-4xl sm:text-5xl lg:text-6xl font-serif italic text-white"
-                style={{ letterSpacing: '-0.025em', lineHeight: 1.1 }}
+                style={HEADING_STYLE}
               >
                 Powered by{' '}
                 <span className="drop-shadow-[0_0_20px_rgba(139,92,246,0.35)]">

@@ -9,6 +9,23 @@ const TIERS = [
   { name: 'VIP', price: '5', selected: false },
 ]
 
+// Extracted style constants to prevent re-renders
+const PERSPECTIVE_STYLE = { perspective: 1200, transformStyle: 'preserve-3d' as const }
+
+const AMBIENT_GLOW_STYLE = {
+  background: 'radial-gradient(ellipse at 50% 60%, rgba(139,92,246,0.18) 0%, transparent 60%)',
+} as const
+
+const CARD_STYLE = {
+  background: 'linear-gradient(180deg, rgba(10,10,10,0.7) 0%, rgba(10,10,10,0.6) 100%)',
+  backdropFilter: 'blur(24px)',
+  boxShadow: '0 25px 60px rgba(0,0,0,0.5), 0 0 50px rgba(139,92,246,0.12), inset 0 1px 1px rgba(255,255,255,0.06)',
+} as const
+
+const BOTTOM_FADE_STYLE = {
+  background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)',
+} as const
+
 export default function HeroMockup() {
   return (
     <m.div
@@ -16,23 +33,17 @@ export default function HeroMockup() {
       animate={{ opacity: 1, y: 0, rotateX: 2 }}
       transition={{ duration: 0.9, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
       className="mt-16 sm:mt-20 max-w-2xl mx-auto"
-      style={{ perspective: 1200, transformStyle: 'preserve-3d' }}
+      style={PERSPECTIVE_STYLE}
     >
       {/* Ambient glow behind mockup */}
       <div
         className="absolute inset-0 -z-10 blur-3xl pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at 50% 60%, rgba(139,92,246,0.18) 0%, transparent 60%)',
-        }}
+        style={AMBIENT_GLOW_STYLE}
       />
 
       <div
         className="relative rounded-2xl overflow-hidden border border-white/[0.12]"
-        style={{
-          background: 'linear-gradient(180deg, rgba(10,10,10,0.7) 0%, rgba(10,10,10,0.6) 100%)',
-          backdropFilter: 'blur(24px)',
-          boxShadow: '0 25px 60px rgba(0,0,0,0.5), 0 0 50px rgba(139,92,246,0.12), inset 0 1px 1px rgba(255,255,255,0.06)',
-        }}
+        style={CARD_STYLE}
       >
         {/* Browser chrome */}
         <div className="flex items-center gap-2 px-4 py-4 border-b border-white/[0.06]">
@@ -137,9 +148,7 @@ export default function HeroMockup() {
         {/* Bottom fade — merges mockup into page background */}
         <div
           className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none"
-          style={{
-            background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)',
-          }}
+          style={BOTTOM_FADE_STYLE}
         />
       </div>
     </m.div>

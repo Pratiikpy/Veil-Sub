@@ -8,6 +8,9 @@ import Odometer from '@/components/Odometer'
 import SpotlightCard from '@/components/ui/SpotlightCard'
 import { useProtocolStats } from '@/hooks/useProtocolStats'
 
+// Extracted style constant to prevent re-renders
+const QUOTE_STYLE = { letterSpacing: '-0.02em' } as const
+
 const STATS = [
   { key: 'privacy', value: 100, suffix: '%', label: 'Private', sublabel: 'Zero-address finalize scope' },
   { key: 'transitions', value: 27, suffix: '', label: 'Transitions', sublabel: 'Leo smart contract functions' },
@@ -29,7 +32,7 @@ export default function ProtocolStats() {
                 <Badge variant="accent">Protocol Stats</Badge>
                 <p
                   className="mt-6 text-2xl sm:text-3xl font-serif italic text-white leading-snug"
-                  style={{ letterSpacing: '-0.02em' }}
+                  style={QUOTE_STYLE}
                 >
                   <span className="text-violet-400">&ldquo;</span>Zero addresses in finalize—even the smart contract
                   never learns who subscribes to whom.<span className="text-violet-400">&rdquo;</span>

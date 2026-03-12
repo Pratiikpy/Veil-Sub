@@ -29,6 +29,13 @@ import VerificationResult from '@/components/VerificationResult'
 import TransactionStatus from '@/components/TransactionStatus'
 import OnChainExplorer from '@/components/OnChainExplorer'
 
+// Extracted style constants to prevent re-renders
+const HERO_GLOW_STYLE = {
+  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.06) 0%, transparent 70%)',
+} as const
+
+const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
+
 export default function VerifyPage() {
   const { connected } = useWallet()
   const { getAccessPasses, verifyAccess } = useVeilSub()
@@ -157,9 +164,7 @@ export default function VerifyPage() {
         <section className="relative overflow-hidden">
           <div
             className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[800px] h-[200px] sm:h-[400px] pointer-events-none"
-            style={{
-              background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.06) 0%, transparent 70%)',
-            }}
+            style={HERO_GLOW_STYLE}
           />
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
             <m.div
@@ -175,7 +180,7 @@ export default function VerifyPage() {
               </div>
               <h1
                 className="text-4xl sm:text-5xl font-serif italic text-white mb-4"
-                style={{ letterSpacing: '-0.03em' }}
+                style={LETTER_SPACING_STYLE}
               >
                 Verify Your Access
               </h1>

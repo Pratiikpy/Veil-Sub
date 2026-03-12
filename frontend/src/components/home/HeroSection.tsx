@@ -12,6 +12,19 @@ import DotGrid from '@/components/home/DotGrid'
 import HeroMockup from '@/components/home/HeroMockup'
 import { FEATURED_CREATORS } from '@/lib/config'
 
+// Extracted style constants to prevent re-renders
+const HERO_GLOW_STYLE = {
+  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.07) 0%, rgba(139,92,246,0.02) 40%, transparent 70%)',
+} as const
+
+const HERO_BLUR_STYLE = {
+  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
+} as const
+
+const HEADING_LINE_HEIGHT = { lineHeight: 1.05 } as const
+const LETTER_SPACING_TIGHT = { letterSpacing: '-0.035em' } as const
+const LETTER_SPACING_MEDIUM = { letterSpacing: '-0.025em' } as const
+
 export default function HeroSection() {
   const { connected } = useWallet()
   const sectionRef = useRef<HTMLElement>(null)
@@ -45,15 +58,11 @@ export default function HeroSection() {
       {/* Hero ambient glow — layered for depth (responsive) */}
       <div
         className="absolute top-0 left-1/2 -translate-x-1/2 w-[550px] sm:w-[1100px] h-[350px] sm:h-[700px] pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.07) 0%, rgba(139,92,246,0.02) 40%, transparent 70%)',
-        }}
+        style={HERO_GLOW_STYLE}
       />
       <div
         className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[300px] sm:w-[600px] h-[150px] sm:h-[300px] pointer-events-none blur-3xl"
-        style={{
-          background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
-        }}
+        style={HERO_BLUR_STYLE}
       />
 
       <Container className="relative pt-20 sm:pt-40 lg:pt-44 pb-16 sm:pb-28 lg:pb-36">
@@ -79,7 +88,7 @@ export default function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
               className="block text-4xl sm:text-6xl lg:text-7xl font-semibold text-white"
-              style={{ letterSpacing: '-0.035em' }}
+              style={LETTER_SPACING_TIGHT}
             >
               Subscribe to Creators.
             </m.span>
@@ -88,7 +97,7 @@ export default function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
               className="block text-4xl sm:text-6xl lg:text-7xl font-serif italic bg-gradient-to-r from-white via-violet-200 to-violet-400 bg-clip-text text-transparent"
-              style={{ letterSpacing: '-0.025em' }}
+              style={LETTER_SPACING_MEDIUM}
             >
               Your identity stays hidden.
             </m.span>

@@ -3,6 +3,9 @@ import Container from '@/components/ui/Container'
 import Badge from '@/components/ui/Badge'
 import ScrollReveal from '@/components/ScrollReveal'
 
+// Extracted style constants to prevent re-renders
+const HEADING_STYLE = { letterSpacing: '-0.03em', lineHeight: 1.1 } as const
+
 const COMPARISON_ROWS = [
   { traditional: 'Patreon/Ko-fi show subscriber names in tier lists', veilsub: 'Subscriber identity never enters public state—not even mappings' },
   { traditional: 'Transaction history is permanent and public', veilsub: 'Payments via credits.aleo transfer_private—ZK proven, no on-chain trace' },
@@ -18,7 +21,7 @@ export default function ProblemSolution() {
             <Badge>The Problem</Badge>
             <h2
               className="mt-6 text-3xl sm:text-4xl lg:text-[44px] font-serif italic text-white"
-              style={{ letterSpacing: '-0.03em', lineHeight: 1.1 }}
+              style={HEADING_STYLE}
             >
               Every Platform
               <br />

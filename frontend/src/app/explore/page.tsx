@@ -151,7 +151,7 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
             Joined {new Date(creator.created_at).toLocaleDateString()}
           </span>
           <span className="text-xs text-white/60 group-hover:text-violet-300 flex items-center gap-1 transition-colors">
-            View page <ArrowRight className="w-3 h-3" aria-hidden="true" />
+            View creator <ArrowRight className="w-3 h-3" aria-hidden="true" />
           </span>
         </div>
       </Link>

@@ -26,6 +26,13 @@ import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
 import { formatCredits } from '@/lib/utils'
 
+// Extracted style constants to prevent re-renders
+const HERO_GLOW_STYLE = {
+  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
+} as const
+
+const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
+
 interface GlobalStats {
   totalCreators: number
   totalSubscriptions: number
@@ -230,14 +237,12 @@ export default function AnalyticsPage() {
       <main className="min-h-screen bg-background py-12 relative">
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
-          }}
+          style={HERO_GLOW_STYLE}
         />
         <div className="relative max-w-[1120px] mx-auto px-8">
           {/* Hero */}
           <div className="mb-16">
-            <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-4" style={{ letterSpacing: '-0.03em' }}>
+            <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-4" style={LETTER_SPACING_STYLE}>
               Platform Analytics
             </h1>
             <p className="text-white/70 text-base max-w-2xl leading-relaxed">
