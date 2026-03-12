@@ -74,7 +74,9 @@ export default function DashboardPage() {
     fetchCreatorStats(publicKey).then((s) => {
       if (cancelled) return
       setStats(s)
-      setIsRegistered(s.tierPrice !== null)
+      // Only promote to registered — never demote during an active session.
+      // Handles race: saveCreatorHash (async) may not complete before refreshKey fires.
+      setIsRegistered((prev) => prev || s.tierPrice !== null)
       setLoading(false)
     }).catch(() => {
       if (cancelled) return
