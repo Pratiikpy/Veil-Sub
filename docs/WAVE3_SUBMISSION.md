@@ -4,7 +4,7 @@
 **VeilSub** is a privacy-first creator subscription platform on Aleo. Creators register, set custom tiers, and publish gated content. Subscribers pay with private credits, receive encrypted AccessPass records, and verify access with zero public footprint.
 
 - **Deployed Program**: [`veilsub_v27.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v27.aleo) (testnet, 27 transitions, 25 mappings, 866 statements)
-- **Frontend**: https://veilsub.vercel.app
+- **Frontend**: https://veil-sub.vercel.app
 - **Repository**: https://github.com/Pratiikpy/Veil-Sub
 - **Account**: `aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk`
 

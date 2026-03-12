@@ -2,7 +2,7 @@
 
 ## Base URL
 
-All API routes are served from the Next.js frontend at `https://veilsub.vercel.app/api/`.
+All API routes are served from the Next.js frontend at `https://veil-sub.vercel.app/api/`.
 
 ---
 

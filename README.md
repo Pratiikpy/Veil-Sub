@@ -11,9 +11,9 @@
 [![Contract](https://img.shields.io/badge/contract-v27-8B5CF6)](https://testnet.aleoscan.io/program?id=veilsub_v27.aleo)
 [![Tests](https://img.shields.io/badge/tests-279%20passing-brightgreen)](#testing)
 [![Transitions](https://img.shields.io/badge/transitions-27-blue)](#27-transitions)
-[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://veilsub.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://veil-sub.vercel.app)
 
-[Live App](https://veilsub.vercel.app) &bull; [On-Chain Contract](https://testnet.aleoscan.io/program?id=veilsub_v27.aleo) &bull; [Documentation](https://veilsub.vercel.app/docs) &bull; [Privacy Model](https://veilsub.vercel.app/privacy)
+[Live App](https://veil-sub.vercel.app) &bull; [On-Chain Contract](https://testnet.aleoscan.io/program?id=veilsub_v27.aleo) &bull; [Documentation](https://veil-sub.vercel.app/docs) &bull; [Privacy Model](https://veil-sub.vercel.app/privacy)
 
 </div>
 
@@ -58,10 +58,10 @@ VeilSub is a privacy-first creator subscription platform built on Aleo. Subscrib
 
 | Step | Link | What You'll See |
 |------|------|-----------------|
-| 1. Browse the app | [veilsub.vercel.app](https://veilsub.vercel.app) | Landing page with privacy architecture and platform stats |
-| 2. Explore on-chain data | [/explorer](https://veilsub.vercel.app/explorer) | Query live mappings — no wallet needed |
-| 3. Verify an AccessPass | [/verify](https://veilsub.vercel.app/verify) | Zero-footprint verification flow |
-| 4. Read the docs | [/docs](https://veilsub.vercel.app/docs) | All 27 transitions documented with privacy levels |
+| 1. Browse the app | [veil-sub.vercel.app](https://veil-sub.vercel.app) | Landing page with privacy architecture and platform stats |
+| 2. Explore on-chain data | [/explorer](https://veil-sub.vercel.app/explorer) | Query live mappings — no wallet needed |
+| 3. Verify an AccessPass | [/verify](https://veil-sub.vercel.app/verify) | Zero-footprint verification flow |
+| 4. Read the docs | [/docs](https://veil-sub.vercel.app/docs) | All 27 transitions documented with privacy levels |
 | 5. Check testnet | [`veilsub_v27.aleo`](https://testnet.aleoscan.io/program?id=veilsub_v27.aleo) | Deployed contract with transaction history |
 
 ---
@@ -528,9 +528,9 @@ cd frontend && npm test
 | 6 record types | Search `record` in `main.leo` |
 | Blind Subscription Protocol | Search `BlindKey` in `main.leo` |
 | Commit-reveal tipping | Search `BHP256::commit_to_field` in `main.leo` |
-| Frontend live | [veilsub.vercel.app](https://veilsub.vercel.app) |
-| Walletless explorer | [/explorer](https://veilsub.vercel.app/explorer) |
-| Privacy model | [/privacy](https://veilsub.vercel.app/privacy) |
+| Frontend live | [veil-sub.vercel.app](https://veil-sub.vercel.app) |
+| Walletless explorer | [/explorer](https://veil-sub.vercel.app/explorer) |
+| Privacy model | [/privacy](https://veil-sub.vercel.app/privacy) |
 
 ---
 

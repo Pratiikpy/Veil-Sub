@@ -7,7 +7,7 @@
 ---
 
 ## Opening (15 seconds)
-- Show landing page hero at veilsub.vercel.app
+- Show landing page hero at veil-sub.vercel.app
 - "VeilSub — Private Creator Subscriptions on Aleo"
 - Highlight the stat cards: 27 transitions, 6 record types, 25 mappings, v27 deployed
 

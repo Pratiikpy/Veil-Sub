@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/api/', '/dashboard'],
     },
-    sitemap: `${process.env.NEXT_PUBLIC_APP_URL || 'https://veilsub.vercel.app'}/sitemap.xml`,
+    sitemap: `${process.env.NEXT_PUBLIC_APP_URL || 'https://veil-sub.vercel.app'}/sitemap.xml`,
   }
 }

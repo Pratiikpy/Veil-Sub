@@ -31,7 +31,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://veilsub.vercel.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://veil-sub.vercel.app'),
   title: `${APP_NAME} — Private Creator Subscriptions on Aleo`,
   description: `Subscribe to creators without anyone knowing. ${APP_DESCRIPTION} — zero-knowledge proof verification, zero addresses in finalize. 27 transitions, 25 mappings, 6 record types.`,
   keywords: ['Aleo', 'ZK', 'zero-knowledge', 'privacy', 'subscriptions', 'creator economy', 'blockchain', 'Leo'],
@@ -79,7 +79,7 @@ export default function RootLayout({
               '@type': 'WebApplication',
               name: 'VeilSub',
               description: 'Privacy-first creator subscription platform on Aleo blockchain',
-              url: 'https://veilsub.vercel.app',
+              url: 'https://veil-sub.vercel.app',
               applicationCategory: 'FinanceApplication',
               operatingSystem: 'Web',
               offers: {

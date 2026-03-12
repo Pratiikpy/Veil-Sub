@@ -56,7 +56,7 @@ export default function HeroMockup() {
             <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.04]">
               <Lock className="w-3 h-3 text-emerald-400/60 shrink-0" aria-hidden="true" />
               <span className="text-[11px] text-white/60 font-mono truncate">
-                veilsub.vercel.app/creator/aleo1hp9...epyxs
+                veil-sub.vercel.app/creator/aleo1hp9...epyxs
               </span>
             </div>
           </div>

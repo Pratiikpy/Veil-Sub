@@ -85,7 +85,7 @@ Verify deployed contract on explorer:
 
 **1. Creator Registration**
 ```
-1. Connect Shield Wallet on https://veilsub.vercel.app
+1. Connect Shield Wallet on https://veil-sub.vercel.app
 2. Navigate to /dashboard
 3. Enter base price (e.g., 500 microcredits)
 4. Click "Register" -> approve transaction
