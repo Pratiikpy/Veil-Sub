@@ -13,7 +13,7 @@ import {
   XCircle,
   Loader2,
 } from 'lucide-react'
-import { DEPLOYED_PROGRAM_ID } from '@/lib/config'
+import { DEPLOYED_PROGRAM_ID, getCreatorHash } from '@/lib/config'
 import { TIERS } from '@/types'
 import GlassCard from '@/components/GlassCard'
 
@@ -65,9 +65,20 @@ export default function OnChainExplorer() {
   const CREATOR_HASH = '7077346389288357645876044527218031735459465201928260558184537791016616885101field'
 
   const lookupCreator = async () => {
-    // Accept field hashes (end with "field") or raw addresses (start with "aleo1")
-    const key = creatorAddr.endsWith('field') ? creatorAddr : creatorAddr
-    if (!key.startsWith('aleo1') && !key.endsWith('field')) return
+    const input = creatorAddr.trim()
+    if (!input.startsWith('aleo1') && !input.endsWith('field')) return
+    // All mappings use Poseidon2 hashes — convert raw address to hash
+    let key: string
+    if (input.endsWith('field')) {
+      key = input
+    } else {
+      const hash = getCreatorHash(input)
+      if (!hash) {
+        setCreatorStats({ registered: false, basePrice: null, subscriberCount: null, totalRevenue: null, contentCount: null })
+        return
+      }
+      key = hash
+    }
     setCreatorLoading(true)
     setCreatorStats(null)
     try {
