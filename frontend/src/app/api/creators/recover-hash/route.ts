@@ -24,7 +24,23 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Step 1: Fetch recent transitions for this address
+    // Fast path: check Supabase first — already persisted from a previous registration
+    const supabase = getServerSupabase()
+    if (supabase) {
+      const addressHashValue = await hashAddress(address)
+      const { data } = await supabase
+        .from('creator_profiles')
+        .select('creator_hash')
+        .eq('address_hash', addressHashValue)
+        .single()
+      if (data?.creator_hash && typeof data.creator_hash === 'string' && data.creator_hash.endsWith('field')) {
+        return NextResponse.json({ creator_hash: data.creator_hash }, {
+          headers: { 'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=3600' },
+        })
+      }
+    }
+
+    // Slow path: Step 1: Fetch recent transitions for this address
     const transRes = await fetch(
       `${PROVABLE_BASE}/address/${encodeURIComponent(address)}/transitions?page=0&maxItems=50`,
       { next: { revalidate: 0 } }

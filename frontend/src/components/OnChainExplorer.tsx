@@ -13,7 +13,7 @@ import {
   XCircle,
   Loader2,
 } from 'lucide-react'
-import { DEPLOYED_PROGRAM_ID, getCreatorHash } from '@/lib/config'
+import { DEPLOYED_PROGRAM_ID, getCreatorHash, saveCreatorHash } from '@/lib/config'
 import { TIERS } from '@/types'
 import GlassCard from '@/components/GlassCard'
 
@@ -67,20 +67,34 @@ export default function OnChainExplorer() {
   const lookupCreator = async () => {
     const input = creatorAddr.trim()
     if (!input.startsWith('aleo1') && !input.endsWith('field')) return
+    setCreatorLoading(true)
+    setCreatorStats(null)
     // All mappings use Poseidon2 hashes — convert raw address to hash
     let key: string
     if (input.endsWith('field')) {
       key = input
     } else {
-      const hash = getCreatorHash(input)
+      let hash = getCreatorHash(input)
+      if (!hash) {
+        // Not in local cache — try Supabase (fast) then on-chain recovery (slow)
+        try {
+          const r = await fetch(`/api/creators/recover-hash?address=${encodeURIComponent(input)}`)
+          if (r.ok) {
+            const { creator_hash } = await r.json()
+            if (typeof creator_hash === 'string' && creator_hash.endsWith('field')) {
+              saveCreatorHash(input, creator_hash)
+              hash = creator_hash
+            }
+          }
+        } catch { /* ignore — handled below */ }
+      }
       if (!hash) {
         setCreatorStats({ registered: false, basePrice: null, subscriberCount: null, totalRevenue: null, contentCount: null })
+        setCreatorLoading(false)
         return
       }
       key = hash
     }
-    setCreatorLoading(true)
-    setCreatorStats(null)
     try {
       const [price, subs, rev, content] = await Promise.all([
         queryMapping('tier_prices', key),
