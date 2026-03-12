@@ -7,7 +7,8 @@ import Link from 'next/link'
 
 const CHANGELOG_VERSION = 'v27'
 const STORAGE_KEY = `veilsub-changelog-seen-${CHANGELOG_VERSION}`
-const AUTO_DISMISS_MS = 6000 // Auto-dismiss after 6 seconds
+const SESSION_KEY = `veilsub-changelog-shown-${CHANGELOG_VERSION}`
+const AUTO_DISMISS_MS = 5000 // Auto-dismiss after 5 seconds (reduced from 6s)
 
 // Feature highlights with technical details (NullPay-style depth)
 const FEATURES = [
@@ -61,11 +62,21 @@ export default function ChangelogOverlay() {
     const skipOverlay = params.get('judge') === '1' || params.get('demo') === '1'
     if (skipOverlay) return
 
+    // Check if already shown this session (prevents repeated showing on navigation)
+    try {
+      if (sessionStorage.getItem(SESSION_KEY)) return
+    } catch {
+      // sessionStorage unavailable
+    }
+
     // Delay show slightly to let page render first
     const showTimer = setTimeout(() => {
       try {
         const seen = localStorage.getItem(STORAGE_KEY)
-        if (!seen) setVisible(true)
+        if (!seen) {
+          setVisible(true)
+          sessionStorage.setItem(SESSION_KEY, '1') // Mark as shown this session
+        }
       } catch {
         // localStorage unavailable
       }
@@ -131,7 +142,7 @@ export default function ChangelogOverlay() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-medium text-white">{feature.title}</p>
-                    <p className="text-[10px] text-white/60 leading-tight">{feature.desc}</p>
+                    <p className="text-xs text-white/60 leading-tight">{feature.desc}</p>
                   </div>
                 </m.div>
               ))}
@@ -139,11 +150,11 @@ export default function ChangelogOverlay() {
 
             {/* Stats bar */}
             <div className="flex items-center justify-between px-2 py-2 rounded-lg bg-white/[0.03] mb-4">
-              <span className="text-[10px] text-white/50">27 transitions</span>
-              <span className="text-[10px] text-white/30">•</span>
-              <span className="text-[10px] text-white/50">6 record types</span>
-              <span className="text-[10px] text-white/30">•</span>
-              <span className="text-[10px] text-white/50">866 statements</span>
+              <span className="text-xs text-white/60">27 transitions</span>
+              <span className="text-xs text-white/40">•</span>
+              <span className="text-xs text-white/60">6 record types</span>
+              <span className="text-xs text-white/40">•</span>
+              <span className="text-xs text-white/60">866 statements</span>
             </div>
 
             {/* Actions */}

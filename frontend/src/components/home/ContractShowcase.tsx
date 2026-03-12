@@ -106,7 +106,7 @@ export default function ContractShowcase() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-4 flex-wrap">
                       <h3 className="text-lg font-semibold text-white">{group.category}</h3>
-                      <span className="text-[10px] font-medium uppercase tracking-wider text-white/50 bg-white/[0.04] px-2 py-1 rounded-full">
+                      <span className="text-xs font-medium uppercase tracking-wider text-white/60 bg-white/[0.04] px-2 py-1 rounded-full">
                         {group.badge}
                       </span>
                     </div>
@@ -134,7 +134,7 @@ export default function ContractShowcase() {
                           }`}
                         >
                           {isHero && (
-                            <div className="absolute -top-2.5 left-4 text-[10px] font-medium text-violet-300 bg-violet-600/30 px-3 py-1 rounded-full border border-violet-400/30">
+                            <div className="absolute -top-2.5 left-4 text-xs font-medium text-violet-300 bg-violet-600/30 px-3 py-1 rounded-full border border-violet-400/30">
                               Latest
                             </div>
                           )}
@@ -173,7 +173,7 @@ export default function ContractShowcase() {
                 {groupIdx < FEATURE_GROUPS.length - 1 && (
                   <div className="flex items-center gap-4 mt-10" aria-hidden="true">
                     <div className="h-px flex-1 bg-gradient-to-r from-violet-500/20 via-white/5 to-transparent" />
-                    <span className="text-[10px] font-mono text-white/40 px-3 py-1 rounded-full bg-white/[0.02] border border-white/5">
+                    <span className="text-xs font-mono text-white/60 px-3 py-1 rounded-full bg-white/[0.02] border border-white/5">
                       Evolution ↓
                     </span>
                     <div className="h-px flex-1 bg-gradient-to-l from-blue-500/20 via-white/5 to-transparent" />

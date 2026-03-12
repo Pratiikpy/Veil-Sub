@@ -105,12 +105,12 @@ const ALEO_API = '/api/aleo'
 const CREATOR_HASH = CREATOR_HASH_MAP[PLATFORM_ADDRESS] || '7077346389288357645876044527218031735459465201928260558184537791016616885101field'
 
 const MAPPING_QUERIES = [
-  { mapping: 'subscriber_count', key: CREATOR_HASH, label: 'Subscriber Count', desc: 'Total subscribers for platform creator' },
-  { mapping: 'total_revenue', key: CREATOR_HASH, label: 'Total Revenue', desc: 'Lifetime revenue in microcredits' },
-  { mapping: 'tier_prices', key: CREATOR_HASH, label: 'Base Price', desc: 'Creator base subscription price' },
-  { mapping: 'content_count', key: CREATOR_HASH, label: 'Content Count', desc: 'Published content pieces' },
-  { mapping: 'tier_count', key: CREATOR_HASH, label: 'Tier Count', desc: 'Custom tiers created by creator' },
-  { mapping: 'platform_revenue', key: '0u8', label: 'Platform Revenue', desc: 'Total platform fee earnings' },
+  { mapping: 'subscriber_count', key: CREATOR_HASH, label: 'Total Subscribers', displayName: 'Total Subscribers', desc: 'Active subscription count (anonymous aggregate)' },
+  { mapping: 'total_revenue', key: CREATOR_HASH, label: 'Lifetime Revenue', displayName: 'Lifetime Revenue', desc: 'All-time earnings from subscriptions and tips' },
+  { mapping: 'tier_prices', key: CREATOR_HASH, label: 'Starting Price', displayName: 'Starting Price', desc: 'Lowest tier subscription cost' },
+  { mapping: 'content_count', key: CREATOR_HASH, label: 'Exclusive Posts', displayName: 'Exclusive Posts', desc: 'Gated content only subscribers can access' },
+  { mapping: 'tier_count', key: CREATOR_HASH, label: 'Subscription Tiers', displayName: 'Subscription Tiers', desc: 'Number of pricing tiers available' },
+  { mapping: 'platform_revenue', key: '0u8', label: 'Platform Fees', displayName: 'Platform Fees', desc: 'Total fee pool from all transactions' },
 ]
 
 // Demo values to show what populated mappings would look like
@@ -203,12 +203,12 @@ function QuickMappingQueries() {
             onClick={() => setDemoMode(!demoMode)}
             className={`px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
               demoMode
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.15)]'
+                ? 'bg-violet-500/10 text-violet-300 border border-violet-500/20'
                 : 'bg-white/[0.05] text-white/60 border border-white/10 hover:bg-white/[0.08]'
             }`}
           >
-            <Sparkles className={`w-3 h-3 ${demoMode ? 'text-amber-400' : ''}`} aria-hidden="true" />
-            {demoMode ? 'Demo Data ON' : 'Show Demo Data'}
+            <Sparkles className={`w-3 h-3 ${demoMode ? 'text-violet-400' : ''}`} aria-hidden="true" />
+            {demoMode ? 'Demo ON' : 'Demo Data'}
           </button>
           <button
             onClick={queryAll}
@@ -222,9 +222,9 @@ function QuickMappingQueries() {
         Query on-chain mappings for the featured creator via privacy proxy. No wallet required—these are public aggregate values. Your IP is never sent to external APIs.
       </p>
       {demoMode && (
-        <div className="mb-4 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-center gap-2">
-          <AlertCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-          <span>Demo mode: showing example data. Toggle off to see live on-chain values.</span>
+        <div className="mb-4 px-4 py-2 rounded-lg bg-violet-500/5 border border-violet-500/15 text-xs text-white/50 flex items-center gap-2">
+          <Sparkles className="w-3 h-3 shrink-0 text-violet-400/60" aria-hidden="true" />
+          <span>Example data shown—toggle <strong className="text-white/70">Demo Data</strong> to query live chain.</span>
         </div>
       )}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -242,18 +242,19 @@ function QuickMappingQueries() {
                   : 'bg-surface-1 border-border hover:border-glass-hover'
               }`}
             >
-              <div className="flex items-center justify-between mb-2">
-                <code className="text-xs text-violet-300 font-mono truncate">{q.mapping}</code>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-white font-medium">{q.displayName}</span>
                 <button
                   onClick={() => queryMapping(q.mapping, q.key)}
                   disabled={loadingMap[q.mapping] || demoMode}
                   title={demoMode ? 'Disable demo mode to query live data' : loadingMap[q.mapping] ? 'Loading...' : `Query ${q.mapping} mapping`}
-                  className="px-2 py-1 rounded text-[10px] font-medium bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.1] transition-colors disabled:opacity-40"
+                  className="px-2 py-1 rounded text-xs font-medium bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.1] transition-colors disabled:opacity-40"
                 >
                   {loadingMap[q.mapping] ? <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" /> : 'Query'}
                 </button>
               </div>
-              <p className="text-[10px] text-white/60 mb-2">{q.desc}</p>
+              <code className="text-[9px] text-violet-300/60 font-mono block mb-1">{q.mapping}</code>
+              <p className="text-xs text-white/60 mb-2">{q.desc}</p>
               {showValue && (
                 <div className="pt-2 border-t border-border/75">
                   <span className="text-sm font-mono text-white">
@@ -264,7 +265,7 @@ function QuickMappingQueries() {
                         {formatValue(q.mapping, value)}
                       </span>
                     ) : (
-                      <span className="text-white/40 text-xs italic">awaiting data</span>
+                      <span className="text-white/60 text-xs italic">awaiting data</span>
                     )}
                   </span>
                 </div>
@@ -765,10 +766,24 @@ export default function ExplorerPage() {
                   </button>
                 </div>
               ) : paginatedEvents.length === 0 ? (
-                <div className="text-center py-12">
-                  <Activity className="w-8 h-8 text-white/60 mx-auto mb-4" aria-hidden="true" />
-                  <p className="text-sm text-white/60 mb-1">No events found</p>
-                  <p className="text-xs text-white/60">Subscription and tip activity will appear here once transactions are confirmed on-chain.</p>
+                <div className="text-center py-16 px-4">
+                  <div className="flex justify-center mb-4">
+                    <div className="w-12 h-12 rounded-full bg-violet-500/10 flex items-center justify-center border border-violet-500/20">
+                      <Activity className="w-6 h-6 text-violet-400" aria-hidden="true" />
+                    </div>
+                  </div>
+                  <h3 className="text-base font-semibold text-white mb-2">No Activity Yet</h3>
+                  <p className="text-sm text-white/70 mb-6 max-w-md mx-auto">
+                    Subscription and tip transactions will appear here once confirmed on-chain.
+                    This is real-time activity from the Aleo blockchain—no data is simulated.
+                  </p>
+                  <a
+                    href="/explore"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 hover:text-violet-200 transition-all border border-violet-500/30 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+                  >
+                    Browse Creators
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                  </a>
                 </div>
               ) : (
                 <div>

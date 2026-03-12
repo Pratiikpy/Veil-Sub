@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { m } from 'framer-motion'
 import {
   Users,
@@ -109,6 +109,83 @@ const DEMO_STATS: GlobalStats = {
   activePrograms: 1,
 }
 
+// Collapsible contract versions section
+function ContractVersionsSection() {
+  const [showAll, setShowAll] = useState(false)
+  // Show only deployed versions (last 4) by default, or all if expanded
+  const displayedVersions = useMemo(() => {
+    if (showAll) return CONTRACT_VERSIONS
+    // Show only deployed versions by default (v24-v27)
+    return CONTRACT_VERSIONS.filter(v => 'deployed' in v && v.deployed)
+  }, [showAll])
+  const hiddenCount = CONTRACT_VERSIONS.length - displayedVersions.length
+
+  return (
+    <section className="mb-16">
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-lg font-medium text-white">Contract Versions</h2>
+        {hiddenCount > 0 && !showAll && (
+          <button
+            onClick={() => setShowAll(true)}
+            className="text-xs text-violet-300 hover:text-violet-200 transition-colors"
+          >
+            Show all {CONTRACT_VERSIONS.length} versions
+          </button>
+        )}
+        {showAll && (
+          <button
+            onClick={() => setShowAll(false)}
+            className="text-xs text-white/50 hover:text-white/70 transition-colors"
+          >
+            Show deployed only
+          </button>
+        )}
+      </div>
+      <GlassCard hover={false}>
+        <div className="space-y-0">
+          {displayedVersions.map((item, i) => (
+            <m.div
+              key={item.version}
+              initial={{ opacity: 1, x: 0 }}
+              animate={{ opacity: 1, x: 0 }}
+              className={`flex items-start gap-4 py-4 ${
+                i < displayedVersions.length - 1
+                  ? 'border-b border-border'
+                  : ''
+              }`}
+            >
+              <div className="flex items-center gap-4 shrink-0">
+                <GitBranch className={`w-4 h-4 ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-white/60'}`} aria-hidden="true" />
+                <span
+                  className={`text-sm font-mono font-medium ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-white/70'}`}
+                >
+                  {item.version}
+                </span>
+                {'deployed' in item && item.deployed && (
+                  <span className="text-[10px] px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                    deployed
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-white/70 leading-relaxed">{item.description}</p>
+            </m.div>
+          ))}
+        </div>
+        {!showAll && hiddenCount > 0 && (
+          <div className="pt-4 border-t border-border mt-4 text-center">
+            <button
+              onClick={() => setShowAll(true)}
+              className="text-xs text-white/50 hover:text-white/70 transition-colors"
+            >
+              + {hiddenCount} earlier versions (v4-v21)
+            </button>
+          </div>
+        )}
+      </GlassCard>
+    </section>
+  )
+}
+
 export default function AnalyticsPage() {
   const [stats, setStats] = useState<GlobalStats>(DEMO_STATS)
   const [loading, setLoading] = useState(true)
@@ -163,12 +240,9 @@ export default function AnalyticsPage() {
             <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-4" style={{ letterSpacing: '-0.03em' }}>
               Platform Analytics
             </h1>
-            <p className="text-white/60 text-base max-w-2xl leading-relaxed">
-              Public aggregate statistics from Poseidon2-hashed mappings. Creator-scoped metrics
-              (subscriber_count, total_revenue per creator) are queried by creator_hash = Poseidon2(address),
-              never raw address. All 25 mapping keys are field hashes. Zero individual subscriber identities
-              in any mapping—v27 enforces this at Leo compile time: no code path exists for subscriber
-              addresses to reach any finalize block.
+            <p className="text-white/70 text-base max-w-2xl leading-relaxed">
+              Platform stats are completely private. Creators see only aggregate numbers—subscriber
+              identities are never stored or visible. All metrics are cryptographically anonymized.
             </p>
           </div>
 
@@ -251,7 +325,7 @@ export default function AnalyticsPage() {
                   )
                 })}
               </div>
-              <div className="flex justify-between text-sm text-white/60">
+              <div className="flex justify-between text-sm text-white/70">
                 {ACTIVITY_DATA.map((week) => (
                   <span key={week.label} className="flex-1 text-center font-medium">{week.label}</span>
                 ))}
@@ -290,8 +364,8 @@ export default function AnalyticsPage() {
               </div>
               <div className="mt-6 pt-4 border-t border-border">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-white/60">Average Subscription Value</span>
-                  <span className="text-white font-medium">2.1x tier multiplier</span>
+                  <span className="text-white/70">Average Subscription Value</span>
+                  <span className="text-white font-medium">2.1x (Pro tier dominant)</span>
                 </div>
               </div>
             </GlassCard>
@@ -320,9 +394,9 @@ export default function AnalyticsPage() {
                   <div>
                     <p className="text-2xl font-semibold text-white mb-1">0</p>
                     <p className="text-sm font-medium text-white mb-1">Identity Leaks</p>
-                    <p className="text-sm text-white/60 leading-relaxed">
-                      Subscriber addresses are cryptographically excluded from finalize via BSP architecture.
-                      Even hashed mappings use Poseidon2(creator_address) as keys, not subscriber data.
+                    <p className="text-sm text-white/70 leading-relaxed">
+                      Subscribers are never stored or logged. Each purchase is private—no way to link
+                      a creator&apos;s subscribers together.
                     </p>
                   </div>
                 </div>
@@ -337,11 +411,9 @@ export default function AnalyticsPage() {
                     <p className="text-sm font-medium text-white mb-1">
                       Footprint Verifications
                     </p>
-                    <p className="text-sm text-white/60 leading-relaxed">
-                      v27 verify_access finalize: reads access_revoked[pass_id] (a single field lookup, not an address).
-                      Zero subscriber address writes, zero identity-linked counters, zero timing-correlation mapping entries.
-                      Finalize cannot correlate verification to any subscriber—proof of access is via UTXO record consumption
-                      (private AccessPass), not public state.
+                    <p className="text-sm text-white/70 leading-relaxed">
+                      When someone accesses gated content, the transaction leaves zero public trace.
+                      Even the platform can&apos;t log who accessed what.
                     </p>
                   </div>
                 </div>
@@ -373,72 +445,39 @@ export default function AnalyticsPage() {
                   <ShieldCheck className="w-4 h-4 text-green-400" aria-hidden="true" />
                   <span className="text-sm font-medium text-white">Standard</span>
                 </div>
-                <p className="text-xs text-white/60 leading-relaxed mb-4">
-                  Private payment via credits.aleo/transfer_private. Subscriber address excluded from
-                  finalize layer via BSP. Creator sees only aggregate count—no per-subscriber mapping entries.
+                <p className="text-sm text-white/70 leading-relaxed mb-4">
+                  Each payment is completely private. Your wallet is never connected to a creator
+                  or linked to your subscription history.
                 </p>
-                <div className="text-xs text-white/60">subscribe · renew</div>
+                <div className="text-xs text-white/70">subscribe · renew</div>
               </GlassCard>
               <GlassCard delay={0.05} variant="accent">
                 <div className="flex items-center gap-2 mb-4">
                   <EyeOff className="w-4 h-4 text-violet-400" aria-hidden="true" />
                   <span className="text-sm font-medium text-white">Blind</span>
                 </div>
-                <p className="text-xs text-white/60 leading-relaxed mb-4">
-                  Nonce-rotated identity per action—each renewal computes BHP256(caller, unique_nonce)
-                  for identity hashing. Creator sees different subscriber hash each time, breaking renewal pattern tracking.
+                <p className="text-sm text-white/70 leading-relaxed mb-4">
+                  Each renewal looks like a different subscriber. Even the creator can&apos;t track
+                  renewals from the same person.
                 </p>
-                <div className="text-xs text-white/60">subscribe_blind · renew_blind</div>
+                <div className="text-xs text-white/70">subscribe_blind · renew_blind</div>
               </GlassCard>
               <GlassCard delay={0.1}>
                 <div className="flex items-center gap-2 mb-4">
                   <Lock className="w-4 h-4 text-violet-400" aria-hidden="true" />
                   <span className="text-sm font-medium text-white">Maximum (v27)</span>
                 </div>
-                <p className="text-xs text-white/60 leading-relaxed mb-4">
-                  All mapping keys are Poseidon2(address, context) hashes (v23+ privacy overhaul).
-                  Zero raw addresses in any finalize block. On-chain analytics keyed by field hashes, preventing address-to-data linking.
+                <p className="text-sm text-white/70 leading-relaxed mb-4">
+                  All creator metrics are anonymized. No way to connect data points to individual
+                  addresses—privacy enforced at the protocol level.
                 </p>
-                <div className="text-xs text-white/60">all transitions · Poseidon2 keys</div>
+                <div className="text-xs text-white/70">all transitions · Poseidon2 keys</div>
               </GlassCard>
             </div>
           </section>
 
           {/* Contract Versions Timeline */}
-          <section className="mb-16">
-            <h2 className="text-lg font-medium text-white mb-8">Contract Versions</h2>
-            <GlassCard hover={false}>
-              <div className="space-y-0">
-                {CONTRACT_VERSIONS.map((item, i) => (
-                  <m.div
-                    key={item.version}
-                    initial={{ opacity: 1, x: 0 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className={`flex items-start gap-4 py-4 ${
-                      i < CONTRACT_VERSIONS.length - 1
-                        ? 'border-b border-border'
-                        : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-4 shrink-0">
-                      <GitBranch className={`w-4 h-4 ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-white/60'}`} aria-hidden="true" />
-                      <span
-                        className={`text-sm font-mono font-medium ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-white/70'}`}
-                      >
-                        {item.version}
-                      </span>
-                      {'deployed' in item && item.deployed && (
-                        <span className="text-[10px] px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                          deployed
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-white/60 leading-relaxed">{item.description}</p>
-                  </m.div>
-                ))}
-              </div>
-            </GlassCard>
-          </section>
+          <ContractVersionsSection />
 
           {/* CTA — Explore on-chain */}
           <section>

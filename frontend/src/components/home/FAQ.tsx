@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useRef } from 'react'
+import React, { useState, useCallback, useRef, useMemo } from 'react'
 import { m } from 'framer-motion'
 import { ChevronRight } from 'lucide-react'
 import Container from '@/components/ui/Container'
@@ -122,6 +122,12 @@ export default function FAQ() {
     nextButton?.focus()
   }, [])
 
+  // Memoize navigation callbacks for each FAQ item to prevent re-renders
+  const navigationCallbacks = useMemo(() =>
+    FAQ_DATA.map((_, index) => (dir: 'up' | 'down') => handleNavigate(index, dir)),
+    [handleNavigate]
+  )
+
   return (
     <section className="py-24 lg:py-36 section-divider">
       <Container>
@@ -139,7 +145,7 @@ export default function FAQ() {
               question={item.q}
               answer={item.a}
               index={index}
-              onNavigate={(dir) => handleNavigate(index, dir)}
+              onNavigate={navigationCallbacks[index]}
               totalItems={FAQ_DATA.length}
             />
           ))}

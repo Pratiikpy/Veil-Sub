@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, memo, useCallback } from 'react'
 import { m } from 'framer-motion'
 import Link from 'next/link'
 import {
@@ -78,18 +78,20 @@ interface Creator {
   category?: string
 }
 
-function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
+const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
   const isFeatured = FEATURED_ADDRESSES.has(creator.address)
   const { fetchCreatorStats } = useCreatorStats()
   const [stats, setStats] = useState<{ subscriberCount: number; tierPrice: number | null } | null>(null)
 
+  // Stable reference to fetch stats - only depends on address, not on fetchCreatorStats identity
   useEffect(() => {
     let cancelled = false
     fetchCreatorStats(creator.address).then((s) => {
       if (!cancelled) setStats(s)
     })
     return () => { cancelled = true }
-  }, [creator.address, fetchCreatorStats])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [creator.address])
 
   return (
     <m.div
@@ -155,7 +157,10 @@ function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
       </Link>
     </m.div>
   )
-}
+}, (prevProps, nextProps) => {
+  // Custom equality check - only re-render if address or index changes
+  return prevProps.creator.address === nextProps.creator.address && prevProps.index === nextProps.index
+})
 
 export default function ExplorePage() {
   const router = useRouter()
@@ -169,6 +174,38 @@ export default function ExplorePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [platformStats, setPlatformStats] = useState<{ creators: number | null; content: number | null }>({ creators: null, content: null })
   const [platformStatsError, setPlatformStatsError] = useState(false)
+
+  // Memoize filtered creators to avoid recomputing on every render
+  const filteredCreators = useMemo(() => {
+    return creators.filter((c) => selectedCategory === 'all' || c.category === selectedCategory)
+  }, [creators, selectedCategory])
+
+  // Memoized handlers to prevent unnecessary re-renders
+  const handleSearchKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && isValidAleoAddress(search.trim())) {
+      router.push(`/creator/${search.trim()}`)
+    }
+  }, [search, router])
+
+  const handleGoToCreator = useCallback(() => {
+    if (isValidAleoAddress(search.trim())) {
+      router.push(`/creator/${search.trim()}`)
+    }
+  }, [search, router])
+
+  const handleSortFeatured = useCallback(() => {
+    setSortBy('featured')
+    setCreators(prev => [...prev].sort((a, b) => {
+      const aFeatured = FEATURED_ADDRESSES.has(a.address) ? 0 : 1
+      const bFeatured = FEATURED_ADDRESSES.has(b.address) ? 0 : 1
+      return aFeatured - bFeatured
+    }))
+  }, [])
+
+  const handleSortNewest = useCallback(() => {
+    setSortBy('newest')
+    setCreators(prev => [...prev].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()))
+  }, [])
 
   // Get featured creators for highlight section
   const trendingCreators = FEATURED_CREATORS.slice(0, 4).map((fc) => ({
@@ -296,7 +333,7 @@ export default function ExplorePage() {
               {platformStatsError ? (
                 <div className="flex items-center gap-1.5 text-xs text-amber-400/80">
                   <AlertTriangle className="w-3.5 h-3.5" aria-hidden="true" />
-                  <span>On-chain stats unavailable</span>
+                  <span>Stats syncing—creator discovery still works</span>
                 </div>
               ) : (
                 <>
@@ -388,11 +425,7 @@ export default function ExplorePage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 aria-label="Search creators by name or address. Press Enter to navigate to address."
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && isValidAleoAddress(search.trim())) {
-                    router.push(`/creator/${search.trim()}`)
-                  }
-                }}
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Search creators by name or paste aleo1... address"
                 className="w-full pl-11 pr-4 py-4 rounded-xl glass text-white placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300 text-base"
               />
@@ -405,7 +438,7 @@ export default function ExplorePage() {
                 className="mt-2"
               >
                 <button
-                  onClick={() => router.push(`/creator/${search.trim()}`)}
+                  onClick={handleGoToCreator}
                   className="w-full flex items-center justify-between px-4 py-4 rounded-xl bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/15 transition-all duration-200 group"
                 >
                   <div className="flex items-center gap-2">
@@ -424,8 +457,7 @@ export default function ExplorePage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs text-white/60">
                 {(() => {
-                  const filtered = creators.filter((c) => selectedCategory === 'all' || c.category === selectedCategory)
-                  const count = filtered.length
+                  const count = filteredCreators.length
                   const categoryLabel = selectedCategory !== 'all' ? ` in ${CATEGORIES.find(cat => cat.id === selectedCategory)?.label || selectedCategory}` : ''
                   return `${count} creator${count !== 1 ? 's' : ''}${debouncedSearch ? ` matching "${debouncedSearch}"` : ''}${categoryLabel}`
                 })()}
@@ -434,24 +466,14 @@ export default function ExplorePage() {
                 <div className="flex items-center gap-1">
                   <span className="text-[10px] text-white/60 mr-1">Sort:</span>
                   <button
-                    onClick={() => {
-                      setSortBy('featured')
-                      setCreators(prev => [...prev].sort((a, b) => {
-                        const aFeatured = FEATURED_ADDRESSES.has(a.address) ? 0 : 1
-                        const bFeatured = FEATURED_ADDRESSES.has(b.address) ? 0 : 1
-                        return aFeatured - bFeatured
-                      }))
-                    }}
-                    className={`px-3 py-1 rounded text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${sortBy === 'featured' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:text-white hover:bg-white/[0.06]'}`}
+                    onClick={handleSortFeatured}
+                    className={`px-3 py-1 rounded text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${sortBy === 'featured' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:text-white hover:bg-white/[0.06]'}`}
                   >
                     Featured
                   </button>
                   <button
-                    onClick={() => {
-                      setSortBy('newest')
-                      setCreators(prev => [...prev].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()))
-                    }}
-                    className={`px-3 py-1 rounded text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${sortBy === 'newest' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:text-white hover:bg-white/[0.06]'}`}
+                    onClick={handleSortNewest}
+                    className={`px-3 py-1 rounded text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${sortBy === 'newest' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:text-white hover:bg-white/[0.06]'}`}
                   >
                     Newest
                   </button>
@@ -503,10 +525,10 @@ export default function ExplorePage() {
               <h3 className="text-white font-medium mb-1">
                 {search ? 'No Creators Found' : 'No Creators Yet'}
               </h3>
-              <p className="text-sm text-white/60 mb-6 max-w-sm mx-auto">
+              <p className="text-sm text-white/70 mb-6 max-w-sm mx-auto">
                 {search
                   ? 'Try a different search term, or paste a full aleo1... address above to go directly to any creator page.'
-                  : 'VeilSub is the only platform that hides subscriber identity from the blockchain. Be the first creator in your niche to offer truly private subscriptions.'}
+                  : 'VeilSub is the only platform where subscriber addresses never appear in on-chain mappings. Be the first creator to offer subscriptions that are truly unlinkable.'}
               </p>
               <div className="flex items-center justify-center gap-4 flex-wrap">
                 {search ? (
@@ -528,7 +550,6 @@ export default function ExplorePage() {
               </div>
             </div>
           ) : (() => {
-            const filteredCreators = creators.filter((creator) => selectedCategory === 'all' || creator.category === selectedCategory)
             if (filteredCreators.length === 0 && selectedCategory !== 'all') {
               return (
                 <div className="text-center py-12">

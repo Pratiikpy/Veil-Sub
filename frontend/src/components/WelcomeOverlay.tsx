@@ -6,6 +6,7 @@ import { Shield, X, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 const STORAGE_KEY = 'veilsub-welcome-dismissed'
+const SESSION_KEY = 'veilsub-welcome-shown-this-session'
 const AUTO_DISMISS_MS = 4000 // Auto-dismiss after 4 seconds (was 10s - reduced for judge flow)
 
 export default function WelcomeOverlay() {
@@ -17,10 +18,14 @@ export default function WelcomeOverlay() {
     const skipOverlay = params.get('judge') === '1' || params.get('demo') === '1'
     if (skipOverlay) return
 
+    // Check if already shown this session (prevents repeated showing on navigation)
+    if (sessionStorage.getItem(SESSION_KEY)) return
+
     // Show after a brief delay to let page load
     const showTimer = setTimeout(() => {
       if (!localStorage.getItem(STORAGE_KEY)) {
         setShow(true)
+        sessionStorage.setItem(SESSION_KEY, '1') // Mark as shown this session
       }
     }, 600) // Reduced from 800ms
 

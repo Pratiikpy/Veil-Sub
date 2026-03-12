@@ -198,8 +198,8 @@ export default function DashboardPage() {
           </h1>
           <p className="text-white/70">
             {isRegistered
-              ? 'Manage your subscription settings and view aggregate stats via zero-address mappings.'
-              : 'Register as a creator to start accepting private subscriptions via BSP.'}
+              ? 'Manage your subscription settings and view aggregate stats—no subscriber addresses ever appear.'
+              : 'Register to start earning. Your subscriber list stays 100% private—no addresses, no enumeration.'}
           </p>
         </m.div>
 

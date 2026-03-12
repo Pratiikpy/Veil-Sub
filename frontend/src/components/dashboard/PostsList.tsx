@@ -70,7 +70,7 @@ export default function PostsList({ address }: PostsListProps) {
         <span className="text-xs text-white/60 ml-auto">{posts.length} posts</span>
       </div>
       {posts.length === 0 ? (
-        <p className="text-sm text-white/60">No gated content yet. Create your first post above to start earning from subscribers.</p>
+        <p className="text-sm text-white/70">No exclusive content yet. Publish your first AccessPass-gated post to earn from subscribers who verify access without revealing their identity.</p>
       ) : (
         <div className="space-y-2">
           {posts.map((post) => {

@@ -332,7 +332,7 @@ export default function VerifyPage() {
                       <div key={item.label} className="flex items-center gap-2 text-sm">
                         <ShieldCheck className="w-4 h-4 text-green-400 shrink-0" aria-hidden="true" />
                         <span className="text-white/90">{item.label}</span>
-                        <span className="text-white/40 text-xs font-mono hidden sm:inline">({item.desc})</span>
+                        <span className="text-white/60 text-xs font-mono hidden sm:inline">({item.desc})</span>
                       </div>
                     ))}
                   </div>
@@ -637,12 +637,12 @@ export default function VerifyPage() {
                     <p className="text-white font-medium text-sm mb-1">
                       Select a Pass to Verify
                     </p>
-                    <p className="text-white/60 text-xs mb-4 max-w-xs mx-auto">
-                      Click on any AccessPass from the list on the left. Once selected, you can run verify_access to prove your subscription on-chain.
+                    <p className="text-white/70 text-xs mb-4 max-w-xs mx-auto">
+                      Pick any AccessPass from the list. When you verify, a zero-knowledge proof is generated client-side—your address never reaches the blockchain.
                     </p>
                     <div className="p-4 rounded-lg bg-violet-500/5 border border-violet-500/10 mx-4">
-                      <p className="text-xs text-white/60">
-                        <strong className="text-violet-300">What happens:</strong> Your pass is consumed and re-created (UTXO pattern). Finalize only checks pass_id—your address never appears on-chain.
+                      <p className="text-xs text-white/70">
+                        <strong className="text-violet-300">How it works:</strong> Your pass is consumed and instantly re-created in one atomic transaction. Finalize only reads pass_id and expiry—your subscriber identity is architecturally impossible to expose.
                       </p>
                     </div>
                   </div>

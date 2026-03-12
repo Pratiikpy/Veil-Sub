@@ -263,7 +263,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         <LoadingSkeleton />
       ) : error ? (
         <div className="p-8 rounded-xl border border-red-500/20 bg-red-500/5 text-center">
-          <p className="text-sm text-red-400 mb-4">Could not load creator content from VeilSub servers</p>
+          <p className="text-sm text-red-400 mb-4">Could not load exclusive content. Your AccessPass is safe—check your connection and retry.</p>
           <button
             onClick={fetchPosts}
             aria-label="Retry loading posts"
@@ -279,8 +279,8 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
             <div className="p-8 rounded-xl bg-surface-1 border border-white/[0.05] text-center">
               <FileText className="w-10 h-10 text-white/60 mx-auto mb-4" aria-hidden="true" />
               <h3 className="text-white font-medium mb-1">No Exclusive Content Yet</h3>
-              <p className="text-sm text-white/60">
-                This creator hasn&apos;t published any AccessPass-gated content yet. Subscribe to unlock posts when available.
+              <p className="text-sm text-white/70">
+                This creator hasn&apos;t published any gated content. Once they do, your AccessPass verification will unlock it instantly—with zero on-chain footprint.
               </p>
             </div>
           )}
