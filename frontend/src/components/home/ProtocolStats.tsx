@@ -27,7 +27,9 @@ export default function ProtocolStats() {
         <ScrollReveal>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Quote card */}
-            <div className="col-span-2 sm:row-span-2 rounded-3xl glass p-6 sm:p-8 flex flex-col justify-between hover:border-violet-500/[0.15] transition-all duration-300">
+            <div className="col-span-2 sm:row-span-2 relative rounded-3xl p-[1px] overflow-hidden">
+              <div className="absolute inset-[-100%] opacity-50 animate-[spin_8s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,rgba(139,92,246,0.9)_90deg,rgba(59,130,246,0.5)_180deg,rgba(16,185,129,0.4)_220deg,rgba(59,130,246,0.5)_270deg,rgba(139,92,246,0.9)_330deg,transparent_360deg)]" />
+            <div className="relative h-full rounded-[23px] glass p-6 sm:p-8 flex flex-col justify-between transition-all duration-300">
               <div>
                 <Badge variant="accent">Protocol Stats</Badge>
                 <p
@@ -57,6 +59,7 @@ export default function ProtocolStats() {
                   </div>
                 )}
               </div>
+            </div>
             </div>
 
             {/* Stat cards */}

@@ -43,7 +43,7 @@ export default function HowItWorks() {
                   <div className="mb-4 w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-600/10 border border-violet-500/20 flex items-center justify-center group-hover:from-violet-500/30 group-hover:to-violet-600/20 group-hover:border-violet-500/30 transition-all shadow-lg shadow-violet-500/10">
                     <Icon className="w-6 h-6 text-violet-400 group-hover:text-violet-300 transition-colors" aria-hidden="true" />
                   </div>
-                  <h3 className="text-white font-medium mb-2">{step.title}</h3>
+                  <h3 className="text-white font-semibold mb-2">{step.title}</h3>
                   <p className="text-sm text-white/80 leading-relaxed">{step.desc}</p>
                 </SpotlightCard>
               </m.div>

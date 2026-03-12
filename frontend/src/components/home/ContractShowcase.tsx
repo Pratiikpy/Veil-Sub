@@ -34,6 +34,8 @@ type FeatureGroup = {
   description: string
   icon: LucideIcon
   colorClass: string
+  cardIconBg: string
+  cardIconColor: string
   features: Feature[]
 }
 
@@ -44,6 +46,8 @@ const FEATURE_GROUPS: FeatureGroup[] = [
     description: 'Identity separation, commitment schemes, and zero-knowledge proofs prevent subscriber tracking.',
     icon: Lock,
     colorClass: 'from-violet-600 to-violet-400',
+    cardIconBg: 'bg-violet-500/[0.06] border border-violet-500/[0.12] group-hover:bg-violet-500/[0.12]',
+    cardIconColor: 'text-violet-400',
     features: [
       { icon: EyeOff, title: 'Zero Addresses in Finalize', desc: 'All mapping keys are Poseidon2 field hashes', version: 'v23' },
       { icon: Eye, title: 'Minimal-Footprint Verify', desc: 'Revocation check only—subscriber identity never in finalize', version: 'v8' },
@@ -58,6 +62,8 @@ const FEATURE_GROUPS: FeatureGroup[] = [
     description: 'Complete lifecycle management—from encrypted onboarding to transferable, renewable passes.',
     icon: RefreshCw,
     colorClass: 'from-blue-500 to-blue-400',
+    cardIconBg: 'bg-blue-500/[0.06] border border-blue-500/[0.12] group-hover:bg-blue-500/[0.12]',
+    cardIconColor: 'text-blue-400',
     features: [
       { icon: Users, title: 'Encrypted Content Delivery', desc: 'On-chain encryption commitments for gated content', version: 'v12' },
       { icon: RefreshCw, title: 'Blind Renewal', desc: 'Unlinkable identity rotation per renewal', version: 'v11' },
@@ -72,6 +78,8 @@ const FEATURE_GROUPS: FeatureGroup[] = [
     description: 'Sybil resistance and gas optimization ensure sustainable creator economics.',
     icon: Zap,
     colorClass: 'from-amber-500 to-amber-400',
+    cardIconBg: 'bg-amber-500/[0.06] border border-amber-500/[0.12] group-hover:bg-amber-500/[0.12]',
+    cardIconColor: 'text-amber-400',
     features: [
       { icon: Shield, title: 'Sybil-Protected Disputes', desc: 'Only subscribers can dispute via on-chain proof', version: 'v15' },
       { icon: Zap, title: 'Poseidon2 Optimization', desc: 'Deep Poseidon2 hashing in all finalize blocks', version: 'v19' },
@@ -95,6 +103,7 @@ export default function ContractShowcase() {
           {FEATURE_GROUPS.map((group, groupIdx) => {
             const CategoryIcon = group.icon
             const isLastInGroup = (idx: number) => idx === group.features.length - 1 && group.category === 'Privacy Layers'
+            const isFirstFeature = (idx: number) => idx === 0
 
             return (
               <div key={group.category}>
@@ -124,7 +133,7 @@ export default function ContractShowcase() {
                       <m.div
                         key={feature.title}
                         variants={staggerItemVariants}
-                        className={isHero ? 'sm:col-span-2 lg:col-span-1' : ''}
+                        className={isHero ? 'sm:col-span-2 lg:col-span-1' : isFirstFeature(idx) ? 'lg:col-span-2' : ''}
                       >
                         <SpotlightCard
                           className={`group relative p-4 sm:p-8 rounded-2xl transition-all duration-300 h-full ${
@@ -144,11 +153,11 @@ export default function ContractShowcase() {
                               className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
                                 isHero
                                   ? 'bg-violet-500/20 border border-violet-400/40'
-                                  : 'bg-violet-500/[0.06] border border-violet-500/[0.1] group-hover:bg-violet-500/[0.1]'
+                                  : group.cardIconBg
                               }`}
                             >
                               <Icon
-                                className={`text-violet-400 transition-colors ${isHero ? 'w-5 h-5' : 'w-4 h-4'}`}
+                                className={`transition-colors ${isHero ? 'w-5 h-5 text-violet-400' : `w-4 h-4 ${group.cardIconColor}`}`}
                                 aria-hidden="true"
                               />
                             </div>

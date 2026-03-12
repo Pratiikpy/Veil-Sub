@@ -123,12 +123,15 @@ export default function HeroSection() {
           >
             {connected ? (
               <>
-                <Link href="/dashboard">
-                  <Button variant="accent" size="lg" className="rounded-full shadow-accent-lg">
-                    Go to Dashboard
-                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                  </Button>
-                </Link>
+                <div className="relative inline-flex rounded-full p-[1.5px] overflow-hidden">
+                  <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,#8B5CF6_80deg,#3B82F6_160deg,#10B981_220deg,#3B82F6_280deg,#8B5CF6_330deg,transparent_360deg)]" />
+                  <Link href="/dashboard">
+                    <Button variant="accent" size="lg" className="relative rounded-full shadow-accent-lg">
+                      Go to Dashboard
+                      <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                    </Button>
+                  </Link>
+                </div>
                 <Link href={`/creator/${FEATURED_CREATORS[0]?.address || ''}`}>
                   <Button variant="secondary" size="lg" className="rounded-full">
                     Try as Subscriber
@@ -137,12 +140,15 @@ export default function HeroSection() {
               </>
             ) : (
               <>
-                <Link href={`/creator/${FEATURED_CREATORS[0]?.address || ''}`}>
-                  <Button variant="accent" size="lg" className="rounded-full shadow-accent-lg">
-                    Start Subscribing
-                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                  </Button>
-                </Link>
+                <div className="relative inline-flex rounded-full p-[1.5px] overflow-hidden">
+                  <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,#8B5CF6_80deg,#3B82F6_160deg,#10B981_220deg,#3B82F6_280deg,#8B5CF6_330deg,transparent_360deg)]" />
+                  <Link href={`/creator/${FEATURED_CREATORS[0]?.address || ''}`}>
+                    <Button variant="accent" size="lg" className="relative rounded-full shadow-accent-lg">
+                      Start Subscribing
+                      <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                    </Button>
+                  </Link>
+                </div>
                 <Link href="/privacy">
                   <Button variant="secondary" size="lg" className="rounded-full">
                     Explore Zero-Footprint Privacy
