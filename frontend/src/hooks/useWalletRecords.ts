@@ -143,7 +143,13 @@ export function useWalletRecords() {
         )
         if (Array.isArray(records)) recordsArr = records as WalletRecord[]
       } catch (falseErr) {
-        throw falseErr
+        // Only rethrow for network/timeout errors; for permission or wallet errors
+        // return empty so BalanceConverter is shown instead of a dead-end error.
+        if (falseErr instanceof Error &&
+            (falseErr.message.includes('timed out') || falseErr.message.includes('TimedOut') || falseErr.message.includes('network'))) {
+          throw falseErr
+        }
+        recordsArr = []
       }
     }
 

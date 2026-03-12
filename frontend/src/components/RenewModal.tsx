@@ -16,11 +16,11 @@ import { logSubscriptionEvent } from '@/lib/logEvent'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
 import { useBalanceCheck } from '@/hooks/useBalanceCheck'
+import { useCreatorTiers } from '@/hooks/useCreatorTiers'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
 import Button from './ui/Button'
-import type { AccessPass, SubscriptionTier } from '@/types'
-import { TIERS } from '@/types'
+import type { AccessPass } from '@/types'
 
 interface Props {
   isOpen: boolean
@@ -46,16 +46,18 @@ export default function RenewModal({
   } = useTransactionFlow({ isOpen, onClose, connected, stopPolling })
   const focusTrapRef = useFocusTrap(isOpen, handleClose)
   const { checkBalance } = useBalanceCheck(getCreditsRecords)
+  const { tiers: onChainTiers } = useCreatorTiers(pass.creator)
 
-  const [selectedTier, setSelectedTier] = useState<SubscriptionTier>(
-    TIERS.find((t) => t.id === pass.tier) || {
-      id: pass.tier,
-      name: `Tier ${pass.tier}`,
-      priceMultiplier: pass.tier,
-      description: `Custom tier ${pass.tier}`,
-      features: ['Custom tier access'],
-    }
-  )
+  // Build dynamic tier options from on-chain data (same pattern as CreatePostForm)
+  const tierOptions: { id: number; name: string; price: number }[] = [
+    { id: 1, name: 'Supporter', price: basePrice },
+    ...Object.entries(onChainTiers)
+      .filter(([, t]) => t.price > 0)
+      .map(([id, t]) => ({ id: Number(id), name: t.name, price: t.price }))
+      .sort((a, b) => a.id - b.id),
+  ]
+
+  const [selectedTierId, setSelectedTierId] = useState<number>(pass.tier)
   const [privacyMode, setPrivacyMode] = useState<'standard' | 'blind'>('standard')
   const [insufficientBalance, setInsufficientBalance] = useState(false)
   const tierGroupRef = useRef<HTMLDivElement>(null)
@@ -63,11 +65,18 @@ export default function RenewModal({
   useRovingTabIndex(tierGroupRef)
   useRovingTabIndex(privacyGroupRef)
 
-  const totalPrice = basePrice * selectedTier.priceMultiplier
-  // Use config-driven fee percentage (5% = divisor of 20)
+  // Derive selected option — fall back to absolute price estimate if not in options yet
+  const selectedOption = tierOptions.find(t => t.id === selectedTierId)
+    ?? { id: selectedTierId, name: `Tier ${selectedTierId}`, price: basePrice * selectedTierId }
+
+  const totalPrice = selectedOption.price
   const platformFeeDiv = 100 / PLATFORM_FEE_PCT
   const platformCut = Math.floor(totalPrice / platformFeeDiv)
   const creatorCut = totalPrice - platformCut
+
+  // Pass tier name for display in "Current pass" section
+  const passTierName = onChainTiers[pass.tier]?.name
+    ?? (pass.tier === 1 ? 'Supporter' : `Tier ${pass.tier}`)
 
   const isExpired = blockHeight !== null && pass.expiresAt <= blockHeight
   const blocksRemaining = blockHeight !== null ? Math.max(0, pass.expiresAt - blockHeight) : null
@@ -105,9 +114,7 @@ export default function RenewModal({
         return
       }
 
-      // v8: Single-record renew — contract handles both creator and platform payments
       const paymentRecord = records[0]
-
       const newPassId = generatePassId()
       const newExpiresAt = blockHeight + SUBSCRIPTION_DURATION_BLOCKS
 
@@ -120,7 +127,7 @@ export default function RenewModal({
           pass.rawPlaintext,
           paymentRecord,
           nonce,
-          selectedTier.id,
+          selectedTierId,
           totalPrice,
           newPassId,
           newExpiresAt
@@ -129,7 +136,7 @@ export default function RenewModal({
         id = await renew(
           pass.rawPlaintext,
           paymentRecord,
-          selectedTier.id,
+          selectedTierId,
           totalPrice,
           newPassId,
           newExpiresAt
@@ -146,7 +153,7 @@ export default function RenewModal({
             const wrappedSign = signMessage
               ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
               : null
-            logSubscriptionEvent(pass.creator, selectedTier?.id || 1, totalPrice, result.resolvedTxId || id, wrappedSign)
+            logSubscriptionEvent(pass.creator, selectedTierId, totalPrice, result.resolvedTxId || id, wrappedSign)
             toast.success('Subscription renewed privately')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
@@ -215,9 +222,7 @@ export default function RenewModal({
                 <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
                   <p className="text-xs text-white/60 mb-1">Current pass</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-white">
-                      {TIERS.find((t) => t.id === pass.tier)?.name ?? `Custom Tier ${pass.tier}`}
-                    </span>
+                    <span className="text-sm text-white">{passTierName}</span>
                     {isExpired ? (
                       <span className="px-3 py-1 rounded-full text-xs bg-red-500/10 text-red-400 border border-red-500/20">
                         Expired
@@ -233,16 +238,16 @@ export default function RenewModal({
                 {/* Tier Selector */}
                 <div className="mb-4">
                   <p className="text-xs text-white/70 mb-2">Renew as:</p>
-                  <div ref={tierGroupRef} className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Subscription tier">
-                    {TIERS.map((tier) => (
+                  <div ref={tierGroupRef} className="flex flex-wrap gap-2" role="radiogroup" aria-label="Subscription tier">
+                    {tierOptions.map((tier) => (
                       <button
                         key={tier.id}
                         role="radio"
-                        aria-checked={selectedTier.id === tier.id}
-                        tabIndex={selectedTier.id === tier.id ? 0 : -1}
-                        onClick={() => setSelectedTier(tier)}
+                        aria-checked={selectedTierId === tier.id}
+                        tabIndex={selectedTierId === tier.id ? 0 : -1}
+                        onClick={() => setSelectedTierId(tier.id)}
                         className={`py-2.5 px-4 rounded-lg text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50 focus-visible:ring-offset-0 ${
-                          selectedTier.id === tier.id
+                          selectedTierId === tier.id
                             ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
                             : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:border-white/15'
                         }`}
@@ -288,7 +293,7 @@ export default function RenewModal({
                 {/* Payment Breakdown */}
                 <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
                   <span className="text-xs text-white/60 uppercase tracking-wider font-medium">
-                    {selectedTier.name}
+                    {selectedOption.name}
                   </span>
                   <p className="text-2xl font-bold text-white mt-1 mb-2">
                     {formatCredits(totalPrice)} <span className="text-sm font-medium text-white/70">ALEO</span>
