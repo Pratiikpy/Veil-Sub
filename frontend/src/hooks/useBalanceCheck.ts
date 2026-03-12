@@ -59,9 +59,13 @@ export function useBalanceCheck(
           rawRecords = await getCreditsRecords()
         } catch (retryErr) {
           setLoading(false)
+          const msg = retryErr instanceof Error ? retryErr.message : ''
+          const detail = msg.includes('timed out') ? 'Your network may be slow — try again.'
+            : msg.includes('Leo Wallet') || msg.includes('record plaintext') ? msg
+            : 'Please ensure your wallet is connected and synced.'
           return {
             records: [],
-            error: `Could not load wallet records. ${retryErr instanceof Error && retryErr.message.includes('timed out') ? 'Your network may be slow — try again.' : 'Please ensure your wallet is connected and synced.'}`,
+            error: `Could not load wallet records. ${detail}`,
             insufficientBalance: false,
             largestRecord: 0,
           }
@@ -140,9 +144,13 @@ export function useBalanceCheck(
       }
     } catch (err) {
       setLoading(false)
+      const msg = err instanceof Error ? err.message : ''
+      const detail = msg.includes('timed out') ? 'Your network may be slow — try again.'
+        : msg.includes('Leo Wallet') || msg.includes('record plaintext') ? msg
+        : 'Please ensure your wallet is connected and synced.'
       return {
         records: [],
-        error: `Could not load wallet records. ${err instanceof Error && err.message.includes('timed out') ? 'Your network may be slow — try again.' : 'Please ensure your wallet is connected and synced.'}`,
+        error: `Could not load wallet records. ${detail}`,
         insufficientBalance: false,
         largestRecord: 0,
       }
