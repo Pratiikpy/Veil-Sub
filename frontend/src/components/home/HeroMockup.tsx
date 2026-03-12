@@ -141,7 +141,7 @@ export default function HeroMockup() {
             className="flex items-center justify-center gap-2 mt-4"
           >
             <Shield className="w-3 h-3 text-violet-400/70" aria-hidden="true" />
-            <span className="text-[11px] text-white/70">Your identity stays completely hidden</span>
+            <span className="text-xs text-white/70">Your identity stays completely hidden</span>
           </m.div>
         </div>
 

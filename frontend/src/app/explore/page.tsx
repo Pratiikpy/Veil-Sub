@@ -45,7 +45,7 @@ function TrendingCard({ creator, growth }: { creator: Creator; growth: string })
   return (
     <Link
       href={`/creator/${creator.address}`}
-      className="flex-shrink-0 w-64 p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-transparent border border-violet-500/20 hover:border-violet-500/40 transition-all group"
+      className="flex-shrink-0 w-52 sm:w-56 md:w-64 p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-transparent border border-violet-500/20 hover:border-violet-500/40 transition-all group"
     >
       <div className="flex items-center gap-4 mb-2">
         <AddressAvatar address={creator.address} size={36} />
@@ -101,7 +101,7 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
     >
       <Link
         href={`/creator/${creator.address}`}
-        className="block p-6 rounded-xl glass hover:-translate-y-0.5 hover:border-violet-500/[0.2] hover:shadow-accent-lg transition-all duration-300 group"
+        className="block p-4 sm:p-6 rounded-xl glass hover:-translate-y-0.5 hover:border-violet-500/[0.2] hover:shadow-accent-lg transition-all duration-300 group"
       >
         <div className="flex items-center gap-4 mb-4">
           <AddressAvatar address={creator.address} size={40} />
@@ -111,7 +111,7 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
                 {creator.display_name || shortenAddress(creator.address)}
               </p>
               {isFeatured && (
-                <span className="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded bg-violet-500/10 border border-violet-500/20 text-[10px] text-violet-400 font-medium">
+                <span className="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded bg-violet-500/10 border border-violet-500/20 text-xs text-violet-400 font-medium">
                   <Star className="w-2.5 h-2.5" aria-hidden="true" />
                   Featured
                 </span>
@@ -142,7 +142,7 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
             </span>
             <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">
               <Shield className="w-3 h-3 text-emerald-400" aria-hidden="true" />
-              <span className="text-[11px] font-medium text-emerald-300">Zero-Knowledge</span>
+              <span className="text-xs font-medium text-emerald-300">Zero-Knowledge</span>
             </span>
           </div>
         )}
@@ -386,13 +386,13 @@ export default function ExplorePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.1 }}
-              className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+              className="flex items-center gap-1.5 sm:gap-2 mb-6 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
             >
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
                     selectedCategory === cat.id
                       ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
                       : 'bg-white/[0.03] text-white/60 border border-transparent hover:bg-white/[0.06] hover:text-white'
@@ -464,7 +464,7 @@ export default function ExplorePage() {
               </p>
               {!debouncedSearch && (
                 <div className="flex items-center gap-1">
-                  <span className="text-[10px] text-white/60 mr-1">Sort:</span>
+                  <span className="text-xs text-white/60 mr-1">Sort:</span>
                   <button
                     onClick={handleSortFeatured}
                     className={`px-3 py-1 rounded text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${sortBy === 'featured' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:text-white hover:bg-white/[0.06]'}`}
@@ -496,7 +496,7 @@ export default function ExplorePage() {
               </button>
             </div>
           ) : loading ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
@@ -568,7 +568,7 @@ export default function ExplorePage() {
               )
             }
             return (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 {filteredCreators.map((creator, i) => (
                   <CreatorCard key={creator.address} creator={creator} index={i} />
                 ))}

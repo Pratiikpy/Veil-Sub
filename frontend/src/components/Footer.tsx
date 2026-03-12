@@ -84,7 +84,7 @@ export default function Footer() {
           <Link href="/vision" className="text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">Vision</Link>
           <Link href="/explorer" className="text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded">On-Chain</Link>
         </div>
-        <div className="pt-3 border-t border-border/75 flex items-center justify-between text-[10px] text-white/60">
+        <div className="pt-3 border-t border-border/75 flex items-center justify-between text-xs text-white/60">
           <div className="flex items-center gap-2">
             <Shield className="w-3 h-3 text-violet-400/50 shrink-0" aria-hidden="true" />
             <span>Zero-address finalize</span>

@@ -10,7 +10,7 @@ import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { getErrorMessage } from '@/lib/errorMessages'
 import { FEES } from '@/lib/config'
-import { formatCredits } from '@/lib/utils'
+import { formatCredits, isValidAleoAddress } from '@/lib/utils'
 import TransactionStatus from './TransactionStatus'
 import Button from './ui/Button'
 import type { AccessPass } from '@/types'
@@ -44,7 +44,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
       setError('Connect wallet to create a scoped audit token.')
       return
     }
-    if (!verifierAddress.startsWith('aleo1') || verifierAddress.length < 60) {
+    if (!isValidAleoAddress(verifierAddress)) {
       setError('Enter a valid Aleo address for the verifier.')
       return
     }

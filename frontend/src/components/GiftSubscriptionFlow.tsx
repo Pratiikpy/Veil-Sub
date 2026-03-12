@@ -11,6 +11,7 @@ import { MICROCREDITS_PER_CREDIT } from '@/lib/config'
 import TransactionStatus from './TransactionStatus'
 import Button from './ui/Button'
 import { getErrorMessage } from '@/lib/errorMessages'
+import { isValidAleoAddress } from '@/lib/utils'
 
 interface GiftSubscriptionFlowProps {
   isOpen: boolean
@@ -42,7 +43,7 @@ export default function GiftSubscriptionFlow({
     : 'submitting' as const
 
   const handleGift = useCallback(async () => {
-    if (!connected || !recipientAddress.startsWith('aleo1') || recipientAddress.length !== 63) return
+    if (!connected || !isValidAleoAddress(recipientAddress)) return
     setTxStatus('signing')
     setError(null)
     try {

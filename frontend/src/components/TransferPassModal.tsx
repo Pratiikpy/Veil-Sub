@@ -10,6 +10,7 @@ import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import TransactionStatus from './TransactionStatus'
 import Button from './ui/Button'
+import { isValidAleoAddress } from '@/lib/utils'
 
 interface Props {
   isOpen: boolean
@@ -35,7 +36,7 @@ export default function TransferPassModal({
   const [recipientAddress, setRecipientAddress] = useState('')
   const [confirmed, setConfirmed] = useState(false)
 
-  const isValidAddress = recipientAddress.startsWith('aleo1') && recipientAddress.length === 63
+  const isValidAddress = isValidAleoAddress(recipientAddress)
   const canTransfer = isValidAddress && confirmed && txStatus !== 'signing' && txStatus !== 'broadcasting'
 
   const handleTransfer = async () => {
