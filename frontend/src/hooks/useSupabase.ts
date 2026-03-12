@@ -4,6 +4,7 @@ import { computeWalletHash } from '@/lib/utils'
 
 interface SupabaseCreatorProfile {
   address_hash: string
+  creator_hash: string | null
   display_name: string | null
   bio: string | null
   created_at: string
@@ -47,7 +48,8 @@ export function useSupabase() {
       address: string,
       displayName?: string,
       bio?: string,
-      signMessage?: ((msg: Uint8Array) => Promise<Uint8Array>) | null
+      signMessage?: ((msg: Uint8Array) => Promise<Uint8Array>) | null,
+      creatorHash?: string,
     ): Promise<SupabaseCreatorProfile | null> => {
       setError(null)
       try {
@@ -65,7 +67,7 @@ export function useSupabase() {
         const res = await fetch('/api/creators', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ address, display_name: displayName, bio, signature, timestamp }),
+          body: JSON.stringify({ address, display_name: displayName, bio, creator_hash: creatorHash, signature, timestamp }),
         })
         if (!res.ok) {
           setError({ operation: 'upsertProfile', message: 'Failed to save profile', code: res.status })

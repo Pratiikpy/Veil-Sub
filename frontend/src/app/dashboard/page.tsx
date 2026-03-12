@@ -13,7 +13,7 @@ import { useSupabase } from '@/hooks/useSupabase'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import PageTransition from '@/components/PageTransition'
 import { creditsToMicrocredits } from '@/lib/utils'
-import { saveCreatorHash } from '@/lib/config'
+import { saveCreatorHash, getCreatorHash } from '@/lib/config'
 import type { TxStatus, CreatorProfile } from '@/types'
 
 import ConnectWalletPrompt from '@/components/dashboard/ConnectWalletPrompt'
@@ -30,7 +30,7 @@ export default function DashboardPage() {
   const { registerCreator } = useVeilSub()
   const { fetchCreatorStats } = useCreatorStats()
   const { startPolling, stopPolling } = useTransactionPoller()
-  const { upsertCreatorProfile } = useSupabase()
+  const { upsertCreatorProfile, getCreatorProfile } = useSupabase()
 
   const [price, setPrice] = useState('')
   const [displayName, setDisplayName] = useState('')
@@ -71,20 +71,37 @@ export default function DashboardPage() {
     }
     let cancelled = false
     setStatsError(false)
-    fetchCreatorStats(publicKey).then((s) => {
-      if (cancelled) return
-      setStats(s)
-      // Only promote to registered — never demote during an active session.
-      // Handles race: saveCreatorHash (async) may not complete before refreshKey fires.
-      setIsRegistered((prev) => prev || s.tierPrice !== null)
-      setLoading(false)
-    }).catch(() => {
-      if (cancelled) return
-      setStatsError(true)
-      setLoading(false)
-    })
+    // If hash missing from localStorage/hardcoded map, try to restore from Supabase first.
+    // This handles page refresh after registering from a new wallet.
+    const hashKnown = getCreatorHash(publicKey) !== null
+    const doFetch = () => {
+      fetchCreatorStats(publicKey).then((s) => {
+        if (cancelled) return
+        setStats(s)
+        // Only promote to registered — never demote during an active session.
+        setIsRegistered((prev) => prev || s.tierPrice !== null)
+        setLoading(false)
+      }).catch(() => {
+        if (cancelled) return
+        setStatsError(true)
+        setLoading(false)
+      })
+    }
+    if (!hashKnown) {
+      getCreatorProfile(publicKey).then((profile) => {
+        if (cancelled) return
+        if (profile?.creator_hash) {
+          saveCreatorHash(publicKey, profile.creator_hash)
+        }
+        doFetch()
+      }).catch(() => {
+        if (!cancelled) doFetch()
+      })
+    } else {
+      doFetch()
+    }
     return () => { cancelled = true }
-  }, [publicKey, fetchCreatorStats, refreshKey])
+  }, [publicKey, fetchCreatorStats, getCreatorProfile, refreshKey])
 
   // Stop polling on unmount
   useEffect(() => {
@@ -111,19 +128,6 @@ export default function DashboardPage() {
             // Extract creator hash from finalize args and save to localStorage
             // so the dashboard works for ANY wallet, not just hardcoded ones
             if (publicKey) {
-              fetch(`/api/aleo/transaction/${encodeURIComponent(resolvedId)}`)
-                .then(r => r.json())
-                .then(tx => {
-                  const hash = tx?.transitions?.[0]?.finalize?.[0]
-                    ?? tx?.execution?.transitions?.[0]?.finalize?.[0]
-                  if (hash && typeof hash === 'string' && hash.endsWith('field')) {
-                    saveCreatorHash(publicKey, hash)
-                  }
-                })
-                .catch(() => {}) // non-critical
-            }
-            // Save profile (best-effort, non-blocking)
-            if (publicKey) {
               const wrappedSign = signMessage
                 ? async (msg: Uint8Array) => {
                     const r = await signMessage(msg)
@@ -131,9 +135,31 @@ export default function DashboardPage() {
                     return r
                   }
                 : null
-              upsertCreatorProfile(publicKey, displayName || undefined, bioText || undefined, wrappedSign)
+              // Extract creator hash from finalize args, save to localStorage + Supabase
+              fetch(`/api/aleo/transaction/${encodeURIComponent(resolvedId)}`)
+                .then(r => r.json())
+                .then(tx => {
+                  const hash = tx?.transitions?.[0]?.finalize?.[0]
+                    ?? tx?.execution?.transitions?.[0]?.finalize?.[0]
+                  if (hash && typeof hash === 'string' && hash.endsWith('field')) {
+                    saveCreatorHash(publicKey, hash)
+                    // Persist hash to Supabase — survives localStorage clear and new devices
+                    upsertCreatorProfile(publicKey, displayName || undefined, bioText || undefined, wrappedSign, hash)
+                      .catch(() => {
+                        toast.warning('Profile saved on-chain but off-chain metadata could not be saved.')
+                      })
+                  } else {
+                    // Hash not available yet — save profile without it
+                    upsertCreatorProfile(publicKey, displayName || undefined, bioText || undefined, wrappedSign)
+                      .catch(() => {
+                        toast.warning('Profile saved on-chain but off-chain metadata could not be saved.')
+                      })
+                  }
+                })
                 .catch(() => {
-                  toast.warning('Profile saved on-chain but off-chain metadata could not be saved.')
+                  // Tx fetch failed — still save profile (without hash)
+                  upsertCreatorProfile(publicKey, displayName || undefined, bioText || undefined, wrappedSign)
+                    .catch(() => {})
                 })
             }
             setShowCelebration(true)

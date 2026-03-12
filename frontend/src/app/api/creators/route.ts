@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('creator_profiles')
-    .select('address_hash, display_name, bio, created_at')
+    .select('address_hash, creator_hash, display_name, bio, created_at')
     .eq('address_hash', addressHash)
     .single()
 
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { address, display_name, bio, signature, timestamp } = payload
+    const { address, display_name, bio, creator_hash, signature, timestamp } = payload
     if (!address || !ALEO_ADDRESS_RE.test(address)) {
       return NextResponse.json({ error: 'Valid Aleo address required' }, { status: 400 })
     }
@@ -69,10 +69,18 @@ export async function POST(req: NextRequest) {
       .eq('address_hash', addressHashValue)
       .single()
 
+    // Validate creator_hash if provided: must be digits followed by "field"
+    if (creator_hash !== undefined && creator_hash !== null) {
+      if (typeof creator_hash !== 'string' || !/^\d+field$/.test(creator_hash)) {
+        return NextResponse.json({ error: 'Invalid creator_hash format' }, { status: 400 })
+      }
+    }
+
     const upsertData: Record<string, unknown> = {
       address_hash: addressHashValue,
       display_name: display_name || null,
       bio: bio || null,
+      ...(creator_hash ? { creator_hash } : {}),
     }
 
     // Only encrypt and store the address on first registration

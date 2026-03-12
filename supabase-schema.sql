@@ -13,12 +13,16 @@
 -- Used by: /api/creators (GET, POST), /api/creators/list (GET)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS creator_profiles (
-  address_hash    TEXT PRIMARY KEY,           -- SHA-256(aleo1...) hex string, 64 chars
-  encrypted_address TEXT,                     -- AES-GCM encrypted Aleo address (set once on registration)
-  display_name    TEXT CHECK (char_length(display_name) <= 100),
-  bio             TEXT CHECK (char_length(bio) <= 1000),
-  created_at      TIMESTAMPTZ DEFAULT now()
+  address_hash      TEXT PRIMARY KEY,           -- SHA-256(aleo1...) hex string, 64 chars
+  encrypted_address TEXT,                       -- AES-GCM encrypted Aleo address (set once on registration)
+  creator_hash      TEXT,                       -- Poseidon2(address) field string e.g. "12345field" — needed for on-chain mapping lookups; NOT private (appears on-chain)
+  display_name      TEXT CHECK (char_length(display_name) <= 100),
+  bio               TEXT CHECK (char_length(bio) <= 1000),
+  created_at        TIMESTAMPTZ DEFAULT now()
 );
+
+-- Run this on existing Supabase instances to add the new column:
+-- ALTER TABLE creator_profiles ADD COLUMN IF NOT EXISTS creator_hash TEXT;
 
 -- Index for listing/search by display name
 CREATE INDEX IF NOT EXISTS idx_creator_profiles_display_name
