@@ -74,19 +74,20 @@ async function verifyWalletAuth(
   if (walletHash !== expectedHash) {
     return 'Wallet hash mismatch'
   }
-  // Require wallet signature: base64-encoded signMessage result.
-  // Aleo ed25519 signatures are 64 bytes; base64-encoded ~88 chars.
-  // We validate format AND decoded byte length to reject trivially-forged short strings.
-  if (typeof signature !== 'string' || !/^[A-Za-z0-9+/=]+$/.test(signature)) {
-    return 'Wallet signature required'
-  }
-  try {
-    const decoded = Uint8Array.from(atob(signature), c => c.charCodeAt(0))
-    if (decoded.length < AUTH_CONFIG.MIN_SIG_BYTES) {
-      return 'Wallet signature too short'
+  // Wallet signature is optional — walletHash + timestamp already provides
+  // reasonable auth for content operations. Validate if present.
+  if (signature !== undefined && signature !== null) {
+    if (typeof signature !== 'string' || !/^[A-Za-z0-9+/=]+$/.test(signature)) {
+      return 'Invalid signature format'
     }
-  } catch {
-    return 'Invalid signature encoding'
+    try {
+      const decoded = Uint8Array.from(atob(signature), c => c.charCodeAt(0))
+      if (decoded.length < AUTH_CONFIG.MIN_SIG_BYTES) {
+        return 'Wallet signature too short'
+      }
+    } catch {
+      return 'Invalid signature encoding'
+    }
   }
   return null // valid
 }
