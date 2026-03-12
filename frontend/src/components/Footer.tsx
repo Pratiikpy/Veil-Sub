@@ -51,7 +51,7 @@ export default function Footer() {
               <Shield className="w-3 h-3 text-violet-400/50" aria-hidden="true" />
               <span>27 transitions • BSP blind renewals • Zero-address finalize</span>
             </div>
-            <span className="text-white/60">© 2025 VeilSub</span>
+            <span className="text-white/60">© 2026 VeilSub</span>
           </div>
           <a
             href={`https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`}
@@ -89,7 +89,7 @@ export default function Footer() {
             <Shield className="w-3 h-3 text-violet-400/50 shrink-0" aria-hidden="true" />
             <span>Zero-address finalize</span>
           </div>
-          <span className="text-white/60">© 2025 VeilSub</span>
+          <span className="text-white/60">© 2026 VeilSub</span>
         </div>
       </div>
     </footer>
