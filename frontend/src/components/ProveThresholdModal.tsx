@@ -180,7 +180,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                   </div>
                 )}
 
-                <Button onClick={handleProve} disabled={txStatus !== 'idle'} className="w-full focus-visible:ring-2 focus-visible:ring-violet-400/50">
+                <Button variant="accent" onClick={handleProve} disabled={txStatus !== 'idle'} className="w-full focus-visible:ring-2 focus-visible:ring-violet-400/50">
                   Generate Proof
                 </Button>
               </>

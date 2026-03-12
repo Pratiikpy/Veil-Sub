@@ -243,6 +243,7 @@ export default function GiftSubscriptionFlow({
                 {/* Submit - show only when idle (not submitting, not error, not success) */}
                 {status === 'idle' && (
                   <Button
+                    variant="accent"
                     onClick={handleGift}
                     disabled={!recipientAddress.startsWith('aleo1') || recipientAddress.length !== 63 || !connected}
                     title={

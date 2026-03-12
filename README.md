@@ -1,6 +1,6 @@
 <div align="center">
 
-# VeilSub
+<img src="assets/logo.png" alt="VeilSub" width="420" />
 
 **Private Creator Subscriptions on Aleo**
 

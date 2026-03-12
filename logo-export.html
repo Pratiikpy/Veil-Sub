@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>VeilSub Logo Export</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 32px;
+      font-family: system-ui, sans-serif;
+    }
+    canvas { display: none; }
+    .preview {
+      background: #000;
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 24px;
+      padding: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+    svg { display: block; }
+    .buttons {
+      display: flex;
+      gap: 12px;
+    }
+    button {
+      background: rgba(139,92,246,0.15);
+      border: 1px solid rgba(139,92,246,0.4);
+      color: #A78BFA;
+      padding: 10px 24px;
+      border-radius: 100px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    button:hover {
+      background: rgba(139,92,246,0.3);
+    }
+    .label {
+      color: rgba(255,255,255,0.4);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<div class="preview">
+  <p class="label">VeilSub Logo Preview</p>
+
+  <!-- Icon only -->
+  <svg id="icon-svg" viewBox="-4 -4 88 88" fill="none" xmlns="http://www.w3.org/2000/svg" width="160" height="160">
+    <path d="M12 10 L40 66 L68 10" stroke="#8B5CF6" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.28" transform="translate(7, 6)"/>
+    <path d="M12 10 L40 66 L68 10" stroke="#8B5CF6" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+
+  <!-- Wordmark -->
+  <svg id="wordmark-svg" viewBox="0 0 320 80" fill="none" xmlns="http://www.w3.org/2000/svg" width="320" height="80">
+    <!-- Ghost V -->
+    <path d="M12 10 L40 66 L68 10" stroke="#8B5CF6" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.28" transform="translate(7, 6)"/>
+    <!-- Solid V -->
+    <path d="M12 10 L40 66 L68 10" stroke="#8B5CF6" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- VeilSub text -->
+    <text x="92" y="52" font-family="Georgia, serif" font-style="italic" font-size="38" font-weight="600" fill="white" letter-spacing="-1">Veil</text>
+    <text x="172" y="52" font-family="system-ui, sans-serif" font-size="38" font-weight="300" fill="rgba(255,255,255,0.7)" letter-spacing="-1">Sub</text>
+  </svg>
+
+  <div class="buttons">
+    <button onclick="downloadPNG('icon', 512, 512, '#000000')">Download Icon (512px, black)</button>
+    <button onclick="downloadPNG('icon', 512, 512, 'transparent')">Download Icon (512px, transparent)</button>
+    <button onclick="downloadPNG('wordmark', 1200, 300, '#000000')">Download Wordmark (1200px)</button>
+  </div>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+function downloadPNG(type, width, height, bg) {
+  const canvas = document.getElementById('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+
+  if (bg === 'transparent') {
+    ctx.clearRect(0, 0, width, height);
+  } else {
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, width, height);
+  }
+
+  const svgEl = document.getElementById(type + '-svg');
+  const svgData = new XMLSerializer().serializeToString(svgEl);
+  const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(svgBlob);
+  const img = new Image();
+
+  img.onload = function () {
+    // Scale to fill the canvas
+    const scale = Math.min(width / img.naturalWidth, height / img.naturalHeight) * 0.8;
+    const drawW = img.naturalWidth * scale;
+    const drawH = img.naturalHeight * scale;
+    const x = (width - drawW) / 2;
+    const y = (height - drawH) / 2;
+    ctx.drawImage(img, x, y, drawW, drawH);
+    URL.revokeObjectURL(url);
+
+    const link = document.createElement('a');
+    const bgLabel = bg === 'transparent' ? 'transparent' : 'black';
+    link.download = `veilsub-${type}-${width}px-${bgLabel}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
+  img.src = url;
+}
+</script>
+
+</body>
+</html>

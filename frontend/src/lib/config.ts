@@ -142,10 +142,8 @@ export function getCreatorHash(address: string): string | null {
 export const CREATOR_CUSTOM_TIERS: Record<string, Record<number, { price: number; name: string }>> = {
   // Each creator sets their own tier names and prices via create_custom_tier
   'aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk': {
-    1: { price: 4_900_000, name: 'Supporter' },    // 4.9 ALEO
     2: { price: 10_000_000, name: 'Premium' },     // 10 ALEO — confirmed on-chain
-    3: { price: 25_000_000, name: 'VIP' },         // 25 ALEO
-    4: { price: 30_000_000, name: 'Elite' },       // 30 ALEO — confirmed on-chain (tx: create_custom_tier 4u8)
+    4: { price: 30_000_000, name: 'Elite' },       // 30 ALEO — confirmed on-chain
   },
   'aleo1yr9ls3d48sh0gkk8y4re9assy7rkfhp4g8x2jmd5vqxl0phdvyqq4qmhef': {
     1: { price: 2_000_000, name: 'Basic' },    // 2 ALEO

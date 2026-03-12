@@ -341,6 +341,7 @@ export default function RenewModal({
                 )}
 
                 <Button
+                  variant="accent"
                   onClick={handleRenew}
                   disabled={txStatus !== 'idle' || !connected}
                   title={

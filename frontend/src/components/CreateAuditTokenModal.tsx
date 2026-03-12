@@ -221,7 +221,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                   </div>
                 )}
 
-                <Button onClick={handleCreate} disabled={txStatus !== 'idle'} className="w-full">
+                <Button variant="accent" onClick={handleCreate} disabled={txStatus !== 'idle'} className="w-full">
                   Create Token
                 </Button>
               </>

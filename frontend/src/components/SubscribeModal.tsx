@@ -331,6 +331,7 @@ export default function SubscribeModal({
 
                 {/* Subscribe Button */}
                 <Button
+                  variant="accent"
                   onClick={handleSubscribe}
                   disabled={txStatus !== 'idle' || !connected}
                   title={

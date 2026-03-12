@@ -183,13 +183,13 @@ describe('getCreatorCustomTiers advanced cases', () => {
     expect(Object.keys(getCreatorCustomTiers('')).length).toBe(0)
   })
 
-  it('all tier IDs are 1, 2, or 3 for all creators', () => {
+  it('all tier IDs are between 1 and MAX_TIER (20) for all creators', () => {
     for (const creator of FEATURED_CREATORS) {
       const tiers = getCreatorCustomTiers(creator.address)
       for (const id of Object.keys(tiers)) {
         const numId = parseInt(id, 10)
         expect(numId).toBeGreaterThanOrEqual(1)
-        expect(numId).toBeLessThanOrEqual(3)
+        expect(numId).toBeLessThanOrEqual(20)
       }
     }
   })
