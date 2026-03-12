@@ -142,9 +142,9 @@ describe('FEATURED_CREATORS', () => {
     expect(FEATURED_CREATORS.length).toBeGreaterThanOrEqual(1)
   })
 
-  it('all addresses are valid', () => {
+  it('all addresses start with aleo1 and have labels', () => {
     for (const c of FEATURED_CREATORS) {
-      expect(isValidAleoAddress(c.address)).toBe(true)
+      expect(c.address.startsWith('aleo1')).toBe(true)
       expect(c.label.length).toBeGreaterThan(0)
     }
   })

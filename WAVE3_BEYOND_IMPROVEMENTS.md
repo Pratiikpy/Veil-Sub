@@ -368,7 +368,7 @@ Add a section specifically for judges:
 ```
 ## For Judges: Quick Verification Guide
 
-1. **Testnet Contract:** [explorer link to veilsub_v24.aleo]
+1. **Testnet Contract:** [https://testnet.aleoscan.io/program?id=veilsub_v27.aleo]
 2. **Confirmed Transactions:** 15+ on testnet (subscribe, blind subscribe, gift, tip, verify)
 3. **Video Demo:** [link when recorded]
 4. **Try it yourself:**

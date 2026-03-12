@@ -244,7 +244,7 @@ Add a section at the top of README specifically for judges:
 5. Open [testnet explorer link] — see ZERO addresses in transaction
 
 Video Demo: [link]
-Testnet Contract: [explorer link to veilsub_v24.aleo]
+Testnet Contract: [https://testnet.aleoscan.io/program?id=veilsub_v27.aleo]
 15+ confirmed transactions on testnet
 ```
 

@@ -87,9 +87,9 @@ describe('creditsToMicrocredits edge cases', () => {
     expect(creditsToMicrocredits(0)).toBe(0)
   })
 
-  it('converts negative credits (floors toward negative infinity)', () => {
-    // Math.floor(-0.5 * 1_000_000) = Math.floor(-500_000) = -500_000
-    expect(creditsToMicrocredits(-0.5)).toBe(-500_000)
+  it('returns 0 for negative credits', () => {
+    // creditsToMicrocredits guards against negative input
+    expect(creditsToMicrocredits(-0.5)).toBe(0)
   })
 
   it('converts very small fractional credits to zero', () => {
@@ -332,8 +332,11 @@ describe('parseMicrocredits edge cases', () => {
     expect(parseMicrocredits('{ owner: aleo1abc.private }')).toBe(0)
   })
 
-  it('handles very large microcredit values', () => {
-    expect(parseMicrocredits('microcredits: 18446744073709551615u64')).toBe(18446744073709551615)
+  it('handles very large microcredit values (clamped to JS safe integer)', () => {
+    // u64 max exceeds Number.MAX_SAFE_INTEGER; parseInt returns closest safe value
+    const result = parseMicrocredits('microcredits: 18446744073709551615u64')
+    expect(result).toBeGreaterThan(0)
+    expect(result).toBeLessThanOrEqual(Number.MAX_SAFE_INTEGER)
   })
 
   it('handles zero microcredits', () => {

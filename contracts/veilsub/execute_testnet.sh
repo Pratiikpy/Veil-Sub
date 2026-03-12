@@ -1,5 +1,5 @@
 #!/bin/bash
-# VeilSub v26 Testnet Execution Script
+# VeilSub v27 Testnet Execution Script
 # Execute transitions to populate on-chain data for judges
 # Account: aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk
 

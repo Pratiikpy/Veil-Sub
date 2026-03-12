@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     if (!signature || typeof signature !== 'string' || signature.length < 20) {
       return NextResponse.json({ error: 'Wallet signature required' }, { status: 403 })
     }
-    if (typeof timestamp !== 'number' || !Number.isFinite(timestamp) || Math.abs(Date.now() - timestamp) > 5 * 60 * 1000) {
+    if (typeof timestamp !== 'number' || !Number.isFinite(timestamp) || Math.abs(Date.now() - timestamp) > 2 * 60 * 1000) {
       return NextResponse.json({ error: 'Request expired or invalid timestamp' }, { status: 403 })
     }
     if (display_name && (typeof display_name !== 'string' || display_name.length > 100)) {

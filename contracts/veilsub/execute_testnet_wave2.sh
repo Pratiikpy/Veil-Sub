@@ -12,8 +12,8 @@
 #       which must be passed as record literals. These are best executed via leo execute
 #       or the frontend wallet. See instructions at bottom.
 
-PRIVATE_KEY="APrivateKey1zkp3LU14jqxb315ATMVLRrT8yQzikkhAiSC4Shi1dCkiKxU"
-PROGRAM="veilsub_v24.aleo"
+PRIVATE_KEY="${PRIVATE_KEY:?Set PRIVATE_KEY env var before running}"
+PROGRAM="veilsub_v27.aleo"
 API="https://api.explorer.provable.com/v1/testnet/transaction/broadcast"
 QUERY="https://api.explorer.provable.com/v1"
 FEE=10000000
