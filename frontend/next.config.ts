@@ -81,6 +81,10 @@ const nextConfig: NextConfig = {
         source: '/api/aleoscan/transaction/:txId',
         destination: 'https://api.aleoscan.io/v2/testnet/transaction/:txId',
       },
+      {
+        source: '/api/aleo/address/:address/transitions',
+        destination: 'https://api.explorer.provable.com/v1/testnet/address/:address/transitions',
+      },
     ]
   },
 };

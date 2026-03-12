@@ -88,12 +88,26 @@ export default function DashboardPage() {
       })
     }
     if (!hashKnown) {
-      getCreatorProfile(publicKey).then((profile) => {
+      // Try Supabase first (fast), then fall back to on-chain recovery (slow, one-time)
+      getCreatorProfile(publicKey).then(async (profile) => {
         if (cancelled) return
         if (profile?.creator_hash) {
           saveCreatorHash(publicKey, profile.creator_hash)
+          doFetch()
+        } else {
+          // Supabase has no hash — registered before persistence was in place.
+          // Query the Aleo explorer to recover the hash from the registration tx.
+          try {
+            const r = await fetch(`/api/creators/recover-hash?address=${encodeURIComponent(publicKey)}`)
+            if (!cancelled && r.ok) {
+              const { creator_hash } = await r.json()
+              if (typeof creator_hash === 'string' && creator_hash.endsWith('field')) {
+                saveCreatorHash(publicKey, creator_hash)
+              }
+            }
+          } catch { /* non-critical */ }
+          if (!cancelled) doFetch()
         }
-        doFetch()
       }).catch(() => {
         if (!cancelled) doFetch()
       })
