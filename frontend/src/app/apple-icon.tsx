@@ -19,7 +19,7 @@ export default function AppleIcon() {
           overflow: 'hidden',
         }}
       >
-        {/* Top-left radial glass highlight */}
+        {/* Glass highlight */}
         <div
           style={{
             position: 'absolute',
@@ -32,7 +32,7 @@ export default function AppleIcon() {
             display: 'flex',
           }}
         />
-        {/* Subtle inner ring */}
+        {/* Inner ring */}
         <div
           style={{
             position: 'absolute',
@@ -45,17 +45,23 @@ export default function AppleIcon() {
             display: 'flex',
           }}
         />
-        {/* Filled V letterform */}
-        <svg width="105" height="105" viewBox="0 0 24 24" fill="none">
-          {/* Subtle drop shadow */}
+        <svg width="115" height="115" viewBox="0 0 24 24" fill="none">
+          {/* Shield shadow */}
           <path
-            d="M 3.5 3.8 L 12 21.2 L 20.5 3.8 L 16.2 3.8 L 12 13.8 L 7.8 3.8 Z"
-            fill="rgba(0,0,0,0.12)"
-            transform="translate(0, 0.6)"
+            d="M 12 1.5 L 3 5.5 L 3 11 C 3 16.5 6.8 21.5 12 23 C 17.2 21.5 21 16.5 21 11 L 21 5.5 Z"
+            fill="rgba(0,0,0,0.1)"
+            transform="translate(0, 0.5)"
           />
-          {/* Main V — crisp filled shape */}
+          {/* Shield body — translucent white */}
           <path
-            d="M 3.5 3.8 L 12 21.2 L 20.5 3.8 L 16.2 3.8 L 12 13.8 L 7.8 3.8 Z"
+            d="M 12 1.5 L 3 5.5 L 3 11 C 3 16.5 6.8 21.5 12 23 C 17.2 21.5 21 16.5 21 11 L 21 5.5 Z"
+            fill="rgba(255,255,255,0.13)"
+            stroke="rgba(255,255,255,0.5)"
+            strokeWidth="0.6"
+          />
+          {/* V inside shield — solid white */}
+          <path
+            d="M 7.5 7 L 12 17.5 L 16.5 7 L 13.8 7 L 12 12.2 L 10.2 7 Z"
             fill="white"
           />
         </svg>

@@ -108,11 +108,11 @@ export default function HeroMockup() {
                 }`}
               >
                 {tier.selected && (
-                  <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 px-2 py-1 rounded-full bg-violet-500/20 border border-violet-500/30">
-                    <span className="text-[8px] font-medium text-violet-300 uppercase tracking-wider">Popular</span>
+                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-violet-500/20 border border-violet-500/30">
+                    <span className="text-[7px] font-medium text-violet-300 uppercase tracking-wider">Popular</span>
                   </div>
                 )}
-                <p className="text-[10px] text-white/70 mb-1 mt-1 uppercase tracking-wider">{tier.name}</p>
+                <p className={`text-[10px] text-white/70 mb-1 uppercase tracking-wider ${tier.selected ? 'mt-3' : 'mt-1'}`}>{tier.name}</p>
                 <p className={`text-2xl sm:text-3xl font-bold leading-none ${tier.selected ? 'text-violet-200' : 'text-white'}`}>{tier.price}</p>
                 <p className="text-[10px] text-white/60 mt-1 font-medium">ALEO/mo</p>
                 {tier.selected && (

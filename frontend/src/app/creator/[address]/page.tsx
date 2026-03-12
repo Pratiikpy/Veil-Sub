@@ -561,14 +561,14 @@ export default function CreatorPage({
                       }`}
                     >
                       {tier.id === 3 && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15]">
-                          <span className="text-xs font-medium text-violet-300">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15]">
+                          <span className="text-[10px] font-medium text-violet-300 uppercase tracking-wider">
                             Popular
                           </span>
                         </div>
                       )}
 
-                      <h3 className="text-white font-semibold mb-1">
+                      <h3 className={`text-white font-semibold mb-1 ${tier.id === 3 ? 'mt-3' : ''}`}>
                         {tier.name}
                       </h3>
                       <p className="text-2xl font-bold text-white mb-1">

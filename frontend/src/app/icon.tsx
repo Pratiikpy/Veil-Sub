@@ -19,7 +19,7 @@ export default function Icon() {
           overflow: 'hidden',
         }}
       >
-        {/* Top-left glass highlight */}
+        {/* Glass highlight */}
         <div
           style={{
             position: 'absolute',
@@ -32,17 +32,17 @@ export default function Icon() {
             display: 'flex',
           }}
         />
-        {/* Filled V letterform */}
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          {/* Drop shadow */}
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          {/* Shield body */}
           <path
-            d="M 3.5 4 L 12 21.5 L 20.5 4 L 16.5 4 L 12 14.5 L 7.5 4 Z"
-            fill="rgba(0,0,0,0.2)"
-            transform="translate(0, 0.5)"
+            d="M 12 1.5 L 3 5.5 L 3 11 C 3 16.5 6.8 21.5 12 23 C 17.2 21.5 21 16.5 21 11 L 21 5.5 Z"
+            fill="rgba(255,255,255,0.15)"
+            stroke="rgba(255,255,255,0.6)"
+            strokeWidth="0.8"
           />
-          {/* Main V — filled for crispness */}
+          {/* V cutout inside shield */}
           <path
-            d="M 3.5 4 L 12 21.5 L 20.5 4 L 16.5 4 L 12 14.5 L 7.5 4 Z"
+            d="M 7.5 7.5 L 12 17.5 L 16.5 7.5 L 14 7.5 L 12 12.8 L 10 7.5 Z"
             fill="white"
           />
         </svg>
