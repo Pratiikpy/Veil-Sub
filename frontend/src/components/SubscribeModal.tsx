@@ -37,7 +37,7 @@ export default function SubscribeModal({
   creatorAddress,
   basePrice,
 }: Props) {
-  const { subscribe, subscribeBlind, subscribeTrial, getCreditsRecords, connected } = useVeilSub()
+  const { subscribe, subscribeBlind, subscribeTrial, getCreditsRecords, connected, publicKey } = useVeilSub()
   const { signMessage } = useWallet()
   const { blockHeight } = useBlockHeight()
   const { startPolling, stopPolling } = useTransactionPoller()
@@ -97,6 +97,23 @@ export default function SubscribeModal({
       }
       const records = balanceResult.records
 
+      // Check public balance covers the network fee (paid separately from private record)
+      try {
+        const feeNeeded = privacyMode === 'trial' ? FEES.SUBSCRIBE_TRIAL : privacyMode === 'blind' ? FEES.SUBSCRIBE_BLIND : FEES.SUBSCRIBE
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(publicKey ?? '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt((pubText ?? '').replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < feeNeeded) {
+            toast.dismiss('subscribe-optimistic')
+            setError(`Insufficient public balance for network fee. You need ~${formatCredits(feeNeeded)} ALEO public credits. Get testnet credits from the Aleo faucet.`)
+            setTxStatus('idle')
+            submittingRef.current = false
+            return
+          }
+        }
+      } catch { /* non-critical — proceed if check fails */ }
+
       const passId = generatePassId()
       const expiresAt = privacyMode === 'trial'
         ? blockHeight + TRIAL_DURATION_BLOCKS
@@ -138,7 +155,7 @@ export default function SubscribeModal({
             toast.success('Subscribed!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            setError('Subscription failed on-chain. Verify Aleo credits balance.')
+            setError('Subscription failed on-chain. Ensure you have enough public credits (~0.3 ALEO) for network fees and private credits for the tier price.')
             toast.error('Subscription failed')
           }
         })
