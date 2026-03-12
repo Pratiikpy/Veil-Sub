@@ -23,11 +23,18 @@ export default function AnimatedCounter({
   useEffect(() => {
     if (!isInView) return
 
-    let startTime: number
+    // Respect prefers-reduced-motion: skip animation and show final value immediately
+    const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) {
+      setCount(target)
+      return
+    }
+
+    let startTime: number | undefined
     let animationFrame: number
 
     const animate = (currentTime: number) => {
-      if (!startTime) startTime = currentTime
+      if (startTime === undefined) startTime = currentTime
       const progress = Math.min(
         (currentTime - startTime) / (duration * 1000),
         1

@@ -153,7 +153,7 @@ export default function VerifyPage() {
     } catch (err) {
       setVerifyTxStatus('failed')
       setVerifyResult('failed')
-      setVerifyError(err instanceof Error ? getErrorMessage(err.message) : 'Verification failed. Please try again.')
+      setVerifyError(err instanceof Error ? getErrorMessage(err.message) : 'Verification failed. Check wallet connection and AccessPass validity.')
     }
   }
 

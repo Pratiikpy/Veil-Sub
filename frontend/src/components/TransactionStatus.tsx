@@ -22,15 +22,15 @@ const steps = [
   },
   {
     key: 'proving',
-    label: 'Generating ZK Proof',
-    activeMsg: 'Generating zero-knowledge proof... This cryptographic computation ensures your identity stays private.',
-    doneMsg: 'ZK proof generated',
+    label: 'Securing Privacy',
+    activeMsg: 'Generating zero-knowledge proof to protect your identity...',
+    doneMsg: 'Privacy protection complete',
     icon: Cpu,
   },
   {
     key: 'broadcasting',
-    label: 'Broadcasting to Network',
-    activeMsg: 'Submitting transaction to Aleo network',
+    label: 'Submitting',
+    activeMsg: 'Sending to Aleo blockchain...',
     doneMsg: 'Transaction submitted',
     icon: Radio,
   },
@@ -100,7 +100,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
         <div>
           <p className="text-red-300 text-sm font-medium">Transaction Failed</p>
           <p className="text-red-400 text-xs">
-            {errorMessage || 'Aleo transaction failed—verify wallet is unlocked and try again.'}
+            {errorMessage || 'Transaction failed. Check your wallet balance and connection, then try again.'}
           </p>
         </div>
       </m.div>
@@ -249,7 +249,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
                 </span>
               </div>
               <p className="text-[11px] text-white/60 mt-1.5">
-                Wallet returned a temporary ID. Your transaction is confirmed on-chain.
+                Your subscription is confirmed and secure on the Aleo blockchain.
               </p>
               <a
                 href={`https://testnet.aleoscan.io/program?id=${PROGRAM_ID}`}

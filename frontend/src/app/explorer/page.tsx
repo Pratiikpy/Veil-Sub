@@ -367,7 +367,7 @@ export default function ExplorerPage() {
       setResult(stats)
       setSearched(true)
     } catch {
-      setError('Failed to fetch creator data. Please try again.')
+      setError('Could not load creator stats from Aleo blockchain. Verify the address and retry.')
       setSearched(true)
     }
   }

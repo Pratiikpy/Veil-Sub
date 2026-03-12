@@ -28,26 +28,26 @@ interface StepDef {
 const STEPS: StepDef[] = [
   {
     key: 'preparing',
-    label: 'Prepare',
-    activeMsg: 'Preparing transaction...',
+    label: 'Preparing',
+    activeMsg: 'Setting up your transaction...',
     estimatedSeconds: 5,
   },
   {
     key: 'proving',
-    label: 'Prove',
-    activeMsg: 'Generating Aleo zero-knowledge proof...',
+    label: 'Securing',
+    activeMsg: 'Generating privacy protection...',
     estimatedSeconds: 45,
   },
   {
     key: 'broadcasting',
-    label: 'Broadcast',
-    activeMsg: 'Broadcasting to Aleo network...',
+    label: 'Sending',
+    activeMsg: 'Submitting to blockchain...',
     estimatedSeconds: 5,
   },
   {
     key: 'confirming',
-    label: 'Confirm',
-    activeMsg: 'Waiting for confirmation...',
+    label: 'Confirming',
+    activeMsg: 'Waiting for on-chain confirmation...',
     estimatedSeconds: 15,
   },
 ]
@@ -94,9 +94,9 @@ export default function TransactionProgress({ currentStep, error }: Props) {
       // Proof is taking longer than estimated - show reassurance
       if (currentStepDef.key === 'proving') {
         if (elapsed >= 120) {
-          return 'Still computing... Aleo proofs can take 1-2 minutes'
+          return 'Still working... This can take 1-2 minutes on some devices'
         }
-        return 'Still generating Aleo proof...'
+        return 'Still securing your privacy...'
       }
       return null
     }
@@ -375,7 +375,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
         >
           <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
             <span className="text-amber-400 text-[11px] font-medium">
-              Do not close this tab while your Aleo ZK proof is being generated.
+              Do not close this tab while your transaction is being processed.
             </span>
           </div>
           {currentStep === 'proving' && elapsed >= 90 && (
@@ -385,7 +385,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
               className="px-4 py-2 rounded-lg bg-white/5 border border-white/10"
             >
               <p className="text-[11px] text-white/50">
-                Aleo ZK proofs can take 1-2 minutes depending on your device. If stuck beyond 3 minutes, try refreshing and retrying.
+                This can take 1-2 minutes depending on your device. If stuck beyond 3 minutes, close this tab and try again.
               </p>
             </m.div>
           )}

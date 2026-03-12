@@ -387,9 +387,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       {displayBody}
                     </p>
                   ) : isUnlocking ? (
-                    <div className="flex items-center gap-2 py-4">
+                    <div className="flex items-center gap-2 py-4" role="status" aria-live="polite">
                       <Loader2 className="w-4 h-4 text-violet-400 animate-spin" aria-hidden="true" />
-                      <p className="text-sm text-white/70">Verifying AccessPass via verify_access...</p>
+                      <p className="text-sm text-white/70">Proving your access to unlock content...</p>
                     </div>
                   ) : isFailed && hasAccess ? (
                     <div className="flex items-center gap-4 py-4">

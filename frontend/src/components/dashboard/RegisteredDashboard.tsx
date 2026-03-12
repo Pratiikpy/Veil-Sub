@@ -146,7 +146,7 @@ export default function RegisteredDashboard({
         })
       } else {
         setWithdrawTxStatus('idle')
-        toast.error('Wallet rejected the transaction. Please try again.')
+        toast.error('Wallet rejected withdrawal. Verify your balance and try again.')
       }
     } catch (err: unknown) {
       setWithdrawTxStatus('failed')

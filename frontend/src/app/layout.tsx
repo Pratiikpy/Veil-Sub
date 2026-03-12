@@ -44,11 +44,21 @@ export const metadata: Metadata = {
     locale: 'en_US',
     title: `${APP_NAME} — Private Creator Subscriptions on Aleo`,
     description: 'Subscribe privately. Prove access. Nobody sees who you support. Zero-footprint verification powered by zero-knowledge proofs on Aleo.',
+    url: '/',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'VeilSub — Private Creator Subscriptions on Aleo',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: `${APP_NAME} — Private Subscriptions on Aleo`,
     description: 'The private access layer for the creator economy. 27 transitions, 25 mappings, 6 record types. Zero addresses in finalize.',
+    images: ['/opengraph-image'],
   },
 }
 

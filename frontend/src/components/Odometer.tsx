@@ -11,7 +11,16 @@ interface Props {
   duration?: number
 }
 
-function Digit({ value, duration }: { value: number; duration: number }) {
+function Digit({ value, duration, reduceMotion }: { value: number; duration: number; reduceMotion: boolean }) {
+  // If user prefers reduced motion, show final value immediately without animation
+  if (reduceMotion) {
+    return (
+      <span className="inline-block" style={{ height: '1em', lineHeight: 1 }}>
+        {value}
+      </span>
+    )
+  }
+
   return (
     <span className="inline-block overflow-hidden" style={{ height: '1em', lineHeight: 1 }}>
       <m.span
@@ -41,6 +50,17 @@ export default function Odometer({
   const ref = useRef<HTMLSpanElement>(null)
   const isInView = useInView(ref, { once: true, amount: 0.2 })
   const [triggered, setTriggered] = useState(false)
+  const [reduceMotion, setReduceMotion] = useState(false)
+
+  useEffect(() => {
+    // Check prefers-reduced-motion on mount
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setReduceMotion(mediaQuery.matches)
+    // Update if user changes preference
+    const handler = (e: MediaQueryListEvent) => setReduceMotion(e.matches)
+    mediaQuery.addEventListener('change', handler)
+    return () => mediaQuery.removeEventListener('change', handler)
+  }, [])
 
   useEffect(() => {
     if (isInView && !triggered) setTriggered(true)
@@ -70,6 +90,7 @@ export default function Odometer({
                 key={`${i}-${d}`}
                 value={parsed}
                 duration={duration + i * 0.1}
+                reduceMotion={reduceMotion}
               />
             )
           })
