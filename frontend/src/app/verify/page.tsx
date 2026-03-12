@@ -167,7 +167,7 @@ export default function VerifyPage() {
             className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[800px] h-[200px] sm:h-[400px] pointer-events-none"
             style={HERO_GLOW_STYLE}
           />
-          <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 pb-8 sm:pb-16">
+          <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 pb-4 sm:pb-16">
             <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -201,14 +201,14 @@ export default function VerifyPage() {
             <m.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="max-w-3xl mx-auto py-4 sm:py-8"
+              className="max-w-3xl mx-auto py-2 sm:py-8"
             >
               {/* Interactive Demo Section */}
               <div className="grid md:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
                 {/* Left: Demo Animation */}
                 <div className="relative">
                   <div className="absolute -inset-4 bg-gradient-to-r from-violet-500/10 to-transparent rounded-2xl blur-xl" />
-                  <div className="relative p-8 rounded-xl bg-surface-1 border border-violet-500/20">
+                  <div className="relative p-4 sm:p-8 rounded-xl bg-surface-1 border border-violet-500/20">
                     <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
                       <Zap className="w-4 h-4 text-violet-400" aria-hidden="true" />
                       Live Demo: ZK Verification Flow
@@ -352,7 +352,7 @@ export default function VerifyPage() {
               </div>
 
               {/* After Verification - Content Delivery Examples */}
-              <div className="p-8 rounded-xl bg-gradient-to-br from-green-500/5 to-transparent border border-green-500/15">
+              <div className="p-4 sm:p-8 rounded-xl bg-gradient-to-br from-green-500/5 to-transparent border border-green-500/15">
                 <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
                   <Shield className="w-4 h-4 text-green-400" aria-hidden="true" />
                   After Verification: Content Unlocked
@@ -662,12 +662,12 @@ export default function VerifyPage() {
         <OnChainExplorer />
 
         {/* How It Works */}
-        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-border">
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 border-t border-border">
           <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-6 sm:mb-12"
           >
             <h2
               className="text-2xl sm:text-3xl font-serif italic text-white mb-4"
