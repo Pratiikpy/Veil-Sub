@@ -1,7 +1,7 @@
 'use client'
 
 import { m } from 'framer-motion'
-import { Lock, Shield, Check, Users, Coins } from 'lucide-react'
+import { Lock, Shield, Check, Users, Coins, EyeOff, KeyRound, Zap, ShieldCheck } from 'lucide-react'
 
 const TIERS = [
   { name: 'Basic', price: '1', selected: false },
@@ -26,13 +26,41 @@ const BOTTOM_FADE_STYLE = {
   background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)',
 } as const
 
+// Floating feature label component
+function FloatingLabel({
+  icon: Icon,
+  label,
+  sub,
+  colorClass,
+  animDelay,
+}: {
+  icon: typeof Lock
+  label: string
+  sub: string
+  colorClass: string
+  animDelay: string
+}) {
+  return (
+    <div
+      className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border backdrop-blur-xl ${colorClass}`}
+      style={{ animation: `float 5s ease-in-out infinite`, animationDelay: animDelay }}
+    >
+      <Icon className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+      <div>
+        <p className="text-[11px] font-semibold leading-none mb-0.5">{label}</p>
+        <p className="text-[10px] opacity-70 leading-none">{sub}</p>
+      </div>
+    </div>
+  )
+}
+
 export default function HeroMockup() {
   return (
     <m.div
       initial={{ opacity: 0, y: 50, rotateX: 8 }}
       animate={{ opacity: 1, y: 0, rotateX: 2 }}
       transition={{ duration: 0.9, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      className="mt-16 sm:mt-20 max-w-2xl mx-auto"
+      className="mt-16 sm:mt-20 relative max-w-2xl mx-auto"
       style={PERSPECTIVE_STYLE}
     >
       {/* Ambient glow behind mockup */}
@@ -41,6 +69,89 @@ export default function HeroMockup() {
         style={AMBIENT_GLOW_STYLE}
       />
 
+      {/* ── Floating feature labels (desktop only) ── */}
+
+      {/* Top-left: ZK Proof */}
+      <m.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 2.0 }}
+        className="hidden lg:block absolute -top-5 -left-36 z-10"
+      >
+        <FloatingLabel
+          icon={Lock}
+          label="ZK Proof"
+          sub="identity never in finalize"
+          colorClass="bg-violet-500/[0.08] border-violet-500/[0.2] text-violet-300"
+          animDelay="0s"
+        />
+      </m.div>
+
+      {/* Top-right: Zero Footprint */}
+      <m.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 2.2 }}
+        className="hidden lg:block absolute -top-5 -right-36 z-10"
+      >
+        <FloatingLabel
+          icon={ShieldCheck}
+          label="Zero-Footprint"
+          sub="no subscriber trace on-chain"
+          colorClass="bg-emerald-500/[0.08] border-emerald-500/[0.2] text-emerald-300"
+          animDelay="0.8s"
+        />
+      </m.div>
+
+      {/* Left: Blind Mode */}
+      <m.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 2.4 }}
+        className="hidden lg:block absolute top-1/2 -translate-y-1/2 -left-40 z-10"
+      >
+        <FloatingLabel
+          icon={EyeOff}
+          label="Blind Mode"
+          sub="nonce-rotated identity"
+          colorClass="bg-blue-500/[0.08] border-blue-500/[0.2] text-blue-300"
+          animDelay="1.6s"
+        />
+      </m.div>
+
+      {/* Right: AccessPass */}
+      <m.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 2.6 }}
+        className="hidden lg:block absolute top-1/2 -translate-y-1/2 -right-40 z-10"
+      >
+        <FloatingLabel
+          icon={KeyRound}
+          label="AccessPass"
+          sub="encrypted record on-chain"
+          colorClass="bg-amber-500/[0.08] border-amber-500/[0.2] text-amber-300"
+          animDelay="2.4s"
+        />
+      </m.div>
+
+      {/* Bottom: BSP */}
+      <m.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 2.8 }}
+        className="hidden lg:block absolute -bottom-6 left-1/2 -translate-x-1/2 z-10"
+      >
+        <FloatingLabel
+          icon={Zap}
+          label="BSP v27"
+          sub="27 transitions · 25 mappings"
+          colorClass="bg-pink-500/[0.08] border-pink-500/[0.2] text-pink-300"
+          animDelay="3.2s"
+        />
+      </m.div>
+
+      {/* ── Main mockup card ── */}
       <div
         className="relative rounded-2xl overflow-hidden border border-white/[0.12]"
         style={CARD_STYLE}

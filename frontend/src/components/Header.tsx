@@ -66,7 +66,7 @@ export default function Header() {
         }`}
       >
         <div className="max-w-[1120px] mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-16">
+          <div className="relative flex items-center h-16">
             {/* Logo with subtle glow on hover */}
             <Link
               href="/"
@@ -81,8 +81,8 @@ export default function Header() {
               </span>
             </Link>
 
-            {/* Desktop nav with spring-physics indicator */}
-            <nav aria-label="Main navigation" className="hidden md:flex items-center gap-1 rounded-full bg-white/[0.03] border border-border/75 px-1 py-1">
+            {/* Desktop nav — centered pill floating over header */}
+            <nav aria-label="Main navigation" className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2 rounded-full bg-white/[0.03] border border-border/75 px-1 py-1">
               {allItems.map((item) => (
                 <Link
                   key={item.href}
@@ -110,7 +110,7 @@ export default function Header() {
               ))}
             </nav>
 
-            <div className="flex items-center gap-4" aria-live="polite">
+            <div className="ml-auto flex items-center gap-4" aria-live="polite">
               <WalletMultiButton />
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
