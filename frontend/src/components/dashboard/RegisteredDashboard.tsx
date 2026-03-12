@@ -524,13 +524,22 @@ export default function RegisteredDashboard({
                   View on Aleoscan
                 </a>
                 <a
-                  href={`https://testnet.explorer.provable.com/program/${DEPLOYED_PROGRAM_ID}/mapping/tier_prices/${publicKey}`}
+                  href={`https://testnet.explorer.provable.com/address/${publicKey}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.03] border border-border text-xs text-white hover:text-white hover:border-green-500/30 transition-all"
                 >
                   <ExternalLink className="w-3 h-3" aria-hidden="true" />
-                  Your tier_prices mapping
+                  Your On-Chain Activity
+                </a>
+                <a
+                  href={`https://testnet.aleoscan.io/address?a=${publicKey}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.03] border border-border text-xs text-white hover:text-white hover:border-green-500/30 transition-all"
+                >
+                  <ExternalLink className="w-3 h-3" aria-hidden="true" />
+                  Your Aleoscan Profile
                 </a>
               </div>
             </m.div>
