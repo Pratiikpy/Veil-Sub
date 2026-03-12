@@ -156,9 +156,9 @@ export default function OnChainExplorer() {
         </p>
       </m.div>
 
-      <div className="grid md:grid-cols-2 gap-8">
+      <div className="grid md:grid-cols-2 gap-8 items-start">
         {/* Creator Lookup */}
-        <GlassCard hover={false}>
+        <GlassCard hover={false} className="!h-auto">
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-2">
               <Users className="w-5 h-5 text-violet-400" aria-hidden="true" />
@@ -233,7 +233,7 @@ export default function OnChainExplorer() {
         {/* Right Column: Content + Deployment */}
         <div className="space-y-8">
           {/* Content Lookup */}
-          <GlassCard hover={false}>
+          <GlassCard hover={false} className="!h-auto">
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-2">
                 <FileText className="w-5 h-5 text-violet-400" aria-hidden="true" />
@@ -289,7 +289,7 @@ export default function OnChainExplorer() {
           </GlassCard>
 
           {/* Deployment Status */}
-          <GlassCard hover={false}>
+          <GlassCard hover={false} className="!h-auto">
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-2">
                 <Database className="w-5 h-5 text-violet-400" aria-hidden="true" />
