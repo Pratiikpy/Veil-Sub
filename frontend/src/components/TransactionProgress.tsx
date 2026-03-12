@@ -233,7 +233,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
                         ? 'bg-[var(--accent,#8B5CF6)] text-white shadow-[0_0_16px_rgba(139,92,246,0.4)]'
                         : isErrorStep
                         ? 'bg-red-500 text-white'
-                        : 'bg-white/10 text-white/40'
+                        : 'bg-white/10 text-white/60'
                     }`}
                   >
                     {isDone ? (

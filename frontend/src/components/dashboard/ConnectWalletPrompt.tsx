@@ -12,9 +12,9 @@ const PLATFORM_STATS = [
 ]
 
 const WHY_VEILSUB = [
-  { icon: EyeOff, title: 'Zero Footprint', desc: 'Subscriber addresses never touch public state' },
+  { icon: EyeOff, title: 'Your Address Stays Hidden', desc: 'Subscriber identities never appear on the blockchain' },
   { icon: TrendingUp, title: 'Earn Privately', desc: 'Receive payments without exposing your supporters' },
-  { icon: Shield, title: 'BSP Protocol', desc: 'Blind Subscription Protocol keeps each renewal unlinkable' },
+  { icon: Shield, title: 'Unlinkable Renewals', desc: 'Each subscription renewal looks completely independent' },
 ]
 
 const QUICK_START_STEPS = [

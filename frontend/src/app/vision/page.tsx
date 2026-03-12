@@ -15,6 +15,9 @@ import {
 import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
 
+// Static styles to prevent re-renders
+const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
+
 const USE_CASES = [
   {
     icon: Newspaper,
@@ -85,7 +88,7 @@ export default function VisionPage() {
               </div>
               <h1
                 className="text-4xl sm:text-6xl font-serif italic text-white mb-6"
-                style={{ letterSpacing: '-0.03em' }}
+                style={LETTER_SPACING_STYLE}
               >
                 Vision &amp; Use Cases
               </h1>

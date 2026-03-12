@@ -340,7 +340,7 @@ export default function SubscribeModal({
                   }
                   className="w-full"
                 >
-                  {txStatus !== 'idle' ? 'Processing...' : 'Subscribe Privately'}
+                  {txStatus !== 'idle' ? 'Creating AccessPass...' : 'Subscribe Privately'}
                 </Button>
               </>
             ) : (

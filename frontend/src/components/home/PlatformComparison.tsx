@@ -92,7 +92,7 @@ function ScoreCard({
           <span className={highlight ? 'text-emerald-400' : 'text-white/60'}>
             {score.wins}
           </span>
-          <span className="text-white/30 text-2xl">/{score.total}</span>
+          <span className="text-white/50 text-2xl">/{score.total}</span>
         </div>
         <p className="text-xs text-white/50">privacy features</p>
       </div>
@@ -100,7 +100,7 @@ function ScoreCard({
       <ProgressBar
         percentage={score.percentage}
         label="Score"
-        color={highlight ? 'text-emerald-400' : 'text-white/40'}
+        color={highlight ? 'text-emerald-400' : 'text-white/60'}
         delay={0.2}
       />
     </SpotlightCard>
@@ -109,7 +109,7 @@ function ScoreCard({
 
 function CellValue({ val, accent }: { val: boolean | string; accent: boolean }) {
   if (val === true) return <Check className="w-4 h-4 text-emerald-400 mx-auto" aria-hidden="true" />
-  if (val === false) return <Minus className="w-4 h-4 text-white/40 mx-auto" aria-hidden="true" />
+  if (val === false) return <Minus className="w-4 h-4 text-white/60 mx-auto" aria-hidden="true" />
   return <span className={accent ? 'text-emerald-400 font-medium' : 'text-white/60'}>{val}</span>
 }
 

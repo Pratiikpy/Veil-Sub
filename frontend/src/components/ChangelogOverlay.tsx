@@ -151,9 +151,9 @@ export default function ChangelogOverlay() {
             {/* Stats bar */}
             <div className="flex items-center justify-between px-2 py-2 rounded-lg bg-white/[0.03] mb-4">
               <span className="text-xs text-white/60">27 transitions</span>
-              <span className="text-xs text-white/40">•</span>
+              <span className="text-xs text-white/50" aria-hidden="true">•</span>
               <span className="text-xs text-white/60">6 record types</span>
-              <span className="text-xs text-white/40">•</span>
+              <span className="text-xs text-white/50" aria-hidden="true">•</span>
               <span className="text-xs text-white/60">866 statements</span>
             </div>
 
@@ -169,7 +169,7 @@ export default function ChangelogOverlay() {
               </Link>
               <button
                 onClick={() => dismiss(true)}
-                className="text-xs text-white/40 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
+                className="text-xs text-white/60 hover:text-white/80 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
               >
                 Dismiss
               </button>

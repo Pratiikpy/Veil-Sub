@@ -18,6 +18,13 @@ import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
 import { DEPLOYED_PROGRAM_ID } from '@/lib/config'
 
+// Static styles to prevent re-renders
+const HERO_GLOW_STYLE = {
+  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
+} as const
+
+const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
+
 const TABS: { id: TabId; label: string; icon: typeof BookOpen }[] = [
   { id: 'overview', label: 'Overview', icon: BookOpen },
   { id: 'contract', label: 'Smart Contract', icon: Code },
@@ -49,8 +56,8 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
         <span className="text-xs text-white/60">{lang}</span>
         <button
           onClick={copy}
-          title={copyError ? 'Clipboard unavailable — select and copy manually' : 'Copy code to clipboard'}
-          className={`text-xs flex items-center gap-1 transition-colors ${
+          aria-label={copyError ? 'Clipboard unavailable — select and copy manually' : copied ? 'Copied to clipboard' : 'Copy code to clipboard'}
+          className={`text-xs flex items-center gap-1 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded ${
             copyError ? 'text-red-400' : copied ? 'text-green-400' : 'text-white/60 hover:text-white'
           }`}
         >
@@ -780,9 +787,7 @@ export default function DocsPage() {
       <div className="min-h-screen relative">
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
-          }}
+          style={HERO_GLOW_STYLE}
         />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Header */}
@@ -791,7 +796,7 @@ export default function DocsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-2" style={{ letterSpacing: '-0.03em' }}>Documentation</h1>
+            <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-2" style={LETTER_SPACING_STYLE}>Documentation</h1>
             <p className="text-white/70">
               Everything you need to understand and integrate with VeilSub.
             </p>

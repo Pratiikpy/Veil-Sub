@@ -11,23 +11,23 @@ import SpotlightCard from '@/components/ui/SpotlightCard'
 const FEATURES_LARGE = [
   {
     icon: EyeOff,
-    title: 'Zero-Address Finalize',
-    desc: 'All 25 on-chain mappings are keyed by Poseidon2 field hashes, not raw addresses. Even if someone watches the blockchain, they cannot correlate mapping keys with wallet addresses.',
+    title: 'Hidden From the Blockchain',
+    desc: 'All 25 on-chain records use anonymized keys instead of wallet addresses. Even if someone watches every transaction, they cannot determine who subscribed to whom.',
   },
   {
     icon: KeyRound,
-    title: 'Blind Subscription Protocol',
-    desc: 'Each renewal uses a fresh cryptographic nonce. Your wallet subscribed in Month 1 with nonce₁, renews in Month 2 with nonce₂—the creator cannot link these as the same person.',
+    title: 'Unlinkable Renewals',
+    desc: 'Each renewal looks like a completely new subscription. Month 1 and Month 2 payments cannot be connected—creators only see total subscribers, never individual identities.',
   },
 ]
 
 const FEATURES_SMALL = [
-  { icon: FileText, title: 'Scoped Audit Tokens', desc: 'Bitfield mask controls which fields verifiers see: tier, expiry, or nothing—you choose' },
-  { icon: Layers, title: 'Dynamic Creator Tiers', desc: 'Flexible pricing via create_custom_tier—creators define their own tier names and prices' },
-  { icon: Gift, title: 'Private Gift Subscriptions', desc: 'gift_subscription + redeem_gift—send AccessPasses to friends without revealing yourself' },
-  { icon: Coins, title: 'Commit-Reveal Tipping', desc: 'BHP256 hash commitment hides tip amount until you reveal—tips stay private' },
-  { icon: Lock, title: 'Six Private Records', desc: 'AccessPass, AuditToken, GiftToken, and 3 more—each with independent privacy scope' },
-  { icon: Globe, title: 'verify_access Proofs', desc: 'Verify subscription status using only pass_id—no address exposure on-chain' },
+  { icon: FileText, title: 'Selective Disclosure', desc: 'You control what verifiers see: just your tier, just expiry date, or nothing at all—your choice' },
+  { icon: Layers, title: 'Custom Creator Tiers', desc: 'Creators set their own pricing tiers—flexible monetization with full privacy for subscribers' },
+  { icon: Gift, title: 'Anonymous Gifting', desc: 'Gift subscriptions to friends without revealing yourself—they receive access, you stay hidden' },
+  { icon: Coins, title: 'Private Tips', desc: 'Tip creators with hidden amounts. The tip stays secret until you choose to reveal it' },
+  { icon: Lock, title: 'Six Private Records', desc: 'AccessPass, AuditToken, GiftToken and more—each encrypted independently for maximum privacy' },
+  { icon: Globe, title: 'Zero-Knowledge Verification', desc: 'Prove you have access without revealing your identity. The proof confirms subscription, not who you are' },
 ]
 
 export default function PrivacyFeatures() {
@@ -38,7 +38,7 @@ export default function PrivacyFeatures() {
           <SectionHeader
             badge="Privacy Stack"
             title="How your identity stays hidden"
-            subtitle="Three-layer privacy: zero-address finalize, nonce-rotated hashing, and selective disclosure."
+            subtitle="Three layers of protection: anonymized blockchain records, unlinkable renewals, and you control what anyone can verify."
           />
         </ScrollReveal>
 

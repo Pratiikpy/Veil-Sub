@@ -18,6 +18,13 @@ import PageTransition from '@/components/PageTransition'
 import Tooltip from '@/components/ui/Tooltip'
 import { DEPLOYED_PROGRAM_ID } from '@/lib/config'
 
+// Static styles to prevent re-renders
+const HERO_GLOW_STYLE = {
+  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.06) 0%, transparent 70%)',
+} as const
+
+const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
+
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
@@ -31,9 +38,7 @@ export default function PrivacyPage() {
         <section className="relative overflow-hidden">
           <div
             className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none"
-            style={{
-              background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.06) 0%, transparent 70%)',
-            }}
+            style={HERO_GLOW_STYLE}
           />
           <div className="relative max-w-5xl mx-auto px-4 sm:px-8 lg:px-8 pt-20 pb-16">
             <m.div {...fadeUp} transition={{ duration: 0.6 }} className="text-center">
@@ -43,7 +48,7 @@ export default function PrivacyPage() {
               </div>
               <h1
                 className="text-4xl sm:text-6xl font-serif italic text-white mb-6"
-                style={{ letterSpacing: '-0.03em' }}
+                style={LETTER_SPACING_STYLE}
               >
                 How VeilSub Protects You
               </h1>

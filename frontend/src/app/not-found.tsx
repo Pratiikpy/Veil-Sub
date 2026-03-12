@@ -1,15 +1,20 @@
 import { Shield, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
+// Static styles to prevent re-renders
+const AMBIENT_GLOW_STYLE = {
+  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.06) 0%, transparent 70%)',
+} as const
+
+const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
+
 export default function NotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
       {/* Ambient glow */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.06) 0%, transparent 70%)',
-        }}
+        style={AMBIENT_GLOW_STYLE}
       />
       <div className="relative text-center max-w-md px-4">
         <div className="relative w-16 h-16 mx-auto mb-6">
@@ -23,7 +28,7 @@ export default function NotFound() {
         </p>
         <h2
           className="text-3xl font-serif italic text-white mb-4"
-          style={{ letterSpacing: '-0.03em' }}
+          style={LETTER_SPACING_STYLE}
         >
           Page Not Found
         </h2>
@@ -45,7 +50,7 @@ export default function NotFound() {
             Explore Creators
           </Link>
         </div>
-        <div className="mt-4 flex items-center justify-center gap-4 text-sm text-white/40">
+        <div className="mt-4 flex items-center justify-center gap-4 text-sm text-white/60">
           <Link href="/docs" className="hover:text-white/70 transition-colors">
             Documentation
           </Link>

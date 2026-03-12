@@ -330,7 +330,7 @@ export default function RegisteredDashboard({
                             stroke="currentColor"
                             strokeWidth="3"
                             fill="none"
-                            className="text-white/10"
+                            className="text-white/20"
                           />
                           <circle
                             cx="32"
