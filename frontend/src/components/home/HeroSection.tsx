@@ -110,8 +110,8 @@ export default function HeroSection() {
             className="mt-8 text-base sm:text-lg text-white/80 max-w-[520px] mx-auto leading-relaxed"
             style={{ y: descY }}
           >
-            Creators earn. Subscribers stay anonymous. Built on zero-knowledge proofs
-            so even we can&apos;t see your data—enforced by the Aleo blockchain.
+            Every major creator platform has been breached or exposed subscribers by default.
+            VeilSub uses zero-knowledge proofs — subscriber identity is mathematically impossible to expose.
           </m.p>
 
           <m.div

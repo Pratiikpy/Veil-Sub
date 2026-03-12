@@ -7,6 +7,7 @@ import TrustTicker from '@/components/home/TrustTicker'
 // Below-fold sections: code-split via dynamic() to reduce initial JS bundle size.
 // The page is a Server Component so { ssr: false } cannot be used here; plain dynamic()
 // still provides route-level code-splitting for the client-side JS of each section.
+const PrivacyMarquee = dynamic(() => import('@/components/home/PrivacyMarquee'))
 const ProblemSolution = dynamic(() => import('@/components/home/ProblemSolution'))
 const HowItWorks = dynamic(() => import('@/components/home/HowItWorks'))
 const PrivacyFeatures = dynamic(() => import('@/components/home/PrivacyFeatures'))
@@ -24,6 +25,7 @@ export default function HomePage() {
       <BackgroundOrbs />
       <HeroSection />
       <TrustTicker />
+      <PrivacyMarquee />
       <ProblemSolution />
       <HowItWorks />
       <PrivacyFeatures />

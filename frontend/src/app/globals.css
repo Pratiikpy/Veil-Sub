@@ -194,6 +194,9 @@ body::after {
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+.animate-marquee-slow {
+  animation: marquee 150s linear infinite;
+}
 
 /* ─── Skeleton loading (branded violet sweep) ─── */
 @keyframes gradient-sweep {
