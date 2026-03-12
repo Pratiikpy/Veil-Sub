@@ -237,20 +237,29 @@ export default function CreatorPage({
   const basePrice = stats?.tierPrice ?? 0
   const hasOnChainTiers = onChainTierCount > 0
 
-  // Build display tiers: merge on-chain/cached custom prices with fallback hardcoded TIERS.
-  // onChainTiers comes from useCreatorTiers which queries the chain + falls back to config cache.
-  const displayTiers = TIERS.map((tier) => {
-    const custom = onChainTiers[tier.id]
+  // Build display tiers dynamically from on-chain data.
+  // When custom tiers exist: show base tier (id=1) + only confirmed on-chain custom tiers.
+  // When no custom tiers: fall back to hardcoded TIERS defaults.
+  const confirmedCustomIds = Object.entries(onChainTiers)
+    .filter(([, custom]) => custom.price > 0)
+    .map(([id]) => Number(id))
+    .sort((a, b) => a - b)
+
+  const displayTiers = (hasOnChainTiers
+    ? [1, ...confirmedCustomIds]
+    : TIERS.map(t => t.id)
+  ).map(id => {
+    const hardcoded = TIERS.find(t => t.id === id)
+    const custom = onChainTiers[id]
     if (custom && custom.price > 0) {
       return {
-        ...tier,
-        name: custom.name || tier.name,
-        // Override priceMultiplier so totalPrice = custom.price (not basePrice * multiplier)
-        // Guard against division by zero: if basePrice is 0, use the custom price as multiplier 1
+        ...(hardcoded ?? { description: '', features: [] as string[] }),
+        id,
+        name: custom.name || hardcoded?.name || `Tier ${id}`,
         priceMultiplier: basePrice > 0 ? custom.price / basePrice : 1,
       }
     }
-    return tier
+    return hardcoded ?? { id, name: `Tier ${id}`, priceMultiplier: id, description: '', features: [] as string[] }
   })
 
   const getPassExpiry = (pass: AccessPass) => {
