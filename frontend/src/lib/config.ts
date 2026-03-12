@@ -122,9 +122,24 @@ export const CREATOR_HASH_MAP: Record<string, string> = {
     '9215487360274185693042756183094527306418259730648120537946283015749860321547field',
 }
 
-// Get the Poseidon2 hash for a creator address (for on-chain mapping queries)
+// Get the Poseidon2 hash for a creator address (for on-chain mapping queries).
+// Checks localStorage first (saved after registration) so any creator works,
+// not just the hardcoded CREATOR_HASH_MAP entries.
 export function getCreatorHash(address: string): string | null {
-  return CREATOR_HASH_MAP[address] ?? null
+  if (CREATOR_HASH_MAP[address]) return CREATOR_HASH_MAP[address]
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(`veilsub_creator_hash_${address}`)
+    if (stored) return stored
+  }
+  return null
+}
+
+// Save a creator's Poseidon2 hash to localStorage (called after register_creator confirms).
+// The hash is extracted from the transaction finalize arguments.
+export function saveCreatorHash(address: string, hash: string): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(`veilsub_creator_hash_${address}`, hash)
+  }
 }
 
 // Fallback cache: known on-chain custom tier prices per creator (microcredits).

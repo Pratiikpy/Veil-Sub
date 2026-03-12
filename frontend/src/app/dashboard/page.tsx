@@ -13,6 +13,7 @@ import { useSupabase } from '@/hooks/useSupabase'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import PageTransition from '@/components/PageTransition'
 import { creditsToMicrocredits } from '@/lib/utils'
+import { saveCreatorHash } from '@/lib/config'
 import type { TxStatus, CreatorProfile } from '@/types'
 
 import ConnectWalletPrompt from '@/components/dashboard/ConnectWalletPrompt'
@@ -101,9 +102,24 @@ export default function DashboardPage() {
         setTxStatus('broadcasting')
         startPolling(id, (result) => {
           if (result.status === 'confirmed') {
+            const resolvedId = result.resolvedTxId ?? id
             if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
             toast.success('Registered on-chain!')
+            // Extract creator hash from finalize args and save to localStorage
+            // so the dashboard works for ANY wallet, not just hardcoded ones
+            if (publicKey) {
+              fetch(`/api/aleo/transaction/${encodeURIComponent(resolvedId)}`)
+                .then(r => r.json())
+                .then(tx => {
+                  const hash = tx?.transitions?.[0]?.finalize?.[0]
+                    ?? tx?.execution?.transitions?.[0]?.finalize?.[0]
+                  if (hash && typeof hash === 'string' && hash.endsWith('field')) {
+                    saveCreatorHash(publicKey, hash)
+                  }
+                })
+                .catch(() => {}) // non-critical
+            }
             // Save profile (best-effort, non-blocking)
             if (publicKey) {
               const wrappedSign = signMessage
