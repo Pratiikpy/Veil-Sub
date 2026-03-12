@@ -56,7 +56,7 @@ We addressed every point. 19 version iterations (v8→v27), 15 new transitions, 
 
 ### Three Novel Privacy Techniques
 
-**1. Zero-Address Finalize (v23)** — Every finalize function receives `creator_hash: field` instead of `creator: address`. All 25 mappings are field-keyed. No raw address ever appears in the public finalize layer. This matches NullPay's privacy discipline (Privacy 8) while retaining VeilSub's full feature set.
+**1. Zero-Address Finalize (v23)** — Every finalize function receives `creator_hash: field` instead of `creator: address`. All 25 mappings are field-keyed. No raw address ever appears in the public finalize layer.
 
 ```
 // v21 (before):  finalize_subscribe(creator: address, ...)
@@ -64,7 +64,7 @@ We addressed every point. 19 version iterations (v8→v27), 15 new transitions, 
 // Result: zero raw addresses in ALL public mapping keys
 ```
 
-**2. Blind Subscription Protocol — BSP (v11)** — Each subscription and renewal uses a different nonce, producing a different `subscriber_hash`. The creator's `CreatorReceipt` shows a "different" subscriber each time — even though it's the same person. BSP is the subscription-domain equivalent of lasagna's DAR (Deferred Aggregate Revelation).
+**2. Blind Subscription Protocol — BSP (v11)** — Each subscription and renewal uses a different nonce, producing a different `subscriber_hash`. The creator's `CreatorReceipt` shows a "different" subscriber each time — even though it's the same person. This makes subscription renewals completely unlinkable.
 
 ```
 subscriber_hash = Poseidon2::hash_to_field(BlindKey { subscriber: caller, nonce: unique_nonce })
@@ -86,7 +86,7 @@ Phase 2 (reveal):  recompute commitment, verify match, transfer credits
 | **Zero-Footprint Verification** | `verify_access` and `verify_tier_access` check revocation status but leave no trace of *who* verified. No subscriber identity in finalize. |
 | **Zero-Footprint Audit** | `create_audit_token` has NO finalize at all — selective disclosure with zero on-chain trace |
 | **Subscriber Never in Finalize** | `self.caller` is NEVER passed to any finalize function. Zero code path to public state. |
-| **Subscription Transfer** | Transfer AccessPass to another address — not offered by NullPay, Veiled Markets, or lasagna |
+| **Subscription Transfer** | Transfer AccessPass to another address — unique to VeilSub |
 | **Nonce Replay Prevention** | `nonce_used` mapping prevents blind renewal nonce reuse (one-time identity per renewal) |
 | **Poseidon2 Optimization** | All finalize hashing uses Poseidon2 (2-8 constraints vs 256 for BHP256). BHP256 only in transition layer for commitment operations. |
 
@@ -94,21 +94,72 @@ Phase 2 (reveal):  recompute commitment, verify match, transfer credits
 
 ## Privacy Architecture
 
+### Subscription Flow
+
 ```
-PRIVATE (Records — only owner can decrypt)
-  AccessPass, CreatorReceipt, AuditToken, SubscriptionTier,
-  ContentDeletion, GiftToken + all payments + subscriber identity
+  Subscriber                          Aleo Network                         Creator
+  ─────────                          ────────────                         ───────
+      │                                                                      │
+      │  1. subscribe(creator, tier, payment)                                │
+      │─────────────────────────────►│                                       │
+      │                              │  ZK Proof generated locally           │
+      │                              │  (subscriber identity NEVER leaves)   │
+      │                              │                                       │
+      │  ◄── AccessPass (encrypted)  │  finalize:                            │
+      │       only subscriber can    │    subscriber_count[hash(creator)]++  │
+      │       decrypt this record    │    total_revenue[hash(creator)] +=    │
+      │                              │    platform_revenue += 5%             │
+      │                              │    pass_creator[pass_id] = hash(cr)   │
+      │                              │                                       │
+      │                              │  ──── CreatorReceipt (encrypted) ────►│
+      │                              │       creator sees: tier, amount      │
+      │                              │       creator CANNOT see: who paid    │
+      │                                                                      │
+      │  2. verify_access(pass)                                              │
+      │─────────────────────────────►│                                       │
+      │                              │  finalize: check revocation ONLY      │
+      │  ◄── verified (no trace)     │  NO subscriber identity stored        │
+      │                                                                      │
+```
 
-PUBLIC (Mappings — all field-keyed, ZERO raw addresses)
-  Poseidon2(creator) → tier prices, subscriber counts, revenue
-  Poseidon2(TierKey) → custom tier prices
-  Poseidon2(content_id) → content metadata, hashes
-  Commitment hashes → tip commitments, encryption keys
-  Singletons → platform_revenue, total_creators, total_content
+### Blind Renewal (BSP)
 
-NOVEL: Zero-address finalize, blind renewal, commit-reveal
-  tipping, subscription transfer, zero-footprint verification,
-  trial passes, threshold proofs
+```
+  Renewal 1:  hash(subscriber + nonce_A)  →  subscriber_hash_X  ─── unlinkable
+  Renewal 2:  hash(subscriber + nonce_B)  →  subscriber_hash_Y  ─── unlinkable
+  Renewal 3:  hash(subscriber + nonce_C)  →  subscriber_hash_Z  ─── unlinkable
+
+  Same person, different hash each time. Creator sees 3 "different" subscribers.
+```
+
+### Privacy Layers
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    PRIVATE LAYER                         │
+│              (Records — owner-encrypted)                 │
+│                                                         │
+│  AccessPass  CreatorReceipt  AuditToken  GiftToken      │
+│  SubscriptionTier  ContentDeletion  + all payments      │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│                    PUBLIC LAYER                          │
+│         (Mappings — ALL field-keyed, ZERO addresses)    │
+│                                                         │
+│  Poseidon2(creator) → tier prices, counts, revenue      │
+│  Poseidon2(TierKey) → custom tier prices                │
+│  Poseidon2(content_id) → metadata, hashes               │
+│  BHP256 commitments → tip amounts (hidden until reveal) │
+│  Singletons → platform_revenue, total_creators          │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│                    NOVEL TECHNIQUES                      │
+│                                                         │
+│  Zero-Address Finalize    Blind Subscription Protocol   │
+│  Commit-Reveal Tipping    Zero-Footprint Verification   │
+│  Subscription Transfer    Trial Passes                  │
+│  Scoped Audit Tokens      Threshold Proofs              │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ### What Observers Learn vs. Cannot Learn
@@ -127,19 +178,44 @@ NOVEL: Zero-address finalize, blind renewal, commit-reveal
 ## System Architecture
 
 ```
-Frontend (Next.js 16 + React 19 + Tailwind 4)
-  5 wallets: Shield, Leo, Fox, Puzzle, Soter
-  65 components, 10 routes, 19 hooks
-
-API Layer (Next.js API routes)
-  /api/aleo/* proxy (hides user IP from Provable)
-  /api/posts (Upstash Redis), /api/creators (Supabase)
-  Auth: SHA-256(address) — no plaintext wallet addresses stored
-
-Smart Contract (veilsub_v27.aleo)
-  27 transitions, 25 mappings, 6 records, 5 structs
-  866 statements, credits.aleo import
-  ZERO raw addresses in finalize layer
+┌──────────────────────────────────────────────────────────────┐
+│                        FRONTEND                               │
+│              Next.js 16 + React 19 + Tailwind 4              │
+│                                                              │
+│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+│   │  Shield   │  │   Leo    │  │   Fox    │  │  Puzzle  │   │
+│   │  Wallet   │  │  Wallet  │  │  Wallet  │  │  Wallet  │   │
+│   └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘   │
+│        └──────────────┴──────────────┴──────────────┘        │
+│                         │                                     │
+│   67 components  ·  19 hooks  ·  10 routes  ·  279 tests     │
+└──────────────────────────┬───────────────────────────────────┘
+                           │
+                    ┌──────┴──────┐
+                    │  API Layer  │
+                    │  (Next.js)  │
+                    └──┬───┬───┬──┘
+                       │   │   │
+          ┌────────────┘   │   └────────────┐
+          ▼                ▼                ▼
+   ┌─────────────┐  ┌───────────┐  ┌──────────────┐
+   │   Supabase  │  │  Upstash  │  │ /api/aleo/*  │
+   │  (profiles) │  │  Redis    │  │  IP proxy    │
+   │  encrypted  │  │  (posts,  │  │  (hides user │
+   │  addresses  │  │  rate     │  │  from node)  │
+   └─────────────┘  │  limits)  │  └──────┬───────┘
+                    └───────────┘         │
+                                         ▼
+                    ┌─────────────────────────────┐
+                    │    ALEO TESTNET              │
+                    │    veilsub_v27.aleo          │
+                    │                             │
+                    │  27 transitions             │
+                    │  25 mappings (field-keyed)   │
+                    │  6 records · 5 structs      │
+                    │  866 statements             │
+                    │  ZERO addresses in finalize  │
+                    └─────────────────────────────┘
 ```
 
 ---
@@ -302,7 +378,7 @@ UPSTASH_REDIS_REST_TOKEN=<your-redis-token>
 
 **Deployment Cost:** 41.26 ALEO (storage: 36.89, synthesis: 3.36, namespace: 1.0)
 
-### On-Chain Transactions (v24)
+### On-Chain Transactions
 | # | Transition | Args | Purpose |
 |---|-----------|------|---------|
 | 1 | `register_creator` | base price 1000 | Creator registration |
