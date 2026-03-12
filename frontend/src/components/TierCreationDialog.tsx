@@ -12,11 +12,12 @@ import Button from './ui/Button'
 interface TierCreationDialogProps {
   isOpen: boolean
   onClose: () => void
+  creatorAddress?: string
   onSuccess?: (tierId: number) => void
   existingTierIds?: number[]
 }
 
-export default function TierCreationDialog({ isOpen, onClose, onSuccess, existingTierIds = [] }: TierCreationDialogProps) {
+export default function TierCreationDialog({ isOpen, onClose, creatorAddress, onSuccess, existingTierIds = [] }: TierCreationDialogProps) {
   const { createCustomTier, connected } = useVeilSub()
   const {
     txStatus, txId,
@@ -58,6 +59,15 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
       const result = await createCustomTier(tierId, priceMicrocredits, nameHash)
       setTxId(result)
       setTxStatus('confirmed')
+      // Persist tier to localStorage so the UI reflects it immediately without config changes
+      if (creatorAddress) {
+        try {
+          const storageKey = `veilsub_creator_tiers_${creatorAddress}`
+          const existing = JSON.parse(localStorage.getItem(storageKey) || '{}')
+          existing[tierId] = { name: tierName.trim(), price: priceMicrocredits }
+          localStorage.setItem(storageKey, JSON.stringify(existing))
+        } catch { /* localStorage unavailable */ }
+      }
       onSuccess?.(tierId)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to create tier')
@@ -195,6 +205,7 @@ export default function TierCreationDialog({ isOpen, onClose, onSuccess, existin
 
                 {/* Submit */}
                 <Button
+                  variant="accent"
                   onClick={handleSubmit}
                   disabled={status === 'submitting' || tierId === 0 || !tierName.trim() || !priceAleo || !connected}
                   title={

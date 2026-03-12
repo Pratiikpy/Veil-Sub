@@ -468,6 +468,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                 )}
 
                 <Button
+                  variant="accent"
                   onClick={handleAction}
                   disabled={(txStatus !== 'idle' && !isRevealReady) || !connected}
                   title={

@@ -926,6 +926,7 @@ export default function RegisteredDashboard({
       <TierCreationDialog
         isOpen={showTierDialog}
         onClose={() => setShowTierDialog(false)}
+        creatorAddress={publicKey}
         onSuccess={() => {
           toast.success('Custom tier created on-chain!')
           invalidateCreatorTierCache(publicKey)

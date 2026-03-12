@@ -122,8 +122,18 @@ export function useCreatorTiers(creatorAddress: string): CreatorTierResult {
       try {
         const creatorHash = getCreatorHash(creatorAddress)
 
-        // Offline fallback: known tiers from config
-        const fallbackTiers = CREATOR_CUSTOM_TIERS[creatorAddress] ?? {}
+        // Load tiers from localStorage (saved when creator creates a tier via UI)
+        let localTiers: Record<number, CustomTierInfo> = {}
+        try {
+          const stored = localStorage.getItem(`veilsub_creator_tiers_${creatorAddress}`)
+          if (stored) localTiers = JSON.parse(stored)
+        } catch { /* ignore */ }
+
+        // Offline fallback: known tiers from config, overridden by localStorage
+        const fallbackTiers: Record<number, CustomTierInfo> = {
+          ...(CREATOR_CUSTOM_TIERS[creatorAddress] ?? {}),
+          ...localTiers, // localStorage wins — most recent on-chain data
+        }
 
         if (!creatorHash) {
           // Creator not in CREATOR_HASH_MAP — can't query on-chain mappings.
