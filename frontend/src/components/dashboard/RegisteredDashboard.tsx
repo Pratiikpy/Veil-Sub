@@ -710,40 +710,43 @@ export default function RegisteredDashboard({
                   )}
                 </div>
                 <div className="grid sm:grid-cols-3 gap-4">
-                  {TIERS.map((tier) => {
-                    const custom = creatorTiers[tier.id]
-                    const tierPrice = custom ? custom.price : (stats?.tierPrice ?? 0) * tier.priceMultiplier
-                    const tierName = custom?.name || tier.name
-                    const colors =
-                      tier.id === 3
-                        ? 'border-violet-500/20 bg-violet-500/5'
-                        : tier.id === 2
-                          ? 'border-blue-500/20 bg-blue-500/5'
-                          : 'border-green-500/20 bg-green-500/5'
-                    const textColor =
-                      tier.id === 3
-                        ? 'text-violet-300'
-                        : tier.id === 2
-                          ? 'text-blue-300'
-                          : 'text-green-300'
-                    return (
-                      <div
-                        key={tier.id}
-                        className={`p-4 rounded-xl border ${colors}`}
-                      >
-                        <p className={`text-sm font-medium ${textColor} mb-1`}>
-                          {tierName}
-                        </p>
-                        <p className="text-xl font-bold text-white">
-                          {formatCredits(tierPrice)}{' '}
-                          <span className="text-xs font-normal text-white/60">ALEO</span>
-                        </p>
-                        <p className="text-xs text-white/60 mt-1">
-                          {custom ? 'Custom price' : `${tier.priceMultiplier}x base price`}
-                        </p>
-                      </div>
-                    )
-                  })}
+                  {(() => {
+                    const basePrice = stats?.tierPrice ?? 0
+                    // Build tier list: base tier (id=1) + confirmed custom tiers, or fallback to TIERS
+                    const confirmedIds = Object.entries(creatorTiers)
+                      .filter(([, c]) => c.price > 0)
+                      .map(([id]) => Number(id))
+                      .sort((a, b) => a - b)
+                    const tierIds = confirmedIds.length > 0
+                      ? [1, ...confirmedIds]
+                      : TIERS.map(t => t.id)
+                    const colorPalette = [
+                      { border: 'border-green-500/20 bg-green-500/5', text: 'text-green-300' },
+                      { border: 'border-blue-500/20 bg-blue-500/5', text: 'text-blue-300' },
+                      { border: 'border-violet-500/20 bg-violet-500/5', text: 'text-violet-300' },
+                      { border: 'border-pink-500/20 bg-pink-500/5', text: 'text-pink-300' },
+                      { border: 'border-amber-500/20 bg-amber-500/5', text: 'text-amber-300' },
+                    ]
+                    return tierIds.map((id, i) => {
+                      const hardcoded = TIERS.find(t => t.id === id)
+                      const custom = creatorTiers[id]
+                      const tierPrice = custom ? custom.price : basePrice * (hardcoded?.priceMultiplier ?? id)
+                      const tierName = custom?.name || hardcoded?.name || `Tier ${id}`
+                      const { border: colors, text: textColor } = colorPalette[i % colorPalette.length]
+                      return (
+                        <div key={id} className={`p-4 rounded-xl border ${colors}`}>
+                          <p className={`text-sm font-medium ${textColor} mb-1`}>{tierName}</p>
+                          <p className="text-xl font-bold text-white">
+                            {formatCredits(tierPrice)}{' '}
+                            <span className="text-xs font-normal text-white/60">ALEO</span>
+                          </p>
+                          <p className="text-xs text-white/60 mt-1">
+                            {custom ? 'Custom price' : `${hardcoded?.priceMultiplier ?? id}x base price`}
+                          </p>
+                        </div>
+                      )
+                    })
+                  })()}
                 </div>
               </m.div>
             )}
