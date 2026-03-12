@@ -153,8 +153,12 @@ export default function DashboardPage() {
               fetch(`/api/aleo/transaction/${encodeURIComponent(resolvedId)}`)
                 .then(r => r.json())
                 .then(tx => {
-                  const hash = tx?.transitions?.[0]?.finalize?.[0]
-                    ?? tx?.execution?.transitions?.[0]?.finalize?.[0]
+                  // Provable API v1: hash is in outputs[0].value as a Leo-style future string,
+                  // NOT in a finalize[] array. Parse: "arguments: [\n  12345field,\n  ..."
+                  const outputValue = tx?.execution?.transitions?.[0]?.outputs?.[0]?.value
+                  const hash = typeof outputValue === 'string'
+                    ? (outputValue.match(/arguments:\s*\[\s*(\d+field)/) ?? [])[1]
+                    : undefined
                   if (hash && typeof hash === 'string' && hash.endsWith('field')) {
                     saveCreatorHash(publicKey, hash)
                     // Persist hash to Supabase — survives localStorage clear and new devices

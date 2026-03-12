@@ -62,11 +62,16 @@ export async function GET(req: NextRequest) {
     }
     const tx = await txRes.json()
 
-    // Step 4: Extract creator_hash from finalize args
-    const hash: unknown = tx?.transitions?.[0]?.finalize?.[0]
-      ?? tx?.execution?.transitions?.[0]?.finalize?.[0]
+    // Step 4: Extract creator_hash from outputs[0].value (Leo future string)
+    // Provable API v1 has no finalize[] array — hash is in outputs[0].value:
+    // "{ program_id: ..., arguments: [\n  12345field,\n  3000000u64\n] }"
+    const outputValue = tx?.execution?.transitions?.[0]?.outputs?.[0]?.value
+    const hashMatch = typeof outputValue === 'string'
+      ? outputValue.match(/arguments:\s*\[\s*(\d+field)/)
+      : null
+    const hash = hashMatch?.[1]
 
-    if (typeof hash !== 'string' || !hash.endsWith('field')) {
+    if (!hash || !hash.endsWith('field')) {
       return NextResponse.json({ error: 'Could not extract creator hash from transaction' }, { status: 404 })
     }
 
