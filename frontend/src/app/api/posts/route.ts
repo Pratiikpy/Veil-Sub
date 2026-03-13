@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { creator, title, body, preview, minTier, contentId, imageUrl, walletHash, timestamp, signature } = payload
+    const { creator, title, body, preview, minTier, contentId, hashedContentId, imageUrl, walletHash, timestamp, signature } = payload
     if (!creator || !title || !body) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
     }
@@ -164,6 +164,7 @@ export async function POST(req: NextRequest) {
       minTier: minTier ?? 1,
       createdAt: new Date().toISOString(),
       contentId: typeof contentId === 'string' ? contentId.slice(0, API_LIMITS.MAX_CONTENT_ID_LENGTH) : '',
+      ...(typeof hashedContentId === 'string' && /^\d+field$/.test(hashedContentId) ? { hashedContentId } : {}),
       ...(safeImageUrl ? { imageUrl: safeImageUrl } : {}),
     }
 

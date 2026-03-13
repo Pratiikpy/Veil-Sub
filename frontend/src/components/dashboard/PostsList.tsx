@@ -17,7 +17,7 @@ export default function PostsList({ address }: PostsListProps) {
   const { signMessage } = useWallet()
   const { getPostsForCreator, deletePost, error: feedError, clearError } = useContentFeed()
   const { tiers: onChainTiers } = useCreatorTiers(address)
-  const [posts, setPosts] = useState<{ id: string; title: string; minTier: number; createdAt?: string; contentId?: string }[]>([])
+  const [posts, setPosts] = useState<{ id: string; title: string; minTier: number; createdAt?: string; contentId?: string; hashedContentId?: string }[]>([])
   const [postsLoaded, setPostsLoaded] = useState(false)
   const [disputes, setDisputes] = useState<Record<string, number>>({})
 
@@ -55,7 +55,7 @@ export default function PostsList({ address }: PostsListProps) {
       await Promise.all(
         posts.map(async (post) => {
           if (!post.contentId || post.contentId === 'seed') return
-          const hashedId = getContentHash(post.contentId)
+          const hashedId = post.hashedContentId || getContentHash(post.contentId)
           if (!hashedId) return
           try {
             const res = await fetch(`/api/aleo/program/${DEPLOYED_PROGRAM_ID}/mapping/content_disputes/${hashedId}`)

@@ -10,6 +10,8 @@ import { useContentFeed } from '@/hooks/useContentFeed'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import Button from './ui/Button'
 import { generatePassId } from '@/lib/utils'
+import { poseidon2HashField } from '@/lib/poseidon'
+import { saveContentHash } from '@/lib/config'
 import TransactionStatus from './TransactionStatus'
 import type { TxStatus } from '@/types'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
@@ -84,6 +86,9 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
             if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
             toast.dismiss('post-optimistic')
+            // Compute Poseidon2(content_id) for on-chain dispute tracking
+            const hashedId = await poseidon2HashField(contentId)
+            if (hashedId) saveContentHash(contentId, hashedId)
             // Save to Redis AFTER on-chain confirmation to avoid orphan posts
             const wrappedSign = signMessage
               ? async (msg: Uint8Array) => {
@@ -92,7 +97,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                   return result
                 }
               : null
-            const saved = await createPost(creatorAddress, postTitle, postBody, postTier, contentId, wrappedSign, postImageUrl)
+            const saved = await createPost(creatorAddress, postTitle, postBody, postTier, contentId, wrappedSign, postImageUrl, hashedId ?? undefined)
             if (!saved) {
               const msg = postError
                 ? `Save failed: ${postError.message}`

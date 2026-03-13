@@ -123,7 +123,8 @@ export function useContentFeed() {
       minTier: number,
       contentId: string,
       signFn: ((msg: Uint8Array) => Promise<Uint8Array>) | null = null,
-      imageUrl?: string
+      imageUrl?: string,
+      hashedContentId?: string
     ): Promise<ContentPost | null> => {
       try {
         const timestamp = Date.now()
@@ -155,6 +156,7 @@ export function useContentFeed() {
             preview: body.slice(0, 200),
             minTier,
             contentId,
+            ...(hashedContentId ? { hashedContentId } : {}),
             ...(imageUrl ? { imageUrl } : {}),
             walletHash,
             timestamp,
