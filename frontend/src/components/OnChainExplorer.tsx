@@ -47,6 +47,7 @@ interface ContentInfo {
   found: boolean
   minTier: number | null
   contentHash: string | null
+  disputes: number | null
 }
 
 export default function OnChainExplorer() {
@@ -127,18 +128,21 @@ export default function OnChainExplorer() {
     try {
       // Content IDs are hashed on-chain with BHP256. We query with the raw field value
       // since the API accepts the mapping key directly
-      const [tier, hash] = await Promise.all([
+      const [tier, hash, disputes] = await Promise.all([
         queryMapping('content_meta', contentId),
         queryMapping('content_hashes', contentId),
+        queryMapping('content_disputes', contentId),
       ])
       const parsedTier = tier ? parseInt(tier.replace('u8', ''), 10) : null
+      const parsedDisputes = disputes ? parseInt(disputes.replace('u64', ''), 10) : null
       setContentInfo({
         found: tier !== null,
         minTier: Number.isFinite(parsedTier) ? parsedTier : null,
         contentHash: hash || null,
+        disputes: Number.isFinite(parsedDisputes) ? parsedDisputes : null,
       })
     } catch {
-      setContentInfo({ found: false, minTier: null, contentHash: null })
+      setContentInfo({ found: false, minTier: null, contentHash: null, disputes: null })
     }
     setContentLoading(false)
   }
@@ -306,6 +310,12 @@ export default function OnChainExplorer() {
                           <span className="text-white font-mono text-xs truncate max-w-[160px]">{contentInfo.contentHash}</span>
                         </div>
                       )}
+                      <div className="flex justify-between text-sm">
+                        <span className="text-white/70">Disputes Filed</span>
+                        <span className={`font-mono ${contentInfo.disputes && contentInfo.disputes > 0 ? 'text-amber-400' : 'text-white'}`}>
+                          {contentInfo.disputes ?? 0}
+                        </span>
+                      </div>
                     </>
                   )}
                 </div>
