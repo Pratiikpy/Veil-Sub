@@ -6,6 +6,7 @@ import { Gift, X, Send, Sparkles, AlertCircle, Shield } from 'lucide-react'
 import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
+import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { MICROCREDITS_PER_CREDIT } from '@/lib/config'
 import TransactionStatus from './TransactionStatus'
@@ -26,10 +27,11 @@ export default function GiftSubscriptionFlow({
   isOpen, onClose, creatorAddress, tierPrice, tierId, tierName,
 }: GiftSubscriptionFlowProps) {
   const { giftSubscription, getCreditsRecords, connected } = useVeilSub()
+  const { startPolling, stopPolling } = useTransactionPoller()
   const {
     txStatus, setTxStatus, txId, setTxId,
     error, setError, handleClose: baseHandleClose,
-  } = useTransactionFlow({ isOpen, onClose })
+  } = useTransactionFlow({ isOpen, onClose, connected, stopPolling })
   const focusTrapRef = useFocusTrap(isOpen, baseHandleClose)
 
   const [recipientAddress, setRecipientAddress] = useState('')
@@ -68,15 +70,30 @@ export default function GiftSubscriptionFlow({
         giftId,
         expiresAt
       )
-      setTxId(result)
-      setTxStatus('confirmed')
-      toast.success('Gift sent successfully!')
+      if (result) {
+        setTxId(result)
+        setTxStatus('broadcasting')
+        startPolling(result, (pollResult) => {
+          if (pollResult.status === 'confirmed') {
+            if (pollResult.resolvedTxId) setTxId(pollResult.resolvedTxId)
+            setTxStatus('confirmed')
+            toast.success('Gift sent successfully!')
+          } else if (pollResult.status === 'failed') {
+            setTxStatus('failed')
+            setError('Gift transaction failed on-chain. Ensure you have enough public credits for network fees and private credits for the tier price.')
+            toast.error('Gift transaction failed')
+          }
+        })
+      } else {
+        setTxStatus('failed')
+        setError('Transaction was rejected by wallet.')
+      }
     } catch (err: unknown) {
       const rawMsg = err instanceof Error ? err.message : 'Gift failed'
       setError(getErrorMessage(rawMsg))
       setTxStatus('failed')
     }
-  }, [connected, recipientAddress, creatorAddress, tierId, tierPrice, giftSubscription, getCreditsRecords, setTxStatus, setError, setTxId])
+  }, [connected, recipientAddress, creatorAddress, tierId, tierPrice, giftSubscription, getCreditsRecords, setTxStatus, setError, setTxId, startPolling])
 
   const handleClose = () => {
     setRecipientAddress('')

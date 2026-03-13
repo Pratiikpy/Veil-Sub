@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { DEPLOYED_PROGRAM_ID, getCreatorHash } from '@/lib/config'
+import { DEPLOYED_PROGRAM_ID, getCreatorHash, saveCreatorHash } from '@/lib/config'
 import type { CreatorProfile } from '@/types'
 
 export interface CreatorStatsError {
@@ -58,7 +58,27 @@ export function useCreatorStats() {
       setError(null)
       try {
         // v24+: All on-chain mappings use Poseidon2(address) as key, not raw address
-        const creatorHash = getCreatorHash(creatorAddress)
+        let creatorHash = getCreatorHash(creatorAddress)
+
+        // Fallback: if hash not in hardcoded map or localStorage, try server-side recovery.
+        // This enables any visitor to view a creator's stats without needing the hash cached locally.
+        if (!creatorHash) {
+          try {
+            const recoverRes = await fetch(
+              `/api/creators/recover-hash?address=${encodeURIComponent(creatorAddress)}`
+            )
+            if (recoverRes.ok) {
+              const recoverData = await recoverRes.json()
+              const recovered: string | undefined = recoverData?.creator_hash
+              if (recovered && typeof recovered === 'string' && recovered.endsWith('field')) {
+                creatorHash = recovered
+                saveCreatorHash(creatorAddress, recovered)
+              }
+            }
+          } catch {
+            // Recovery failed — continue with null hash (graceful degradation)
+          }
+        }
 
         let tierPrice: number | null = null
         let subscriberCount = 0

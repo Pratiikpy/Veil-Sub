@@ -883,23 +883,43 @@ export default function RegisteredDashboard({
                   {publicKey === PLATFORM_ADDRESS ? 'Withdraw Funds' : 'Withdraw Earnings'}
                 </h3>
               </div>
-              <p className="text-xs text-white/60 mb-4">
+              <p className="text-xs text-white/60 mb-3">
                 {publicKey === PLATFORM_ADDRESS
                   ? `Withdraw your creator revenue or accumulated ${PLATFORM_FEE_PCT}% platform fees.`
                   : `Withdraw your accumulated subscription and tip revenue. ${100 - PLATFORM_FEE_PCT}% of all payments are yours.`}
               </p>
+              {(stats?.totalRevenue ?? 0) > 0 && (
+                <div className="flex items-center justify-between px-3 py-2 mb-3 rounded-lg bg-green-500/[0.06] border border-green-500/15">
+                  <span className="text-xs text-green-300/80">Available on-chain</span>
+                  <span className="text-sm font-medium text-green-300">
+                    {formatCredits(stats?.totalRevenue ?? 0)} ALEO
+                  </span>
+                </div>
+              )}
               <div className="flex gap-2 mb-4">
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  value={withdrawAmount}
-                  onChange={(e) => setWithdrawAmount(e.target.value)}
-                  placeholder="Amount in ALEO"
-                  step="0.1"
-                  min="0.001"
-                  aria-label="Withdrawal amount in ALEO"
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-black/40 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-green-500/30 transition-all"
-                />
+                <div className="relative flex-1">
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    placeholder="Amount in ALEO"
+                    step="0.1"
+                    min="0.001"
+                    aria-label="Withdrawal amount in ALEO"
+                    className="w-full px-4 py-2.5 pr-14 rounded-xl bg-black/40 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-green-500/30 transition-all"
+                  />
+                  {(stats?.totalRevenue ?? 0) > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setWithdrawAmount((stats!.totalRevenue / MICROCREDITS_PER_CREDIT).toString())}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider text-green-300/80 bg-green-500/10 hover:bg-green-500/20 transition-colors"
+                      aria-label="Fill maximum available amount"
+                    >
+                      Max
+                    </button>
+                  )}
+                </div>
                 <button
                   onClick={() => handleWithdraw('creator')}
                   disabled={withdrawTxStatus === 'signing' || withdrawTxStatus === 'broadcasting' || !withdrawAmount}

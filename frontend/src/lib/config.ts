@@ -212,7 +212,7 @@ export function getCreatorCustomTiers(address: string): Record<number, { price: 
 // ~30 days at ~3s/block (864K blocks)
 export const SUBSCRIPTION_DURATION_BLOCKS = 864_000
 
-// Trial pass: ~12 hours max at ~3s/block (1000 blocks)
+// Trial pass: ~50 minutes at ~3s/block (1000 blocks)
 export const TRIAL_DURATION_BLOCKS = 1_000
 // Trial costs 20% of regular tier price (1/5)
 export const TRIAL_PRICE_DIVISOR = 5

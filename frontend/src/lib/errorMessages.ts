@@ -142,7 +142,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   'ERR_113': 'Trial payment is insufficient (must be at least 20% of tier price).',
   'ERR_114': 'This tier is deprecated and cannot be used for trials.',
   'ERR_115': 'Trial expiry must be in the future.',
-  'ERR_116': 'Trial duration exceeds the maximum (~12 hours).',
+  'ERR_116': 'Trial duration exceeds the maximum (~50 minutes / 1,000 blocks).',
   'ERR_117': 'Creator has reached the maximum subscriber limit.',
 
   // === Scoped Audit Tokens (v27) ===

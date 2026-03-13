@@ -78,6 +78,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
         // Capture post data before clearing form — save to Redis only after on-chain confirmation
         const postTitle = title.trim()
         const postBody = body.trim()
+        const postPreview = preview.trim() || undefined
         const postTier = minTier
         const postImageUrl = imageUrl.trim() || undefined
 
@@ -97,7 +98,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                   return result
                 }
               : null
-            const saved = await createPost(creatorAddress, postTitle, postBody, postTier, contentId, wrappedSign, postImageUrl, hashedId ?? undefined)
+            const saved = await createPost(creatorAddress, postTitle, postBody, postTier, contentId, wrappedSign, postImageUrl, hashedId ?? undefined, postPreview)
             if (!saved) {
               const msg = postError
                 ? `Save failed: ${postError.message}`

@@ -98,7 +98,7 @@ const CONTRACT_VERSIONS = [
   },
   {
     version: 'v26',
-    description: 'Ephemeral trial passes (subscribe_trial)—20% of tier price for ~12hr access. 27 transitions, 24 mappings, 846 statements—deployed on testnet (superseded by v27)',
+    description: 'Ephemeral trial passes (subscribe_trial)—20% of tier price for ~50 min access (1,000 blocks). 27 transitions, 24 mappings, 846 statements—deployed on testnet (superseded by v27)',
     deployed: true,
   },
   {
@@ -305,7 +305,10 @@ export default function AnalyticsPage() {
                   <TrendingUp className="w-4 h-4 text-green-400" aria-hidden="true" />
                   <h3 className="text-sm font-medium text-white">Subscription Growth</h3>
                 </div>
-                <span className="text-xs text-green-400 bg-green-500/10 px-3 py-1 rounded-full">+35% this wave</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-white/40 border border-white/10 px-2 py-0.5 rounded-full">Sample data</span>
+                  <span className="text-xs text-green-400 bg-green-500/10 px-3 py-1 rounded-full">+35% this wave</span>
+                </div>
               </div>
               <div className="flex items-end justify-between gap-2 h-48 mb-4">
                 {ACTIVITY_DATA.map((week, i) => {
@@ -339,9 +342,12 @@ export default function AnalyticsPage() {
 
             {/* Tier Distribution */}
             <GlassCard delay={0.1}>
-              <div className="flex items-center gap-2 mb-6">
-                <BarChart3 className="w-4 h-4 text-violet-400" aria-hidden="true" />
-                <h3 className="text-sm font-medium text-white">Tier Distribution</h3>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                  <h3 className="text-sm font-medium text-white">Tier Distribution</h3>
+                </div>
+                <span className="text-[10px] text-white/40 border border-white/10 px-2 py-0.5 rounded-full">Sample data</span>
               </div>
               <div className="space-y-4">
                 {TIER_DISTRIBUTION.map((tier, i) => (

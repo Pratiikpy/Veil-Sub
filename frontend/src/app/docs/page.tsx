@@ -84,7 +84,7 @@ const TRANSITION_GROUPS: TransitionGroupData[] = [
       { name: 'renew(old_pass, payment, new_tier, amount, pass_id, expires_at)', type: 'async', desc: 'Consume and re-create AccessPass with extended expiry. Allows tier changes.' },
       { name: 'verify_access(pass, creator)', type: 'async', desc: 'Minimal-footprint verification — finalize only checks revocation via pass_id.' },
       { name: 'verify_tier_access(pass, creator, required_tier)', type: 'async', desc: 'Verify AccessPass grants access to required tier without revealing subscriber identity.' },
-      { name: 'subscribe_trial(payment, creator, tier, amount, pass_id, expires_at)', type: 'async', desc: 'Ephemeral trial at 20% tier price, ~12hr. One per creator via trial_used mapping.' },
+      { name: 'subscribe_trial(payment, creator, tier, amount, pass_id, expires_at)', type: 'async', desc: 'Ephemeral trial at 20% tier price, ~50 min (1,000 blocks). One per creator via trial_used mapping.' },
     ],
   },
   {

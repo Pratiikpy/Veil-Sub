@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { ShieldCheck, Loader2, Check, AlertCircle, WifiOff } from 'lucide-react'
-import { DEPLOYED_PROGRAM_ID } from '@/lib/config'
+import { useState, useEffect, useCallback } from 'react'
+import { ShieldCheck, Loader2, Check, AlertCircle, WifiOff, HelpCircle } from 'lucide-react'
+import { DEPLOYED_PROGRAM_ID, getCreatorHash, saveCreatorHash } from '@/lib/config'
 
 interface Props {
   creatorAddress: string
@@ -16,14 +16,55 @@ export default function OnChainVerify({
   displayedValue,
 }: Props) {
   const [state, setState] = useState<
-    'idle' | 'verifying' | 'verified' | 'mismatch' | 'error'
+    'idle' | 'verifying' | 'verified' | 'mismatch' | 'error' | 'no-hash'
   >('idle')
+  const [resolvedHash, setResolvedHash] = useState<string | null>(null)
 
-  const verify = async () => {
+  // Resolve the Poseidon2 hash for this creator address on mount / address change
+  useEffect(() => {
+    let cancelled = false
+
+    const resolve = async () => {
+      // 1. Check hardcoded map + localStorage
+      const local = getCreatorHash(creatorAddress)
+      if (local) {
+        if (!cancelled) setResolvedHash(local)
+        return
+      }
+
+      // 2. Try the server-side recover-hash endpoint
+      try {
+        const res = await fetch(`/api/creators/recover-hash?address=${encodeURIComponent(creatorAddress)}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data?.creator_hash && typeof data.creator_hash === 'string' && data.creator_hash.endsWith('field')) {
+            saveCreatorHash(creatorAddress, data.creator_hash)
+            if (!cancelled) setResolvedHash(data.creator_hash)
+            return
+          }
+        }
+      } catch {
+        // Recovery failed — fall through to no-hash state
+      }
+
+      if (!cancelled) setResolvedHash(null)
+    }
+
+    setResolvedHash(null)
+    resolve()
+    return () => { cancelled = true }
+  }, [creatorAddress])
+
+  const verify = useCallback(async () => {
+    if (!resolvedHash) {
+      setState('no-hash')
+      return
+    }
+
     setState('verifying')
     try {
       const res = await fetch(
-        `/api/aleo/program/${DEPLOYED_PROGRAM_ID}/mapping/${mappingName}/${creatorAddress}`
+        `/api/aleo/program/${DEPLOYED_PROGRAM_ID}/mapping/${mappingName}/${resolvedHash}`
       )
       if (!res.ok) {
         setState(res.status >= 500 ? 'error' : 'mismatch')
@@ -44,7 +85,7 @@ export default function OnChainVerify({
     } catch {
       setState('error')
     }
-  }
+  }, [resolvedHash, mappingName, displayedValue])
 
   if (state === 'idle') {
     return (
@@ -73,6 +114,15 @@ export default function OnChainVerify({
       <span role="status" aria-live="polite" className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-green-500/10 border border-green-500/20 text-green-400">
         <Check className="w-3 h-3" aria-hidden="true" />
         Aleo mapping verified
+      </span>
+    )
+  }
+
+  if (state === 'no-hash') {
+    return (
+      <span role="status" aria-live="polite" className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-zinc-500/10 border border-zinc-500/20 text-zinc-400">
+        <HelpCircle className="w-3 h-3" aria-hidden="true" />
+        Hash not available
       </span>
     )
   }

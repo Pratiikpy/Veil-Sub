@@ -101,7 +101,7 @@ const FAQ_DATA = [
   },
   {
     q: 'Can I try before subscribing?',
-    a: 'Yes. VeilSub supports trial passes—ephemeral subscriptions at 20% of the tier price, lasting roughly 12 hours (1,000 blocks). Trials use the same privacy model as full subscriptions. Choose "Trial" mode when subscribing.',
+    a: 'Yes. VeilSub supports trial passes—ephemeral subscriptions at 20% of the tier price, lasting ~50 minutes (1,000 blocks). Trials use the same privacy model as full subscriptions. Choose "Trial" mode when subscribing.',
   },
   {
     q: 'Can I gift a subscription to someone?',

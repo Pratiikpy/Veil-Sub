@@ -256,7 +256,7 @@ export default function SubscribeModal({
                       <span>Duration</span>
                       <span>
                         {privacyMode === 'trial'
-                          ? `~12 hours (${TRIAL_DURATION_BLOCKS.toLocaleString()} blocks)`
+                          ? `~50 minutes (${TRIAL_DURATION_BLOCKS.toLocaleString()} blocks)`
                           : `~30 days (${SUBSCRIPTION_DURATION_BLOCKS.toLocaleString()} blocks)`}
                       </span>
                     </div>
@@ -278,7 +278,7 @@ export default function SubscribeModal({
                       {([
                         { key: 'standard' as const, label: 'Standard', desc: '30 days' },
                         { key: 'blind' as const, label: 'Blind', desc: 'Identity masked' },
-                        { key: 'trial' as const, label: 'Trial', desc: '~12 hrs / 20%' },
+                        { key: 'trial' as const, label: 'Trial', desc: '~50 min / 20%' },
                       ]).map((mode) => (
                         <button
                           key={mode.key}
@@ -309,7 +309,7 @@ export default function SubscribeModal({
                     )}
                     {privacyMode === 'trial' && (
                       <p className="text-[11px] text-violet-400/80 mt-2">
-                        Short-term pass (~12 hours / 1,000 blocks) at 20% of tier price.
+                        Short-term pass (~50 minutes / 1,000 blocks) at 20% of tier price.
                       </p>
                     )}
                 </div>
@@ -321,7 +321,7 @@ export default function SubscribeModal({
                     <li>Your address is never published on-chain</li>
                     {privacyMode === 'standard' && <li>Creator sees total count, not individuals</li>}
                     {privacyMode === 'blind' && <li>Identity masked—renewals are unlinkable</li>}
-                    {privacyMode === 'trial' && <li>Short-lived pass—20% cost, ~12 hour access</li>}
+                    {privacyMode === 'trial' && <li>Short-lived pass—20% cost, ~50 minute access</li>}
                     <li>AccessPass stored privately in your wallet</li>
                     <li>Payment sent privately to creator</li>
                   </ul>
@@ -379,7 +379,7 @@ export default function SubscribeModal({
                       Subscribed via BSP!
                     </p>
                     <p className="text-xs text-white/70">
-                      Your AccessPass is now in your wallet. {privacyMode === 'trial' ? 'Trial access for ~12 hours.' : 'Access for ~30 days.'}
+                      Your AccessPass is now in your wallet. {privacyMode === 'trial' ? 'Trial access for ~50 minutes (1,000 blocks).' : 'Access for ~30 days.'}
                     </p>
                     {txId && (
                       <p className="text-[11px] text-white/60 mt-2 font-mono break-all">

@@ -145,7 +145,7 @@ describe('error message content quality', () => {
   it('trial subscription errors are descriptive', () => {
     expect(ERROR_MESSAGES['ERR_111'].toLowerCase()).toContain('tier')
     expect(ERROR_MESSAGES['ERR_113'].toLowerCase()).toContain('20%')
-    expect(ERROR_MESSAGES['ERR_116'].toLowerCase()).toContain('12 hours')
+    expect(ERROR_MESSAGES['ERR_116'].toLowerCase()).toContain('50 minutes')
   })
 
   it('withdrawal errors mention amount or balance', () => {

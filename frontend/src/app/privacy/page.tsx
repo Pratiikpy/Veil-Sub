@@ -971,7 +971,7 @@ identity:     ████████████     // Poseidon2(BlindKey)
                 },
                 {
                   fn: 'subscribe_trial()',
-                  guarantee: 'Ephemeral trial pass (~12 hours) at 20% cost. Same privacy model as subscribe—short duration enforced on-chain.',
+                  guarantee: 'Ephemeral trial pass (~50 minutes / 1,000 blocks) at 20% cost. Same privacy model as subscribe—short duration enforced on-chain.',
                 },
                 {
                   fn: 'All payments',

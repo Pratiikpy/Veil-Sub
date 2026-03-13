@@ -20,6 +20,7 @@ import {
   Check,
   Share2,
   FileKey,
+  Gift,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
@@ -36,6 +37,7 @@ const GiftSubscriptionFlow = dynamic(() => import('@/components/GiftSubscription
 const TransferPassModal = dynamic(() => import('@/components/TransferPassModal'), { ssr: false })
 const DisputeContentModal = dynamic(() => import('@/components/DisputeContentModal'), { ssr: false })
 const CreateAuditTokenModal = dynamic(() => import('@/components/CreateAuditTokenModal'), { ssr: false })
+const RedeemGiftModal = dynamic(() => import('@/components/RedeemGiftModal'), { ssr: false })
 import ContentFeed from '@/components/ContentFeed'
 import CreatorQRCode from '@/components/CreatorQRCode'
 import PageTransition from '@/components/PageTransition'
@@ -151,6 +153,7 @@ export default function CreatorPage({
   const [renewPass, setRenewPass] = useState<AccessPass | null>(null)
   const [showGift, setShowGift] = useState(false)
   const [giftTier, setGiftTier] = useState<{ id: number; name: string; price: number } | null>(null)
+  const [showRedeemGift, setShowRedeemGift] = useState(false)
   const [transferPass, setTransferPass] = useState<AccessPass | null>(null)
   const [disputeContentId, setDisputeContentId] = useState<string | null>(null)
   const [auditTokenPass, setAuditTokenPass] = useState<AccessPass | null>(null)
@@ -653,6 +656,15 @@ export default function CreatorPage({
                   </p>
                 </div>
                 <div className="flex gap-2 shrink-0 flex-wrap">
+                  <button
+                    onClick={() => setShowRedeemGift(true)}
+                    disabled={!connected}
+                    title={!connected ? 'Connect your wallet to redeem a gift' : 'Redeem a gift subscription token'}
+                    className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white/70 font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <Gift className="w-4 h-4" aria-hidden="true" />
+                    Redeem Gift
+                  </button>
                   <GiftDropdown
                     connected={connected}
                     tiers={displayTiers}
@@ -782,6 +794,11 @@ export default function CreatorPage({
           pass={auditTokenPass}
         />
       )}
+      <RedeemGiftModal
+        isOpen={showRedeemGift}
+        onClose={() => setShowRedeemGift(false)}
+        creatorAddress={address}
+      />
     </PageTransition>
   )
 }

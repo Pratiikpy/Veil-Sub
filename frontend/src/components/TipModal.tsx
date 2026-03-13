@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
-import { X, Heart, EyeOff, Eye, Shield } from 'lucide-react'
+import { X, Heart, EyeOff, Eye, Shield, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
@@ -49,10 +49,74 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
   const [commitPhase, setCommitPhase] = useState<CommitPhase>('commit')
   const [savedSalt, setSavedSalt] = useState<string | null>(null)
   const [savedAmount, setSavedAmount] = useState<number>(0)
+  const [pendingTipRestored, setPendingTipRestored] = useState(false)
   const tipGroupRef = useRef<HTMLDivElement>(null)
   const modeGroupRef = useRef<HTMLDivElement>(null)
   useRovingTabIndex(tipGroupRef)
   useRovingTabIndex(modeGroupRef)
+
+  // --- localStorage persistence for commit-reveal salt ---
+  const PENDING_TIP_KEY = `veilsub_pending_tip_${creatorAddress}`
+
+  const savePendingTip = useCallback((salt: string, amount: number, commitTxId: string) => {
+    try {
+      localStorage.setItem(PENDING_TIP_KEY, JSON.stringify({
+        salt,
+        amount,
+        commitTxId,
+        creatorAddress,
+        timestamp: Date.now(),
+      }))
+    } catch {
+      // localStorage unavailable — salt stays in state only
+    }
+  }, [PENDING_TIP_KEY, creatorAddress])
+
+  const clearPendingTip = useCallback(() => {
+    try {
+      localStorage.removeItem(PENDING_TIP_KEY)
+    } catch {
+      // ignore
+    }
+  }, [PENDING_TIP_KEY])
+
+  // Restore pending tip on mount / when modal opens
+  useEffect(() => {
+    if (!isOpen) return
+    try {
+      const raw = localStorage.getItem(PENDING_TIP_KEY)
+      if (!raw) return
+      const pending = JSON.parse(raw) as {
+        salt: string
+        amount: number
+        commitTxId: string
+        creatorAddress: string
+        timestamp: number
+      }
+      // Only restore if it matches this creator and is less than 24 hours old
+      if (
+        pending.salt &&
+        pending.amount > 0 &&
+        pending.creatorAddress === creatorAddress &&
+        Date.now() - pending.timestamp < 24 * 60 * 60 * 1000
+      ) {
+        setSavedSalt(pending.salt)
+        setSavedAmount(pending.amount)
+        setTipMode('private')
+        setCommitPhase('reveal')
+        setTxStatus('confirmed')
+        setTxId(pending.commitTxId)
+        setPendingTipRestored(true)
+      } else {
+        // Stale entry — clean up
+        clearPendingTip()
+      }
+    } catch {
+      // corrupted entry — clean up
+      clearPendingTip()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, creatorAddress])
 
   const getTipAmount = () => {
     const parsed = parseFloat(customAmount)
@@ -171,9 +235,11 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
         setTxStatus('broadcasting')
         startPolling(id, (result) => {
           if (result.status === 'confirmed') {
-            if (result.resolvedTxId) setTxId(result.resolvedTxId)
+            const resolvedId = result.resolvedTxId || id
+            if (result.resolvedTxId) setTxId(resolvedId)
             setTxStatus('confirmed')
             setCommitPhase('reveal')
+            savePendingTip(salt, tipMicrocredits, resolvedId)
             toast.success('Tip committed! You can reveal it when ready.')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
@@ -238,6 +304,8 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
             if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
             setCommitPhase('done')
+            clearPendingTip()
+            setPendingTipRestored(false)
             toast.success('Tip revealed and sent!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
@@ -260,10 +328,23 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
 
   const handleModalClose = () => {
     setInsufficientBalance(false)
-    setCommitPhase('commit')
-    setSavedSalt(null)
-    setSavedAmount(0)
-    setTipMode('direct')
+    setPendingTipRestored(false)
+    // Only reset commit-reveal state if there's no pending reveal in localStorage.
+    // If the user committed but hasn't revealed, the salt is persisted and will
+    // be restored the next time the modal opens.
+    const hasPendingReveal = (() => {
+      try {
+        return !!localStorage.getItem(PENDING_TIP_KEY)
+      } catch {
+        return false
+      }
+    })()
+    if (!hasPendingReveal) {
+      setCommitPhase('commit')
+      setSavedSalt(null)
+      setSavedAmount(0)
+      setTipMode('direct')
+    }
     handleClose()
   }
 
@@ -361,8 +442,22 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                   </div>
                 )}
 
+                {/* Pending Tip Restored Warning */}
+                {pendingTipRestored && isRevealReady && (
+                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 mb-4 flex gap-2 items-start">
+                    <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" aria-hidden="true" />
+                    <div>
+                      <p className="text-xs text-amber-300 font-medium">Unrevealed tip detected</p>
+                      <p className="text-[11px] text-white/70">
+                        You previously committed {formatCredits(savedAmount)} ALEO but did not reveal it.
+                        Complete the reveal below to send the payment, or the committed tip stays locked.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Reveal Phase Banner */}
-                {isRevealReady && (
+                {isRevealReady && !pendingTipRestored && (
                   <div className="p-4 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-4">
                     <p className="text-xs text-violet-300 font-medium mb-1">Phase 2: Reveal Your Tip</p>
                     <p className="text-[11px] text-white/70">

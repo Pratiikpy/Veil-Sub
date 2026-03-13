@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
-import { X, Flag, Shield } from 'lucide-react'
+import { X, Flag, Shield, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
@@ -18,6 +18,15 @@ interface Props {
   contentId: string
   contentTitle: string
   accessPassPlaintext: string
+}
+
+/**
+ * A contentId of 'general' means the modal was opened from the creator page level
+ * rather than from a specific post. On-chain dispute requires a real content ID
+ * that exists in the content_meta mapping, so we must block submission.
+ */
+function isValidContentId(contentId: string): boolean {
+  return !!contentId && contentId !== 'general'
 }
 
 const DISPUTE_REASONS = [
@@ -42,12 +51,17 @@ export default function DisputeContentModal({
     error, setError, submittingRef, handleClose,
   } = useTransactionFlow({ isOpen, onClose, connected, stopPolling })
   const focusTrapRef = useFocusTrap(isOpen, handleClose)
+  const validContent = isValidContentId(contentId)
 
   const [selectedReason, setSelectedReason] = useState<string | null>(null)
   const reasonGroupRef = useRef<HTMLDivElement>(null)
   useRovingTabIndex(reasonGroupRef)
 
   const handleDispute = async () => {
+    if (!validContent) {
+      setError('Cannot dispute without a specific content ID. Please select a specific post to dispute.')
+      return
+    }
     if (!selectedReason) {
       setError('Please select a reason for the dispute.')
       return
@@ -133,6 +147,22 @@ export default function DisputeContentModal({
             </div>
           </div>
 
+          {/* Invalid content ID warning */}
+          {!validContent && (
+            <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 mb-6">
+              <div className="flex gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" aria-hidden="true" />
+                <div>
+                  <p className="text-sm text-amber-300 font-medium mb-1">Select a Specific Post</p>
+                  <p className="text-xs text-white/60 leading-relaxed">
+                    On-chain disputes must target a specific piece of content. Go to this creator&apos;s
+                    content feed and use the dispute button on the individual post you want to flag.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Reason selection */}
           <div className="mb-6">
             <label id="dispute-reason-label" className="block text-xs text-white/70 font-medium uppercase tracking-wider mb-4">
@@ -193,8 +223,9 @@ export default function DisputeContentModal({
                 </Button>
                 <Button
                   onClick={handleDispute}
-                  disabled={!selectedReason || txStatus === 'signing' || txStatus === 'broadcasting'}
+                  disabled={!validContent || !selectedReason || txStatus === 'signing' || txStatus === 'broadcasting'}
                   title={
+                    !validContent ? 'Select a specific post to dispute from the content feed' :
                     !selectedReason ? 'Select a reason for the dispute' :
                     txStatus === 'signing' ? 'Waiting for wallet signature...' :
                     txStatus === 'broadcasting' ? 'Submitting dispute...' :
@@ -202,7 +233,7 @@ export default function DisputeContentModal({
                   }
                   className="flex-1 bg-red-500/80 text-white hover:bg-red-500/90 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]"
                 >
-                  {txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Submitting...' : 'Submit Dispute'}
+                  {!validContent ? 'Select a Post First' : txStatus === 'signing' ? 'Signing...' : txStatus === 'broadcasting' ? 'Submitting...' : 'Submit Dispute'}
                 </Button>
               </>
             )}
