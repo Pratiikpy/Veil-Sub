@@ -146,6 +146,34 @@ export function saveCreatorHash(address: string, hash: string): void {
   }
 }
 
+// Content ID → Poseidon2(content_id) mapping for on-chain dispute queries.
+// On-chain, content mappings are keyed by Poseidon2::hash_to_field(content_id).
+// JavaScript cannot compute Poseidon2 (BLS12-377 native), so we cache the mapping.
+// Computed via: `cd contracts/hash_helper && leo run hash_field <content_id>field`
+export const CONTENT_HASH_MAP: Record<string, string> = {
+  '259582625469377415105313169923451102157':
+    '8333928044410196196463218110142652010089661509331703880744618389579288662863field',
+}
+
+// Get the Poseidon2 hash for a content_id (for on-chain mapping queries).
+// Checks localStorage first (saved after publish) then hardcoded map.
+export function getContentHash(contentId: string): string | null {
+  const clean = contentId.replace('field', '')
+  if (CONTENT_HASH_MAP[clean]) return CONTENT_HASH_MAP[clean]
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(`veilsub_content_hash_${clean}`)
+    if (stored) return stored
+  }
+  return null
+}
+
+// Save a content Poseidon2 hash to localStorage.
+export function saveContentHash(contentId: string, hash: string): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(`veilsub_content_hash_${contentId.replace('field', '')}`, hash)
+  }
+}
+
 // Fallback cache: known on-chain custom tier prices per creator (microcredits).
 // On-chain, tier prices live in the `creator_tiers` mapping keyed by
 // Poseidon2(TierKey{creator_hash, tier_id}) — a compound hash that CANNOT be

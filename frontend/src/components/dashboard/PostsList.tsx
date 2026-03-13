@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { m } from 'framer-motion'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import { FileText, Trash2 } from 'lucide-react'
+import { FileText, Trash2, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
+import { getContentHash, DEPLOYED_PROGRAM_ID } from '@/lib/config'
 
 interface PostsListProps {
   address: string
@@ -18,6 +19,7 @@ export default function PostsList({ address }: PostsListProps) {
   const { tiers: onChainTiers } = useCreatorTiers(address)
   const [posts, setPosts] = useState<{ id: string; title: string; minTier: number; createdAt?: string; contentId?: string }[]>([])
   const [postsLoaded, setPostsLoaded] = useState(false)
+  const [disputes, setDisputes] = useState<Record<string, number>>({})
 
   const TIER_COLORS = [
     'text-green-300 bg-green-500/10 border-green-500/20',
@@ -44,6 +46,32 @@ export default function PostsList({ address }: PostsListProps) {
   }, [address, getPostsForCreator])
 
   useEffect(() => { fetchPosts() }, [fetchPosts])
+
+  // Fetch on-chain dispute counts for posts with known content hashes
+  useEffect(() => {
+    if (posts.length === 0) return
+    const fetchDisputes = async () => {
+      const results: Record<string, number> = {}
+      await Promise.all(
+        posts.map(async (post) => {
+          if (!post.contentId || post.contentId === 'seed') return
+          const hashedId = getContentHash(post.contentId)
+          if (!hashedId) return
+          try {
+            const res = await fetch(`/api/aleo/program/${DEPLOYED_PROGRAM_ID}/mapping/content_disputes/${hashedId}`)
+            if (!res.ok) return
+            const data = await res.json()
+            if (data && data !== 'null') {
+              const count = parseInt(String(data).replace(/"/g, '').replace('u64', ''), 10)
+              if (Number.isFinite(count) && count > 0) results[post.contentId] = count
+            }
+          } catch { /* non-critical */ }
+        })
+      )
+      setDisputes(results)
+    }
+    fetchDisputes()
+  }, [posts])
 
   const handleDelete = async (postId: string) => {
     if (!window.confirm('Delete this post? This action cannot be undone.')) return
@@ -103,6 +131,12 @@ export default function PostsList({ address }: PostsListProps) {
                     )}
                     {post.contentId && post.contentId !== 'seed' && (
                       <span className="text-xs text-green-500">on-chain</span>
+                    )}
+                    {post.contentId && disputes[post.contentId] > 0 && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20">
+                        <AlertTriangle className="w-3 h-3" aria-hidden="true" />
+                        {disputes[post.contentId]} {disputes[post.contentId] === 1 ? 'dispute' : 'disputes'}
+                      </span>
                     )}
                   </div>
                 </div>
