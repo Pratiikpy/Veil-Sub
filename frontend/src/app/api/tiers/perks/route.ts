@@ -17,8 +17,8 @@ export async function GET(req: NextRequest) {
 
   const supabase = getServerSupabase()
   if (!supabase) {
-    // Graceful fallback — client will use localStorage
-    return NextResponse.json({ tiers: [] }, { status: 200 })
+    // Database not configured — client uses localStorage as primary
+    return NextResponse.json({ tiers: [], fallback: 'no_database' }, { status: 200 })
   }
 
   const { data, error } = await supabase
@@ -27,8 +27,8 @@ export async function GET(req: NextRequest) {
     .eq('creator_address', creator)
 
   if (error) {
-    // Table may not exist yet — graceful fallback
-    return NextResponse.json({ tiers: [] }, { status: 200 })
+    // Query failed (table may not exist) — client uses localStorage as primary
+    return NextResponse.json({ tiers: [], fallback: 'query_error' }, { status: 200 })
   }
 
   return NextResponse.json({ tiers: data ?? [] }, {
@@ -95,8 +95,9 @@ export async function POST(req: NextRequest) {
     }, { onConflict: 'creator_address,tier_id' })
 
   if (error) {
-    // Table might not exist yet — silent fallback, client uses localStorage
-    return NextResponse.json({ success: true, note: 'fallback' })
+    // Table might not exist yet — graceful fallback, client uses localStorage
+    // Note: success=false so client knows server-side failed, but localStorage is primary
+    return NextResponse.json({ success: false, warning: 'database_unavailable', fallback: 'localStorage' })
   }
 
   return NextResponse.json({ success: true })

@@ -16,6 +16,8 @@ export function useCyclingPlaceholder(
 
     const timer = setInterval(() => {
       setIsAnimating(true)
+      // Clear any previous fade timeout before setting a new one to prevent leaks
+      if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current)
       fadeTimerRef.current = setTimeout(() => {
         setIndex((prev) => placeholders.length > 0 ? (prev + 1) % placeholders.length : 0)
         setIsAnimating(false)

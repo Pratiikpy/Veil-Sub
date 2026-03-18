@@ -31,27 +31,31 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    const { count: totalSubscriptions } = await supabase
+    const { count: totalSubscriptions, error: subsErr } = await supabase
       .from('subscription_events')
       .select('*', { count: 'exact', head: true })
 
-    const { data: revenueData } = await supabase
+    const { data: revenueData, error: revErr } = await supabase
       .from('subscription_events')
       .select('amount_microcredits')
 
     const totalRevenue = (revenueData || []).reduce((sum, e) => sum + (e.amount_microcredits || 0), 0)
 
-    const { data: creatorData } = await supabase
+    const { data: creatorData, error: creatErr } = await supabase
       .from('subscription_events')
       .select('creator_address_hash')
 
     const uniqueCreators = new Set((creatorData || []).map(e => e.creator_address_hash)).size
+
+    // If any query failed, indicate degraded state
+    const fallback = (subsErr || revErr || creatErr) ? 'partial_error' : undefined
 
     return NextResponse.json({
       totalCreators: uniqueCreators,
       totalSubscriptions: totalSubscriptions || 0,
       totalRevenue,
       activePrograms: 1, // veilsub_v27.aleo (deployed)
+      ...(fallback && { fallback }),
     }, {
       headers: {
         'Cache-Control': CACHE_HEADERS.ANALYTICS,

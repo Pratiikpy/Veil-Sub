@@ -31,14 +31,14 @@ export async function GET(req: NextRequest) {
     const addressHash = await hashAddress(address)
 
     // Fetch all events for this creator
-    const { data: events } = await supabase
+    const { data: events, error: queryErr } = await supabase
       .from('subscription_events')
       .select('tier, amount_microcredits, created_at')
       .eq('creator_address_hash', addressHash)
       .order('created_at', { ascending: true })
       .limit(500)
 
-    if (!events || events.length === 0) {
+    if (queryErr || !events || events.length === 0) {
       return NextResponse.json({
         daily: Array.from({ length: 30 }, (_, i) => {
           const d = new Date(); d.setDate(d.getDate() - (29 - i))

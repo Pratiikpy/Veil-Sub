@@ -19,19 +19,23 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 503 })
   }
 
-  const { data, error } = await supabase
-    .from('creator_profiles')
-    .select('address_hash, creator_hash, display_name, bio, category, created_at')
-    .eq('address_hash', addressHash)
-    .single()
+  try {
+    const { data, error } = await supabase
+      .from('creator_profiles')
+      .select('address_hash, creator_hash, display_name, bio, category, created_at')
+      .eq('address_hash', addressHash)
+      .single()
 
-  if (error || !data) {
-    return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+    if (error || !data) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+    }
+
+    return NextResponse.json({ profile: data }, {
+      headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' },
+    })
+  } catch {
+    return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 })
   }
-
-  return NextResponse.json({ profile: data }, {
-    headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' },
-  })
 }
 
 export async function POST(req: NextRequest) {

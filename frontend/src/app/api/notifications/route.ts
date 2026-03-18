@@ -92,7 +92,8 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ notifications: [] })
+  // Both Supabase and Redis unavailable — return empty with fallback indicator
+  return NextResponse.json({ notifications: [], fallback: 'no_storage' })
 }
 
 /**

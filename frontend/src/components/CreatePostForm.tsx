@@ -536,6 +536,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                maxLength={200}
                 placeholder="Exclusive content title..."
                 className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base"
               />

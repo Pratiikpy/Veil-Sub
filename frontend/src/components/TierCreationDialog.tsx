@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import { Plus, X, Layers, Sparkles, AlertCircle } from 'lucide-react'
+import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
@@ -59,6 +60,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
       const result = await createCustomTier(tierId, priceMicrocredits, nameHash)
       setTxId(result)
       setTxStatus('confirmed')
+      toast.success(`Tier #${tierId} created!`)
       // Persist tier — localStorage for instant UI update, Supabase for cross-browser sync
       if (creatorAddress) {
         try {
@@ -84,6 +86,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to create tier')
       setTxStatus('failed')
+      toast.error('Tier creation failed')
     }
   }, [connected, tierId, tierName, priceAleo, createCustomTier, onSuccess, setTxStatus, setError, setTxId])
 
@@ -131,7 +134,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
             </div>
 
             {status === 'success' ? (
-              <div className="space-y-4">
+              <div className="space-y-4" role="status" aria-live="polite">
                 <div className="rounded-xl bg-surface-2 border border-border p-4 text-center">
                   <Sparkles className="mx-auto mb-2 h-8 w-8 text-green-400" aria-hidden="true" />
                   <p className="text-sm font-medium text-green-400">Tier #{tierId} created!</p>
@@ -139,6 +142,20 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
                 </div>
                 <button onClick={handleClose} aria-label="Tier created successfully - close dialog" className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50">
                   Done
+                </button>
+              </div>
+            ) : status === 'error' ? (
+              <div className="space-y-4">
+                <div role="alert" className="rounded-xl bg-red-500/10 border border-red-500/15 p-4 text-center">
+                  <AlertCircle className="mx-auto mb-2 h-8 w-8 text-red-400" aria-hidden="true" />
+                  <p className="text-sm font-medium text-red-400">Tier creation failed</p>
+                  {error && <p className="mt-1 text-xs text-white/60">{error}</p>}
+                </div>
+                <button
+                  onClick={() => { setError(null); setTxStatus('idle') }}
+                  className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50"
+                >
+                  Try Again
                 </button>
               </div>
             ) : (

@@ -45,7 +45,8 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
   const getTierLabel = (tierId: number) => {
     const custom = onChainTiers[tierId]
     const name = custom?.name || (tierId === 1 ? 'Supporter' : `Tier ${tierId}`)
-    const color = TIER_COLORS[(tierId - 1) % TIER_COLORS.length]
+    // Ensure non-negative index for tier colors (tierId 0 maps to index 0)
+    const color = TIER_COLORS[Math.max(0, tierId - 1) % TIER_COLORS.length]
     return { name, color }
   }
 

@@ -124,7 +124,7 @@ export default function BalanceConverter({
         href="https://faucet.aleo.org"
         target="_blank"
         rel="noopener noreferrer"
-        className="block p-4 rounded-lg bg-surface-1 border border-border hover:bg-white/[0.05] transition-colors"
+        className="block p-4 rounded-lg bg-surface-1 border border-border hover:bg-white/[0.05] transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
       >
         <div className="flex items-center justify-between mb-1">
           <span className="text-sm text-white font-medium">

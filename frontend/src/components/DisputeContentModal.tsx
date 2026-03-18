@@ -118,8 +118,9 @@ export default function DisputeContentModal({
         >
           <button
             onClick={handleClose}
+            disabled={txStatus === 'signing' || txStatus === 'broadcasting'}
             aria-label="Close dispute modal"
-            className="absolute top-5 right-5 text-white/60 hover:text-white active:scale-[0.9] transition-all"
+            className="absolute top-5 right-5 text-white/60 hover:text-white active:scale-[0.9] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>

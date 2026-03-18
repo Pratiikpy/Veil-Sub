@@ -234,7 +234,8 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
 
     setPublishTxStatus('signing')
     try {
-      const contentId = String(Math.floor(Math.random() * 2 ** 48))
+      // Generate cryptographically secure content ID using crypto.randomUUID()
+      const contentId = crypto.randomUUID().replace(/-/g, '').slice(0, 16)
       const id = await publishContent(contentId, 1) // tier 1 minimum
       if (!id) {
         setPublishTxStatus('failed')
@@ -496,13 +497,19 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
 
                 {/* Category */}
                 <div>
-                  <label className="block text-sm text-white/70 mb-2">Category</label>
-                  <div className="flex flex-wrap gap-2">
+                  <label id="category-label" className="block text-sm text-white/70 mb-2">Category</label>
+                  <div
+                    role="group"
+                    aria-labelledby="category-label"
+                    className="flex flex-wrap gap-2"
+                  >
                     {CATEGORIES.map((cat) => (
                       <button
                         key={cat}
                         onClick={() => setCategory(cat)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                        role="radio"
+                        aria-checked={category === cat}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
                           category === cat
                             ? 'bg-violet-500/20 border border-violet-500/30 text-violet-300'
                             : 'bg-white/[0.03] border border-border text-white/50 hover:text-white/70 hover:bg-white/[0.05]'

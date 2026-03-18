@@ -40,7 +40,7 @@ export default function SubscribeModal({
 }: Props) {
   const { subscribe, subscribeBlind, subscribeTrial, getCreditsRecords, connected, publicKey } = useVeilSub()
   const { signMessage } = useWallet()
-  const { blockHeight } = useBlockHeight()
+  const { blockHeight, error: blockHeightError } = useBlockHeight()
   const { startPolling, stopPolling } = useTransactionPoller()
   const {
     txStatus, setTxStatus, txId, setTxId,
@@ -77,7 +77,7 @@ export default function SubscribeModal({
       return
     }
     if (blockHeight === null) {
-      setError('Could not sync with Aleo network. Check your connection and try again.')
+      setError(blockHeightError?.message ?? 'Could not sync with Aleo network. Check your connection and try again.')
       return
     }
 

@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
 
   const supabase = getServerSupabase()
   if (!supabase) {
-    return NextResponse.json({ creators: [] })
+    return NextResponse.json({ creators: [], error: 'Database unavailable' }, { status: 503 })
   }
 
   try {
@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
       .limit(200)
 
     if (error || !data) {
-      return NextResponse.json({ creators: [] })
+      return NextResponse.json({ creators: [], error: 'Failed to fetch creators' }, { status: 500 })
     }
 
     // Decrypt addresses server-side so the client gets usable data
@@ -65,6 +65,6 @@ export async function GET(req: NextRequest) {
       }
     )
   } catch {
-    return NextResponse.json({ creators: [] })
+    return NextResponse.json({ creators: [], error: 'Internal error' }, { status: 500 })
   }
 }

@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   const tagFilter = req.nextUrl.searchParams.get('tag')
 
   const redis = getRedis()
-  if (!redis) return NextResponse.json({ posts: [] })
+  if (!redis) return NextResponse.json({ posts: [], error: 'Storage unavailable' }, { status: 503 })
 
   try {
     const raw = await redis.zrange(`veilsub:posts:${creator}`, 0, -1, { rev: true })
@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
       headers: { 'Cache-Control': CACHE_HEADERS.POSTS },
     })
   } catch {
-    return NextResponse.json({ posts: [] })
+    return NextResponse.json({ posts: [], error: 'Failed to fetch posts' }, { status: 500 })
   }
 }
 

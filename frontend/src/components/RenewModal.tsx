@@ -37,7 +37,7 @@ export default function RenewModal({
 }: Props) {
   const { renew, renewBlind, getCreditsRecords, connected } = useVeilSub()
   const { signMessage } = useWallet()
-  const { blockHeight } = useBlockHeight()
+  const { blockHeight, error: blockHeightError } = useBlockHeight()
   const { startPolling, stopPolling } = useTransactionPoller()
   const {
     txStatus, setTxStatus, txId, setTxId,
@@ -46,7 +46,7 @@ export default function RenewModal({
   } = useTransactionFlow({ isOpen, onClose, connected, stopPolling })
   const focusTrapRef = useFocusTrap(isOpen, handleClose)
   const { checkBalance } = useBalanceCheck(getCreditsRecords)
-  const { tiers: onChainTiers } = useCreatorTiers(pass.creator)
+  const { tiers: onChainTiers, loading: tiersLoading, error: tiersError } = useCreatorTiers(pass.creator)
 
   // Build dynamic tier options from on-chain data (same pattern as CreatePostForm)
   const tierOptions: { id: number; name: string; price: number }[] = [
@@ -89,7 +89,7 @@ export default function RenewModal({
       return
     }
     if (blockHeight === null) {
-      setError('Could not sync with Aleo network. Check your connection and try again.')
+      setError(blockHeightError?.message ?? 'Could not sync with Aleo network. Check your connection and try again.')
       return
     }
 
@@ -227,17 +227,23 @@ export default function RenewModal({
                       <span className="px-3 py-1 rounded-full text-xs bg-red-500/10 text-red-400 border border-red-500/20">
                         Expired
                       </span>
-                    ) : (
+                    ) : daysRemaining !== null ? (
                       <span className="text-xs text-white/70">
                         ~{daysRemaining} days left
                       </span>
-                    )}
+                    ) : null}
                   </div>
                 </div>
 
                 {/* Tier Selector */}
                 <div className="mb-4">
                   <p className="text-xs text-white/70 mb-2">Renew as:</p>
+                  {tiersLoading && (
+                    <p className="text-xs text-white/50 mb-2">Loading tier options...</p>
+                  )}
+                  {tiersError && (
+                    <p className="text-xs text-yellow-400/80 mb-2">Could not load custom tiers. Showing default tier only.</p>
+                  )}
                   <div ref={tierGroupRef} className="flex flex-wrap gap-2" role="radiogroup" aria-label="Subscription tier">
                     {tierOptions.map((tier) => (
                       <button

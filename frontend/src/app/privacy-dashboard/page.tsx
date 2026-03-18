@@ -794,8 +794,8 @@ export default function PrivacyDashboardPage() {
           </ScrollReveal>
 
           <ScrollReveal>
-            <div className="max-w-3xl mx-auto overflow-x-auto">
-              <div className="min-w-[600px]">
+            <div className="max-w-3xl mx-auto overflow-x-auto sm:overflow-visible">
+              <div className="min-w-[520px] sm:min-w-0">
                 {/* Table header */}
                 <div className="grid grid-cols-3 gap-3 mb-3">
                   <div className="p-3 rounded-xl text-sm font-semibold text-white/40 uppercase tracking-wider">

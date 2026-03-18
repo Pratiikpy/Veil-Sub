@@ -74,7 +74,9 @@ async function handleFileUpload(req: NextRequest): Promise<NextResponse> {
   if (supabase) {
     try {
       const ext = MIME_TO_EXT[file.type] || 'bin'
-      const path = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`
+      // Use crypto.randomUUID() for secure filename generation
+      const randomId = crypto.randomUUID().replace(/-/g, '').slice(0, 12)
+      const path = `uploads/${Date.now()}-${randomId}.${ext}`
       const buffer = Buffer.from(await file.arrayBuffer())
 
       const { error } = await supabase.storage
@@ -153,7 +155,9 @@ async function handleBase64Upload(req: NextRequest): Promise<NextResponse> {
     if (supabase) {
       try {
         const ext = MIME_TO_EXT[mimeType] || 'bin'
-        const path = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`
+        // Use crypto.randomUUID() for secure filename generation
+        const randomId = crypto.randomUUID().replace(/-/g, '').slice(0, 12)
+        const path = `uploads/${Date.now()}-${randomId}.${ext}`
         const buffer = Buffer.from(base64Data, 'base64')
 
         const { error } = await supabase.storage

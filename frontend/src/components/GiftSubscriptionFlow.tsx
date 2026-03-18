@@ -178,6 +178,7 @@ export default function GiftSubscriptionFlow({
                       type="text"
                       value={recipientAddress}
                       onChange={(e) => setRecipientAddress(e.target.value)}
+                      maxLength={63}
                       placeholder="aleo1..."
                       className={`w-full rounded-lg bg-white/[0.05] border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:ring-1 transition-all text-base font-mono pr-10 ${
                         recipientAddress.length === 0

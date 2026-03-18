@@ -13,18 +13,22 @@ interface Props {
 }
 
 export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
-  const { fetchCreatorStats, loading } = useCreatorStats()
+  const { fetchCreatorStats, loading, error: hookError, clearError } = useCreatorStats()
   const [stats, setStats] = useState<CreatorProfile | null>(null)
-  const [fetchError, setFetchError] = useState(false)
+  const [fetchError, setFetchError] = useState<string | null>(null)
 
   useEffect(() => {
     if (creatorAddress) {
-      setFetchError(false)
-      fetchCreatorStats(creatorAddress).then(setStats).catch(() => {
-        setFetchError(true)
+      setFetchError(null)
+      clearError()
+      fetchCreatorStats(creatorAddress).then(setStats).catch((err) => {
+        setFetchError(err instanceof Error ? err.message : 'Failed to load stats')
       })
     }
-  }, [creatorAddress, fetchCreatorStats, refreshKey])
+  }, [creatorAddress, fetchCreatorStats, refreshKey, clearError])
+
+  // Combine local and hook-level errors
+  const errorMessage = fetchError || hookError?.message
 
   if (loading && !stats) {
     return (
@@ -42,10 +46,12 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
     )
   }
 
-  if (!stats && fetchError) {
+  if (!stats && errorMessage) {
     return (
       <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/15 text-center">
-        <p className="text-xs text-red-300">On-chain creator stats unavailable. The Aleo testnet may be congested.</p>
+        <p className="text-xs text-red-300">
+          {errorMessage || 'On-chain creator stats unavailable. The Aleo testnet may be congested.'}
+        </p>
       </div>
     )
   }
@@ -67,7 +73,7 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
     },
     {
       label: 'Base Price',
-      value: stats.tierPrice
+      value: stats.tierPrice !== undefined && stats.tierPrice !== null
         ? `${formatCredits(stats.tierPrice)} ALEO`
         : 'Not set',
       icon: Tag,
