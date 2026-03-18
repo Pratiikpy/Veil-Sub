@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState, useRef, use } from 'react'
-import { m } from 'framer-motion'
+import { useEffect, useState, useRef, use, useCallback } from 'react'
+import { m, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import {
   Shield,
@@ -21,6 +21,8 @@ import {
   Share2,
   FileKey,
   Gift,
+  MoreHorizontal,
+  ChevronDown,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
@@ -39,8 +41,9 @@ const DisputeContentModal = dynamic(() => import('@/components/DisputeContentMod
 const CreateAuditTokenModal = dynamic(() => import('@/components/CreateAuditTokenModal'), { ssr: false })
 const RedeemGiftModal = dynamic(() => import('@/components/RedeemGiftModal'), { ssr: false })
 import ContentFeed from '@/components/ContentFeed'
-import CreatorQRCode from '@/components/CreatorQRCode'
 import PageTransition from '@/components/PageTransition'
+import AnimatedTabs from '@/components/ui/AnimatedTabs'
+import AddressAvatar from '@/components/ui/AddressAvatar'
 import {
   shortenAddress,
   formatCredits,
@@ -48,23 +51,47 @@ import {
 } from '@/lib/utils'
 import { TIERS } from '@/types'
 import type { CreatorProfile, SubscriptionTier, AccessPass } from '@/types'
+import { FEATURED_CREATORS } from '@/lib/config'
 
 import CreatorSkeleton from '@/components/CreatorSkeleton'
-import AddressAvatar from '@/components/ui/AddressAvatar'
+import { spring } from '@/lib/motion'
 
-// Extracted static style to prevent re-renders
-const HEADING_TIGHT_STYLE = { letterSpacing: '-0.02em' } as const
+// --- Utilities ---
 
-function GiftDropdown({
+/** Deterministic gradient from an Aleo address — used for the cover banner */
+function generateCoverGradient(address: string): string {
+  const hash = address.split('').reduce((a, c) => ((a << 5) - a + c.charCodeAt(0)) | 0, 0)
+  const hue1 = 220 + Math.abs(hash % 80)
+  const hue2 = (hue1 + 40 + Math.abs((hash >> 8) % 60)) % 360
+  const sat1 = 45 + Math.abs((hash >> 16) % 25)
+  const sat2 = 35 + Math.abs((hash >> 24) % 30)
+  return `linear-gradient(135deg, hsl(${hue1}, ${sat1}%, 12%) 0%, hsl(${hue2}, ${sat2}%, 8%) 50%, hsl(${hue1 + 20}, ${sat1}%, 15%) 100%)`
+}
+
+/** Get display info for a creator from FEATURED_CREATORS or null */
+function getFeaturedInfo(address: string) {
+  return FEATURED_CREATORS.find((c) => c.address === address) ?? null
+}
+
+// --- Sub-components ---
+
+/** Overflow menu for secondary actions (Tip, Gift, Share, etc.) */
+function OverflowMenu({
   connected,
-  tiers,
-  basePrice,
-  onSelect,
+  hasPass,
+  onTip,
+  onGift,
+  onShare,
+  onDispute,
+  onRedeem,
 }: {
   connected: boolean
-  tiers: typeof TIERS
-  basePrice: number
-  onSelect: (tier: { id: number; name: string; price: number }) => void
+  hasPass: boolean
+  onTip: () => void
+  onGift: () => void
+  onShare: () => void
+  onDispute: () => void
+  onRedeem: () => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -72,14 +99,10 @@ function GiftDropdown({
   useEffect(() => {
     if (!open) return
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setOpen(false)
-      }
+      if (e.key === 'Escape') setOpen(false)
     }
     const handleClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
     }
     document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('mousedown', handleClickOutside)
@@ -92,41 +115,443 @@ function GiftDropdown({
   return (
     <div className="relative" ref={ref}>
       <button
-        disabled={!connected}
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={() => setOpen((p) => !p)}
         aria-haspopup="true"
         aria-expanded={open}
-        title={!connected ? 'Connect your wallet to gift a subscription' : 'Gift a subscription to another wallet'}
-        className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white/70 font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+        aria-label="More actions"
+        className="w-10 h-10 rounded-xl bg-white/[0.05] border border-border text-white/70 flex items-center justify-center hover:bg-white/[0.08] transition-all duration-200"
       >
-        <Sparkles className="w-4 h-4" aria-hidden="true" />
-        Gift
+        <MoreHorizontal className="w-4 h-4" />
       </button>
-      {connected && open && (
-        <div
-          role="menu"
-          aria-label="Gift subscription tier selection"
-          className="absolute right-0 top-full mt-1 z-20 min-w-[180px] py-1 rounded-xl bg-surface-1 border border-border shadow-xl animate-in fade-in slide-in-from-top-1 duration-150"
-        >
-          {tiers.map((tier) => (
+      <AnimatePresence>
+        {open && (
+          <m.div
+            initial={{ opacity: 0, y: -4, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.97 }}
+            transition={{ duration: 0.15 }}
+            role="menu"
+            aria-label="Creator actions"
+            className="absolute right-0 top-full mt-2 z-30 min-w-[200px] py-1.5 rounded-xl bg-[#1a1a24] border border-border shadow-2xl"
+          >
             <button
-              key={tier.id}
               role="menuitem"
-              onClick={() => {
-                onSelect({ id: tier.id, name: tier.name, price: basePrice * tier.priceMultiplier })
-                setOpen(false)
-              }}
-              className="w-full text-left px-4 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center justify-between"
+              disabled={!connected}
+              onClick={() => { onTip(); setOpen(false) }}
+              className="w-full text-left px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center gap-3 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <span>{tier.name}</span>
-              <span className="text-xs text-white/60">{formatCredits(basePrice * tier.priceMultiplier)}</span>
+              <Heart className="w-4 h-4" />
+              Send Tip
             </button>
-          ))}
-        </div>
-      )}
+            <button
+              role="menuitem"
+              disabled={!connected}
+              onClick={() => { onGift(); setOpen(false) }}
+              className="w-full text-left px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center gap-3 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Gift className="w-4 h-4" />
+              Gift Subscription
+            </button>
+            <button
+              role="menuitem"
+              disabled={!connected}
+              onClick={() => { onRedeem(); setOpen(false) }}
+              className="w-full text-left px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center gap-3 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Sparkles className="w-4 h-4" />
+              Redeem Gift
+            </button>
+            <div className="my-1 mx-3 h-px bg-white/[0.06]" />
+            <button
+              role="menuitem"
+              onClick={() => { onShare(); setOpen(false) }}
+              className="w-full text-left px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center gap-3"
+            >
+              <Share2 className="w-4 h-4" />
+              Share Profile
+            </button>
+            {hasPass && (
+              <>
+                <div className="my-1 mx-3 h-px bg-white/[0.06]" />
+                <button
+                  role="menuitem"
+                  onClick={() => { onDispute(); setOpen(false) }}
+                  className="w-full text-left px-4 py-2.5 text-sm text-red-400/80 hover:text-red-400 hover:bg-red-500/[0.06] transition-colors flex items-center gap-3"
+                >
+                  <Flag className="w-4 h-4" />
+                  Report Content
+                </button>
+              </>
+            )}
+          </m.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
+
+/** Active subscription passes section (compact, collapsible) */
+function ActivePasses({
+  passes,
+  displayTiers,
+  blockHeight,
+  onRenew,
+  onTransfer,
+  onAuditToken,
+}: {
+  passes: AccessPass[]
+  displayTiers: SubscriptionTier[]
+  blockHeight: number | null
+  onRenew: (p: AccessPass) => void
+  onTransfer: (p: AccessPass) => void
+  onAuditToken: (p: AccessPass) => void
+}) {
+  const [expanded, setExpanded] = useState(false)
+
+  if (passes.length === 0) return null
+
+  const getPassExpiry = (pass: AccessPass) => {
+    if (blockHeight === null || pass.expiresAt === 0) return null
+    if (pass.expiresAt <= blockHeight) return { expired: true, daysLeft: 0 }
+    const blocksLeft = pass.expiresAt - blockHeight
+    const daysLeft = Math.round((blocksLeft * 3) / 86400)
+    return { expired: false, daysLeft }
+  }
+
+  const getExpiryColor = (daysLeft: number) => {
+    if (daysLeft > 14) return { bg: 'bg-green-500/10', text: 'text-green-400', border: 'border-green-500/20', bar: 'bg-green-500' }
+    if (daysLeft >= 7) return { bg: 'bg-orange-500/10', text: 'text-orange-400', border: 'border-orange-500/20', bar: 'bg-orange-500' }
+    return { bg: 'bg-red-500/10', text: 'text-red-400', border: 'border-red-500/20', bar: 'bg-red-500' }
+  }
+
+  const getProgressPercent = (pass: AccessPass) => {
+    if (blockHeight === null || pass.expiresAt === 0) return 100
+    const blocksLeft = pass.expiresAt - blockHeight
+    return Math.min(100, Math.max(0, (blocksLeft / 864000) * 100))
+  }
+
+  const tierColorMap: Record<number, string> = {
+    1: 'text-green-300 bg-green-500/10 border-green-500/20',
+    2: 'text-blue-300 bg-blue-500/10 border-blue-500/20',
+    3: 'text-violet-300 bg-violet-500/10 border-violet-500/20',
+    4: 'text-amber-300 bg-amber-500/10 border-amber-500/20',
+    5: 'text-pink-300 bg-pink-500/10 border-pink-500/20',
+  }
+
+  return (
+    <m.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="rounded-xl bg-green-500/[0.04] border border-green-500/15 overflow-hidden"
+    >
+      <button
+        onClick={() => setExpanded((p) => !p)}
+        className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-green-500/[0.02] transition-colors"
+      >
+        <Shield className="w-4 h-4 text-green-400" />
+        <span className="text-sm font-medium text-green-300 flex-1">
+          Your Passes ({passes.length})
+        </span>
+        <span className="text-xs text-white/50">Only you can see this</span>
+        <ChevronDown className={`w-4 h-4 text-white/40 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} />
+      </button>
+      <AnimatePresence>
+        {expanded && (
+          <m.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 pb-3 space-y-2">
+              {passes.map((pass, i) => {
+                const tierInfo = displayTiers.find((t) => t.id === pass.tier)
+                const tierColor = tierColorMap[pass.tier] || 'text-white/70 bg-white/5 border-border'
+                const expiry = getPassExpiry(pass)
+
+                return (
+                  <div
+                    key={pass.passId || i}
+                    className="flex flex-wrap items-center gap-2 sm:gap-3 p-2.5 rounded-lg bg-white/[0.02] border border-border"
+                  >
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${tierColor}`}>
+                      {tierInfo?.name ?? `Tier ${pass.tier}`}
+                    </span>
+
+                    {expiry !== null && (
+                      <span className="ml-auto flex flex-wrap items-center gap-2">
+                        {expiry.expired ? (
+                          <>
+                            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border bg-white/[0.05] text-white/60 border-border">
+                              Expired
+                            </span>
+                            <button
+                              onClick={() => onRenew(pass)}
+                              title="Renew subscription"
+                              className="px-2 py-1 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-all flex items-center gap-1"
+                            >
+                              <RefreshCw className="w-3 h-3" />
+                              Renew
+                            </button>
+                          </>
+                        ) : (() => {
+                          const colors = getExpiryColor(expiry.daysLeft)
+                          const progress = getProgressPercent(pass)
+                          return (
+                            <>
+                              <div className="w-12 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                                <m.div
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${progress}%` }}
+                                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                                  className={`h-full rounded-full ${colors.bar}`}
+                                />
+                              </div>
+                              <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${colors.bg} ${colors.text} ${colors.border}`}>
+                                {expiry.daysLeft}d left
+                              </span>
+                            </>
+                          )
+                        })()}
+                        <button
+                          onClick={() => onTransfer(pass)}
+                          title="Transfer pass"
+                          className="px-2 py-1 rounded-lg bg-white/[0.04] border border-border text-xs text-white/60 hover:bg-white/[0.08] transition-all flex items-center gap-1"
+                        >
+                          <ArrowLeftRight className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={() => onAuditToken(pass)}
+                          title="Create audit token"
+                          className="px-2 py-1 rounded-lg bg-violet-500/[0.06] border border-violet-500/15 text-xs text-violet-300 hover:bg-violet-500/10 transition-all flex items-center gap-1"
+                        >
+                          <FileKey className="w-3 h-3" />
+                        </button>
+                      </span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </m.div>
+        )}
+      </AnimatePresence>
+    </m.div>
+  )
+}
+
+/** Tier card for the Tiers tab */
+function TierCard({
+  tier,
+  basePrice,
+  hasThisTier,
+  isMostPopular,
+  connected,
+  onSubscribe,
+  index,
+  subscriberCount,
+}: {
+  tier: SubscriptionTier
+  basePrice: number
+  hasThisTier: boolean
+  isMostPopular: boolean
+  connected: boolean
+  onSubscribe: (tier: SubscriptionTier) => void
+  index: number
+  subscriberCount?: number
+}) {
+  const tierPrice = basePrice * tier.priceMultiplier
+  const usdEstimate = (tierPrice / 1_000_000 * 0.5).toFixed(2) // rough $0.50/ALEO estimate
+
+  return (
+    <m.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.08 }}
+      className={`relative flex flex-col p-6 rounded-xl border transition-all duration-300 hover:-translate-y-0.5 ${
+        isMostPopular
+          ? 'bg-surface-1 border-violet-500/[0.2] hover:border-violet-500/[0.3] shadow-[0_0_30px_rgba(139,92,246,0.08)]'
+          : 'bg-surface-1 border-border hover:border-glass-hover'
+      }`}
+    >
+      {isMostPopular && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-violet-500/[0.1] border border-violet-500/[0.2]">
+          <span className="text-[10px] font-semibold text-violet-300 uppercase tracking-wider">
+            Most Popular
+          </span>
+        </div>
+      )}
+
+      <h3 className={`text-white font-semibold text-lg mb-1 ${isMostPopular ? 'mt-2' : ''}`}>
+        {tier.name}
+      </h3>
+      <div className="mb-1">
+        <span className="text-2xl font-bold text-white">
+          {formatCredits(tierPrice)}
+        </span>
+        <span className="text-sm font-normal text-white/60 ml-1">ALEO</span>
+      </div>
+      <p className="text-xs text-white/50 mb-4">
+        ~${usdEstimate} USD/mo
+      </p>
+
+      {tier.description && (
+        <p className="text-xs text-white/60 mb-4">{tier.description}</p>
+      )}
+
+      <ul className="space-y-2 mb-6 flex-1">
+        {(tier.features?.length ? tier.features : ['Access to exclusive content']).map((f) => (
+          <li key={f} className="flex items-start gap-2 text-xs text-white/70">
+            <Check className="w-3.5 h-3.5 text-violet-400 mt-0.5 shrink-0" />
+            {f}
+          </li>
+        ))}
+      </ul>
+
+      {subscriberCount !== undefined && subscriberCount > 0 && (
+        <p className="text-xs text-white/40 mb-3 flex items-center gap-1">
+          <Users className="w-3 h-3" />
+          {subscriberCount} subscriber{subscriberCount !== 1 ? 's' : ''}
+        </p>
+      )}
+
+      {hasThisTier ? (
+        <div className="w-full py-2.5 rounded-lg bg-green-500/10 border border-green-500/20 text-center text-sm text-green-400 font-medium">
+          Active
+        </div>
+      ) : (
+        <button
+          onClick={() => onSubscribe(tier)}
+          disabled={!connected}
+          title={!connected ? 'Connect your wallet to subscribe' : undefined}
+          className={`w-full py-2.5 rounded-lg font-medium text-sm transition-all duration-300 active:scale-[0.98] btn-shimmer ${
+            isMostPopular
+              ? 'bg-white text-black hover:bg-white/90'
+              : 'bg-white/[0.05] border border-border text-white hover:bg-white/[0.08]'
+          } disabled:opacity-40 disabled:cursor-not-allowed`}
+        >
+          {connected ? 'Subscribe' : 'Connect wallet'}
+        </button>
+      )}
+    </m.div>
+  )
+}
+
+/** About tab content */
+function AboutTab({
+  address,
+  bio,
+  displayName,
+  stats,
+  copied,
+  onCopyAddress,
+}: {
+  address: string
+  bio: string | null
+  displayName: string | null
+  stats: CreatorProfile | null
+  copied: boolean
+  onCopyAddress: () => void
+}) {
+  return (
+    <div className="space-y-6">
+      {/* Full bio */}
+      <div className="p-6 rounded-xl bg-surface-1 border border-border">
+        <h3 className="text-white font-semibold mb-3">About</h3>
+        <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap">
+          {bio || 'This creator hasn\'t added a bio yet.'}
+        </p>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div className="p-4 rounded-xl bg-surface-1 border border-border text-center">
+          <p className="text-2xl font-bold text-white">{stats?.subscriberCount ?? 0}</p>
+          <p className="text-xs text-white/50 mt-1">Subscribers</p>
+        </div>
+        <div className="p-4 rounded-xl bg-surface-1 border border-border text-center">
+          <p className="text-2xl font-bold text-white">{stats?.contentCount ?? 0}</p>
+          <p className="text-xs text-white/50 mt-1">Posts</p>
+        </div>
+        <div className="p-4 rounded-xl bg-surface-1 border border-border text-center col-span-2 sm:col-span-1">
+          <p className="text-2xl font-bold text-white">{formatCredits(stats?.totalRevenue ?? 0)}</p>
+          <p className="text-xs text-white/50 mt-1">ALEO Earned</p>
+        </div>
+      </div>
+
+      {/* Share */}
+      <div className="p-4 rounded-xl bg-surface-1 border border-border">
+        <div className="flex items-center gap-3 mb-3">
+          <Share2 className="w-4 h-4 text-white/60" />
+          <h3 className="text-white font-semibold text-sm">Share this creator</h3>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex-1 px-3 py-2 rounded-lg bg-white/[0.03] border border-border text-xs font-mono text-white/50 truncate">
+            {typeof window !== 'undefined' ? window.location.href : `/creator/${address}`}
+          </div>
+          <button
+            onClick={onCopyAddress}
+            className="px-3 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/70 hover:bg-white/[0.08] transition-colors flex items-center gap-1.5"
+          >
+            {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+            {copied ? 'Copied' : 'Copy'}
+          </button>
+        </div>
+      </div>
+
+      {/* On-chain info (expandable) */}
+      <details className="group rounded-xl bg-surface-1 border border-border overflow-hidden">
+        <summary className="flex items-center gap-3 px-4 py-3 cursor-pointer text-sm text-white/60 hover:text-white/70 transition-colors">
+          <Shield className="w-4 h-4 text-violet-400" />
+          <span className="flex-1 font-medium">On-chain Information</span>
+          <ChevronDown className="w-4 h-4 transition-transform duration-200 group-open:rotate-180" />
+        </summary>
+        <div className="px-4 pb-4 space-y-3 text-xs text-white/60">
+          <div>
+            <p className="text-white/40 mb-1">Creator Address</p>
+            <p className="font-mono break-all">{address}</p>
+          </div>
+          <div>
+            <p className="text-white/40 mb-1">Program</p>
+            <p className="font-mono">veilsub_v28.aleo</p>
+          </div>
+          <a
+            href={`https://testnet.explorer.provable.com/address/${address}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-violet-400/70 hover:text-violet-300 transition-colors"
+          >
+            View on AleoScan
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+      </details>
+
+      {/* Privacy notice */}
+      <div className="p-4 rounded-xl bg-surface-1 border border-border">
+        <div className="flex items-start gap-3">
+          <Shield className="w-5 h-5 text-violet-400 mt-0.5 shrink-0" />
+          <div className="text-xs text-white/60 space-y-1">
+            <p>
+              <strong className="text-violet-300">Privacy guarantee:</strong>{' '}
+              Your subscription creates a private pass visible only to you. The creator receives payment privately
+              and sees only aggregate stats. Your identity is never linked on the blockchain.
+            </p>
+            <p className="pt-1">
+              <Link href="/privacy" className="text-violet-400/70 hover:text-violet-300 transition-colors inline-flex items-center gap-1">
+                See how zero-address finalize protects you
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// --- Main Page ---
 
 export default function CreatorPage({
   params,
@@ -134,7 +559,6 @@ export default function CreatorPage({
   params: Promise<{ address: string }>
 }) {
   const { address } = use(params)
-  // Referral system removed in v23 (subscribe_referral transition removed for variable limit)
   const { connected, address: publicKey } = useWallet()
   const { fetchCreatorStats } = useCreatorStats()
   const { tiers: onChainTiers, tierCount: onChainTierCount, loading: tiersLoading } = useCreatorTiers(address)
@@ -158,12 +582,22 @@ export default function CreatorPage({
   const [disputeContentId, setDisputeContentId] = useState<string | null>(null)
   const [auditTokenPass, setAuditTokenPass] = useState<AccessPass | null>(null)
   const [copied, setCopied] = useState(false)
+  const [activeTab, setActiveTab] = useState('posts')
 
-  const copyAddress = () => {
+  const copyAddress = useCallback(() => {
     navigator.clipboard.writeText(address)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
-  }
+  }, [address])
+
+  const handleShare = useCallback(() => {
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      navigator.share({ title: displayName || 'VeilSub Creator', url: window.location.href })
+    } else {
+      navigator.clipboard.writeText(window.location.href)
+      toast.success('Link copied to clipboard')
+    }
+  }, [displayName])
 
   // Fetch creator stats and profile
   useEffect(() => {
@@ -185,7 +619,6 @@ export default function CreatorPage({
         setBio(profile.bio)
       }
     }).catch(() => {
-      // Profile metadata unavailable, defaults are fine but notify user
       toast.warning('Profile details unavailable. Using on-chain data only.', { id: 'profile-fetch-warn' })
     })
     return () => { cancelled = true }
@@ -240,9 +673,7 @@ export default function CreatorPage({
   const basePrice = stats?.tierPrice ?? 0
   const hasOnChainTiers = onChainTierCount > 0
 
-  // Build display tiers dynamically from on-chain data.
-  // When custom tiers exist: show base tier (id=1) + only confirmed on-chain custom tiers.
-  // When no custom tiers: fall back to hardcoded TIERS defaults.
+  // Build display tiers
   const confirmedCustomIds = Object.entries(onChainTiers)
     .filter(([, custom]) => custom.price > 0)
     .map(([id]) => Number(id))
@@ -265,120 +696,75 @@ export default function CreatorPage({
     return hardcoded ?? { id, name: `Tier ${id}`, priceMultiplier: id, description: '', features: [] as string[] }
   })
 
-  const getPassExpiry = (pass: AccessPass) => {
-    if (blockHeight === null || pass.expiresAt === 0) return null
-    if (pass.expiresAt <= blockHeight) return { expired: true, daysLeft: 0 }
-    const blocksLeft = pass.expiresAt - blockHeight
+  // Determine subscription status
+  const isSubscribed = userPasses.length > 0
+  const hasExpiringPass = userPasses.some((p) => {
+    if (blockHeight === null || p.expiresAt === 0) return false
+    if (p.expiresAt <= blockHeight) return true
+    const blocksLeft = p.expiresAt - blockHeight
     const daysLeft = Math.round((blocksLeft * 3) / 86400)
-    return { expired: false, daysLeft }
+    return daysLeft <= 7
+  })
+
+  // Featured info
+  const featured = getFeaturedInfo(address)
+  const creatorLabel = displayName || featured?.label || shortenAddress(address)
+  const creatorBio = bio || featured?.bio || null
+  const creatorCategory = featured?.category || null
+
+  // Primary button logic
+  const renderPrimaryButton = () => {
+    if (!connected) {
+      return (
+        <button
+          disabled
+          className="px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white/40 font-medium text-sm cursor-not-allowed"
+        >
+          Connect wallet
+        </button>
+      )
+    }
+    if (isSubscribed && !hasExpiringPass) {
+      return (
+        <div className="px-5 py-2.5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 font-medium text-sm flex items-center gap-2">
+          <Check className="w-4 h-4" />
+          Subscribed
+        </div>
+      )
+    }
+    if (isSubscribed && hasExpiringPass) {
+      return (
+        <button
+          onClick={() => setRenewPass(userPasses[0])}
+          className="px-5 py-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-300 font-medium text-sm hover:bg-violet-500/20 transition-all duration-300 flex items-center gap-2 active:scale-[0.98]"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Renew
+        </button>
+      )
+    }
+    return (
+      <button
+        onClick={() => setSelectedTier(displayTiers[0] ?? null)}
+        className="px-5 py-2.5 rounded-xl bg-white text-black font-medium text-sm hover:bg-white/90 transition-all duration-300 active:scale-[0.98] btn-shimmer"
+      >
+        Subscribe
+      </button>
+    )
   }
 
-  const getExpiryColor = (daysLeft: number) => {
-    if (daysLeft > 14) return { bg: 'bg-green-500/10', text: 'text-green-400', border: 'border-green-500/20', bar: 'bg-green-500' }
-    if (daysLeft >= 7) return { bg: 'bg-orange-500/10', text: 'text-orange-400', border: 'border-orange-500/20', bar: 'bg-orange-500' }
-    return { bg: 'bg-red-500/10', text: 'text-red-400', border: 'border-red-500/20', bar: 'bg-red-500' }
-  }
-
-  const getProgressPercent = (pass: AccessPass) => {
-    if (blockHeight === null || pass.expiresAt === 0) return 100
-    const blocksLeft = pass.expiresAt - blockHeight
-    return Math.min(100, Math.max(0, (blocksLeft / 864000) * 100))
-  }
+  // Tab definitions
+  const tabs = [
+    { id: 'posts', label: 'Posts', count: stats?.contentCount },
+    { id: 'tiers', label: 'Tiers', count: displayTiers.length },
+    { id: 'about', label: 'About' },
+  ]
 
   return (
     <PageTransition className="min-h-screen">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-1.5 text-xs text-white/60 mb-6" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-white/70 transition-colors">Home</Link>
-          <span>/</span>
-          <Link href="/explore" className="hover:text-white/70 transition-colors">Explore</Link>
-          <span>/</span>
-          <span className="text-white/70 font-mono">{displayName || shortenAddress(address)}</span>
-        </nav>
-
-        {/* Creator Header */}
-        <m.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-10"
-        >
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-            <AddressAvatar address={address} size={56} />
-            <div className="flex-1 min-w-0">
-              <h1
-                className="text-2xl sm:text-3xl font-serif italic text-white mb-1"
-                style={HEADING_TIGHT_STYLE}
-              >
-                {displayName || shortenAddress(address)}
-              </h1>
-              {displayName && (
-                <p className="text-base text-white/60 font-mono mb-1">
-                  {shortenAddress(address)}
-                </p>
-              )}
-              {bio && (
-                <p className="text-sm text-white/70 mb-1">{bio}</p>
-              )}
-              <div className="flex items-center gap-4 flex-wrap">
-                <a
-                  href={`https://testnet.explorer.provable.com/address/${address}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-sm text-white/70 hover:text-white transition-colors"
-                >
-                  View on Explorer
-                  <ExternalLink className="w-3 h-3" aria-hidden="true" />
-                </a>
-                <button
-                  onClick={copyAddress}
-                  className="inline-flex items-center gap-1 text-sm text-white/60 hover:text-white/70 transition-colors"
-                  aria-label="Copy creator address"
-                >
-                  {copied ? <Check className="w-3 h-3 text-green-400" aria-hidden="true" /> : <Copy className="w-3 h-3" aria-hidden="true" />}
-                  {copied ? 'Copied' : 'Copy'}
-                </button>
-                <button
-                  onClick={() => {
-                    if (navigator.share) {
-                      navigator.share({ title: displayName || 'VeilSub Creator', url: window.location.href })
-                    } else {
-                      navigator.clipboard.writeText(window.location.href)
-                      setCopied(true)
-                      setTimeout(() => setCopied(false), 2000)
-                    }
-                  }}
-                  className="inline-flex items-center gap-1 text-sm text-white/60 hover:text-white/70 transition-colors"
-                  aria-label="Share creator page"
-                >
-                  <Share2 className="w-3 h-3" aria-hidden="true" />
-                  Share
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Row */}
-          {isRegistered && (
-            <div className="flex flex-wrap gap-8 mb-6">
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-violet-400" />
-                <span className="text-sm text-white">
-                  {stats?.subscriberCount ?? 0} subscribers
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Coins className="w-4 h-4 text-green-400" />
-                <span className="text-sm text-white">
-                  {formatCredits(stats?.totalRevenue ?? 0)} ALEO earned
-                </span>
-              </div>
-            </div>
-          )}
-
-        </m.div>
-
-        {!isRegistered ? (
+      {!isRegistered ? (
+        /* Unregistered creator state */
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -413,328 +799,204 @@ export default function CreatorPage({
               </Link>
             </div>
           </m.div>
-        ) : (
-          <div className="space-y-10">
-            {/* User's Existing Passes */}
-            {userPasses.length > 0 && (
-              <m.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="p-4 rounded-xl bg-green-500/5 border border-green-500/20"
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <Shield className="w-4 h-4 text-green-400" />
-                  <span className="text-sm font-medium text-green-300">
-                    Your Subscription Passes ({userPasses.length})
-                  </span>
-                  <span className="text-xs text-white/60 ml-auto">Only you can see this</span>
-                </div>
-                <div className="space-y-2">
-                  {userPasses.map((pass, i) => {
-                    const tierInfo = displayTiers.find((t) => t.id === pass.tier)
-                    // Color mapping for tier badges, supports tier IDs 1-5+ with fallback
-                    const tierColorMap: Record<number, string> = {
-                      1: 'text-green-300 bg-green-500/10 border-green-500/20',
-                      2: 'text-blue-300 bg-blue-500/10 border-blue-500/20',
-                      3: 'text-violet-300 bg-violet-500/10 border-violet-500/20',
-                      4: 'text-amber-300 bg-amber-500/10 border-amber-500/20',
-                      5: 'text-pink-300 bg-pink-500/10 border-pink-500/20',
-                    }
-                    const tierColor = tierColorMap[pass.tier] || 'text-white/70 bg-white/5 border-border'
-                    const expiry = getPassExpiry(pass)
+        </div>
+      ) : (
+        <>
+          {/* ===== A. Cover Banner ===== */}
+          <div
+            className="w-full h-40 sm:h-60 relative"
+            style={{ background: generateCoverGradient(address) }}
+          >
+            {/* Subtle noise overlay for texture */}
+            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\' opacity=\'1\'/%3E%3C/svg%3E")' }} />
+            {/* Bottom fade into page background */}
+            <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[var(--bg-base)] to-transparent" />
+          </div>
 
-                    return (
-                      <div
-                        key={pass.passId || i}
-                        className="flex flex-wrap items-center gap-2 sm:gap-4 p-2.5 rounded-lg bg-white/[0.02] border border-border"
-                      >
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium border ${tierColor}`}
-                        >
-                          {tierInfo?.name ?? `Tier ${pass.tier}`}
-                        </span>
-                        <span className="text-xs text-white/60 font-mono hidden sm:inline">
-                          ID: {pass.passId ? (pass.passId.length > 16 ? `${pass.passId.slice(0, 8)}...${pass.passId.slice(-6)}` : pass.passId) : '\u2014'}
-                        </span>
-
-                        {/* Expiry display */}
-                        {expiry !== null && (
-                          <span className="ml-auto flex flex-wrap items-center gap-2">
-                            {expiry.expired ? (
-                              <>
-                                <span className="px-3 py-1 rounded-full text-xs font-medium border bg-white/[0.05] text-white/60 border-border">
-                                  Expired
-                                </span>
-                                <button
-                                  onClick={() => setRenewPass(pass)}
-                                  title="Extend your subscription with a new payment"
-                                  className="px-2.5 py-1 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
-                                >
-                                  <RefreshCw className="w-3 h-3" aria-hidden="true" />
-                                  Renew
-                                </button>
-                                <button
-                                  onClick={() => setTransferPass(pass)}
-                                  title="Transfer this pass to another wallet address"
-                                  className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-border text-xs text-white/70 hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
-                                >
-                                  <ArrowLeftRight className="w-3 h-3" aria-hidden="true" />
-                                  Transfer
-                                </button>
-                                <button
-                                  onClick={() => setAuditTokenPass(pass)}
-                                  title="Create a scoped token for third-party verification (e.g., prove tier access without revealing subscriber identity)"
-                                  className="px-2.5 py-1 rounded-lg bg-violet-500/[0.06] border border-violet-500/15 text-xs text-violet-300 hover:bg-violet-500/10 transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
-                                  aria-label="Create audit token for this pass"
-                                >
-                                  <FileKey className="w-3 h-3" aria-hidden="true" />
-                                  Audit Token
-                                </button>
-                              </>
-                            ) : (() => {
-                              const colors = getExpiryColor(expiry.daysLeft)
-                              const progress = getProgressPercent(pass)
-                              return (
-                                <>
-                                  <div className="w-16 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                                    <m.div
-                                      initial={{ width: 0 }}
-                                      animate={{ width: `${progress}%` }}
-                                      transition={{ duration: 0.8, ease: 'easeOut' }}
-                                      className={`h-full rounded-full ${colors.bar}`}
-                                    />
-                                  </div>
-                                  <span className={`px-3 py-1 rounded-full text-xs font-medium border ${colors.bg} ${colors.text} ${colors.border}`}>
-                                    {expiry.daysLeft}d left
-                                  </span>
-                                  <button
-                                    onClick={() => setTransferPass(pass)}
-                                    title="Transfer this pass to another wallet address"
-                                    className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-border text-xs text-white/70 hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
-                                  >
-                                    <ArrowLeftRight className="w-3 h-3" aria-hidden="true" />
-                                    Transfer
-                                  </button>
-                                  <button
-                                    onClick={() => setAuditTokenPass(pass)}
-                                    title="Create a scoped token for third-party verification (e.g., prove tier access without revealing subscriber identity)"
-                                    className="px-2.5 py-1 rounded-lg bg-violet-500/[0.06] border border-violet-500/15 text-xs text-violet-300 hover:bg-violet-500/10 transition-all duration-300 flex items-center gap-1 active:scale-[0.98]"
-                                    aria-label="Create audit token for this pass"
-                                  >
-                                    <FileKey className="w-3 h-3" aria-hidden="true" />
-                                    Audit Token
-                                  </button>
-                                </>
-                              )
-                            })()}
-                          </span>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              </m.div>
-            )}
-
-            {/* Subscription Tiers */}
-            <div>
-              <div className="flex items-center gap-4 mb-4">
-                <h2 className="text-lg font-semibold text-white">
-                  Subscription Tiers
-                </h2>
-                {tiersLoading ? (
-                  <span className="inline-flex items-center gap-1 px-4 py-1 rounded-full bg-white/[0.05] border border-border text-xs text-white/60 font-medium animate-pulse">
-                    Fetching on-chain tiers...
-                  </span>
-                ) : hasOnChainTiers ? (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-xs text-green-400 font-medium">
-                    <Shield className="w-3 h-3" aria-hidden="true" />
-                    {onChainTierCount} custom tier{onChainTierCount !== 1 ? 's' : ''} on-chain
-                  </span>
-                ) : null}
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {displayTiers.map((tier, i) => {
-                  const tierPrice = basePrice * tier.priceMultiplier
-                  const hasThisTier = userPasses.some(
-                    (p) => p.tier === tier.id
-                  )
-
-                  return (
-                    <m.div
-                      key={tier.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      className={`relative p-8 rounded-xl border hover:-translate-y-0.5 transition-all duration-300 ${
-                        tier.id === 3
-                          ? 'bg-surface-1 border-violet-500/[0.15] hover:border-violet-500/[0.25] hover:shadow-accent-md'
-                          : 'bg-surface-1 border-border hover:border-glass-hover'
-                      }`}
-                    >
-                      {tier.id === 3 && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15]">
-                          <span className="text-[10px] font-medium text-violet-300 uppercase tracking-wider">
-                            Popular
-                          </span>
-                        </div>
-                      )}
-
-                      <h3 className={`text-white font-semibold mb-1 ${tier.id === 3 ? 'mt-3' : ''}`}>
-                        {tier.name}
-                      </h3>
-                      <p className="text-2xl font-bold text-white mb-1">
-                        {formatCredits(tierPrice)}{' '}
-                        <span className="text-sm font-normal text-white/70">
-                          ALEO
-                        </span>
-                      </p>
-                      <p className="text-xs text-white/60 mb-4">
-                        {tier.description}
-                      </p>
-
-                      <ul className="space-y-2 mb-6">
-                        {(tier.features ?? []).map((f) => (
-                          <li
-                            key={f}
-                            className="flex items-center gap-2 text-xs text-white/70"
-                          >
-                            <Sparkles className="w-3 h-3 text-violet-400" />
-                            {f}
-                          </li>
-                        ))}
-                      </ul>
-
-                      {hasThisTier ? (
-                        <div className="w-full py-2.5 rounded-lg bg-green-500/10 border border-green-500/20 text-center text-sm text-green-400">
-                          Active
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setSelectedTier(tier)}
-                          disabled={!connected}
-                          title={!connected ? 'Connect your wallet to subscribe' : undefined}
-                          className={`w-full py-2.5 rounded-lg font-medium text-sm transition-all duration-300 active:scale-[0.98] btn-shimmer ${
-                            tier.id === 3
-                              ? 'bg-white text-black hover:bg-white/90'
-                              : 'bg-white/[0.05] border border-border text-white hover:bg-white/[0.08]'
-                          } disabled:opacity-40 disabled:cursor-not-allowed`}
-                        >
-                          {connected ? 'Subscribe' : 'Connect wallet'}
-                        </button>
-                      )}
-                    </m.div>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Dynamic Content Feed */}
-            <ContentFeed
-              creatorAddress={address}
-              userPasses={userPasses}
-              connected={connected}
-              walletAddress={publicKey}
-              blockHeight={blockHeight}
-            />
-
-            {/* Tip & Gift Section */}
+          {/* ===== B. Profile Header (overlapping banner) ===== */}
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-10">
             <m.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="p-8 rounded-xl bg-surface-1 border border-border"
+              transition={spring.gentle}
+              className="flex flex-col sm:flex-row items-start sm:items-end gap-4"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-lg font-semibold text-white mb-1">
-                    Send a Private Tip
-                  </h2>
-                  <p className="text-sm text-white/70">
-                    Show appreciation with a private ALEO transfer. The creator
-                    receives 95% via private transfer—5% platform fee.
-                  </p>
-                </div>
-                <div className="flex gap-2 shrink-0 flex-wrap">
-                  <button
-                    onClick={() => setShowRedeemGift(true)}
-                    disabled={!connected}
-                    title={!connected ? 'Connect your wallet to redeem a gift' : 'Redeem a gift subscription token'}
-                    className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white/70 font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <Gift className="w-4 h-4" aria-hidden="true" />
-                    Redeem Gift
-                  </button>
-                  <GiftDropdown
-                    connected={connected}
-                    tiers={displayTiers}
-                    basePrice={basePrice}
-                    onSelect={(tier) => {
-                      setGiftTier(tier)
-                      setShowGift(true)
-                    }}
-                  />
-                  <button
-                    onClick={() => setShowTip(true)}
-                    disabled={!connected}
-                    title={!connected ? 'Connect your wallet to send a tip' : 'Send a private tip to this creator'}
-                    className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white/70 font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <Heart className="w-4 h-4" aria-hidden="true" />
-                    Tip
-                  </button>
-                  {userPasses.length > 0 && (
-                    <button
-                      onClick={() => setDisputeContentId('general')}
-                      title="Report content or quality issues with this creator"
-                      className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white/70 font-medium text-sm hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 transition-all duration-300 flex items-center gap-2"
-                    >
-                      <Flag className="w-4 h-4" aria-hidden="true" />
-                      Dispute
-                    </button>
+              {/* Avatar */}
+              <div className="ring-4 ring-[var(--bg-base)] rounded-2xl">
+                <AddressAvatar address={address} size={72} />
+              </div>
+
+              {/* Name + meta */}
+              <div className="flex-1 min-w-0 pb-1">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h1 className="text-2xl sm:text-3xl font-serif italic text-white" style={{ letterSpacing: '-0.02em' }}>
+                    {creatorLabel}
+                  </h1>
+                  {creatorCategory && (
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-violet-500/10 border border-violet-500/20 text-violet-300">
+                      {creatorCategory}
+                    </span>
                   )}
                 </div>
-              </div>
-            </m.div>
-
-            {/* Share QR Code */}
-            <m.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <CreatorQRCode creatorAddress={address} />
-            </m.div>
-
-            {/* Privacy Notice */}
-            <div className="p-4 rounded-xl bg-surface-1 border border-border">
-              <div className="flex items-start gap-4">
-                <Shield className="w-5 h-5 text-violet-400 mt-0.5 shrink-0" />
-                <div className="text-xs text-white/70 space-y-1">
-                  <p>
-                    <strong className="text-violet-300">
-                      Privacy guarantee:
-                    </strong>{' '}
-                    Your subscription creates a private pass visible
-                    only to you. The creator receives payment privately
-                    and sees only aggregate stats (total subscribers, total
-                    revenue). Your identity is never linked on the blockchain. Subscription
-                    expiry is checked on your device — no public trace when you access content.
-                  </p>
-                  <p className="flex items-center gap-2 pt-1">
-                    <Link href="/privacy" className="text-violet-400/70 hover:text-violet-300 transition-colors inline-flex items-center gap-1">
-                      See how zero-address finalize protects you
-                      <ArrowRight className="w-3 h-3" aria-hidden="true" />
-                    </Link>
-                  </p>
+                {creatorBio && (
+                  <p className="text-sm text-white/60 mt-0.5 line-clamp-1">{creatorBio}</p>
+                )}
+                <div className="flex items-center gap-4 mt-1 text-xs text-white/50">
+                  <span className="flex items-center gap-1">
+                    <Users className="w-3 h-3" />
+                    {stats?.subscriberCount ?? 0} subscribers
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Coins className="w-3 h-3" />
+                    From {formatCredits(basePrice)} ALEO/mo
+                  </span>
+                  <button
+                    onClick={copyAddress}
+                    className="flex items-center gap-1 hover:text-white/70 transition-colors"
+                    aria-label="Copy creator address"
+                  >
+                    {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+                    {shortenAddress(address, 4)}
+                  </button>
                 </div>
               </div>
+
+              {/* Primary action + overflow menu */}
+              <div className="flex items-center gap-2 shrink-0 sm:pb-1">
+                {renderPrimaryButton()}
+                <OverflowMenu
+                  connected={connected}
+                  hasPass={userPasses.length > 0}
+                  onTip={() => setShowTip(true)}
+                  onGift={() => {
+                    const defaultTier = displayTiers[0]
+                    if (defaultTier) {
+                      setGiftTier({
+                        id: defaultTier.id,
+                        name: defaultTier.name,
+                        price: basePrice * defaultTier.priceMultiplier,
+                      })
+                      setShowGift(true)
+                    }
+                  }}
+                  onShare={handleShare}
+                  onDispute={() => setDisputeContentId('general')}
+                  onRedeem={() => setShowRedeemGift(true)}
+                />
+              </div>
+            </m.div>
+
+            {/* Active passes (collapsible, below header) */}
+            {userPasses.length > 0 && (
+              <div className="mt-4">
+                <ActivePasses
+                  passes={userPasses}
+                  displayTiers={displayTiers}
+                  blockHeight={blockHeight}
+                  onRenew={setRenewPass}
+                  onTransfer={setTransferPass}
+                  onAuditToken={setAuditTokenPass}
+                />
+              </div>
+            )}
+
+            {/* ===== C. Tab Navigation ===== */}
+            <div className="mt-6 border-b border-border">
+              <AnimatedTabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onChange={setActiveTab}
+              />
+            </div>
+
+            {/* ===== D/E/F. Tab Content ===== */}
+            <div className="mt-6 pb-16">
+              <AnimatePresence mode="wait">
+                {activeTab === 'posts' && (
+                  <m.div
+                    key="posts"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ContentFeed
+                      creatorAddress={address}
+                      userPasses={userPasses}
+                      connected={connected}
+                      walletAddress={publicKey}
+                      blockHeight={blockHeight}
+                    />
+                  </m.div>
+                )}
+
+                {activeTab === 'tiers' && (
+                  <m.div
+                    key="tiers"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="mb-4 flex items-center gap-3">
+                      {tiersLoading ? (
+                        <span className="inline-flex items-center gap-1 px-4 py-1 rounded-full bg-white/[0.05] border border-border text-xs text-white/60 font-medium animate-pulse">
+                          Loading on-chain tiers...
+                        </span>
+                      ) : hasOnChainTiers ? (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-xs text-green-400 font-medium">
+                          <Shield className="w-3 h-3" />
+                          {onChainTierCount} custom tier{onChainTierCount !== 1 ? 's' : ''} on-chain
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {displayTiers.map((tier, i) => (
+                        <TierCard
+                          key={tier.id}
+                          tier={tier}
+                          basePrice={basePrice}
+                          hasThisTier={userPasses.some((p) => p.tier === tier.id)}
+                          isMostPopular={tier.id === 3}
+                          connected={connected}
+                          onSubscribe={setSelectedTier}
+                          index={i}
+                        />
+                      ))}
+                    </div>
+                  </m.div>
+                )}
+
+                {activeTab === 'about' && (
+                  <m.div
+                    key="about"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <AboutTab
+                      address={address}
+                      bio={creatorBio}
+                      displayName={creatorLabel}
+                      stats={stats}
+                      copied={copied}
+                      onCopyAddress={() => {
+                        navigator.clipboard.writeText(window.location.href)
+                        setCopied(true)
+                        setTimeout(() => setCopied(false), 2000)
+                        toast.success('Link copied to clipboard')
+                      }}
+                    />
+                  </m.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
-        )}
-      </div>
+        </>
+      )}
 
-      {/* Modals */}
+      {/* Modals — unchanged functionality */}
       {selectedTier && (
         <SubscribeModal
           isOpen={!!selectedTier}

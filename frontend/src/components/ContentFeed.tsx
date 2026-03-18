@@ -432,42 +432,64 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       </button>
                     </div>
                   ) : (
-                    <div className="py-4">
-                      {/* Preview text for non-subscribers */}
-                      {post.preview ? (
-                        <div className="mb-4">
-                          <p className="text-sm text-white/70/80 leading-relaxed italic">
-                            {post.preview}
-                          </p>
-                          <div className="mt-2 h-px bg-gradient-to-r from-white/[0.08] via-white/[0.04] to-transparent" />
+                    <div className="relative">
+                      {/* Visible preview lines with gradient blur fade */}
+                      <div className="relative overflow-hidden">
+                        {post.preview ? (
+                          <div>
+                            <p className="text-sm text-white/70 leading-relaxed">
+                              {post.preview}
+                            </p>
+                            {/* Fake continuation lines (blurred) to suggest more content */}
+                            <div className="mt-3 space-y-2" aria-hidden="true">
+                              <div className="h-3.5 rounded bg-white/[0.06] w-full" style={{ filter: 'blur(4px)' }} />
+                              <div className="h-3.5 rounded bg-white/[0.05] w-[90%]" style={{ filter: 'blur(5px)' }} />
+                              <div className="h-3.5 rounded bg-white/[0.04] w-[75%]" style={{ filter: 'blur(6px)' }} />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-2.5" aria-hidden="true">
+                            <div className="h-3.5 rounded bg-white/[0.08] w-full" />
+                            <div className="h-3.5 rounded bg-white/[0.07] w-[95%]" />
+                            <div className="h-3.5 rounded bg-white/[0.06] w-full" style={{ filter: 'blur(3px)' }} />
+                            <div className="h-3.5 rounded bg-white/[0.05] w-[88%]" style={{ filter: 'blur(4px)' }} />
+                            <div className="h-3.5 rounded bg-white/[0.04] w-[70%]" style={{ filter: 'blur(5px)' }} />
+                          </div>
+                        )}
+                        {/* Gradient overlay — fades content into background */}
+                        <div
+                          className="absolute inset-x-0 bottom-0 h-24 pointer-events-none"
+                          style={{
+                            background: 'linear-gradient(to bottom, transparent 0%, var(--bg-base) 85%)',
+                          }}
+                        />
+                      </div>
+
+                      {/* Subscribe CTA — the main conversion element */}
+                      <div className="relative -mt-4 flex flex-col items-center gap-3 py-4">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${tier.lockBg} border ${tier.border}`}>
+                          <Lock className={`w-4 h-4 ${tier.text}`} aria-hidden="true" />
                         </div>
-                      ) : (
-                        <div className="space-y-2 mb-4">
-                          <div className="h-3 rounded bg-gradient-to-r from-white/[0.06] to-white/[0.02] w-full blur-sm" />
-                          <div className="h-3 rounded bg-gradient-to-r from-white/[0.05] to-white/[0.02] w-[85%] blur-sm" />
-                          <div className="h-3 rounded bg-gradient-to-r from-white/[0.04] to-white/[0.01] w-[60%] blur-sm" />
-                        </div>
-                      )}
-                      {/* Pulsing lock icon */}
-                      <div className="flex flex-col items-center gap-4">
-                        <m.div
-                          animate={{ scale: [1, 1.1, 1] }}
-                          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                          className={`w-10 h-10 rounded-full flex items-center justify-center ${tier.lockBg}`}
-                        >
-                          <Lock className={`w-4.5 h-4.5 ${tier.text}`} aria-hidden="true" />
-                        </m.div>
+                        <p className="text-sm text-white/80 font-medium text-center">
+                          {connected
+                            ? 'Subscribe to continue reading'
+                            : 'Connect wallet to unlock'}
+                        </p>
                         <button
-                          className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${tier.lockBg} ${tier.text} border ${tier.border} hover:brightness-125`}
+                          className={`px-5 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 active:scale-[0.98] ${
+                            tier.color === 'violet'
+                              ? 'bg-white text-black hover:bg-white/90'
+                              : `${tier.lockBg} ${tier.text} border ${tier.border} hover:brightness-125`
+                          }`}
                           disabled
                         >
                           {connected
-                            ? `Subscribe to ${tier.name} for AccessPass`
-                            : 'Connect wallet for AccessPass'}
-                          <ArrowRight className="w-3 h-3" aria-hidden="true" />
+                            ? `From ${tier.name} tier`
+                            : 'Connect wallet'}
+                          <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
-                        <p className="text-xs text-white/60">
-                          Content is server-protected—not visible in network requests
+                        <p className="text-[11px] text-white/40">
+                          Content is server-protected and never exposed in network requests
                         </p>
                       </div>
                     </div>
