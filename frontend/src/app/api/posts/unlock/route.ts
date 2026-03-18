@@ -2,8 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getRedis } from '@/lib/redis'
 import { ALEO_API_BASE_URL, RATE_LIMITS, AUTH_CONFIG, ALEO_ADDRESS_RE } from '@/lib/config'
 import { decryptContent } from '@/lib/contentEncryption'
+import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req)
+  const { allowed } = rateLimit(`${ip}:unlock`, 30)
+  if (!allowed) return getRateLimitResponse()
+
   const redis = getRedis()
   if (!redis) {
     return NextResponse.json({ error: 'Storage not configured' }, { status: 503 })

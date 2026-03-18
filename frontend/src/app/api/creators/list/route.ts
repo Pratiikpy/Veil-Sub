@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { decrypt } from '@/lib/encryption'
 import { CACHE_HEADERS } from '@/lib/config'
+import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 
 /**
  * GET /api/creators/list
@@ -16,6 +17,10 @@ import { CACHE_HEADERS } from '@/lib/config'
  * Returns: { creators: CreatorListItem[], total: number }
  */
 export async function GET(req: NextRequest) {
+  const ip = getClientIp(req)
+  const { allowed } = rateLimit(`${ip}:creators:list`, 60)
+  if (!allowed) return getRateLimitResponse()
+
   const supabase = getServerSupabase()
   if (!supabase) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 503 })

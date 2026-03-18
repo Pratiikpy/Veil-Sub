@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { hashAddress } from '@/lib/encryption'
+import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 
 export async function GET(req: NextRequest) {
+  const ip = getClientIp(req)
+  const { allowed } = rateLimit(`${ip}:analytics:summary`, 60)
+  if (!allowed) return getRateLimitResponse()
+
   const address = req.nextUrl.searchParams.get('creator')
   if (!address) {
     return NextResponse.json({ error: 'Missing creator address' }, { status: 400 })

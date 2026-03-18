@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { href: '/developers', label: 'Developers' },
 ]
 
+const FEED_ITEM = { href: '/feed', label: 'Feed' }
 const DASHBOARD_ITEM = { href: '/dashboard', label: 'Dashboard' }
 const SUBSCRIPTIONS_ITEM = { href: '/subscriptions', label: 'My Subs' }
 
@@ -47,7 +48,9 @@ export default function Header() {
     return () => window.removeEventListener('keydown', onKey)
   }, [mobileOpen])
 
-  const allItems = connected ? [...NAV_ITEMS, SUBSCRIPTIONS_ITEM, DASHBOARD_ITEM] : NAV_ITEMS
+  const allItems = connected
+    ? [NAV_ITEMS[0], FEED_ITEM, ...NAV_ITEMS.slice(1), SUBSCRIPTIONS_ITEM, DASHBOARD_ITEM]
+    : NAV_ITEMS
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'

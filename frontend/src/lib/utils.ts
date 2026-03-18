@@ -235,6 +235,20 @@ export function formatExpiry(
 }
 
 /**
+ * Estimate reading time from text content.
+ * Strips HTML tags and assumes average reading speed of 200 words per minute.
+ * Returns human-readable string like "3 min read".
+ */
+export function estimateReadingTime(text: string): string {
+  if (!text) return '1 min read'
+  const stripped = text.replace(/<[^>]*>/g, '').trim()
+  if (!stripped) return '1 min read'
+  const words = stripped.split(/\s+/).length
+  const minutes = Math.max(1, Math.ceil(words / 200))
+  return `${minutes} min read`
+}
+
+/**
  * Compute a server-salted wallet hash for API authentication.
  *
  * Hash = SHA-256(address + salt), where salt is SUPABASE_ENCRYPTION_KEY on the

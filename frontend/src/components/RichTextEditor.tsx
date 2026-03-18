@@ -6,7 +6,7 @@ import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
 import Youtube from '@tiptap/extension-youtube'
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import {
   Bold,
   Italic,
@@ -17,6 +17,7 @@ import {
   Code,
   Link as LinkIcon,
   Image as ImageIcon,
+  Upload,
   Youtube as YoutubeIcon,
   Undo,
   Redo,
@@ -32,6 +33,7 @@ interface RichTextEditorProps {
 interface UrlInputState {
   type: 'link' | 'image' | 'youtube' | null
   url: string
+  mode?: 'url' | 'upload' // for image: choose between URL paste or file upload
 }
 
 function ToolbarButton({
@@ -74,6 +76,8 @@ function ToolbarDivider() {
 
 export default function RichTextEditor({ content, onChange, placeholder }: RichTextEditorProps) {
   const [urlInput, setUrlInput] = useState<UrlInputState>({ type: null, url: '' })
+  const [imageUploading, setImageUploading] = useState(false)
+  const inlineFileRef = useRef<HTMLInputElement>(null)
 
   const editor = useEditor({
     extensions: [
@@ -143,6 +147,38 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
 
     closeUrlInput()
   }, [editor, urlInput, closeUrlInput])
+
+  const handleInlineImageUpload = useCallback(async (file: File) => {
+    if (!editor) return
+    const maxSize = 5 * 1024 * 1024
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+
+    if (!validTypes.includes(file.type)) return
+    if (file.size > maxSize) return
+
+    setImageUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      const data = await res.json()
+
+      if (res.ok && data.url) {
+        editor.chain().focus().setImage({ src: data.url }).run()
+      }
+    } catch {
+      // Silently fail — user can try again
+    } finally {
+      setImageUploading(false)
+      closeUrlInput()
+    }
+  }, [editor, closeUrlInput])
+
+  const handleInlineFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) handleInlineImageUpload(file)
+    if (e.target) e.target.value = ''
+  }, [handleInlineImageUpload])
 
   if (!editor) return null
 
@@ -230,8 +266,15 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
           <LinkIcon className="w-4 h-4" />
         </ToolbarButton>
         <ToolbarButton
+          onClick={() => inlineFileRef.current?.click()}
+          disabled={imageUploading}
+          title="Upload image"
+        >
+          <Upload className="w-4 h-4" />
+        </ToolbarButton>
+        <ToolbarButton
           onClick={() => openUrlInput('image')}
-          title="Insert image"
+          title="Insert image from URL"
         >
           <ImageIcon className="w-4 h-4" />
         </ToolbarButton>
@@ -300,6 +343,24 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
           >
             Cancel
           </button>
+        </div>
+      )}
+
+      {/* Hidden file input for inline image upload */}
+      <input
+        ref={inlineFileRef}
+        type="file"
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        onChange={handleInlineFileSelect}
+        className="hidden"
+        aria-label="Upload inline image"
+      />
+
+      {/* Upload indicator */}
+      {imageUploading && (
+        <div className="flex items-center gap-2 px-3 py-1.5 border-b border-border bg-violet-500/5 text-xs text-violet-300">
+          <div className="w-3 h-3 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
+          Uploading image...
         </div>
       )}
 

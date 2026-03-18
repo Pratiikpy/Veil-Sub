@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { computeWalletHash } from '@/lib/utils'
-import type { AccessPass, ContentPost } from '@/types'
+import type { AccessPass, ContentPost, PostStatus } from '@/types'
 
 export interface ContentFeedError {
   operation: 'fetch' | 'unlock' | 'create' | 'edit' | 'delete'
@@ -15,13 +15,13 @@ export function useContentFeed() {
   const [error, setError] = useState<ContentFeedError | null>(null)
 
   const getPostsForCreator = useCallback(
-    async (creatorAddress: string): Promise<ContentPost[]> => {
+    async (creatorAddress: string, status?: PostStatus): Promise<ContentPost[]> => {
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch(
-          `/api/posts?creator=${encodeURIComponent(creatorAddress)}`
-        )
+        const params = new URLSearchParams({ creator: creatorAddress })
+        if (status) params.set('status', status)
+        const res = await fetch(`/api/posts?${params.toString()}`)
         if (res.ok) {
           const { posts } = await res.json()
           const apiPosts = posts as ContentPost[]
@@ -112,7 +112,10 @@ export function useContentFeed() {
       imageUrl?: string,
       hashedContentId?: string,
       preview?: string,
-      videoUrl?: string
+      videoUrl?: string,
+      status?: PostStatus,
+      tags?: string[],
+      scheduledAt?: string
     ): Promise<ContentPost | null> => {
       try {
         const timestamp = Date.now()
@@ -147,6 +150,9 @@ export function useContentFeed() {
             ...(hashedContentId ? { hashedContentId } : {}),
             ...(imageUrl ? { imageUrl } : {}),
             ...(videoUrl ? { videoUrl } : {}),
+            ...(status ? { status } : {}),
+            ...(tags && tags.length > 0 ? { tags } : {}),
+            ...(scheduledAt ? { scheduledAt } : {}),
             walletHash,
             timestamp,
             signature,
@@ -220,7 +226,15 @@ export function useContentFeed() {
     async (
       creatorAddress: string,
       postId: string,
-      updates: { title?: string; body?: string; preview?: string; minTier?: number },
+      updates: {
+        title?: string
+        body?: string
+        preview?: string
+        minTier?: number
+        status?: PostStatus
+        tags?: string[]
+        scheduledAt?: string
+      },
       signFn: ((msg: Uint8Array) => Promise<Uint8Array>) | null = null
     ): Promise<ContentPost | null> => {
       try {

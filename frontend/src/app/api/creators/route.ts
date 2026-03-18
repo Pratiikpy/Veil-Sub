@@ -2,8 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { encrypt, hashAddress } from '@/lib/encryption'
 import { ALEO_ADDRESS_RE } from '@/lib/config'
+import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 
 export async function GET(req: NextRequest) {
+  const ip = getClientIp(req)
+  const { allowed } = rateLimit(`${ip}:creators:get`, 60)
+  if (!allowed) return getRateLimitResponse()
+
   const addressHash = req.nextUrl.searchParams.get('address_hash')
   if (!addressHash || !/^[a-f0-9]{64}$/.test(addressHash)) {
     return NextResponse.json({ error: 'Valid address_hash required' }, { status: 400 })
@@ -30,6 +35,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req)
+  const { allowed } = rateLimit(`${ip}:creators:post`, 60)
+  if (!allowed) return getRateLimitResponse()
+
   const supabase = getServerSupabase()
   if (!supabase) {
     return NextResponse.json({ error: 'Storage not configured' }, { status: 503 })

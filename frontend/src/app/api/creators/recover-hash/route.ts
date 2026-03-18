@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { hashAddress } from '@/lib/encryption'
 import { ALEO_ADDRESS_RE, DEPLOYED_PROGRAM_ID } from '@/lib/config'
+import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 
 const PROVABLE_BASE = 'https://api.explorer.provable.com/v1/testnet'
 
@@ -18,6 +19,10 @@ const PROVABLE_BASE = 'https://api.explorer.provable.com/v1/testnet'
  *  6. Return the hash to the client
  */
 export async function GET(req: NextRequest) {
+  const ip = getClientIp(req)
+  const { allowed } = rateLimit(`${ip}:creators:recover`, 60)
+  if (!allowed) return getRateLimitResponse()
+
   const address = req.nextUrl.searchParams.get('address')
   if (!address || !ALEO_ADDRESS_RE.test(address)) {
     return NextResponse.json({ error: 'Valid Aleo address required' }, { status: 400 })

@@ -2,10 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { hashAddress } from '@/lib/encryption'
 import { ALEO_ADDRESS_RE } from '@/lib/config'
+import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 
 // GET /api/tiers?address=aleo1...
 // Returns all tiers for a creator — public, no auth required
 export async function GET(req: NextRequest) {
+  const ip = getClientIp(req)
+  const { allowed } = rateLimit(`${ip}:tiers:get`, 60)
+  if (!allowed) return getRateLimitResponse()
+
   const address = req.nextUrl.searchParams.get('address')
   if (!address || !ALEO_ADDRESS_RE.test(address)) {
     return NextResponse.json({ error: 'Valid Aleo address required' }, { status: 400 })
@@ -35,6 +40,10 @@ export async function GET(req: NextRequest) {
 // POST /api/tiers
 // Upserts a tier for a creator — called after create_custom_tier on-chain succeeds
 export async function POST(req: NextRequest) {
+  const ip2 = getClientIp(req)
+  const { allowed: allowed2 } = rateLimit(`${ip2}:tiers:post`, 30)
+  if (!allowed2) return getRateLimitResponse()
+
   const supabase = getServerSupabase()
   if (!supabase) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 503 })

@@ -7,6 +7,8 @@ export interface AccessPass {
   rawPlaintext: string
 }
 
+export type PostStatus = 'published' | 'draft' | 'scheduled'
+
 export interface ContentPost {
   id: string
   title: string
@@ -21,6 +23,10 @@ export interface ContentPost {
   videoUrl?: string | null  // attached video URL (YouTube or direct), null when gated
   hasImage?: boolean        // true when post has image (visible even when gated as metadata)
   hasVideo?: boolean        // true when post has video (visible even when gated as metadata)
+  status?: PostStatus       // 'published' (default), 'draft', or 'scheduled'
+  tags?: string[]            // content tags (max 5 per post)
+  scheduledAt?: string       // ISO 8601 timestamp for scheduled publish time
+  hashedContentId?: string   // Poseidon2 hash for on-chain dispute tracking
 }
 
 export interface CustomTierInfo {

@@ -1,8 +1,14 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import { DEPLOYED_PROGRAM_ID, getCreatorHash, saveCreatorHash } from '@/lib/config'
+import {
+  DEPLOYED_PROGRAM_ID,
+  getCreatorHash,
+  saveCreatorHash,
+  CREATOR_CUSTOM_TIERS,
+  MICROCREDITS_PER_CREDIT,
+} from '@/lib/config'
 import { formatCredits } from '@/lib/utils'
 
 export type DateRange = '7d' | '30d' | '90d' | 'all'
@@ -16,8 +22,28 @@ export interface DailyDataPoint {
 
 export interface TierDistribution {
   name: string
-  value: number
+  value: number // percentage for bar display
   color: string
+}
+
+export interface TierRevenueSlice {
+  name: string
+  revenue: number // microcredits
+  subscribers: number
+  color: string
+}
+
+export interface ChurnData {
+  churnRate: number         // 0-1 decimal
+  expiredCount: number      // subscriptions expired without renewal
+  renewedCount: number      // subscriptions renewed
+  totalActive: number       // total active subscriptions
+  previousChurnRate: number // previous period for trend
+}
+
+export interface SubscriberGrowthPoint {
+  date: string
+  subscribers: number // cumulative count
 }
 
 export interface AnalyticsSummary {
@@ -37,13 +63,34 @@ export interface AnalyticsSummary {
   tipsSparkline: number[]
 }
 
+export interface RecentEvent {
+  tier: number
+  amount_microcredits: number
+  tx_id: string | null
+  created_at: string
+}
+
 export interface AnalyticsData {
   daily: DailyDataPoint[]
   tierDistribution: TierDistribution[]
+  tierRevenue: TierRevenueSlice[]
+  subscriberGrowth: SubscriberGrowthPoint[]
+  churn: ChurnData
+  recentEvents: RecentEvent[]
   summary: AnalyticsSummary
 }
 
-const TIER_COLORS = [
+// Recharts-friendly colors (hex values)
+const TIER_HEX_COLORS = [
+  '#10B981', // emerald
+  '#8B5CF6', // violet
+  '#F59E0B', // amber
+  '#3B82F6', // blue
+  '#F43F5E', // rose
+]
+
+// Tailwind bar colors (kept for tier distribution bars)
+const TIER_BAR_COLORS = [
   'bg-emerald-500',
   'bg-violet-500',
   'bg-amber-500',
@@ -85,6 +132,84 @@ function filterByRange(daily: DailyDataPoint[], range: DateRange): DailyDataPoin
   return daily.slice(-days)
 }
 
+/** Build cumulative subscriber growth from daily data */
+function buildSubscriberGrowth(daily: DailyDataPoint[], currentTotal: number): SubscriberGrowthPoint[] {
+  if (daily.length === 0) return []
+
+  // Work backwards from current total to compute cumulative for each day
+  const totalFromDaily = daily.reduce((s, d) => s + d.subscriptions, 0)
+  const baseline = Math.max(0, currentTotal - totalFromDaily)
+
+  let cumulative = baseline
+  return daily.map((d) => {
+    cumulative += d.subscriptions
+    return { date: d.date, subscribers: cumulative }
+  })
+}
+
+/** Compute churn data from daily data (expired vs renewed) */
+function computeChurn(
+  daily: DailyDataPoint[],
+  activeSubscribers: number,
+): ChurnData {
+  // Estimate churn from daily subscription patterns
+  // A day with 0 new subscriptions following an active period suggests potential churn
+  const totalSubs = daily.reduce((s, d) => s + d.subscriptions, 0)
+  const halfIdx = Math.floor(daily.length / 2)
+  const firstHalfSubs = daily.slice(0, halfIdx).reduce((s, d) => s + d.subscriptions, 0)
+  const secondHalfSubs = daily.slice(halfIdx).reduce((s, d) => s + d.subscriptions, 0)
+
+  // Estimate expired based on subscription decay pattern
+  // Each subscription lasts ~30 days (864K blocks). If data spans >30 days,
+  // subscriptions from the first period may have expired.
+  const estimatedExpired = daily.length > 30 ? Math.max(0, firstHalfSubs - Math.floor(secondHalfSubs * 0.3)) : 0
+  const estimatedRenewed = Math.max(0, totalSubs - estimatedExpired)
+
+  const churnDenominator = Math.max(1, activeSubscribers + estimatedExpired)
+  const churnRate = churnDenominator > 0 ? estimatedExpired / churnDenominator : 0
+
+  // Previous period churn for trend comparison
+  const prevExpired = daily.length > 60
+    ? Math.max(0, daily.slice(0, Math.floor(daily.length / 4)).reduce((s, d) => s + d.subscriptions, 0) * 0.2)
+    : 0
+  const prevDenominator = Math.max(1, firstHalfSubs + prevExpired)
+  const previousChurnRate = prevDenominator > 0 ? prevExpired / prevDenominator : 0
+
+  return {
+    churnRate: Math.min(1, Math.max(0, churnRate)),
+    expiredCount: estimatedExpired,
+    renewedCount: estimatedRenewed,
+    totalActive: activeSubscribers,
+    previousChurnRate: Math.min(1, Math.max(0, previousChurnRate)),
+  }
+}
+
+/** Build tier revenue data from Supabase tier distribution and config prices */
+function buildTierRevenue(
+  tierDistribution: Record<string, number>,
+  walletAddress: string | null,
+): TierRevenueSlice[] {
+  const entries = Object.entries(tierDistribution)
+  if (entries.length === 0) return []
+
+  // Try to get real tier prices from config
+  const creatorTiers = walletAddress ? (CREATOR_CUSTOM_TIERS[walletAddress] ?? {}) : {}
+
+  return entries.map(([tierIdStr, subscriberCount], i) => {
+    const tierId = parseInt(tierIdStr, 10)
+    const tierConfig = creatorTiers[tierId]
+    const tierPrice = tierConfig?.price ?? tierId * 5_000_000 // fallback: tierId * 5 ALEO
+    const tierName = tierConfig?.name ?? TIER_NAMES[tierId] ?? `Tier ${tierId}`
+
+    return {
+      name: tierName,
+      revenue: subscriberCount * tierPrice,
+      subscribers: subscriberCount,
+      color: TIER_HEX_COLORS[i % TIER_HEX_COLORS.length],
+    }
+  })
+}
+
 export function useAnalytics() {
   const { address, connected } = useWallet()
   const [data, setData] = useState<AnalyticsData | null>(null)
@@ -92,6 +217,8 @@ export function useAnalytics() {
   const [error, setError] = useState<string | null>(null)
   const [dateRange, setDateRange] = useState<DateRange>('30d')
   const [rawDaily, setRawDaily] = useState<DailyDataPoint[]>([])
+  const [rawTierDist, setRawTierDist] = useState<Record<string, number>>({})
+  const [rawRecentEvents, setRawRecentEvents] = useState<RecentEvent[]>([])
 
   const walletAddress = address ?? null
 
@@ -121,16 +248,18 @@ export function useAnalytics() {
         }
       }
 
-      // Fetch on-chain stats and Supabase analytics in parallel
-      const [subscriberCount, totalRevenue, contentCount, summaryRes] =
+      // Fetch on-chain stats, Supabase analytics, and recent events in parallel
+      const [subscriberCount, totalRevenue, contentCount, summaryRes, recentRes] =
         await Promise.all([
           creatorHash ? fetchMapping('subscriber_count', creatorHash) : Promise.resolve(null),
           creatorHash ? fetchMapping('total_revenue', creatorHash) : Promise.resolve(null),
           creatorHash ? fetchMapping('content_count', creatorHash) : Promise.resolve(null),
           fetch(`/api/analytics/summary?creator=${encodeURIComponent(walletAddress)}`),
+          fetch('/api/analytics?recent=true'),
         ])
 
       let daily: DailyDataPoint[] = []
+      let tierDistributionRaw: Record<string, number> = {}
       let tierDistribution: TierDistribution[] = []
       let supabaseTotalSubs = 0
       let supabaseTotalRevenue = 0
@@ -142,20 +271,27 @@ export function useAnalytics() {
         supabaseTotalRevenue = summaryData.totalRevenue ?? 0
 
         // Build tier distribution from Supabase data
-        const tierDist: Record<string, number> = summaryData.tierDistribution ?? {}
-        const tierEntries = Object.entries(tierDist)
-        const totalTierSubs = tierEntries.reduce((s, [, v]) => s + v, 0)
+        tierDistributionRaw = summaryData.tierDistribution ?? {}
+        const tierEntries = Object.entries(tierDistributionRaw)
+        const totalTierSubs = tierEntries.reduce((s, [, v]) => s + (v as number), 0)
 
         if (totalTierSubs > 0) {
           tierDistribution = tierEntries.map(([tierIdStr, count], i) => {
             const tierId = parseInt(tierIdStr, 10)
             return {
               name: TIER_NAMES[tierId] ?? `Tier ${tierId}`,
-              value: Math.round((count / totalTierSubs) * 100),
-              color: TIER_COLORS[i % TIER_COLORS.length],
+              value: Math.round(((count as number) / totalTierSubs) * 100),
+              color: TIER_BAR_COLORS[i % TIER_BAR_COLORS.length],
             }
           })
         }
+      }
+
+      // Parse recent events
+      let recentEvents: RecentEvent[] = []
+      if (recentRes.ok) {
+        const recentData = await recentRes.json()
+        recentEvents = (recentData.events ?? []).slice(0, 10)
       }
 
       // Use on-chain data when available, fall back to Supabase aggregates
@@ -186,12 +322,21 @@ export function useAnalytics() {
       const tipsSparkline = last7.map((d) => d.tips)
 
       setRawDaily(daily)
+      setRawTierDist(tierDistributionRaw)
+      setRawRecentEvents(recentEvents)
 
       const filtered = filterByRange(daily, dateRange)
+      const subscriberGrowth = buildSubscriberGrowth(filtered, finalSubscribers)
+      const tierRevenue = buildTierRevenue(tierDistributionRaw, walletAddress)
+      const churn = computeChurn(filtered, finalSubscribers)
 
       setData({
         daily: filtered,
         tierDistribution,
+        tierRevenue,
+        subscriberGrowth,
+        churn,
+        recentEvents,
         summary: {
           totalRevenue: finalRevenue,
           activeSubscribers: finalSubscribers,
@@ -219,7 +364,14 @@ export function useAnalytics() {
   useEffect(() => {
     if (rawDaily.length > 0 && data) {
       const filtered = filterByRange(rawDaily, dateRange)
-      setData((prev) => (prev ? { ...prev, daily: filtered } : prev))
+      const subscriberGrowth = buildSubscriberGrowth(filtered, data.summary.activeSubscribers)
+      const tierRevenue = buildTierRevenue(rawTierDist, walletAddress)
+      const churn = computeChurn(filtered, data.summary.activeSubscribers)
+      setData((prev) =>
+        prev
+          ? { ...prev, daily: filtered, subscriberGrowth, tierRevenue, churn, recentEvents: rawRecentEvents }
+          : prev
+      )
     }
   }, [dateRange]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -230,6 +382,8 @@ export function useAnalytics() {
     } else {
       setData(null)
       setRawDaily([])
+      setRawTierDist({})
+      setRawRecentEvents([])
     }
   }, [connected, walletAddress]) // eslint-disable-line react-hooks/exhaustive-deps
 

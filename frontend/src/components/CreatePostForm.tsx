@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef, useEffect, lazy, Suspense } from 'react'
+import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react'
 import { m } from 'framer-motion'
-import { FileText, Send, Image as ImageIcon, X, Video } from 'lucide-react'
+import { FileText, Send, Image as ImageIcon, X, Video, Upload, Loader2, Save, Clock, Tag, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
@@ -11,9 +11,9 @@ import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import Button from './ui/Button'
 import { generatePassId } from '@/lib/utils'
 import { poseidon2HashField } from '@/lib/poseidon'
-import { saveContentHash } from '@/lib/config'
+import { saveContentHash, SUGGESTED_TAGS, TAG_COLORS, API_LIMITS, DRAFT_AUTOSAVE_INTERVAL_MS } from '@/lib/config'
 import TransactionStatus from './TransactionStatus'
-import type { TxStatus } from '@/types'
+import type { TxStatus, PostStatus } from '@/types'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
 
 const RichTextEditor = lazy(() => import('./RichTextEditor'))
@@ -21,26 +21,203 @@ const RichTextEditor = lazy(() => import('./RichTextEditor'))
 interface Props {
   creatorAddress: string
   onPostCreated?: () => void
+  /** Pre-fill form with an existing draft/post for editing */
+  editingPost?: {
+    id: string
+    title: string
+    body: string | null
+    preview?: string
+    imageUrl?: string | null
+    videoUrl?: string | null
+    minTier: number
+    tags?: string[]
+    status?: PostStatus
+    scheduledAt?: string
+  } | null
+  onEditComplete?: () => void
 }
 
-export default function CreatePostForm({ creatorAddress, onPostCreated }: Props) {
+// localStorage key for draft auto-save
+function getDraftKey(address: string): string {
+  return `veilsub:draft:${address}`
+}
+
+interface DraftData {
+  title: string
+  body: string
+  preview: string
+  imageUrl: string
+  videoUrl: string
+  minTier: number
+  tags: string[]
+  savedAt: number
+}
+
+export default function CreatePostForm({ creatorAddress, onPostCreated, editingPost, onEditComplete }: Props) {
   const { signMessage, connected } = useWallet()
   const { publishContent } = useVeilSub()
-  const { createPost, error: postError, clearError } = useContentFeed()
+  const { createPost, editPost, error: postError, clearError } = useContentFeed()
   const { startPolling, stopPolling } = useTransactionPoller()
 
-  const [title, setTitle] = useState('')
-  const [body, setBody] = useState('')
-  const [preview, setPreview] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
+  const [title, setTitle] = useState(editingPost?.title ?? '')
+  const [body, setBody] = useState(editingPost?.body ?? '')
+  const [preview, setPreview] = useState(editingPost?.preview ?? '')
+  const [imageUrl, setImageUrl] = useState(editingPost?.imageUrl ?? '')
   const [imageError, setImageError] = useState(false)
-  const [videoUrl, setVideoUrl] = useState('')
-  const [minTier, setMinTier] = useState(1)
+  const [imageUploading, setImageUploading] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const [videoUrl, setVideoUrl] = useState(editingPost?.videoUrl ?? '')
+
+  const [minTier, setMinTier] = useState(editingPost?.minTier ?? 1)
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
   const [txId, setTxId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const submittingRef = useRef(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { tiers: onChainTiers } = useCreatorTiers(creatorAddress)
+
+  // Tags state
+  const [tags, setTags] = useState<string[]>(editingPost?.tags ?? [])
+  const [tagInput, setTagInput] = useState('')
+  const [showTagSuggestions, setShowTagSuggestions] = useState(false)
+
+  // Scheduling state
+  const [scheduleDate, setScheduleDate] = useState('')
+  const [scheduleTime, setScheduleTime] = useState('')
+
+  // Draft restoration
+  const [hasDraft, setHasDraft] = useState(false)
+  const [draftDismissed, setDraftDismissed] = useState(false)
+  const autoSaveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Check for existing draft on mount
+  useEffect(() => {
+    if (editingPost) return
+    try {
+      const saved = localStorage.getItem(getDraftKey(creatorAddress))
+      if (saved) {
+        const draft: DraftData = JSON.parse(saved)
+        if (draft.title || draft.body) {
+          const sevenDays = 7 * 24 * 60 * 60 * 1000
+          if (Date.now() - draft.savedAt < sevenDays) {
+            setHasDraft(true)
+          } else {
+            localStorage.removeItem(getDraftKey(creatorAddress))
+          }
+        }
+      }
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, [creatorAddress, editingPost])
+
+  // Auto-save draft every 30 seconds while editing
+  useEffect(() => {
+    if (editingPost) return
+    autoSaveTimerRef.current = setInterval(() => {
+      if (title.trim() || body.replace(/<[^>]*>/g, '').trim()) {
+        const draft: DraftData = {
+          title, body, preview, imageUrl, videoUrl, minTier, tags,
+          savedAt: Date.now(),
+        }
+        try {
+          localStorage.setItem(getDraftKey(creatorAddress), JSON.stringify(draft))
+        } catch { /* localStorage full or unavailable */ }
+      }
+    }, DRAFT_AUTOSAVE_INTERVAL_MS)
+    return () => {
+      if (autoSaveTimerRef.current) clearInterval(autoSaveTimerRef.current)
+    }
+  }, [creatorAddress, title, body, preview, imageUrl, videoUrl, minTier, tags, editingPost])
+
+  const restoreDraft = useCallback(() => {
+    try {
+      const saved = localStorage.getItem(getDraftKey(creatorAddress))
+      if (saved) {
+        const draft: DraftData = JSON.parse(saved)
+        setTitle(draft.title || '')
+        setBody(draft.body || '')
+        setPreview(draft.preview || '')
+        setImageUrl(draft.imageUrl || '')
+        setVideoUrl(draft.videoUrl || '')
+        setMinTier(draft.minTier || 1)
+        setTags(draft.tags || [])
+        toast.success('Draft restored')
+      }
+    } catch {
+      toast.error('Failed to restore draft')
+    }
+    setHasDraft(false)
+    setDraftDismissed(false)
+  }, [creatorAddress])
+
+  const discardDraft = useCallback(() => {
+    localStorage.removeItem(getDraftKey(creatorAddress))
+    setHasDraft(false)
+    setDraftDismissed(true)
+    toast.success('Draft discarded')
+  }, [creatorAddress])
+
+  // Image upload handlers (preserved from existing code)
+  const uploadFile = useCallback(async (file: File) => {
+    const maxSize = 5 * 1024 * 1024
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+    if (!validTypes.includes(file.type)) {
+      toast.error('Unsupported image type. Use JPG, PNG, GIF, or WebP.')
+      return
+    }
+    if (file.size > maxSize) {
+      toast.error('Image too large (max 5MB).')
+      return
+    }
+    setImageUploading(true)
+    setImageError(false)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error || 'Upload failed')
+        return
+      }
+      setImageUrl(data.url)
+    } catch {
+      toast.error('Image upload failed. Try again.')
+    } finally {
+      setImageUploading(false)
+    }
+  }, [])
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }, [])
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }, [])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+    const file = e.dataTransfer.files[0]
+    if (file && file.type.startsWith('image/')) {
+      uploadFile(file)
+    } else {
+      toast.error('Please drop an image file (JPG, PNG, GIF, WebP).')
+    }
+  }, [uploadFile])
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) uploadFile(file)
+    if (e.target) e.target.value = ''
+  }, [uploadFile])
 
   useEffect(() => {
     return () => stopPolling()
@@ -56,13 +233,149 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
     }
   }, [connected, txStatus, stopPolling])
 
-  // Check if rich text body has actual content (not just empty <p></p> tags)
   const hasBodyContent = body.replace(/<[^>]*>/g, '').trim().length > 0
+
+  const clearLocalDraft = useCallback(() => {
+    localStorage.removeItem(getDraftKey(creatorAddress))
+  }, [creatorAddress])
+
+  const resetForm = useCallback(() => {
+    setTitle('')
+    setBody('')
+    setPreview('')
+    setImageUrl('')
+    setImageError(false)
+    setVideoUrl('')
+    setMinTier(1)
+    setTags([])
+    setTagInput('')
+    setScheduleDate('')
+    setScheduleTime('')
+    clearLocalDraft()
+  }, [clearLocalDraft])
+
+  // --- Helpers for wrapping signMessage ---
+  const getWrappedSign = useCallback(() => {
+    return signMessage
+      ? async (msg: Uint8Array) => {
+          const result = await signMessage(msg)
+          if (!result) throw new Error('Signing cancelled')
+          return result
+        }
+      : null
+  }, [signMessage])
+
+  // Save as draft to Redis (server-side)
+  const handleSaveDraft = async () => {
+    if (submittingRef.current) return
+    if (!title.trim()) {
+      setError('Draft requires at least a title.')
+      return
+    }
+    submittingRef.current = true
+    setError(null)
+    try {
+      const wrappedSign = getWrappedSign()
+      if (editingPost) {
+        const updated = await editPost(
+          creatorAddress, editingPost.id,
+          {
+            title: title.trim(), body, preview: preview.trim() || body.slice(0, 200),
+            minTier, status: 'draft',
+            tags: tags.length > 0 ? tags : undefined,
+          },
+          wrappedSign
+        )
+        if (updated) { toast.success('Draft updated'); onEditComplete?.() }
+        else { toast.error(postError?.message || 'Failed to save draft'); if (postError) clearError() }
+      } else {
+        const contentId = generatePassId()
+        const saved = await createPost(
+          creatorAddress, title.trim(), body || '<p></p>', minTier, contentId,
+          wrappedSign, imageUrl.trim() || undefined, undefined,
+          preview.trim() || undefined, videoUrl.trim() || undefined,
+          'draft', tags.length > 0 ? tags : undefined
+        )
+        if (saved) { toast.success('Draft saved'); resetForm(); onPostCreated?.() }
+        else { toast.error(postError?.message || 'Failed to save draft'); if (postError) clearError() }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Save failed')
+    } finally {
+      submittingRef.current = false
+    }
+  }
+
+  // Schedule post
+  const handleSchedule = async () => {
+    if (submittingRef.current) return
+    if (!title.trim() || !hasBodyContent) { setError('Title and body are required to schedule.'); return }
+    if (!scheduleDate || !scheduleTime) { setError('Select a date and time for scheduling.'); return }
+    const scheduledAt = new Date(`${scheduleDate}T${scheduleTime}`).toISOString()
+    if (new Date(scheduledAt) <= new Date()) { setError('Scheduled time must be in the future.'); return }
+
+    submittingRef.current = true
+    setError(null)
+    try {
+      const wrappedSign = getWrappedSign()
+      if (editingPost) {
+        const updated = await editPost(
+          creatorAddress, editingPost.id,
+          {
+            title: title.trim(), body, preview: preview.trim() || body.slice(0, 200),
+            minTier, status: 'scheduled',
+            tags: tags.length > 0 ? tags : undefined, scheduledAt,
+          },
+          wrappedSign
+        )
+        if (updated) { toast.success('Post scheduled'); onEditComplete?.() }
+        else { toast.error(postError?.message || 'Failed to schedule'); if (postError) clearError() }
+      } else {
+        const contentId = generatePassId()
+        const saved = await createPost(
+          creatorAddress, title.trim(), body, minTier, contentId,
+          wrappedSign, imageUrl.trim() || undefined, undefined,
+          preview.trim() || undefined, videoUrl.trim() || undefined,
+          'scheduled', tags.length > 0 ? tags : undefined, scheduledAt
+        )
+        if (saved) {
+          toast.success(`Scheduled for ${new Date(scheduledAt).toLocaleString()}`)
+          resetForm(); onPostCreated?.()
+        } else { toast.error(postError?.message || 'Failed to schedule'); if (postError) clearError() }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Schedule failed')
+    } finally {
+      submittingRef.current = false
+    }
+  }
 
   const handlePublish = async () => {
     if (submittingRef.current) return
-    if (!title.trim() || !hasBodyContent) {
-      setError('Title and body are required.')
+    if (!title.trim() || !hasBodyContent) { setError('Title and body are required.'); return }
+
+    // If editing an existing post, just update status to published (no on-chain tx needed)
+    if (editingPost) {
+      submittingRef.current = true
+      setError(null)
+      try {
+        const wrappedSign = getWrappedSign()
+        const updated = await editPost(
+          creatorAddress, editingPost.id,
+          {
+            title: title.trim(), body, preview: preview.trim() || body.slice(0, 200),
+            minTier, status: 'published',
+            tags: tags.length > 0 ? tags : undefined,
+          },
+          wrappedSign
+        )
+        if (updated) { toast.success('Post published!'); onEditComplete?.() }
+        else { toast.error(postError?.message || 'Failed to publish'); if (postError) clearError() }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Publish failed')
+      } finally {
+        submittingRef.current = false
+      }
       return
     }
 
@@ -73,7 +386,6 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
 
     try {
       const contentId = generatePassId()
-
       setTxStatus('proving')
       const id = await publishContent(contentId, minTier)
 
@@ -81,31 +393,27 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
         setTxId(id)
         setTxStatus('broadcasting')
 
-        // Capture post data before clearing form — save to Redis only after on-chain confirmation
         const postTitle = title.trim()
         const postBody = body
         const postPreview = preview.trim() || undefined
         const postTier = minTier
         const postImageUrl = imageUrl.trim() || undefined
         const postVideoUrl = videoUrl.trim() || undefined
+        const postTags = tags.length > 0 ? [...tags] : undefined
 
         startPolling(id, async (result) => {
           if (result.status === 'confirmed') {
             if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
             toast.dismiss('post-optimistic')
-            // Compute Poseidon2(content_id) for on-chain dispute tracking
             const hashedId = await poseidon2HashField(contentId)
             if (hashedId) saveContentHash(contentId, hashedId)
-            // Save to Redis AFTER on-chain confirmation to avoid orphan posts
-            const wrappedSign = signMessage
-              ? async (msg: Uint8Array) => {
-                  const result = await signMessage(msg)
-                  if (!result) throw new Error('Signing cancelled')
-                  return result
-                }
-              : null
-            const saved = await createPost(creatorAddress, postTitle, postBody, postTier, contentId, wrappedSign, postImageUrl, hashedId ?? undefined, postPreview, postVideoUrl)
+            const wrappedSign = getWrappedSign()
+            const saved = await createPost(
+              creatorAddress, postTitle, postBody, postTier, contentId,
+              wrappedSign, postImageUrl, hashedId ?? undefined, postPreview,
+              postVideoUrl, 'published', postTags
+            )
             if (!saved) {
               const msg = postError
                 ? `Save failed: ${postError.message}`
@@ -115,13 +423,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
             } else {
               toast.success('Post published on-chain!')
             }
-            setTitle('')
-            setBody('')
-            setPreview('')
-            setImageUrl('')
-            setImageError(false)
-            setVideoUrl('')
-            setMinTier(1)
+            resetForm()
             onPostCreated?.()
           } else if (result.status === 'failed') {
             setTxStatus('failed')
@@ -150,7 +452,33 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
     setError(null)
   }
 
-  // Build tier options from actual on-chain tiers — always shows real tiers including tier 4+
+  // --- Tag handlers ---
+  const addTag = useCallback((tag: string) => {
+    const trimmed = tag.trim()
+    if (!trimmed) return
+    if (tags.length >= API_LIMITS.MAX_TAGS_PER_POST) {
+      toast.error(`Maximum ${API_LIMITS.MAX_TAGS_PER_POST} tags allowed`)
+      return
+    }
+    if (tags.includes(trimmed)) return
+    setTags(prev => [...prev, trimmed.slice(0, API_LIMITS.MAX_TAG_LENGTH)])
+    setTagInput('')
+    setShowTagSuggestions(false)
+  }, [tags])
+
+  const removeTag = useCallback((tag: string) => {
+    setTags(prev => prev.filter(t => t !== tag))
+  }, [])
+
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') { e.preventDefault(); addTag(tagInput) }
+  }
+
+  const getTagColor = (tag: string): string => {
+    return TAG_COLORS[tag] || 'text-violet-300 bg-violet-500/10 border-violet-500/20'
+  }
+
+  // Build tier options from actual on-chain tiers
   const tierOptions: { id: number; name: string }[] = [
     { id: 1, name: 'Supporter' },
     ...Object.entries(onChainTiers)
@@ -158,6 +486,10 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
       .map(([id, t]) => ({ id: Number(id), name: t.name }))
       .sort((a, b) => a.id - b.id),
   ]
+
+  const filteredSuggestions = SUGGESTED_TAGS.filter(
+    s => !tags.includes(s) && s.toLowerCase().includes(tagInput.toLowerCase())
+  )
 
   return (
     <m.div
@@ -168,8 +500,31 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
     >
       <div className="flex items-center gap-2 mb-4">
         <FileText className="w-5 h-5 text-white/70" aria-hidden="true" />
-        <h2 className="text-lg font-semibold text-white">Create Post</h2>
+        <h2 className="text-lg font-semibold text-white">
+          {editingPost ? 'Edit Post' : 'Create Post'}
+        </h2>
       </div>
+
+      {/* Draft restoration banner */}
+      {hasDraft && !draftDismissed && !editingPost && (
+        <div className="mb-4 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-between gap-3">
+          <p className="text-sm text-blue-300">You have an unsaved draft. Restore it?</p>
+          <div className="flex gap-2 shrink-0">
+            <button
+              onClick={restoreDraft}
+              className="px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-300 text-xs font-medium hover:bg-blue-500/30 transition-colors"
+            >
+              Restore
+            </button>
+            <button
+              onClick={discardDraft}
+              className="px-3 py-1.5 rounded-lg bg-white/[0.05] text-white/60 text-xs font-medium hover:bg-white/[0.08] transition-colors"
+            >
+              Discard
+            </button>
+          </div>
+        </div>
+      )}
 
       {txStatus === 'idle' || txStatus === 'failed' ? (
         <>
@@ -199,7 +554,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
             </div>
             <div>
               <label htmlFor="post-preview" className="block text-sm text-white/70 mb-1.5">
-                Preview <span className="text-white/60">(optional — shown to non-subscribers)</span>
+                Preview <span className="text-white/60">(optional -- shown to non-subscribers)</span>
               </label>
               <textarea
                 id="post-preview"
@@ -212,50 +567,96 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
               <p className="text-[10px] text-white/60 mt-0.5">{preview.length}/300</p>
             </div>
             <div>
-              <label htmlFor="post-image-url" className="block text-sm text-white/70 mb-1.5">
-                Image <span className="text-white/60">(optional — paste a URL)</span>
+              <label className="block text-sm text-white/70 mb-1.5">
+                Image <span className="text-white/60">(optional -- drag & drop, upload, or paste URL)</span>
               </label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" aria-hidden="true" />
-                  <input
-                    id="post-image-url"
-                    type="url"
-                    value={imageUrl}
-                    onChange={(e) => { setImageUrl(e.target.value); setImageError(false) }}
-                    placeholder="https://example.com/image.jpg"
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm"
-                  />
+
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                onChange={handleFileSelect}
+                className="hidden"
+                aria-label="Upload image file"
+              />
+
+              {!imageUrl && !imageUploading && (
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click() }}
+                  aria-label="Upload image: click or drag and drop"
+                  className={`w-full py-6 px-4 rounded-xl border-2 border-dashed cursor-pointer transition-all text-center ${
+                    isDragging
+                      ? 'border-violet-500 bg-violet-500/10'
+                      : 'border-border bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]'
+                  }`}
+                >
+                  <Upload className="w-6 h-6 mx-auto mb-2 text-white/40" aria-hidden="true" />
+                  <p className="text-sm text-white/60">
+                    {isDragging ? 'Drop image here' : 'Drag & drop an image, or click to browse'}
+                  </p>
+                  <p className="text-xs text-white/40 mt-1">JPG, PNG, GIF, WebP (max 5MB)</p>
                 </div>
-                {imageUrl && (
+              )}
+
+              {imageUploading && (
+                <div className="w-full py-6 rounded-xl border border-border bg-white/[0.02] flex items-center justify-center gap-2">
+                  <Loader2 className="w-5 h-5 text-violet-400 animate-spin" aria-hidden="true" />
+                  <span className="text-sm text-white/60">Uploading image...</span>
+                </div>
+              )}
+
+              {imageUrl && !imageUploading && (
+                <div className="relative">
+                  <div className="mt-1 relative rounded-lg overflow-hidden border border-border bg-white/[0.02] aspect-video max-h-48">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={imageUrl}
+                      alt={title ? `Preview image for ${title}` : 'Post image preview'}
+                      className="w-full h-full object-cover"
+                      onError={() => setImageError(true)}
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={() => { setImageUrl(''); setImageError(false) }}
-                    className="px-2.5 rounded-xl bg-white/[0.05] border border-border text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors focus-visible:ring-2 focus-visible:ring-violet-400/50 focus-visible:ring-offset-0"
-                    aria-label="Clear image"
+                    className="absolute top-3 right-2 p-1.5 rounded-lg bg-black/60 text-white/80 hover:text-white hover:bg-black/80 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400/50"
+                    aria-label="Remove image"
                   >
                     <X className="w-4 h-4" aria-hidden="true" />
                   </button>
-                )}
-              </div>
-              {imageUrl && !imageError && (
-                <div className="mt-2 relative rounded-lg overflow-hidden border border-border bg-white/[0.02] aspect-video max-h-48">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={imageUrl}
-                    alt={title ? `Preview image for ${title}` : 'Post image preview'}
-                    className="w-full h-full object-cover"
-                    onError={() => setImageError(true)}
-                  />
                 </div>
               )}
+
               {imageError && (
-                <p className="text-xs text-red-400 mt-1">Failed to load image. Check the URL and try again.</p>
+                <p className="text-xs text-red-400 mt-1">Failed to load image. Try uploading again.</p>
+              )}
+
+              {!imageUrl && !imageUploading && (
+                <div className="mt-2 flex gap-2">
+                  <div className="relative flex-1">
+                    <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" aria-hidden="true" />
+                    <input
+                      id="post-image-url"
+                      type="url"
+                      value={imageUrl}
+                      onChange={(e) => { setImageUrl(e.target.value); setImageError(false) }}
+                      placeholder="or paste image URL: https://..."
+                      className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-xs"
+                    />
+                  </div>
+                </div>
               )}
             </div>
             <div>
               <label htmlFor="post-video-url" className="block text-sm text-white/70 mb-1.5">
-                Video <span className="text-white/60">(optional — YouTube or direct video URL)</span>
+                Video <span className="text-white/60">(optional -- YouTube or direct video URL)</span>
               </label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
@@ -301,6 +702,94 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                 ))}
               </div>
             </div>
+
+            {/* Tags input */}
+            <div>
+              <label className="block text-sm text-white/70 mb-1.5">
+                <Tag className="w-3.5 h-3.5 inline mr-1" aria-hidden="true" />
+                Tags <span className="text-white/60">(optional, max {API_LIMITS.MAX_TAGS_PER_POST})</span>
+              </label>
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {tags.map(tag => (
+                    <span
+                      key={tag}
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs border ${getTagColor(tag)}`}
+                    >
+                      {tag}
+                      <button
+                        onClick={() => removeTag(tag)}
+                        className="hover:opacity-70 transition-opacity"
+                        aria-label={`Remove tag ${tag}`}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="relative">
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => { setTagInput(e.target.value); setShowTagSuggestions(true) }}
+                  onFocus={() => setShowTagSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowTagSuggestions(false), 200)}
+                  onKeyDown={handleTagKeyDown}
+                  placeholder={tags.length >= API_LIMITS.MAX_TAGS_PER_POST ? 'Max tags reached' : 'Add a tag and press Enter...'}
+                  disabled={tags.length >= API_LIMITS.MAX_TAGS_PER_POST}
+                  className="w-full px-4 py-2 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm disabled:opacity-50"
+                />
+                {showTagSuggestions && filteredSuggestions.length > 0 && tags.length < API_LIMITS.MAX_TAGS_PER_POST && (
+                  <div className="absolute z-10 top-full mt-1 w-full rounded-xl bg-[#1a1a2e] border border-border shadow-lg overflow-hidden">
+                    {filteredSuggestions.map(suggestion => (
+                      <button
+                        key={suggestion}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => addTag(suggestion)}
+                        className="w-full px-4 py-2 text-left text-sm text-white/80 hover:bg-white/[0.08] transition-colors flex items-center gap-2"
+                      >
+                        <Plus className="w-3 h-3 text-white/40" />
+                        <span className={`px-2 py-0.5 rounded-full text-xs border ${getTagColor(suggestion)}`}>{suggestion}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Schedule date/time picker */}
+            <div>
+              <label className="block text-sm text-white/70 mb-1.5">
+                <Clock className="w-3.5 h-3.5 inline mr-1" aria-hidden="true" />
+                Schedule <span className="text-white/60">(optional -- set a future publish time)</span>
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  value={scheduleDate}
+                  onChange={(e) => setScheduleDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="flex-1 px-3 py-2 rounded-xl bg-white/[0.05] border border-border text-white focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm [color-scheme:dark]"
+                />
+                <input
+                  type="time"
+                  value={scheduleTime}
+                  onChange={(e) => setScheduleTime(e.target.value)}
+                  className="flex-1 px-3 py-2 rounded-xl bg-white/[0.05] border border-border text-white focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm [color-scheme:dark]"
+                />
+                {(scheduleDate || scheduleTime) && (
+                  <button
+                    type="button"
+                    onClick={() => { setScheduleDate(''); setScheduleTime('') }}
+                    className="px-2.5 rounded-xl bg-white/[0.05] border border-border text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors"
+                    aria-label="Clear schedule"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           {error && (
@@ -313,14 +802,35 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
             Publishing registers content metadata on-chain (content ID + minimum tier). The post body is stored off-chain and persists across devices.
           </p>
 
-          <Button
-            onClick={handlePublish}
-            disabled={!title.trim() || !hasBodyContent || (txStatus !== 'idle' && txStatus !== 'failed')}
-            className="mt-4 w-full"
-          >
-            <Send className="w-4 h-4" aria-hidden="true" />
-            Publish
-          </Button>
+          {/* Action buttons: Save Draft | Schedule | Publish */}
+          <div className="mt-4 flex flex-col sm:flex-row gap-2">
+            <button
+              onClick={handleSaveDraft}
+              disabled={!title.trim() || submittingRef.current}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.05] border border-blue-500/30 text-blue-300 text-sm font-medium hover:bg-blue-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+            >
+              <Save className="w-4 h-4" aria-hidden="true" />
+              Save Draft
+            </button>
+            {(scheduleDate && scheduleTime) && (
+              <button
+                onClick={handleSchedule}
+                disabled={!title.trim() || !hasBodyContent || submittingRef.current}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.05] border border-amber-500/30 text-amber-300 text-sm font-medium hover:bg-amber-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+              >
+                <Clock className="w-4 h-4" aria-hidden="true" />
+                Schedule
+              </button>
+            )}
+            <Button
+              onClick={handlePublish}
+              disabled={!title.trim() || !hasBodyContent || (txStatus !== 'idle' && txStatus !== 'failed')}
+              className="flex-1"
+            >
+              <Send className="w-4 h-4" aria-hidden="true" />
+              {editingPost ? 'Publish Now' : 'Publish'}
+            </Button>
+          </div>
         </>
       ) : (
         <div className="py-2">

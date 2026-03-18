@@ -3,6 +3,7 @@ import { getServerSupabase } from '@/lib/supabase'
 import { getRedis } from '@/lib/redis'
 import { ALEO_ADDRESS_RE } from '@/lib/config'
 import { hashAddress } from '@/lib/encryption'
+import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 
 const MAX_NOTIFICATIONS = 50
 const NOTIFICATION_TTL_SECONDS = 30 * 24 * 60 * 60 // 30 days
@@ -27,6 +28,10 @@ interface StoredNotification {
  * Storage: Supabase notifications table first, fallback to Redis.
  */
 export async function GET(req: NextRequest) {
+  const ip = getClientIp(req)
+  const { allowed } = rateLimit(`${ip}:notifications:get`, 30)
+  if (!allowed) return getRateLimitResponse()
+
   const wallet = req.nextUrl.searchParams.get('wallet')
   if (!wallet || !ALEO_ADDRESS_RE.test(wallet)) {
     return NextResponse.json({ notifications: [] })
@@ -96,6 +101,10 @@ export async function GET(req: NextRequest) {
  * Body: { wallet, type, title, message, data? }
  */
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req)
+  const { allowed } = rateLimit(`${ip}:notifications:post`, 30)
+  if (!allowed) return getRateLimitResponse()
+
   let payload
   try {
     payload = await req.json()
@@ -178,6 +187,10 @@ export async function POST(req: NextRequest) {
  * Body: { wallet, notificationId } or { wallet, markAll: true }
  */
 export async function PATCH(req: NextRequest) {
+  const ip = getClientIp(req)
+  const { allowed } = rateLimit(`${ip}:notifications:patch`, 30)
+  if (!allowed) return getRateLimitResponse()
+
   let payload
   try {
     payload = await req.json()

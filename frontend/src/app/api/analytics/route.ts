@@ -3,8 +3,13 @@ import { getServerSupabase } from '@/lib/supabase'
 import { hashAddress } from '@/lib/encryption'
 import { getRedis } from '@/lib/redis'
 import { API_LIMITS, RATE_LIMITS, CACHE_HEADERS, AUTH_CONFIG, ALEO_ADDRESS_RE } from '@/lib/config'
+import { rateLimit as rl, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 
 export async function GET(req: NextRequest) {
+  const ip = getClientIp(req)
+  const { allowed } = rl(`${ip}:analytics:get`, 60)
+  if (!allowed) return getRateLimitResponse()
+
   const addressHash = req.nextUrl.searchParams.get('creator_address_hash')
   const recent = req.nextUrl.searchParams.get('recent')
   const globalStats = req.nextUrl.searchParams.get('global_stats')
@@ -147,6 +152,10 @@ async function verifyAnalyticsAuth(
 }
 
 export async function POST(req: NextRequest) {
+  const ip2 = getClientIp(req)
+  const { allowed: allowed2 } = rl(`${ip2}:analytics:post`, 30)
+  if (!allowed2) return getRateLimitResponse()
+
   const supabase = getServerSupabase()
   if (!supabase) {
     return NextResponse.json({ error: 'Storage not configured' }, { status: 503 })

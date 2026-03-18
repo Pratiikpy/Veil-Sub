@@ -39,7 +39,7 @@ import { useCreatorTiers, invalidateCreatorTierCache } from '@/hooks/useCreatorT
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import TransactionStatus from '@/components/TransactionStatus'
 import { TIERS } from '@/types'
-import type { CreatorProfile, TxStatus, CustomTierInfo } from '@/types'
+import type { CreatorProfile, TxStatus, CustomTierInfo, ContentPost } from '@/types'
 
 const ActivityChart = dynamic(() => import('@/components/ActivityChart'), { ssr: false })
 const TierDistribution = dynamic(() => import('@/components/TierDistribution'), { ssr: false })
@@ -81,6 +81,7 @@ export default function RegisteredDashboard({
   const [withdrawError, setWithdrawError] = useState<string | null>(null)
   const [showConfetti, setShowConfetti] = useState(false)
   const [hasShownConfetti, setHasShownConfetti] = useState(false)
+  const [editingPost, setEditingPost] = useState<ContentPost | null>(null)
   const { withdrawCreatorRevenue, withdrawPlatformFees } = useVeilSub()
   const { tiers: creatorTiers, tierCount: creatorTierCount, refetch: refetchTiers } = useCreatorTiers(publicKey)
   const { startPolling, stopPolling } = useTransactionPoller()
@@ -648,7 +649,9 @@ export default function RegisteredDashboard({
             >
               <CreatePostForm
                 creatorAddress={publicKey}
-                onPostCreated={() => setRefreshKey((k) => k + 1)}
+                onPostCreated={() => { setEditingPost(null); setRefreshKey((k) => k + 1) }}
+                editingPost={editingPost}
+                onEditComplete={() => { setEditingPost(null); setRefreshKey((k) => k + 1) }}
               />
             </m.div>
 
@@ -658,7 +661,15 @@ export default function RegisteredDashboard({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 }}
             >
-              <PostsList key={refreshKey} address={publicKey} />
+              <PostsList
+                key={refreshKey}
+                address={publicKey}
+                onEditPost={(post) => {
+                  setEditingPost(post)
+                  // Scroll to the Create Post form
+                  document.getElementById('create-post')?.scrollIntoView({ behavior: 'smooth' })
+                }}
+              />
             </m.div>
 
             {/* Content Gating Explainer */}

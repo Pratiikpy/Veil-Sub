@@ -2,22 +2,50 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getRedis } from '@/lib/redis'
 import { AUTH_CONFIG, RATE_LIMITS, CACHE_HEADERS, API_LIMITS, ALEO_ADDRESS_RE } from '@/lib/config'
 import { encryptContent, decryptContent } from '@/lib/contentEncryption'
+import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 
 export async function GET(req: NextRequest) {
+  const ip = getClientIp(req)
+  const { allowed } = rateLimit(`${ip}:posts:get`, 30)
+  if (!allowed) return getRateLimitResponse()
+
   const creator = req.nextUrl.searchParams.get('creator')
   if (!creator || !ALEO_ADDRESS_RE.test(creator)) return NextResponse.json({ posts: [] })
+
+  // Optional filters: status (draft/scheduled/published), tag
+  const statusFilter = req.nextUrl.searchParams.get('status')
+  const tagFilter = req.nextUrl.searchParams.get('tag')
 
   const redis = getRedis()
   if (!redis) return NextResponse.json({ posts: [] })
 
   try {
     const raw = await redis.zrange(`veilsub:posts:${creator}`, 0, -1, { rev: true })
+    const now = new Date().toISOString()
     const posts = raw.flatMap((p) => {
       try {
         const post = typeof p === 'string' ? JSON.parse(p) : p
+
+        // Auto-promote scheduled posts whose scheduledAt has passed
+        if (post.status === 'scheduled' && post.scheduledAt && post.scheduledAt <= now) {
+          post.status = 'published'
+        }
+
+        const effectiveStatus = post.status || 'published'
+
+        // Filter by status: drafts and scheduled posts only visible via explicit filter
+        if (statusFilter) {
+          if (effectiveStatus !== statusFilter) return []
+        } else {
+          // Public feed: only show published posts
+          if (effectiveStatus !== 'published') return []
+        }
+
+        // Filter by tag if requested
+        if (tagFilter && (!post.tags || !post.tags.includes(tagFilter))) return []
+
         // Server-side content gating: redact body + imageUrl + videoUrl for tier-gated posts, keep preview
         if (post.minTier && post.minTier > 0) {
-          // Decrypt preview for display to non-subscribers (teaser text)
           const decryptedPreview = post.preview ? decryptContent(post.preview, creator) : ''
           return [{ ...post, body: null, imageUrl: null, videoUrl: null, gated: true, hasImage: !!post.imageUrl, hasVideo: !!post.videoUrl, preview: decryptedPreview }]
         }
@@ -99,6 +127,10 @@ async function verifyWalletAuth(
 }
 
 export async function POST(req: NextRequest) {
+  const ipPost = getClientIp(req)
+  const { allowed: allowedPost } = rateLimit(`${ipPost}:posts:post`, 30)
+  if (!allowedPost) return getRateLimitResponse()
+
   const redis = getRedis()
   if (!redis) {
     return NextResponse.json({ error: 'Storage not configured' }, { status: 503 })
@@ -110,8 +142,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { creator, title, body, preview, minTier, contentId, hashedContentId, imageUrl, videoUrl, walletHash, timestamp, signature } = payload
-    if (!creator || !title || !body) {
+    const { creator, title, body, preview, minTier, contentId, hashedContentId, imageUrl, videoUrl, walletHash, timestamp, signature, status, tags, scheduledAt } = payload
+    // Drafts only require title (body can be empty); published posts require both
+    const isDraft = status === 'draft'
+    if (!creator || !title || (!isDraft && !body)) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
     }
     if (!ALEO_ADDRESS_RE.test(creator)) {
@@ -176,12 +210,37 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Rate limited' }, { status: 429 })
     }
 
+    // Validate status field
+    const validStatuses = ['published', 'draft', 'scheduled']
+    const postStatus = (typeof status === 'string' && validStatuses.includes(status)) ? status : 'published'
+
+    // Validate tags (max 5 tags, each max 30 chars, sanitized)
+    let safeTags: string[] = []
+    if (Array.isArray(tags)) {
+      safeTags = tags
+        .filter((t): t is string => typeof t === 'string' && t.trim().length > 0)
+        .map(t => t.trim().slice(0, API_LIMITS.MAX_TAG_LENGTH))
+        .slice(0, API_LIMITS.MAX_TAGS_PER_POST)
+    }
+
+    // Validate scheduledAt for scheduled posts
+    let safeScheduledAt: string | undefined
+    if (postStatus === 'scheduled') {
+      if (typeof scheduledAt !== 'string' || isNaN(Date.parse(scheduledAt))) {
+        return NextResponse.json({ error: 'Scheduled posts require a valid scheduledAt timestamp' }, { status: 400 })
+      }
+      if (new Date(scheduledAt) <= new Date()) {
+        return NextResponse.json({ error: 'Scheduled time must be in the future' }, { status: 400 })
+      }
+      safeScheduledAt = scheduledAt
+    }
+
     // Preview is an optional short teaser shown to non-subscribers
     const safePreview = typeof preview === 'string' ? preview.slice(0, API_LIMITS.MAX_PREVIEW_LENGTH) : ''
 
     // Encrypt body and preview at rest — only the server can decrypt.
     // Title, tier, contentId, imageUrl, videoUrl remain unencrypted (metadata for listing).
-    const encryptedBody = encryptContent(body, creator)
+    const encryptedBody = body ? encryptContent(body, creator) : ''
     const encryptedPreview = safePreview ? encryptContent(safePreview, creator) : ''
 
     const post = {
@@ -192,6 +251,9 @@ export async function POST(req: NextRequest) {
       minTier: minTier ?? 1,
       createdAt: new Date().toISOString(),
       contentId: typeof contentId === 'string' ? contentId.slice(0, API_LIMITS.MAX_CONTENT_ID_LENGTH) : '',
+      status: postStatus,
+      ...(safeTags.length > 0 ? { tags: safeTags } : {}),
+      ...(safeScheduledAt ? { scheduledAt: safeScheduledAt } : {}),
       ...(typeof hashedContentId === 'string' && /^\d+field$/.test(hashedContentId) ? { hashedContentId } : {}),
       ...(safeImageUrl ? { imageUrl: safeImageUrl } : {}),
       ...(safeVideoUrl ? { videoUrl: safeVideoUrl } : {}),
@@ -209,6 +271,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  const ipPut = getClientIp(req)
+  const { allowed: allowedPut } = rateLimit(`${ipPut}:posts:put`, 30)
+  if (!allowedPut) return getRateLimitResponse()
+
   const redis = getRedis()
   if (!redis) {
     return NextResponse.json({ error: 'Storage not configured' }, { status: 503 })
@@ -220,7 +286,7 @@ export async function PUT(req: NextRequest) {
   }
 
   try {
-    const { creator, postId, title, body, preview, minTier, imageUrl, walletHash, timestamp, signature } = payload
+    const { creator, postId, title, body, preview, minTier, imageUrl, walletHash, timestamp, signature, status, tags, scheduledAt } = payload
     if (!creator || !postId) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
     }
@@ -281,6 +347,25 @@ export async function PUT(req: NextRequest) {
           ? (typeof preview === 'string' ? encryptContent(preview.slice(0, API_LIMITS.MAX_PREVIEW_LENGTH), creator) : post.preview)
           : undefined
 
+        // Validate status update
+        const validStatuses = ['published', 'draft', 'scheduled']
+        const updatedStatus = (typeof status === 'string' && validStatuses.includes(status)) ? status : undefined
+
+        // Validate tags update
+        let updatedTags: string[] | undefined
+        if (Array.isArray(tags)) {
+          updatedTags = tags
+            .filter((t): t is string => typeof t === 'string' && t.trim().length > 0)
+            .map(t => t.trim().slice(0, API_LIMITS.MAX_TAG_LENGTH))
+            .slice(0, API_LIMITS.MAX_TAGS_PER_POST)
+        }
+
+        // Validate scheduledAt update
+        let updatedScheduledAt: string | undefined
+        if (typeof scheduledAt === 'string' && !isNaN(Date.parse(scheduledAt))) {
+          updatedScheduledAt = scheduledAt
+        }
+
         const updated = {
           ...post,
           ...(title !== undefined && { title }),
@@ -288,6 +373,9 @@ export async function PUT(req: NextRequest) {
           ...(encPreview !== undefined && { preview: encPreview }),
           ...(minTier !== undefined && { minTier }),
           ...(updatedImageUrl !== undefined && { imageUrl: updatedImageUrl || undefined }),
+          ...(updatedStatus !== undefined && { status: updatedStatus }),
+          ...(updatedTags !== undefined && { tags: updatedTags }),
+          ...(updatedScheduledAt !== undefined && { scheduledAt: updatedScheduledAt }),
           updatedAt: new Date().toISOString(),
         }
         // Remove old entry and add updated one with same score (preserves order)
@@ -304,6 +392,10 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const ipDel = getClientIp(req)
+  const { allowed: allowedDel } = rateLimit(`${ipDel}:posts:delete`, 30)
+  if (!allowedDel) return getRateLimitResponse()
+
   const redis = getRedis()
   if (!redis) {
     return NextResponse.json({ error: 'Storage not configured' }, { status: 503 })

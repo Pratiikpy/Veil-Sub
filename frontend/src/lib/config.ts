@@ -82,7 +82,34 @@ export const API_LIMITS = {
   MAX_CONTENT_ID_LENGTH: 200,
   ANALYTICS_EVENTS_LIMIT: 50,
   ANALYTICS_RECENT_LIMIT: 50,
+  MAX_TAGS_PER_POST: 5,
+  MAX_TAG_LENGTH: 30,
 } as const
+
+// Pre-defined content tag suggestions for creators
+export const SUGGESTED_TAGS = [
+  'Tutorial',
+  'Update',
+  'Exclusive',
+  'Behind the Scenes',
+  'Art',
+  'Code',
+  'Discussion',
+] as const
+
+// Tag color mapping — predefined tags get specific colors, custom tags use violet
+export const TAG_COLORS: Record<string, string> = {
+  'Tutorial': 'text-blue-300 bg-blue-500/10 border-blue-500/20',
+  'Update': 'text-green-300 bg-green-500/10 border-green-500/20',
+  'Exclusive': 'text-amber-300 bg-amber-500/10 border-amber-500/20',
+  'Behind the Scenes': 'text-pink-300 bg-pink-500/10 border-pink-500/20',
+  'Art': 'text-rose-300 bg-rose-500/10 border-rose-500/20',
+  'Code': 'text-cyan-300 bg-cyan-500/10 border-cyan-500/20',
+  'Discussion': 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20',
+} as const
+
+// Draft auto-save interval (30 seconds)
+export const DRAFT_AUTOSAVE_INTERVAL_MS = 30_000
 
 // API rate limits (requests per minute)
 export const RATE_LIMITS = {
