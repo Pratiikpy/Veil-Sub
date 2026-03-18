@@ -1,66 +1,67 @@
-import { Shield, ArrowRight } from 'lucide-react'
+import { Shield, ArrowRight, Compass } from 'lucide-react'
 import Link from 'next/link'
-
-// Static styles to prevent re-renders
-const AMBIENT_GLOW_STYLE = {
-  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.06) 0%, transparent 70%)',
-} as const
-
-const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
 
 export default function NotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Ambient glow */}
+      {/* Floating orbs — CSS only */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] pointer-events-none"
-        style={AMBIENT_GLOW_STYLE}
+        className="absolute top-1/3 left-1/4 w-72 h-72 rounded-full pointer-events-none animate-float opacity-30"
+        style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%)' }}
       />
-      <div className="relative text-center max-w-md px-4">
-        <div className="relative w-16 h-16 mx-auto mb-6">
-          <div className="absolute inset-0 rounded-2xl bg-violet-500/10 animate-pulse" />
-          <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-border flex items-center justify-center">
-            <Shield className="w-8 h-8 text-violet-400" aria-hidden="true" />
-          </div>
-        </div>
-        <p className="text-7xl font-bold text-white/10 mb-4 select-none">
+      <div
+        className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full pointer-events-none animate-float-delayed opacity-20"
+        style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}
+      />
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full pointer-events-none animate-float-slow opacity-25"
+        style={{ background: 'radial-gradient(circle, rgba(167,139,250,0.1) 0%, transparent 70%)' }}
+      />
+
+      <div className="relative text-center max-w-lg px-6">
+        {/* Large 404 — gradient text */}
+        <p
+          className="text-[10rem] sm:text-[12rem] font-bold leading-none select-none mb-2"
+          style={{
+            background: 'linear-gradient(180deg, rgba(139,92,246,0.25) 0%, rgba(139,92,246,0.03) 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            letterSpacing: '-0.04em',
+          }}
+        >
           404
         </p>
-        <h2
-          className="text-3xl font-serif italic text-white mb-4"
-          style={LETTER_SPACING_STYLE}
+
+        {/* Shield icon */}
+        <div className="w-12 h-12 mx-auto mb-6 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+          <Shield className="w-6 h-6 text-violet-400" aria-hidden="true" />
+        </div>
+
+        <h1
+          className="text-2xl sm:text-3xl font-serif italic text-white mb-3"
+          style={{ letterSpacing: '-0.02em' }}
         >
-          Page Not Found
-        </h2>
-        <p className="text-white/70 mb-8 leading-relaxed">
-          The page you&apos;re looking for doesn&apos;t exist or has been moved.
+          This page is as private as your subscriptions
+        </h1>
+        <p className="text-[var(--text-secondary)] mb-10 leading-relaxed text-sm sm:text-base">
+          It doesn&apos;t exist. And even if it did, we wouldn&apos;t tell anyone.
         </p>
-        <div className="flex items-center justify-center gap-4 flex-wrap">
+
+        {/* Actions */}
+        <div className="flex items-center justify-center gap-3 flex-wrap">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-4 rounded-full bg-white text-black font-medium text-sm hover:bg-white/90 hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all active:scale-[0.98] btn-shimmer"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-violet-600 text-white font-medium text-sm hover:bg-violet-500 hover:shadow-[0_0_24px_rgba(139,92,246,0.3)] transition-all active:scale-[0.97] btn-shimmer"
           >
-            Return Home
+            Go Home
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Link>
           <Link
             href="/explore"
-            className="inline-flex items-center gap-2 px-6 py-4 rounded-full bg-white/[0.05] border border-border text-white/70 text-sm hover:bg-white/[0.08] hover:border-border-hover transition-all active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-transparent border border-[var(--border-default)] text-[var(--text-secondary)] text-sm hover:bg-white/[0.04] hover:border-[var(--border-strong)] transition-all active:scale-[0.97]"
           >
+            <Compass className="w-4 h-4" aria-hidden="true" />
             Explore Creators
-          </Link>
-        </div>
-        <div className="mt-4 flex items-center justify-center gap-4 text-sm text-white/60">
-          <Link href="/docs" className="hover:text-white/70 transition-colors">
-            Documentation
-          </Link>
-          <span>·</span>
-          <Link href="/verify" className="hover:text-white/70 transition-colors">
-            Verify Access
-          </Link>
-          <span>·</span>
-          <Link href="/privacy" className="hover:text-white/70 transition-colors">
-            Privacy Model
           </Link>
         </div>
       </div>

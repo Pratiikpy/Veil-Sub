@@ -8,6 +8,7 @@ import { Menu, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { AnimatePresence, m } from 'framer-motion'
 import NotificationBell from '@/components/NotificationBell'
+import { CommandPaletteTrigger } from '@/components/CommandPalette'
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
@@ -112,6 +113,7 @@ export default function Header() {
             </nav>
 
             <div className="ml-auto flex items-center gap-3" aria-live="polite">
+              <CommandPaletteTrigger />
               {connected && <NotificationBell />}
               <WalletMultiButton />
               <button

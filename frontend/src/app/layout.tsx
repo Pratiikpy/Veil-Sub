@@ -7,6 +7,7 @@ import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import BackToTop from '@/components/BackToTop'
 import ChangelogOverlay from '@/components/ChangelogOverlay'
+import CommandPalette from '@/components/CommandPalette'
 import { Toaster } from 'sonner'
 import NextTopLoader from 'nextjs-toploader'
 import { APP_NAME, APP_DESCRIPTION } from '@/lib/config'
@@ -24,7 +25,7 @@ const instrumentSerif = Instrument_Serif({
 })
 
 export const viewport: Viewport = {
-  themeColor: '#000000',
+  themeColor: '#050507',
   colorScheme: 'dark',
   width: 'device-width',
   initialScale: 1,
@@ -96,7 +97,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${instrumentSerif.variable} font-sans bg-background text-white min-h-screen antialiased`}
+        className={`${inter.variable} ${instrumentSerif.variable} font-sans bg-[#050507] text-white min-h-screen antialiased`}
       >
         <NextTopLoader color="#8B5CF6" height={2} showSpinner={false} shadow="0 0 10px rgba(139,92,246,0.3)" />
         <ClientProviders>
@@ -112,6 +113,7 @@ export default function RootLayout({
           <MobileBottomNav />
           <BackToTop />
           <ChangelogOverlay />
+          <CommandPalette />
           <Toaster
             theme="dark"
             position="bottom-right"
