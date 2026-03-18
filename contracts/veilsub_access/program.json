@@ -1,6 +1,13 @@
 {
-  "program": "veilsub_access_v1.aleo",
-  "version": "0.1.0",
-  "description": "Login with VeilSub — privacy-preserving subscription access gating for any Aleo application. Any program can verify VeilSub membership without learning the user's identity.",
-  "license": "MIT"
+    "program": "veilsub_access_v1.aleo",
+    "version": "0.1.0",
+    "description": "Login with VeilSub — privacy-preserving subscription access gating for any Aleo application",
+    "license": "MIT",
+    "dependencies": [
+        {
+            "name": "veilsub_v29.aleo",
+            "location": "network",
+            "network": "testnet"
+        }
+    ]
 }

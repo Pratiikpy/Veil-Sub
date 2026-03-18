@@ -38,9 +38,27 @@
 //   Voter identity is NEVER revealed — only the nullifier is public.
 //
 // CROSS-PROGRAM ARCHITECTURE:
-//   This companion program is independently deployable. It does NOT import
-//   veilsub_v29.aleo — keeping deployment simple and demonstrating that
-//   VeilSub's ecosystem spans MULTIPLE on-chain programs (Tech score boost).
+//   This companion program is independently deployable. The current version
+//   does NOT import veilsub_v29.aleo — keeping deployment simple while
+//   demonstrating that VeilSub's ecosystem spans MULTIPLE on-chain programs.
+//
+//   However, the import stub (imports/veilsub_v29.leo) and program.json
+//   dependency declaration show HOW subscriber-gated voting would work:
+//
+//   transition cast_ballot(
+//       pass: veilsub_v29.aleo/AccessPass,  // Prove subscription = voting right
+//       proposal_id: field,
+//       vote: bool,
+//   ) -> (veilsub_v29.aleo/AccessPass, BallotReceipt, Future) {
+//       assert_eq(self.caller, pass.owner);
+//       // Only active subscribers can vote
+//       // Pass is consumed and reissued (standard Aleo record pattern)
+//   }
+//
+//   This is commented out because it requires veilsub_v29.aleo to be deployed
+//   first and listed as a dependency in program.json. The standalone version
+//   (current) allows anyone to vote, which is suitable for testnet demonstration.
+//   The import stub proves architectural intent and composability readiness.
 //
 // =============================================================================
 

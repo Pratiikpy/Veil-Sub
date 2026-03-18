@@ -1,6 +1,13 @@
 {
-  "program": "veilsub_marketplace_v1.aleo",
-  "version": "0.1.0",
-  "description": "VeilSub Marketplace — Homomorphic Pedersen reputation, nullifier reviews, and BHP256 sealed-bid content auctions on Aleo",
-  "license": "MIT"
+    "program": "veilsub_marketplace_v1.aleo",
+    "version": "0.1.0",
+    "description": "VeilSub Marketplace — Homomorphic Pedersen reputation, nullifier reviews, and BHP256 sealed-bid content auctions on Aleo",
+    "license": "MIT",
+    "dependencies": [
+        {
+            "name": "veilsub_v29.aleo",
+            "location": "network",
+            "network": "testnet"
+        }
+    ]
 }

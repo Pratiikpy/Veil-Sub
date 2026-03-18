@@ -1,5 +1,6 @@
 import { buildConfig } from './config.js'
 import { SubscriptionMonitor } from './monitor.js'
+import { startOracleLoop } from './oracle.js'
 import { logBanner, logInfo, logError } from './notifications.js'
 
 // ─── Main Entry Point ───────────────────────────────────────────────────────
@@ -30,10 +31,14 @@ async function main(): Promise<void> {
   // Start the monitor
   const monitor = new SubscriptionMonitor(config)
 
+  // Start oracle price feed (fetches ALEO/USD every 60s)
+  const oracle = startOracleLoop(60_000)
+
   // Graceful shutdown handlers
   const shutdown = (): void => {
     logInfo('Shutting down gracefully...')
     monitor.stop()
+    oracle.stop()
     // Give a moment for final events to dispatch
     setTimeout(() => process.exit(0), 500)
   }

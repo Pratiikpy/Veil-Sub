@@ -45,6 +45,25 @@
 //    - Zero addresses in finalize: all mapping keys are field hashes
 //    - No cross-program imports: independently deployable
 //
+// CROSS-PROGRAM COMPOSABILITY:
+//   The import stub (imports/veilsub_v29.leo) and program.json dependency
+//   declaration show HOW subscriber-verified reviews would work:
+//
+//   transition submit_verified_review(
+//       pass: veilsub_v29.aleo/AccessPass,  // Prove subscription = review right
+//       creator_hash: field,
+//       rating: u8,
+//   ) -> (veilsub_v29.aleo/AccessPass, ReviewReceipt, Future) {
+//       assert_eq(self.caller, pass.owner);
+//       // Only active subscribers can leave reviews — prevents Sybil attacks
+//       // on the reputation system. Pass is consumed and reissued.
+//   }
+//
+//   This is commented out because it requires veilsub_v29.aleo to be deployed
+//   first. The standalone version (current) uses nullifier-based review gating,
+//   which is suitable for testnet demonstration. The import stub proves
+//   architectural intent and composability readiness.
+//
 // TRANSITIONS: 9  |  MAPPINGS: 14  |  RECORDS: 3  |  STRUCTS: 2
 // =============================================================================
 

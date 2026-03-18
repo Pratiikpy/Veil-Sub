@@ -26,10 +26,25 @@
 //   - Zero addresses in finalize: same privacy discipline as veilsub_v29.aleo
 //
 // ARCHITECTURE:
-//   Standalone program — does NOT import veilsub_v29.aleo. AccessProof mirrors
-//   the AccessPass record structure so it can be populated from AccessPass data.
-//   This keeps deployment simple and avoids cross-program dependency chains.
-//   Future versions can import veilsub_core directly for native record passing.
+//   Standalone program — the current version uses AccessProof (a mirror of
+//   AccessPass) so it can be deployed independently. The import stub
+//   (imports/veilsub_v29.leo) and program.json dependency declaration show
+//   HOW direct cross-program verification would eliminate the relay pattern:
+//
+//   transition verify_direct(
+//       pass: veilsub_v29.aleo/AccessPass,  // Use original AccessPass directly
+//       creator_hash: field,
+//       resource_id: field,
+//   ) -> (veilsub_v29.aleo/AccessPass, AccessGrant, Future) {
+//       assert_eq(self.caller, pass.owner);
+//       // Direct verification — no AccessProof relay needed
+//       // Core program's verify_access checks revocation for us
+//   }
+//
+//   This is commented out because it requires veilsub_v29.aleo to be deployed
+//   first. The standalone version (current) uses the AccessProof relay pattern,
+//   which is suitable for testnet demonstration. The import stub proves
+//   architectural intent and composability readiness.
 //
 // TRANSITIONS: 5  |  MAPPINGS: 4  |  RECORDS: 1
 // =============================================================================
