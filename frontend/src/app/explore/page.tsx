@@ -25,6 +25,7 @@ import AddressAvatar from '@/components/ui/AddressAvatar'
 import { shortenAddress, isValidAleoAddress, formatCredits } from '@/lib/utils'
 import { FEATURED_CREATORS, DEPLOYED_PROGRAM_ID } from '@/lib/config'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
+import { cacheCreators } from '@/lib/creatorCache'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -116,7 +117,7 @@ function CategoryBadge({ category }: { category: string | null }) {
 const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Creator; index: number }) {
   const isFeatured = FEATURED_ADDRESSES.has(creator.address)
   const { fetchCreatorStats } = useCreatorStats()
-  const [stats, setStats] = useState<{ subscriberCount: number; tierPrice: number | null; contentCount?: number } | null>(null)
+  const [stats, setStats] = useState<{ subscriberCount: number; subscriberThreshold: string; tierPrice: number | null; contentCount?: number } | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -184,9 +185,9 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
         <div className="flex flex-wrap items-center gap-2.5 mb-3.5">
           {stats && stats.tierPrice !== null ? (
             <>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-border/50 text-[11px] text-white/60">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-border/50 text-[11px] text-white/60" title="Privacy threshold badge">
                 <Users className="w-3 h-3 text-violet-400/80" aria-hidden="true" />
-                {stats.subscriberCount} subscriber{stats.subscriberCount !== 1 ? 's' : ''}
+                {stats.subscriberThreshold} subscribers
               </span>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-border/50 text-[11px] text-white/60">
                 <Coins className="w-3 h-3 text-amber-400/80" aria-hidden="true" />
@@ -456,15 +457,20 @@ export default function ExplorePage() {
         // Fallback: show featured creators when API returns empty (demo mode)
         if (apiCreators.length === 0 && !debouncedSearch.trim()) {
           const now = new Date()
-          setCreators(FEATURED_CREATORS.map((fc, i) => ({
+          const featured = FEATURED_CREATORS.map((fc, i) => ({
             address: fc.address,
             display_name: fc.label,
             bio: fc.bio ?? null,
             category: fc.category ?? null,
             created_at: new Date(now.getTime() - (30 - i * 5) * 24 * 60 * 60 * 1000).toISOString(),
-          })))
+          }))
+          setCreators(featured)
+          // Cache featured creators so /creator/[address] can use them without individual fetches
+          cacheCreators(featured)
         } else {
           setCreators(apiCreators)
+          // Cache all fetched creators — hides individual browsing interest from Supabase logs
+          cacheCreators(apiCreators)
         }
         setLoading(false)
       })
@@ -472,13 +478,15 @@ export default function ExplorePage() {
         if (err.name === 'AbortError') return
         // On API error, fall back to featured creators instead of showing error
         const now = new Date()
-        setCreators(FEATURED_CREATORS.map((fc, i) => ({
+        const featured = FEATURED_CREATORS.map((fc, i) => ({
           address: fc.address,
           display_name: fc.label,
           bio: fc.bio ?? null,
           category: fc.category ?? null,
           created_at: new Date(now.getTime() - (30 - i * 5) * 24 * 60 * 60 * 1000).toISOString(),
-        })))
+        }))
+        setCreators(featured)
+        cacheCreators(featured)
         setFetchError(false)
         setLoading(false)
       })

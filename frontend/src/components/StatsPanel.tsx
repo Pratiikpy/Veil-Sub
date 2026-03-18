@@ -55,13 +55,13 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
   const items = [
     {
       label: 'Subscribers',
-      value: stats.subscriberCount.toString(),
+      value: stats.subscriberThreshold,
       icon: Users,
       color: 'text-white/70',
     },
     {
       label: 'Revenue',
-      value: `${formatCredits(stats.totalRevenue)} ALEO`,
+      value: stats.revenueThreshold,
       icon: Coins,
       color: 'text-green-400',
     },

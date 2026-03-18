@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { m } from 'framer-motion'
-import { Lock, Unlock, Star, MessageSquare, Crown, Shield, RefreshCw, Loader2, FileText, ArrowRight, Flag, Image as ImageIcon, Video } from 'lucide-react'
+import { Lock, Unlock, Star, MessageSquare, Crown, Shield, RefreshCw, Loader2, FileText, ArrowRight, Flag, Image as ImageIcon, Video, ShieldCheck } from 'lucide-react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useContentFeed } from '@/hooks/useContentFeed'
+import { isE2EEncrypted, decryptContent as e2eDecrypt } from '@/lib/e2eEncryption'
 import dynamic from 'next/dynamic'
 const DisputeContentModal = dynamic(() => import('./DisputeContentModal'), { ssr: false })
 const RichContentRenderer = dynamic(() => import('./RichContentRenderer'), { ssr: false })
@@ -101,6 +102,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   const [failedUnlocks, setFailedUnlocks] = useState(new Set<string>())
   const [unlockedImages, setUnlockedImages] = useState<Record<string, string>>({})
   const [unlockedVideos, setUnlockedVideos] = useState<Record<string, string>>({})
+  const [decryptedPreviews, setDecryptedPreviews] = useState<Record<string, string>>({})
   const unlockedBodiesRef = useRef<Record<string, string>>({})
   const signMessageRef = useRef(signMessage)
   const unlockRunningRef = useRef(false)
@@ -149,6 +151,45 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   // Keep refs in sync for the unlock function
   const activePassesRef = useRef(activePasses)
   activePassesRef.current = activePasses
+
+  // Decrypt E2E-encrypted previews client-side so subscribers see teasers.
+  // Non-subscribers see "[Encrypted preview]" since they lack the tier key.
+  useEffect(() => {
+    if (posts.length === 0) return
+    const toDecrypt = posts.filter(
+      (p) => p.preview && isE2EEncrypted(p.preview) && !decryptedPreviews[p.id]
+    )
+    if (toDecrypt.length === 0) return
+
+    ;(async () => {
+      const results: Record<string, string> = {}
+      for (const post of toDecrypt) {
+        if (!post.preview) continue
+        // If subscriber has a matching pass, decrypt with their tier
+        const matchingPass = activePasses.find((ap) => ap.creator === creatorAddress)
+        if (matchingPass) {
+          // Try the post's minTier first (content was encrypted at this tier)
+          try {
+            results[post.id] = await e2eDecrypt(post.preview, creatorAddress, post.minTier)
+            continue
+          } catch {
+            // Try subscriber's tier
+            try {
+              results[post.id] = await e2eDecrypt(post.preview, creatorAddress, matchingPass.tier)
+              continue
+            } catch {
+              // Cannot decrypt
+            }
+          }
+        }
+        // Non-subscribers or decryption failure: show placeholder
+        results[post.id] = 'This preview is end-to-end encrypted. Subscribe to read it.'
+      }
+      if (Object.keys(results).length > 0) {
+        setDecryptedPreviews((prev) => ({ ...prev, ...results }))
+      }
+    })()
+  }, [posts, activePasses, creatorAddress, decryptedPreviews])
 
   // One-shot auto-unlock: runs once when posts load and user has passes.
   // Does NOT re-run on signMessage/unlockedBodies/activePasses changes.
@@ -267,7 +308,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         Exclusive Content
       </h2>
       <p className="text-xs text-white/60 mb-4">
-        Content is server-gated—locked posts are never sent to your browser until your AccessPass is verified.
+        Content is end-to-end encrypted and server-gated. Bodies are decrypted in your browser after AccessPass verification.
       </p>
 
       {initialLoad && loading ? (
@@ -308,6 +349,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
             const displayVideo = unlockedVideo || post.videoUrl
             const unlocked = hasAccess && displayBody != null
             const Icon = tier.icon
+            const postIsE2E = !!post.e2e
+            // Use decrypted preview for E2E posts, fall back to raw preview
+            const displayPreview = decryptedPreviews[post.id] || post.preview
 
             return (
               <m.div
@@ -354,6 +398,15 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                         {tier.name}
                       </span>
                     </div>
+                    {postIsE2E && (
+                      <span
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0"
+                        title="End-to-end encrypted — only subscribers can read this"
+                      >
+                        <ShieldCheck className="w-3 h-3" aria-hidden="true" />
+                        E2E
+                      </span>
+                    )}
                     {unlocked && (
                       <Unlock className={`w-3.5 h-3.5 shrink-0 ${tier.text}`} aria-hidden="true" />
                     )}
@@ -435,10 +488,10 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     <div className="relative">
                       {/* Visible preview lines with gradient blur fade */}
                       <div className="relative overflow-hidden">
-                        {post.preview ? (
+                        {displayPreview ? (
                           <div>
                             <p className="text-sm text-white/70 leading-relaxed">
-                              {post.preview}
+                              {displayPreview}
                             </p>
                             {/* Fake continuation lines (blurred) to suggest more content */}
                             <div className="mt-3 space-y-2" aria-hidden="true">
@@ -489,7 +542,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                           <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
                         <p className="text-[11px] text-white/40">
-                          Content is server-protected and never exposed in network requests
+                          {postIsE2E
+                            ? 'End-to-end encrypted — the server cannot read this content'
+                            : 'Content is server-protected and never exposed in network requests'}
                         </p>
                       </div>
                     </div>
@@ -529,7 +584,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         <div className="flex items-center gap-2">
           <Shield className="w-3.5 h-3.5 text-white/70 shrink-0" aria-hidden="true" />
           <p className="text-xs text-white/60">
-            Gated content is server-protected. Bodies are only delivered after AccessPass verification—never exposed in network requests.
+            Gated content is end-to-end encrypted. The server stores only ciphertext it cannot read. Decryption happens in your browser using keys derived from your AccessPass.
           </p>
         </div>
       </div>

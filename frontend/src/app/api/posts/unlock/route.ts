@@ -122,14 +122,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Insufficient access' }, { status: 403 })
     }
 
-    // Access granted — decrypt body at rest and return plaintext to subscriber
-    const decryptedBody = post.body ? decryptContent(post.body, creatorAddress) : ''
+    // Access granted — determine decryption strategy:
+    // E2E content (starts with 'e2e:'): return encrypted blob as-is. The CLIENT
+    // will derive the tier key from their AccessPass and decrypt in-browser.
+    // Server-encrypted content (legacy): decrypt server-side and return plaintext.
+    const bodyRaw = post.body || ''
+    const isE2E = bodyRaw.startsWith('e2e:')
+    const responseBody = isE2E ? bodyRaw : (bodyRaw ? decryptContent(bodyRaw, creatorAddress) : '')
 
     return NextResponse.json({
       postId: post.id,
-      body: decryptedBody,
+      body: responseBody,
       imageUrl: post.imageUrl || null,
       videoUrl: post.videoUrl || null,
+      e2e: isE2E || undefined,
     })
   } catch {
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })

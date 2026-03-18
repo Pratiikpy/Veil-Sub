@@ -19,6 +19,7 @@ export interface ContentPost {
   updatedAt?: string   // set when post is edited via PUT
   contentId: string    // on-chain content_id (field), or 'seed' for seed content
   gated?: boolean      // true when body is server-redacted
+  e2e?: boolean        // true when body is end-to-end encrypted (server cannot decrypt)
   imageUrl?: string | null  // attached image URL, null when gated
   videoUrl?: string | null  // attached video URL (YouTube or direct), null when gated
   hasImage?: boolean        // true when post has image (visible even when gated as metadata)
@@ -37,8 +38,10 @@ export interface CustomTierInfo {
 export interface CreatorProfile {
   address: string
   tierPrice: number | null  // microcredits, null = not registered
-  subscriberCount: number
-  totalRevenue: number      // microcredits
+  subscriberCount: number   // raw count — kept for backward compat, prefer subscriberThreshold for display
+  totalRevenue: number      // microcredits — raw count, prefer revenueThreshold for display
+  subscriberThreshold: string  // privacy-friendly label: "50+", "100+", "1K+", "New"
+  revenueThreshold: string     // privacy-friendly label: "10+ ALEO", "100+ ALEO", "New"
   contentCount?: number     // number of published posts
   tierCount?: number        // number of custom tiers on-chain (from tier_count mapping)
   customTiers?: Record<number, CustomTierInfo>  // tier_id → {price, name} from on-chain + cache

@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Database,
   User,
+  Users,
   ArrowRight,
   Layers,
   Hash,
@@ -173,8 +174,8 @@ const BSP_LAYERS = [
     name: 'Zero-Address Finalize',
     color: 'blue',
     description:
-      'All 25 on-chain records are indexed by mathematical fingerprints, never by wallet addresses. Your wallet address is used only during private processing on your device. Public data only sees hashed identifiers.',
-    tech: '25 on-chain records, all hash-indexed',
+      'All 30 on-chain mappings are indexed by mathematical fingerprints, never by wallet addresses. Your wallet address is used only during private processing on your device. Public data only sees hashed identifiers.',
+    tech: '30 on-chain mappings, all hash-indexed',
     operations: ['All actions'],
   },
   {
@@ -322,11 +323,11 @@ export default function PrivacyDashboardPage() {
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400">
                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                27 private actions
+                31 private actions
               </div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-xs text-violet-400">
                 <span className="w-2 h-2 rounded-full bg-violet-400" />
-                25 hash-indexed records
+                30 hash-indexed mappings
               </div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400">
                 <span className="w-2 h-2 rounded-full bg-blue-400" />
@@ -854,6 +855,124 @@ export default function PrivacyDashboardPage() {
                     </div>
                   </ScrollReveal>
                 ))}
+              </div>
+            </div>
+          </ScrollReveal>
+        </Container>
+      </section>
+
+      {/* ── Privacy Roadmap — Honest Limitations ─────────────────────── */}
+      <section className="py-12 sm:py-20 border-t border-border/50">
+        <Container>
+          <ScrollReveal>
+            <div className="text-center mb-12">
+              <h2
+                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                style={LETTER_SPACING_STYLE}
+              >
+                Privacy Roadmap
+              </h2>
+              <p className="text-white/60 max-w-xl mx-auto">
+                We believe in radical transparency about privacy limitations. Here is what we are
+                actively improving and what already works.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal>
+            <div className="max-w-3xl mx-auto space-y-4">
+              {/* Subscriber Counts */}
+              <div className="p-5 rounded-2xl bg-amber-500/[0.04] border border-amber-500/15">
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center bg-amber-500/10 border border-amber-500/20">
+                    <Users className="w-4 h-4 text-amber-400" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="text-sm font-semibold text-white">Subscriber Counts</h4>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                        In Progress
+                      </span>
+                    </div>
+                    <p className="text-sm text-white/60 leading-relaxed">
+                      The current contract (v29) stores both raw subscriber counts and Pedersen commitments
+                      side-by-side. The raw count exists for backward compatibility. The frontend already shows
+                      privacy-preserving threshold badges (e.g. &quot;50+ subscribers&quot;) instead of exact numbers.
+                      In v30, the raw <code className="text-xs px-1 py-0.5 rounded bg-white/[0.06] font-mono">subscriber_count</code> and{' '}
+                      <code className="text-xs px-1 py-0.5 rounded bg-white/[0.06] font-mono">total_revenue</code> mappings
+                      will be removed entirely, with all displays using threshold proofs from the Pedersen commitments.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content Encryption */}
+              <div className="p-5 rounded-2xl bg-emerald-500/[0.04] border border-emerald-500/15">
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/10 border border-emerald-500/20">
+                    <Lock className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="text-sm font-semibold text-white">Content Encryption</h4>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        Shipped
+                      </span>
+                    </div>
+                    <p className="text-sm text-white/60 leading-relaxed">
+                      New posts use end-to-end encryption (AES-256-GCM with tier-derived keys). The server
+                      stores only ciphertext and cannot read post content. Posts published before E2E encryption
+                      was enabled use server-side encryption and can theoretically be read by the server operator.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Browsing Privacy */}
+              <div className="p-5 rounded-2xl bg-blue-500/[0.04] border border-blue-500/15">
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/10 border border-blue-500/20">
+                    <Eye className="w-4 h-4 text-blue-400" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="text-sm font-semibold text-white">Browsing Privacy</h4>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        Improved
+                      </span>
+                    </div>
+                    <p className="text-sm text-white/60 leading-relaxed">
+                      Creator profiles are cached client-side after the initial explore page load. Individual
+                      creator page visits do not generate additional server queries when the cache is warm.
+                      The API proxy hides your IP from the Aleo network. However, the initial explore page fetch
+                      reveals that you are browsing VeilSub (though not which specific creator interests you).
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pedersen Commitments */}
+              <div className="p-5 rounded-2xl bg-violet-500/[0.04] border border-violet-500/15">
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center bg-violet-500/10 border border-violet-500/20">
+                    <Layers className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="text-sm font-semibold text-white">Homomorphic Commitments</h4>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        Shipped
+                      </span>
+                    </div>
+                    <p className="text-sm text-white/60 leading-relaxed">
+                      Every subscription and payment creates an additively homomorphic Pedersen commitment
+                      (<code className="text-xs px-1 py-0.5 rounded bg-white/[0.06] font-mono">value * G + blinding * H</code>).
+                      Creators can prove their subscriber count exceeds a threshold without revealing the exact number.
+                      Verifiers can independently check that commitments are consistent with the aggregate. This is
+                      the same cryptographic technique used by leading privacy protocols.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </ScrollReveal>

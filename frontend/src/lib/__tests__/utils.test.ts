@@ -11,6 +11,8 @@ import {
   blocksToTimeString,
   blockToDate,
   formatExpiry,
+  subscriberThresholdLabel,
+  revenueThresholdLabel,
 } from '../utils'
 
 describe('generatePassId', () => {
@@ -298,5 +300,94 @@ describe('formatExpiry', () => {
   it('shows future expiry for upcoming blocks', () => {
     const result = formatExpiry(200000, 100000)
     expect(result).toMatch(/Expires/)
+  })
+})
+
+describe('subscriberThresholdLabel', () => {
+  it('returns "New" for counts below 10', () => {
+    expect(subscriberThresholdLabel(0)).toBe('New')
+    expect(subscriberThresholdLabel(5)).toBe('New')
+    expect(subscriberThresholdLabel(9)).toBe('New')
+  })
+
+  it('returns "10+" for counts 10-49', () => {
+    expect(subscriberThresholdLabel(10)).toBe('10+')
+    expect(subscriberThresholdLabel(30)).toBe('10+')
+    expect(subscriberThresholdLabel(49)).toBe('10+')
+  })
+
+  it('returns "50+" for counts 50-99', () => {
+    expect(subscriberThresholdLabel(50)).toBe('50+')
+    expect(subscriberThresholdLabel(89)).toBe('50+')
+    expect(subscriberThresholdLabel(99)).toBe('50+')
+  })
+
+  it('returns "100+" for counts 100-499', () => {
+    expect(subscriberThresholdLabel(100)).toBe('100+')
+    expect(subscriberThresholdLabel(499)).toBe('100+')
+  })
+
+  it('returns "500+" for counts 500-999', () => {
+    expect(subscriberThresholdLabel(500)).toBe('500+')
+    expect(subscriberThresholdLabel(999)).toBe('500+')
+  })
+
+  it('returns "1K+" for counts 1000-4999', () => {
+    expect(subscriberThresholdLabel(1000)).toBe('1K+')
+    expect(subscriberThresholdLabel(4999)).toBe('1K+')
+  })
+
+  it('returns "5K+" for counts 5000-9999', () => {
+    expect(subscriberThresholdLabel(5000)).toBe('5K+')
+    expect(subscriberThresholdLabel(9999)).toBe('5K+')
+  })
+
+  it('returns "10K+" for counts 10000+', () => {
+    expect(subscriberThresholdLabel(10000)).toBe('10K+')
+    expect(subscriberThresholdLabel(50000)).toBe('10K+')
+  })
+
+  it('handles non-finite inputs', () => {
+    expect(subscriberThresholdLabel(NaN)).toBe('New')
+    expect(subscriberThresholdLabel(Infinity)).toBe('New')
+    expect(subscriberThresholdLabel(-5)).toBe('New')
+  })
+})
+
+describe('revenueThresholdLabel', () => {
+  it('returns "New" for zero or negative revenue', () => {
+    expect(revenueThresholdLabel(0)).toBe('New')
+    expect(revenueThresholdLabel(-1000000)).toBe('New')
+  })
+
+  it('returns "<1 ALEO" for sub-1 ALEO amounts', () => {
+    expect(revenueThresholdLabel(500000)).toBe('<1 ALEO')
+  })
+
+  it('returns "1+ ALEO" for 1-9 ALEO', () => {
+    expect(revenueThresholdLabel(1_000_000)).toBe('1+ ALEO')
+    expect(revenueThresholdLabel(9_999_999)).toBe('1+ ALEO')
+  })
+
+  it('returns "10+ ALEO" for 10-49 ALEO', () => {
+    expect(revenueThresholdLabel(10_000_000)).toBe('10+ ALEO')
+    expect(revenueThresholdLabel(49_999_999)).toBe('10+ ALEO')
+  })
+
+  it('returns "100+ ALEO" for 100-499 ALEO', () => {
+    expect(revenueThresholdLabel(100_000_000)).toBe('100+ ALEO')
+  })
+
+  it('returns "1K+ ALEO" for 1000+ ALEO', () => {
+    expect(revenueThresholdLabel(1_000_000_000)).toBe('1K+ ALEO')
+  })
+
+  it('returns "10K+ ALEO" for 10000+ ALEO', () => {
+    expect(revenueThresholdLabel(10_000_000_000)).toBe('10K+ ALEO')
+  })
+
+  it('handles non-finite inputs', () => {
+    expect(revenueThresholdLabel(NaN)).toBe('New')
+    expect(revenueThresholdLabel(Infinity)).toBe('New')
   })
 })

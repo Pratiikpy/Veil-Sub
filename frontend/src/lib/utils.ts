@@ -265,3 +265,56 @@ export async function computeWalletHash(address: string): Promise<string> {
   const hashBuf = await crypto.subtle.digest('SHA-256', encoder.encode(address + salt))
   return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
 }
+
+/**
+ * Privacy-preserving subscriber threshold tiers.
+ * Instead of showing exact subscriber counts (which leak raw data from
+ * on-chain mappings), we display threshold badges like "50+" or "1K+".
+ *
+ * The contract stores both raw u64 subscriber_count AND Pedersen
+ * commitments (subscriber_commit). The raw count makes the commitment
+ * pointless for privacy. Until v30 removes the raw count, the frontend
+ * avoids displaying exact numbers to reduce the information surface.
+ */
+const SUBSCRIBER_THRESHOLDS = [10_000, 5_000, 1_000, 500, 100, 50, 10] as const
+
+/**
+ * Convert a raw subscriber count into a privacy-friendly threshold label.
+ *
+ * Examples:
+ *   0  -> "New"
+ *   5  -> "New"
+ *   10 -> "10+"
+ *   89 -> "50+"
+ *   150 -> "100+"
+ *   1500 -> "1K+"
+ *   12000 -> "10K+"
+ */
+export function subscriberThresholdLabel(count: number): string {
+  if (!Number.isFinite(count) || count < 10) return 'New'
+  for (const threshold of SUBSCRIBER_THRESHOLDS) {
+    if (count >= threshold) {
+      if (threshold >= 1000) return `${threshold / 1000}K+`
+      return `${threshold}+`
+    }
+  }
+  return 'New'
+}
+
+/**
+ * Convert a raw revenue amount (microcredits) into a privacy-friendly
+ * threshold label. Avoids leaking exact revenue figures publicly.
+ */
+export function revenueThresholdLabel(microcredits: number): string {
+  if (!Number.isFinite(microcredits) || microcredits <= 0) return 'New'
+  const credits = microcredits / 1_000_000
+  if (credits >= 10_000) return '10K+ ALEO'
+  if (credits >= 5_000) return '5K+ ALEO'
+  if (credits >= 1_000) return '1K+ ALEO'
+  if (credits >= 500) return '500+ ALEO'
+  if (credits >= 100) return '100+ ALEO'
+  if (credits >= 50) return '50+ ALEO'
+  if (credits >= 10) return '10+ ALEO'
+  if (credits >= 1) return '1+ ALEO'
+  return '<1 ALEO'
+}

@@ -2,6 +2,11 @@
 
 import { useState, useCallback } from 'react'
 import { computeWalletHash } from '@/lib/utils'
+import {
+  encryptContent as e2eEncrypt,
+  isE2EEncrypted,
+  decryptContent as e2eDecrypt,
+} from '@/lib/e2eEncryption'
 import type { AccessPass, ContentPost, PostStatus } from '@/types'
 
 export interface ContentFeedError {
@@ -89,7 +94,40 @@ export function useContentFeed() {
         })
         if (res.ok) {
           const data = await res.json()
-          return { body: data.body as string, imageUrl: data.imageUrl as string | undefined, videoUrl: data.videoUrl as string | undefined }
+          let body = data.body as string
+
+          // Client-side E2E decryption: if the body is E2E-encrypted, the server
+          // returned it as-is (it cannot decrypt). We derive the tier key from
+          // the AccessPass fields and decrypt in-browser.
+          if (isE2EEncrypted(body)) {
+            // Find the matching pass to determine the tier used for encryption
+            const matchingPass = accessPasses.find(
+              (p) => p.creator === creatorAddress
+            )
+            if (matchingPass) {
+              try {
+                body = await e2eDecrypt(body, creatorAddress, matchingPass.tier)
+              } catch {
+                // Decryption failed — try lower tiers (content may be encrypted
+                // at a lower tier than the subscriber's current tier)
+                let decrypted = false
+                for (let t = matchingPass.tier - 1; t >= 1; t--) {
+                  try {
+                    body = await e2eDecrypt(body, creatorAddress, t)
+                    decrypted = true
+                    break
+                  } catch {
+                    // Try next tier down
+                  }
+                }
+                if (!decrypted) {
+                  body = '[Unable to decrypt content — tier key mismatch]'
+                }
+              }
+            }
+          }
+
+          return { body, imageUrl: data.imageUrl as string | undefined, videoUrl: data.videoUrl as string | undefined }
         }
         setError({ operation: 'unlock', message: 'Access verification failed', code: res.status })
       } catch (err) {
@@ -137,16 +175,36 @@ export function useContentFeed() {
           }
         }
 
+        // E2E encrypt body and preview client-side for tier-gated posts (minTier >= 1).
+        // Free-tier posts (minTier 0) are never encrypted since everyone can read them.
+        // The server receives only ciphertext it cannot decrypt.
+        let encryptedBody = body
+        let encryptedPreview = preview || body.slice(0, 200)
+        if (minTier >= 1 && status !== 'draft') {
+          try {
+            encryptedBody = await e2eEncrypt(body, creatorAddress, minTier)
+            encryptedPreview = await e2eEncrypt(
+              preview || body.slice(0, 200),
+              creatorAddress,
+              minTier
+            )
+          } catch {
+            // E2E encryption failed — fall back to sending plaintext
+            // (server-side encryption will still protect at rest)
+          }
+        }
+
         const res = await fetch('/api/posts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             creator: creatorAddress,
             title,
-            body,
-            preview: preview || body.slice(0, 200),
+            body: encryptedBody,
+            preview: encryptedPreview,
             minTier,
             contentId,
+            e2e: minTier >= 1 && status !== 'draft' && isE2EEncrypted(encryptedBody),
             ...(hashedContentId ? { hashedContentId } : {}),
             ...(imageUrl ? { imageUrl } : {}),
             ...(videoUrl ? { videoUrl } : {}),
@@ -257,13 +315,30 @@ export function useContentFeed() {
           }
         }
 
+        // E2E encrypt body and preview for tier-gated edits (non-draft, minTier >= 1)
+        const effectiveTier = updates.minTier ?? 1
+        const effectiveStatus = updates.status ?? 'published'
+        const encUpdates = { ...updates }
+        if (effectiveTier >= 1 && effectiveStatus !== 'draft') {
+          try {
+            if (encUpdates.body) {
+              encUpdates.body = await e2eEncrypt(encUpdates.body, creatorAddress, effectiveTier)
+            }
+            if (encUpdates.preview) {
+              encUpdates.preview = await e2eEncrypt(encUpdates.preview, creatorAddress, effectiveTier)
+            }
+          } catch {
+            // Fall back to plaintext — server-side encryption will protect at rest
+          }
+        }
+
         const res = await fetch('/api/posts', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             creator: creatorAddress,
             postId,
-            ...updates,
+            ...encUpdates,
             walletHash,
             timestamp,
             signature,

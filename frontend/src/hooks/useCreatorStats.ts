@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { DEPLOYED_PROGRAM_ID, getCreatorHash, saveCreatorHash } from '@/lib/config'
+import { subscriberThresholdLabel, revenueThresholdLabel } from '@/lib/utils'
 import type { CreatorProfile } from '@/types'
 
 export interface CreatorStatsError {
@@ -111,6 +112,8 @@ export function useCreatorStats() {
           tierPrice,
           subscriberCount,
           totalRevenue,
+          subscriberThreshold: subscriberThresholdLabel(subscriberCount),
+          revenueThreshold: revenueThresholdLabel(totalRevenue),
           contentCount,
           tierCount,
         }
@@ -122,6 +125,8 @@ export function useCreatorStats() {
           tierPrice: null,
           subscriberCount: 0,
           totalRevenue: 0,
+          subscriberThreshold: 'New',
+          revenueThreshold: 'New',
           contentCount: 0,
           tierCount: undefined,
         }

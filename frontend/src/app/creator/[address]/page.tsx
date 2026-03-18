@@ -48,10 +48,12 @@ import {
   shortenAddress,
   formatCredits,
   parseAccessPass,
+  subscriberThresholdLabel,
 } from '@/lib/utils'
 import { TIERS } from '@/types'
 import type { CreatorProfile, SubscriptionTier, AccessPass } from '@/types'
 import { FEATURED_CREATORS } from '@/lib/config'
+import { getCachedCreator, cacheSingleCreator } from '@/lib/creatorCache'
 
 import CreatorSkeleton from '@/components/CreatorSkeleton'
 import { spring } from '@/lib/motion'
@@ -464,10 +466,10 @@ function AboutTab({
         </p>
       </div>
 
-      {/* Stats */}
+      {/* Stats — threshold badges for privacy */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <div className="p-4 rounded-xl bg-surface-1 border border-border text-center">
-          <p className="text-2xl font-bold text-white">{stats?.subscriberCount ?? 0}</p>
+          <p className="text-2xl font-bold text-white">{stats?.subscriberThreshold ?? 'New'}</p>
           <p className="text-xs text-white/50 mt-1">Subscribers</p>
         </div>
         <div className="p-4 rounded-xl bg-surface-1 border border-border text-center">
@@ -475,10 +477,14 @@ function AboutTab({
           <p className="text-xs text-white/50 mt-1">Posts</p>
         </div>
         <div className="p-4 rounded-xl bg-surface-1 border border-border text-center col-span-2 sm:col-span-1">
-          <p className="text-2xl font-bold text-white">{formatCredits(stats?.totalRevenue ?? 0)}</p>
-          <p className="text-xs text-white/50 mt-1">ALEO Earned</p>
+          <p className="text-2xl font-bold text-white">{stats?.revenueThreshold ?? 'New'}</p>
+          <p className="text-xs text-white/50 mt-1">Revenue</p>
         </div>
       </div>
+      <p className="text-[11px] text-white/40 mt-2 flex items-center gap-1">
+        <Shield className="w-3 h-3 text-violet-400/60" />
+        Counts shown as threshold badges to protect creator privacy. Exact figures are never displayed.
+      </p>
 
       {/* Share */}
       <div className="p-4 rounded-xl bg-surface-1 border border-border">
@@ -599,7 +605,9 @@ export default function CreatorPage({
     }
   }, [displayName])
 
-  // Fetch creator stats and profile
+  // Fetch creator stats and profile.
+  // Privacy: check sessionStorage cache first to avoid individual Supabase requests
+  // that would leak browsing interest patterns in server logs.
   useEffect(() => {
     let cancelled = false
     setFetchError(false)
@@ -612,15 +620,31 @@ export default function CreatorPage({
       setFetchError(true)
       setLoading(false)
     })
-    getCreatorProfile(address).then((profile) => {
-      if (cancelled) return
-      if (profile) {
-        setDisplayName(profile.display_name)
-        setBio(profile.bio)
-      }
-    }).catch(() => {
-      toast.warning('Profile details unavailable. Using on-chain data only.', { id: 'profile-fetch-warn' })
-    })
+
+    // Check client-side cache first (populated by /explore bulk fetch)
+    const cached = getCachedCreator(address)
+    if (cached) {
+      // Cache hit — no Supabase request needed, browsing interest stays private
+      if (cached.display_name) setDisplayName(cached.display_name)
+      if (cached.bio) setBio(cached.bio)
+    } else {
+      // Cache miss — fall back to individual Supabase fetch, then cache the result
+      getCreatorProfile(address).then((profile) => {
+        if (cancelled) return
+        if (profile) {
+          setDisplayName(profile.display_name)
+          setBio(profile.bio)
+          // Cache for future navigation within this tab session
+          cacheSingleCreator({
+            address,
+            display_name: profile.display_name,
+            bio: profile.bio,
+          })
+        }
+      }).catch(() => {
+        toast.warning('Profile details unavailable. Using on-chain data only.', { id: 'profile-fetch-warn' })
+      })
+    }
     return () => { cancelled = true }
   }, [address, fetchCreatorStats, getCreatorProfile])
 
@@ -842,9 +866,9 @@ export default function CreatorPage({
                   <p className="text-sm text-white/60 mt-0.5 line-clamp-1">{creatorBio}</p>
                 )}
                 <div className="flex items-center gap-4 mt-1 text-xs text-white/50">
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1" title="Privacy-preserving threshold badge">
                     <Users className="w-3 h-3" />
-                    {stats?.subscriberCount ?? 0} subscribers
+                    {stats?.subscriberThreshold ?? 'New'} subscribers
                   </span>
                   <span className="flex items-center gap-1">
                     <Coins className="w-3 h-3" />

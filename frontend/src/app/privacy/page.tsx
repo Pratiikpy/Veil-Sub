@@ -746,6 +746,10 @@ async function finalize_verify_access(pass_id: field, expires_at: u32) {
                       desc: 'All mapping reads go through Next.js rewrites, preventing browser→Provable IP correlation.',
                     },
                     {
+                      title: 'Browsing Interest Protection',
+                      desc: 'Creator profiles are bulk-fetched and cached in your browser when you visit the Explore page. Individual creator page visits read from this local cache — no new server requests are generated, so Supabase logs cannot reveal which creators you are interested in.',
+                    },
+                    {
                       title: 'No Subscriber Data in Finalize',
                       desc: 'Finalize only receives creator_hash (Poseidon2 field), amount, and tier. No raw address—not even the creator—enters finalize. Subscriber identity has no pathway to public state.',
                     },

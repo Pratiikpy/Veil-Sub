@@ -32,7 +32,7 @@ const HomepageCreatorCard = React.memo(function HomepageCreatorCard({
   creator: CreatorListItem
 }) {
   const { fetchCreatorStats } = useCreatorStats()
-  const [stats, setStats] = useState<{ subscriberCount: number; tierPrice: number | null } | null>(null)
+  const [stats, setStats] = useState<{ subscriberCount: number; subscriberThreshold: string; tierPrice: number | null } | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -68,7 +68,7 @@ const HomepageCreatorCard = React.memo(function HomepageCreatorCard({
         <div className="flex gap-4 text-xs text-white/55 mb-3">
           <span className="flex items-center gap-1">
             <Users className="w-3 h-3" aria-hidden="true" />
-            {stats.subscriberCount} subscribers
+            {stats.subscriberThreshold} subscribers
           </span>
           <span className="flex items-center gap-1">
             <Coins className="w-3 h-3" aria-hidden="true" />

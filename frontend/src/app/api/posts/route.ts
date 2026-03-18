@@ -46,10 +46,21 @@ export async function GET(req: NextRequest) {
 
         // Server-side content gating: redact body + imageUrl + videoUrl for tier-gated posts, keep preview
         if (post.minTier && post.minTier > 0) {
-          const decryptedPreview = post.preview ? decryptContent(post.preview, creator) : ''
-          return [{ ...post, body: null, imageUrl: null, videoUrl: null, gated: true, hasImage: !!post.imageUrl, hasVideo: !!post.videoUrl, preview: decryptedPreview }]
+          // E2E-encrypted preview: pass through as-is (server cannot decrypt).
+          // Legacy server-encrypted preview: decrypt server-side for display.
+          const previewValue = post.preview
+            ? (post.preview.startsWith('e2e:') ? post.preview : decryptContent(post.preview, creator))
+            : ''
+          return [{
+            ...post,
+            body: null, imageUrl: null, videoUrl: null, gated: true,
+            hasImage: !!post.imageUrl, hasVideo: !!post.videoUrl,
+            preview: previewValue,
+            ...(post.e2e ? { e2e: true } : {}),
+          }]
         }
         // Free posts (minTier 0): decrypt body for public display
+        // Note: free posts are never E2E-encrypted, so always server-decrypt
         const decryptedBody = post.body ? decryptContent(post.body, creator) : ''
         const decryptedPreview = post.preview ? decryptContent(post.preview, creator) : ''
         return [{ ...post, body: decryptedBody, preview: decryptedPreview }]
@@ -238,10 +249,18 @@ export async function POST(req: NextRequest) {
     // Preview is an optional short teaser shown to non-subscribers
     const safePreview = typeof preview === 'string' ? preview.slice(0, API_LIMITS.MAX_PREVIEW_LENGTH) : ''
 
-    // Encrypt body and preview at rest — only the server can decrypt.
-    // Title, tier, contentId, imageUrl, videoUrl remain unencrypted (metadata for listing).
-    const encryptedBody = body ? encryptContent(body, creator) : ''
-    const encryptedPreview = safePreview ? encryptContent(safePreview, creator) : ''
+    // E2E encryption detection: if the body starts with 'e2e:', the client
+    // has already encrypted it end-to-end. Store it as-is — the server
+    // CANNOT and SHOULD NOT decrypt it. Only apply server-side encryption
+    // to non-E2E content (legacy clients or free-tier posts).
+    const isE2E = typeof body === 'string' && body.startsWith('e2e:')
+    const encryptedBody = isE2E
+      ? body
+      : (body ? encryptContent(body, creator) : '')
+    const isPreviewE2E = typeof safePreview === 'string' && safePreview.startsWith('e2e:')
+    const encryptedPreview = isPreviewE2E
+      ? safePreview
+      : (safePreview ? encryptContent(safePreview, creator) : '')
 
     const post = {
       id: `post-${crypto.randomUUID()}`,
@@ -252,6 +271,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
       contentId: typeof contentId === 'string' ? contentId.slice(0, API_LIMITS.MAX_CONTENT_ID_LENGTH) : '',
       status: postStatus,
+      ...(isE2E ? { e2e: true } : {}),
       ...(safeTags.length > 0 ? { tags: safeTags } : {}),
       ...(safeScheduledAt ? { scheduledAt: safeScheduledAt } : {}),
       ...(typeof hashedContentId === 'string' && /^\d+field$/.test(hashedContentId) ? { hashedContentId } : {}),
@@ -341,10 +361,17 @@ export async function PUT(req: NextRequest) {
             } catch { /* invalid URL, skip */ }
           }
         }
-        // Encrypt updated body/preview at rest
-        const encBody = body !== undefined ? encryptContent(body, creator) : undefined
+        // E2E detection: if the updated body starts with 'e2e:', the client
+        // already encrypted it end-to-end. Store as-is, skip server encryption.
+        const bodyIsE2E = typeof body === 'string' && body.startsWith('e2e:')
+        const encBody = body !== undefined
+          ? (bodyIsE2E ? body : encryptContent(body, creator))
+          : undefined
+        const previewIsE2E = typeof preview === 'string' && preview.startsWith('e2e:')
         const encPreview = preview !== undefined
-          ? (typeof preview === 'string' ? encryptContent(preview.slice(0, API_LIMITS.MAX_PREVIEW_LENGTH), creator) : post.preview)
+          ? (typeof preview === 'string'
+              ? (previewIsE2E ? preview : encryptContent(preview.slice(0, API_LIMITS.MAX_PREVIEW_LENGTH), creator))
+              : post.preview)
           : undefined
 
         // Validate status update
@@ -372,6 +399,7 @@ export async function PUT(req: NextRequest) {
           ...(encBody !== undefined && { body: encBody }),
           ...(encPreview !== undefined && { preview: encPreview }),
           ...(minTier !== undefined && { minTier }),
+          ...(bodyIsE2E ? { e2e: true } : {}),
           ...(updatedImageUrl !== undefined && { imageUrl: updatedImageUrl || undefined }),
           ...(updatedStatus !== undefined && { status: updatedStatus }),
           ...(updatedTags !== undefined && { tags: updatedTags }),

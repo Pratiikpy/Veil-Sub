@@ -378,7 +378,9 @@ export default function RegisteredDashboard({
               {stats?.subscriberCount ?? 0}
             </p>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] text-white/50">on-chain verified</span>
+              <span className="text-[10px] text-white/50">
+                shown as &quot;{stats?.subscriberThreshold ?? 'New'}&quot; publicly
+              </span>
               <Sparkline data={subscriberSpark} color="#60a5fa" width={60} height={20} />
             </div>
           </div>
@@ -790,6 +792,7 @@ export default function RegisteredDashboard({
             )}
             <p className="text-[11px] text-white/40 mt-2 italic">
               All activity is anonymized. No subscriber addresses or identities are ever visible.
+              Public visitors see threshold badges (e.g. &quot;{stats?.subscriberThreshold ?? '50+'}&quot;) instead of exact counts.
             </p>
           </div>
         ) : (

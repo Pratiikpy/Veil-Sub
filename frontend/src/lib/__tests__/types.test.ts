@@ -165,6 +165,8 @@ describe('type shape validation: CreatorProfile', () => {
       tierPrice: 500,
       subscriberCount: 10,
       totalRevenue: 50000,
+      subscriberThreshold: '10+',
+      revenueThreshold: '<1 ALEO',
       contentCount: 5,
       tierCount: 3,
       customTiers: {
@@ -176,6 +178,8 @@ describe('type shape validation: CreatorProfile', () => {
     expect(profile.tierPrice).not.toBeNull()
     expect(profile.subscriberCount).toBeGreaterThanOrEqual(0)
     expect(profile.totalRevenue).toBeGreaterThanOrEqual(0)
+    expect(profile.subscriberThreshold).toBe('10+')
+    expect(profile.revenueThreshold).toBe('<1 ALEO')
     expect(Object.keys(profile.customTiers!).length).toBe(3)
   })
 
@@ -185,9 +189,12 @@ describe('type shape validation: CreatorProfile', () => {
       tierPrice: null,
       subscriberCount: 0,
       totalRevenue: 0,
+      subscriberThreshold: 'New',
+      revenueThreshold: 'New',
     }
     expect(profile.tierPrice).toBeNull()
     expect(profile.subscriberCount).toBe(0)
+    expect(profile.subscriberThreshold).toBe('New')
   })
 
   it('allows optional contentCount and tierCount to be undefined', () => {
@@ -196,6 +203,8 @@ describe('type shape validation: CreatorProfile', () => {
       tierPrice: 100,
       subscriberCount: 0,
       totalRevenue: 0,
+      subscriberThreshold: 'New',
+      revenueThreshold: 'New',
     }
     expect(profile.contentCount).toBeUndefined()
     expect(profile.tierCount).toBeUndefined()
