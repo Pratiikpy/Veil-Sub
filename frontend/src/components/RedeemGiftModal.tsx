@@ -298,6 +298,7 @@ export default function RedeemGiftModal({
                       onChange={(e) => setManualPlaintext(e.target.value)}
                       placeholder='{ owner: aleo1..., creator: aleo1..., tier: 1u8, expires_at: 0u32, gifter_hash: 123field, gift_id: 456field }'
                       rows={4}
+                      maxLength={2000}
                       className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:ring-1 focus:border-violet-500/50 focus:ring-violet-500/30 transition-all text-xs font-mono resize-none"
                     />
                     <p className="mt-1.5 text-[11px] text-white/50">

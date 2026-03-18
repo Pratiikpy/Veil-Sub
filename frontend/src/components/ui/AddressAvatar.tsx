@@ -12,7 +12,9 @@ interface Props {
  * Uses violet/purple hue range to match VeilSub brand identity.
  */
 function AddressAvatar({ address, size = 40, className = '' }: Props) {
-  const hash = address.split('').reduce((a, c) => ((a << 5) - a + c.charCodeAt(0)) | 0, 0)
+  // Defensive guard: ensure address is a string before calling split
+  const safeAddress = address || ''
+  const hash = safeAddress.split('').reduce((a, c) => ((a << 5) - a + c.charCodeAt(0)) | 0, 0)
   // Constrain hues to violet/purple/blue range (220-320) for brand consistency
   const hue1 = 220 + Math.abs(hash % 100)
   const hue2 = (hue1 + 30 + Math.abs((hash >> 8) % 50)) % 360
@@ -32,7 +34,7 @@ function AddressAvatar({ address, size = 40, className = '' }: Props) {
         className="text-white font-bold select-none drop-shadow-sm"
         style={{ fontSize: size < 48 ? '0.75rem' : '1.125rem' }}
       >
-        {address.slice(5, 7).toUpperCase()}
+        {safeAddress.slice(5, 7).toUpperCase()}
       </span>
     </div>
   )

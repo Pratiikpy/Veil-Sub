@@ -200,6 +200,7 @@ export default function OnChainExplorer() {
                 onChange={(e) => setCreatorAddr(e.target.value)}
                 placeholder="Poseidon2 field hash or aleo1..."
                 aria-label="Creator address or hash"
+                maxLength={100}
                 className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white text-base placeholder:text-white/60 focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
               />
               <button
@@ -281,6 +282,7 @@ export default function OnChainExplorer() {
                   onChange={(e) => setContentId(e.target.value)}
                   placeholder="Content hash (field value)"
                   aria-label="Content hash to verify"
+                  maxLength={100}
                   className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white text-base placeholder:text-white/60 focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
                 />
               </div>

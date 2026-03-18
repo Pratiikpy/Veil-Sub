@@ -1,9 +1,9 @@
 'use client'
 
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { m } from 'framer-motion'
 import { Shield, Copy, Download, Check } from 'lucide-react'
-import { useState } from 'react'
+import { toast } from 'sonner'
 
 interface VerificationReceiptProps {
   creatorName: string
@@ -36,7 +36,10 @@ export default function VerificationReceipt({
     const text = `Verified VeilSub Subscriber\nCreator: ${creatorName}\nTier: ${tier}\nActive until: ${expiresAt}\nVerified: ${verifiedAt}\nhttps://veil-sub.vercel.app/verify`
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true)
+      toast.success('Receipt copied to clipboard')
       setTimeout(() => setCopied(false), 2000)
+    }).catch(() => {
+      toast.error('Could not copy to clipboard')
     })
   }, [creatorName, tier, expiresAt, verifiedAt])
 

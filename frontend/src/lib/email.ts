@@ -23,7 +23,9 @@ export interface SendEmailResult {
  */
 export async function sendEmail(params: SendEmailParams): Promise<SendEmailResult> {
   if (!resend) {
-    console.log('[email] Resend not configured, skipping email:', params.subject)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[email] Resend not configured, skipping email:', params.subject)
+    }
     return { success: false, reason: 'not_configured' }
   }
 
@@ -36,14 +38,18 @@ export async function sendEmail(params: SendEmailParams): Promise<SendEmailResul
     })
 
     if (error) {
-      console.error('[email] Resend error:', error.message)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[email] Resend error:', error.message)
+      }
       return { success: false, reason: error.message }
     }
 
     return { success: true, id: data?.id }
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'send_failed'
-    console.error('[email] Send failed:', msg)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[email] Send failed:', msg)
+    }
     return { success: false, reason: msg }
   }
 }

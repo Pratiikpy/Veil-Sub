@@ -80,8 +80,8 @@ export async function POST(req: NextRequest) {
 
   const supabase = getServerSupabase()
   if (!supabase) {
-    // No database — client stores in localStorage as primary
-    return NextResponse.json({ success: true, note: 'no_database' })
+    // No database — client stores in localStorage as primary (graceful degradation)
+    return NextResponse.json({ success: false, fallback: 'localStorage', note: 'no_database' }, { status: 503 })
   }
 
   const { error } = await supabase
@@ -96,8 +96,7 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     // Table might not exist yet — graceful fallback, client uses localStorage
-    // Note: success=false so client knows server-side failed, but localStorage is primary
-    return NextResponse.json({ success: false, warning: 'database_unavailable', fallback: 'localStorage' })
+    return NextResponse.json({ success: false, warning: 'database_unavailable', fallback: 'localStorage' }, { status: 500 })
   }
 
   return NextResponse.json({ success: true })

@@ -3,6 +3,7 @@
 import { useRef, useCallback, useState, useEffect, type RefObject } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { Download, Share2, Shield, Check } from 'lucide-react'
+import { toast } from 'sonner'
 import GlassCard from './GlassCard'
 
 interface Props {
@@ -50,9 +51,10 @@ export default function CreatorQRCode({ creatorAddress, delay = 0 }: Props) {
       link.download = `veilsub-${creatorAddress.slice(0, 10)}.png`
       link.href = canvas.toDataURL('image/png')
       link.click()
+      toast.success('QR code downloaded')
     }
     img.onerror = () => {
-      // SVG to image conversion failed — silently skip
+      toast.error('Could not generate QR code image')
     }
     img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgData)}`
   }, [creatorAddress])
@@ -68,11 +70,12 @@ export default function CreatorQRCode({ creatorAddress, delay = 0 }: Props) {
       } else {
         await navigator.clipboard.writeText(creatorUrl)
         setCopied(true)
+        toast.success('Link copied to clipboard')
         if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
         copyTimerRef.current = setTimeout(() => setCopied(false), 2000)
       }
     } catch {
-      // User cancelled share dialog or clipboard not available
+      // User cancelled share dialog — no action needed
     }
   }, [creatorUrl])
 

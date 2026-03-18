@@ -59,6 +59,7 @@ export default function RegistrationForm({
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder="5"
                   min="0.000001"
+                  max="1000000"
                   step="0.1"
                   onKeyDown={(e) => e.key === 'Enter' && onRegister()}
                   className="w-full px-4 py-4 rounded-lg bg-surface-1 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"

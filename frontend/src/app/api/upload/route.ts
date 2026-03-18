@@ -95,9 +95,13 @@ async function handleFileUpload(req: NextRequest): Promise<NextResponse> {
       }
 
       // If storage bucket doesn't exist or upload fails, fall through to base64
-      console.error('[api/upload] Supabase Storage upload failed:', error.message)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[api/upload] Supabase Storage upload failed:', error.message)
+      }
     } catch (err) {
-      console.error('[api/upload] Supabase Storage error:', err)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[api/upload] Supabase Storage error:', err)
+      }
     }
   }
 
@@ -175,9 +179,13 @@ async function handleBase64Upload(req: NextRequest): Promise<NextResponse> {
           return NextResponse.json({ url: urlData.publicUrl })
         }
 
-        console.error('[api/upload] Supabase Storage base64 upload failed:', error.message)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('[api/upload] Supabase Storage base64 upload failed:', error.message)
+        }
       } catch (err) {
-        console.error('[api/upload] Supabase Storage error:', err)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('[api/upload] Supabase Storage error:', err)
+        }
       }
     }
 

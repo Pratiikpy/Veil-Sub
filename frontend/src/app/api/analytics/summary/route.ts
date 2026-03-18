@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { hashAddress } from '@/lib/encryption'
+import { ALEO_ADDRESS_RE } from '@/lib/config'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 
 export async function GET(req: NextRequest) {
@@ -9,8 +10,8 @@ export async function GET(req: NextRequest) {
   if (!allowed) return getRateLimitResponse()
 
   const address = req.nextUrl.searchParams.get('creator')
-  if (!address) {
-    return NextResponse.json({ error: 'Missing creator address' }, { status: 400 })
+  if (!address || !ALEO_ADDRESS_RE.test(address)) {
+    return NextResponse.json({ error: 'Valid Aleo address required' }, { status: 400 })
   }
 
   const supabase = getServerSupabase()

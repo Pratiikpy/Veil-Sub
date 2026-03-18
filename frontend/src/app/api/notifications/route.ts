@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
 
   const wallet = req.nextUrl.searchParams.get('wallet')
   if (!wallet || !ALEO_ADDRESS_RE.test(wallet)) {
-    return NextResponse.json({ notifications: [] })
+    return NextResponse.json({ error: 'Valid Aleo wallet address required', notifications: [] }, { status: 400 })
   }
 
   const limit = Math.min(
@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Both Supabase and Redis unavailable — return empty with fallback indicator
-  return NextResponse.json({ notifications: [], fallback: 'no_storage' })
+  return NextResponse.json({ notifications: [], fallback: 'no_storage' }, { status: 503 })
 }
 
 /**
