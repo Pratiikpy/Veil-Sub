@@ -1,0 +1,39 @@
+{
+  "name": "@veilsub/cli",
+  "version": "0.1.0",
+  "description": "CLI tool for VeilSub privacy protocol on Aleo",
+  "bin": {
+    "veilsub": "./bin/veilsub.js"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc && node dist/index.js"
+  },
+  "keywords": [
+    "aleo",
+    "privacy",
+    "subscriptions",
+    "zk",
+    "zero-knowledge",
+    "creator-economy",
+    "veilsub",
+    "cli"
+  ],
+  "author": "VeilSub Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pratiikpy/Veil-Sub"
+  },
+  "homepage": "https://veil-sub.vercel.app",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "@types/node": "^22.0.0"
+  }
+}

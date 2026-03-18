@@ -1,0 +1,6 @@
+{
+  "program": "veilsub_governance_v1.aleo",
+  "version": "0.1.0",
+  "description": "VeilSub governance program: private voting with homomorphic Pedersen ballot aggregation and nullifier-based double-vote prevention",
+  "license": "MIT"
+}

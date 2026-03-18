@@ -12,7 +12,9 @@ import NotificationBell from '@/components/NotificationBell'
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
   { href: '/explore', label: 'Explore' },
-  { href: '/docs', label: 'Docs' },
+  { href: '/governance', label: 'Governance' },
+  { href: '/marketplace', label: 'Market' },
+  { href: '/developers', label: 'Developers' },
 ]
 
 const DASHBOARD_ITEM = { href: '/dashboard', label: 'Dashboard' }
