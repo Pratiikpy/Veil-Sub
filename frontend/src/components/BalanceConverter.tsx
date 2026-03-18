@@ -26,7 +26,9 @@ export default function BalanceConverter({
     return () => stopPolling()
   }, [stopPolling])
 
-  const requiredDisplay = (requiredAmount / 1_000_000).toFixed(2)
+  const requiredDisplay = Number.isFinite(requiredAmount) && requiredAmount > 0
+    ? (requiredAmount / 1_000_000).toFixed(2)
+    : '0.00'
   // Add 0.5 ALEO buffer to cover fees and ensure the record is large enough
   const convertAmount = requiredAmount + 500_000
 

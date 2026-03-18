@@ -74,7 +74,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
   const [error, setError] = useState<string | null>(null)
   const submittingRef = useRef(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { tiers: onChainTiers } = useCreatorTiers(creatorAddress)
+  const { tiers: onChainTiers, loading: tiersLoading, error: tiersError } = useCreatorTiers(creatorAddress)
 
   // Tags state
   const [tags, setTags] = useState<string[]>(editingPost?.tags ?? [])
@@ -685,6 +685,12 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
             </div>
             <div>
               <label className="block text-sm text-white/70 mb-1.5">Minimum tier required</label>
+              {tiersLoading && (
+                <p className="text-xs text-white/50 mb-2">Loading tier options...</p>
+              )}
+              {tiersError && (
+                <p className="text-xs text-yellow-400/80 mb-2">Could not load custom tiers. Showing default tier only.</p>
+              )}
               <div className="flex flex-wrap gap-2" role="group" aria-label="Minimum tier selection">
                 {tierOptions.map(({ id, name }) => (
                   <button

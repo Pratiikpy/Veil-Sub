@@ -396,7 +396,7 @@ export default function VerifyPage() {
                     onClick={loadPasses}
                     disabled={loading}
                     aria-label="Refresh access passes"
-                    className="p-2 rounded-lg bg-white/[0.05] border border-border text-white/60 hover:text-white hover:bg-white/[0.08] transition-all duration-300"
+                    className="p-2 rounded-lg bg-white/[0.05] border border-border text-white/60 hover:text-white hover:bg-white/[0.08] transition-all duration-300 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
                   >
                     <RefreshCw
                       className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}

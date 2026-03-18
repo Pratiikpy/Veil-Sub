@@ -332,14 +332,14 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
             type="button"
             onClick={handleUrlSubmit}
             disabled={!urlInput.url.trim()}
-            className="px-3 py-1 rounded-md text-xs font-medium bg-violet-500/20 text-violet-300 border border-violet-500/30 hover:bg-violet-500/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-3 py-1 rounded-md text-xs font-medium bg-violet-500/20 text-violet-300 border border-violet-500/30 hover:bg-violet-500/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
           >
             Insert
           </button>
           <button
             type="button"
             onClick={closeUrlInput}
-            className="px-2 py-1 rounded-md text-xs text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors"
+            className="px-2 py-1 rounded-md text-xs text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
           >
             Cancel
           </button>

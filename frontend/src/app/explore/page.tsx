@@ -425,7 +425,7 @@ export default function ExplorePage() {
               {search && (
                 <button
                   onClick={handleClearSearch}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-white/[0.06] text-white/40 hover:text-white/60 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-white/[0.06] text-white/40 hover:text-white/60 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
                   aria-label="Clear search"
                 >
                   <X className="w-4 h-4" aria-hidden="true" />

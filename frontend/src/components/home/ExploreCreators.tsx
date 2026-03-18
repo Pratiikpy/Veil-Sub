@@ -222,7 +222,7 @@ export default function ExploreCreators() {
             </p>
             <Link
               href="/explore"
-              className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors whitespace-nowrap"
+              className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors whitespace-nowrap rounded focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
             >
               View all creators <ArrowRight className="w-3 h-3" aria-hidden="true" />
             </Link>

@@ -233,9 +233,13 @@ export default function CommandPalette() {
                 placeholder="Search pages, actions, creators..."
                 className="flex-1 bg-transparent text-lg text-white placeholder:text-white/30 outline-none"
                 aria-label="Search commands"
+                aria-describedby="command-palette-hint"
                 autoComplete="off"
                 spellCheck={false}
               />
+              <span id="command-palette-hint" className="sr-only">
+                Press Escape to close, arrow keys to navigate, Enter to select
+              </span>
               <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[10px] text-white/30 font-mono">
                 ESC
               </kbd>

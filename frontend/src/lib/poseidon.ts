@@ -23,7 +23,9 @@ async function ensureWasm(): Promise<boolean> {
     wasmLoaded = true
     return true
   } catch (e) {
-    console.error('[poseidon] Failed to load @provablehq/wasm:', e)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[poseidon] Failed to load @provablehq/wasm:', e)
+    }
     return false
   }
 }
@@ -45,7 +47,9 @@ export async function poseidon2HashField(input: string): Promise<string | null> 
     hasher.free()
     return hash
   } catch (e) {
-    console.error('[poseidon] Hash computation failed:', e)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[poseidon] Hash computation failed:', e)
+    }
     return null
   }
 }

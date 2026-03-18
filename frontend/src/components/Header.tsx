@@ -119,7 +119,7 @@ export default function Header() {
                 <Link
                   href="/settings"
                   aria-label="Settings"
-                  className={`p-2 rounded-lg transition-colors ${
+                  className={`p-2 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
                     pathname.startsWith('/settings')
                       ? 'bg-white/[0.08] text-white'
                       : 'hover:bg-white/5 text-white/50 hover:text-white/70'

@@ -80,8 +80,8 @@ function NotificationItem({
               e.stopPropagation()
               onRead(notification.id)
             }}
-            title="Mark as read"
-            className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors"
+            aria-label="Mark as read"
+            className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
           >
             <Check className="w-3 h-3" aria-hidden="true" />
           </button>
@@ -91,8 +91,8 @@ function NotificationItem({
             e.stopPropagation()
             onDismiss(notification.id)
           }}
-          title="Dismiss"
-          className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors"
+          aria-label="Dismiss notification"
+          className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
         >
           <X className="w-3 h-3" aria-hidden="true" />
         </button>

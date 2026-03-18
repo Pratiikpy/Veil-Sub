@@ -190,7 +190,30 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
     return `${dateStr} at ${timeStr} (in ${diffMin}m)`
   }
 
-  if (!postsLoaded) return null
+  if (!postsLoaded) {
+    return (
+      <div className="p-6 rounded-xl bg-surface-1 border border-border">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-5 h-5 rounded bg-white/[0.05] animate-pulse" />
+          <div className="h-5 w-24 rounded bg-white/[0.05] animate-pulse" />
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="p-4 rounded-lg bg-white/[0.02] border border-white/[0.05] animate-pulse">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 rounded bg-white/[0.05]" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 rounded bg-white/[0.05] w-3/4" />
+                  <div className="h-3 rounded bg-white/[0.04] w-1/2" />
+                </div>
+                <div className="w-16 h-5 rounded-full bg-white/[0.05]" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   const tabs: { key: TabKey; label: string; count: number }[] = [
     { key: 'published', label: 'Published', count: allPosts.length },

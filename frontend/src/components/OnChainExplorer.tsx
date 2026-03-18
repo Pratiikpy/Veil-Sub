@@ -205,7 +205,7 @@ export default function OnChainExplorer() {
               <button
                 type="button"
                 onClick={() => setCreatorAddr(CREATOR_HASH)}
-                className="mt-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors"
+                className="mt-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
               >
                 Use platform creator hash
               </button>
@@ -213,7 +213,7 @@ export default function OnChainExplorer() {
             <button
               onClick={lookupCreator}
               disabled={creatorLoading || (!creatorAddr.startsWith('aleo1') && !creatorAddr.endsWith('field'))}
-              className="w-full py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-shimmer"
+              className="w-full py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-shimmer focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
             >
               {creatorLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-label="Loading" /> : <Search className="w-4 h-4" aria-hidden="true" />}
               Query On-Chain
@@ -287,7 +287,7 @@ export default function OnChainExplorer() {
               <button
                 onClick={lookupContent}
                 disabled={contentLoading || !contentId}
-                className="w-full py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-shimmer"
+                className="w-full py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-shimmer focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
               >
                 {contentLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-label="Loading" /> : <Search className="w-4 h-4" aria-hidden="true" />}
                 Verify Content
@@ -343,7 +343,7 @@ export default function OnChainExplorer() {
               <button
                 onClick={checkDeployment}
                 disabled={deployLoading}
-                className="w-full py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-shimmer"
+                className="w-full py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-shimmer focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
               >
                 {deployLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-label="Loading" /> : <Search className="w-4 h-4" aria-hidden="true" />}
                 Check Deployment
