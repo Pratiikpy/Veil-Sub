@@ -1082,6 +1082,23 @@ export default function CreatorPage({
         onClose={() => setShowRedeemGift(false)}
         creatorAddress={address}
       />
+      {/* Mobile sticky subscribe bar — always visible on scroll */}
+      {!isSubscribed && connected && (
+        <div className="fixed bottom-0 inset-x-0 z-40 p-4 bg-[var(--bg-base)]/95 backdrop-blur-lg border-t border-[var(--border-subtle)] sm:hidden">
+          <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{displayName || 'Creator'}</p>
+              <p className="text-xs text-[var(--text-muted)]">From {basePrice ? `${(basePrice / 1_000_000).toFixed(1)} ALEO/mo` : '...'}</p>
+            </div>
+            <button
+              onClick={() => setSelectedTier(displayTiers[0] ?? null)}
+              className="px-6 py-2.5 rounded-xl bg-[var(--accent)] text-white font-medium text-sm hover:bg-[var(--accent-hover)] transition-all active:scale-[0.98] whitespace-nowrap"
+            >
+              Subscribe
+            </button>
+          </div>
+        </div>
+      )}
     </PageTransition>
   )
 }
