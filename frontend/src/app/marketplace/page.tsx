@@ -436,10 +436,12 @@ function BidModal({
 
   const handleSubmit = useCallback(() => {
     if (typeof window !== 'undefined' && auctionId !== null) {
-      localStorage.setItem(
-        `veilsub_bid_salt_${auctionId}`,
-        JSON.stringify({ amount: bidAmount, salt })
-      )
+      try {
+        localStorage.setItem(
+          `veilsub_bid_salt_${auctionId}`,
+          JSON.stringify({ amount: bidAmount, salt })
+        )
+      } catch { /* localStorage full or unavailable */ }
     }
     setSubmitted(true)
   }, [auctionId, bidAmount, salt])

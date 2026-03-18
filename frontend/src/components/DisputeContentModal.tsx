@@ -217,6 +217,18 @@ export default function DisputeContentModal({
               <Button variant="accent" onClick={handleClose} className="w-full">
                 Dispute Submitted
               </Button>
+            ) : txStatus === 'failed' ? (
+              <>
+                <Button variant="secondary" onClick={handleClose} className="flex-1">
+                  Close
+                </Button>
+                <Button
+                  onClick={handleDispute}
+                  className="flex-1 bg-red-500/80 text-white hover:bg-red-500/90 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]"
+                >
+                  Try Again
+                </Button>
+              </>
             ) : (
               <>
                 <Button variant="secondary" onClick={handleClose} className="flex-1">

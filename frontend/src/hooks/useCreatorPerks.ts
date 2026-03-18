@@ -113,18 +113,20 @@ export function useCreatorPerks(creatorAddress: string | undefined): CreatorPerk
 
     // 1. Write to localStorage immediately (instant feedback)
     if (typeof window !== 'undefined') {
-      localStorage.setItem(
-        `${STORAGE_PREFIX}${creatorAddress}_${tierId}`,
-        JSON.stringify(clean)
-      )
-      if (cleanDesc) {
+      try {
         localStorage.setItem(
-          `${STORAGE_PREFIX}desc_${creatorAddress}_${tierId}`,
-          cleanDesc
+          `${STORAGE_PREFIX}${creatorAddress}_${tierId}`,
+          JSON.stringify(clean)
         )
-      } else {
-        localStorage.removeItem(`${STORAGE_PREFIX}desc_${creatorAddress}_${tierId}`)
-      }
+        if (cleanDesc) {
+          localStorage.setItem(
+            `${STORAGE_PREFIX}desc_${creatorAddress}_${tierId}`,
+            cleanDesc
+          )
+        } else {
+          localStorage.removeItem(`${STORAGE_PREFIX}desc_${creatorAddress}_${tierId}`)
+        }
+      } catch { /* localStorage full or unavailable */ }
     }
 
     // 2. Update state immutably

@@ -312,7 +312,9 @@ function VoteModal({
   const handleSubmit = useCallback(() => {
     // Save salt to localStorage for future proof
     if (typeof window !== 'undefined') {
-      localStorage.setItem(`veilsub_vote_salt_${selectedProposal}`, salt)
+      try {
+        localStorage.setItem(`veilsub_vote_salt_${selectedProposal}`, salt)
+      } catch { /* localStorage full or unavailable */ }
     }
     setSubmitted(true)
   }, [selectedProposal, salt])

@@ -82,7 +82,9 @@ function loadNotificationPrefs(): NotificationPrefs {
 
 function saveNotificationPrefs(prefs: NotificationPrefs) {
   if (typeof localStorage === 'undefined') return
-  localStorage.setItem('veilsub_notification_prefs', JSON.stringify(prefs))
+  try {
+    localStorage.setItem('veilsub_notification_prefs', JSON.stringify(prefs))
+  } catch { /* localStorage full or unavailable */ }
 }
 
 function loadPrivacyMode(): PrivacyMode {
@@ -93,7 +95,9 @@ function loadPrivacyMode(): PrivacyMode {
 
 function savePrivacyMode(mode: PrivacyMode) {
   if (typeof localStorage === 'undefined') return
-  localStorage.setItem('veilsub_default_privacy_mode', mode)
+  try {
+    localStorage.setItem('veilsub_default_privacy_mode', mode)
+  } catch { /* localStorage full or unavailable */ }
 }
 
 function loadReducedMotion(): boolean {
@@ -103,7 +107,9 @@ function loadReducedMotion(): boolean {
 
 function saveReducedMotion(on: boolean) {
   if (typeof localStorage === 'undefined') return
-  localStorage.setItem('veilsub_reduced_motion', on ? 'on' : 'off')
+  try {
+    localStorage.setItem('veilsub_reduced_motion', on ? 'on' : 'off')
+  } catch { /* localStorage full or unavailable */ }
   if (on) {
     document.documentElement.classList.add('reduce-motion')
   } else {
@@ -133,11 +139,13 @@ function applyTheme(pref: ThemePreference) {
     document.documentElement.classList.remove('light')
   }
   // Only store explicit user choice, not 'system'
-  if (pref === 'system') {
-    localStorage.removeItem('veilsub_theme')
-  } else {
-    localStorage.setItem('veilsub_theme', pref)
-  }
+  try {
+    if (pref === 'system') {
+      localStorage.removeItem('veilsub_theme')
+    } else {
+      localStorage.setItem('veilsub_theme', pref)
+    }
+  } catch { /* localStorage full or unavailable */ }
 }
 
 // ─── Section Components ──────────────────────────────────────────────────────
@@ -368,9 +376,11 @@ export default function SettingsPage() {
     setProfileSaving(true)
     try {
       const result = await upsertCreatorProfile(publicKey, displayName || undefined, bio || undefined)
-      // Save local-only fields
-      localStorage.setItem('veilsub_profile_category', category)
-      localStorage.setItem('veilsub_profile_image', imageUrl)
+      // Save local-only fields (ignore storage quota errors)
+      try {
+        localStorage.setItem('veilsub_profile_category', category)
+        localStorage.setItem('veilsub_profile_image', imageUrl)
+      } catch { /* localStorage full or unavailable */ }
       if (result) {
         toast.success('Profile saved')
         sounds.success()

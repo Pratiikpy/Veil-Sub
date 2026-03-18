@@ -191,7 +191,9 @@ export function getCreatorHash(address: string): string | null {
 // The hash is extracted from the transaction finalize arguments.
 export function saveCreatorHash(address: string, hash: string): void {
   if (typeof window !== 'undefined') {
-    localStorage.setItem(`veilsub_creator_hash_${address}`, hash)
+    try {
+      localStorage.setItem(`veilsub_creator_hash_${address}`, hash)
+    } catch { /* localStorage full or unavailable */ }
   }
 }
 
@@ -219,7 +221,9 @@ export function getContentHash(contentId: string): string | null {
 // Save a content Poseidon2 hash to localStorage.
 export function saveContentHash(contentId: string, hash: string): void {
   if (typeof window !== 'undefined') {
-    localStorage.setItem(`veilsub_content_hash_${contentId.replace('field', '')}`, hash)
+    try {
+      localStorage.setItem(`veilsub_content_hash_${contentId.replace('field', '')}`, hash)
+    } catch { /* localStorage full or unavailable */ }
   }
 }
 

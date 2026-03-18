@@ -77,7 +77,9 @@ export const sounds = {
 /** Enable or disable UI sound effects */
 export function setSoundsEnabled(enabled: boolean) {
   if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('veilsub_sounds', enabled ? 'on' : 'off')
+    try {
+      localStorage.setItem('veilsub_sounds', enabled ? 'on' : 'off')
+    } catch { /* localStorage full or unavailable */ }
   }
 }
 

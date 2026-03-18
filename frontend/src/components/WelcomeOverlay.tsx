@@ -53,7 +53,9 @@ export default function WelcomeOverlay() {
 
   const dismiss = useCallback((remember: boolean) => {
     if (remember) {
-      localStorage.setItem(STORAGE_KEY, '1')
+      try {
+        localStorage.setItem(STORAGE_KEY, '1')
+      } catch { /* localStorage full or unavailable */ }
     }
     setShow(false)
   }, [])

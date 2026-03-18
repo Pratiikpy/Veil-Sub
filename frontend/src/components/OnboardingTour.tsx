@@ -54,7 +54,9 @@ export default function OnboardingTour() {
   }, [active, step, measure])
 
   const finish = useCallback(() => {
-    localStorage.setItem(LS_KEY, '1')
+    try {
+      localStorage.setItem(LS_KEY, '1')
+    } catch { /* localStorage full or unavailable */ }
     setDone(true)
     setTimeout(() => setActive(false), 1200)
   }, [])

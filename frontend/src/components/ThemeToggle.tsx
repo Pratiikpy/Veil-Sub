@@ -43,7 +43,9 @@ export function ThemeToggle() {
   function toggle() {
     const next: Theme = theme === 'dark' ? 'light' : 'dark'
     setTheme(next)
-    localStorage.setItem('veilsub_theme', next)
+    try {
+      localStorage.setItem('veilsub_theme', next)
+    } catch { /* localStorage full or unavailable */ }
     applyTheme(next)
     sounds.toggle()
   }
