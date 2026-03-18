@@ -55,10 +55,10 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
       const result = await upsertCreatorProfile(address, name || undefined, bio || undefined, wrappedSign)
       if (result) {
         setSaved(true)
-        toast.success('Profile saved!')
+        toast.success('Profile updated!')
         setTimeout(() => setSaved(false), 2000)
       } else {
-        toast.error('Profile save failed. Sign the request in your wallet.')
+        toast.error('Profile couldn\u2019t be saved. Approve the signature request in your wallet to continue.')
       }
     } finally {
       setIsSaving(false)

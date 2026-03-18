@@ -117,16 +117,16 @@ export default function RedeemGiftModal({
           if (pollResult.status === 'confirmed') {
             if (pollResult.resolvedTxId) setTxId(pollResult.resolvedTxId)
             setTxStatus('confirmed')
-            toast.success('Gift redeemed! AccessPass added to your wallet.')
+            toast.success('Gift redeemed! Your new AccessPass is in your wallet.')
           } else if (pollResult.status === 'failed') {
             setTxStatus('failed')
-            setError('Redemption failed on-chain. The gift token may already be spent or expired.')
-            toast.error('Gift redemption failed')
+            setError('Gift couldn\u2019t be redeemed. It may have already been used or expired.')
+            toast.error('Gift couldn\u2019t be redeemed')
           }
         })
       } else {
         setTxStatus('failed')
-        setError('Transaction was rejected by wallet.')
+        setError('Wallet didn\u2019t approve the transaction. Try again when ready.')
       }
     } catch (err: unknown) {
       const rawMsg = err instanceof Error ? err.message : 'Redemption failed'

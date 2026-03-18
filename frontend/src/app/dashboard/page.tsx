@@ -126,7 +126,7 @@ export default function DashboardPage() {
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
       copyTimerRef.current = setTimeout(() => setCopied(false), 2000)
     } catch {
-      toast.error('Clipboard not available. Please copy manually.')
+      toast.error('Couldn\u2019t copy to clipboard. Select and copy the URL manually.')
     }
   }
 

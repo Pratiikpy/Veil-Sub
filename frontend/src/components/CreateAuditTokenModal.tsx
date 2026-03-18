@@ -73,13 +73,13 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
             toast.success('Audit token created!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            setError('Scoped audit token creation failed on-chain. Verify wallet and credits.')
-            toast.error('Audit token creation failed')
+            setError('Audit token couldn\u2019t be created. Check that your wallet is unlocked and has enough credits.')
+            toast.error('Audit token couldn\u2019t be created')
           }
         })
       } else {
         setTxStatus('failed')
-        setError('Transaction was rejected by wallet.')
+        setError('Wallet didn\u2019t approve the transaction. Try again when ready.')
       }
     } catch (err) {
       toast.dismiss('audit-token')

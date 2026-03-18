@@ -44,8 +44,8 @@ export default function RevokeAccessPanel() {
       }
     } catch (err: unknown) {
       setTxStatus('failed')
-      setError(err instanceof Error ? err.message : 'Revocation failed')
-      toast.error('Revocation failed')
+      setError(err instanceof Error ? err.message : 'Revocation couldn\u2019t be completed. Check your wallet and try again.')
+      toast.error('Revocation couldn\u2019t be completed')
     } finally {
       submittingRef.current = false
     }

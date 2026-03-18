@@ -66,13 +66,13 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
             toast.success('Reputation proof verified on-chain!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            setError('Proof failed. Your subscriber count may be below the threshold.')
-            toast.error('Reputation proof failed')
+            setError('Proof couldn\u2019t be verified. Your subscriber count may be below the threshold.')
+            toast.error('Proof couldn\u2019t be verified')
           }
         })
       } else {
         setTxStatus('failed')
-        setError('Transaction was rejected by wallet.')
+        setError('Wallet didn\u2019t approve the transaction. Try again when ready.')
       }
     } catch (err) {
       toast.dismiss('prove-threshold')

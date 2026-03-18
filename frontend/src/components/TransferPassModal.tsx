@@ -51,11 +51,11 @@ export default function TransferPassModal({
       if (result) {
         setTxId(result)
         setTxStatus('broadcasting')
-        toast.success('Subscription transfer submitted!')
+        toast.success('Transfer submitted!')
         startPolling(result, (pollResult) => {
           if (pollResult.status === 'confirmed') {
             setTxStatus('confirmed')
-            toast.success('Pass transferred successfully!')
+            toast.success('Pass transferred to the new owner!')
             stopPolling()
           } else if (pollResult.status === 'failed') {
             setTxStatus('failed')
@@ -65,8 +65,8 @@ export default function TransferPassModal({
       }
     } catch (err: unknown) {
       setTxStatus('failed')
-      setError(err instanceof Error ? err.message : 'Transfer failed')
-      toast.error('Transfer failed')
+      setError(err instanceof Error ? err.message : 'Transfer couldn\u2019t be completed. Check your wallet and try again.')
+      toast.error('Transfer couldn\u2019t be completed')
     } finally {
       submittingRef.current = false
     }

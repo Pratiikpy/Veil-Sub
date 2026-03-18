@@ -145,7 +145,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
         toast.success('Draft restored')
       }
     } catch {
-      toast.error('Failed to restore draft')
+      toast.error('Draft couldn\u2019t be restored. It may have been corrupted.')
     }
     setHasDraft(false)
     setDraftDismissed(false)
@@ -178,12 +178,12 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
       const res = await fetch('/api/upload', { method: 'POST', body: formData })
       const data = await res.json()
       if (!res.ok) {
-        toast.error(data.error || 'Upload failed')
+        toast.error(data.error || 'Image couldn\u2019t be uploaded')
         return
       }
       setImageUrl(data.url)
     } catch {
-      toast.error('Image upload failed. Try again.')
+      toast.error('Image couldn\u2019t be uploaded. Check your connection and try again.')
     } finally {
       setImageUploading(false)
     }
@@ -287,7 +287,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
           wrappedSign
         )
         if (updated) { toast.success('Draft updated'); onEditComplete?.() }
-        else { toast.error(postError?.message || 'Failed to save draft'); if (postError) clearError() }
+        else { toast.error(postError?.message || 'Draft couldn\u2019t be saved'); if (postError) clearError() }
       } else {
         const contentId = generatePassId()
         const saved = await createPost(
@@ -297,10 +297,10 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
           'draft', tags.length > 0 ? tags : undefined
         )
         if (saved) { toast.success('Draft saved'); resetForm(); onPostCreated?.() }
-        else { toast.error(postError?.message || 'Failed to save draft'); if (postError) clearError() }
+        else { toast.error(postError?.message || 'Draft couldn\u2019t be saved'); if (postError) clearError() }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Save failed')
+      setError(err instanceof Error ? err.message : 'Draft couldn\u2019t be saved')
     } finally {
       submittingRef.current = false
     }
@@ -328,8 +328,8 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
           },
           wrappedSign
         )
-        if (updated) { toast.success('Post scheduled'); onEditComplete?.() }
-        else { toast.error(postError?.message || 'Failed to schedule'); if (postError) clearError() }
+        if (updated) { toast.success('Post scheduled!'); onEditComplete?.() }
+        else { toast.error(postError?.message || 'Post couldn\u2019t be scheduled'); if (postError) clearError() }
       } else {
         const contentId = generatePassId()
         const saved = await createPost(
@@ -341,10 +341,10 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
         if (saved) {
           toast.success(`Scheduled for ${new Date(scheduledAt).toLocaleString()}`)
           resetForm(); onPostCreated?.()
-        } else { toast.error(postError?.message || 'Failed to schedule'); if (postError) clearError() }
+        } else { toast.error(postError?.message || 'Post couldn\u2019t be scheduled'); if (postError) clearError() }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Schedule failed')
+      setError(err instanceof Error ? err.message : 'Post couldn\u2019t be scheduled')
     } finally {
       submittingRef.current = false
     }
@@ -370,9 +370,9 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
           wrappedSign
         )
         if (updated) { toast.success('Post published!'); onEditComplete?.() }
-        else { toast.error(postError?.message || 'Failed to publish'); if (postError) clearError() }
+        else { toast.error(postError?.message || 'Post couldn\u2019t be published'); if (postError) clearError() }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Publish failed')
+        setError(err instanceof Error ? err.message : 'Post couldn\u2019t be published')
       } finally {
         submittingRef.current = false
       }
@@ -416,30 +416,30 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
             )
             if (!saved) {
               const msg = postError
-                ? `Save failed: ${postError.message}`
-                : 'Post confirmed on-chain but failed to save content. Try re-publishing.'
+                ? `Couldn\u2019t save content: ${postError.message}`
+                : 'Post confirmed on-chain but the content couldn\u2019t be saved. Try re-publishing.'
               toast.error(msg)
               if (postError) clearError()
             } else {
-              toast.success('Post published on-chain!')
+              toast.success('Post published!')
             }
             resetForm()
             onPostCreated?.()
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             toast.dismiss('post-optimistic')
-            setError('Content publish failed on-chain. Verify wallet is unlocked and credits are available.')
-            toast.error('Publish failed')
+            setError('Post couldn\u2019t be published on-chain. Make sure your wallet is unlocked and has enough credits.')
+            toast.error('Post couldn\u2019t be published')
           }
         })
       } else {
         setTxStatus('failed')
-        setError('Transaction was rejected by wallet.')
+        setError('Wallet didn\u2019t approve the transaction. Try again when ready.')
       }
     } catch (err) {
       toast.dismiss('post-optimistic')
       setTxStatus('failed')
-      setError(err instanceof Error ? err.message : 'Publish failed')
+      setError(err instanceof Error ? err.message : 'Post couldn\u2019t be published')
     } finally {
       submittingRef.current = false
     }

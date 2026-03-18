@@ -13,7 +13,7 @@ export default function ShareText({ text }: { text: string }) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      toast.error('Clipboard unavailable. Select and copy the text manually.')
+      toast.error('Couldn\u2019t copy to clipboard. Select and copy the text manually.')
     }
   }
 

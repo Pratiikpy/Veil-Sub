@@ -77,16 +77,16 @@ export default function GiftSubscriptionFlow({
           if (pollResult.status === 'confirmed') {
             if (pollResult.resolvedTxId) setTxId(pollResult.resolvedTxId)
             setTxStatus('confirmed')
-            toast.success('Gift sent successfully!')
+            toast.success('Gift sent! The recipient can redeem it anytime.')
           } else if (pollResult.status === 'failed') {
             setTxStatus('failed')
-            setError('Gift transaction failed on-chain. Ensure you have enough public credits for network fees and private credits for the tier price.')
-            toast.error('Gift transaction failed')
+            setError('Gift couldn\u2019t be sent. Make sure you have enough public credits (~0.3 ALEO) for network fees and private credits for the tier price.')
+            toast.error('Gift couldn\u2019t be sent')
           }
         })
       } else {
         setTxStatus('failed')
-        setError('Transaction was rejected by wallet.')
+        setError('Wallet didn\u2019t approve the transaction. Try again when ready.')
       }
     } catch (err: unknown) {
       const rawMsg = err instanceof Error ? err.message : 'Gift failed'

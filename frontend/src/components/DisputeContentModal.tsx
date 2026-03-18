@@ -89,8 +89,8 @@ export default function DisputeContentModal({
       }
     } catch (err: unknown) {
       setTxStatus('failed')
-      setError(err instanceof Error ? err.message : 'On-chain dispute failed. Verify your AccessPass is active.')
-      toast.error('Dispute submission failed')
+      setError(err instanceof Error ? err.message : 'Dispute couldn\u2019t be submitted. Make sure your AccessPass is still active.')
+      toast.error('Dispute couldn\u2019t be submitted')
     } finally {
       submittingRef.current = false
     }

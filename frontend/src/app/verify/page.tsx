@@ -28,6 +28,8 @@ import StatusBadge from '@/components/StatusBadge'
 import VerificationResult from '@/components/VerificationResult'
 import TransactionStatus from '@/components/TransactionStatus'
 import OnChainExplorer from '@/components/OnChainExplorer'
+import VerificationReceipt from '@/components/VerificationReceipt'
+import { SECONDS_PER_BLOCK, FEATURED_CREATORS } from '@/lib/config'
 
 // Extracted style constants to prevent re-renders
 const HERO_GLOW_STYLE = {
@@ -149,7 +151,7 @@ export default function VerifyPage() {
       } else {
         setVerifyTxStatus('failed')
         setVerifyResult('failed')
-        setVerifyError('Transaction was rejected by wallet.')
+        setVerifyError('Wallet didn\u2019t approve the transaction. Try again when ready.')
       }
     } catch (err) {
       setVerifyTxStatus('failed')
@@ -595,6 +597,31 @@ export default function VerifyPage() {
                               ?.name
                           }
                         />
+
+                        {/* Shareable verification receipt on success */}
+                        {verifyResult === 'success' && selectedPass && (() => {
+                          const tierName = TIERS.find((t) => t.id === selectedPass.tier)?.name || `Tier ${selectedPass.tier}`
+                          const featured = FEATURED_CREATORS.find((c) => c.address === selectedPass.creator)
+                          const creatorLabel = featured ? featured.label : shortenAddress(selectedPass.creator)
+                          const now = new Date()
+                          const verifiedDate = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                          let expiryDate = 'Unknown'
+                          if (blockHeight !== null && selectedPass.expiresAt && selectedPass.expiresAt > 0) {
+                            const blocksLeft = selectedPass.expiresAt - blockHeight
+                            const secondsLeft = blocksLeft * SECONDS_PER_BLOCK
+                            const expiryMs = now.getTime() + secondsLeft * 1000
+                            expiryDate = new Date(expiryMs).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                          }
+                          return (
+                            <VerificationReceipt
+                              creatorName={creatorLabel}
+                              tier={tierName}
+                              expiresAt={expiryDate}
+                              verifiedAt={verifiedDate}
+                              passId={selectedPass.passId}
+                            />
+                          )
+                        })()}
 
                         {/* Recovery guidance on failure */}
                         {verifyResult === 'failed' && verifyError && (

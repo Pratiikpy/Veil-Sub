@@ -39,7 +39,7 @@ export default function BalanceConverter({
       const txId = await convertPublicToPrivate(convertAmount)
       if (!txId) {
         setStatus('failed')
-        setError('Conversion rejected by wallet.')
+        setError('Wallet didn\u2019t approve the conversion. Try again when ready.')
         return
       }
 
@@ -53,12 +53,12 @@ export default function BalanceConverter({
           }, 3000)
         } else if (result.status === 'failed') {
           setStatus('failed')
-          setError('Conversion transaction failed on-chain.')
+          setError('Conversion couldn\u2019t be completed on-chain. Check your balance and try again.')
         }
       })
     } catch (err) {
       setStatus('failed')
-      setError(err instanceof Error ? err.message : 'Conversion failed')
+      setError(err instanceof Error ? err.message : 'Conversion couldn\u2019t be completed')
     }
   }
 

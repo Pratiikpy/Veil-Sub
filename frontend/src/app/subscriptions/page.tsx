@@ -364,11 +364,10 @@ export default function SubscriptionsPage() {
                   aria-hidden="true"
                 />
                 <h2 className="text-lg font-medium text-white mb-2">
-                  Connect Your Wallet
+                  Connect your wallet to manage subscriptions
                 </h2>
                 <p className="text-sm text-white/60 max-w-md mx-auto">
-                  Connect your Aleo wallet to view and manage your subscriptions.
-                  Your subscription passes are stored privately in your wallet.
+                  Your subscription passes live privately in your wallet. Connect to view, renew, or manage them.
                 </p>
               </div>
             </GlassCard>
@@ -386,16 +385,29 @@ export default function SubscriptionsPage() {
 
           {/* Error state */}
           {error && (
-            <div className="mb-8 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
-              <AlertCircle
-                className="w-5 h-5 text-red-400 shrink-0 mt-0.5"
-                aria-hidden="true"
-              />
-              <div>
-                <p className="text-sm font-medium text-red-300">
-                  Failed to load subscriptions
-                </p>
-                <p className="text-xs text-red-400/70 mt-1">{error}</p>
+            <div
+              role="alert"
+              className="mb-8 rounded-xl border border-red-500/15 bg-red-500/[0.04] border-l-[3px] border-l-red-400/60 p-5"
+            >
+              <div className="flex items-start gap-3">
+                <AlertCircle
+                  className="w-5 h-5 text-red-400/80 shrink-0 mt-0.5"
+                  aria-hidden="true"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white mb-1">
+                    Couldn&apos;t load your subscriptions
+                  </p>
+                  <p className="text-xs text-white/60 leading-relaxed">
+                    Your wallet may be locked or the network could be temporarily unavailable. Check your connection and try again.
+                  </p>
+                  <button
+                    onClick={() => { setError(null); fetchPasses() }}
+                    className="mt-3 px-3.5 py-1.5 rounded-lg bg-white/[0.08] border border-white/[0.1] text-xs font-medium text-white hover:bg-white/[0.12] transition-colors"
+                  >
+                    Try again
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -485,11 +497,10 @@ export default function SubscriptionsPage() {
                     aria-hidden="true"
                   />
                   <h2 className="text-lg font-medium text-white mb-2">
-                    No Subscriptions Yet
+                    Your private creator universe starts here
                   </h2>
                   <p className="text-sm text-white/60 max-w-md mx-auto mb-6">
-                    You haven&apos;t subscribed to any creators yet. Browse the
-                    explore page to discover creators and subscribe privately.
+                    Find someone worth supporting. Your subscriptions are mathematically private -- only you know who you support.
                   </p>
                   <Link
                     href="/explore"

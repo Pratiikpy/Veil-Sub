@@ -153,21 +153,21 @@ export default function SubscribeModal({
               ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
               : null
             logSubscriptionEvent(creatorAddress, tier.id, totalPrice, result.resolvedTxId || id, wrappedSign)
-            toast.success('Subscribed!')
+            toast.success("You're subscribed!")
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            setError('Subscription failed on-chain. Ensure you have enough public credits (~0.3 ALEO) for network fees and private credits for the tier price.')
-            toast.error('Subscription failed')
+            setError('Subscription couldn\u2019t be completed. Make sure you have enough public credits (~0.3 ALEO) for network fees and private credits for the tier price.')
+            toast.error('Subscription couldn\u2019t be completed')
           }
         })
       } else {
         setTxStatus('failed')
-        setError('Transaction was rejected by wallet.')
+        setError('Wallet didn\u2019t approve the transaction. Try again when ready.')
       }
     } catch (err) {
       toast.dismiss('subscribe-optimistic')
       setTxStatus('failed')
-      setError(getErrorMessage(err instanceof Error ? err.message : 'Transaction failed'))
+      setError(getErrorMessage(err instanceof Error ? err.message : 'Subscription couldn\u2019t be completed. Check your wallet and try again.'))
     } finally {
       submittingRef.current = false
     }

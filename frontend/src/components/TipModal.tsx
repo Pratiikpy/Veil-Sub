@@ -186,12 +186,12 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             setError('Commit-reveal tip failed on-chain. Verify credits balance.')
-            toast.error('Tip failed')
+            toast.error('Tip couldn\u2019t be sent')
           }
         })
       } else {
         setTxStatus('failed')
-        setError('Transaction was rejected by wallet.')
+        setError('Wallet didn\u2019t approve the transaction. Try again when ready.')
       }
     } catch (err) {
       toast.dismiss('tip-optimistic')
@@ -244,12 +244,12 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             setError('Commit failed on-chain.')
-            toast.error('Commit failed')
+            toast.error('Tip commit couldn\u2019t be completed')
           }
         })
       } else {
         setTxStatus('failed')
-        setError('Transaction was rejected by wallet.')
+        setError('Wallet didn\u2019t approve the transaction. Try again when ready.')
       }
     } catch (err) {
       toast.dismiss('commit-tip')
@@ -310,12 +310,12 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             setError('Reveal failed on-chain.')
-            toast.error('Reveal failed')
+            toast.error('Tip reveal couldn\u2019t be completed')
           }
         })
       } else {
         setTxStatus('failed')
-        setError('Transaction was rejected by wallet.')
+        setError('Wallet didn\u2019t approve the transaction. Try again when ready.')
       }
     } catch (err) {
       toast.dismiss('reveal-tip')

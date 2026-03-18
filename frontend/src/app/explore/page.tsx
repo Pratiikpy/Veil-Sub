@@ -663,14 +663,14 @@ export default function ExplorePage() {
           {/* ── Results Grid ──────────────────────────────────────────────── */}
           {fetchError ? (
             <div className="text-center py-20">
-              <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-4" aria-hidden="true" />
-              <h3 className="text-white font-medium mb-1">Creator Directory Unavailable</h3>
-              <p className="text-sm text-white/50 mb-6">Check your connection and retry.</p>
+              <AlertTriangle className="w-10 h-10 text-red-400/70 mx-auto mb-4" aria-hidden="true" />
+              <h3 className="text-white font-medium mb-1">Couldn&apos;t load the creator directory</h3>
+              <p className="text-sm text-white/50 mb-6">This is usually a connection issue. Check your network and try again.</p>
               <button
                 onClick={() => setRetryKey(k => k + 1)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-white hover:bg-white/10 transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.08] border border-white/[0.1] text-sm font-medium text-white hover:bg-white/[0.12] transition-all"
               >
-                Retry
+                Try again
               </button>
             </div>
           ) : loading ? (
@@ -697,17 +697,17 @@ export default function ExplorePage() {
               </div>
               <h3 className="text-lg text-white font-medium mb-2">
                 {search
-                  ? 'No Creators Found'
+                  ? `No creators match "${search}"`
                   : selectedCategory !== 'all'
-                    ? `No Creators in ${CATEGORIES.find(c => c.id === selectedCategory)?.label}`
-                    : 'No Creators Yet'}
+                    ? `No creators in ${CATEGORIES.find(c => c.id === selectedCategory)?.label} yet`
+                    : 'No creators yet'}
               </h3>
               <p className="text-sm text-white/50 mb-8 max-w-md mx-auto leading-relaxed">
                 {search
-                  ? 'Try a different search term, or paste a full aleo1... address above to go directly to any creator.'
+                  ? 'Try a different search or paste a full aleo1... address to go directly to any creator page.'
                   : selectedCategory !== 'all'
                     ? 'Try browsing all categories or be the first creator in this space.'
-                    : 'Be the first to create a privacy-first subscription page. Your subscribers will be mathematically hidden.'}
+                    : 'Be the first creator on VeilSub. Start building your audience -- your subscribers will be mathematically hidden.'}
               </p>
               <div className="flex items-center justify-center gap-3 flex-wrap">
                 {search ? (

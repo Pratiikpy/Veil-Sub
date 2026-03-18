@@ -1,3 +1,4 @@
+export { default as ErrorCard } from './ErrorCard'
 export { default as EmptyState } from './EmptyState'
 export { default as PageHeader } from './PageHeader'
 export { default as PriceDisplay } from './PriceDisplay'

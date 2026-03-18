@@ -3,14 +3,12 @@
 import { useRef, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { m, useScroll, useTransform } from 'framer-motion'
-import { ArrowRight, ChevronDown } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { spring } from '@/lib/motion'
-import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import Container from '@/components/ui/Container'
 import Button from '@/components/ui/Button'
 import DotGrid from '@/components/home/DotGrid'
-import HeroMockup from '@/components/home/HeroMockup'
-import { FEATURED_CREATORS } from '@/lib/config'
+import HeroAnimation from '@/components/home/HeroAnimation'
 
 // Extracted style constants to prevent re-renders
 const HERO_GLOW_STYLE = {
@@ -25,7 +23,6 @@ const LETTER_SPACING_TIGHT = { letterSpacing: '-0.035em' } as const
 const LETTER_SPACING_MEDIUM = { letterSpacing: '-0.025em' } as const
 
 export default function HeroSection() {
-  const { connected } = useWallet()
   const sectionRef = useRef<HTMLElement>(null)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
@@ -46,7 +43,7 @@ export default function HeroSection() {
   // Disabled when user prefers reduced motion
   const headingY = useTransform(scrollYProgress, [0, 1], prefersReducedMotion ? [0, 0] : [0, -60])
   const descY = useTransform(scrollYProgress, [0, 1], prefersReducedMotion ? [0, 0] : [0, -30])
-  const diagramY = useTransform(scrollYProgress, [0, 1], prefersReducedMotion ? [0, 0] : [0, 40])
+  const animY = useTransform(scrollYProgress, [0, 1], prefersReducedMotion ? [0, 0] : [0, 40])
   const opacityFade = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
   return (
@@ -64,134 +61,103 @@ export default function HeroSection() {
         style={HERO_BLUR_STYLE}
       />
 
-      <Container className="relative pt-12 sm:pt-40 lg:pt-44 pb-16 sm:pb-28 lg:pb-36">
-        <m.div
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={spring.gentle}
-          className="text-center"
-          style={{ opacity: opacityFade }}
-        >
-          <m.h1 style={{ lineHeight: 1.05, y: headingY }}>
-            <m.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...spring.gentle, delay: 0.3 }}
-              className="block text-4xl sm:text-6xl lg:text-7xl font-semibold text-white"
-              style={LETTER_SPACING_TIGHT}
-            >
-              Subscribe to anyone.
-            </m.span>
-            <m.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...spring.gentle, delay: 0.3 }}
-              className="block text-4xl sm:text-6xl lg:text-7xl font-serif italic bg-gradient-to-r from-white via-violet-200 to-violet-400 bg-clip-text text-transparent"
-              style={LETTER_SPACING_MEDIUM}
-            >
-              Nobody will ever know.
-            </m.span>
-          </m.h1>
-
-          <m.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ ...spring.soft, delay: 0.7 }}
-            className="mt-8 text-base sm:text-lg text-white/80 max-w-[520px] mx-auto leading-relaxed"
-            style={{ y: descY }}
-          >
-            Private subscriptions for creators and fans. No subscriber lists.
-            No payment trails. No data to leak.
-          </m.p>
-
+      <Container className="relative pt-12 sm:pt-32 lg:pt-40 pb-16 sm:pb-24 lg:pb-32">
+        {/* Desktop: side-by-side layout. Mobile: stacked. */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:gap-12 xl:gap-16">
+          {/* ── Left: text content ── */}
           <m.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ ...spring.gentle, delay: 0.9 }}
-            className="flex items-center justify-center gap-4 flex-wrap mt-12"
-            style={{ y: descY }}
+            transition={spring.gentle}
+            className="lg:flex-1 lg:max-w-[540px] text-center lg:text-left"
+            style={{ opacity: opacityFade }}
           >
-            {connected ? (
-              <>
-                <div className="relative inline-flex rounded-full p-[1.5px] overflow-hidden">
-                  <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,#8B5CF6_80deg,#3B82F6_160deg,#10B981_220deg,#3B82F6_280deg,#8B5CF6_330deg,transparent_360deg)]" />
-                  <Link href="/dashboard">
-                    <Button variant="accent" size="lg" className="relative rounded-full shadow-accent-lg">
-                      Go to Dashboard
-                      <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                    </Button>
-                  </Link>
-                </div>
-                <Link href={`/creator/${FEATURED_CREATORS[0]?.address || ''}`}>
-                  <Button variant="secondary" size="lg" className="rounded-full">
-                    Try as Subscriber
-                  </Button>
-                </Link>
-              </>
-            ) : (
-              <>
-                <div className="relative inline-flex rounded-full p-[1.5px] overflow-hidden">
-                  <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,#8B5CF6_80deg,#3B82F6_160deg,#10B981_220deg,#3B82F6_280deg,#8B5CF6_330deg,transparent_360deg)]" />
-                  <Link href="/explore">
-                    <Button variant="accent" size="lg" className="relative rounded-full shadow-accent-lg">
-                      Explore Creators
-                      <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                    </Button>
-                  </Link>
-                </div>
-                <Link href="/dashboard">
-                  <Button variant="secondary" size="lg" className="rounded-full">
-                    Start Creating
-                  </Button>
-                </Link>
-              </>
-            )}
-          </m.div>
-          {!connected && (
+            <m.h1 style={{ lineHeight: 1.05, y: headingY }}>
+              <m.span
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...spring.gentle, delay: 0.3 }}
+                className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-semibold text-white"
+                style={LETTER_SPACING_TIGHT}
+              >
+                Subscribe to anyone.
+              </m.span>
+              <m.span
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...spring.gentle, delay: 0.3 }}
+                className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-serif italic bg-gradient-to-r from-white via-violet-200 to-violet-400 bg-clip-text text-transparent"
+                style={LETTER_SPACING_MEDIUM}
+              >
+                Nobody will ever know.
+              </m.span>
+            </m.h1>
+
             <m.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ ...spring.soft, delay: 1.0 }}
-              className="mt-4 text-xs text-white/50 text-center"
+              transition={{ ...spring.soft, delay: 0.7 }}
+              className="mt-6 sm:mt-8 text-base sm:text-lg text-white/80 max-w-[480px] mx-auto lg:mx-0 leading-relaxed"
+              style={{ y: descY }}
             >
-              Connect a wallet to subscribe or create. No sign-up required.
+              Private subscriptions for creators and fans.
             </m.p>
-          )}
 
-          <m.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ ...spring.soft, delay: 1.1 }}
-            className="mt-8 text-xs text-white/40 text-center"
+            <m.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...spring.gentle, delay: 0.9 }}
+              className="flex items-center justify-center lg:justify-start gap-4 flex-wrap mt-8 sm:mt-10"
+              style={{ y: descY }}
+            >
+              <div className="relative inline-flex rounded-full p-[1.5px] overflow-hidden">
+                <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,#8B5CF6_80deg,#3B82F6_160deg,#10B981_220deg,#3B82F6_280deg,#8B5CF6_330deg,transparent_360deg)]" />
+                <Link href="/explore">
+                  <Button variant="accent" size="lg" className="relative rounded-full shadow-accent-lg">
+                    Explore Creators
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                  </Button>
+                </Link>
+              </div>
+            </m.div>
+
+            <m.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ ...spring.soft, delay: 1.1 }}
+              className="mt-6 text-xs text-white/40 text-center lg:text-left"
+            >
+              Built on{' '}
+              <a
+                href="https://aleo.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/50 hover:text-white/70 transition-colors"
+              >
+                Aleo
+              </a>
+              {' '}&middot;{' '}
+              <a
+                href="https://testnet.aleoscan.io/program?id=veilsub_v27.aleo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/50 hover:text-white/70 transition-colors"
+              >
+                Currently on testnet
+              </a>
+            </m.p>
+          </m.div>
+
+          {/* ── Right: animated demo ── */}
+          <m.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...spring.gentle, delay: 0.5 }}
+            className="mt-12 lg:mt-0 lg:flex-1"
+            style={{ y: animY }}
           >
-            Built on{' '}
-            <a
-              href="https://aleo.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white/50 hover:text-white/70 transition-colors"
-            >
-              Aleo
-            </a>
-            {' '}&middot;{' '}
-            <a
-              href="https://testnet.aleoscan.io/program?id=veilsub_v27.aleo"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white/50 hover:text-white/70 transition-colors"
-            >
-              Currently on testnet
-            </a>
-          </m.p>
-        </m.div>
-
-        {/* Product mockup — visual "wow" element */}
-        <m.div style={{ y: diagramY }} className="relative">
-          <HeroMockup />
-        </m.div>
-
-        <div className="flex justify-center mt-12 sm:mt-16">
-          <ChevronDown className="w-5 h-5 text-violet-400/60 animate-scroll-bounce" aria-hidden="true" />
+            <HeroAnimation />
+          </m.div>
         </div>
       </Container>
     </section>

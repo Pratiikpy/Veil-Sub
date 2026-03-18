@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { WalletMultiButton } from '@provablehq/aleo-wallet-adaptor-react-ui'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Settings } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { AnimatePresence, m } from 'framer-motion'
 import NotificationBell from '@/components/NotificationBell'
@@ -120,6 +120,19 @@ export default function Header() {
               <ThemeToggle />
               <CommandPaletteTrigger />
               {connected && <NotificationBell />}
+              {connected && (
+                <Link
+                  href="/settings"
+                  aria-label="Settings"
+                  className={`p-2 rounded-lg transition-colors ${
+                    pathname.startsWith('/settings')
+                      ? 'bg-white/[0.08] text-white'
+                      : 'hover:bg-white/5 text-white/50 hover:text-white/70'
+                  }`}
+                >
+                  <Settings size={16} />
+                </Link>
+              )}
               <WalletMultiButton />
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
@@ -157,6 +170,20 @@ export default function Header() {
                   {item.label}
                 </Link>
               ))}
+              {connected && (
+                <Link
+                  href="/settings"
+                  onClick={() => setMobileOpen(false)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${
+                    isActive('/settings')
+                      ? 'text-white bg-violet-500/[0.08] border border-violet-500/[0.12]'
+                      : 'text-white/60 hover:text-white/70 hover:bg-white/[0.02]'
+                  }`}
+                >
+                  <Settings className="w-4 h-4" aria-hidden="true" />
+                  Settings
+                </Link>
+              )}
             </nav>
           </m.div>
         )}

@@ -6,6 +6,7 @@ import { m } from 'framer-motion'
 import { spring } from '@/lib/motion'
 import Link from 'next/link'
 import {
+  AlertCircle,
   Rss,
   Lock,
   Unlock,
@@ -598,10 +599,10 @@ export default function FeedPage() {
             <div className="rounded-2xl border border-white/[0.06] bg-[#0A0A0F] p-12 text-center">
               <Wallet className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
               <h2 className="text-lg font-medium text-white mb-2">
-                Connect Your Wallet
+                Connect your wallet to see your personal feed
               </h2>
               <p className="text-sm text-white/50 max-w-md mx-auto">
-                Connect your Aleo wallet to see your personalized feed from creators you support.
+                Your feed shows exclusive content from creators you support. Connect an Aleo wallet to get started.
               </p>
             </div>
           )}
@@ -613,13 +614,22 @@ export default function FeedPage() {
 
           {/* Error */}
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
-              <div className="w-5 h-5 rounded-full bg-red-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-red-400 text-xs font-bold">!</span>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-red-300">Feed Error</p>
-                <p className="text-xs text-red-400/70 mt-1">{error}</p>
+            <div
+              role="alert"
+              className="mb-6 rounded-xl border border-red-500/15 bg-red-500/[0.04] border-l-[3px] border-l-red-400/60 p-5"
+            >
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-400/80 shrink-0 mt-0.5" aria-hidden="true" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white mb-1">Couldn&apos;t load your feed</p>
+                  <p className="text-xs text-white/60 leading-relaxed">{error}</p>
+                  <button
+                    onClick={() => { setError(null); fetchFeed() }}
+                    className="mt-3 px-3.5 py-1.5 rounded-lg bg-white/[0.08] border border-white/[0.1] text-xs font-medium text-white hover:bg-white/[0.12] transition-colors"
+                  >
+                    Try again
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -629,10 +639,10 @@ export default function FeedPage() {
             <div className="rounded-2xl border border-white/[0.06] bg-[#0A0A0F] p-12 text-center">
               <Rss className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
               <h2 className="text-lg font-medium text-white mb-2">
-                Your Feed is Empty
+                Your feed is empty
               </h2>
               <p className="text-sm text-white/50 max-w-md mx-auto mb-6">
-                Subscribe to creators to fill your feed with exclusive content. All content is privacy-protected.
+                Find creators worth supporting. Once you subscribe, their exclusive posts will show up here.
               </p>
               <Link
                 href="/explore"
@@ -649,10 +659,10 @@ export default function FeedPage() {
             <div className="rounded-2xl border border-white/[0.06] bg-[#0A0A0F] p-12 text-center">
               <BookOpen className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
               <h2 className="text-lg font-medium text-white mb-2">
-                No Content Yet
+                Your creators haven&apos;t posted yet
               </h2>
               <p className="text-sm text-white/50 max-w-md mx-auto">
-                The creators you support haven&apos;t published content yet. Check back soon.
+                Check back soon -- once they publish exclusive content, it will appear right here.
               </p>
             </div>
           )}

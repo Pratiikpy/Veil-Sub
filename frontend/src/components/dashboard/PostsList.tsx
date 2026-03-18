@@ -155,7 +155,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
       setScheduled(prev => prev.filter(p => p.id !== postId))
       toast.success('Post deleted')
     } else {
-      const msg = feedError?.message || 'Failed to delete post'
+      const msg = feedError?.message || 'Post couldn\u2019t be deleted. Try again.'
       toast.error(msg)
       if (feedError) clearError()
     }
@@ -168,7 +168,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
       toast.success('Post published!')
       fetchAllPosts()
     } else {
-      toast.error(feedError?.message || 'Failed to publish')
+      toast.error(feedError?.message || 'Post couldn\u2019t be published')
       if (feedError) clearError()
     }
   }
@@ -276,13 +276,34 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
       {filteredPosts.length === 0 ? (
         <div className="text-center py-8">
           {searchQuery ? (
-            <p className="text-sm text-white/70">No results for &ldquo;{searchQuery}&rdquo;</p>
+            <>
+              <Search className="w-6 h-6 text-white/20 mx-auto mb-2" aria-hidden="true" />
+              <p className="text-sm text-white/50">No posts match &ldquo;{searchQuery}&rdquo;</p>
+              <button
+                onClick={() => { setSearchQuery(''); searchInputRef.current?.focus() }}
+                className="mt-2 text-xs text-violet-300 hover:text-violet-200 transition-colors"
+              >
+                Clear search
+              </button>
+            </>
           ) : activeTab === 'drafts' ? (
-            <p className="text-sm text-white/70">No drafts. Save a draft from the Create Post form above.</p>
+            <>
+              <Edit3 className="w-6 h-6 text-white/20 mx-auto mb-2" aria-hidden="true" />
+              <p className="text-sm text-white/50 mb-1">No drafts saved</p>
+              <p className="text-xs text-white/40">Start writing and save as draft to pick up where you left off.</p>
+            </>
           ) : activeTab === 'scheduled' ? (
-            <p className="text-sm text-white/70">No scheduled posts. Use the schedule picker to queue content.</p>
+            <>
+              <CalendarClock className="w-6 h-6 text-white/20 mx-auto mb-2" aria-hidden="true" />
+              <p className="text-sm text-white/50 mb-1">No scheduled posts</p>
+              <p className="text-xs text-white/40">Use the schedule feature when creating a post to queue it for later.</p>
+            </>
           ) : (
-            <p className="text-sm text-white/70">No exclusive content yet. Publish your first AccessPass-gated post to earn from subscribers who verify access without revealing their identity.</p>
+            <>
+              <FileText className="w-6 h-6 text-white/20 mx-auto mb-2" aria-hidden="true" />
+              <p className="text-sm text-white/50 mb-1">Your audience is waiting</p>
+              <p className="text-xs text-white/40">Write your first exclusive post. Subscribers verify access without revealing their identity.</p>
+            </>
           )}
         </div>
       ) : (

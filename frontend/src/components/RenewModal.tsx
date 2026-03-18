@@ -154,16 +154,16 @@ export default function RenewModal({
               ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
               : null
             logSubscriptionEvent(pass.creator, selectedTierId, totalPrice, result.resolvedTxId || id, wrappedSign)
-            toast.success('Subscription renewed privately')
+            toast.success('Subscription renewed!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            setError('Renewal failed on-chain. Verify you have enough credits and a valid subscription pass.')
-            toast.error('Renewal failed')
+            setError('Renewal couldn\u2019t be completed. Check that you have enough credits and your subscription pass is still valid.')
+            toast.error('Renewal couldn\u2019t be completed')
           }
         })
       } else {
         setTxStatus('failed')
-        setError('Transaction was rejected by wallet.')
+        setError('Wallet didn\u2019t approve the transaction. Try again when ready.')
       }
     } catch (err) {
       setTxStatus('failed')

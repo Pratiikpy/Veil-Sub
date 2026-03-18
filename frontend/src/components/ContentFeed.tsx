@@ -421,14 +421,14 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     </div>
                   ) : isFailed && hasAccess ? (
                     <div className="flex items-center gap-4 py-4">
-                      <p className="text-sm text-red-400/80">AccessPass verification failed</p>
+                      <p className="text-sm text-white/60">Couldn&apos;t verify your access. This is usually temporary.</p>
                       <button
                         onClick={() => retryUnlock(post)}
                         aria-label="Retry unlocking post content"
-                        className="px-4 py-2 rounded-lg text-xs font-medium bg-white/[0.05] border border-border text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-violet-400/50"
+                        className="px-4 py-2 rounded-lg text-xs font-medium bg-white/[0.08] border border-white/[0.1] text-white hover:bg-white/[0.12] active:scale-[0.98] transition-all inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-violet-400/50"
                       >
                         <RefreshCw className="w-3 h-3" aria-hidden="true" />
-                        Retry unlock
+                        Try again
                       </button>
                     </div>
                   ) : (

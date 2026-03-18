@@ -140,21 +140,21 @@ export default function RegisteredDashboard({
             setWithdrawTxStatus('confirmed')
             stopPolling()
             setWithdrawAmount('')
-            toast.success(`${type === 'platform' ? 'Platform fee' : 'Revenue'} withdrawal confirmed!`)
+            toast.success(`${type === 'platform' ? 'Platform fee' : 'Revenue'} withdrawal complete!`)
           } else if (pollResult.status === 'failed') {
             setWithdrawTxStatus('failed')
-            setWithdrawError('Revenue withdrawal failed on-chain. Verify mapping balances and retry.')
+            setWithdrawError('Withdrawal couldn\u2019t be completed. Check your on-chain balance and try again.')
             stopPolling()
           }
         })
       } else {
         setWithdrawTxStatus('idle')
-        toast.error('Wallet rejected withdrawal. Verify your balance and try again.')
+        toast.error('Wallet didn\u2019t approve the withdrawal. Check your balance and try again.')
       }
     } catch (err: unknown) {
       setWithdrawTxStatus('failed')
-      setWithdrawError(err instanceof Error ? err.message : 'Withdrawal failed')
-      toast.error('Withdrawal failed')
+      setWithdrawError(err instanceof Error ? err.message : 'Withdrawal couldn\u2019t be completed')
+      toast.error('Withdrawal couldn\u2019t be completed')
     }
   }
 
@@ -1045,7 +1045,7 @@ export default function RegisteredDashboard({
         onClose={() => setShowTierDialog(false)}
         creatorAddress={publicKey}
         onSuccess={() => {
-          toast.success('Custom tier created on-chain!')
+          toast.success('New tier created!')
           invalidateCreatorTierCache(publicKey)
           refetchTiers()
         }}

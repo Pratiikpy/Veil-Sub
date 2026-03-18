@@ -166,17 +166,17 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
             // Non-critical
           }
 
-          toast.success('Registered on-chain!')
+          toast.success("You're registered as a creator!")
           setRegComplete(true)
           goNext()
         } else if (result.status === 'failed') {
           setRegTxStatus('failed')
-          toast.error('Registration failed. Please try again.')
+          toast.error('Registration couldn\u2019t be completed. Check your wallet and try again.')
         }
       })
     } catch (err) {
       setRegTxStatus('failed')
-      toast.error(err instanceof Error ? err.message : 'Registration failed')
+      toast.error(err instanceof Error ? err.message : 'Registration couldn\u2019t be completed')
     }
   }, [
     publicKey,
@@ -213,17 +213,17 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
       startPolling(id, (result) => {
         if (result.status === 'confirmed') {
           setTierTxStatus('confirmed')
-          toast.success('Tier created on-chain!')
+          toast.success('Subscription tier created!')
           setTierComplete(true)
           goNext()
         } else if (result.status === 'failed') {
           setTierTxStatus('failed')
-          toast.error('Tier creation failed.')
+          toast.error('Tier couldn\u2019t be created. Check your wallet and try again.')
         }
       })
     } catch (err) {
       setTierTxStatus('failed')
-      toast.error(err instanceof Error ? err.message : 'Tier creation failed')
+      toast.error(err instanceof Error ? err.message : 'Tier couldn\u2019t be created')
     }
   }, [tierPrice, createCustomTier, startPolling, goNext])
 
@@ -244,7 +244,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
       startPolling(id, (result) => {
         if (result.status === 'confirmed') {
           setPublishTxStatus('confirmed')
-          toast.success('Content published on-chain!')
+          toast.success('Your first post is live!')
           setPublishComplete(true)
           setShowConfetti(true)
           confettiTimerRef.current = setTimeout(() => {
@@ -252,12 +252,12 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           }, 2000)
         } else if (result.status === 'failed') {
           setPublishTxStatus('failed')
-          toast.error('Publish failed.')
+          toast.error('Post couldn\u2019t be published. Check your wallet and try again.')
         }
       })
     } catch (err) {
       setPublishTxStatus('failed')
-      toast.error(err instanceof Error ? err.message : 'Publish failed')
+      toast.error(err instanceof Error ? err.message : 'Post couldn\u2019t be published')
     }
   }, [postTitle, publishContent, startPolling, onComplete])
 

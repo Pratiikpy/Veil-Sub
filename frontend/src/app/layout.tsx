@@ -10,6 +10,7 @@ import ScrollProgress from '@/components/ui/ScrollProgress'
 import CustomCursor from '@/components/CustomCursor'
 import ChangelogOverlay from '@/components/ChangelogOverlay'
 import CommandPalette from '@/components/CommandPalette'
+import OnboardingTour from '@/components/OnboardingTour'
 import { Toaster } from 'sonner'
 import NextTopLoader from 'nextjs-toploader'
 import { APP_NAME, APP_DESCRIPTION } from '@/lib/config'
@@ -118,6 +119,7 @@ export default function RootLayout({
           <CustomCursor />
           <ChangelogOverlay />
           <CommandPalette />
+          <OnboardingTour />
           <Toaster
             theme="dark"
             position="bottom-right"

@@ -4,9 +4,8 @@ import BackgroundOrbs from '@/components/home/BackgroundOrbs'
 import HeroSection from '@/components/home/HeroSection'
 
 // Below-fold sections: code-split via dynamic() to reduce initial JS bundle size.
-const ProblemSolution = dynamic(() => import('@/components/home/ProblemSolution'))
-const PlatformComparison = dynamic(() => import('@/components/home/PlatformComparison'))
 const ExploreCreators = dynamic(() => import('@/components/home/ExploreCreators'))
+const ProblemSolution = dynamic(() => import('@/components/home/ProblemSolution'))
 const CTASection = dynamic(() => import('@/components/home/CTASection'))
 
 export default function HomePage() {
@@ -14,9 +13,8 @@ export default function HomePage() {
     <PageTransition className="min-h-screen">
       <BackgroundOrbs />
       <HeroSection />
-      <ProblemSolution />
-      <PlatformComparison />
       <ExploreCreators />
+      <ProblemSolution />
       <CTASection />
     </PageTransition>
   )
