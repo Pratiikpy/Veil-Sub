@@ -95,7 +95,7 @@ export default function TierDistribution({ creatorAddress }: Props) {
                 {/* Hover tooltip */}
                 <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block z-10">
                   <div className="px-2.5 py-1.5 rounded bg-surface-2 border border-border text-xs whitespace-nowrap shadow-lg">
-                    <p className="text-white font-medium">{count} subscribers</p>
+                    <p className="text-white font-medium">{count} {count === 1 ? 'subscriber' : 'subscribers'}</p>
                     <p className="text-white/70">{pct.toFixed(1)}% of total</p>
                   </div>
                 </div>

@@ -306,7 +306,7 @@ function CreatorReputationCard({ creator }: { creator: CreatorReputation }) {
         <div className="flex items-center gap-2.5 mb-3.5">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-border/50 text-[11px] text-white/60">
             <Users className="w-3 h-3 text-violet-400/80" aria-hidden="true" />
-            {creator.subscriberCount} subscribers
+            {creator.subscriberCount} {creator.subscriberCount === 1 ? 'subscriber' : 'subscribers'}
           </span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/[0.06] border border-emerald-500/15 text-[10px] font-medium text-emerald-300/80">
             <Shield className="w-2.5 h-2.5" aria-hidden="true" />

@@ -121,31 +121,6 @@ export default function HeroSection() {
               </div>
             </m.div>
 
-            <m.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ ...spring.soft, delay: 1.1 }}
-              className="mt-6 text-xs text-white/40 text-center lg:text-left"
-            >
-              Built on{' '}
-              <a
-                href="https://aleo.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/50 hover:text-white/70 transition-colors"
-              >
-                Aleo
-              </a>
-              {' '}&middot;{' '}
-              <a
-                href="https://testnet.aleoscan.io/program?id=veilsub_v27.aleo"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/50 hover:text-white/70 transition-colors"
-              >
-                Currently on testnet
-              </a>
-            </m.p>
           </m.div>
 
           {/* ── Right: animated demo ── */}

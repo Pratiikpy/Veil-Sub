@@ -16,14 +16,13 @@ import {
   FileText,
   ChevronDown,
   X,
-  TrendingUp,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import PageTransition from '@/components/PageTransition'
 import { spring, cardHover, buttonTap } from '@/lib/motion'
 import AddressAvatar from '@/components/ui/AddressAvatar'
 import { shortenAddress, isValidAleoAddress, formatCredits } from '@/lib/utils'
-import { FEATURED_CREATORS, DEPLOYED_PROGRAM_ID } from '@/lib/config'
+import { FEATURED_CREATORS } from '@/lib/config'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { cacheCreators } from '@/lib/creatorCache'
 
@@ -34,8 +33,6 @@ const FEATURED_ADDRESSES = new Set(FEATURED_CREATORS.map(c => c.address))
 const GRADIENT_STYLE = {
   background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.08) 0%, transparent 70%)',
 } as const
-
-const TITLE_STYLE = { letterSpacing: '-0.03em' } as const
 
 // Categories aligned with OnboardingWizard categories
 const CATEGORIES = [
@@ -290,58 +287,6 @@ function SortDropdown({ value, onChange }: { value: SortOption; onChange: (v: So
   )
 }
 
-// ─── Featured Spotlight ───────────────────────────────────────────────────────
-
-function FeaturedSpotlight({ creators }: { creators: Creator[] }) {
-  const featured = creators.filter(c => FEATURED_ADDRESSES.has(c.address)).slice(0, 4)
-  if (featured.length === 0) return null
-
-  return (
-    <m.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ...spring.gentle, delay: 0.05 }}
-      className="mb-8"
-    >
-      <div className="flex items-center gap-2 mb-4">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20">
-          <TrendingUp className="w-3.5 h-3.5 text-violet-400" aria-hidden="true" />
-          <span className="text-xs font-medium text-violet-400">Featured Creators</span>
-        </div>
-      </div>
-      <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-        {featured.map((creator) => (
-          <Link
-            key={creator.address}
-            href={`/creator/${creator.address}`}
-            className="flex-shrink-0 w-56 sm:w-64 p-4 rounded-xl bg-gradient-to-br from-violet-500/[0.08] to-transparent border border-violet-500/15 hover:border-violet-500/30 hover:shadow-[0_4px_24px_-4px_rgba(139,92,246,0.1)] transition-all duration-300 group"
-          >
-            <div className="flex items-center gap-3 mb-2.5">
-              <AddressAvatar address={creator.address} size={36} />
-              <div className="min-w-0 flex-1">
-                <p className="text-white font-medium text-sm truncate">
-                  {creator.display_name || shortenAddress(creator.address)}
-                </p>
-                <div className="flex items-center gap-1.5">
-                  <Star className="w-3 h-3 text-violet-400" aria-hidden="true" />
-                  <span className="text-[10px] text-violet-400 font-medium">Featured</span>
-                </div>
-              </div>
-            </div>
-            {creator.bio && (
-              <p className="text-[11px] text-white/50 line-clamp-2 mb-2.5">{creator.bio}</p>
-            )}
-            <div className="flex items-center justify-between text-[11px] text-white/40">
-              <span>View profile</span>
-              <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
-            </div>
-          </Link>
-        ))}
-      </div>
-    </m.div>
-  )
-}
-
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function ExplorePage() {
@@ -355,8 +300,6 @@ export default function ExplorePage() {
   const [sortBy, setSortBy] = useState<SortOption>('featured')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [totalCount, setTotalCount] = useState<number | null>(null)
-  const [platformStats, setPlatformStats] = useState<{ creators: number | null; content: number | null }>({ creators: null, content: null })
-  const [platformStatsError, setPlatformStatsError] = useState(false)
 
   // Derived: filter by category client-side when sorting by 'featured' (since featured sort is client-side)
   const displayCreators = useMemo(() => {
@@ -399,25 +342,6 @@ export default function ExplorePage() {
   const handleClearSearch = useCallback(() => {
     setSearch('')
     setDebouncedSearch('')
-  }, [])
-
-  // Fetch platform-wide stats
-  useEffect(() => {
-    const base = `/api/aleo/program/${encodeURIComponent(DEPLOYED_PROGRAM_ID)}/mapping`
-    setPlatformStatsError(false)
-    Promise.all([
-      fetch(`${base}/total_creators/0u8`).then(r => r.ok ? r.text() : null),
-      fetch(`${base}/total_content/0u8`).then(r => r.ok ? r.text() : null),
-    ]).then(([c, p]) => {
-      const parse = (v: string | null) => {
-        if (!v) return null
-        const n = parseInt(v.replace(/"/g, '').replace(/u(8|16|32|64|128)$/, '').trim(), 10)
-        return Number.isFinite(n) ? n : null
-      }
-      setPlatformStats({ creators: parse(c), content: parse(p) })
-    }).catch(() => {
-      setPlatformStatsError(true)
-    })
   }, [])
 
   // Debounce search by 400ms
@@ -502,70 +426,14 @@ export default function ExplorePage() {
           style={GRADIENT_STYLE}
         />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-
-          {/* ── Hero Section ──────────────────────────────────────────────── */}
-          <m.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={spring.gentle}
-            className="text-center mb-10"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/[0.06] border border-emerald-500/[0.12] mb-6">
-              <Shield className="w-4 h-4 text-emerald-400" aria-hidden="true" />
-              <span className="text-xs font-medium tracking-wide uppercase text-emerald-300">
-                Private Discovery
-              </span>
-            </div>
-            <h1
-              className="text-3xl sm:text-4xl font-serif italic text-white mb-3"
-              style={TITLE_STYLE}
-            >
-              Discover Creators
-            </h1>
-            <p className="text-base sm:text-lg text-white/60 max-w-xl mx-auto leading-relaxed">
-              Find creators who value your privacy. Subscribe anonymously — your identity stays private.
-            </p>
-          </m.div>
-
-          {/* ── Platform Stats ─────────────────────────────────────────────── */}
-          {(platformStats.creators !== null || platformStats.content !== null || platformStatsError) && (
-            <m.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.05 }}
-              className="flex items-center justify-center gap-4 sm:gap-8 mb-8"
-            >
-              {platformStatsError ? (
-                <div className="flex items-center gap-1.5 text-xs text-amber-400/80">
-                  <AlertTriangle className="w-3.5 h-3.5" aria-hidden="true" />
-                  <span>Stats syncing -- creator discovery still works</span>
-                </div>
-              ) : (
-                <>
-                  {platformStats.creators !== null && (
-                    <div className="flex items-center gap-1.5 text-xs text-white/60">
-                      <Users className="w-3.5 h-3.5 text-violet-400" aria-hidden="true" />
-                      <span className="text-white font-medium tabular-nums">{platformStats.creators}</span> registered creator{platformStats.creators !== 1 ? 's' : ''}
-                    </div>
-                  )}
-                  {platformStats.content !== null && (
-                    <div className="flex items-center gap-1.5 text-xs text-white/60">
-                      <FileText className="w-3.5 h-3.5 text-blue-400" aria-hidden="true" />
-                      <span className="text-white font-medium tabular-nums">{platformStats.content}</span> published post{platformStats.content !== 1 ? 's' : ''}
-                    </div>
-                  )}
-                </>
-              )}
-            </m.div>
-          )}
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-12">
 
           {/* ── Search Bar ─────────────────────────────────────────────────── */}
           <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ ...spring.gentle, delay: 0.1 }}
-            className="max-w-2xl mx-auto mb-8"
+            transition={spring.gentle}
+            className="max-w-2xl mx-auto mb-5"
           >
             <div className="relative group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-violet-400 transition-colors" aria-hidden="true" />
@@ -622,8 +490,8 @@ export default function ExplorePage() {
           <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.15 }}
-            className="mb-6"
+            transition={{ delay: 0.05 }}
+            className="mb-5"
           >
             <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
               {CATEGORIES.map((cat) => {
@@ -650,8 +518,8 @@ export default function ExplorePage() {
             <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="flex items-center justify-between mb-5"
+              transition={{ delay: 0.08 }}
+              className="flex items-center justify-between mb-4"
             >
               <p className="text-xs text-white/50">
                 {displayCreators.length} creator{displayCreators.length !== 1 ? 's' : ''}
@@ -661,11 +529,6 @@ export default function ExplorePage() {
               </p>
               <SortDropdown value={sortBy} onChange={setSortBy} />
             </m.div>
-          )}
-
-          {/* ── Featured Spotlight (only when not searching) ───────────────── */}
-          {!loading && !fetchError && creators.length > 0 && !debouncedSearch && selectedCategory === 'all' && sortBy !== 'featured' && (
-            <FeaturedSpotlight creators={creators} />
           )}
 
           {/* ── Results Grid ──────────────────────────────────────────────── */}
@@ -715,7 +578,7 @@ export default function ExplorePage() {
                   ? 'Try a different search or paste a full aleo1... address to go directly to any creator page.'
                   : selectedCategory !== 'all'
                     ? 'Try browsing all categories or be the first creator in this space.'
-                    : 'Be the first creator on VeilSub. Start building your audience -- your subscribers will be mathematically hidden.'}
+                    : 'Be the first creator on VeilSub. Start building your audience -- subscriber privacy is built in.'}
               </p>
               <div className="flex items-center justify-center gap-3 flex-wrap">
                 {search ? (

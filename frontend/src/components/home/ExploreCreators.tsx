@@ -86,7 +86,7 @@ const HomepageCreatorCard = React.memo(function HomepageCreatorCard({
       <div className="flex items-center justify-between">
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/[0.05] border border-emerald-500/15 text-[10px] font-medium text-emerald-300/70">
           <Shield className="w-2.5 h-2.5" aria-hidden="true" />
-          ZK-Private
+          Private
         </span>
         <span className="text-xs text-white/50 group-hover:text-violet-300 flex items-center gap-1 transition-colors">
           View creator <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
@@ -157,7 +157,7 @@ export default function ExploreCreators() {
           <SectionHeader
             badge="Creators"
             title="Explore Creators"
-            subtitle="Discover privacy-first creators or search by Aleo address. Subscribe anonymously with zero-knowledge proofs."
+            subtitle="Discover creators or search by address. Subscribe anonymously -- your identity stays private."
           />
         </ScrollReveal>
 
