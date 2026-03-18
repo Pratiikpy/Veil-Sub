@@ -3,10 +3,9 @@
 import { useRef, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { m, useScroll, useTransform } from 'framer-motion'
-import { ArrowRight, Code, ChevronDown } from 'lucide-react'
+import { ArrowRight, ChevronDown } from 'lucide-react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import Container from '@/components/ui/Container'
-import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import DotGrid from '@/components/home/DotGrid'
 import HeroMockup from '@/components/home/HeroMockup'
@@ -21,7 +20,6 @@ const HERO_BLUR_STYLE = {
   background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
 } as const
 
-const HEADING_LINE_HEIGHT = { lineHeight: 1.05 } as const
 const LETTER_SPACING_TIGHT = { letterSpacing: '-0.035em' } as const
 const LETTER_SPACING_MEDIUM = { letterSpacing: '-0.025em' } as const
 
@@ -73,15 +71,6 @@ export default function HeroSection() {
           className="text-center"
           style={{ opacity: opacityFade }}
         >
-          <m.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex justify-center mb-12"
-          >
-            <Badge variant="accent">Built on Aleo</Badge>
-          </m.div>
-
           <m.h1 style={{ lineHeight: 1.05, y: headingY }}>
             <m.span
               initial={{ opacity: 0, y: 20 }}
@@ -90,7 +79,7 @@ export default function HeroSection() {
               className="block text-4xl sm:text-6xl lg:text-7xl font-semibold text-white"
               style={LETTER_SPACING_TIGHT}
             >
-              Subscribe to Creators.
+              Subscribe to anyone.
             </m.span>
             <m.span
               initial={{ opacity: 0, y: 20 }}
@@ -99,7 +88,7 @@ export default function HeroSection() {
               className="block text-4xl sm:text-6xl lg:text-7xl font-serif italic bg-gradient-to-r from-white via-violet-200 to-violet-400 bg-clip-text text-transparent"
               style={LETTER_SPACING_MEDIUM}
             >
-              Your identity stays hidden.
+              Nobody will ever know.
             </m.span>
           </m.h1>
 
@@ -110,8 +99,8 @@ export default function HeroSection() {
             className="mt-8 text-base sm:text-lg text-white/80 max-w-[520px] mx-auto leading-relaxed"
             style={{ y: descY }}
           >
-            Every major creator platform has been breached or exposed subscribers by default.
-            VeilSub uses zero-knowledge proofs — subscriber identity is mathematically impossible to expose.
+            Private subscriptions for creators and fans. No subscriber lists.
+            No payment trails. No data to leak.
           </m.p>
 
           <m.div
@@ -142,16 +131,16 @@ export default function HeroSection() {
               <>
                 <div className="relative inline-flex rounded-full p-[1.5px] overflow-hidden">
                   <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,#8B5CF6_80deg,#3B82F6_160deg,#10B981_220deg,#3B82F6_280deg,#8B5CF6_330deg,transparent_360deg)]" />
-                  <Link href={`/creator/${FEATURED_CREATORS[0]?.address || ''}`}>
+                  <Link href="/explore">
                     <Button variant="accent" size="lg" className="relative rounded-full shadow-accent-lg">
-                      Start Subscribing
+                      Explore Creators
                       <ArrowRight className="w-4 h-4" aria-hidden="true" />
                     </Button>
                   </Link>
                 </div>
-                <Link href="/privacy">
+                <Link href="/dashboard">
                   <Button variant="secondary" size="lg" className="rounded-full">
-                    Explore Zero-Footprint Privacy
+                    Start Creating
                   </Button>
                 </Link>
               </>
@@ -164,7 +153,7 @@ export default function HeroSection() {
               transition={{ duration: 0.5, delay: 1.0 }}
               className="mt-4 text-xs text-white/50 text-center"
             >
-              Browse publicly—connect Shield or Leo Wallet to subscribe privately.
+              Connect a wallet to subscribe or create. No sign-up required.
             </m.p>
           )}
 
@@ -172,22 +161,25 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 1.1 }}
-            className="mt-8 text-xs inline-flex items-center gap-4 justify-center flex-wrap"
+            className="mt-8 text-xs text-white/40 text-center"
           >
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 text-[11px] font-semibold text-violet-300 bg-violet-500/[0.08] border border-violet-500/[0.15] rounded-md">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              testnet
-            </span>
-            <span className="text-white/50">•</span>
-            <span className="text-white/70 font-medium">BSP Zero-Footprint Verify</span>
-            <span className="text-white/50">•</span>
+            Built on{' '}
+            <a
+              href="https://aleo.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/50 hover:text-white/70 transition-colors"
+            >
+              Aleo
+            </a>
+            {' '}&middot;{' '}
             <a
               href="https://testnet.aleoscan.io/program?id=veilsub_v27.aleo"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-violet-300 font-medium hover:text-violet-200 transition-colors underline decoration-violet-500/30 underline-offset-2 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded px-1"
+              className="text-white/50 hover:text-white/70 transition-colors"
             >
-              v27 Deployed ↗
+              Currently on testnet
             </a>
           </m.p>
         </m.div>

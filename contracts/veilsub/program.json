@@ -1,12 +1,24 @@
 {
-  "program": "veilsub_v27.aleo",
-  "version": "0.14.0",
-  "description": "VeilSub v27 - Scoped audit tokens, trial rate-limiting, gift revocation fix, 5 Structs, 6 Records, 27 Transitions, 25 Mappings on Aleo",
+  "program": "veilsub_v29.aleo",
+  "version": "0.15.0",
+  "description": "VeilSub v29 - Homomorphic Pedersen commitments for subscriber counts + revenue, 5 Structs, 6 Records, 31 Transitions, 30 Mappings on Aleo",
   "license": "MIT",
   "leo": "3.4.0",
   "dependencies": [
     {
       "name": "credits.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    },
+    {
+      "name": "test_usdcx_stablecoin.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    },
+    {
+      "name": "test_usad_stablecoin.aleo",
       "location": "network",
       "path": null,
       "edition": null

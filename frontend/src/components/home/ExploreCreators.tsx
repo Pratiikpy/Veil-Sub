@@ -5,7 +5,7 @@ import React from 'react'
 import { m } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, Users, Coins, ArrowRight } from 'lucide-react'
+import { Search, Users, Coins, ArrowRight, Shield, Sparkles } from 'lucide-react'
 import Container from '@/components/ui/Container'
 import SectionHeader from '@/components/ui/SectionHeader'
 import Button from '@/components/ui/Button'
@@ -16,39 +16,56 @@ import { FEATURED_CREATORS } from '@/lib/config'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { shortenAddress, formatCredits } from '@/lib/utils'
 
-/* ─── Featured Creator Card ─── */
-const FeaturedCreatorCard = React.memo(function FeaturedCreatorCard({
-  address,
-  label,
-}: {
+/* ─── Types ─── */
+interface CreatorListItem {
   address: string
-  label: string
+  display_name: string | null
+  bio: string | null
+  category: string | null
+  created_at: string
+}
+
+/* ─── Creator Card (fetches live data from API) ─── */
+const HomepageCreatorCard = React.memo(function HomepageCreatorCard({
+  creator,
+}: {
+  creator: CreatorListItem
 }) {
   const { fetchCreatorStats } = useCreatorStats()
   const [stats, setStats] = useState<{ subscriberCount: number; tierPrice: number | null } | null>(null)
 
   useEffect(() => {
     let cancelled = false
-    fetchCreatorStats(address).then((s) => {
+    fetchCreatorStats(creator.address).then((s) => {
       if (!cancelled) setStats(s)
     })
     return () => { cancelled = true }
-  }, [address, fetchCreatorStats])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [creator.address])
 
   return (
     <Link
-      href={`/creator/${address}`}
+      href={`/creator/${creator.address}`}
       className="group block p-6 rounded-3xl glass glass-accent transition-all duration-300"
     >
-      <div className="flex items-center gap-4 mb-4">
-        <AddressAvatar address={address} />
-        <div>
-          <p className="text-white font-medium text-sm">{label}</p>
-          <p className="text-xs text-white/60 font-mono">{shortenAddress(address)}</p>
+      <div className="flex items-center gap-4 mb-3">
+        <AddressAvatar address={creator.address} />
+        <div className="min-w-0 flex-1">
+          <p className="text-white font-medium text-sm truncate">
+            {creator.display_name || shortenAddress(creator.address)}
+          </p>
+          <p className="text-xs text-white/50 font-mono truncate">
+            {shortenAddress(creator.address)}
+          </p>
         </div>
       </div>
-      {stats && stats.tierPrice !== null && (
-        <div className="flex gap-4 text-xs text-white/60">
+      {creator.bio && (
+        <p className="text-xs text-white/50 line-clamp-2 mb-3 leading-relaxed">
+          {creator.bio}
+        </p>
+      )}
+      {stats && stats.tierPrice !== null ? (
+        <div className="flex gap-4 text-xs text-white/55 mb-3">
           <span className="flex items-center gap-1">
             <Users className="w-3 h-3" aria-hidden="true" />
             {stats.subscriberCount} subscribers
@@ -58,17 +75,73 @@ const FeaturedCreatorCard = React.memo(function FeaturedCreatorCard({
             {formatCredits(stats.tierPrice)} ALEO
           </span>
         </div>
+      ) : (
+        <div className="flex items-center gap-1.5 mb-3">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/[0.08] border border-emerald-500/20 text-[10px] text-emerald-300/80">
+            <Sparkles className="w-2.5 h-2.5" aria-hidden="true" />
+            New Creator
+          </span>
+        </div>
       )}
-      <div className="mt-4 text-xs text-white/60 group-hover:text-violet-300 flex items-center gap-1 transition-colors">
-        View creator <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+      <div className="flex items-center justify-between">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/[0.05] border border-emerald-500/15 text-[10px] font-medium text-emerald-300/70">
+          <Shield className="w-2.5 h-2.5" aria-hidden="true" />
+          ZK-Private
+        </span>
+        <span className="text-xs text-white/50 group-hover:text-violet-300 flex items-center gap-1 transition-colors">
+          View creator <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+        </span>
       </div>
     </Link>
   )
 })
 
+/* ─── Main Component ─── */
 export default function ExploreCreators() {
   const [searchAddress, setSearchAddress] = useState('')
+  const [creators, setCreators] = useState<CreatorListItem[]>([])
+  const [loaded, setLoaded] = useState(false)
   const router = useRouter()
+
+  // Fetch real creators from API, fall back to FEATURED_CREATORS
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/creators/list?limit=6&sort=newest')
+      .then((r) => {
+        if (!r.ok) throw new Error('API error')
+        return r.json()
+      })
+      .then((data) => {
+        if (cancelled) return
+        const apiCreators: CreatorListItem[] = data.creators || []
+        if (apiCreators.length > 0) {
+          setCreators(apiCreators.slice(0, 6))
+        } else {
+          // Fallback to featured creators for demo
+          setCreators(FEATURED_CREATORS.map((fc) => ({
+            address: fc.address,
+            display_name: fc.label,
+            bio: fc.bio ?? null,
+            category: fc.category ?? null,
+            created_at: new Date().toISOString(),
+          })))
+        }
+        setLoaded(true)
+      })
+      .catch(() => {
+        if (cancelled) return
+        // Fallback to featured creators
+        setCreators(FEATURED_CREATORS.map((fc) => ({
+          address: fc.address,
+          display_name: fc.label,
+          bio: fc.bio ?? null,
+          category: fc.category ?? null,
+          created_at: new Date().toISOString(),
+        })))
+        setLoaded(true)
+      })
+    return () => { cancelled = true }
+  }, [])
 
   const handleSearch = () => {
     const trimmed = searchAddress.trim()
@@ -83,21 +156,42 @@ export default function ExploreCreators() {
         <ScrollReveal>
           <SectionHeader
             badge="Creators"
-            title="Explore a Creator"
-            subtitle="Enter any creator's Aleo address to view their page and subscription tiers."
+            title="Explore Creators"
+            subtitle="Discover privacy-first creators or search by Aleo address. Subscribe anonymously with zero-knowledge proofs."
           />
         </ScrollReveal>
 
-        {FEATURED_CREATORS.length > 0 && (
+        {/* Creator grid: show up to 6 */}
+        {creators.length > 0 && (
           <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-14">
-            {FEATURED_CREATORS.map((fc) => (
-              <m.div key={fc.address} variants={staggerItemVariants}>
-                <FeaturedCreatorCard address={fc.address} label={fc.label} />
+            {creators.map((creator) => (
+              <m.div key={creator.address} variants={staggerItemVariants}>
+                <HomepageCreatorCard creator={creator} />
               </m.div>
             ))}
           </StaggerContainer>
         )}
 
+        {/* Loading skeleton */}
+        {!loaded && creators.length === 0 && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-14">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="p-6 rounded-3xl glass animate-pulse">
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="w-10 h-10 rounded-2xl bg-white/[0.06]" />
+                  <div>
+                    <div className="h-4 w-24 rounded bg-white/[0.06] mb-1" />
+                    <div className="h-3 w-16 rounded bg-white/[0.04]" />
+                  </div>
+                </div>
+                <div className="h-3 w-full rounded bg-white/[0.03] mb-2" />
+                <div className="h-3 w-2/3 rounded bg-white/[0.03]" />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Search + View All */}
         <ScrollReveal delay={0.2} className="max-w-xl mx-auto mt-10">
           <div className="flex gap-4">
             <div className="relative flex-1 group">

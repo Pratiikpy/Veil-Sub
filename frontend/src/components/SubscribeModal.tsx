@@ -256,8 +256,8 @@ export default function SubscribeModal({
                       <span>Duration</span>
                       <span>
                         {privacyMode === 'trial'
-                          ? `~50 minutes (${TRIAL_DURATION_BLOCKS.toLocaleString()} blocks)`
-                          : `~30 days (${SUBSCRIPTION_DURATION_BLOCKS.toLocaleString()} blocks)`}
+                          ? '~50 minutes'
+                          : '~30 days'}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -309,7 +309,7 @@ export default function SubscribeModal({
                     )}
                     {privacyMode === 'trial' && (
                       <p className="text-[11px] text-violet-400/80 mt-2">
-                        Short-term pass (~50 minutes / 1,000 blocks) at 20% of tier price.
+                        Short-term pass (~50 minutes) at 20% of tier price.
                       </p>
                     )}
                 </div>
@@ -379,7 +379,7 @@ export default function SubscribeModal({
                       Subscribed via BSP!
                     </p>
                     <p className="text-xs text-white/70">
-                      Your AccessPass is now in your wallet. {privacyMode === 'trial' ? 'Trial access for ~50 minutes (1,000 blocks).' : 'Access for ~30 days.'}
+                      Your AccessPass is now in your wallet. {privacyMode === 'trial' ? 'Trial access for ~50 minutes.' : 'Access for ~30 days.'}
                     </p>
                     {txId && (
                       <p className="text-[11px] text-white/60 mt-2 font-mono break-all">

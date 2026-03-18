@@ -7,38 +7,30 @@ import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { ExternalLink, Shield, Share2 } from 'lucide-react'
 import { toast } from 'sonner'
 import dynamic from 'next/dynamic'
-import { useVeilSub } from '@/hooks/useVeilSub'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { useSupabase } from '@/hooks/useSupabase'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import PageTransition from '@/components/PageTransition'
-import { creditsToMicrocredits } from '@/lib/utils'
 import { saveCreatorHash, getCreatorHash } from '@/lib/config'
-import type { TxStatus, CreatorProfile } from '@/types'
+import type { CreatorProfile } from '@/types'
 
 import ConnectWalletPrompt from '@/components/dashboard/ConnectWalletPrompt'
 import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton'
-import RegistrationForm from '@/components/dashboard/RegistrationForm'
 import RegisteredDashboard from '@/components/dashboard/RegisteredDashboard'
+import OnboardingWizard from '@/components/OnboardingWizard'
 
 const CelebrationBurst = dynamic(() => import('@/components/CelebrationBurst'), { ssr: false })
 
 const TITLE_STYLE = { letterSpacing: '-0.03em' } as const
 
 export default function DashboardPage() {
-  const { address: publicKey, connected, signMessage } = useWallet()
-  const { registerCreator } = useVeilSub()
+  const { address: publicKey, connected } = useWallet()
   const { fetchCreatorStats } = useCreatorStats()
-  const { startPolling, stopPolling } = useTransactionPoller()
-  const { upsertCreatorProfile, getCreatorProfile } = useSupabase()
+  const { stopPolling } = useTransactionPoller()
+  const { getCreatorProfile } = useSupabase()
 
-  const [price, setPrice] = useState('')
-  const [displayName, setDisplayName] = useState('')
-  const [bioText, setBioText] = useState('')
   const [isRegistered, setIsRegistered] = useState(false)
   const [stats, setStats] = useState<CreatorProfile | null>(null)
-  const [txStatus, setTxStatus] = useState<TxStatus>('idle')
-  const [txId, setTxId] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -121,84 +113,6 @@ export default function DashboardPage() {
   useEffect(() => {
     return () => stopPolling()
   }, [stopPolling])
-
-  const handleRegister = async () => {
-    if (txStatus !== 'idle' && txStatus !== 'failed') return
-    const priceNum = parseFloat(price)
-    if (!Number.isFinite(priceNum) || priceNum <= 0) return
-
-    setTxStatus('signing')
-    try {
-      const id = await registerCreator(creditsToMicrocredits(priceNum))
-      if (id) {
-        setTxId(id)
-        setTxStatus('broadcasting')
-        startPolling(id, (result) => {
-          if (result.status === 'confirmed') {
-            const resolvedId = result.resolvedTxId ?? id
-            if (result.resolvedTxId) setTxId(result.resolvedTxId)
-            setTxStatus('confirmed')
-            toast.success('Registered on-chain!')
-            // Extract creator hash from finalize args and save to localStorage
-            // so the dashboard works for ANY wallet, not just hardcoded ones
-            if (publicKey) {
-              const wrappedSign = signMessage
-                ? async (msg: Uint8Array) => {
-                    const r = await signMessage(msg)
-                    if (!r) throw new Error('Signing cancelled')
-                    return r
-                  }
-                : null
-              // Extract creator hash from finalize args, save to localStorage + Supabase
-              fetch(`/api/aleo/transaction/${encodeURIComponent(resolvedId)}`)
-                .then(r => r.json())
-                .then(tx => {
-                  // Provable API v1: hash is in outputs[0].value as a Leo-style future string,
-                  // NOT in a finalize[] array. Parse: "arguments: [\n  12345field,\n  ..."
-                  const outputValue = tx?.execution?.transitions?.[0]?.outputs?.[0]?.value
-                  const hash = typeof outputValue === 'string'
-                    ? (outputValue.match(/arguments:\s*\[\s*(\d+field)/) ?? [])[1]
-                    : undefined
-                  if (hash && typeof hash === 'string' && hash.endsWith('field')) {
-                    saveCreatorHash(publicKey, hash)
-                    // Persist hash to Supabase — survives localStorage clear and new devices
-                    upsertCreatorProfile(publicKey, displayName || undefined, bioText || undefined, wrappedSign, hash)
-                      .catch(() => {
-                        toast.warning('Profile saved on-chain but off-chain metadata could not be saved.')
-                      })
-                  } else {
-                    // Hash not available yet — save profile without it
-                    upsertCreatorProfile(publicKey, displayName || undefined, bioText || undefined, wrappedSign)
-                      .catch(() => {
-                        toast.warning('Profile saved on-chain but off-chain metadata could not be saved.')
-                      })
-                  }
-                })
-                .catch(() => {
-                  // Tx fetch failed — still save profile (without hash)
-                  upsertCreatorProfile(publicKey, displayName || undefined, bioText || undefined, wrappedSign)
-                    .catch(() => {})
-                })
-            }
-            setShowCelebration(true)
-            celebrationTimerRef.current = setTimeout(() => {
-              setShowCelebration(false)
-              setIsRegistered(true)
-              setRefreshKey((k) => k + 1)
-            }, 4000)
-          } else if (result.status === 'failed') {
-            setTxStatus('failed')
-          }
-        })
-      } else {
-        setTxStatus('failed')
-      }
-    } catch (err) {
-      setTxStatus('failed')
-      setTxId(null)
-      toast.error(err instanceof Error ? err.message : 'Registration failed')
-    }
-  }
 
   const copyLink = async () => {
     if (!publicKey) return
@@ -311,16 +225,11 @@ export default function DashboardPage() {
             </m.div>
           </m.div>
         ) : !isRegistered ? (
-          <RegistrationForm
-            price={price}
-            setPrice={setPrice}
-            displayName={displayName}
-            setDisplayName={setDisplayName}
-            bioText={bioText}
-            setBioText={setBioText}
-            txStatus={txStatus}
-            txId={txId}
-            onRegister={handleRegister}
+          <OnboardingWizard
+            onComplete={() => {
+              setIsRegistered(true)
+              setRefreshKey((k) => k + 1)
+            }}
           />
         ) : (
           <RegisteredDashboard

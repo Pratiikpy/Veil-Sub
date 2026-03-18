@@ -1,4 +1,4 @@
-import { MICROCREDITS_PER_CREDIT } from './config'
+import { MICROCREDITS_PER_CREDIT, SECONDS_PER_BLOCK } from './config'
 
 /**
  * Generate a unique pass_id as a field value string.
@@ -138,6 +138,100 @@ export function parseMicrocredits(plaintext: string): number {
   const parsed = parseInt(match[1].replace(/_/g, ''), 10)
   if (!Number.isFinite(parsed) || parsed < 0) return 0
   return Math.min(parsed, Number.MAX_SAFE_INTEGER)
+}
+
+/**
+ * Convert a block count to a human-readable duration string.
+ * Aleo testnet: ~3 seconds per block.
+ *
+ * Examples: "~30 days", "~12 hours", "~50 minutes"
+ */
+export function blocksToTimeString(blocks: number): string {
+  if (!Number.isFinite(blocks) || blocks <= 0) return '< 1 minute'
+  const seconds = blocks * SECONDS_PER_BLOCK
+  const days = seconds / 86400
+  if (days >= 1) {
+    const rounded = Math.round(days)
+    return `~${rounded} day${rounded !== 1 ? 's' : ''}`
+  }
+  const hours = seconds / 3600
+  if (hours >= 1) {
+    const rounded = Math.round(hours)
+    return `~${rounded} hour${rounded !== 1 ? 's' : ''}`
+  }
+  const minutes = Math.round(seconds / 60)
+  return `~${minutes} minute${minutes !== 1 ? 's' : ''}`
+}
+
+/**
+ * Convert an Aleo block height to an approximate human-readable date string.
+ * Requires the current block height as a reference point.
+ *
+ * If the target block is in the future, returns "in ~X days" / "in ~X hours".
+ * If the target block is in the past, returns "~X days ago" / "~X hours ago".
+ * If currentBlockHeight is null/undefined, returns a fallback like "block 864000".
+ */
+export function blockToDate(
+  targetBlock: number,
+  currentBlockHeight?: number | null,
+): string {
+  if (!Number.isFinite(targetBlock)) return 'Unknown'
+  if (currentBlockHeight == null || !Number.isFinite(currentBlockHeight)) {
+    return `block ${targetBlock.toLocaleString()}`
+  }
+
+  const blockDiff = targetBlock - currentBlockHeight
+  const secondsDiff = Math.abs(blockDiff) * SECONDS_PER_BLOCK
+
+  // For dates that are far out, show an estimated calendar date
+  const now = new Date()
+  const estimatedDate = new Date(now.getTime() + blockDiff * SECONDS_PER_BLOCK * 1000)
+
+  // If the absolute difference is less than 2 hours, show relative
+  if (secondsDiff < 7200) {
+    const minutes = Math.round(secondsDiff / 60)
+    if (minutes < 1) return 'now'
+    if (blockDiff > 0) return `in ~${minutes} min`
+    return `~${minutes} min ago`
+  }
+
+  // If less than 48 hours, show relative hours
+  if (secondsDiff < 172800) {
+    const hours = Math.round(secondsDiff / 3600)
+    if (blockDiff > 0) return `in ~${hours} hours`
+    return `~${hours} hours ago`
+  }
+
+  // If less than 90 days, show relative days
+  if (secondsDiff < 7776000) {
+    const days = Math.round(secondsDiff / 86400)
+    if (blockDiff > 0) return `in ~${days} days`
+    return `~${days} days ago`
+  }
+
+  // Otherwise show a calendar date
+  return estimatedDate.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+/**
+ * Format a block-height expiry into a user-friendly expiry string.
+ * Returns e.g. "Expires in ~25 days" or "Expired ~3 days ago".
+ */
+export function formatExpiry(
+  expiresAtBlock: number,
+  currentBlockHeight: number | null,
+): string {
+  if (currentBlockHeight == null) return 'Expiry pending'
+  if (expiresAtBlock <= currentBlockHeight) {
+    const blocksPast = currentBlockHeight - expiresAtBlock
+    return `Expired ${blocksToTimeString(blocksPast).replace('~', '~')} ago`
+  }
+  const blocksLeft = expiresAtBlock - currentBlockHeight
+  return `Expires ${blockToDate(expiresAtBlock, currentBlockHeight)}`
 }
 
 /**

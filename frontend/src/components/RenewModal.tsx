@@ -309,7 +309,7 @@ export default function RenewModal({
                     </div>
                   </div>
                   <div className="mt-2 pt-2 border-t border-white/5 text-xs text-white/70 space-y-1">
-                    <div>Access for ~30 days ({SUBSCRIPTION_DURATION_BLOCKS.toLocaleString()} blocks)</div>
+                    <div>Access for ~30 days</div>
                     <div>Est. network fee: ~{formatCredits(privacyMode === 'standard' ? FEES.RENEW : FEES.RENEW_BLIND)} ALEO</div>
                   </div>
                 </div>

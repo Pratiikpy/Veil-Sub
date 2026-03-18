@@ -1,0 +1,10 @@
+src/
+tests/
+tsconfig.json
+.npmignore
+vitest.config.ts
+node_modules/
+*.test.ts
+*.test.js
+*.spec.ts
+*.spec.js

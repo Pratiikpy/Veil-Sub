@@ -10,14 +10,13 @@ import {
   getCreatorHash,
   getCreatorCustomTiers,
   SUBSCRIPTION_DURATION_BLOCKS,
-  SEED_CONTENT,
   FEATURED_CREATORS,
 } from '../config'
 import { isValidAleoAddress } from '../utils'
 
 describe('program configuration', () => {
   it('PROGRAM_ID matches deployed contract', () => {
-    expect(PROGRAM_ID).toBe('veilsub_v27.aleo')
+    expect(PROGRAM_ID).toBe('veilsub_v28.aleo')
   })
 
   it('DEPLOYED_PROGRAM_ID matches PROGRAM_ID', () => {
@@ -110,29 +109,6 @@ describe('getCreatorCustomTiers', () => {
     for (const tier of Object.values(tiers)) {
       expect(tier.price).toBeGreaterThan(0)
       expect(tier.name.length).toBeGreaterThan(0)
-    }
-  })
-})
-
-describe('SEED_CONTENT', () => {
-  it('has at least 3 seed posts', () => {
-    expect(SEED_CONTENT.length).toBeGreaterThanOrEqual(3)
-  })
-
-  it('covers all 3 tier levels', () => {
-    const tiers = new Set(SEED_CONTENT.map(s => s.minTier))
-    expect(tiers.has(1)).toBe(true)
-    expect(tiers.has(2)).toBe(true)
-    expect(tiers.has(3)).toBe(true)
-  })
-
-  it('each post has required fields', () => {
-    for (const post of SEED_CONTENT) {
-      expect(post.id).toBeTruthy()
-      expect(post.title).toBeTruthy()
-      expect(post.body).toBeTruthy()
-      expect(post.minTier).toBeGreaterThanOrEqual(1)
-      expect(post.createdAt).toBeTruthy()
     }
   })
 })

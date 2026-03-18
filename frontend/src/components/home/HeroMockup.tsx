@@ -145,7 +145,7 @@ export default function HeroMockup() {
         <FloatingLabel
           icon={Zap}
           label="BSP v27"
-          sub="27 transitions · 25 mappings"
+          sub="Private subs · Blind renewals"
           colorClass="bg-pink-500/[0.08] border-pink-500/[0.2] text-pink-300"
           animDelay="3.2s"
         />

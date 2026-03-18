@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { m } from 'framer-motion'
-import { FileText, Send, Image as ImageIcon, X } from 'lucide-react'
+import { FileText, Send, Image as ImageIcon, X, Video } from 'lucide-react'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
@@ -15,6 +15,8 @@ import { saveContentHash } from '@/lib/config'
 import TransactionStatus from './TransactionStatus'
 import type { TxStatus } from '@/types'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
+
+const RichTextEditor = lazy(() => import('./RichTextEditor'))
 
 interface Props {
   creatorAddress: string
@@ -32,6 +34,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
   const [preview, setPreview] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [imageError, setImageError] = useState(false)
+  const [videoUrl, setVideoUrl] = useState('')
   const [minTier, setMinTier] = useState(1)
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
   const [txId, setTxId] = useState<string | null>(null)
@@ -53,9 +56,12 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
     }
   }, [connected, txStatus, stopPolling])
 
+  // Check if rich text body has actual content (not just empty <p></p> tags)
+  const hasBodyContent = body.replace(/<[^>]*>/g, '').trim().length > 0
+
   const handlePublish = async () => {
     if (submittingRef.current) return
-    if (!title.trim() || !body.trim()) {
+    if (!title.trim() || !hasBodyContent) {
       setError('Title and body are required.')
       return
     }
@@ -77,10 +83,11 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
 
         // Capture post data before clearing form — save to Redis only after on-chain confirmation
         const postTitle = title.trim()
-        const postBody = body.trim()
+        const postBody = body
         const postPreview = preview.trim() || undefined
         const postTier = minTier
         const postImageUrl = imageUrl.trim() || undefined
+        const postVideoUrl = videoUrl.trim() || undefined
 
         startPolling(id, async (result) => {
           if (result.status === 'confirmed') {
@@ -98,7 +105,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
                   return result
                 }
               : null
-            const saved = await createPost(creatorAddress, postTitle, postBody, postTier, contentId, wrappedSign, postImageUrl, hashedId ?? undefined, postPreview)
+            const saved = await createPost(creatorAddress, postTitle, postBody, postTier, contentId, wrappedSign, postImageUrl, hashedId ?? undefined, postPreview, postVideoUrl)
             if (!saved) {
               const msg = postError
                 ? `Save failed: ${postError.message}`
@@ -113,6 +120,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
             setPreview('')
             setImageUrl('')
             setImageError(false)
+            setVideoUrl('')
             setMinTier(1)
             onPostCreated?.()
           } else if (result.status === 'failed') {
@@ -178,15 +186,16 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
               />
             </div>
             <div>
-              <label htmlFor="post-content" className="block text-sm text-white/70 mb-1.5">Content</label>
-              <textarea
-                id="post-content"
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                placeholder="Write your exclusive content..."
-                rows={4}
-                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base resize-none"
-              />
+              <label className="block text-sm text-white/70 mb-1.5">Content</label>
+              <Suspense fallback={
+                <div className="w-full h-40 rounded-xl bg-white/[0.05] border border-border animate-pulse" />
+              }>
+                <RichTextEditor
+                  content={body}
+                  onChange={setBody}
+                  placeholder="Write your exclusive content — use the toolbar for rich formatting, images, and video embeds..."
+                />
+              </Suspense>
             </div>
             <div>
               <label htmlFor="post-preview" className="block text-sm text-white/70 mb-1.5">
@@ -245,6 +254,34 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
               )}
             </div>
             <div>
+              <label htmlFor="post-video-url" className="block text-sm text-white/70 mb-1.5">
+                Video <span className="text-white/60">(optional — YouTube or direct video URL)</span>
+              </label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Video className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" aria-hidden="true" />
+                  <input
+                    id="post-video-url"
+                    type="url"
+                    value={videoUrl}
+                    onChange={(e) => setVideoUrl(e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm"
+                  />
+                </div>
+                {videoUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setVideoUrl('')}
+                    className="px-2.5 rounded-xl bg-white/[0.05] border border-border text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors focus-visible:ring-2 focus-visible:ring-violet-400/50 focus-visible:ring-offset-0"
+                    aria-label="Clear video"
+                  >
+                    <X className="w-4 h-4" aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+            </div>
+            <div>
               <label className="block text-sm text-white/70 mb-1.5">Minimum tier required</label>
               <div className="flex flex-wrap gap-2" role="group" aria-label="Minimum tier selection">
                 {tierOptions.map(({ id, name }) => (
@@ -278,7 +315,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated }: Props)
 
           <Button
             onClick={handlePublish}
-            disabled={!title.trim() || !body.trim() || (txStatus !== 'idle' && txStatus !== 'failed')}
+            disabled={!title.trim() || !hasBodyContent || (txStatus !== 'idle' && txStatus !== 'failed')}
             className="mt-4 w-full"
           >
             <Send className="w-4 h-4" aria-hidden="true" />

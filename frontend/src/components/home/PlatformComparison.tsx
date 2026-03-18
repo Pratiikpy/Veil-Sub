@@ -10,13 +10,13 @@ import SpotlightCard from '@/components/ui/SpotlightCard'
 
 // Categorized comparison data
 const PRIVACY_FEATURES = [
-  { feature: 'Subscriber identity hidden', veilsub: true, patreon: false, substack: false },
-  { feature: 'Payment history private', veilsub: true, patreon: false, substack: false },
-  { feature: 'Zero-knowledge verification', veilsub: true, patreon: false, substack: false },
-  { feature: 'No platform data collection', veilsub: true, patreon: false, substack: false },
-  { feature: 'On-chain proof of access', veilsub: true, patreon: false, substack: false },
-  { feature: 'Blind renewal (unlinkable)', veilsub: true, patreon: false, substack: false },
-  { feature: 'Open-source smart contract', veilsub: true, patreon: false, substack: false },
+  { feature: 'Nobody can see who you subscribe to', veilsub: true, patreon: false, substack: false },
+  { feature: 'Payment history stays private', veilsub: true, patreon: false, substack: false },
+  { feature: 'Prove access without revealing identity', veilsub: true, patreon: false, substack: false },
+  { feature: 'Platform cannot collect your data', veilsub: true, patreon: false, substack: false },
+  { feature: 'Verifiable subscription proof', veilsub: true, patreon: false, substack: false },
+  { feature: 'Renewals cannot be linked to you', veilsub: true, patreon: false, substack: false },
+  { feature: 'Fully open-source', veilsub: true, patreon: false, substack: false },
 ]
 
 const FEATURE_PARITY = [
@@ -121,7 +121,7 @@ export default function PlatformComparison() {
           <SectionHeader
             badge="Why VeilSub"
             title="Privacy by Default"
-            subtitle="Zero-knowledge proof-of-subscription without compromising your identity."
+            subtitle="See how VeilSub compares to the platforms you already know."
           />
         </ScrollReveal>
 
@@ -226,15 +226,15 @@ export default function PlatformComparison() {
           <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
             <div className="p-4 sm:p-8 rounded-2xl glass text-center">
               <div className="text-3xl font-bold text-emerald-400 mb-2">7</div>
-              <p className="text-xs text-white/60">Exclusive privacy features</p>
+              <p className="text-xs text-white/60">Privacy features others lack</p>
             </div>
             <div className="p-4 sm:p-8 rounded-2xl glass text-center">
-              <div className="text-3xl font-bold text-violet-400 mb-2">100%</div>
-              <p className="text-xs text-white/60">On-chain verification</p>
+              <div className="text-3xl font-bold text-violet-400 mb-2">5%</div>
+              <p className="text-xs text-white/60">Platform fee (vs 8-12%)</p>
             </div>
             <div className="p-4 sm:p-8 rounded-2xl glass text-center">
-              <div className="text-3xl font-bold text-emerald-400 mb-2">50%</div>
-              <p className="text-xs text-white/60">Lower fees than competitors</p>
+              <div className="text-3xl font-bold text-emerald-400 mb-2">0</div>
+              <p className="text-xs text-white/60">Data stored about subscribers</p>
             </div>
           </div>
         </ScrollReveal>

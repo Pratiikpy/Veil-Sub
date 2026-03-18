@@ -8,6 +8,9 @@ import {
   isValidAleoAddress,
   shortenAddress,
   parseMicrocredits,
+  blocksToTimeString,
+  blockToDate,
+  formatExpiry,
 } from '../utils'
 
 describe('generatePassId', () => {
@@ -213,5 +216,87 @@ describe('parseMicrocredits', () => {
   it('handles whitespace variants', () => {
     expect(parseMicrocredits('microcredits:500000u64')).toBe(500000)
     expect(parseMicrocredits('microcredits:  500000u64')).toBe(500000)
+  })
+})
+
+describe('blocksToTimeString', () => {
+  it('converts 864000 blocks to ~30 days', () => {
+    expect(blocksToTimeString(864000)).toBe('~30 days')
+  })
+
+  it('converts 1000 blocks to ~50 minutes', () => {
+    expect(blocksToTimeString(1000)).toBe('~50 minutes')
+  })
+
+  it('converts 1200 blocks to ~1 hour', () => {
+    expect(blocksToTimeString(1200)).toBe('~1 hour')
+  })
+
+  it('handles zero blocks', () => {
+    expect(blocksToTimeString(0)).toBe('< 1 minute')
+  })
+
+  it('handles negative blocks', () => {
+    expect(blocksToTimeString(-100)).toBe('< 1 minute')
+  })
+
+  it('handles NaN', () => {
+    expect(blocksToTimeString(NaN)).toBe('< 1 minute')
+  })
+
+  it('pluralizes correctly', () => {
+    expect(blocksToTimeString(28800)).toBe('~1 day')
+    expect(blocksToTimeString(57600)).toBe('~2 days')
+  })
+})
+
+describe('blockToDate', () => {
+  it('returns fallback when no current height provided', () => {
+    // toLocaleString() output varies by locale, so just check prefix and digits
+    expect(blockToDate(864000)).toMatch(/^block [\d,.\s]+$/)
+    expect(blockToDate(864000, null)).toMatch(/^block [\d,.\s]+$/)
+  })
+
+  it('returns "now" for same block', () => {
+    expect(blockToDate(100000, 100000)).toBe('now')
+  })
+
+  it('returns relative future time', () => {
+    // 28800 blocks ahead = ~1 day
+    const result = blockToDate(128800, 100000)
+    expect(result).toMatch(/in ~/)
+  })
+
+  it('returns relative past time', () => {
+    // 28800 blocks behind = ~1 day
+    const result = blockToDate(71200, 100000)
+    expect(result).toMatch(/ago/)
+  })
+
+  it('returns minutes for small differences', () => {
+    // 100 blocks = 300 seconds = 5 minutes
+    const result = blockToDate(100100, 100000)
+    expect(result).toMatch(/in ~5 min/)
+  })
+
+  it('handles non-finite input', () => {
+    expect(blockToDate(NaN)).toBe('Unknown')
+    expect(blockToDate(Infinity)).toBe('Unknown')
+  })
+})
+
+describe('formatExpiry', () => {
+  it('shows pending when no block height', () => {
+    expect(formatExpiry(900000, null)).toBe('Expiry pending')
+  })
+
+  it('shows expired for past blocks', () => {
+    const result = formatExpiry(90000, 100000)
+    expect(result).toMatch(/Expired/)
+  })
+
+  it('shows future expiry for upcoming blocks', () => {
+    const result = formatExpiry(200000, 100000)
+    expect(result).toMatch(/Expires/)
   })
 })

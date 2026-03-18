@@ -7,16 +7,16 @@ import { WalletMultiButton } from '@provablehq/aleo-wallet-adaptor-react-ui'
 import { Menu, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { AnimatePresence, m } from 'framer-motion'
+import NotificationBell from '@/components/NotificationBell'
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
   { href: '/explore', label: 'Explore' },
-  { href: '/explorer', label: 'Explorer' },
-  { href: '/verify', label: 'Verify' },
   { href: '/docs', label: 'Docs' },
 ]
 
 const DASHBOARD_ITEM = { href: '/dashboard', label: 'Dashboard' }
+const SUBSCRIPTIONS_ITEM = { href: '/subscriptions', label: 'My Subs' }
 
 // Extracted static style to prevent re-renders
 const NAV_ACTIVE_GLOW_STYLE = { boxShadow: '0 0 12px rgba(139, 92, 246, 0.1)' } as const
@@ -44,7 +44,7 @@ export default function Header() {
     return () => window.removeEventListener('keydown', onKey)
   }, [mobileOpen])
 
-  const allItems = connected ? [...NAV_ITEMS, DASHBOARD_ITEM] : NAV_ITEMS
+  const allItems = connected ? [...NAV_ITEMS, SUBSCRIPTIONS_ITEM, DASHBOARD_ITEM] : NAV_ITEMS
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
@@ -75,8 +75,7 @@ export default function Header() {
             >
               <span className="relative z-10">VeilSub</span>
               <span className="absolute -inset-2 rounded-lg bg-violet-500/0 group-hover:bg-violet-500/[0.06] transition-colors duration-300" />
-              <span className="relative z-10 flex items-center gap-1 px-2 py-1 text-[10px] font-sans not-italic font-medium text-violet-400/70 bg-violet-500/[0.08] border border-violet-500/[0.12] rounded">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="relative z-10 text-[9px] font-sans not-italic font-medium text-white/30 ml-1.5">
                 testnet
               </span>
             </Link>
@@ -110,7 +109,8 @@ export default function Header() {
               ))}
             </nav>
 
-            <div className="ml-auto flex items-center gap-4" aria-live="polite">
+            <div className="ml-auto flex items-center gap-3" aria-live="polite">
+              {connected && <NotificationBell />}
               <WalletMultiButton />
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}

@@ -150,11 +150,11 @@ export default function ChangelogOverlay() {
 
             {/* Stats bar */}
             <div className="flex items-center justify-between px-2 py-2 rounded-lg bg-white/[0.03] mb-4">
-              <span className="text-xs text-white/60">27 transitions</span>
+              <span className="text-xs text-white/60">Deployed on testnet</span>
               <span className="text-xs text-white/50" aria-hidden="true">•</span>
-              <span className="text-xs text-white/60">6 record types</span>
+              <span className="text-xs text-white/60">Full privacy</span>
               <span className="text-xs text-white/50" aria-hidden="true">•</span>
-              <span className="text-xs text-white/60">866 statements</span>
+              <span className="text-xs text-white/60">Zero identity leaks</span>
             </div>
 
             {/* Actions */}

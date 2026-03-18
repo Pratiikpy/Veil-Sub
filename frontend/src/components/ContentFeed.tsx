@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { m } from 'framer-motion'
-import { Lock, Unlock, Star, MessageSquare, Crown, Shield, RefreshCw, Loader2, FileText, ArrowRight, Flag, Image as ImageIcon } from 'lucide-react'
+import { Lock, Unlock, Star, MessageSquare, Crown, Shield, RefreshCw, Loader2, FileText, ArrowRight, Flag, Image as ImageIcon, Video } from 'lucide-react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import dynamic from 'next/dynamic'
 const DisputeContentModal = dynamic(() => import('./DisputeContentModal'), { ssr: false })
+const RichContentRenderer = dynamic(() => import('./RichContentRenderer'), { ssr: false })
+const VideoEmbed = dynamic(() => import('./VideoEmbed'), { ssr: false })
 import type { AccessPass, ContentPost } from '@/types'
 
 interface Props {
@@ -98,6 +100,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   const failedUnlocksRef = useRef(new Set<string>())
   const [failedUnlocks, setFailedUnlocks] = useState(new Set<string>())
   const [unlockedImages, setUnlockedImages] = useState<Record<string, string>>({})
+  const [unlockedVideos, setUnlockedVideos] = useState<Record<string, string>>({})
   const unlockedBodiesRef = useRef<Record<string, string>>({})
   const signMessageRef = useRef(signMessage)
   const unlockRunningRef = useRef(false)
@@ -194,6 +197,10 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
           if (imgUrl) {
             setUnlockedImages((prev) => ({ ...prev, [post.id]: imgUrl }))
           }
+          const vidUrl = result.videoUrl
+          if (vidUrl) {
+            setUnlockedVideos((prev) => ({ ...prev, [post.id]: vidUrl }))
+          }
         } else {
           failedUnlocksRef.current.add(post.id)
           setFailedUnlocks((prev) => new Set(prev).add(post.id))
@@ -244,6 +251,10 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       if (imgUrl) {
         setUnlockedImages((prev) => ({ ...prev, [post.id]: imgUrl }))
       }
+      const vidUrl = result.videoUrl
+      if (vidUrl) {
+        setUnlockedVideos((prev) => ({ ...prev, [post.id]: vidUrl }))
+      }
     } else {
       failedUnlocksRef.current.add(post.id)
       setFailedUnlocks((prev) => new Set(prev).add(post.id))
@@ -289,10 +300,12 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
             const hasAccess = highestTier >= post.minTier
             const unlockedBody = unlockedBodies[post.id]
             const unlockedImage = unlockedImages[post.id]
+            const unlockedVideo = unlockedVideos[post.id]
             const isUnlocking = unlockingIds.has(post.id)
             const isFailed = failedUnlocks.has(post.id)
             const displayBody = unlockedBody || post.body
             const displayImage = unlockedImage || post.imageUrl
+            const displayVideo = unlockedVideo || post.videoUrl
             const unlocked = hasAccess && displayBody != null
             const Icon = tier.icon
 
@@ -351,7 +364,17 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     <div className="mb-4 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-28">
                       <div className="flex items-center gap-2 text-white/60">
                         <ImageIcon className="w-5 h-5" aria-hidden="true" />
-                        <span className="text-xs">Image content—AccessPass required</span>
+                        <span className="text-xs">Image content -- AccessPass required</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Gated video placeholder — shown when post has video but content is locked */}
+                  {!unlocked && post.hasVideo && !isUnlocking && (
+                    <div className="mb-4 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-28">
+                      <div className="flex items-center gap-2 text-white/60">
+                        <Video className="w-5 h-5" aria-hidden="true" />
+                        <span className="text-xs">Video content -- AccessPass required</span>
                       </div>
                     </div>
                   )}
@@ -382,10 +405,15 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     </div>
                   )}
 
+                  {/* Unlocked video */}
+                  {unlocked && displayVideo && (
+                    <div className="mb-4">
+                      <VideoEmbed url={displayVideo} title={post.title} />
+                    </div>
+                  )}
+
                   {unlocked && displayBody ? (
-                    <p className="text-sm text-white/70 leading-relaxed">
-                      {displayBody}
-                    </p>
+                    <RichContentRenderer html={displayBody} />
                   ) : isUnlocking ? (
                     <div className="flex items-center gap-2 py-4" role="status" aria-live="polite">
                       <Loader2 className="w-4 h-4 text-violet-400 animate-spin" aria-hidden="true" />

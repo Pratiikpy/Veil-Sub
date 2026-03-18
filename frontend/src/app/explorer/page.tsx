@@ -20,7 +20,6 @@ import {
   BarChart3,
   Database,
   Loader2,
-  Sparkles,
 } from 'lucide-react'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { formatCredits, isValidAleoAddress, shortenAddress } from '@/lib/utils'
@@ -116,22 +115,11 @@ const MAPPING_QUERIES = [
   { mapping: 'platform_revenue', key: '0u8', label: 'Platform Fees', displayName: 'Platform Fees', desc: 'Total fee pool from all transactions' },
 ]
 
-// Demo values to show what populated mappings would look like
-const DEMO_VALUES: Record<string, string> = {
-  subscriber_count: '47u64',
-  total_revenue: '12500000000u64', // 12,500 ALEO in microcredits
-  tier_prices: '500000000u64', // 500 ALEO base price
-  content_count: '23u64',
-  tier_count: '3u8',
-  platform_revenue: '625000000u64', // 625 ALEO platform fees
-}
-
 function QuickMappingQueries() {
   const [results, setResults] = useState<Record<string, string | null>>({})
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({})
   const [errorMap, setErrorMap] = useState<Record<string, boolean>>({})
   const [autoQueried, setAutoQueried] = useState(false)
-  const [demoMode, setDemoMode] = useState(true)
 
   const queryMapping = async (mapping: string, key: string) => {
     setLoadingMap(prev => ({ ...prev, [mapping]: true }))
@@ -181,14 +169,6 @@ function QuickMappingQueries() {
     return num.toLocaleString()
   }
 
-  // Get display value - use demo values when in demo mode
-  const getDisplayValue = (mapping: string): { value: string | null; isDemo: boolean } => {
-    if (demoMode) {
-      return { value: DEMO_VALUES[mapping] || null, isDemo: true }
-    }
-    return { value: results[mapping] ?? null, isDemo: false }
-  }
-
   return (
     <m.div
       initial={{ opacity: 0, y: 20 }}
@@ -201,56 +181,32 @@ function QuickMappingQueries() {
           <Database className="w-4 h-4 text-violet-400" aria-hidden="true" />
           <h2 className="text-lg font-semibold text-white">Quick Mapping Queries</h2>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setDemoMode(!demoMode)}
-            className={`px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
-              demoMode
-                ? 'bg-violet-500/10 text-violet-300 border border-violet-500/20'
-                : 'bg-white/[0.05] text-white/60 border border-white/10 hover:bg-white/[0.08]'
-            }`}
-          >
-            <Sparkles className={`w-3 h-3 ${demoMode ? 'text-violet-400' : ''}`} aria-hidden="true" />
-            {demoMode ? 'Demo ON' : 'Demo Data'}
-          </button>
-          <button
-            onClick={queryAll}
-            className="px-4 py-2 rounded-lg text-xs font-medium bg-violet-500/10 text-violet-300 border border-violet-500/20 hover:bg-violet-500/20 transition-colors"
-          >
-            Query Featured Creator
-          </button>
-        </div>
+        <button
+          onClick={queryAll}
+          className="px-4 py-2 rounded-lg text-xs font-medium bg-violet-500/10 text-violet-300 border border-violet-500/20 hover:bg-violet-500/20 transition-colors"
+        >
+          Query Featured Creator
+        </button>
       </div>
       <p className="text-xs text-white/60 mb-4">
         Query on-chain mappings for the featured creator via privacy proxy. No wallet required—these are public aggregate values. Your IP is never sent to external APIs.
       </p>
-      {demoMode && (
-        <div className="mb-4 px-4 py-2 rounded-lg bg-violet-500/5 border border-violet-500/15 text-xs text-white/50 flex items-center gap-2">
-          <Sparkles className="w-3 h-3 shrink-0 text-violet-400/60" aria-hidden="true" />
-          <span>Example data shown—toggle <strong className="text-white/70">Demo Data</strong> to query live chain.</span>
-        </div>
-      )}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {MAPPING_QUERIES.map((q) => {
-          const { value, isDemo } = getDisplayValue(q.mapping)
-          const hasRealResult = results[q.mapping] !== undefined
-          const showValue = isDemo || hasRealResult
+          const value = results[q.mapping] ?? null
+          const hasResult = results[q.mapping] !== undefined
 
           return (
             <div
               key={q.mapping}
-              className={`p-4 rounded-xl border transition-colors ${
-                isDemo
-                  ? 'bg-amber-500/5 border-amber-500/20'
-                  : 'bg-surface-1 border-border hover:border-glass-hover'
-              }`}
+              className="p-4 rounded-xl border bg-surface-1 border-border hover:border-glass-hover transition-colors"
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs text-white font-medium">{q.displayName}</span>
                 <button
                   onClick={() => queryMapping(q.mapping, q.key)}
-                  disabled={loadingMap[q.mapping] || demoMode}
-                  title={demoMode ? 'Disable demo mode to query live data' : loadingMap[q.mapping] ? 'Loading...' : `Query ${q.mapping} mapping`}
+                  disabled={loadingMap[q.mapping]}
+                  title={loadingMap[q.mapping] ? 'Loading...' : `Query ${q.mapping} mapping`}
                   className="px-2 py-1 rounded text-xs font-medium bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.1] transition-colors disabled:opacity-40"
                 >
                   {loadingMap[q.mapping] ? <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" /> : 'Query'}
@@ -258,17 +214,17 @@ function QuickMappingQueries() {
               </div>
               <code className="text-[9px] text-violet-300/60 font-mono block mb-1">{q.mapping}</code>
               <p className="text-xs text-white/60 mb-2">{q.desc}</p>
-              {showValue && (
+              {hasResult && (
                 <div className="pt-2 border-t border-border/75">
                   <span className="text-sm font-mono text-white">
-                    {!isDemo && errorMap[q.mapping] ? (
+                    {errorMap[q.mapping] ? (
                       <span className="text-amber-400 text-xs">fetch error</span>
                     ) : value !== null ? (
-                      <span className={isDemo ? 'text-amber-300' : 'text-emerald-400'}>
+                      <span className="text-emerald-400">
                         {formatValue(q.mapping, value)}
                       </span>
                     ) : (
-                      <span className="text-white/60 text-xs italic">awaiting data</span>
+                      <span className="text-white/60 text-xs italic">no data on-chain</span>
                     )}
                   </span>
                 </div>

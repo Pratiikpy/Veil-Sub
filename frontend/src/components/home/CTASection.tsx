@@ -29,10 +29,11 @@ export default function CTASection() {
                 className="text-4xl sm:text-5xl lg:text-6xl font-serif italic text-white"
                 style={LETTER_SPACING_STYLE}
               >
-                Earn While They Stay Hidden
+                Get paid. No middleman can stop you.
               </h2>
               <p className="mt-6 text-lg text-white/80 max-w-lg mx-auto leading-relaxed">
-                Earn ALEO from privacy-conscious subscribers. Zero subscriber enumeration. BSP nonce rotation. Poseidon2 field-hashed mappings.
+                Create subscription tiers, publish content, and earn directly from your audience.
+                No subscriber data to protect because none is ever collected.
               </p>
               <div className="flex items-center justify-center gap-4 flex-wrap mt-10">
                 <Link href="/dashboard">

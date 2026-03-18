@@ -7,9 +7,18 @@ import ScrollReveal from '@/components/ScrollReveal'
 const HEADING_STYLE = { letterSpacing: '-0.03em', lineHeight: 1.1 } as const
 
 const COMPARISON_ROWS = [
-  { traditional: 'Patreon\'s 2023 opt-out profiles made subscriber lists searchable by default—users had to manually hide themselves', veilsub: 'Subscriber identity never enters public state—not even in smart contract mappings' },
-  { traditional: 'Patreon paid $7.25M in a 2024 VPPA settlement for sharing watch history with Facebook via pixel tracking', veilsub: 'Payments via credits.aleo transfer_private—ZK proven, no metadata left on-chain' },
-  { traditional: 'Every crypto Patreon alternative (BitPatron, Creaton, LibrePatron) failed—public ledgers made privacy worse than Web2', veilsub: 'Aleo\'s ZK-native VM makes subscriber identity mathematically impossible to expose—even to us' },
+  {
+    traditional: 'Every subscription platform keeps a list of who pays whom. One breach and everyone knows your interests.',
+    veilsub: 'No subscriber list exists. Not encrypted, not hidden. The data simply does not exist to be leaked.',
+  },
+  {
+    traditional: 'Your bank, your credit card, and the platform all see every payment. Patreon paid $7.25M for sharing watch data with Facebook.',
+    veilsub: 'Payments are private by default. No payment trail connects you to any creator.',
+  },
+  {
+    traditional: 'Every crypto alternative (BitPatron, Creaton, LibrePatron) failed because public blockchains made privacy worse than Web2.',
+    veilsub: 'Built on a blockchain designed for privacy. Subscriber identity is mathematically impossible to expose — even by us.',
+  },
 ]
 
 export default function ProblemSolution() {
@@ -28,8 +37,13 @@ export default function ProblemSolution() {
               Exposes You.
             </h2>
             <p className="mt-6 text-white/80 leading-relaxed">
-              Every major creator platform has leaked, sold, or exposed subscriber data. 2.33M Patreon users breached in 2015. $7.25M VPPA settlement in 2024.
-              Blockchain alternatives made it worse—public ledgers are permanently traceable.
+              Every subscription platform knows who supports whom.
+              Your credit card knows. Your bank knows. The platform knows.
+              One data breach and everyone knows.
+            </p>
+            <p className="mt-4 text-white/60 leading-relaxed text-sm">
+              2.33M Patreon accounts breached in 2015. $7.25M privacy settlement in 2024.
+              This is not a technical problem — it is a design choice. VeilSub chose differently.
             </p>
           </ScrollReveal>
 

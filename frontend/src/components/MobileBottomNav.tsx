@@ -3,13 +3,13 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import { Compass, ShieldCheck, LayoutDashboard, Home, BookOpen } from 'lucide-react'
+import { Compass, ShieldCheck, LayoutDashboard, Home, CreditCard, Shield } from 'lucide-react'
 
 const MOBILE_NAV = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/explore', label: 'Explore', icon: Compass },
-  { href: '/verify', label: 'Verify', icon: ShieldCheck },
-  { href: '/docs', label: 'Docs', icon: BookOpen },
+  { href: '/privacy-dashboard', label: 'Privacy', icon: Shield },
+  { href: '/subscriptions', label: 'My Subs', icon: CreditCard, requiresWallet: true },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, requiresWallet: true },
 ]
 

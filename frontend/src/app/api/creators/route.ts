@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('creator_profiles')
-    .select('address_hash, creator_hash, display_name, bio, created_at')
+    .select('address_hash, creator_hash, display_name, bio, category, created_at')
     .eq('address_hash', addressHash)
     .single()
 
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { address, display_name, bio, creator_hash, signature, timestamp } = payload
+    const { address, display_name, bio, category, creator_hash, signature, timestamp } = payload
     if (!address || !ALEO_ADDRESS_RE.test(address)) {
       return NextResponse.json({ error: 'Valid Aleo address required' }, { status: 400 })
     }
@@ -58,6 +58,10 @@ export async function POST(req: NextRequest) {
     }
     if (bio && (typeof bio !== 'string' || bio.length > 1000)) {
       return NextResponse.json({ error: 'Bio too long (max 1000)' }, { status: 400 })
+    }
+    const VALID_CATEGORIES = ['Content Creator', 'Writer', 'Artist', 'Developer', 'Educator', 'Journalist', 'Other']
+    if (category && (typeof category !== 'string' || !VALID_CATEGORIES.includes(category))) {
+      return NextResponse.json({ error: 'Invalid category' }, { status: 400 })
     }
 
     const addressHashValue = await hashAddress(address)
@@ -80,6 +84,7 @@ export async function POST(req: NextRequest) {
       address_hash: addressHashValue,
       display_name: display_name || null,
       bio: bio || null,
+      ...(category ? { category } : {}),
       ...(creator_hash ? { creator_hash } : {}),
     }
 

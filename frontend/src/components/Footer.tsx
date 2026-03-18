@@ -49,7 +49,7 @@ export default function Footer() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <Shield className="w-3 h-3 text-violet-400/50" aria-hidden="true" />
-              <span>27 transitions • BSP blind renewals • Zero-address finalize</span>
+              <span>BSP blind renewals • Zero-address finalize • Complete privacy</span>
             </div>
             <span className="text-white/60">© 2026 VeilSub</span>
           </div>

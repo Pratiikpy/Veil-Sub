@@ -1,6 +1,6 @@
-export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v27.aleo'
-// v27: scoped audit tokens, trial rate-limiting, gift revocation fix, 5 structs, 6 records, 27 transitions, 25 mappings
-export const DEPLOYED_PROGRAM_ID = process.env.NEXT_PUBLIC_DEPLOYED_PROGRAM_ID || 'veilsub_v27.aleo'
+export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v28.aleo'
+// v28: USDCx/USAD stablecoin subscriptions + tipping, 5 structs, 6 records, 31 transitions, 26 mappings
+export const DEPLOYED_PROGRAM_ID = process.env.NEXT_PUBLIC_DEPLOYED_PROGRAM_ID || 'veilsub_v28.aleo'
 // API calls use Next.js rewrite proxy (/api/aleo/*) to avoid leaking user interest to third parties
 // The actual endpoint is configured in next.config.ts rewrites
 export const APP_NAME = 'VeilSub'
@@ -47,6 +47,11 @@ export const FEES = {
   PROVE_THRESHOLD: 150_000,         // 0.15 credits (finalize: read-only subscriber_count check)
   // Trial subscriptions (ephemeral access passes)
   SUBSCRIBE_TRIAL: 300_000,         // 0.3 credits (same as subscribe — shorter duration, 20% of tier price)
+  // v28: Stablecoin transitions (higher base fee due to cross-program call + MerkleProof verification)
+  SUBSCRIBE_USDCX: 500_000,        // 0.5 credits (transfer_private + AccessPass + CreatorReceipt + compliance)
+  TIP_USDCX: 400_000,              // 0.4 credits (transfer_private + CreatorReceipt + compliance)
+  SUBSCRIBE_USAD: 500_000,         // 0.5 credits (transfer_private + AccessPass + CreatorReceipt + compliance)
+  TIP_USAD: 400_000,               // 0.4 credits (transfer_private + CreatorReceipt + compliance)
 } as const
 
 // 1 ALEO credit = 1,000,000 microcredits
@@ -107,6 +112,23 @@ export const ALEO_ADDRESS_RE = /^aleo1[a-z0-9]{58}$/
 // PLATFORM_ADDRESS must match the PLATFORM_ADDR constant hardcoded in the Leo contract.
 export const PLATFORM_ADDRESS = 'aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk'
 export const PLATFORM_FEE_PCT = 5 // 5% display value
+
+// v28: Stablecoin support — token type constants matching on-chain values
+export const TOKEN_CREDITS = 0 as const  // Aleo native credits (u64)
+export const TOKEN_USDCX = 1 as const    // USDCx stablecoin (u128, 6 decimals)
+export const TOKEN_USAD = 2 as const     // USAD stablecoin (u128, 6 decimals)
+export type TokenType = typeof TOKEN_CREDITS | typeof TOKEN_USDCX | typeof TOKEN_USAD
+
+// Stablecoin program IDs (deployed on Aleo testnet)
+export const USDCX_PROGRAM_ID = 'test_usdcx_stablecoin.aleo'
+export const USAD_PROGRAM_ID = 'test_usad_stablecoin.aleo'
+
+// Stablecoin display metadata
+export const TOKEN_META = {
+  [TOKEN_CREDITS]: { symbol: 'ALEO', name: 'Aleo Credits', decimals: 6, programId: 'credits.aleo' },
+  [TOKEN_USDCX]: { symbol: 'USDCx', name: 'USD Coin (Aleo)', decimals: 6, programId: USDCX_PROGRAM_ID },
+  [TOKEN_USAD]: { symbol: 'USAD', name: 'USD Aleo Dollar', decimals: 6, programId: USAD_PROGRAM_ID },
+} as const
 
 // Poseidon2 hashes of creator addresses — used for on-chain mapping queries.
 // On-chain mappings are field-keyed (Poseidon2 hash of address), not address-keyed.
@@ -217,110 +239,29 @@ export const TRIAL_DURATION_BLOCKS = 1_000
 // Trial costs 20% of regular tier price (1/5)
 export const TRIAL_PRICE_DIVISOR = 5
 
-// Seed content for content feed demo
-export interface SeedContent {
-  id: string
-  title: string
-  body: string
-  preview?: string
-  minTier: number
-  createdAt: string
-  contentId: string
-  imageUrl?: string
-}
-
-export const SEED_CONTENT: SeedContent[] = [
-  {
-    id: 'seed-1',
-    title: 'Early Access: Next Week Preview',
-    body: 'Thank you for subscribing! As a Supporter, you get first access to all upcoming content before it goes live. This week: deep dive into Aleo privacy patterns, a new tutorial series on Leo programming, and exclusive community updates.',
-    minTier: 1,
-    createdAt: '2026-02-10T12:00:00Z',
-    contentId: 'seed',
-  },
-  {
-    id: 'seed-2',
-    title: 'Behind the Scenes: Building on Aleo',
-    body: 'Premium members get a look behind the curtain. Today: how we designed VeilSub\'s privacy model, the challenges of building ZK subscription proofs, and what we learned from auditing other Aleo programs. Plus a sneak peek at upcoming features.',
-    preview: 'How we designed VeilSub\'s privacy model and the challenges of building ZK subscription proofs on Aleo...',
-    minTier: 2,
-    createdAt: '2026-02-08T15:30:00Z',
-    contentId: 'seed',
-  },
-  {
-    id: 'seed-3',
-    title: 'VIP Lounge: Ask Me Anything',
-    body: 'VIP tier unlocks encrypted AMA access, custom content requests, and priority responses—all while your identity stays hidden via zero-address finalize. This month\'s spotlight: advanced Leo patterns for privacy-preserving DeFi on Aleo.',
-    preview: 'Direct access to weekly AMAs, custom content requests, and priority responses...',
-    minTier: 3,
-    createdAt: '2026-02-05T09:00:00Z',
-    contentId: 'seed',
-  },
-  {
-    id: 'seed-4',
-    title: 'Weekly Update: v27 Deployed—Scoped Audit Tokens + Trial Passes',
-    body: 'VeilSub v27 is deployed on testnet with 27 transitions, 25 mappings, 6 record types, 866 statements. New in v27: scoped audit tokens (scope_mask bitfield), trial rate-limiting (one trial per creator per subscriber), gift revocation fix. Inherited: subscribe_trial, prove_subscriber_threshold, platform analytics. Zero addresses in finalize—all mapping keys are Poseidon2 hashes.',
-    minTier: 1,
-    createdAt: '2026-03-01T10:00:00Z',
-    contentId: 'seed',
-  },
-  {
-    id: 'seed-5',
-    title: 'Deep Dive: Blind Renewal Privacy Technique',
-    body: 'In this premium post, we explain how blind renewal works: each renew_blind() call generates a unique subscriber hash via Poseidon2(caller, nonce). The creator sees "different" subscribers each time—they cannot link renewals to the same person. Combined with v27\'s zero-address finalize policy, even the blockchain itself cannot correlate renewal patterns to real identities.',
-    preview: 'How blind renewal makes each subscription look like a different person using nonce-based identity rotation...',
-    minTier: 2,
-    createdAt: '2026-03-02T14:00:00Z',
-    contentId: 'seed',
-  },
-  {
-    id: 'seed-6',
-    title: 'VIP: Mainnet Roadmap & Token Strategy',
-    body: 'Exclusive VIP briefing on mainnet plans. Topics: production deployment timeline, cross-chain bridge strategy, DAO governance model, SDK for third-party integrations, and partnership discussions with Aleo ecosystem projects.',
-    preview: 'Mainnet timeline, cross-chain strategy, DAO governance, and partnership discussions...',
-    minTier: 3,
-    createdAt: '2026-03-03T16:00:00Z',
-    contentId: 'seed',
-  },
-  {
-    id: 'seed-7',
-    title: 'ZK Proof Systems Compared: SNARKs vs STARKs vs Bulletproofs',
-    body: 'A comprehensive comparison of the three leading ZK proof systems. Aleo uses Marlin (a universal SNARK) with BLS12-377 curves. We analyze prover time, verifier time, proof size, and trust assumptions. Key insight: Marlin proofs are ~1KB vs STARK proofs at ~50KB, but STARKs need no trusted setup.',
-    preview: 'Comprehensive comparison of SNARKs, STARKs, and Bulletproofs with Aleo-specific analysis...',
-    minTier: 2,
-    createdAt: '2026-03-04T10:00:00Z',
-    contentId: 'seed',
-  },
-  {
-    id: 'seed-8',
-    title: 'Leo Tutorial: Building Your First Private Token',
-    body: 'Step-by-step guide to creating a privacy-preserving token on Aleo. Covers: record definitions, mint/transfer/burn transitions, finalize for public state, and deployment to testnet. Includes complete source code with 40+ inline comments.',
-    minTier: 1,
-    createdAt: '2026-03-05T08:00:00Z',
-    contentId: 'seed',
-  },
-]
+// SEED_CONTENT removed — all content is real, stored encrypted in Redis.
+// No fake/demo posts are shown. Empty state is handled in useContentFeed.
 
 // Featured creators shown on the explore page for discovery.
 // Only creators with verified on-chain data are listed.
-// category: 'tech' | 'art' | 'defi' | 'gaming' | 'education'
+// category values match OnboardingWizard: 'Content Creator' | 'Writer' | 'Artist' | 'Developer' | 'Educator' | 'Journalist' | 'Other'
 export const FEATURED_CREATORS: { address: string; label: string; bio?: string; category?: string }[] = [
   {
     address: 'aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk',
     label: 'Prateek (VeilSub Creator)',
     bio: 'Building the private access layer for the creator economy. VeilSub founder—27 transitions, zero addresses in finalize.',
-    category: 'tech',
+    category: 'Developer',
   },
   {
     address: 'aleo1yr9ls3d48sh0gkk8y4re9assy7rkfhp4g8x2jmd5vqxl0phdvyqq4qmhef',
     label: 'ZK Research Lab',
     bio: 'Publishing exclusive research on zero-knowledge proof systems, Aleo protocol analysis, and privacy-preserving DeFi patterns.',
-    category: 'tech',
+    category: 'Writer',
   },
   {
     address: 'aleo1k7a5cx9t3wwej6v4h0mr2dgn8ys4pd3qx7lfk4zhrs6ep2wvc5psg9nxzm',
     label: 'Leo Dev Academy',
     bio: 'Step-by-step Leo programming tutorials, contract auditing guides, and hands-on Aleo development workshops.',
-    category: 'education',
+    category: 'Educator',
   },
 ]

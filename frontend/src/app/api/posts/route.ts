@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRedis } from '@/lib/redis'
 import { AUTH_CONFIG, RATE_LIMITS, CACHE_HEADERS, API_LIMITS, ALEO_ADDRESS_RE } from '@/lib/config'
+import { encryptContent, decryptContent } from '@/lib/contentEncryption'
 
 export async function GET(req: NextRequest) {
   const creator = req.nextUrl.searchParams.get('creator')
@@ -14,11 +15,16 @@ export async function GET(req: NextRequest) {
     const posts = raw.flatMap((p) => {
       try {
         const post = typeof p === 'string' ? JSON.parse(p) : p
-        // Server-side content gating: redact body + imageUrl for tier-gated posts, keep preview
+        // Server-side content gating: redact body + imageUrl + videoUrl for tier-gated posts, keep preview
         if (post.minTier && post.minTier > 0) {
-          return [{ ...post, body: null, imageUrl: null, gated: true, hasImage: !!post.imageUrl, preview: post.preview || '' }]
+          // Decrypt preview for display to non-subscribers (teaser text)
+          const decryptedPreview = post.preview ? decryptContent(post.preview, creator) : ''
+          return [{ ...post, body: null, imageUrl: null, videoUrl: null, gated: true, hasImage: !!post.imageUrl, hasVideo: !!post.videoUrl, preview: decryptedPreview }]
         }
-        return [post]
+        // Free posts (minTier 0): decrypt body for public display
+        const decryptedBody = post.body ? decryptContent(post.body, creator) : ''
+        const decryptedPreview = post.preview ? decryptContent(post.preview, creator) : ''
+        return [{ ...post, body: decryptedBody, preview: decryptedPreview }]
       } catch { return [] }
     })
     return NextResponse.json({ posts }, {
@@ -104,7 +110,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { creator, title, body, preview, minTier, contentId, hashedContentId, imageUrl, walletHash, timestamp, signature } = payload
+    const { creator, title, body, preview, minTier, contentId, hashedContentId, imageUrl, videoUrl, walletHash, timestamp, signature } = payload
     if (!creator || !title || !body) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
     }
@@ -145,6 +151,23 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Validate optional video URL (YouTube or direct video link)
+    let safeVideoUrl: string | undefined
+    if (videoUrl != null && videoUrl !== '') {
+      if (typeof videoUrl !== 'string' || videoUrl.length > API_LIMITS.MAX_IMAGE_URL_LENGTH) {
+        return NextResponse.json({ error: `Video URL too long (max ${API_LIMITS.MAX_IMAGE_URL_LENGTH})` }, { status: 400 })
+      }
+      try {
+        const parsed = new URL(videoUrl)
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+          return NextResponse.json({ error: 'Video URL must use https' }, { status: 400 })
+        }
+        safeVideoUrl = videoUrl
+      } catch {
+        return NextResponse.json({ error: 'Invalid video URL' }, { status: 400 })
+      }
+    }
+
     // Rate limit: posts per minute per address (always refresh TTL to prevent orphaned keys)
     const rlKey = `veilsub:ratelimit:${creator}`
     const count = await redis.incr(rlKey)
@@ -156,16 +179,22 @@ export async function POST(req: NextRequest) {
     // Preview is an optional short teaser shown to non-subscribers
     const safePreview = typeof preview === 'string' ? preview.slice(0, API_LIMITS.MAX_PREVIEW_LENGTH) : ''
 
+    // Encrypt body and preview at rest — only the server can decrypt.
+    // Title, tier, contentId, imageUrl, videoUrl remain unencrypted (metadata for listing).
+    const encryptedBody = encryptContent(body, creator)
+    const encryptedPreview = safePreview ? encryptContent(safePreview, creator) : ''
+
     const post = {
       id: `post-${crypto.randomUUID()}`,
       title,
-      body,
-      preview: safePreview,
+      body: encryptedBody,
+      preview: encryptedPreview,
       minTier: minTier ?? 1,
       createdAt: new Date().toISOString(),
       contentId: typeof contentId === 'string' ? contentId.slice(0, API_LIMITS.MAX_CONTENT_ID_LENGTH) : '',
       ...(typeof hashedContentId === 'string' && /^\d+field$/.test(hashedContentId) ? { hashedContentId } : {}),
       ...(safeImageUrl ? { imageUrl: safeImageUrl } : {}),
+      ...(safeVideoUrl ? { videoUrl: safeVideoUrl } : {}),
     }
 
     await redis.zadd(`veilsub:posts:${creator}`, {
@@ -246,11 +275,17 @@ export async function PUT(req: NextRequest) {
             } catch { /* invalid URL, skip */ }
           }
         }
+        // Encrypt updated body/preview at rest
+        const encBody = body !== undefined ? encryptContent(body, creator) : undefined
+        const encPreview = preview !== undefined
+          ? (typeof preview === 'string' ? encryptContent(preview.slice(0, API_LIMITS.MAX_PREVIEW_LENGTH), creator) : post.preview)
+          : undefined
+
         const updated = {
           ...post,
           ...(title !== undefined && { title }),
-          ...(body !== undefined && { body }),
-          ...(preview !== undefined && { preview: typeof preview === 'string' ? preview.slice(0, API_LIMITS.MAX_PREVIEW_LENGTH) : post.preview }),
+          ...(encBody !== undefined && { body: encBody }),
+          ...(encPreview !== undefined && { preview: encPreview }),
           ...(minTier !== undefined && { minTier }),
           ...(updatedImageUrl !== undefined && { imageUrl: updatedImageUrl || undefined }),
           updatedAt: new Date().toISOString(),

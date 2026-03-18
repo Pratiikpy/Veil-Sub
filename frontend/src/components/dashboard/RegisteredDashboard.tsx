@@ -19,6 +19,8 @@ import {
   FileText,
   BarChart3,
   Sparkles,
+  Wallet,
+  ArrowDownToLine,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import dynamic from 'next/dynamic'
@@ -278,6 +280,87 @@ export default function RegisteredDashboard({
                   View Profile
                 </Link>
               </div>
+            </m.div>
+
+            {/* ── Withdraw Earnings (most prominent action) ── */}
+            <m.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.03 }}
+              className="p-6 rounded-2xl bg-gradient-to-br from-emerald-600/10 via-emerald-500/5 to-transparent border border-emerald-500/20 relative overflow-hidden"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2.5 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-500/25">
+                  <Wallet className="w-5 h-5 text-emerald-400" aria-hidden="true" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-white">
+                    {publicKey === PLATFORM_ADDRESS ? 'Withdraw Funds' : 'Withdraw Earnings'}
+                  </h2>
+                  <p className="text-xs text-white/60">
+                    {publicKey === PLATFORM_ADDRESS
+                      ? `Creator revenue or ${PLATFORM_FEE_PCT}% platform fees`
+                      : `${100 - PLATFORM_FEE_PCT}% of all subscriptions and tips are yours`}
+                  </p>
+                </div>
+              </div>
+
+              {/* Balance display */}
+              <div className="flex items-center justify-between px-4 py-3 mb-4 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15">
+                <span className="text-sm text-emerald-300/80">Available on-chain</span>
+                <span className="text-xl font-bold text-emerald-300 tabular-nums">
+                  {formatCredits(stats?.totalRevenue ?? 0)} <span className="text-xs font-normal text-emerald-300/60">ALEO</span>
+                </span>
+              </div>
+
+              {/* Amount input + Withdraw button */}
+              <div className="flex gap-2 mb-3">
+                <div className="relative flex-1">
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    placeholder="Amount in ALEO"
+                    step="0.1"
+                    min="0.001"
+                    aria-label="Withdrawal amount in ALEO"
+                    className="w-full px-4 py-3 pr-14 rounded-xl bg-black/40 border border-emerald-500/20 text-white text-base placeholder-subtle focus:outline-none focus:border-emerald-400/40 transition-all"
+                  />
+                  {(stats?.totalRevenue ?? 0) > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setWithdrawAmount((stats!.totalRevenue / MICROCREDITS_PER_CREDIT).toString())}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider text-emerald-300/80 bg-emerald-500/10 hover:bg-emerald-500/20 transition-colors"
+                      aria-label="Fill maximum available amount"
+                    >
+                      Max
+                    </button>
+                  )}
+                </div>
+                <button
+                  onClick={() => handleWithdraw('creator')}
+                  disabled={withdrawTxStatus === 'signing' || withdrawTxStatus === 'broadcasting' || !withdrawAmount}
+                  className="px-5 py-3 rounded-xl bg-emerald-600 text-sm font-semibold text-white hover:bg-emerald-500 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 active:scale-[0.98]"
+                >
+                  <ArrowDownToLine className="w-4 h-4" aria-hidden="true" />
+                  {withdrawTxStatus === 'signing' || withdrawTxStatus === 'broadcasting' ? 'Withdrawing...' : 'Withdraw'}
+                </button>
+              </div>
+
+              {publicKey === PLATFORM_ADDRESS && (
+                <button
+                  onClick={() => handleWithdraw('platform')}
+                  disabled={withdrawTxStatus === 'signing' || withdrawTxStatus === 'broadcasting' || !withdrawAmount}
+                  className="w-full px-4 py-2.5 rounded-xl bg-amber-600/80 text-sm font-medium text-white hover:bg-amber-600 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed mb-3"
+                >
+                  Withdraw Platform Fees
+                </button>
+              )}
+
+              {withdrawTxStatus !== 'idle' && (
+                <TransactionStatus status={withdrawTxStatus} txId={withdrawTxId} errorMessage={withdrawError} />
+              )}
             </m.div>
 
             {/* Getting Started Checklist with Progress Ring */}
@@ -591,7 +674,7 @@ export default function RegisteredDashboard({
               <div className="space-y-4 text-sm text-white/70">
                 <p>
                   Subscribers receive a private <strong className="text-white">AccessPass</strong> record
-                  in their wallet with an expiry of ~30 days (259,200 blocks). This record proves they have access via BSP
+                  in their wallet with an expiry of ~30 days. This record proves they have access via BSP
                   without revealing their identity to the platform.
                 </p>
                 <p>

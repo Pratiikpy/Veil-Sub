@@ -11,7 +11,6 @@ import {
   TRIAL_DURATION_BLOCKS,
   TRIAL_PRICE_DIVISOR,
 
-  SEED_CONTENT,
   FEATURED_CREATORS,
   APP_NAME,
   APP_DESCRIPTION,
@@ -225,47 +224,5 @@ describe('getCreatorCustomTiers advanced cases', () => {
   })
 })
 
-describe('SEED_CONTENT detailed validation', () => {
-  it('minTier values are only 1, 2, or 3', () => {
-    for (const post of SEED_CONTENT) {
-      expect([1, 2, 3]).toContain(post.minTier)
-    }
-  })
-
-  it('all ids are unique', () => {
-    const ids = SEED_CONTENT.map((s) => s.id)
-    expect(new Set(ids).size).toBe(ids.length)
-  })
-
-  it('all titles are unique', () => {
-    const titles = SEED_CONTENT.map((s) => s.title)
-    expect(new Set(titles).size).toBe(titles.length)
-  })
-
-  it('all createdAt values are valid ISO date strings', () => {
-    for (const post of SEED_CONTENT) {
-      const date = new Date(post.createdAt)
-      expect(date.getTime()).not.toBeNaN()
-    }
-  })
-
-  it('all posts have a contentId field', () => {
-    for (const post of SEED_CONTENT) {
-      expect(post.contentId).toBeDefined()
-      expect(typeof post.contentId).toBe('string')
-    }
-  })
-
-  it('higher tier posts have preview text (tier 2+ marketing)', () => {
-    const highTierPosts = SEED_CONTENT.filter((s) => s.minTier >= 2)
-    const withPreview = highTierPosts.filter((s) => s.preview)
-    // At least some higher-tier posts should have preview text
-    expect(withPreview.length).toBeGreaterThan(0)
-  })
-
-  it('body is always longer than title', () => {
-    for (const post of SEED_CONTENT) {
-      expect(post.body.length).toBeGreaterThan(post.title.length)
-    }
-  })
-})
+// SEED_CONTENT tests removed — seed data has been eliminated from the codebase.
+// All content is now real, stored encrypted in Redis.

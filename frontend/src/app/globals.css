@@ -405,6 +405,244 @@ a:focus:not(:focus-visible) {
   scroll-margin-top: 7rem;
 }
 
+/* ─── Rich Text Editor (Tiptap) ─── */
+.rich-editor-content {
+  padding: 1rem 1.25rem;
+  min-height: 160px;
+  max-height: 500px;
+  overflow-y: auto;
+  color: #ffffff;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+.rich-editor-content:focus {
+  outline: none;
+}
+.rich-editor-content p {
+  margin-bottom: 0.5em;
+}
+.rich-editor-content h2 {
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-top: 1.25em;
+  margin-bottom: 0.5em;
+}
+.rich-editor-content h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-top: 1em;
+  margin-bottom: 0.4em;
+}
+.rich-editor-content strong {
+  font-weight: 600;
+  color: #ffffff;
+}
+.rich-editor-content em {
+  font-style: italic;
+}
+.rich-editor-content ul,
+.rich-editor-content ol {
+  padding-left: 1.5em;
+  margin-bottom: 0.75em;
+}
+.rich-editor-content ul {
+  list-style-type: disc;
+}
+.rich-editor-content ol {
+  list-style-type: decimal;
+}
+.rich-editor-content li {
+  margin-bottom: 0.25em;
+}
+.rich-editor-content .rich-blockquote {
+  border-left: 3px solid rgba(139, 92, 246, 0.4);
+  padding-left: 1em;
+  margin: 0.75em 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+.rich-editor-content .rich-code-block {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.75em 1em;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.85em;
+  overflow-x: auto;
+  margin: 0.75em 0;
+  white-space: pre-wrap;
+}
+.rich-editor-content code {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  padding: 0.15em 0.35em;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em;
+}
+.rich-editor-content .rich-code-block code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+.rich-editor-content .rich-link {
+  color: #A78BFA;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.rich-editor-content .rich-link:hover {
+  color: #c4b5fd;
+}
+.rich-editor-content .rich-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 0.75em 0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.rich-editor-content .rich-youtube {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  margin: 0.75em 0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.rich-editor-content .rich-youtube iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+.rich-editor-content hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 1.25em 0;
+}
+/* Placeholder */
+.rich-editor-content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  height: 0;
+}
+
+/* ─── Rich Content Display (rendered HTML in posts) ─── */
+.rich-content h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-top: 1em;
+  margin-bottom: 0.4em;
+}
+.rich-content h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-top: 0.75em;
+  margin-bottom: 0.3em;
+}
+.rich-content p {
+  margin-bottom: 0.5em;
+}
+.rich-content strong {
+  font-weight: 600;
+  color: #ffffff;
+}
+.rich-content em {
+  font-style: italic;
+}
+.rich-content ul,
+.rich-content ol {
+  padding-left: 1.5em;
+  margin-bottom: 0.75em;
+}
+.rich-content ul {
+  list-style-type: disc;
+}
+.rich-content ol {
+  list-style-type: decimal;
+}
+.rich-content li {
+  margin-bottom: 0.2em;
+}
+.rich-content blockquote,
+.rich-content .rich-blockquote {
+  border-left: 3px solid rgba(139, 92, 246, 0.4);
+  padding-left: 1em;
+  margin: 0.75em 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+.rich-content pre,
+.rich-content .rich-code-block {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.75em 1em;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.85em;
+  overflow-x: auto;
+  margin: 0.75em 0;
+  white-space: pre-wrap;
+}
+.rich-content code {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  padding: 0.15em 0.35em;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em;
+}
+.rich-content pre code,
+.rich-content .rich-code-block code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+.rich-content a,
+.rich-content .rich-link {
+  color: #A78BFA;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s;
+}
+.rich-content a:hover,
+.rich-content .rich-link:hover {
+  color: #c4b5fd;
+}
+.rich-content img,
+.rich-content .rich-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 0.75em 0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.rich-content .rich-youtube {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  margin: 0.75em 0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.rich-content .rich-youtube iframe,
+.rich-content iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+  border-radius: 8px;
+  margin: 0.75em 0;
+}
+.rich-content hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 1.25em 0;
+}
+
 /* ─── Reduced motion ─── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

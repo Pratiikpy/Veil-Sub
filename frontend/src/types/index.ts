@@ -18,7 +18,9 @@ export interface ContentPost {
   contentId: string    // on-chain content_id (field), or 'seed' for seed content
   gated?: boolean      // true when body is server-redacted
   imageUrl?: string | null  // attached image URL, null when gated
+  videoUrl?: string | null  // attached video URL (YouTube or direct), null when gated
   hasImage?: boolean        // true when post has image (visible even when gated as metadata)
+  hasVideo?: boolean        // true when post has video (visible even when gated as metadata)
 }
 
 export interface CustomTierInfo {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRedis } from '@/lib/redis'
 import { ALEO_API_BASE_URL, RATE_LIMITS, AUTH_CONFIG, ALEO_ADDRESS_RE } from '@/lib/config'
+import { decryptContent } from '@/lib/contentEncryption'
 
 export async function POST(req: NextRequest) {
   const redis = getRedis()
@@ -116,11 +117,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Insufficient access' }, { status: 403 })
     }
 
-    // Access granted — return the full post body + image
+    // Access granted — decrypt body at rest and return plaintext to subscriber
+    const decryptedBody = post.body ? decryptContent(post.body, creatorAddress) : ''
+
     return NextResponse.json({
       postId: post.id,
-      body: post.body,
+      body: decryptedBody,
       imageUrl: post.imageUrl || null,
+      videoUrl: post.videoUrl || null,
     })
   } catch {
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })

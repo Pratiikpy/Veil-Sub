@@ -33,7 +33,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://veil-sub.vercel.app'),
   title: `${APP_NAME} — Private Creator Subscriptions on Aleo`,
-  description: `Subscribe to creators without anyone knowing. ${APP_DESCRIPTION} — zero-knowledge proof verification, zero addresses in finalize. 27 transitions, 25 mappings, 6 record types.`,
+  description: `Subscribe to creators without anyone knowing. ${APP_DESCRIPTION} — zero-knowledge proof verification, complete privacy for subscribers and creators.`,
   keywords: ['Aleo', 'ZK', 'zero-knowledge', 'privacy', 'subscriptions', 'creator economy', 'blockchain', 'Leo'],
   alternates: {
     canonical: '/',
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: `${APP_NAME} — Private Subscriptions on Aleo`,
-    description: 'The private access layer for the creator economy. 27 transitions, 25 mappings, 6 record types. Zero addresses in finalize.',
+    description: 'The private access layer for the creator economy. Subscribe privately, prove access, nobody sees who you support.',
     images: ['/opengraph-image'],
   },
 }

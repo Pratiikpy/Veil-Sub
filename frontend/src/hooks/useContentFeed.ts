@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { SEED_CONTENT } from '@/lib/config'
 import { computeWalletHash } from '@/lib/utils'
 import type { AccessPass, ContentPost } from '@/types'
 
@@ -17,19 +16,6 @@ export function useContentFeed() {
 
   const getPostsForCreator = useCallback(
     async (creatorAddress: string): Promise<ContentPost[]> => {
-      const seedPosts: ContentPost[] = SEED_CONTENT.map((s) => ({
-        id: s.id,
-        title: s.title,
-        body: s.minTier > 0 ? null : s.body,
-        preview: s.preview,
-        minTier: s.minTier,
-        createdAt: s.createdAt,
-        contentId: s.contentId,
-        gated: s.minTier > 0,
-        imageUrl: s.imageUrl && s.minTier === 0 ? s.imageUrl : null,
-        hasImage: !!s.imageUrl,
-      }))
-
       setLoading(true)
       setError(null)
       try {
@@ -40,7 +26,7 @@ export function useContentFeed() {
           const { posts } = await res.json()
           const apiPosts = posts as ContentPost[]
           setLoading(false)
-          return apiPosts.length > 0 ? apiPosts : seedPosts
+          return apiPosts
         }
         setError({ operation: 'fetch', message: 'Failed to load posts', code: res.status })
       } catch (err) {
@@ -48,7 +34,7 @@ export function useContentFeed() {
         setError({ operation: 'fetch', message: msg })
       }
       setLoading(false)
-      return seedPosts
+      return []
     },
     []
   )
@@ -60,7 +46,7 @@ export function useContentFeed() {
       walletAddress: string,
       accessPasses: AccessPass[],
       signFn: ((msg: Uint8Array) => Promise<Uint8Array>) | null = null
-    ): Promise<{ body: string; imageUrl?: string } | null> => {
+    ): Promise<{ body: string; imageUrl?: string; videoUrl?: string } | null> => {
       try {
         const timestamp = Date.now()
         let signature: string | undefined
@@ -103,7 +89,7 @@ export function useContentFeed() {
         })
         if (res.ok) {
           const data = await res.json()
-          return { body: data.body as string, imageUrl: data.imageUrl as string | undefined }
+          return { body: data.body as string, imageUrl: data.imageUrl as string | undefined, videoUrl: data.videoUrl as string | undefined }
         }
         setError({ operation: 'unlock', message: 'Access verification failed', code: res.status })
       } catch (err) {
@@ -125,7 +111,8 @@ export function useContentFeed() {
       signFn: ((msg: Uint8Array) => Promise<Uint8Array>) | null = null,
       imageUrl?: string,
       hashedContentId?: string,
-      preview?: string
+      preview?: string,
+      videoUrl?: string
     ): Promise<ContentPost | null> => {
       try {
         const timestamp = Date.now()
@@ -159,6 +146,7 @@ export function useContentFeed() {
             contentId,
             ...(hashedContentId ? { hashedContentId } : {}),
             ...(imageUrl ? { imageUrl } : {}),
+            ...(videoUrl ? { videoUrl } : {}),
             walletHash,
             timestamp,
             signature,
