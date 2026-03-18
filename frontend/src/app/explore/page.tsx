@@ -209,7 +209,7 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
           )}
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/[0.06] border border-emerald-500/15 text-[10px] font-medium text-emerald-300/80">
             <Shield className="w-2.5 h-2.5" aria-hidden="true" />
-            ZK-Private
+            Private
           </span>
         </div>
 
@@ -491,7 +491,7 @@ export default function ExplorePage() {
           style={GRADIENT_STYLE}
         />
 
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
 
           {/* ── Hero Section ──────────────────────────────────────────────── */}
           <m.div
@@ -503,17 +503,17 @@ export default function ExplorePage() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/[0.06] border border-emerald-500/[0.12] mb-6">
               <Shield className="w-4 h-4 text-emerald-400" aria-hidden="true" />
               <span className="text-xs font-medium tracking-wide uppercase text-emerald-300">
-                Zero-Footprint Discovery
+                Private Discovery
               </span>
             </div>
             <h1
-              className="text-3xl sm:text-4xl md:text-5xl font-serif italic text-white mb-3"
+              className="text-3xl sm:text-4xl font-serif italic text-white mb-3"
               style={TITLE_STYLE}
             >
               Discover Creators
             </h1>
             <p className="text-base sm:text-lg text-white/60 max-w-xl mx-auto leading-relaxed">
-              Find creators who value your privacy. Subscribe anonymously with zero-knowledge proofs.
+              Find creators who value your privacy. Subscribe anonymously — your identity stays private.
             </p>
           </m.div>
 

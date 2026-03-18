@@ -88,7 +88,7 @@ const DEMO_CREATORS: CreatorReputation[] = [
     rating: 4.9,
     reviewCount: 47,
     subscriberCount: 128,
-    bio: 'Building the private access layer for the creator economy. 27 transitions, zero addresses in finalize.',
+    bio: 'Building the private access layer for the creator economy. Full-featured privacy toolkit for creators.',
   },
   {
     address: FEATURED_CREATORS[1]?.address ?? 'aleo1yr9ls3d48sh0gkk8y4re9assy7rkfhp4g8x2jmd5vqxl0phdvyqq4qmhef',
@@ -98,7 +98,7 @@ const DEMO_CREATORS: CreatorReputation[] = [
     rating: 4.7,
     reviewCount: 31,
     subscriberCount: 89,
-    bio: 'Exclusive research on zero-knowledge proof systems and privacy-preserving DeFi patterns.',
+    bio: 'Exclusive research on privacy technology and decentralized finance patterns.',
   },
   {
     address: FEATURED_CREATORS[2]?.address ?? 'aleo1k7a5cx9t3wwej6v4h0mr2dgn8ys4pd3qx7lfk4zhrs6ep2wvc5psg9nxzm',
@@ -118,7 +118,7 @@ const DEMO_CREATORS: CreatorReputation[] = [
     rating: 4.3,
     reviewCount: 18,
     subscriberCount: 45,
-    bio: 'Generative art exploring cryptographic concepts. Each piece is gated behind ZK access proofs.',
+    bio: 'Generative art exploring privacy concepts. Each piece is gated behind private access verification.',
   },
   {
     address: 'aleo1kurx4vfrjy6u69lglu2amvk2k3apyh7g7axpfvvqcvasfln33gqqy5rv2e',
@@ -223,7 +223,7 @@ const REPUTATION_STEPS = [
     step: 1,
     title: 'Aggregate Ratings',
     description:
-      'Subscribers rate creators using Pedersen commitments. Individual ratings are hidden; only the aggregate is visible.',
+      'Subscribers rate creators privately. Individual ratings are hidden; only the overall score is visible.',
     icon: Star,
     color: 'amber',
   },
@@ -231,7 +231,7 @@ const REPUTATION_STEPS = [
     step: 2,
     title: 'Threshold Proofs',
     description:
-      'Creators prove they meet a subscriber threshold via prove_subscriber_threshold -- without revealing the exact count.',
+      'Creators prove they meet a subscriber threshold -- without revealing the exact count.',
     icon: Shield,
     color: 'violet',
   },
@@ -239,7 +239,7 @@ const REPUTATION_STEPS = [
     step: 3,
     title: 'Reputation Tiers',
     description:
-      'Tiers (Bronze/Silver/Gold/Diamond) are assigned by verified on-chain proofs. No manual curation or gaming.',
+      'Tiers (Bronze/Silver/Gold/Diamond) are assigned by verified blockchain proofs. No manual curation or gaming.',
     icon: Award,
     color: 'emerald',
   },
@@ -309,7 +309,7 @@ function CreatorReputationCard({ creator }: { creator: CreatorReputation }) {
           </span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/[0.06] border border-emerald-500/15 text-[10px] font-medium text-emerald-300/80">
             <Shield className="w-2.5 h-2.5" aria-hidden="true" />
-            ZK-Verified
+            Verified
           </span>
         </div>
 
@@ -476,11 +476,11 @@ function BidModal({
               </div>
               <h3 className="text-lg font-semibold text-white mb-2">Bid Sealed</h3>
               <p className="text-sm text-white/60 mb-6">
-                Your bid has been sealed with BHP256. The amount is hidden until the reveal phase.
+                Your bid has been sealed. The amount is hidden until the reveal phase.
               </p>
               <div className="p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-6">
                 <p className="text-xs text-violet-300/80 font-mono break-all">
-                  BHP256(amount: {bidAmount || '0'} ALEO, salt: {salt.slice(0, 16)}...)
+                  Sealed bid: {bidAmount || '0'} ALEO, code: {salt.slice(0, 16)}...
                 </p>
               </div>
               <Button variant="secondary" onClick={onClose} className="rounded-full">
@@ -547,7 +547,7 @@ function BidModal({
                     <EyeOff className="w-3.5 h-3.5 text-violet-400 mt-0.5 shrink-0" aria-hidden="true" />
                     <p className="text-xs text-violet-300/80 leading-relaxed">
                       Your bid is sealed -- nobody sees the amount until the reveal phase.
-                      The bid commitment is stored as a BHP256 hash on-chain.
+                      Only an encrypted version of your bid is stored on-chain.
                     </p>
                   </div>
                 </div>
@@ -592,6 +592,14 @@ export default function MarketplacePage() {
 
   return (
     <PageTransition className="min-h-screen">
+      {/* ── BETA Banner ──────────────────────────────────────────────────── */}
+      <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-3 text-center">
+        <p className="text-sm text-amber-300 font-medium">
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold uppercase tracking-wider mr-2">Beta</span>
+          Creator reputation and auctions are in beta. Data shown is for demonstration.
+        </p>
+      </div>
+
       {/* ── Hero ────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         <div
@@ -613,15 +621,15 @@ export default function MarketplacePage() {
             </div>
 
             <h1
-              className="text-4xl sm:text-5xl lg:text-6xl font-serif italic text-white mb-6"
+              className="text-3xl sm:text-4xl font-serif italic text-white mb-6"
               style={LETTER_SPACING_STYLE}
             >
               Creator Marketplace
             </h1>
 
             <p className="text-lg text-white/70 max-w-2xl mx-auto mb-8 leading-relaxed">
-              Discover creators by reputation. Bid on premium content. All ratings are aggregated
-              via Pedersen commitments -- individual reviews are never visible.
+              Discover creators by reputation. Bid on premium content. All ratings are
+              privacy-preserving -- individual reviews are never visible.
             </p>
 
             <div className="flex items-center justify-center gap-3 flex-wrap">
@@ -635,7 +643,7 @@ export default function MarketplacePage() {
               </div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400">
                 <Shield className="w-3 h-3" aria-hidden="true" />
-                Pedersen aggregated ratings
+                Privacy-preserving ratings
               </div>
             </div>
           </m.div>
@@ -655,7 +663,7 @@ export default function MarketplacePage() {
                   Creator Reputation
                 </h2>
                 <p className="text-white/50 text-sm">
-                  Reputation tiers verified via on-chain threshold proofs.
+                  Reputation tiers verified privately on the blockchain.
                 </p>
               </div>
             </div>
@@ -761,8 +769,8 @@ export default function MarketplacePage() {
                     <code className="px-1 py-0.5 rounded bg-white/[0.06] text-amber-300 text-[10px] font-mono">
                       veilsub_marketplace.aleo
                     </code>{' '}
-                    program. Sealed bids will use BHP256 commitments identical to the governance
-                    voting scheme.
+                    program. Sealed bids will use the same privacy technology as the governance
+                    voting system -- nobody sees other bids.
                   </p>
                 </div>
               </div>
@@ -783,7 +791,7 @@ export default function MarketplacePage() {
                 How Reputation Works
               </h2>
               <p className="text-white/60 max-w-xl mx-auto">
-                Private ratings, public trust. Pedersen commitments aggregate individual reviews
+                Private ratings, public trust. Individual reviews are combined mathematically
                 without revealing any single rating.
               </p>
             </div>
@@ -820,16 +828,13 @@ export default function MarketplacePage() {
                 <Hash className="w-5 h-5 text-violet-400 mt-0.5 shrink-0" aria-hidden="true" />
                 <div>
                   <p className="text-sm font-semibold text-violet-300 mb-1">
-                    Pedersen Aggregated Ratings
+                    Privacy-Preserving Ratings
                   </p>
                   <p className="text-sm text-white/60 leading-relaxed">
-                    Each review is a Pedersen commitment:{' '}
-                    <code className="px-1.5 py-0.5 rounded bg-white/[0.06] text-violet-300 text-xs font-mono">
-                      Pedersen64::commit_to_field(rating, blinding_factor)
-                    </code>
-                    . Commitments are homomorphically added on-chain to produce an aggregate score.
-                    Individual ratings cannot be extracted from the aggregate -- this is the
-                    hiding property of Pedersen commitments.
+                    Each review is encrypted with a hidden counter so that ratings can be
+                    added together on-chain to produce an overall score, without anyone being
+                    able to see any individual rating. Your specific review remains permanently
+                    private -- only the combined result is visible.
                   </p>
                 </div>
               </div>

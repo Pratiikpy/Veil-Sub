@@ -2,7 +2,8 @@
 
 import { useState, useRef } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
-import { X, Shield, Sparkles } from 'lucide-react'
+import { X, Shield, Sparkles, ArrowRight, CreditCard } from 'lucide-react'
+import Link from 'next/link'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
@@ -322,7 +323,7 @@ export default function SubscribeModal({
                     {privacyMode === 'standard' && <li>Creator sees total count, not individuals</li>}
                     {privacyMode === 'blind' && <li>Identity masked—renewals are unlinkable</li>}
                     {privacyMode === 'trial' && <li>Short-lived pass—20% cost, ~50 minute access</li>}
-                    <li>AccessPass stored privately in your wallet</li>
+                    <li>Subscription pass stored privately in your wallet</li>
                     <li>Payment sent privately to creator</li>
                   </ul>
                 </div>
@@ -358,7 +359,7 @@ export default function SubscribeModal({
                   }
                   className="w-full"
                 >
-                  {txStatus !== 'idle' ? 'Creating AccessPass...' : 'Subscribe Privately'}
+                  {txStatus !== 'idle' ? 'Creating subscription...' : 'Subscribe Privately'}
                 </Button>
               </>
             ) : (
@@ -376,21 +377,48 @@ export default function SubscribeModal({
                     aria-live="polite"
                   >
                     <p className="text-green-400 font-medium mb-1">
-                      Subscribed via BSP!
+                      Subscribed successfully!
                     </p>
                     <p className="text-xs text-white/70">
-                      Your AccessPass is now in your wallet. {privacyMode === 'trial' ? 'Trial access for ~50 minutes.' : 'Access for ~30 days.'}
+                      Your subscription pass is now in your wallet. {privacyMode === 'trial' ? 'Trial access for ~50 minutes.' : 'Access for ~30 days.'}
                     </p>
                     {txId && (
                       <p className="text-[11px] text-white/60 mt-2 font-mono break-all">
                         TX: {txId.slice(0, 16)}...{txId.slice(-8)}
                       </p>
                     )}
+
+                    {/* What's Next guidance */}
+                    <div className="mt-5 p-4 rounded-xl bg-surface-2 border border-border text-left">
+                      <p className="text-xs font-medium text-white/80 mb-3">What&apos;s Next?</p>
+                      <p className="text-[11px] text-white/55 mb-3">
+                        Visit the creator&apos;s page to unlock gated content, or manage all your subscriptions from one place.
+                      </p>
+                      <div className="flex flex-col gap-2">
+                        <Link
+                          href={`/creator/${creatorAddress}`}
+                          onClick={handleModalClose}
+                          className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-violet-500/15 border border-violet-500/25 text-sm font-medium text-violet-300 hover:bg-violet-500/25 transition-all"
+                        >
+                          <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                          View Creator&apos;s Content
+                        </Link>
+                        <Link
+                          href="/subscriptions"
+                          onClick={handleModalClose}
+                          className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-border text-xs text-white/60 hover:bg-white/[0.08] hover:text-white/80 transition-all"
+                        >
+                          <CreditCard className="w-3 h-3" aria-hidden="true" />
+                          Manage Subscriptions
+                        </Link>
+                      </div>
+                    </div>
+
                     <button
                       onClick={handleModalClose}
-                      className="mt-4 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                      className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
                     >
-                      Done
+                      Close
                     </button>
                   </m.div>
                 )}

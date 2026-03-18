@@ -249,7 +249,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           setShowConfetti(true)
           confettiTimerRef.current = setTimeout(() => {
             onComplete()
-          }, 3000)
+          }, 2000)
         } else if (result.status === 'failed') {
           setPublishTxStatus('failed')
           toast.error('Publish failed.')
@@ -401,17 +401,17 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                     {
                       icon: Shield,
                       title: 'Zero Identity Leaks',
-                      desc: 'Poseidon2 hashes, not addresses',
+                      desc: 'Your wallet address is never stored publicly',
                     },
                     {
                       icon: Layers,
-                      title: '3-Layer BSP',
-                      desc: 'Blind rotate, hash, selective disclose',
+                      title: '3 Privacy Layers',
+                      desc: 'Anonymous identity, hashed data, selective sharing',
                     },
                     {
                       icon: Sparkles,
-                      title: '27 Transitions',
-                      desc: 'Full creator toolkit on Aleo',
+                      title: 'Full Creator Toolkit',
+                      desc: 'Subscriptions, tiers, tips, content & more',
                     },
                   ].map((card) => {
                     const Icon = card.icon
@@ -561,9 +561,9 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                   <div className="flex items-start gap-2">
                     <Info className="w-4 h-4 text-violet-400 mt-0.5 shrink-0" aria-hidden="true" />
                     <p className="text-xs text-white/60 leading-relaxed">
-                      Profile info (name, bio) is stored off-chain in Supabase. On-chain, only
-                      your Poseidon2 hash and tier price exist — no personal info ever touches
-                      the blockchain.
+                      Profile info (name, bio) is stored off-chain. On the blockchain, only
+                      an anonymous identifier and your tier price exist — no personal info ever
+                      touches the blockchain.
                     </p>
                   </div>
                 </div>
@@ -740,7 +740,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
 
                     <div className="p-2.5 rounded-lg bg-emerald-500/[0.06] border border-emerald-500/10 text-center">
                       <span className="text-[10px] text-emerald-400 font-medium">
-                        ZK-Private Subscription
+                        Private Subscription
                       </span>
                     </div>
                   </div>

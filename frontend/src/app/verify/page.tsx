@@ -85,9 +85,9 @@ export default function VerifyPage() {
       if (message.includes('connect') || message.includes('wallet') || message.includes('extension')) {
         setLoadError('Wallet connection lost. Unlock your wallet extension and refresh the page.')
       } else if (message.includes('network') || message.includes('timeout') || message.includes('fetch')) {
-        setLoadError('Network error while syncing AccessPass records from your wallet.')
+        setLoadError('Network error while syncing subscription passes from your wallet.')
       } else {
-        setLoadError('Could not parse AccessPass records. Your wallet may still be syncing.')
+        setLoadError('Could not load subscription passes. Your wallet may still be syncing.')
       }
     }
     setLoading(false)
@@ -154,7 +154,7 @@ export default function VerifyPage() {
     } catch (err) {
       setVerifyTxStatus('failed')
       setVerifyResult('failed')
-      setVerifyError(err instanceof Error ? getErrorMessage(err.message) : 'Verification failed. Check wallet connection and AccessPass validity.')
+      setVerifyError(err instanceof Error ? getErrorMessage(err.message) : 'Verification failed. Check wallet connection and subscription pass validity.')
     }
   }
 
@@ -180,16 +180,16 @@ export default function VerifyPage() {
                 </span>
               </div>
               <h1
-                className="text-4xl sm:text-5xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 Verify Your Access
               </h1>
               <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
-                Prove your subscription with zero-knowledge cryptography.
+                Prove your subscription privately — without revealing your identity.
               </p>
               <p className="text-sm text-white/50 max-w-2xl mx-auto mt-2">
-                On-chain verification checks only pass ID, expiry, and revocation status—your wallet address never appears in any mapping.
+                Verification checks only your subscription ID, expiry, and revocation status — your wallet address is never stored publicly.
               </p>
             </m.div>
           </div>
@@ -227,7 +227,7 @@ export default function VerifyPage() {
                           <Lock className="w-4 h-4 text-violet-400" aria-hidden="true" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-white">AccessPass Record</p>
+                          <p className="text-xs font-medium text-white">Subscription Pass</p>
                           <p className="text-xs text-white/50 truncate font-mono">Access ID: 7f3a...9b2c</p>
                         </div>
                         <m.div
@@ -374,7 +374,7 @@ export default function VerifyPage() {
                   ))}
                 </div>
                 <p className="text-xs text-white/50 italic mt-4">
-                  All powered by your AccessPass proof—never revealing who owns the subscription.
+                  All powered by your subscription pass — never revealing who owns it.
                 </p>
               </div>
 
@@ -489,7 +489,7 @@ export default function VerifyPage() {
                       No Private Passes Yet
                     </p>
                     <p className="text-white/60 text-xs mb-4">
-                      Subscribe to a creator to receive your encrypted AccessPass record—your identity stays zero-address.
+                      Subscribe to a creator to receive your encrypted subscription pass — your identity stays private.
                     </p>
                     <Link
                       href="/explore"
@@ -644,7 +644,7 @@ export default function VerifyPage() {
                       Select a Pass to Verify
                     </p>
                     <p className="text-white/70 text-xs mb-4 max-w-xs mx-auto">
-                      Pick any AccessPass from the list. When you verify, a zero-knowledge proof is generated client-side—your address never reaches the blockchain.
+                      Pick any subscription pass from the list. When you verify, a privacy proof is generated on your device — your address never reaches the blockchain.
                     </p>
                     <div className="p-4 rounded-lg bg-violet-500/5 border border-violet-500/10 mx-4">
                       <p className="text-xs text-white/70">
@@ -685,7 +685,7 @@ export default function VerifyPage() {
               {
                 icon: Lock,
                 title: 'Pass Consumed',
-                desc: 'Your existing AccessPass record is consumed (destroyed) in the UTXO model—like spending a coin.',
+                desc: 'Your existing subscription pass is consumed during verification — similar to using a ticket.',
               },
               {
                 icon: Fingerprint,
@@ -695,7 +695,7 @@ export default function VerifyPage() {
               {
                 icon: Shield,
                 title: 'New Pass Created',
-                desc: 'A fresh AccessPass with identical data is created in your wallet. No public state changes occur.',
+                desc: 'A fresh subscription pass with identical data is created in your wallet. No public changes occur.',
               },
             ].map((step, i) => {
               const Icon = step.icon

@@ -285,7 +285,7 @@ export default function DevelopersPage() {
             </div>
 
             <h1
-              className="text-4xl sm:text-5xl lg:text-6xl font-serif italic text-white mb-6"
+              className="text-3xl sm:text-4xl font-serif italic text-white mb-6"
               style={LETTER_SPACING_STYLE}
             >
               Build on VeilSub

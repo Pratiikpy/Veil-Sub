@@ -85,7 +85,7 @@ export default function RenewModal({
   const handleRenew = async () => {
     if (submittingRef.current) return
     if (!connected) {
-      setError('Connect wallet to renew your AccessPass privately.')
+      setError('Connect wallet to renew your subscription privately.')
       return
     }
     if (blockHeight === null) {
@@ -157,7 +157,7 @@ export default function RenewModal({
             toast.success('Subscription renewed privately')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            setError('BSP blind renewal failed on-chain. Verify credits and AccessPass.')
+            setError('Renewal failed on-chain. Verify you have enough credits and a valid subscription pass.')
             toast.error('Renewal failed')
           }
         })
@@ -316,13 +316,13 @@ export default function RenewModal({
 
                 {/* Privacy Notice */}
                 <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4 space-y-2">
-                  <p className="text-xs text-green-400 font-medium">Zero-Knowledge Privacy</p>
+                  <p className="text-xs text-green-400 font-medium">Your Privacy Guaranteed</p>
                   <ul className="text-[11px] text-green-400/80 space-y-1 list-none">
                     <li>Your address is never published on-chain</li>
                     {privacyMode === 'standard' && <li>Aggregate subscriber count updates publicly</li>}
                     {privacyMode === 'blind' && <li>Identity hash rotated—unlinkable renewals</li>}
-                    <li>AccessPass stored privately in your wallet</li>
-                    <li>Payment via credits.aleo/transfer_private</li>
+                    <li>Subscription pass stored privately in your wallet</li>
+                    <li>Payment sent privately to creator</li>
                   </ul>
                 </div>
 

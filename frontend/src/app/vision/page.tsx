@@ -47,7 +47,7 @@ const USE_CASES = [
     icon: Vote,
     title: 'DAO Membership',
     description:
-      'AccessPass records as private governance tokens. Prove DAO membership and vote without revealing your wallet address or voting history to other members.',
+      'Subscription passes as private governance tokens. Prove DAO membership and vote without revealing your wallet address or voting history to other members.',
     color: 'text-green-400',
     bg: 'bg-green-500/10',
   },
@@ -55,7 +55,7 @@ const USE_CASES = [
     icon: Ticket,
     title: 'Event Ticketing',
     description:
-      'ZK-proven event access without identity exposure. Prove you hold a valid ticket at the door without revealing who purchased it or what else you attend.',
+      'Private event access without identity exposure. Prove you hold a valid ticket at the door without revealing who purchased it or what else you attend.',
     color: 'text-violet-400',
     bg: 'bg-violet-500/10',
   },
@@ -63,7 +63,7 @@ const USE_CASES = [
     icon: Code2,
     title: 'Developer SDK',
     description:
-      'Embeddable privacy subscription primitive for any Aleo dApp. Any program can call verify_access to gate features behind private AccessPass ownership—zero integration friction.',
+      'Embeddable privacy subscription for any Aleo app. Any program can verify subscription access to gate features behind private pass ownership — zero integration friction.',
     color: 'text-cyan-400',
     bg: 'bg-cyan-500/10',
   },
@@ -87,18 +87,18 @@ export default function VisionPage() {
                 <span className="text-sm text-violet-300/90">Beyond Subscriptions</span>
               </div>
               <h1
-                className="text-4xl sm:text-6xl font-serif italic text-white mb-6"
+                className="text-3xl sm:text-4xl font-serif italic text-white mb-6"
                 style={LETTER_SPACING_STYLE}
               >
                 Vision &amp; Use Cases
               </h1>
               <p className="text-lg text-white/60 max-w-2xl mx-auto">
-                VeilSub is more than a subscription platform—it&apos;s a composable zero-knowledge access
-                control primitive using Aleo records. Any program can call verify_access to gate features
-                behind AccessPass ownership. v27&apos;s minimal-footprint finalize is a single access_revoked
-                mapping read keyed by pass_id (a field, never an address). Third-party integrations inherit
-                VeilSub&apos;s guarantee: subscriber addresses are cryptographically impossible to reach any
-                finalize block.
+                VeilSub is more than a subscription platform — it&apos;s a building block for private
+                access control on Aleo. Any app can verify subscription access to gate features
+                behind private pass ownership. Verification checks only whether a pass has been
+                revoked — your wallet address is never stored publicly. Third-party integrations
+                inherit VeilSub&apos;s guarantee: subscriber identities are mathematically impossible
+                to recover.
               </p>
             </m.div>
           </div>
@@ -132,16 +132,16 @@ export default function VisionPage() {
             <m.div {...fadeUp} animate="animate" initial="initial" className="text-center mb-12">
               <h2 className="text-3xl font-semibold text-white mb-4">Composable Privacy Primitive</h2>
               <p className="text-white/60 max-w-2xl mx-auto">
-                Any Aleo program can verify AccessPass ownership via <code className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs">verify_access</code> —
-                a minimal-footprint transition whose finalize only checks revocation—subscriber identity never enters public state.
+                Any Aleo app can verify subscription access — a private check that only looks up
+                whether a pass has been revoked. Your identity never enters public state.
               </p>
             </m.div>
 
             <div className="grid md:grid-cols-3 gap-8">
               {[
-                { stat: '27', label: 'Transitions', desc: 'Complete subscription lifecycle' },
-                { stat: '25', label: 'Mappings', desc: 'Aggregate-only public state' },
-                { stat: '0', label: 'Identity Leaks', desc: 'Subscriber addresses never in finalize' },
+                { stat: '27', label: 'Actions', desc: 'Complete subscription lifecycle' },
+                { stat: '25', label: 'On-Chain Records', desc: 'Aggregate-only public data' },
+                { stat: '0', label: 'Identity Leaks', desc: 'Subscriber addresses never stored publicly' },
               ].map((item, i) => (
                 <m.div
                   key={item.label}
@@ -180,8 +180,8 @@ export default function VisionPage() {
                   phase: 'Wave 3',
                   status: 'current',
                   summary: 'v27 deployed on testnet',
-                  highlight: '27 transitions • 25 mappings • 6 record types • 866 statements',
-                  items: ['Scoped audit tokens (bitfield disclosure)', 'Trial passes with rate-limiting', 'ZERO addresses in finalize layer', 'Poseidon2 field-hashed mapping keys', 'Commit-reveal tipping (BHP256)', 'Blind renewal + subscription transfer']
+                  highlight: '27 actions • 25 on-chain records • 6 private data types • 866 lines of logic',
+                  items: ['Scoped verification tokens (selective sharing)', 'Trial passes with rate-limiting', 'ZERO wallet addresses stored publicly', 'All data indexed by one-way hashes', 'Sealed commit-reveal tipping', 'Blind renewal + subscription transfer']
                 },
                 {
                   phase: 'Wave 4',

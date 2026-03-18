@@ -140,7 +140,7 @@ export default function DashboardPage() {
   if (statsError) {
     return (
       <PageTransition className="min-h-screen">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-center">
           <h1 className="text-3xl font-serif italic text-white mb-4">Creator Dashboard</h1>
           <div className="p-6 rounded-xl bg-red-500/5 border border-red-500/15 max-w-md mx-auto">
             <p className="text-sm text-red-300 mb-4">Could not load your creator status. This may be a network issue.</p>
@@ -159,7 +159,7 @@ export default function DashboardPage() {
 
   return (
     <PageTransition className="min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         {/* Header */}
         <m.div
           initial={{ opacity: 0, y: 10 }}
@@ -229,6 +229,9 @@ export default function DashboardPage() {
             onComplete={() => {
               setIsRegistered(true)
               setRefreshKey((k) => k + 1)
+              setShowCelebration(true)
+              if (celebrationTimerRef.current) clearTimeout(celebrationTimerRef.current)
+              celebrationTimerRef.current = setTimeout(() => setShowCelebration(false), 2000)
             }}
           />
         ) : (

@@ -17,10 +17,12 @@ import {
 import Link from 'next/link'
 import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
+import RenewModal from '@/components/RenewModal'
 import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { parseAccessPass, shortenAddress, formatCredits } from '@/lib/utils'
 import { SECONDS_PER_BLOCK, FEATURED_CREATORS, CREATOR_CUSTOM_TIERS } from '@/lib/config'
+import type { AccessPass } from '@/types'
 
 const HERO_GLOW_STYLE = {
   background:
@@ -91,7 +93,7 @@ const STATUS_BADGE: Record<string, { bg: string; text: string; border: string; l
 // Threshold: 3 days worth of blocks to consider "expiring soon"
 const EXPIRING_SOON_BLOCKS = Math.floor((3 * 86400) / SECONDS_PER_BLOCK)
 
-function SubscriptionCard({ sub }: { sub: ParsedSubscription }) {
+function SubscriptionCard({ sub, onRenew }: { sub: ParsedSubscription; onRenew?: (sub: ParsedSubscription) => void }) {
   const badge = STATUS_BADGE[sub.status]
 
   return (
@@ -152,12 +154,20 @@ function SubscriptionCard({ sub }: { sub: ParsedSubscription }) {
           >
             Resubscribe
           </Link>
+        ) : sub.status === 'expiring' && onRenew ? (
+          <button
+            onClick={() => onRenew(sub)}
+            className="flex-1 text-center px-4 py-2.5 rounded-lg bg-violet-500/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-500/30 transition-all"
+          >
+            <RefreshCw className="w-3.5 h-3.5 inline mr-1.5" aria-hidden="true" />
+            Renew Now
+          </button>
         ) : (
           <Link
             href={`/creator/${sub.creator}`}
             className="flex-1 text-center px-4 py-2.5 rounded-lg bg-white/[0.06] border border-border text-white/80 text-sm font-medium hover:bg-white/10 transition-all"
           >
-            {sub.status === 'expiring' ? 'Renew Now' : 'View Creator'}
+            View Creator
           </Link>
         )}
         <Link
@@ -237,6 +247,12 @@ export default function SubscriptionsPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showExpired, setShowExpired] = useState(false)
+  const [renewTarget, setRenewTarget] = useState<ParsedSubscription | null>(null)
+
+  // Build an AccessPass from a ParsedSubscription for the RenewModal
+  const renewAccessPass: AccessPass | null = renewTarget
+    ? { owner: renewTarget.owner, creator: renewTarget.creator, tier: renewTarget.tier, passId: renewTarget.passId, expiresAt: renewTarget.expiresAt, rawPlaintext: renewTarget.rawPlaintext }
+    : null
 
   const fetchPasses = useCallback(async () => {
     if (!connected || !blockHeight) return
@@ -302,18 +318,18 @@ export default function SubscriptionsPage() {
 
   return (
     <PageTransition>
-      <main className="min-h-screen bg-background py-8 sm:py-12 relative">
+      <main className="min-h-screen bg-background py-12 sm:py-16 relative">
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none"
           style={HERO_GLOW_STYLE}
         />
-        <div className="relative max-w-[1120px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero */}
           <div className="mb-8 sm:mb-12">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
                 <h1
-                  className="text-2xl sm:text-3xl lg:text-4xl font-serif italic text-white mb-3"
+                  className="text-3xl sm:text-4xl font-serif italic text-white mb-3"
                   style={LETTER_SPACING_STYLE}
                 >
                   My Subscriptions
@@ -352,7 +368,7 @@ export default function SubscriptionsPage() {
                 </h2>
                 <p className="text-sm text-white/60 max-w-md mx-auto">
                   Connect your Aleo wallet to view and manage your subscriptions.
-                  Your AccessPass records are stored privately in your wallet.
+                  Your subscription passes are stored privately in your wallet.
                 </p>
               </div>
             </GlassCard>
@@ -421,7 +437,7 @@ export default function SubscriptionsPage() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                   >
-                    <SubscriptionCard sub={sub} />
+                    <SubscriptionCard sub={sub} onRenew={setRenewTarget} />
                   </m.div>
                 ))}
               </div>
@@ -497,6 +513,16 @@ export default function SubscriptionsPage() {
             </section>
           )}
         </div>
+
+        {/* Inline Renew Modal */}
+        {renewAccessPass && (
+          <RenewModal
+            isOpen={!!renewTarget}
+            onClose={() => setRenewTarget(null)}
+            pass={renewAccessPass}
+            basePrice={100}
+          />
+        )}
       </main>
     </PageTransition>
   )

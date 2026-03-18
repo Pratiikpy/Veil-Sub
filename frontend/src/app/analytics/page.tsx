@@ -51,17 +51,17 @@ const EMPTY_STATS: GlobalStats = {
 }
 
 const CONTRACT_VERSIONS = [
-  { version: 'v4-v8', description: 'Core subscriptions, AccessPass, CreatorReceipt, AuditToken, content publishing' },
-  { version: 'v9-v10', description: 'Dynamic tiers, content CRUD, gifting, escrow, fee withdrawal' },
+  { version: 'v4-v8', description: 'Core subscriptions, subscription passes, payment receipts, verification tokens, content publishing' },
+  { version: 'v9-v10', description: 'Dynamic tiers, content management, gifting, escrow, fee withdrawal' },
   { version: 'v11-v12', description: 'Blind renewal (novel privacy), encrypted content, disputes, revocation' },
-  { version: 'v13-v14', description: 'Ternary safety fixes, BHP256 commit-reveal tipping' },
+  { version: 'v13-v14', description: 'Safety fixes, sealed commit-reveal tipping' },
   { version: 'v15-v16', description: 'Security hardening, subscription transfer, on-chain referral system' },
-  { version: 'v17-v21', description: 'Pedersen commitments, zero-footprint proofs, Poseidon2 optimization, analytics epochs, error codes' },
-  { version: 'v23', description: 'Privacy overhaul: ZERO addresses in finalize, all mapping keys are Poseidon2 field hashes.' },
-  { version: 'v24', description: 'Content auth fix, on-chain expiry enforcement. 25 transitions, 22 mappings', deployed: true },
-  { version: 'v25', description: 'prove_subscriber_threshold, total_creators + total_content. 26 transitions, 24 mappings', deployed: true },
-  { version: 'v26', description: 'Ephemeral trial passes. 27 transitions, 24 mappings, 846 statements', deployed: true },
-  { version: 'v27', description: 'Scoped audit tokens, trial rate-limiting, gift revocation fix. 27 transitions, 25 mappings, 866 statements', deployed: true },
+  { version: 'v17-v21', description: 'Private counters, traceless verification, hash optimization, analytics, error codes' },
+  { version: 'v23', description: 'Privacy overhaul: ZERO wallet addresses stored publicly, all data indexed by hashes.' },
+  { version: 'v24', description: 'Content auth fix, on-chain expiry enforcement. 25 actions, 22 on-chain records', deployed: true },
+  { version: 'v25', description: 'Subscriber threshold proofs, platform-wide counters. 26 actions, 24 on-chain records', deployed: true },
+  { version: 'v26', description: 'Trial passes for short-term access. 27 actions, 24 on-chain records', deployed: true },
+  { version: 'v27', description: 'Scoped verification tokens, trial rate-limiting, gift fix. 27 actions, 25 on-chain records', deployed: true },
 ]
 
 const DATE_RANGE_OPTIONS: { value: DateRange; label: string }[] = [
@@ -154,12 +154,12 @@ export default function AnalyticsPage() {
 
   return (
     <PageTransition>
-      <main className="min-h-screen bg-background py-8 sm:py-12 relative">
+      <main className="min-h-screen bg-background py-12 sm:py-16 relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none" style={HERO_GLOW_STYLE} />
-        <div className="relative max-w-[1120px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8 sm:mb-16">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif italic text-white mb-4" style={LETTER_SPACING_STYLE}>Platform Analytics</h1>
-            <p className="text-white/70 text-base max-w-2xl leading-relaxed">Platform stats are completely private. Creators see only aggregate numbers—subscriber identities are never stored or visible. All metrics are cryptographically anonymized.</p>
+            <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-4" style={LETTER_SPACING_STYLE}>Platform Analytics</h1>
+            <p className="text-white/70 text-base max-w-2xl leading-relaxed">Platform stats are completely private. Creators see only aggregate numbers—subscriber identities are never stored or visible. All metrics are mathematically anonymized.</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10 sm:mb-16">
@@ -247,10 +247,10 @@ export default function AnalyticsPage() {
           <section className="mb-10 sm:mb-16">
             <h2 className="text-lg font-medium text-white mb-6 sm:mb-8">Protocol Stats</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <ProtocolStat icon={Activity} value="27" label="Transitions" delay={0} />
-              <ProtocolStat icon={Layers} value="6" label="Record Types" delay={0.05} />
-              <ProtocolStat icon={Database} value="25" label="Mappings" delay={0.1} />
-              <ProtocolStat icon={Code} value="866" label="Statements" delay={0.15} />
+              <ProtocolStat icon={Activity} value="27" label="Actions" delay={0} />
+              <ProtocolStat icon={Layers} value="6" label="Private Data Types" delay={0.05} />
+              <ProtocolStat icon={Database} value="25" label="On-Chain Records" delay={0.1} />
+              <ProtocolStat icon={Code} value="866" label="Lines of Logic" delay={0.15} />
             </div>
           </section>
 
@@ -258,17 +258,17 @@ export default function AnalyticsPage() {
             <h2 className="text-lg font-medium text-white mb-6 sm:mb-8">Privacy Guarantees</h2>
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
               <GlassCard delay={0}><div className="flex items-start gap-4"><div className="p-2 rounded-lg bg-white/[0.06]"><EyeOff className="w-5 h-5 text-white/60" aria-hidden="true" /></div><div><p className="text-2xl font-semibold text-white mb-1">0</p><p className="text-sm font-medium text-white mb-1">Identity Leaks</p><p className="text-sm text-white/70 leading-relaxed">Subscribers are never stored or logged. Each purchase is private—no way to link a creator&apos;s subscribers together.</p></div></div></GlassCard>
-              <GlassCard delay={0.05}><div className="flex items-start gap-4"><div className="p-2 rounded-lg bg-white/[0.06]"><ShieldCheck className="w-5 h-5 text-white/60" aria-hidden="true" /></div><div><p className="text-2xl font-semibold text-white mb-1">0</p><p className="text-sm font-medium text-white mb-1">Footprint Verifications</p><p className="text-sm text-white/70 leading-relaxed">When someone accesses gated content, the transaction leaves zero public trace. Even the platform can&apos;t log who accessed what.</p></div></div></GlassCard>
-              <GlassCard delay={0.1}><div className="flex items-start gap-4"><div className="p-2 rounded-lg bg-white/[0.06]"><Lock className="w-5 h-5 text-white/60" aria-hidden="true" /></div><div><p className="text-2xl font-semibold text-white mb-1">100%</p><p className="text-sm font-medium text-white mb-1">Private Payments</p><p className="text-sm text-white/60 leading-relaxed">All payments use transfer_private. Transaction amounts and participants are never publicly visible.</p></div></div></GlassCard>
+              <GlassCard delay={0.05}><div className="flex items-start gap-4"><div className="p-2 rounded-lg bg-white/[0.06]"><ShieldCheck className="w-5 h-5 text-white/60" aria-hidden="true" /></div><div><p className="text-2xl font-semibold text-white mb-1">0</p><p className="text-sm font-medium text-white mb-1">Traceable Verifications</p><p className="text-sm text-white/70 leading-relaxed">When someone accesses gated content, the transaction leaves zero public trace. Even the platform can&apos;t log who accessed what.</p></div></div></GlassCard>
+              <GlassCard delay={0.1}><div className="flex items-start gap-4"><div className="p-2 rounded-lg bg-white/[0.06]"><Lock className="w-5 h-5 text-white/60" aria-hidden="true" /></div><div><p className="text-2xl font-semibold text-white mb-1">100%</p><p className="text-sm font-medium text-white mb-1">Private Payments</p><p className="text-sm text-white/60 leading-relaxed">All payments are sent privately. Transaction amounts and participants are never publicly visible.</p></div></div></GlassCard>
             </div>
           </section>
 
           <section className="mb-10 sm:mb-16">
             <h2 className="text-lg font-medium text-white mb-6 sm:mb-8">Privacy Modes</h2>
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-              <GlassCard delay={0}><div className="flex items-center gap-2 mb-4"><ShieldCheck className="w-4 h-4 text-green-400" aria-hidden="true" /><span className="text-sm font-medium text-white">Standard</span></div><p className="text-sm text-white/70 leading-relaxed mb-4">Each payment is completely private. Your wallet is never connected to a creator or linked to your subscription history.</p><div className="text-xs text-white/70">subscribe · renew</div></GlassCard>
-              <GlassCard delay={0.05} variant="accent"><div className="flex items-center gap-2 mb-4"><EyeOff className="w-4 h-4 text-violet-400" aria-hidden="true" /><span className="text-sm font-medium text-white">Blind</span></div><p className="text-sm text-white/70 leading-relaxed mb-4">Each renewal looks like a different subscriber. Even the creator can&apos;t track renewals from the same person.</p><div className="text-xs text-white/70">subscribe_blind · renew_blind</div></GlassCard>
-              <GlassCard delay={0.1}><div className="flex items-center gap-2 mb-4"><Lock className="w-4 h-4 text-violet-400" aria-hidden="true" /><span className="text-sm font-medium text-white">Maximum (v27)</span></div><p className="text-sm text-white/70 leading-relaxed mb-4">All creator metrics are anonymized. No way to connect data points to individual addresses—privacy enforced at the protocol level.</p><div className="text-xs text-white/70">all transitions · Poseidon2 keys</div></GlassCard>
+              <GlassCard delay={0}><div className="flex items-center gap-2 mb-4"><ShieldCheck className="w-4 h-4 text-green-400" aria-hidden="true" /><span className="text-sm font-medium text-white">Standard</span></div><p className="text-sm text-white/70 leading-relaxed mb-4">Each payment is completely private. Your wallet is never connected to a creator or linked to your subscription history.</p><div className="text-xs text-white/70">Subscribe · Renew</div></GlassCard>
+              <GlassCard delay={0.05} variant="accent"><div className="flex items-center gap-2 mb-4"><EyeOff className="w-4 h-4 text-violet-400" aria-hidden="true" /><span className="text-sm font-medium text-white">Blind</span></div><p className="text-sm text-white/70 leading-relaxed mb-4">Each renewal looks like a different subscriber. Even the creator can&apos;t track renewals from the same person.</p><div className="text-xs text-white/70">Blind Subscribe · Blind Renew</div></GlassCard>
+              <GlassCard delay={0.1}><div className="flex items-center gap-2 mb-4"><Lock className="w-4 h-4 text-violet-400" aria-hidden="true" /><span className="text-sm font-medium text-white">Maximum (v27)</span></div><p className="text-sm text-white/70 leading-relaxed mb-4">All creator metrics are anonymized. No way to connect data points to individual addresses—privacy enforced at the protocol level.</p><div className="text-xs text-white/70">All actions · Hash-indexed privacy</div></GlassCard>
             </div>
           </section>
 

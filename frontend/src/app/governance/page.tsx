@@ -60,7 +60,7 @@ const DEMO_PROPOSALS: Proposal[] = [
     id: 1,
     title: 'Enable USDCx Stablecoin Subscriptions',
     description:
-      'Activate the stablecoin payment path so creators can accept USDCx alongside native ALEO credits. This adds subscribe_usdcx and tip_usdcx transitions.',
+      'Activate stablecoin payments so creators can accept USDCx alongside native ALEO credits. This adds new subscription and tipping options.',
     status: 'active',
     votesFor: 47,
     votesAgainst: 12,
@@ -72,7 +72,7 @@ const DEMO_PROPOSALS: Proposal[] = [
     id: 2,
     title: 'Reduce Platform Fee from 5% to 3%',
     description:
-      'Lower the PLATFORM_FEE_DIV constant from 20 (5%) to ~33 (3%) to attract more creators during the testnet growth phase.',
+      'Lower the platform fee from 5% to 3% to attract more creators during the testnet growth phase.',
     status: 'active',
     votesFor: 31,
     votesAgainst: 28,
@@ -84,7 +84,7 @@ const DEMO_PROPOSALS: Proposal[] = [
     id: 3,
     title: 'Add Content Encryption Key Rotation',
     description:
-      'Require creators to rotate their encryption keys every 90 days. Improves forward secrecy for publish_encrypted_content.',
+      'Require creators to rotate their encryption keys every 90 days. Improves long-term security for encrypted content.',
     status: 'active',
     votesFor: 19,
     votesAgainst: 5,
@@ -153,7 +153,7 @@ const HOW_IT_WORKS = [
     step: 1,
     title: 'Commit',
     description:
-      'Submit a BHP256 hash of your vote + random salt. Nobody can see how you voted.',
+      'Seal your vote with a secret code. Nobody can see how you voted.',
     icon: Lock,
     color: 'violet',
   },
@@ -161,7 +161,7 @@ const HOW_IT_WORKS = [
     step: 2,
     title: 'Vote',
     description:
-      'During the voting window, all committed votes are tallied privately. The chain stores only hashes.',
+      'During the voting window, all sealed votes are counted privately. The blockchain stores only encrypted values.',
     icon: Shield,
     color: 'blue',
   },
@@ -348,14 +348,14 @@ function VoteModal({
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
                 <CheckCircle2 className="w-8 h-8 text-emerald-400" aria-hidden="true" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Vote Committed</h3>
+              <h3 className="text-lg font-semibold text-white mb-2">Vote Sealed</h3>
               <p className="text-sm text-white/60 mb-6">
-                Your vote has been committed as a BHP256 hash. Your salt has been saved to
-                localStorage for future verification.
+                Your vote has been sealed privately. Your secret code has been saved
+                for future verification.
               </p>
               <div className="p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-6">
                 <p className="text-xs text-violet-300/80 font-mono break-all">
-                  BHP256(vote: {voteChoice}, salt: {salt.slice(0, 16)}...)
+                  Sealed vote: {voteChoice}, code: {salt.slice(0, 16)}...
                 </p>
               </div>
               <Button variant="secondary" onClick={onClose} className="rounded-full">
@@ -467,7 +467,7 @@ function VoteModal({
                   <div className="flex items-start gap-2">
                     <EyeOff className="w-3.5 h-3.5 text-violet-400 mt-0.5 shrink-0" aria-hidden="true" />
                     <p className="text-xs text-violet-300/80 leading-relaxed">
-                      Your vote is committed as a BHP256 hash. Nobody can see how you voted --
+                      Your vote is sealed privately. Nobody can see how you voted --
                       not even the proposal creator.
                     </p>
                   </div>
@@ -480,7 +480,7 @@ function VoteModal({
                 </Button>
                 <Button variant="accent" size="sm" onClick={handleSubmit} className="rounded-full">
                   <Lock className="w-3.5 h-3.5" aria-hidden="true" />
-                  Commit Vote
+                  Seal Vote
                 </Button>
               </div>
             </>
@@ -502,6 +502,14 @@ export default function GovernancePage() {
 
   return (
     <PageTransition className="min-h-screen">
+      {/* ── BETA Banner ──────────────────────────────────────────────────── */}
+      <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-3 text-center">
+        <p className="text-sm text-amber-300 font-medium">
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold uppercase tracking-wider mr-2">Beta</span>
+          This feature is in beta. Votes are for demonstration and don&apos;t persist on-chain yet.
+        </p>
+      </div>
+
       {/* ── Hero ────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         <div
@@ -523,7 +531,7 @@ export default function GovernancePage() {
             </div>
 
             <h1
-              className="text-4xl sm:text-5xl lg:text-6xl font-serif italic text-white mb-6"
+              className="text-3xl sm:text-4xl font-serif italic text-white mb-6"
               style={LETTER_SPACING_STYLE}
             >
               Private Governance
@@ -531,7 +539,7 @@ export default function GovernancePage() {
 
             <p className="text-lg text-white/70 max-w-2xl mx-auto mb-8 leading-relaxed">
               Vote on VeilSub&apos;s future. Your vote is hidden. Only results are public.
-              BHP256 commitment hashes ensure nobody -- not even the chain -- can see how you voted.
+              Sealed votes ensure nobody -- not even the blockchain -- can see how you voted.
             </p>
 
             <div className="flex items-center justify-center gap-3 flex-wrap">
@@ -541,11 +549,11 @@ export default function GovernancePage() {
               </div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-xs text-violet-400">
                 <Lock className="w-3 h-3" aria-hidden="true" />
-                BHP256 commit-reveal
+                Sealed voting
               </div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400">
                 <EyeOff className="w-3 h-3" aria-hidden="true" />
-                Zero voter identity
+                Anonymous voting
               </div>
             </div>
           </m.div>
@@ -565,7 +573,7 @@ export default function GovernancePage() {
                   Active Proposals
                 </h2>
                 <p className="text-white/50 text-sm">
-                  Cast your vote privately. All votes use BHP256 commitment hashes.
+                  Cast your vote privately. All votes are sealed and anonymous.
                 </p>
               </div>
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/[0.08] border border-emerald-500/15">
@@ -602,8 +610,8 @@ export default function GovernancePage() {
                     <code className="px-1 py-0.5 rounded bg-white/[0.06] text-amber-300 text-[10px] font-mono">
                       veilsub_governance.aleo
                     </code>{' '}
-                    program. Once deployed, votes will be committed on-chain with BHP256 hashes and
-                    resolved via finalize.
+                    program. Once deployed, votes will be sealed on-chain and results will be
+                    calculated automatically.
                   </p>
                 </div>
               </div>
@@ -671,7 +679,7 @@ export default function GovernancePage() {
                 How Private Voting Works
               </h2>
               <p className="text-white/60 max-w-xl mx-auto">
-                A three-phase commit-reveal scheme ensures your vote is private until the results are
+                A three-phase process ensures your vote is private until the results are
                 published.
               </p>
             </div>
@@ -708,16 +716,13 @@ export default function GovernancePage() {
                 <Hash className="w-5 h-5 text-violet-400 mt-0.5 shrink-0" aria-hidden="true" />
                 <div>
                   <p className="text-sm font-semibold text-violet-300 mb-1">
-                    Commitment scheme: BHP256(vote, salt)
+                    How sealed voting works
                   </p>
                   <p className="text-sm text-white/60 leading-relaxed">
-                    Each vote is committed as{' '}
-                    <code className="px-1.5 py-0.5 rounded bg-white/[0.06] text-violet-300 text-xs font-mono">
-                      BHP256::commit_to_field(vote_choice, salt)
-                    </code>
-                    . The salt is stored only in your browser (localStorage). Even with full
-                    on-chain access, an observer cannot determine your vote without your salt --
-                    and BHP256 over BLS12-377 is computationally irreversible.
+                    Each vote is sealed using your choice plus a random secret code.
+                    The secret code is stored only in your browser. Even with full
+                    access to the blockchain, an observer cannot determine your vote without
+                    your secret code -- reversing the seal is mathematically impossible.
                   </p>
                 </div>
               </div>

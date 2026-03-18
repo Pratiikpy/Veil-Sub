@@ -425,7 +425,7 @@ export default function CreatorPage({
                 <div className="flex items-center gap-2 mb-4">
                   <Shield className="w-4 h-4 text-green-400" />
                   <span className="text-sm font-medium text-green-300">
-                    Your AccessPasses ({userPasses.length})
+                    Your Subscription Passes ({userPasses.length})
                   </span>
                   <span className="text-xs text-white/60 ml-auto">Only you can see this</span>
                 </div>
@@ -715,14 +715,11 @@ export default function CreatorPage({
                     <strong className="text-violet-300">
                       Privacy guarantee:
                     </strong>{' '}
-                    Your subscription creates a private AccessPass record visible
-                    only to you. The creator receives payment via{' '}
-                    <code className="px-1 py-0.5 rounded bg-white/10 text-violet-300">
-                      credits.aleo/transfer_private
-                    </code>{' '}
+                    Your subscription creates a private pass visible
+                    only to you. The creator receives payment privately
                     and sees only aggregate stats (total subscribers, total
-                    revenue). Your identity is never linked on-chain. Subscription
-                    expiry is checked locally—no on-chain trace when you access content.
+                    revenue). Your identity is never linked on the blockchain. Subscription
+                    expiry is checked on your device — no public trace when you access content.
                   </p>
                   <p className="flex items-center gap-2 pt-1">
                     <Link href="/privacy" className="text-violet-400/70 hover:text-violet-300 transition-colors inline-flex items-center gap-1">

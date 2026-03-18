@@ -60,16 +60,16 @@ const PRIVACY_TABLE: PrivacyRow[] = [
     id: 'subscribe',
     operation: 'Subscribe',
     icon: User,
-    youSee: ['Creator name', 'Tier name & price', 'Expiry date', 'Your AccessPass record'],
+    youSee: ['Creator name', 'Tier name & price', 'Expiry date', 'Your subscription pass'],
     chainSees: [
-      'Poseidon2(address) hash',
-      'Tier number (u8)',
-      'Amount (u64)',
+      'One-way hash of your address (Poseidon2)',
+      'Tier number',
+      'Amount',
       'Expiry block height',
     ],
     privacyLevel: 'partial',
     detail:
-      'Your address is hashed via Poseidon2 before reaching finalize. The chain stores field hashes as mapping keys — not your aleo1... address. The AccessPass record lives only in your wallet.',
+      'Your address is hashed (one-way, using Poseidon2) before any public processing. The blockchain stores hashed identifiers — not your wallet address. Your subscription pass lives only in your wallet.',
     finalize: 'hashed',
   },
   {
@@ -77,21 +77,21 @@ const PRIVACY_TABLE: PrivacyRow[] = [
     operation: 'Verify Access',
     icon: ShieldCheck,
     youSee: ['"Access granted" or "denied"', 'Tier level confirmed'],
-    chainSees: ['NOTHING — zero finalize'],
+    chainSees: ['NOTHING — no trace left on-chain'],
     privacyLevel: 'full',
     detail:
-      'verify_access has zero finalize footprint. The proof is generated client-side from your AccessPass record. The chain never learns who verified or what they verified. This is BSP Layer 3: Zero-Footprint Verification.',
+      'Verification leaves no trace on-chain. The privacy proof is generated on your device from your subscription pass. The blockchain never learns who verified or what they verified.',
     finalize: 'none',
   },
   {
     id: 'audit-token',
     operation: 'Create Audit Token',
     icon: Fingerprint,
-    youSee: ['Full token with scope_mask', 'Selective disclosure control', 'Scoped permissions'],
-    chainSees: ['NOTHING — zero finalize'],
+    youSee: ['Full verification token', 'Privacy controls', 'Scoped permissions'],
+    chainSees: ['NOTHING — no trace left on-chain'],
     privacyLevel: 'full',
     detail:
-      'Audit tokens are created entirely in the transition layer (private). The scope_mask bitfield lets you control exactly what the auditor can verify. No finalize call, no chain footprint.',
+      'Verification tokens are created entirely on your device (private). Privacy controls let you choose exactly what the verifier can see. No public trace is left on the blockchain.',
     finalize: 'none',
   },
   {
@@ -99,10 +99,10 @@ const PRIVACY_TABLE: PrivacyRow[] = [
     operation: 'Tip (Commit Phase)',
     icon: Lock,
     youSee: ['Tip amount', 'Salt (random secret)', 'Creator you are tipping'],
-    chainSees: ['BHP256(amount, salt) commitment hash only'],
+    chainSees: ['Encrypted value only (sealed amount + secret)'],
     privacyLevel: 'full',
     detail:
-      'commit_tip stores only a BHP256 hash commitment. The amount and your identity are hidden. Nobody — not even the creator — knows the tip amount until you reveal it.',
+      'The sealed tip stores only an encrypted value. The amount and your identity are hidden. Nobody — not even the creator — knows the tip amount until you reveal it.',
     finalize: 'hashed',
   },
   {
@@ -110,10 +110,10 @@ const PRIVACY_TABLE: PrivacyRow[] = [
     operation: 'Tip (Reveal Phase)',
     icon: Unlock,
     youSee: ['Amount revealed to creator', 'Creator receives payment'],
-    chainSees: ['Amount (u64)', 'Creator hash (field)'],
+    chainSees: ['Amount', 'Creator identifier (hashed)'],
     privacyLevel: 'partial',
     detail:
-      'reveal_tip verifies the commitment matches, then transfers privately. The creator hash (not address) and amount become visible, but the tipper identity remains hidden.',
+      'The reveal step confirms the sealed amount matches, then transfers privately. The creator identifier (not wallet address) and amount become visible, but the tipper identity remains hidden.',
     finalize: 'amounts',
   },
   {
@@ -121,10 +121,10 @@ const PRIVACY_TABLE: PrivacyRow[] = [
     operation: 'Publish Content',
     icon: Database,
     youSee: ['Title', 'Body text', 'Required tier', 'Content ID'],
-    chainSees: ['Content hash (field)', 'Creator hash (field)', 'Min tier (u8)'],
+    chainSees: ['Content identifier (hashed)', 'Creator identifier (hashed)', 'Minimum tier required'],
     privacyLevel: 'partial',
     detail:
-      'Content metadata is stored as field hashes. The actual title and body are never on-chain — they live in encrypted off-chain storage (Supabase + Redis). Only hash pointers appear in mappings.',
+      'Content metadata is stored as mathematical fingerprints. The actual title and body are never on-chain — they live in encrypted off-chain storage. Only hashed references appear publicly.',
     finalize: 'hashed',
   },
   {
@@ -132,10 +132,10 @@ const PRIVACY_TABLE: PrivacyRow[] = [
     operation: 'Dispute Content',
     icon: AlertTriangle,
     youSee: ['Content ID', 'Reason for dispute'],
-    chainSees: ['Content hash (field)', 'Dispute count increment'],
+    chainSees: ['Content identifier (hashed)', 'Dispute count increment'],
     privacyLevel: 'partial',
     detail:
-      'dispute_content increments a counter keyed by the content hash. The disputer identity is never stored — only the fact that a dispute occurred. Your address never reaches finalize.',
+      'A dispute increments a counter linked to the content identifier. The disputer identity is never stored — only the fact that a dispute occurred. Your wallet address is never stored publicly.',
     finalize: 'hashed',
   },
   {
@@ -144,13 +144,13 @@ const PRIVACY_TABLE: PrivacyRow[] = [
     icon: EyeOff,
     youSee: ['Creator name', 'Tier & price', 'Your nonce-rotated identity'],
     chainSees: [
-      'Poseidon2(address, nonce) — different each time',
+      'Randomized identity hash — different each time',
       'Tier number',
       'Amount',
     ],
     privacyLevel: 'full',
     detail:
-      'BSP Layer 1: Blind Identity Rotation. Each subscription uses a unique nonce, producing a different Poseidon2 hash every time. Even the creator cannot link two subscriptions to the same person.',
+      'Maximum privacy mode. Each subscription uses a unique random value, producing a different identity hash every time. Even the creator cannot link two subscriptions to the same person.',
     finalize: 'hashed',
   },
 ]
@@ -163,27 +163,27 @@ const BSP_LAYERS = [
     name: 'Blind Identity Rotation',
     color: 'violet',
     description:
-      'Each subscribe_blind or renew_blind call includes a random nonce. Poseidon2(address, nonce) produces a unique hash every time — the creator sees "different" subscribers for the same person.',
-    tech: 'Poseidon2::hash_to_field(address, nonce)',
-    operations: ['subscribe_blind', 'renew_blind'],
+      'Each blind subscription includes a random value. Your address is hashed with this random value to produce a unique identity every time — the creator sees "different" subscribers for the same person.',
+    tech: 'One-way hash (Poseidon2)',
+    operations: ['Blind Subscribe', 'Blind Renew'],
   },
   {
     layer: 2,
     name: 'Zero-Address Finalize',
     color: 'blue',
     description:
-      'All 25 on-chain mappings are keyed by field hashes, never by aleo1... addresses. self.caller is used only in the transition layer (private). Finalize functions receive pre-hashed field values.',
-    tech: '25 mappings, all field-keyed',
-    operations: ['All 27 transitions'],
+      'All 25 on-chain records are indexed by mathematical fingerprints, never by wallet addresses. Your wallet address is used only during private processing on your device. Public data only sees hashed identifiers.',
+    tech: '25 on-chain records, all hash-indexed',
+    operations: ['All actions'],
   },
   {
     layer: 3,
     name: 'Selective Disclosure',
     color: 'emerald',
     description:
-      'Audit tokens with scope_mask bitfields allow subscribers to prove specific claims (e.g., "I am a tier-2 subscriber") without revealing their full identity. Zero finalize on verify and audit.',
-    tech: 'create_audit_token (scope_mask u32)',
-    operations: ['create_audit_token', 'verify_access', 'verify_tier_access'],
+      'Verification tokens with privacy controls allow subscribers to prove specific claims (e.g., "I am a tier-2 subscriber") without revealing their full identity. Verification leaves no trace on-chain.',
+    tech: 'Privacy controls (selective disclosure)',
+    operations: ['Create Token', 'Verify Access', 'Verify Tier'],
   },
 ]
 
@@ -193,13 +193,13 @@ const COMPARISON_ROWS = [
   {
     aspect: 'Subscriber List',
     patreon: 'Visible to creator, staff, and via data breach',
-    veilsub: 'Encrypted in AccessPass records — only subscriber holds the key',
+    veilsub: 'Encrypted in subscription passes — only the subscriber holds the key',
     patreonBad: true,
   },
   {
     aspect: 'Payment History',
     patreon: 'Stored on credit card processor, linked to real identity',
-    veilsub: 'transfer_private — no addresses on-chain, amount in encrypted record',
+    veilsub: 'Private transfer — no addresses on-chain, amount in encrypted pass',
     patreonBad: true,
   },
   {
@@ -211,7 +211,7 @@ const COMPARISON_ROWS = [
   {
     aspect: 'Access Verification',
     patreon: 'Server checks subscriber database (server knows your identity)',
-    veilsub: 'Zero-finalize ZK proof from local AccessPass record',
+    veilsub: 'Privacy proof from your local subscription pass — leaves no trace',
     patreonBad: true,
   },
   {
@@ -223,7 +223,7 @@ const COMPARISON_ROWS = [
   {
     aspect: 'Identity Linking',
     patreon: 'Trivial — email, name, IP, payment method all connected',
-    veilsub: 'Mathematically impossible — Poseidon2 over BLS12-377 is one-way',
+    veilsub: 'Mathematically impossible — one-way hashing means identities cannot be reversed',
     patreonBad: true,
   },
 ]
@@ -306,7 +306,7 @@ export default function PrivacyDashboardPage() {
             </div>
 
             <h1
-              className="text-4xl sm:text-5xl lg:text-6xl font-serif italic text-white mb-6"
+              className="text-3xl sm:text-4xl font-serif italic text-white mb-6"
               style={LETTER_SPACING_STYLE}
             >
               Your Privacy, Visualized
@@ -321,15 +321,15 @@ export default function PrivacyDashboardPage() {
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400">
                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                27 transitions
+                27 private actions
               </div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-xs text-violet-400">
                 <span className="w-2 h-2 rounded-full bg-violet-400" />
-                25 field-hashed mappings
+                25 hash-indexed records
               </div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400">
                 <span className="w-2 h-2 rounded-full bg-blue-400" />
-                0 addresses in finalize
+                0 wallet addresses stored publicly
               </div>
             </div>
           </m.div>
@@ -405,7 +405,7 @@ export default function PrivacyDashboardPage() {
                           {row.finalize === 'none' && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                               <ShieldCheck className="w-3 h-3" aria-hidden="true" />
-                              Zero Finalize
+                              No Trace
                             </span>
                           )}
                         </div>
@@ -519,8 +519,8 @@ export default function PrivacyDashboardPage() {
                 Data Flow: Where Privacy Happens
               </h2>
               <p className="text-white/60 max-w-xl mx-auto">
-                Every transaction follows the same path. Your address enters the transition layer
-                (private) and exits as a Poseidon2 hash — or not at all.
+                Every transaction follows the same path. Your wallet address enters the private
+                layer and exits as a one-way hash (Poseidon2) — or not at all.
               </p>
             </div>
           </ScrollReveal>
@@ -541,13 +541,13 @@ export default function PrivacyDashboardPage() {
                   {
                     step: 2,
                     label: 'Transition Layer',
-                    sublabel: 'Private execution — ZK proof generated',
+                    sublabel: 'Private execution — privacy proof generated',
                     color: 'violet',
                     icon: Lock,
                   },
                   {
                     step: 3,
-                    label: 'Poseidon2 Hashing',
+                    label: 'One-Way Hashing',
                     sublabel: 'address → field hash (one-way)',
                     color: 'blue',
                     icon: Hash,
@@ -555,14 +555,14 @@ export default function PrivacyDashboardPage() {
                   {
                     step: 4,
                     label: 'Finalize Layer',
-                    sublabel: 'Field hashes only — no addresses',
+                    sublabel: 'Hashed identifiers only — no wallet addresses',
                     color: 'amber',
                     icon: Database,
                   },
                   {
                     step: 5,
                     label: 'Public Mappings',
-                    sublabel: '25 field-keyed mappings — aggregate data',
+                    sublabel: '25 hash-indexed records — aggregate data only',
                     color: 'red',
                     icon: Activity,
                   },
@@ -624,14 +624,13 @@ export default function PrivacyDashboardPage() {
                   <Shield className="w-5 h-5 text-violet-400 mt-0.5 shrink-0" aria-hidden="true" />
                   <div>
                     <p className="text-sm font-semibold text-violet-300 mb-1">
-                      Your address NEVER enters finalize
+                      Your wallet address is NEVER stored publicly
                     </p>
                     <p className="text-sm text-white/60 leading-relaxed">
-                      In Leo, <code className="px-1.5 py-0.5 rounded bg-white/[0.06] text-violet-300 text-xs font-mono">self.caller</code> is
-                      available only in the transition layer (private). All 25 finalize functions
-                      receive pre-computed Poseidon2 field hashes. Even if every mapping were
-                      publicly dumped, no address could be recovered — Poseidon2 over BLS12-377 is
-                      computationally irreversible.
+                      Your wallet address is only used during private processing on your device.
+                      All 25 public records receive pre-computed one-way hashes (Poseidon2). Even if every
+                      record were publicly dumped, no wallet address could be recovered —
+                      reversing the hash is computationally impossible (Poseidon2 over BLS12-377).
                     </p>
                   </div>
                 </div>
@@ -751,11 +750,11 @@ export default function PrivacyDashboardPage() {
                       </div>
                       <div className="p-4 rounded-xl bg-violet-500/[0.05] border border-violet-500/10">
                         <p className="text-sm text-white/70 leading-relaxed">
-                          <strong className="text-violet-300">What you see above:</strong> A 77-digit
-                          field element (the creator hash) mapped to a price value. But <em>whose</em>{' '}
-                          hash is this? Nobody can tell without inverting Poseidon2 over the BLS12-377
-                          curve — a computation that would require more energy than the sun will produce
-                          in its lifetime.
+                          <strong className="text-violet-300">What you see above:</strong> A long number
+                          (the creator&apos;s hashed identifier) mapped to a price value. But <em>whose</em>{' '}
+                          identifier is this? Nobody can tell — reversing the one-way hash (Poseidon2) is
+                          mathematically impossible. It would require more energy than the sun will
+                          produce in its lifetime.
                         </p>
                       </div>
                     </>
@@ -873,7 +872,7 @@ export default function PrivacyDashboardPage() {
               </h2>
               <p className="text-white/60 mb-8">
                 Every operation above is live on Aleo testnet. Connect a wallet and experience
-                zero-knowledge subscriptions.
+                private subscriptions.
               </p>
               <div className="flex items-center justify-center gap-4 flex-wrap">
                 <Link href="/explore">

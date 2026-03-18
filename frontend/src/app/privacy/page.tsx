@@ -47,7 +47,7 @@ export default function PrivacyPage() {
                 <span className="text-sm text-violet-300/90">Zero-Knowledge Privacy</span>
               </div>
               <h1
-                className="text-4xl sm:text-6xl font-serif italic text-white mb-6"
+                className="text-3xl sm:text-4xl font-serif italic text-white mb-6"
                 style={LETTER_SPACING_STYLE}
               >
                 How VeilSub Protects You
