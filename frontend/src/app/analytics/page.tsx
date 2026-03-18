@@ -502,7 +502,7 @@ export default function AnalyticsPage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none" style={HERO_GLOW_STYLE} />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8 sm:mb-16">
-            <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-4" style={LETTER_SPACING_STYLE}>Platform Analytics</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4" style={LETTER_SPACING_STYLE}>Platform Analytics</h1>
             <p className="text-white/70 text-base max-w-2xl leading-relaxed">Platform stats are completely private. Creators see only aggregate numbers -- subscriber identities are never stored or visible. All metrics are mathematically anonymized.</p>
           </div>
 

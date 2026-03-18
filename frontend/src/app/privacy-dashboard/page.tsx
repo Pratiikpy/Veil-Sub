@@ -37,12 +37,7 @@ import Button from '@/components/ui/Button'
 import { DEPLOYED_PROGRAM_ID, CREATOR_HASH_MAP } from '@/lib/config'
 
 // ─── Static styles ──────────────────────────────────────────────────────────
-const HERO_GLOW_STYLE = {
-  background:
-    'radial-gradient(ellipse at center, rgba(139,92,246,0.07) 0%, rgba(139,92,246,0.02) 40%, transparent 70%)',
-} as const
-
-const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
+import { HERO_GLOW_STYLE, TITLE_STYLE as LETTER_SPACING_STYLE } from '@/lib/styles'
 
 // ─── Transaction privacy data ───────────────────────────────────────────────
 
@@ -301,7 +296,7 @@ export default function PrivacyDashboardPage() {
             className="text-center"
           >
             <h1
-              className="text-3xl sm:text-4xl font-serif italic text-white mb-6"
+              className="text-3xl sm:text-4xl font-bold text-white mb-6"
               style={LETTER_SPACING_STYLE}
             >
               Your Privacy
@@ -337,7 +332,7 @@ export default function PrivacyDashboardPage() {
           <ScrollReveal>
             <div className="text-center mb-12">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 What Does the Chain See?
@@ -508,7 +503,7 @@ export default function PrivacyDashboardPage() {
           <ScrollReveal>
             <div className="text-center mb-12">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 Data Flow: Where Privacy Happens
@@ -692,7 +687,7 @@ export default function PrivacyDashboardPage() {
           <ScrollReveal>
             <div className="text-center mb-12">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 Live On-Chain Evidence
@@ -786,7 +781,7 @@ export default function PrivacyDashboardPage() {
           <ScrollReveal>
             <div className="text-center mb-12">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 VeilSub vs Traditional Platforms
@@ -860,7 +855,7 @@ export default function PrivacyDashboardPage() {
           <ScrollReveal>
             <div className="text-center mb-12">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 Privacy Roadmap
@@ -978,7 +973,7 @@ export default function PrivacyDashboardPage() {
           <ScrollReveal>
             <div className="max-w-2xl mx-auto text-center">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 Ready to Subscribe Privately?

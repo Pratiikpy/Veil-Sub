@@ -358,7 +358,7 @@ export default function ExplorerPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-10"
           >
-            <h1 className="text-3xl sm:text-4xl font-serif italic text-white mb-2" style={LETTER_SPACING_STYLE}>On-Chain Explorer</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2" style={LETTER_SPACING_STYLE}>On-Chain Explorer</h1>
             <p className="text-white/70">
               Look up any creator&apos;s public stats directly from the Aleo blockchain.
               Only aggregate data is visible—subscriber identities are always private.

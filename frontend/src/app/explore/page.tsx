@@ -102,7 +102,7 @@ function CategoryBadge({ category }: { category: string | null }) {
   }
 
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium border ${colorMap[category] || colorMap['Other']}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ${colorMap[category] || colorMap['Other']}`}>
       {category}
     </span>
   )
@@ -151,7 +151,7 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
               {isFeatured && (
                 <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-violet-500/15 border border-violet-500/20">
                   <Star className="w-2.5 h-2.5 text-violet-400" aria-hidden="true" />
-                  <span className="text-[9px] text-violet-400 font-semibold uppercase tracking-wider">Featured</span>
+                  <span className="text-xs text-violet-400 font-semibold uppercase tracking-wider">Featured</span>
                 </span>
               )}
             </div>
@@ -222,6 +222,8 @@ function SortDropdown({ value, onChange }: { value: SortOption; onChange: (v: So
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-haspopup="listbox"
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-border/75 text-xs text-white/70 hover:text-white hover:bg-white/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
       >
         <SlidersHorizontal className="w-3 h-3" aria-hidden="true" />
@@ -235,11 +237,14 @@ function SortDropdown({ value, onChange }: { value: SortOption; onChange: (v: So
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.97 }}
             transition={spring.snappy}
+            role="listbox"
             className="absolute right-0 top-full mt-1.5 z-20 w-36 rounded-xl bg-surface-1 border border-border shadow-xl overflow-hidden"
           >
             {SORT_OPTIONS.map((opt) => (
               <button
                 key={opt.id}
+                role="option"
+                aria-selected={value === opt.id}
                 onClick={() => { onChange(opt.id); setOpen(false) }}
                 className={`w-full text-left px-3.5 py-2.5 text-xs transition-colors ${
                   value === opt.id
@@ -414,7 +419,7 @@ export default function ExplorePage() {
                 aria-label="Search creators by name, bio, or paste an aleo1 address"
                 onKeyDown={handleSearchKeyDown}
                 placeholder="Search by name, bio, or paste aleo1... address"
-                className="w-full pl-12 pr-12 py-4 rounded-2xl bg-surface-1/60 backdrop-blur-sm border border-border/75 text-white placeholder:text-white/30 focus:outline-none focus:border-violet-500/30 focus:shadow-[0_0_0_3px_rgba(139,92,246,0.08)] transition-all duration-300 text-base"
+                className="w-full pl-12 pr-12 py-4 rounded-2xl bg-surface-1/60 backdrop-blur-sm border border-border/75 text-white placeholder:text-white/50 focus:outline-none focus:border-violet-500/30 focus:shadow-[0_0_0_3px_rgba(139,92,246,0.08)] transition-all duration-300 text-base"
               />
               {/* Clear button */}
               {search && (

@@ -24,12 +24,7 @@ import { parseAccessPass, shortenAddress, formatCredits } from '@/lib/utils'
 import { SECONDS_PER_BLOCK, FEATURED_CREATORS, CREATOR_CUSTOM_TIERS } from '@/lib/config'
 import type { AccessPass } from '@/types'
 
-const HERO_GLOW_STYLE = {
-  background:
-    'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
-} as const
-
-const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
+import { HERO_GLOW_STYLE_SUBTLE as HERO_GLOW_STYLE, TITLE_STYLE as LETTER_SPACING_STYLE } from '@/lib/styles'
 
 interface ParsedSubscription {
   owner: string
@@ -111,7 +106,7 @@ function SubscriptionCard({ sub, onRenew }: { sub: ParsedSubscription; onRenew?:
           </div>
         </div>
         <span
-          className={`text-[10px] px-2.5 py-1 rounded-full font-medium border ${badge.bg} ${badge.text} ${badge.border}`}
+          className={`text-xs px-2.5 py-1 rounded-full font-medium border ${badge.bg} ${badge.text} ${badge.border}`}
         >
           {badge.label}
         </span>
@@ -222,7 +217,7 @@ function SubscriptionHistory({
                 <td className="py-3 px-4 text-white/70">{sub.tierName}</td>
                 <td className="py-3 px-4">
                   <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full ${badge.bg} ${badge.text} ${badge.border} border`}
+                    className={`text-xs px-2 py-0.5 rounded-full ${badge.bg} ${badge.text} ${badge.border} border`}
                   >
                     {badge.label}
                   </span>
@@ -329,7 +324,7 @@ export default function SubscriptionsPage() {
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
                 <h1
-                  className="text-3xl sm:text-4xl font-serif italic text-white mb-3"
+                  className="text-3xl sm:text-4xl font-bold text-white mb-3"
                   style={LETTER_SPACING_STYLE}
                 >
                   My Subscriptions
@@ -429,7 +424,7 @@ export default function SubscriptionsPage() {
                 </span>
               )}
               {blockHeight && (
-                <span className="text-xs text-white/40 ml-auto">
+                <span className="text-xs text-white/60 ml-auto">
                   Block #{blockHeight.toLocaleString()}
                 </span>
               )}

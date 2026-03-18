@@ -36,12 +36,7 @@ import Button from '@/components/ui/Button'
 import { DEPLOYED_PROGRAM_ID } from '@/lib/config'
 
 // ─── Static styles ──────────────────────────────────────────────────────────
-const HERO_GLOW_STYLE = {
-  background:
-    'radial-gradient(ellipse at center, rgba(139,92,246,0.07) 0%, rgba(139,92,246,0.02) 40%, transparent 70%)',
-} as const
-
-const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
+import { HERO_GLOW_STYLE, TITLE_STYLE as LETTER_SPACING_STYLE } from '@/lib/styles'
 
 // ─── Code snippets ──────────────────────────────────────────────────────────
 
@@ -286,7 +281,7 @@ export default function DevelopersPage() {
             </div>
 
             <h1
-              className="text-3xl sm:text-4xl font-serif italic text-white mb-6"
+              className="text-3xl sm:text-4xl font-bold text-white mb-6"
               style={LETTER_SPACING_STYLE}
             >
               Build on VeilSub
@@ -321,7 +316,7 @@ export default function DevelopersPage() {
           <ScrollReveal>
             <div className="text-center mb-10">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 Quick Start
@@ -364,7 +359,7 @@ export default function DevelopersPage() {
           <ScrollReveal>
             <div className="text-center mb-12">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 SDK Features
@@ -391,7 +386,7 @@ export default function DevelopersPage() {
                         <p className="text-xs text-white/55 leading-relaxed mb-2">
                           {feature.description}
                         </p>
-                        <code className="px-2 py-0.5 rounded bg-white/[0.04] text-[10px] text-white/40 font-mono">
+                        <code className="px-2 py-0.5 rounded bg-white/[0.04] text-xs text-white/40 font-mono">
                           {feature.tag}
                         </code>
                       </div>
@@ -410,7 +405,7 @@ export default function DevelopersPage() {
           <ScrollReveal>
             <div className="text-center mb-12">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 7 Composable Programs
@@ -426,7 +421,7 @@ export default function DevelopersPage() {
             <div className="max-w-4xl mx-auto">
               <GlassCard hover={false} className="!p-0 overflow-hidden">
                 {/* Table header */}
-                <div className="hidden sm:grid grid-cols-12 gap-4 px-5 py-3 border-b border-border/50 text-[10px] font-semibold uppercase tracking-wider text-white/40">
+                <div className="hidden sm:grid grid-cols-12 gap-4 px-5 py-3 border-b border-border/50 text-xs font-semibold uppercase tracking-wider text-white/40">
                   <div className="col-span-4">Program</div>
                   <div className="col-span-1 text-center">Tx</div>
                   <div className="col-span-1 text-center">Maps</div>
@@ -474,7 +469,7 @@ export default function DevelopersPage() {
                     </div>
                     <div className="sm:col-span-2 flex items-center justify-start sm:justify-center">
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${
                           program.status === 'deployed'
                             ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                             : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
@@ -512,7 +507,7 @@ export default function DevelopersPage() {
           <ScrollReveal>
             <div className="text-center mb-12">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 Integration Guide
@@ -639,7 +634,7 @@ docker run -d veilsub/monitor:latest \\
           <ScrollReveal>
             <div className="text-center mb-12">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 Protocol Architecture
@@ -703,7 +698,7 @@ docker run -d veilsub/monitor:latest \\
           <ScrollReveal>
             <div className="max-w-2xl mx-auto text-center">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 Start Building

@@ -35,12 +35,7 @@ import { shortenAddress, formatCredits } from '@/lib/utils'
 import { FEATURED_CREATORS } from '@/lib/config'
 
 // ─── Static styles ──────────────────────────────────────────────────────────
-const HERO_GLOW_STYLE = {
-  background:
-    'radial-gradient(ellipse at center, rgba(139,92,246,0.07) 0%, rgba(139,92,246,0.02) 40%, transparent 70%)',
-} as const
-
-const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
+import { HERO_GLOW_STYLE, TITLE_STYLE as LETTER_SPACING_STYLE } from '@/lib/styles'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -273,13 +268,13 @@ function CreatorReputationCard({ creator }: { creator: CreatorReputation }) {
               >
                 <TierIcon className={`w-2.5 h-2.5 text-${tier.color}-400`} aria-hidden="true" />
                 <span
-                  className={`text-[9px] text-${tier.color}-400 font-semibold uppercase tracking-wider`}
+                  className={`text-xs text-${tier.color}-400 font-semibold uppercase tracking-wider`}
                 >
                   {tier.label}
                 </span>
               </span>
             </div>
-            <p className="text-[11px] text-white/40 font-mono truncate">
+            <p className="text-[11px] text-white/60 font-mono truncate">
               {shortenAddress(creator.address)}
             </p>
           </div>
@@ -287,7 +282,7 @@ function CreatorReputationCard({ creator }: { creator: CreatorReputation }) {
 
         {/* Category + Bio */}
         <div className="mb-3.5">
-          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium border bg-violet-500/15 text-violet-300 border-violet-500/25 mb-2">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border bg-violet-500/15 text-violet-300 border-violet-500/25 mb-2">
             {creator.category}
           </span>
           <p className="text-xs text-white/80 leading-relaxed line-clamp-2">{creator.bio}</p>
@@ -308,7 +303,7 @@ function CreatorReputationCard({ creator }: { creator: CreatorReputation }) {
             <Users className="w-3 h-3 text-violet-400/80" aria-hidden="true" />
             {creator.subscriberCount} {creator.subscriberCount === 1 ? 'subscriber' : 'subscribers'}
           </span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/[0.06] border border-emerald-500/15 text-[10px] font-medium text-emerald-300/80">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/[0.06] border border-emerald-500/15 text-xs font-medium text-emerald-300/80">
             <Shield className="w-2.5 h-2.5" aria-hidden="true" />
             Verified
           </span>
@@ -355,7 +350,7 @@ function AuctionCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1.5 flex-wrap">
               <span
-                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${
                   isOpen
                     ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                     : 'bg-white/[0.06] text-white/50 border border-border/50'
@@ -503,7 +498,7 @@ function BidModal({
               <div className="p-5 space-y-5">
                 {/* Amount */}
                 <div>
-                  <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-2 block">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-2 block">
                     Bid Amount (ALEO)
                   </label>
                   <input
@@ -515,13 +510,13 @@ function BidModal({
                     placeholder={
                       auction ? `Floor: ${formatCredits(auction.floorPrice)} ALEO` : '0.00'
                     }
-                    className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-violet-500/30 transition-colors font-mono"
+                    className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:outline-none focus:border-violet-500/30 transition-colors font-mono"
                   />
                 </div>
 
                 {/* Salt */}
                 <div>
-                  <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-2 block">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-2 block">
                     Salt (auto-generated)
                   </label>
                   <div className="flex items-center gap-2">
@@ -561,12 +556,11 @@ function BidModal({
                 <Button
                   variant="accent"
                   size="sm"
-                  onClick={handleSubmit}
-                  disabled={!bidAmount || parseFloat(bidAmount) <= 0}
-                  className="rounded-full"
+                  disabled
+                  className="rounded-full opacity-60 cursor-not-allowed"
                 >
                   <Lock className="w-3.5 h-3.5" aria-hidden="true" />
-                  Seal Bid
+                  Bidding Coming Soon
                 </Button>
               </div>
             </>
@@ -622,7 +616,7 @@ export default function MarketplacePage() {
             </div>
 
             <h1
-              className="text-3xl sm:text-4xl font-serif italic text-white mb-6"
+              className="text-3xl sm:text-4xl font-bold text-white mb-6"
               style={LETTER_SPACING_STYLE}
             >
               Creator Marketplace
@@ -658,7 +652,7 @@ export default function MarketplacePage() {
             <div className="flex items-start sm:items-center justify-between mb-8 flex-col sm:flex-row gap-4">
               <div>
                 <h2
-                  className="text-3xl sm:text-4xl font-serif italic text-white mb-2"
+                  className="text-3xl sm:text-4xl font-bold text-white mb-2"
                   style={LETTER_SPACING_STYLE}
                 >
                   Creator Reputation
@@ -727,7 +721,7 @@ export default function MarketplacePage() {
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h2
-                  className="text-3xl sm:text-4xl font-serif italic text-white mb-2"
+                  className="text-3xl sm:text-4xl font-bold text-white mb-2"
                   style={LETTER_SPACING_STYLE}
                 >
                   Sealed-Bid Auctions
@@ -767,7 +761,7 @@ export default function MarketplacePage() {
                   </p>
                   <p className="text-xs text-white/80 leading-relaxed">
                     Auctions above demonstrate the UI for the upcoming{' '}
-                    <code className="px-1 py-0.5 rounded bg-white/[0.06] text-amber-300 text-[10px] font-mono">
+                    <code className="px-1 py-0.5 rounded bg-white/[0.06] text-amber-300 text-xs font-mono">
                       veilsub_marketplace.aleo
                     </code>{' '}
                     program. Sealed bids will use the same privacy technology as the governance
@@ -786,7 +780,7 @@ export default function MarketplacePage() {
           <ScrollReveal>
             <div className="text-center mb-12">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 How Reputation Works
@@ -850,7 +844,7 @@ export default function MarketplacePage() {
           <ScrollReveal>
             <div className="max-w-2xl mx-auto text-center">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 Join the Marketplace

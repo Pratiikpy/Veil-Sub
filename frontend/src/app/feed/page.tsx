@@ -10,9 +10,6 @@ import {
   Rss,
   Lock,
   Unlock,
-  Star,
-  MessageSquare,
-  Crown,
   ArrowRight,
   Compass,
   Wallet,
@@ -39,44 +36,11 @@ import type { AccessPass, ContentPost } from '@/types'
 
 // ─── Constants ───
 
-const HERO_GLOW_STYLE = {
-  background:
-    'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
-} as const
-
-const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
+import { HERO_GLOW_STYLE_SUBTLE as HERO_GLOW_STYLE, TITLE_STYLE as LETTER_SPACING_STYLE } from '@/lib/styles'
 
 const POSTS_PER_PAGE = 10
 
-const tierConfig: Record<number, { name: string; icon: typeof Star; color: string; border: string; bg: string; text: string; lockBg: string }> = {
-  1: {
-    name: 'Supporter',
-    icon: Star,
-    color: 'green',
-    border: 'border-green-500/20',
-    bg: 'bg-green-500/5',
-    text: 'text-green-300',
-    lockBg: 'bg-green-500/10',
-  },
-  2: {
-    name: 'Premium',
-    icon: MessageSquare,
-    color: 'blue',
-    border: 'border-blue-500/20',
-    bg: 'bg-blue-500/5',
-    text: 'text-blue-300',
-    lockBg: 'bg-blue-500/10',
-  },
-  3: {
-    name: 'VIP',
-    icon: Crown,
-    color: 'violet',
-    border: 'border-violet-500/20',
-    bg: 'bg-violet-500/5',
-    text: 'text-violet-300',
-    lockBg: 'bg-violet-500/10',
-  },
-}
+import { tierConfig } from '@/lib/tierConfig'
 
 // ─── Helpers ───
 
@@ -237,7 +201,7 @@ function FeedPostCard({
             >
               {post.creatorLabel}
             </Link>
-            <div className="flex items-center gap-2 text-xs text-white/40">
+            <div className="flex items-center gap-2 text-xs text-white/60">
               {post.creatorCategory && (
                 <span>{post.creatorCategory}</span>
               )}
@@ -251,7 +215,7 @@ function FeedPostCard({
           </div>
           {/* Tier badge */}
           <span
-            className={`px-2.5 py-1 rounded-full text-[10px] font-medium border shrink-0 ${
+            className={`px-2.5 py-1 rounded-full text-xs font-medium border shrink-0 ${
               unlocked
                 ? `${tier.text} ${tier.lockBg} ${tier.border}`
                 : 'text-white/50 bg-white/[0.04] border-white/[0.08]'
@@ -349,7 +313,7 @@ function FeedPostCard({
         {/* Footer: reading time + meta */}
         <div className="flex items-center gap-3 mt-4 pt-3 border-t border-white/[0.04]">
           {readingTime && (
-            <span className="flex items-center gap-1 text-xs text-white/40">
+            <span className="flex items-center gap-1 text-xs text-white/60">
               <BookOpen className="w-3 h-3" aria-hidden="true" />
               {readingTime}
             </span>
@@ -361,7 +325,7 @@ function FeedPostCard({
             </span>
           )}
           {post.updatedAt && (
-            <span className="text-xs text-white/30 ml-auto">edited</span>
+            <span className="text-xs text-white/50 ml-auto">edited</span>
           )}
         </div>
       </div>
@@ -566,7 +530,7 @@ export default function FeedPage() {
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
                 <h1
-                  className="text-3xl sm:text-4xl font-serif italic text-white mb-2"
+                  className="text-3xl sm:text-4xl font-bold text-white mb-2"
                   style={LETTER_SPACING_STYLE}
                 >
                   My Feed
@@ -679,7 +643,7 @@ export default function FeedPage() {
                   value={feedSearchQuery}
                   onChange={(e) => setFeedSearchQuery(e.target.value)}
                   placeholder="Search your feed..."
-                  className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white placeholder-white/30 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm"
+                  className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white placeholder-white/50 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm"
                 />
                 {feedSearchQuery && (
                   <button
@@ -762,7 +726,7 @@ export default function FeedPage() {
                   <p className="text-sm text-white/50">No results for &ldquo;{feedSearchQuery}&rdquo;</p>
                 </div>
               ) : (
-                <p className="text-xs text-white/30 mb-4">
+                <p className="text-xs text-white/50 mb-4">
                   {filteredPosts.length} post{filteredPosts.length !== 1 ? 's' : ''}
                   {selectedCreator ? ` from ${getCreatorLabel(selectedCreator)}` : ''}
                   {feedSearchQuery.trim() ? ` matching "${feedSearchQuery}"` : ''}

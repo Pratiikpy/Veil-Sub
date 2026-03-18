@@ -142,7 +142,7 @@ export default function DashboardPage() {
     return (
       <PageTransition className="min-h-screen">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-center">
-          <h1 className="text-3xl font-serif italic text-white mb-4">Creator Dashboard</h1>
+          <h1 className="text-3xl font-bold text-white mb-4">Creator Dashboard</h1>
           <div className="p-6 rounded-xl bg-red-500/5 border border-red-500/15 max-w-md mx-auto">
             <p className="text-sm text-red-300 mb-4">Could not load your creator status. This may be a network issue.</p>
             <button
@@ -168,7 +168,7 @@ export default function DashboardPage() {
           className="mb-8"
         >
           <h1
-            className="text-3xl sm:text-4xl font-serif italic text-white mb-2"
+            className="text-3xl sm:text-4xl font-bold text-white mb-2"
             style={TITLE_STYLE}
           >
             Creator Dashboard

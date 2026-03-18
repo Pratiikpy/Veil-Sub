@@ -46,12 +46,7 @@ interface NotificationPrefs {
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
-
-const HERO_GLOW_STYLE = {
-  background:
-    'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
-} as const
+import { HERO_GLOW_STYLE_SUBTLE as HERO_GLOW_STYLE, TITLE_STYLE as LETTER_SPACING_STYLE } from '@/lib/styles'
 
 const CATEGORY_OPTIONS = [
   'Content Creator',
@@ -425,13 +420,9 @@ export default function SettingsPage() {
   }, [publicKey])
 
   const handleSaveNotifications = useCallback(() => {
-    setNotifSaving(true)
     saveNotificationPrefs(notifPrefs)
-    setTimeout(() => {
-      setNotifSaving(false)
-      toast.success('Notification preferences saved')
-      sounds.success()
-    }, 300)
+    toast.success('Notification preferences saved')
+    sounds.success()
   }, [notifPrefs])
 
   const updateNotifPref = useCallback((key: keyof NotificationPrefs, value: boolean) => {
@@ -476,7 +467,7 @@ export default function SettingsPage() {
             className="mb-8 sm:mb-10"
           >
             <h1
-              className="text-3xl sm:text-4xl font-serif italic text-white mb-3"
+              className="text-3xl sm:text-4xl font-bold text-white mb-3"
               style={LETTER_SPACING_STYLE}
             >
               Settings
@@ -516,7 +507,7 @@ export default function SettingsPage() {
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="Your display name"
                       maxLength={50}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-500/30 transition-all"
+                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-500/30 transition-all"
                     />
                   </div>
                   <div>
@@ -530,7 +521,7 @@ export default function SettingsPage() {
                       placeholder="Tell subscribers about yourself"
                       rows={3}
                       maxLength={280}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-500/30 transition-all resize-none"
+                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-500/30 transition-all resize-none"
                     />
                   </div>
                   <div>
@@ -558,7 +549,7 @@ export default function SettingsPage() {
                       value={imageUrl}
                       onChange={(e) => setImageUrl(e.target.value)}
                       placeholder="https://example.com/avatar.png"
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-500/30 transition-all"
+                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-500/30 transition-all"
                     />
                   </div>
                   <div className="pt-2">

@@ -40,12 +40,7 @@ const ALEOSCAN_URL = `https://testnet.aleoscan.io/program?id=${ORACLE_PROGRAM_ID
 
 const MICRO_USD_SCALE = 1_000_000
 
-const HERO_GLOW_STYLE = {
-  background:
-    'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
-} as const
-
-const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
+import { HERO_GLOW_STYLE_SUBTLE as HERO_GLOW_STYLE, TITLE_STYLE as LETTER_SPACING_STYLE } from '@/lib/styles'
 
 // ── Chart Theme ───────────────────────────────────────────────────────
 
@@ -108,6 +103,7 @@ export default function OraclePage() {
   const [loading, setLoading] = useState(true)
   const [historyLoading, setHistoryLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<string>('')
+  const [priceError, setPriceError] = useState<string | null>(null)
 
   // Calculator state
   const [usdInput, setUsdInput] = useState('5.00')
@@ -127,17 +123,18 @@ export default function OraclePage() {
     setLoading(true)
     try {
       const res = await fetch(COINGECKO_PRICE_URL)
-      if (!res.ok) return
+      if (!res.ok) throw new Error('API error')
       const data = await res.json()
       const usd = data?.aleo?.usd
       const change24h = data?.aleo?.usd_24h_change ?? 0
       if (typeof usd === 'number' && Number.isFinite(usd) && usd > 0) {
         if (!mountedRef.current) return
         setPrice({ usd, change24h })
+        setPriceError(null)
         setLastUpdated(new Date().toLocaleTimeString())
       }
     } catch {
-      // Silently fail — show stale data
+      if (mountedRef.current) setPriceError('Price data temporarily unavailable')
     } finally {
       if (mountedRef.current) setLoading(false)
     }
@@ -223,7 +220,7 @@ export default function OraclePage() {
               </span>
             </div>
             <h1
-              className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+              className="text-3xl sm:text-4xl font-bold text-white mb-4"
               style={LETTER_SPACING_STYLE}
             >
               Price Oracle
@@ -286,12 +283,12 @@ export default function OraclePage() {
                 </div>
               ) : (
                 <p className="text-white/40 text-lg">
-                  Unable to fetch price data
+                  {priceError || 'Unable to fetch price data'}
                 </p>
               )}
 
               {lastUpdated && (
-                <p className="text-xs text-white/30 mt-4 flex items-center gap-1.5">
+                <p className="text-xs text-white/60 mt-4 flex items-center gap-1.5">
                   <Clock className="w-3 h-3" aria-hidden="true" />
                   Last updated: {lastUpdated}
                 </p>

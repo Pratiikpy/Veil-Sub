@@ -182,7 +182,7 @@ export default function VerifyPage() {
                 </span>
               </div>
               <h1
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 Verify Your Access
@@ -697,7 +697,7 @@ export default function VerifyPage() {
             className="text-center mb-6 sm:mb-12"
           >
             <h2
-              className="text-2xl sm:text-3xl font-serif italic text-white mb-4"
+              className="text-2xl sm:text-3xl font-bold text-white mb-4"
               style={HEADING_TIGHT_STYLE}
             >
               How ZK Verification Works

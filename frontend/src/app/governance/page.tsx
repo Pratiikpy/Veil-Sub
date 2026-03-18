@@ -31,12 +31,7 @@ import Container from '@/components/ui/Container'
 import Button from '@/components/ui/Button'
 
 // ─── Static styles ──────────────────────────────────────────────────────────
-const HERO_GLOW_STYLE = {
-  background:
-    'radial-gradient(ellipse at center, rgba(139,92,246,0.07) 0%, rgba(139,92,246,0.02) 40%, transparent 70%)',
-} as const
-
-const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
+import { HERO_GLOW_STYLE, TITLE_STYLE as LETTER_SPACING_STYLE } from '@/lib/styles'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -202,7 +197,7 @@ function ProposalCard({
             <div className="flex items-center gap-2 mb-1.5 flex-wrap">
               <span className="text-xs font-mono text-white/50">#{proposal.id}</span>
               <span
-                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-${color}-500/10 text-${color}-400 border border-${color}-500/20`}
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-${color}-500/10 text-${color}-400 border border-${color}-500/20`}
               >
                 {proposal.status === 'active' && (
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -237,7 +232,7 @@ function ProposalCard({
               style={{ width: `${100 - forPct}%` }}
             />
           </div>
-          <div className="flex items-center justify-between mt-1.5 text-[10px] text-white/50">
+          <div className="flex items-center justify-between mt-1.5 text-xs text-white/50">
             <span>{forPct}% approval</span>
             <span>{totalVotes} total votes</span>
           </div>
@@ -378,7 +373,7 @@ function VoteModal({
               <div className="p-5 space-y-5">
                 {/* Proposal selector */}
                 <div>
-                  <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-2 block">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-2 block">
                     Proposal
                   </label>
                   <select
@@ -401,7 +396,7 @@ function VoteModal({
 
                 {/* Vote choice */}
                 <div>
-                  <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-2 block">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-2 block">
                     Your Vote
                   </label>
                   <div className="grid grid-cols-2 gap-3">
@@ -432,7 +427,7 @@ function VoteModal({
 
                 {/* Salt */}
                 <div>
-                  <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-2 block">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-2 block">
                     Salt (auto-generated)
                   </label>
                   <div className="flex items-center gap-2">
@@ -458,7 +453,7 @@ function VoteModal({
                       <Hash className="w-3.5 h-3.5" aria-hidden="true" />
                     </button>
                   </div>
-                  <p className="text-[10px] text-white/30 mt-1.5">
+                  <p className="text-xs text-white/50 mt-1.5">
                     Save this salt -- you will need it to verify your vote later.
                   </p>
                 </div>
@@ -479,9 +474,9 @@ function VoteModal({
                 <Button variant="ghost" size="sm" onClick={onClose}>
                   Cancel
                 </Button>
-                <Button variant="accent" size="sm" onClick={handleSubmit} className="rounded-full">
+                <Button variant="accent" size="sm" disabled className="rounded-full opacity-60 cursor-not-allowed">
                   <Lock className="w-3.5 h-3.5" aria-hidden="true" />
-                  Seal Vote
+                  Voting Coming Soon
                 </Button>
               </div>
             </>
@@ -532,7 +527,7 @@ export default function GovernancePage() {
             </div>
 
             <h1
-              className="text-3xl sm:text-4xl font-serif italic text-white mb-6"
+              className="text-3xl sm:text-4xl font-bold text-white mb-6"
               style={LETTER_SPACING_STYLE}
             >
               Private Governance
@@ -568,7 +563,7 @@ export default function GovernancePage() {
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h2
-                  className="text-3xl sm:text-4xl font-serif italic text-white mb-2"
+                  className="text-3xl sm:text-4xl font-bold text-white mb-2"
                   style={LETTER_SPACING_STYLE}
                 >
                   Active Proposals
@@ -608,7 +603,7 @@ export default function GovernancePage() {
                   </p>
                   <p className="text-xs text-white/80 leading-relaxed">
                     The proposals above are demonstrating the UI for the upcoming{' '}
-                    <code className="px-1 py-0.5 rounded bg-white/[0.06] text-amber-300 text-[10px] font-mono">
+                    <code className="px-1 py-0.5 rounded bg-white/[0.06] text-amber-300 text-xs font-mono">
                       veilsub_governance.aleo
                     </code>{' '}
                     program. Once deployed, votes will be sealed on-chain and results will be
@@ -674,7 +669,7 @@ export default function GovernancePage() {
           <ScrollReveal>
             <div className="text-center mb-12">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 How Private Voting Works
@@ -738,7 +733,7 @@ export default function GovernancePage() {
           <ScrollReveal>
             <div className="text-center mb-12">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 Protocol Governance
@@ -784,7 +779,7 @@ export default function GovernancePage() {
           <ScrollReveal>
             <div className="max-w-2xl mx-auto text-center">
               <h2
-                className="text-3xl sm:text-4xl font-serif italic text-white mb-4"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
                 Your Voice, Your Secret
