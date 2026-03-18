@@ -12,16 +12,11 @@ import { CommandPaletteTrigger } from '@/components/CommandPalette'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
 const NAV_ITEMS = [
-  { href: '/', label: 'Home' },
   { href: '/explore', label: 'Explore' },
-  { href: '/governance', label: 'Governance' },
-  { href: '/marketplace', label: 'Market' },
-  { href: '/developers', label: 'Developers' },
 ]
 
 const FEED_ITEM = { href: '/feed', label: 'Feed' }
 const DASHBOARD_ITEM = { href: '/dashboard', label: 'Dashboard' }
-const SUBSCRIPTIONS_ITEM = { href: '/subscriptions', label: 'My Subs' }
 
 // Extracted static style to prevent re-renders
 const NAV_ACTIVE_GLOW_STYLE = { boxShadow: '0 0 12px rgba(139, 92, 246, 0.1)' } as const
@@ -50,7 +45,7 @@ export default function Header() {
   }, [mobileOpen])
 
   const allItems = connected
-    ? [NAV_ITEMS[0], FEED_ITEM, ...NAV_ITEMS.slice(1), SUBSCRIPTIONS_ITEM, DASHBOARD_ITEM]
+    ? [FEED_ITEM, ...NAV_ITEMS, DASHBOARD_ITEM]
     : NAV_ITEMS
 
   const isActive = (href: string) => {

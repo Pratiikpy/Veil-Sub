@@ -255,7 +255,7 @@ function CreatorReputationCard({ creator }: { creator: CreatorReputation }) {
   return (
     <Link
       href={`/creator/${creator.address}`}
-      className="group block rounded-2xl bg-surface-1/40 backdrop-blur-sm border border-border/75 hover:border-violet-500/20 hover:bg-surface-1/60 hover:shadow-[0_8px_32px_-8px_rgba(139,92,246,0.12)] hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
+      className="group block rounded-2xl bg-surface-1/40 backdrop-blur-sm border border-white/15 hover:border-violet-500/25 hover:bg-surface-1/60 hover:shadow-[0_8px_32px_-8px_rgba(139,92,246,0.12)] hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
     >
       <div className="p-5 sm:p-6">
         {/* Header */}
@@ -290,7 +290,7 @@ function CreatorReputationCard({ creator }: { creator: CreatorReputation }) {
           <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium border bg-violet-500/15 text-violet-300 border-violet-500/25 mb-2">
             {creator.category}
           </span>
-          <p className="text-xs text-white/55 leading-relaxed line-clamp-2">{creator.bio}</p>
+          <p className="text-xs text-white/80 leading-relaxed line-clamp-2">{creator.bio}</p>
         </div>
 
         {/* Rating */}
@@ -348,7 +348,7 @@ function AuctionCard({
       : 100
 
   return (
-    <div className="rounded-2xl bg-surface-1/40 backdrop-blur-sm border border-border/75 hover:border-violet-500/20 transition-all duration-300 overflow-hidden">
+    <div className="rounded-2xl bg-surface-1/40 backdrop-blur-sm border border-white/15 hover:border-violet-500/25 transition-all duration-300 overflow-hidden">
       <div className="p-5 sm:p-6">
         {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-3">
@@ -373,7 +373,7 @@ function AuctionCard({
         </div>
 
         {/* Creator + Bid info */}
-        <div className="flex items-center gap-4 mb-4 text-xs text-white/50">
+        <div className="flex items-center gap-4 mb-4 text-xs text-white/80">
           <span>by {auction.creatorName}</span>
           <span className="flex items-center gap-1">
             <Users className="w-3 h-3" aria-hidden="true" />
@@ -384,14 +384,14 @@ function AuctionCard({
 
         {/* Time + Progress */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2 text-xs text-white/40">
+          <div className="flex items-center gap-2 text-xs text-white/60">
             {isOpen ? (
               <>
                 <Clock className="w-3 h-3" aria-hidden="true" />
                 <span>{blocksToTime(auction.blocksRemaining)} remaining</span>
               </>
             ) : (
-              <span className="text-white/50">Auction ended</span>
+              <span className="text-white/60">Auction ended</span>
             )}
           </div>
           <div className="w-20 h-1 rounded-full bg-white/[0.06] overflow-hidden">
@@ -663,7 +663,7 @@ export default function MarketplacePage() {
                 >
                   Creator Reputation
                 </h2>
-                <p className="text-white/50 text-sm">
+                <p className="text-white/80 text-sm">
                   Reputation tiers verified privately on the blockchain.
                 </p>
               </div>
@@ -677,8 +677,8 @@ export default function MarketplacePage() {
                 onClick={() => setCreatorFilter('all')}
                 className={`shrink-0 px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 ${
                   creatorFilter === 'all'
-                    ? 'bg-violet-500/20 text-violet-200 border border-violet-500/30'
-                    : 'bg-white/[0.03] text-white/50 border border-transparent hover:bg-white/[0.06] hover:text-white/70'
+                    ? 'bg-violet-500 text-white border border-violet-500'
+                    : 'bg-transparent text-white/60 border border-white/20 hover:bg-white/[0.06] hover:text-white/80'
                 }`}
               >
                 All Tiers
@@ -732,7 +732,7 @@ export default function MarketplacePage() {
                 >
                   Sealed-Bid Auctions
                 </h2>
-                <p className="text-white/50 text-sm">
+                <p className="text-white/80 text-sm">
                   Bid on premium content. Bids are sealed until the reveal phase.
                 </p>
               </div>
@@ -765,7 +765,7 @@ export default function MarketplacePage() {
                   <p className="text-sm font-medium text-amber-300 mb-0.5">
                     Marketplace contract deploying soon
                   </p>
-                  <p className="text-xs text-white/50 leading-relaxed">
+                  <p className="text-xs text-white/80 leading-relaxed">
                     Auctions above demonstrate the UI for the upcoming{' '}
                     <code className="px-1 py-0.5 rounded bg-white/[0.06] text-amber-300 text-[10px] font-mono">
                       veilsub_marketplace.aleo
@@ -791,7 +791,7 @@ export default function MarketplacePage() {
               >
                 How Reputation Works
               </h2>
-              <p className="text-white/60 max-w-xl mx-auto">
+              <p className="text-white/80 max-w-xl mx-auto">
                 Private ratings, public trust. Individual reviews are combined mathematically
                 without revealing any single rating.
               </p>
@@ -815,7 +815,7 @@ export default function MarketplacePage() {
                       Step {step.step}
                     </div>
                     <h3 className="text-white font-semibold mb-2">{step.title}</h3>
-                    <p className="text-xs text-white/55 leading-relaxed">{step.description}</p>
+                    <p className="text-xs text-white/80 leading-relaxed">{step.description}</p>
                   </GlassCard>
                 </ScrollReveal>
               )
@@ -831,7 +831,7 @@ export default function MarketplacePage() {
                   <p className="text-sm font-semibold text-violet-300 mb-1">
                     Privacy-Preserving Ratings
                   </p>
-                  <p className="text-sm text-white/60 leading-relaxed">
+                  <p className="text-sm text-white/80 leading-relaxed">
                     Each review is encrypted with a hidden counter so that ratings can be
                     added together on-chain to produce an overall score, without anyone being
                     able to see any individual rating. Your specific review remains permanently
@@ -855,7 +855,7 @@ export default function MarketplacePage() {
               >
                 Join the Marketplace
               </h2>
-              <p className="text-white/60 mb-8">
+              <p className="text-white/80 mb-8">
                 Build your reputation privately. Discover creators by trust, not by identity.
               </p>
               <div className="flex items-center justify-center gap-4 flex-wrap">

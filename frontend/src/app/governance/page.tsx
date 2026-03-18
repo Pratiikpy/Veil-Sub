@@ -194,13 +194,13 @@ function ProposalCard({
       : 100
 
   return (
-    <div className="rounded-2xl bg-surface-1/40 backdrop-blur-sm border border-border/75 hover:border-violet-500/20 transition-all duration-300 overflow-hidden">
+    <div className="rounded-2xl bg-surface-1/40 backdrop-blur-sm border border-white/15 hover:border-violet-500/25 transition-all duration-300 overflow-hidden">
       <div className="p-5 sm:p-6">
         {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-              <span className="text-xs font-mono text-white/40">#{proposal.id}</span>
+              <span className="text-xs font-mono text-white/50">#{proposal.id}</span>
               <span
                 className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-${color}-500/10 text-${color}-400 border border-${color}-500/20`}
               >
@@ -217,7 +217,7 @@ function ProposalCard({
         </div>
 
         {/* Description */}
-        <p className="text-xs text-white/55 leading-relaxed mb-4 line-clamp-2">
+        <p className="text-xs text-white/80 leading-relaxed mb-4 line-clamp-2">
           {proposal.description}
         </p>
 
@@ -227,17 +227,17 @@ function ProposalCard({
             <span className="text-emerald-400 font-medium">For: {proposal.votesFor}</span>
             <span className="text-red-400 font-medium">Against: {proposal.votesAgainst}</span>
           </div>
-          <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden flex">
+          <div className="h-2 rounded-full bg-white/[0.1] overflow-hidden flex">
             <div
-              className="h-full bg-emerald-500 rounded-l-full transition-all duration-500"
+              className="h-full bg-emerald-400 rounded-l-full transition-all duration-500"
               style={{ width: `${forPct}%` }}
             />
             <div
-              className="h-full bg-red-500 rounded-r-full transition-all duration-500"
+              className="h-full bg-red-400 rounded-r-full transition-all duration-500"
               style={{ width: `${100 - forPct}%` }}
             />
           </div>
-          <div className="flex items-center justify-between mt-1.5 text-[10px] text-white/40">
+          <div className="flex items-center justify-between mt-1.5 text-[10px] text-white/50">
             <span>{forPct}% approval</span>
             <span>{totalVotes} total votes</span>
           </div>
@@ -245,7 +245,7 @@ function ProposalCard({
 
         {/* Footer */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 text-xs text-white/40">
+          <div className="flex items-center gap-3 text-xs text-white/60">
             {proposal.status === 'active' ? (
               <>
                 <div className="flex items-center gap-1">
@@ -253,9 +253,9 @@ function ProposalCard({
                   <span>{blocksToTime(proposal.blocksRemaining)} remaining</span>
                 </div>
                 {/* Progress bar */}
-                <div className="w-16 h-1 rounded-full bg-white/[0.06] overflow-hidden">
+                <div className="w-16 h-1 rounded-full bg-white/[0.1] overflow-hidden">
                   <div
-                    className="h-full bg-violet-500/50 rounded-full"
+                    className="h-full bg-violet-400 rounded-full"
                     style={{ width: `${progressPct}%` }}
                   />
                 </div>
@@ -266,12 +266,12 @@ function ProposalCard({
                 Resolved
               </span>
             )}
-            <span className="text-white/30 font-mono">{proposal.creator}</span>
+            <span className="text-white/50 font-mono">{proposal.creator}</span>
           </div>
           {proposal.status === 'active' && (
             <button
               onClick={() => onVote(proposal.id)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-violet-500/15 border border-violet-500/25 text-xs font-medium text-violet-300 hover:bg-violet-500/25 hover:text-violet-200 transition-all duration-200"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-violet-500 text-xs font-medium text-white hover:bg-violet-400 transition-all duration-200"
             >
               <Vote className="w-3 h-3" aria-hidden="true" />
               Cast Vote
@@ -573,7 +573,7 @@ export default function GovernancePage() {
                 >
                   Active Proposals
                 </h2>
-                <p className="text-white/50 text-sm">
+                <p className="text-white/80 text-sm">
                   Cast your vote privately. All votes are sealed and anonymous.
                 </p>
               </div>
@@ -606,7 +606,7 @@ export default function GovernancePage() {
                   <p className="text-sm font-medium text-amber-300 mb-0.5">
                     Governance contract deploying soon
                   </p>
-                  <p className="text-xs text-white/50 leading-relaxed">
+                  <p className="text-xs text-white/80 leading-relaxed">
                     The proposals above are demonstrating the UI for the upcoming{' '}
                     <code className="px-1 py-0.5 rounded bg-white/[0.06] text-amber-300 text-[10px] font-mono">
                       veilsub_governance.aleo
@@ -679,7 +679,7 @@ export default function GovernancePage() {
               >
                 How Private Voting Works
               </h2>
-              <p className="text-white/60 max-w-xl mx-auto">
+              <p className="text-white/80 max-w-xl mx-auto">
                 A three-phase process ensures your vote is private until the results are
                 published.
               </p>
@@ -703,7 +703,7 @@ export default function GovernancePage() {
                       Step {step.step}
                     </div>
                     <h3 className="text-white font-semibold mb-2">{step.title}</h3>
-                    <p className="text-xs text-white/55 leading-relaxed">{step.description}</p>
+                    <p className="text-xs text-white/80 leading-relaxed">{step.description}</p>
                   </GlassCard>
                 </ScrollReveal>
               )
@@ -719,7 +719,7 @@ export default function GovernancePage() {
                   <p className="text-sm font-semibold text-violet-300 mb-1">
                     How sealed voting works
                   </p>
-                  <p className="text-sm text-white/60 leading-relaxed">
+                  <p className="text-sm text-white/80 leading-relaxed">
                     Each vote is sealed using your choice plus a random secret code.
                     The secret code is stored only in your browser. Even with full
                     access to the blockchain, an observer cannot determine your vote without
@@ -743,7 +743,7 @@ export default function GovernancePage() {
               >
                 Protocol Governance
               </h2>
-              <p className="text-white/60 max-w-xl mx-auto">
+              <p className="text-white/80 max-w-xl mx-auto">
                 VeilSub&apos;s governance program brings the same privacy guarantees from subscriptions
                 to collective decision-making.
               </p>
@@ -769,7 +769,7 @@ export default function GovernancePage() {
                   <GlassCard className="text-center !p-5">
                     <Icon className="w-5 h-5 text-white/60 mx-auto mb-3" aria-hidden="true" />
                     <p className="text-2xl font-semibold text-white mb-1">{stat.value}</p>
-                    <p className="text-xs text-white/50">{stat.label}</p>
+                    <p className="text-xs text-white/80">{stat.label}</p>
                   </GlassCard>
                 </ScrollReveal>
               )
@@ -789,7 +789,7 @@ export default function GovernancePage() {
               >
                 Your Voice, Your Secret
               </h2>
-              <p className="text-white/60 mb-8">
+              <p className="text-white/80 mb-8">
                 Private governance is the foundation of a fair protocol. Explore the rest of the
                 VeilSub ecosystem.
               </p>

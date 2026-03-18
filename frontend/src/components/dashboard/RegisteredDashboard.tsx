@@ -30,6 +30,7 @@ import { toast } from 'sonner'
 import dynamic from 'next/dynamic'
 
 const CelebrationBurst = dynamic(() => import('@/components/CelebrationBurst'), { ssr: false })
+import AddressAvatar from '@/components/ui/AddressAvatar'
 import CreatePostForm from '@/components/CreatePostForm'
 import ProfileEditor from '@/components/dashboard/ProfileEditor'
 import PostsList from '@/components/dashboard/PostsList'
@@ -358,11 +359,11 @@ export default function RegisteredDashboard({
               <span className="text-[11px] text-white/60 uppercase tracking-wider">Revenue</span>
             </div>
             <p className="text-xl font-bold text-white tabular-nums">
-              ~${revenueUsd}
+              {revenueAleo > 0 ? `~$${revenueUsd}` : '\u2014'}
             </p>
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-white/50">
-                {formatCredits(stats?.totalRevenue ?? 0)} ALEO
+                {revenueAleo > 0 ? `${formatCredits(stats?.totalRevenue ?? 0)} ALEO` : 'No revenue yet'}
               </span>
               <Sparkline data={revenueSpark} color="#34d399" width={60} height={20} />
             </div>
@@ -375,7 +376,7 @@ export default function RegisteredDashboard({
               <span className="text-[11px] text-white/60 uppercase tracking-wider">Subscribers</span>
             </div>
             <p className="text-xl font-bold text-white tabular-nums">
-              {stats?.subscriberCount ?? 0}
+              {(stats?.subscriberCount ?? 0) > 0 ? stats?.subscriberCount : '\u2014'}
             </p>
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-white/50">
@@ -392,10 +393,12 @@ export default function RegisteredDashboard({
               <span className="text-[11px] text-white/60 uppercase tracking-wider">Posts</span>
             </div>
             <p className="text-xl font-bold text-white tabular-nums">
-              {stats?.contentCount ?? 0}
+              {(stats?.contentCount ?? 0) > 0 ? stats?.contentCount : '\u2014'}
             </p>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] text-white/50">published</span>
+              <span className="text-[10px] text-white/50">
+                {(stats?.contentCount ?? 0) > 0 ? 'published' : 'No posts yet'}
+              </span>
               <Sparkline data={postSpark} color="#a78bfa" width={60} height={20} />
             </div>
           </div>
@@ -488,8 +491,9 @@ export default function RegisteredDashboard({
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setComposeExpanded(true) }}
             role="button"
             tabIndex={0}
-            className="p-4 rounded-xl bg-surface-1 border border-border cursor-text hover:border-violet-500/30 transition-all group"
+            className="p-4 rounded-xl bg-surface-1 border border-border cursor-text hover:border-violet-500/30 transition-all group flex items-center gap-3"
           >
+            <AddressAvatar address={publicKey} size={36} className="shrink-0" />
             <p className="text-white/40 text-sm group-hover:text-white/60 transition-colors">
               What&apos;s on your mind? Start writing...
             </p>
@@ -538,77 +542,92 @@ export default function RegisteredDashboard({
         >
           {showConfetti && <CelebrationBurst color="bg-green-400" />}
 
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-base font-semibold text-white mb-0.5 flex items-center gap-2">
-                Getting Started
-              </h2>
-              <p className="text-xs text-white/60">
-                {4 - completedSteps} step{4 - completedSteps !== 1 ? 's' : ''} remaining
-              </p>
-            </div>
-            <div className="text-sm font-bold text-violet-300">{completedSteps}/4</div>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-3">
-            {[
-              {
-                done: true,
-                label: 'Register as creator',
-                detail: 'On-chain registration complete',
-              },
-              {
-                done: Object.keys(creatorTiers).length > 0,
-                label: 'Create a custom tier',
-                detail: 'Set flexible pricing',
-                action: () => setShowTierDialog(true),
-                actionLabel: 'Create Tier',
-              },
-              {
-                done: (stats?.contentCount ?? 0) > 0,
-                label: 'Publish your first post',
-                detail: 'Share tier-gated content',
-                action: () => setComposeExpanded(true),
-                actionLabel: 'Write Post',
-              },
-              {
-                done: copied,
-                label: 'Share your page',
-                detail: copied ? 'Link copied!' : 'Invite subscribers',
-                action: copyLink,
-                actionLabel: 'Copy Link',
-              },
-            ].map((step) => (
-              <div
-                key={step.label}
-                className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
-                  step.done
-                    ? 'bg-green-500/5 border-green-500/15'
-                    : 'bg-white/[0.03] border-border'
-                }`}
-              >
-                {step.done ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" aria-hidden="true" />
-                ) : (
-                  <div className="w-5 h-5 rounded-full border-2 border-white/20 shrink-0" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm ${step.done ? 'text-white/50 line-through' : 'text-white'}`}>
-                    {step.label}
-                  </p>
-                  <p className="text-[11px] text-white/50">{step.detail}</p>
-                </div>
-                {!step.done && step.action && (
-                  <button
-                    onClick={step.action}
-                    className="px-3 py-1.5 rounded-lg bg-violet-500/15 border border-violet-500/20 text-[11px] text-violet-300 hover:bg-violet-500/25 transition-all shrink-0"
-                  >
-                    {step.actionLabel}
-                  </button>
-                )}
+          {completedSteps >= 3 ? (
+            /* Collapsed badge when almost done */
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-400" aria-hidden="true" />
+                <span className="text-sm font-medium text-white">
+                  {4 - completedSteps} step remaining
+                </span>
               </div>
-            ))}
-          </div>
+              <span className="text-xs text-violet-300">{completedSteps}/4</span>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-base font-semibold text-white mb-0.5 flex items-center gap-2">
+                    Getting Started
+                  </h2>
+                  <p className="text-xs text-white/60">
+                    {4 - completedSteps} step{4 - completedSteps !== 1 ? 's' : ''} remaining
+                  </p>
+                </div>
+                <div className="text-sm font-bold text-violet-300">{completedSteps}/4</div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                {[
+                  {
+                    done: true,
+                    label: 'Register as creator',
+                    detail: 'On-chain registration complete',
+                  },
+                  {
+                    done: Object.keys(creatorTiers).length > 0,
+                    label: 'Create a custom tier',
+                    detail: 'Set flexible pricing',
+                    action: () => setShowTierDialog(true),
+                    actionLabel: 'Create Tier',
+                  },
+                  {
+                    done: (stats?.contentCount ?? 0) > 0,
+                    label: 'Publish your first post',
+                    detail: 'Share tier-gated content',
+                    action: () => setComposeExpanded(true),
+                    actionLabel: 'Write Post',
+                  },
+                  {
+                    done: copied,
+                    label: 'Share your page',
+                    detail: copied ? 'Link copied!' : 'Invite subscribers',
+                    action: copyLink,
+                    actionLabel: 'Copy Link',
+                  },
+                ].map((step) => (
+                  <div
+                    key={step.label}
+                    className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
+                      step.done
+                        ? 'bg-green-500/5 border-green-500/15'
+                        : 'bg-white/[0.03] border-border'
+                    }`}
+                  >
+                    {step.done ? (
+                      <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" aria-hidden="true" />
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border-2 border-white/20 shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm ${step.done ? 'text-white/50 line-through' : 'text-white'}`}>
+                        {step.label}
+                      </p>
+                      <p className="text-[11px] text-white/50">{step.detail}</p>
+                    </div>
+                    {!step.done && step.action && (
+                      <button
+                        onClick={step.action}
+                        className="px-3 py-1.5 rounded-lg bg-violet-500/15 border border-violet-500/20 text-[11px] text-violet-300 hover:bg-violet-500/25 transition-all shrink-0"
+                      >
+                        {step.actionLabel}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </m.div>
       )}
 

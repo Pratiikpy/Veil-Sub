@@ -300,18 +300,11 @@ export default function PrivacyDashboardPage() {
             transition={spring.gentle}
             className="text-center"
           >
-            <div className="flex justify-center mb-8">
-              <Badge variant="accent">
-                <Shield className="w-4 h-4" aria-hidden="true" />
-                Blind Subscription Protocol
-              </Badge>
-            </div>
-
             <h1
               className="text-3xl sm:text-4xl font-serif italic text-white mb-6"
               style={LETTER_SPACING_STYLE}
             >
-              Your Privacy, Visualized
+              Your Privacy
             </h1>
 
             <p className="text-lg text-white/70 max-w-2xl mx-auto mb-8 leading-relaxed">

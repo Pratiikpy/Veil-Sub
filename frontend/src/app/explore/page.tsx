@@ -11,7 +11,6 @@ import {
   ArrowRight,
   AlertTriangle,
   Star,
-  Sparkles,
   SlidersHorizontal,
   FileText,
   ChevronDown,
@@ -147,7 +146,7 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 mb-0.5">
               <p className="text-white font-semibold text-sm truncate">
-                {creator.display_name || shortenAddress(creator.address)}
+                {creator.display_name || 'Creator'}
               </p>
               {isFeatured && (
                 <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-violet-500/15 border border-violet-500/20">
@@ -156,11 +155,6 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
                 </span>
               )}
             </div>
-            {creator.display_name && (
-              <p className="text-[11px] text-white/40 font-mono truncate">
-                {shortenAddress(creator.address)}
-              </p>
-            )}
           </div>
         </div>
 
@@ -197,33 +191,9 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
                 </span>
               )}
             </>
-          ) : stats === null ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/[0.08] border border-emerald-500/20 text-[11px] text-emerald-300/80">
-              <Sparkles className="w-3 h-3" aria-hidden="true" />
-              New Creator
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/[0.08] border border-emerald-500/20 text-[11px] text-emerald-300/80">
-              <Sparkles className="w-3 h-3" aria-hidden="true" />
-              New Creator
-            </span>
-          )}
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/[0.06] border border-emerald-500/15 text-[10px] font-medium text-emerald-300/80">
-            <Shield className="w-2.5 h-2.5" aria-hidden="true" />
-            Private
-          </span>
+          ) : null}
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-border/30">
-          <span className="text-[11px] text-white/35">
-            Joined {new Date(creator.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-          </span>
-          <span className="text-[11px] text-white/40 group-hover:text-violet-300 flex items-center gap-1 transition-colors duration-200">
-            View Profile
-            <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform duration-200" aria-hidden="true" />
-          </span>
-        </div>
       </Link>
     </m.div>
   )
@@ -502,8 +472,8 @@ export default function ExplorePage() {
                     onClick={() => setSelectedCategory(cat.id)}
                     className={`shrink-0 px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
                       isSelected
-                        ? 'bg-violet-500/20 text-violet-200 border border-violet-500/30 shadow-[0_0_12px_-2px_rgba(139,92,246,0.15)]'
-                        : 'bg-white/[0.03] text-white/50 border border-transparent hover:bg-white/[0.06] hover:text-white/70'
+                        ? 'bg-violet-500 text-white border border-violet-500 shadow-[0_0_12px_-2px_rgba(139,92,246,0.3)]'
+                        : 'bg-transparent text-white/60 border border-white/20 hover:bg-white/[0.06] hover:text-white/80'
                     }`}
                   >
                     {cat.label}
@@ -521,12 +491,16 @@ export default function ExplorePage() {
               transition={{ delay: 0.08 }}
               className="flex items-center justify-between mb-4"
             >
-              <p className="text-xs text-white/50">
-                {displayCreators.length} creator{displayCreators.length !== 1 ? 's' : ''}
-                {debouncedSearch ? ` matching "${debouncedSearch}"` : ''}
-                {selectedCategory !== 'all' ? ` in ${CATEGORIES.find(c => c.id === selectedCategory)?.label}` : ''}
-                {totalCount !== null && totalCount > displayCreators.length ? ` of ${totalCount} total` : ''}
-              </p>
+              {displayCreators.length > 20 ? (
+                <p className="text-xs text-white/50">
+                  {displayCreators.length} creator{displayCreators.length !== 1 ? 's' : ''}
+                  {debouncedSearch ? ` matching "${debouncedSearch}"` : ''}
+                  {selectedCategory !== 'all' ? ` in ${CATEGORIES.find(c => c.id === selectedCategory)?.label}` : ''}
+                  {totalCount !== null && totalCount > displayCreators.length ? ` of ${totalCount} total` : ''}
+                </p>
+              ) : (
+                <div />
+              )}
               <SortDropdown value={sortBy} onChange={setSortBy} />
             </m.div>
           )}
