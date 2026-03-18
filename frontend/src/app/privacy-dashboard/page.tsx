@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
+import { spring } from '@/lib/motion'
 import {
   Shield,
   ShieldCheck,
@@ -295,7 +296,7 @@ export default function PrivacyDashboardPage() {
           <m.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            transition={spring.gentle}
             className="text-center"
           >
             <div className="flex justify-center mb-8">
@@ -413,7 +414,7 @@ export default function PrivacyDashboardPage() {
 
                       <m.div
                         animate={{ rotate: isExpanded ? 180 : 0 }}
-                        transition={{ duration: 0.2 }}
+                        transition={spring.snappy}
                         className="shrink-0"
                       >
                         <ChevronDown className="w-5 h-5 text-white/40" aria-hidden="true" />
@@ -428,7 +429,7 @@ export default function PrivacyDashboardPage() {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                          transition={spring.heavy}
                           className="overflow-hidden"
                         >
                           <div className="px-4 sm:px-5 pb-5 pt-1">

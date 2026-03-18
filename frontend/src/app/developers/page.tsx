@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { m } from 'framer-motion'
+import { spring } from '@/lib/motion'
 import {
   Code,
   Terminal,
@@ -274,7 +275,7 @@ export default function DevelopersPage() {
           <m.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            transition={spring.gentle}
             className="text-center"
           >
             <div className="flex justify-center mb-8">

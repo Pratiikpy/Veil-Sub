@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { m } from 'framer-motion'
+import { spring } from '@/lib/motion'
 import Link from 'next/link'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { ExternalLink, Shield, Share2 } from 'lucide-react'
@@ -188,7 +189,7 @@ export default function DashboardPage() {
             <CelebrationBurst />
             <m.div
               animate={{ rotate: [0, -10, 10, -10, 0] }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ ...spring.bouncy, delay: 0.2 }}
             >
               <Shield className="w-16 h-16 text-violet-400 mb-6" aria-hidden="true" />
             </m.div>

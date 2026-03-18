@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
+import { spring, modalTransition } from '@/lib/motion'
 import {
   Store,
   Shield,
@@ -465,7 +466,7 @@ function BidModal({
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          transition={modalTransition}
           className="w-full max-w-lg rounded-2xl bg-surface-1 border border-border/75 shadow-2xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
@@ -610,7 +611,7 @@ export default function MarketplacePage() {
           <m.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            transition={spring.gentle}
             className="text-center"
           >
             <div className="flex justify-center mb-8">

@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import PageTransition from '@/components/PageTransition'
+import { spring, cardHover, buttonTap } from '@/lib/motion'
 import AddressAvatar from '@/components/ui/AddressAvatar'
 import { shortenAddress, isValidAleoAddress, formatCredits } from '@/lib/utils'
 import { FEATURED_CREATORS, DEPLOYED_PROGRAM_ID } from '@/lib/config'
@@ -134,7 +135,9 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
     <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: Math.min(index * 0.04, 0.4), duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ ...spring.gentle, delay: Math.min(index * 0.04, 0.4) }}
+      whileHover={cardHover}
+      whileTap={buttonTap}
     >
       <Link
         href={`/creator/${creator.address}`}
@@ -263,7 +266,7 @@ function SortDropdown({ value, onChange }: { value: SortOption; onChange: (v: So
             initial={{ opacity: 0, y: -4, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.97 }}
-            transition={{ duration: 0.15 }}
+            transition={spring.snappy}
             className="absolute right-0 top-full mt-1.5 z-20 w-36 rounded-xl bg-surface-1 border border-border shadow-xl overflow-hidden"
           >
             {SORT_OPTIONS.map((opt) => (
@@ -296,7 +299,7 @@ function FeaturedSpotlight({ creators }: { creators: Creator[] }) {
     <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.05, duration: 0.35 }}
+      transition={{ ...spring.gentle, delay: 0.05 }}
       className="mb-8"
     >
       <div className="flex items-center gap-2 mb-4">
@@ -497,7 +500,7 @@ export default function ExplorePage() {
           <m.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={spring.gentle}
             className="text-center mb-10"
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/[0.06] border border-emerald-500/[0.12] mb-6">
@@ -553,7 +556,7 @@ export default function ExplorePage() {
           <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.35 }}
+            transition={{ ...spring.gentle, delay: 0.1 }}
             className="max-w-2xl mx-auto mb-8"
           >
             <div className="relative group">

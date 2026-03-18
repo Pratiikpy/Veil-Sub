@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { m, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, ChevronDown } from 'lucide-react'
+import { spring } from '@/lib/motion'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import Container from '@/components/ui/Container'
 import Button from '@/components/ui/Button'
@@ -67,7 +68,7 @@ export default function HeroSection() {
         <m.div
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          transition={spring.gentle}
           className="text-center"
           style={{ opacity: opacityFade }}
         >
@@ -75,7 +76,7 @@ export default function HeroSection() {
             <m.span
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ ...spring.gentle, delay: 0.3 }}
               className="block text-4xl sm:text-6xl lg:text-7xl font-semibold text-white"
               style={LETTER_SPACING_TIGHT}
             >
@@ -84,7 +85,7 @@ export default function HeroSection() {
             <m.span
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ ...spring.gentle, delay: 0.3 }}
               className="block text-4xl sm:text-6xl lg:text-7xl font-serif italic bg-gradient-to-r from-white via-violet-200 to-violet-400 bg-clip-text text-transparent"
               style={LETTER_SPACING_MEDIUM}
             >
@@ -95,7 +96,7 @@ export default function HeroSection() {
           <m.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
+            transition={{ ...spring.soft, delay: 0.7 }}
             className="mt-8 text-base sm:text-lg text-white/80 max-w-[520px] mx-auto leading-relaxed"
             style={{ y: descY }}
           >
@@ -106,7 +107,7 @@ export default function HeroSection() {
           <m.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.9 }}
+            transition={{ ...spring.gentle, delay: 0.9 }}
             className="flex items-center justify-center gap-4 flex-wrap mt-12"
             style={{ y: descY }}
           >
@@ -150,7 +151,7 @@ export default function HeroSection() {
             <m.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 1.0 }}
+              transition={{ ...spring.soft, delay: 1.0 }}
               className="mt-4 text-xs text-white/50 text-center"
             >
               Connect a wallet to subscribe or create. No sign-up required.
@@ -160,7 +161,7 @@ export default function HeroSection() {
           <m.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 1.1 }}
+            transition={{ ...spring.soft, delay: 1.1 }}
             className="mt-8 text-xs text-white/40 text-center"
           >
             Built on{' '}

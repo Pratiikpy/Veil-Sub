@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { m } from 'framer-motion'
+import { spring } from '@/lib/motion'
 import Link from 'next/link'
 import {
   Rss,
@@ -217,7 +218,7 @@ function FeedPostCard({
     <m.article
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: Math.min(index * 0.05, 0.3) }}
+      transition={{ ...spring.gentle, delay: Math.min(index * 0.05, 0.3) }}
       className="rounded-2xl border border-white/[0.06] bg-[#0A0A0F] overflow-hidden hover:border-white/[0.1] transition-colors duration-200"
     >
       <div className="p-6">

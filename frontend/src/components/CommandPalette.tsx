@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
+import { spring, modalVariants, modalTransition, backdropVariants } from '@/lib/motion'
 import {
   Search, Home, Compass, LayoutDashboard, CreditCard, BarChart3,
   Shield, Vote, Store, Code, BookOpen, Wallet, PenTool, ArrowDownToLine,
@@ -197,10 +198,11 @@ export default function CommandPalette() {
       {open && (
         <motion.div
           className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
+          variants={backdropVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={spring.snappy}
         >
           {/* Backdrop */}
           <div
@@ -211,10 +213,11 @@ export default function CommandPalette() {
           {/* Modal */}
           <motion.div
             className="relative w-full max-w-lg mx-4 bg-[#12121A] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
-            initial={{ opacity: 0, scale: 0.96, y: -8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: -8 }}
-            transition={{ duration: 0.15 }}
+            variants={modalVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={modalTransition}
             role="dialog"
             aria-label="Command palette"
           >

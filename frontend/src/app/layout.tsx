@@ -6,6 +6,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import BackToTop from '@/components/BackToTop'
+import ScrollProgress from '@/components/ui/ScrollProgress'
 import CustomCursor from '@/components/CustomCursor'
 import ChangelogOverlay from '@/components/ChangelogOverlay'
 import CommandPalette from '@/components/CommandPalette'
@@ -101,6 +102,7 @@ export default function RootLayout({
         className={`${inter.variable} ${instrumentSerif.variable} font-sans bg-[#050507] text-white min-h-screen antialiased`}
       >
         <NextTopLoader color="#8B5CF6" height={2} showSpinner={false} shadow="0 0 10px rgba(139,92,246,0.3)" />
+        <ScrollProgress />
         <ClientProviders>
           <a
             href="#main-content"

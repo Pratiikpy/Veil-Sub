@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react'
 import { AnimatePresence, m } from 'framer-motion'
 import NotificationBell from '@/components/NotificationBell'
 import { CommandPaletteTrigger } from '@/components/CommandPalette'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
@@ -116,6 +117,7 @@ export default function Header() {
             </nav>
 
             <div className="ml-auto flex items-center gap-3" aria-live="polite">
+              <ThemeToggle />
               <CommandPaletteTrigger />
               {connected && <NotificationBell />}
               <WalletMultiButton />

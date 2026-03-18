@@ -84,6 +84,247 @@ html {
   --ease-in:  cubic-bezier(0.7, 0, 0.84, 0);
 }
 
+/* ─── Light mode tokens ─── */
+.light {
+  --bg-base:        #FAFAFA;
+  --bg-surface:     #FFFFFF;
+  --bg-elevated:    #FFFFFF;
+  --bg-overlay:     rgba(0, 0, 0, 0.40);
+  /* Legacy aliases */
+  --background:     #FAFAFA;
+  --surface-1:      #FFFFFF;
+  --surface-2:      #FFFFFF;
+  --surface-3:      #F5F5F5;
+  --foreground:     #111111;
+
+  --surface:          rgba(0, 0, 0, 0.02);
+  --surface-hover:    rgba(0, 0, 0, 0.04);
+  --surface-active:   rgba(0, 0, 0, 0.06);
+  --surface-selected: rgba(124, 58, 237, 0.06);
+
+  --border-subtle:  rgba(0, 0, 0, 0.06);
+  --border-default: rgba(0, 0, 0, 0.10);
+  --border-strong:  rgba(0, 0, 0, 0.16);
+  --border-accent:  rgba(124, 58, 237, 0.40);
+  --border-hover:   rgba(0, 0, 0, 0.15);
+
+  --text-primary:   rgba(0, 0, 0, 0.90);
+  --text-secondary: rgba(0, 0, 0, 0.65);
+  --text-tertiary:  rgba(0, 0, 0, 0.45);
+  --text-muted:     rgba(0, 0, 0, 0.30);
+
+  --accent:         #7C3AED;
+  --accent-light:   #6D28D9;
+  --accent-hover:   #6D28D9;
+  --accent-dim:     rgba(124, 58, 237, 0.08);
+  --accent-muted:   rgba(124, 58, 237, 0.10);
+  --accent-glow:    0 0 20px rgba(124, 58, 237, 0.12);
+  --accent-subtle:  rgba(124, 58, 237, 0.04);
+
+  --success:        #059669;
+  --warning:        #D97706;
+  --danger:         #DC2626;
+  --info:           #2563EB;
+
+  --glass-bg:       rgba(255, 255, 255, 0.8);
+  --glass-border:   rgba(0, 0, 0, 0.08);
+  --glass-hover:    rgba(0, 0, 0, 0.12);
+  --glass-shine:    rgba(0, 0, 0, 0.02);
+
+  color-scheme: light;
+}
+
+/* ─── Light mode: body background + text ─── */
+.light body,
+body.light {
+  background: var(--bg-base);
+  color: var(--text-secondary);
+}
+
+/* ─── Light mode: pragmatic Tailwind class overrides ─── */
+.light .text-white {
+  color: var(--text-primary) !important;
+}
+.light .text-white\/95 {
+  color: var(--text-primary) !important;
+}
+.light .text-white\/70 {
+  color: var(--text-secondary) !important;
+}
+.light .text-white\/60 {
+  color: var(--text-secondary) !important;
+}
+.light .text-white\/50 {
+  color: var(--text-tertiary) !important;
+}
+.light .text-white\/40 {
+  color: var(--text-muted) !important;
+}
+.light .text-white\/35 {
+  color: var(--text-muted) !important;
+}
+.light .text-white\/30 {
+  color: var(--text-muted) !important;
+}
+.light .text-white\/25 {
+  color: rgba(0, 0, 0, 0.20) !important;
+}
+.light .bg-black {
+  background: var(--bg-base) !important;
+}
+.light .bg-black\/80 {
+  background: rgba(255, 255, 255, 0.85) !important;
+}
+.light .bg-black\/95 {
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+.light .bg-black\/20 {
+  background: rgba(255, 255, 255, 0.40) !important;
+}
+.light .bg-\[\#050507\] {
+  background: var(--bg-base) !important;
+}
+.light .border-border\/75 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+/* Glass surfaces in light mode */
+.light .bg-white\/\[0\.03\] {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+.light .bg-white\/\[0\.04\] {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+.light .bg-white\/\[0\.08\] {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+.light .bg-white\/5 {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+/* Hover states */
+.light .hover\:bg-white\/5:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+.light .hover\:bg-white\/\[0\.04\]:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+.light .hover\:bg-white\/\[0\.02\]:hover {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+.light .hover\:text-white\/70:hover {
+  color: var(--text-secondary) !important;
+}
+/* Selection */
+.light ::selection {
+  background-color: rgba(124, 58, 237, 0.20);
+  color: #111111;
+}
+/* Scrollbar in light mode */
+.light ::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.15);
+}
+.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 58, 237, 0.30);
+}
+/* Noise overlay — reduce opacity in light mode */
+.light body::after {
+  opacity: 0.02;
+}
+/* Skeleton shimmer in light mode */
+.light .skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, rgba(124, 58, 237, 0.06) 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+}
+.light .skeleton-shimmer {
+  background: linear-gradient(110deg, #f5f5f5 0%, #f5f5f5 40%, rgba(0, 0, 0, 0.04) 50%, #f5f5f5 60%, #f5f5f5 100%);
+  background-size: 200% 100%;
+}
+/* Wallet adapter in light mode */
+.light .wallet-adapter-button {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: rgba(0, 0, 0, 0.80) !important;
+}
+.light .wallet-adapter-button:hover {
+  background: rgba(124, 58, 237, 0.06) !important;
+  border-color: rgba(124, 58, 237, 0.20) !important;
+}
+.light .wallet-adapter-modal-wrapper {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+.light .wallet-adapter-modal-title {
+  color: #111111 !important;
+}
+.light .wallet-adapter-modal-list li {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+.light .wallet-adapter-modal-list li:hover {
+  background: rgba(124, 58, 237, 0.04) !important;
+  border-color: rgba(124, 58, 237, 0.12) !important;
+}
+/* Rich editor content in light mode */
+.light .rich-editor-content,
+.light .rich-content {
+  color: rgba(0, 0, 0, 0.85);
+}
+.light .rich-editor-content h2,
+.light .rich-editor-content h3,
+.light .rich-editor-content strong,
+.light .rich-content h2,
+.light .rich-content h3,
+.light .rich-content strong {
+  color: rgba(0, 0, 0, 0.90);
+}
+.light .rich-editor-content .rich-blockquote,
+.light .rich-content blockquote,
+.light .rich-content .rich-blockquote {
+  color: rgba(0, 0, 0, 0.60);
+}
+.light .rich-editor-content p.is-editor-empty:first-child::before {
+  color: rgba(0, 0, 0, 0.30);
+}
+/* Glass card in light mode */
+.light .glass {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+.light .glass:hover {
+  border-color: rgba(0, 0, 0, 0.10);
+}
+.light .glass-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.06);
+}
+.light .glass-card:hover {
+  border-color: rgba(0, 0, 0, 0.10);
+}
+/* Section divider in light mode */
+.light .section-divider::before {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.04) 20%,
+    rgba(124, 58, 237, 0.15) 50%,
+    rgba(0, 0, 0, 0.04) 80%,
+    transparent 100%
+  );
+}
+/* Card hover shadow in light mode */
+.light .hover-lift:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+.light .card-interactive:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border-color: rgba(124, 58, 237, 0.25);
+}
+/* Sonner toasts in light mode */
+.light [data-sonner-toaster] [data-sonner-toast] {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: rgba(0, 0, 0, 0.85) !important;
+}
+
 @theme inline {
   /* ─── Background layers ─── */
   --color-bg-base: #050507;
