@@ -6,6 +6,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import BackToTop from '@/components/BackToTop'
+import CustomCursor from '@/components/CustomCursor'
 import ChangelogOverlay from '@/components/ChangelogOverlay'
 import CommandPalette from '@/components/CommandPalette'
 import { Toaster } from 'sonner'
@@ -112,6 +113,7 @@ export default function RootLayout({
           <Footer />
           <MobileBottomNav />
           <BackToTop />
+          <CustomCursor />
           <ChangelogOverlay />
           <CommandPalette />
           <Toaster
