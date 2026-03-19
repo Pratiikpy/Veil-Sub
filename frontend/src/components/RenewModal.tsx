@@ -280,7 +280,7 @@ export default function RenewModal({
                           aria-checked={privacyMode === mode.key}
                           tabIndex={privacyMode === mode.key ? 0 : -1}
                           onClick={() => setPrivacyMode(mode.key)}
-                          className={`p-2 rounded-lg border text-center transition-all ${
+                          className={`p-2 rounded-lg border text-center transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
                             privacyMode === mode.key
                               ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300 shadow-accent-sm'
                               : 'border-border/75 bg-transparent text-white/60 hover:border-glass-hover hover:text-white/70'

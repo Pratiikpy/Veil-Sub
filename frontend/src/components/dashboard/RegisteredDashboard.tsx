@@ -720,7 +720,7 @@ export default function RegisteredDashboard({
           {tierList.map((tier) => (
             <div
               key={tier.id}
-              className={`shrink-0 w-48 p-4 rounded-xl border ${tier.colors.border} ${tier.colors.bg} group relative`}
+              className={`shrink-0 w-40 sm:w-44 md:w-48 p-4 rounded-xl border ${tier.colors.border} ${tier.colors.bg} group relative`}
             >
               <p className={`text-sm font-medium ${tier.colors.text} mb-1`}>{tier.name}</p>
               <p className="text-lg font-bold text-white">
@@ -756,7 +756,7 @@ export default function RegisteredDashboard({
           {/* + Create Tier card */}
           <button
             onClick={() => setShowTierDialog(true)}
-            className="shrink-0 w-48 p-4 rounded-xl border-2 border-dashed border-border hover:border-violet-500/30 flex flex-col items-center justify-center gap-2 text-white/40 hover:text-violet-300 transition-all group"
+            className="shrink-0 w-40 sm:w-44 md:w-48 p-4 rounded-xl border-2 border-dashed border-border hover:border-violet-500/30 flex flex-col items-center justify-center gap-2 text-white/40 hover:text-violet-300 transition-all group"
           >
             <div className="w-10 h-10 rounded-xl bg-white/[0.04] group-hover:bg-violet-500/10 flex items-center justify-center transition-all">
               <Plus className="w-5 h-5" />

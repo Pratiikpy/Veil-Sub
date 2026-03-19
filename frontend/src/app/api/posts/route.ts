@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   if (!allowed) return getRateLimitResponse()
 
   const creator = req.nextUrl.searchParams.get('creator')
-  if (!creator || !ALEO_ADDRESS_RE.test(creator)) return NextResponse.json({ posts: [] })
+  if (!creator || !ALEO_ADDRESS_RE.test(creator)) return NextResponse.json({ error: 'Valid creator address required' }, { status: 400 })
 
   // Optional filters: status (draft/scheduled/published), tag
   const statusFilter = req.nextUrl.searchParams.get('status')

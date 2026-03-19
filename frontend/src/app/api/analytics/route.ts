@@ -24,7 +24,9 @@ export async function GET(req: NextRequest) {
         totalSubscriptions: 0,
         totalRevenue: 0,
         activePrograms: 1,
+        fallback: 'no_database',
       }, {
+        status: 503,
         headers: {
           'Cache-Control': CACHE_HEADERS.ANALYTICS,
         },
@@ -66,7 +68,8 @@ export async function GET(req: NextRequest) {
   // Recent events across ALL creators
   if (recent === 'true') {
     if (!supabase) {
-      return NextResponse.json({ events: [] }, {
+      return NextResponse.json({ events: [], fallback: 'no_database' }, {
+        status: 503,
         headers: {
           'Cache-Control': CACHE_HEADERS.ANALYTICS,
         },
@@ -88,11 +91,11 @@ export async function GET(req: NextRequest) {
 
   // Existing per-creator query
   if (!addressHash) {
-    return NextResponse.json({ events: [] })
+    return NextResponse.json({ error: 'Missing creator_address_hash parameter' }, { status: 400 })
   }
 
   if (!supabase) {
-    return NextResponse.json({ events: [] })
+    return NextResponse.json({ events: [], fallback: 'no_database' }, { status: 503 })
   }
 
   const { data } = await supabase

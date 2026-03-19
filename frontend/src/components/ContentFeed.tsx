@@ -286,7 +286,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       {initialLoad && loading ? (
         <LoadingSkeleton />
       ) : error ? (
-        <div className="p-8 rounded-xl border border-red-500/20 bg-red-500/5 text-center">
+        <div className="p-4 sm:p-6 lg:p-8 rounded-xl border border-red-500/20 bg-red-500/5 text-center">
           <p className="text-sm text-red-400 mb-4">Could not load exclusive content. Your AccessPass is safe—check your connection and retry.</p>
           <button
             onClick={fetchPosts}
@@ -300,7 +300,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       ) : (
         <div className="space-y-4">
           {posts.length === 0 && (
-            <div className="p-8 rounded-xl bg-surface-1 border border-white/[0.05] text-center">
+            <div className="p-4 sm:p-6 lg:p-8 rounded-xl bg-surface-1 border border-white/[0.05] text-center">
               <FileText className="w-10 h-10 text-white/60 mx-auto mb-4" aria-hidden="true" />
               <h3 className="text-white font-medium mb-1">No Exclusive Content Yet</h3>
               <p className="text-sm text-white/70">
@@ -337,7 +337,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     : 'border-white/5 bg-white/[0.01]'
                 }`}
               >
-                <div className="p-8">
+                <div className="p-4 sm:p-6 lg:p-8">
                   <div className="flex items-center gap-4 mb-4">
                     <div
                       className={`w-8 h-8 rounded-lg flex items-center justify-center ${
@@ -386,7 +386,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
                   {/* Gated image placeholder — shown when post has image but content is locked */}
                   {!unlocked && post.hasImage && !isUnlocking && (
-                    <div className="mb-4 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-28">
+                    <div className="mb-4 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-20 sm:h-24 lg:h-28">
                       <div className="flex items-center gap-2 text-white/60">
                         <ImageIcon className="w-5 h-5" aria-hidden="true" />
                         <span className="text-xs">Image content -- AccessPass required</span>
@@ -396,7 +396,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
                   {/* Gated video placeholder — shown when post has video but content is locked */}
                   {!unlocked && post.hasVideo && !isUnlocking && (
-                    <div className="mb-4 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-28">
+                    <div className="mb-4 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-20 sm:h-24 lg:h-28">
                       <div className="flex items-center gap-2 text-white/60">
                         <Video className="w-5 h-5" aria-hidden="true" />
                         <span className="text-xs">Video content -- AccessPass required</span>
@@ -421,7 +421,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                           if (fallback) fallback.classList.remove('hidden')
                         }}
                       />
-                      <div className="hidden h-28 bg-white/[0.02] border-t border-white/[0.06] flex items-center justify-center">
+                      <div className="hidden h-20 sm:h-24 lg:h-28 bg-white/[0.02] border-t border-white/[0.06] flex items-center justify-center">
                         <div className="flex items-center gap-2 text-white/50">
                           <ImageIcon className="w-5 h-5" aria-hidden="true" />
                           <span className="text-xs">Image unavailable</span>
@@ -532,7 +532,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       {unlocked && post.contentId !== 'seed' && (
                         <button
                           onClick={() => setDisputePost({ contentId: post.contentId, title: post.title })}
-                          className="text-xs text-white/60 hover:text-red-400 transition-colors flex items-center gap-1"
+                          className="text-xs text-white/60 hover:text-red-400 transition-colors flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded px-1"
                         >
                           <Flag className="w-3 h-3" aria-hidden="true" />
                           Dispute

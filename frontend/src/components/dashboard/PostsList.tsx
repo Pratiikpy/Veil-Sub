@@ -275,7 +275,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
           {searchQuery && (
             <button
               onClick={() => { setSearchQuery(''); searchInputRef.current?.focus() }}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
               aria-label="Clear search"
             >
               <X className="w-4 h-4" />
@@ -305,7 +305,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
               <p className="text-sm text-white/50">No posts match &ldquo;{searchQuery}&rdquo;</p>
               <button
                 onClick={() => { setSearchQuery(''); searchInputRef.current?.focus() }}
-                className="mt-2 text-xs text-violet-300 hover:text-violet-200 transition-colors"
+                className="mt-2 text-xs text-violet-300 hover:text-violet-200 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded px-1"
               >
                 Clear search
               </button>

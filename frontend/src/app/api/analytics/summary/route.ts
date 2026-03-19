@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
   const supabase = getServerSupabase()
   if (!supabase) {
-    // Return empty data when Supabase is not configured
+    // Return empty data when Supabase is not configured (with fallback flag and 503)
     return NextResponse.json({
       daily: Array.from({ length: 30 }, (_, i) => {
         const d = new Date(); d.setDate(d.getDate() - (29 - i))
@@ -25,7 +25,8 @@ export async function GET(req: NextRequest) {
       tierDistribution: {},
       totalSubscribers: 0,
       totalRevenue: 0,
-    })
+      fallback: 'no_database',
+    }, { status: 503 })
   }
 
   try {
@@ -39,7 +40,22 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: true })
       .limit(500)
 
-    if (queryErr || !events || events.length === 0) {
+    // Query error - return 503 with fallback flag
+    if (queryErr) {
+      return NextResponse.json({
+        daily: Array.from({ length: 30 }, (_, i) => {
+          const d = new Date(); d.setDate(d.getDate() - (29 - i))
+          return { date: d.toISOString().split('T')[0], subscriptions: 0, revenue: 0, tips: 0 }
+        }),
+        tierDistribution: {},
+        totalSubscribers: 0,
+        totalRevenue: 0,
+        fallback: 'query_error',
+      }, { status: 503 })
+    }
+
+    // No events (legitimate empty) - return 200 without fallback flag
+    if (!events || events.length === 0) {
       return NextResponse.json({
         daily: Array.from({ length: 30 }, (_, i) => {
           const d = new Date(); d.setDate(d.getDate() - (29 - i))

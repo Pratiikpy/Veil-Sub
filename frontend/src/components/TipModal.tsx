@@ -416,7 +416,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                       aria-checked={tipMode === 'direct'}
                       tabIndex={tipMode === 'direct' ? 0 : -1}
                       onClick={() => setTipMode('direct')}
-                      className={`p-2.5 rounded-lg border text-center transition-all ${
+                      className={`p-2.5 rounded-lg border text-center transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
                         tipMode === 'direct'
                           ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300 shadow-accent-sm'
                           : 'border-border/75 bg-transparent text-white/60 hover:border-glass-hover hover:text-white/70'
@@ -431,7 +431,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                       aria-checked={tipMode === 'private'}
                       tabIndex={tipMode === 'private' ? 0 : -1}
                       onClick={() => setTipMode('private')}
-                      className={`p-2.5 rounded-lg border text-center transition-all ${
+                      className={`p-2.5 rounded-lg border text-center transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
                         tipMode === 'private'
                           ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300 shadow-accent-sm'
                           : 'border-border/75 bg-transparent text-white/60 hover:border-glass-hover hover:text-white/70'
@@ -480,7 +480,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                           aria-checked={selectedAmount === amount && !customAmount}
                           tabIndex={selectedAmount === amount && !customAmount ? 0 : -1}
                           onClick={() => { setSelectedAmount(amount); setCustomAmount('') }}
-                          className={`py-3 rounded-xl text-sm font-medium transition-all ${
+                          className={`py-3 rounded-xl text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
                             selectedAmount === amount && !customAmount
                               ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
                               : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:border-white/15'

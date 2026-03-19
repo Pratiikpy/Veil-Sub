@@ -121,7 +121,7 @@ export default function DisputeContentModal({
             disabled={txStatus === 'signing' || txStatus === 'broadcasting'}
             aria-label="Close dispute modal"
             title={txStatus === 'signing' || txStatus === 'broadcasting' ? 'Transaction in progress - please wait' : 'Close dialog'}
-            className="absolute top-5 right-5 text-white/60 hover:text-white active:scale-[0.9] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="absolute top-5 right-5 text-white/60 hover:text-white active:scale-[0.9] transition-all disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded-lg p-1"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -178,7 +178,7 @@ export default function DisputeContentModal({
                   aria-checked={selectedReason === reason.id}
                   tabIndex={selectedReason === reason.id || (selectedReason === null && index === 0) ? 0 : -1}
                   onClick={() => setSelectedReason(reason.id)}
-                  className={`w-full text-left px-4 py-3 rounded-lg border text-sm transition-all ${
+                  className={`w-full text-left px-4 py-3 rounded-lg border text-sm transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
                     selectedReason === reason.id
                       ? 'bg-violet-500/[0.08] border-violet-500/[0.2] text-white'
                       : 'bg-white/[0.05] border-border text-white/60 hover:border-violet-500/20 hover:text-white/70'
