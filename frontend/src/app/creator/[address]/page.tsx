@@ -1059,7 +1059,7 @@ export default function CreatorPage({
           tier={selectedTier}
           creatorAddress={address}
           basePrice={basePrice}
-          onSuccess={loadPasses}
+          onSuccess={() => { loadPasses(); refreshStats() }}
         />
       )}
       <TipModal
@@ -1116,7 +1116,7 @@ export default function CreatorPage({
         isOpen={showRedeemGift}
         onClose={() => setShowRedeemGift(false)}
         creatorAddress={address}
-        onSuccess={loadPasses}
+        onSuccess={() => { loadPasses(); refreshStats() }}
       />
       {/* Mobile sticky subscribe bar — always visible on scroll */}
       {!isSubscribed && connected && (

@@ -6,6 +6,7 @@ import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { Settings, Loader2, AlertTriangle, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { useSupabase } from '@/hooks/useSupabase'
+import { clearCreatorCache } from '@/lib/creatorCache'
 
 interface ProfileEditorProps {
   address: string
@@ -57,6 +58,7 @@ export default function ProfileEditor({ address, onProfileUpdated }: ProfileEdit
       if (result) {
         setSaved(true)
         toast.success('Profile updated!')
+        clearCreatorCache() // Invalidate cache so other pages see fresh profile
         onProfileUpdated?.()
         setTimeout(() => setSaved(false), 2000)
       } else {

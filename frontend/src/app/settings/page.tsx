@@ -29,6 +29,7 @@ import { shortenAddress, formatCredits, parseAccessPass } from '@/lib/utils'
 import { setSoundsEnabled, isSoundsEnabled } from '@/lib/sounds'
 import { sounds } from '@/lib/sounds'
 import { PROGRAM_ID, DEPLOYED_PROGRAM_ID, APP_NAME } from '@/lib/config'
+import { clearCreatorCache } from '@/lib/creatorCache'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -405,6 +406,7 @@ export default function SettingsPage() {
       if (result) {
         toast.success('Profile saved')
         sounds.success()
+        clearCreatorCache() // Invalidate cache so other pages see fresh profile
         setProfileSaved(true)
         setTimeout(() => setProfileSaved(false), 3000)
       } else {
