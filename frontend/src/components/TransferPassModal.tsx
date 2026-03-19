@@ -150,6 +150,8 @@ export default function TransferPassModal({
               value={recipientAddress}
               onChange={(e) => setRecipientAddress(e.target.value)}
               placeholder="aleo1..."
+              required
+              pattern="^aleo1[a-z0-9]{56}$"
               aria-required="true"
               aria-invalid={recipientAddress && !isValidAddress ? true : undefined}
               aria-describedby={recipientAddress && !isValidAddress ? 'transfer-address-error' : undefined}

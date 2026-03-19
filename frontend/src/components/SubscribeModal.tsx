@@ -29,6 +29,7 @@ interface Props {
   tier: SubscriptionTier
   creatorAddress: string
   basePrice: number // microcredits
+  onSuccess?: () => void // Called after successful subscription for cache invalidation
 }
 
 export default function SubscribeModal({
@@ -37,6 +38,7 @@ export default function SubscribeModal({
   tier,
   creatorAddress,
   basePrice,
+  onSuccess,
 }: Props) {
   const { subscribe, subscribeBlind, subscribeTrial, getCreditsRecords, connected, publicKey } = useVeilSub()
   const { signMessage } = useWallet()
@@ -153,6 +155,7 @@ export default function SubscribeModal({
               ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
               : null
             logSubscriptionEvent(creatorAddress, tier.id, totalPrice, result.resolvedTxId || id, wrappedSign)
+            onSuccess?.() // Trigger cache invalidation in parent
             toast.success("You're subscribed!")
           } else if (result.status === 'failed') {
             setTxStatus('failed')

@@ -52,7 +52,7 @@ export default function RedeemGiftModal({
   const { startPolling, stopPolling } = useTransactionPoller()
   const {
     txStatus, setTxStatus, txId, setTxId,
-    error, setError, handleClose: baseHandleClose,
+    error, setError, handleClose: baseHandleClose, submittingRef,
   } = useTransactionFlow({ isOpen, onClose, connected, stopPolling })
   const focusTrapRef = useFocusTrap(isOpen, baseHandleClose)
 
@@ -94,6 +94,7 @@ export default function RedeemGiftModal({
   }, [isOpen, connected, getGiftTokens, creatorAddress])
 
   const handleRedeem = useCallback(async () => {
+    if (submittingRef.current) return // Prevent double-submission
     if (!connected) return
 
     const plaintext = manualEntry
@@ -105,6 +106,7 @@ export default function RedeemGiftModal({
       return
     }
 
+    submittingRef.current = true
     setTxStatus('signing')
     setError(null)
 
@@ -132,8 +134,10 @@ export default function RedeemGiftModal({
       const rawMsg = err instanceof Error ? err.message : 'Redemption failed'
       setError(getErrorMessage(rawMsg))
       setTxStatus('failed')
+    } finally {
+      submittingRef.current = false
     }
-  }, [connected, manualEntry, manualPlaintext, selectedToken, redeemGift, setTxStatus, setError, setTxId, startPolling])
+  }, [connected, manualEntry, manualPlaintext, selectedToken, redeemGift, setTxStatus, setError, setTxId, startPolling, submittingRef])
 
   const handleClose = () => {
     setSelectedToken(null)

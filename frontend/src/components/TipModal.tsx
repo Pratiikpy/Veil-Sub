@@ -24,6 +24,7 @@ interface Props {
   isOpen: boolean
   onClose: () => void
   creatorAddress: string
+  onSuccess?: () => void // Called after successful tip for cache invalidation
 }
 
 const TIP_AMOUNTS = [1, 5, 10, 25]
@@ -31,7 +32,7 @@ const TIP_AMOUNTS = [1, 5, 10, 25]
 type TipMode = 'direct' | 'private'
 type CommitPhase = 'commit' | 'reveal' | 'done'
 
-export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
+export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }: Props) {
   const { tip, commitTip, revealTip, getCreditsRecords, connected } = useVeilSub()
   const { signMessage } = useWallet()
   const { startPolling, stopPolling } = useTransactionPoller()
@@ -183,6 +184,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
               ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
               : null
             logSubscriptionEvent(creatorAddress, 0, tipMicrocredits, result.resolvedTxId || id, wrappedSign)
+            onSuccess?.() // Trigger cache invalidation in parent
             toast.success('Private tip sent—you remain anonymous')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
@@ -307,6 +309,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
             setCommitPhase('done')
             clearPendingTip()
             setPendingTipRestored(false)
+            onSuccess?.() // Trigger cache invalidation after reveal
             toast.success('Tip revealed and sent!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')

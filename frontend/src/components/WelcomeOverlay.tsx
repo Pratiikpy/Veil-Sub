@@ -19,14 +19,18 @@ export default function WelcomeOverlay() {
     if (skipOverlay) return
 
     // Check if already shown this session (prevents repeated showing on navigation)
-    if (sessionStorage.getItem(SESSION_KEY)) return
+    try {
+      if (sessionStorage.getItem(SESSION_KEY)) return
+    } catch { /* sessionStorage unavailable in private browsing */ }
 
     // Show after a brief delay to let page load
     const showTimer = setTimeout(() => {
-      if (!localStorage.getItem(STORAGE_KEY)) {
-        setShow(true)
-        sessionStorage.setItem(SESSION_KEY, '1') // Mark as shown this session
-      }
+      try {
+        if (!localStorage.getItem(STORAGE_KEY)) {
+          setShow(true)
+          sessionStorage.setItem(SESSION_KEY, '1') // Mark as shown this session
+        }
+      } catch { /* localStorage/sessionStorage unavailable */ }
     }, 600) // Reduced from 800ms
 
     return () => clearTimeout(showTimer)

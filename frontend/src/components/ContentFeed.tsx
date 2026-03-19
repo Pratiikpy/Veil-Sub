@@ -86,6 +86,19 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   signMessageRef.current = signMessage
   unlockedBodiesRef.current = unlockedBodies
 
+  // Clear decrypted content when wallet disconnects or address changes
+  useEffect(() => {
+    if (!connected) {
+      setUnlockedBodies({})
+      setUnlockedImages({})
+      setUnlockedVideos({})
+      setDecryptedPreviews({})
+      setFailedUnlocks(new Set())
+      unlockingRef.current = new Set()
+      failedUnlocksRef.current = new Set()
+    }
+  }, [connected, walletAddress])
+
   // Surface hook-level unlock errors to UI
   useEffect(() => {
     if (feedError?.operation === 'unlock') {

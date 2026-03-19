@@ -23,7 +23,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
   const {
     txStatus, txId,
     error, setError, handleClose: baseHandleClose,
-    setTxStatus, setTxId,
+    setTxStatus, setTxId, submittingRef,
   } = useTransactionFlow({ isOpen, onClose })
   const focusTrapRef = useFocusTrap(isOpen, baseHandleClose)
 
@@ -49,7 +49,9 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
   }
 
   const handleSubmit = useCallback(async () => {
+    if (submittingRef.current) return // Prevent double-submission
     if (!connected || tierId === 0 || !tierName.trim() || !priceAleo) return
+    submittingRef.current = true
     setTxStatus('signing')
     setError(null)
     try {
@@ -87,8 +89,10 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
       setError(err instanceof Error ? err.message : 'Failed to create tier')
       setTxStatus('failed')
       toast.error('Tier creation failed')
+    } finally {
+      submittingRef.current = false
     }
-  }, [connected, tierId, tierName, priceAleo, createCustomTier, onSuccess, setTxStatus, setError, setTxId])
+  }, [connected, tierId, tierName, priceAleo, createCustomTier, onSuccess, setTxStatus, setError, setTxId, submittingRef])
 
   const availableIds = Array.from({ length: 10 }, (_, i) => i + 1).filter(id => !existingTierIds.includes(id))
 
@@ -193,6 +197,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
                     placeholder="e.g. Supporter, Premium, VIP"
                     className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base"
                     maxLength={32}
+                    required
                     aria-required="true"
                   />
                 </div>
@@ -210,6 +215,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
                     step="0.001"
                     min="0.001"
                     max="1000000"
+                    required
                     aria-required="true"
                     className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base"
                   />

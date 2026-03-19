@@ -46,16 +46,18 @@ export function useNotifications() {
   const [loading, setLoading] = useState(false)
   const lastFetchRef = useRef<string | null>(null)
   const prevCountRef = useRef(0)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   const walletAddress = address ?? null
 
-  // Fetch notifications from API
-  const fetchNotifications = useCallback(async () => {
+  // Fetch notifications from API with abort support
+  const fetchNotifications = useCallback(async (signal?: AbortSignal) => {
     if (!walletAddress) return
     try {
       setLoading(true)
       const res = await fetch(
-        `/api/notifications?wallet=${encodeURIComponent(walletAddress)}&limit=${MAX_NOTIFICATIONS}`
+        `/api/notifications?wallet=${encodeURIComponent(walletAddress)}&limit=${MAX_NOTIFICATIONS}`,
+        signal ? { signal } : undefined
       )
       if (!res.ok) return
       const data = await res.json()
@@ -73,25 +75,42 @@ export function useNotifications() {
       }
       prevCountRef.current = unreadCount
       lastFetchRef.current = walletAddress
-    } catch {
-      // Network error — keep existing notifications
+    } catch (err) {
+      // Ignore abort errors, keep existing notifications on network error
+      if (err instanceof Error && err.name === 'AbortError') return
     } finally {
       setLoading(false)
     }
   }, [walletAddress])
 
-  // Poll for notifications
+  // Poll for notifications with abort controller
   useEffect(() => {
     if (!connected || !walletAddress) {
+      // Cancel any in-flight request when disconnecting
+      abortControllerRef.current?.abort()
       setNotifications([])
       prevCountRef.current = 0
       lastFetchRef.current = null
       return
     }
 
-    fetchNotifications()
-    const interval = setInterval(fetchNotifications, POLL_INTERVAL_MS)
-    return () => clearInterval(interval)
+    // Create abort controller for this effect's fetch
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
+    fetchNotifications(controller.signal)
+    const interval = setInterval(() => {
+      // Cancel previous fetch before starting new one
+      abortControllerRef.current?.abort()
+      const newController = new AbortController()
+      abortControllerRef.current = newController
+      fetchNotifications(newController.signal)
+    }, POLL_INTERVAL_MS)
+
+    return () => {
+      clearInterval(interval)
+      controller.abort() // Cancel on cleanup
+    }
   }, [connected, walletAddress, fetchNotifications])
 
   const unreadCount = notifications.filter((n) => !n.read).length

@@ -75,7 +75,9 @@ export default function ChangelogOverlay() {
         const seen = localStorage.getItem(STORAGE_KEY)
         if (!seen) {
           setVisible(true)
-          sessionStorage.setItem(SESSION_KEY, '1') // Mark as shown this session
+          try {
+            sessionStorage.setItem(SESSION_KEY, '1') // Mark as shown this session
+          } catch { /* sessionStorage unavailable */ }
         }
       } catch {
         // localStorage unavailable

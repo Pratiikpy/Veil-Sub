@@ -61,6 +61,7 @@ export default function RegistrationForm({
                   min="0.000001"
                   max="1000000"
                   step="0.1"
+                  required
                   onKeyDown={(e) => e.key === 'Enter' && onRegister()}
                   aria-required="true"
                   aria-invalid={price ? (!Number.isFinite(parseFloat(price)) || parseFloat(price) <= 0) : undefined}

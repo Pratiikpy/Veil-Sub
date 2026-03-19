@@ -30,7 +30,7 @@ export default function GiftSubscriptionFlow({
   const { startPolling, stopPolling } = useTransactionPoller()
   const {
     txStatus, setTxStatus, txId, setTxId,
-    error, setError, handleClose: baseHandleClose,
+    error, setError, handleClose: baseHandleClose, submittingRef,
   } = useTransactionFlow({ isOpen, onClose, connected, stopPolling })
   const focusTrapRef = useFocusTrap(isOpen, baseHandleClose)
 
@@ -45,7 +45,9 @@ export default function GiftSubscriptionFlow({
     : 'submitting' as const
 
   const handleGift = useCallback(async () => {
+    if (submittingRef.current) return // Prevent double-submission
     if (!connected || !isValidAleoAddress(recipientAddress)) return
+    submittingRef.current = true
     setTxStatus('signing')
     setError(null)
     try {
@@ -92,8 +94,10 @@ export default function GiftSubscriptionFlow({
       const rawMsg = err instanceof Error ? err.message : 'Gift failed'
       setError(getErrorMessage(rawMsg))
       setTxStatus('failed')
+    } finally {
+      submittingRef.current = false
     }
-  }, [connected, recipientAddress, creatorAddress, tierId, tierPrice, giftSubscription, getCreditsRecords, setTxStatus, setError, setTxId, startPolling])
+  }, [connected, recipientAddress, creatorAddress, tierId, tierPrice, giftSubscription, getCreditsRecords, setTxStatus, setError, setTxId, startPolling, submittingRef])
 
   const handleClose = () => {
     setRecipientAddress('')
@@ -179,7 +183,10 @@ export default function GiftSubscriptionFlow({
                       value={recipientAddress}
                       onChange={(e) => setRecipientAddress(e.target.value)}
                       maxLength={63}
+                      minLength={63}
                       placeholder="aleo1..."
+                      required
+                      pattern="^aleo1[a-z0-9]{56}$"
                       className={`w-full rounded-lg bg-white/[0.05] border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:ring-1 transition-all text-base font-mono pr-10 ${
                         recipientAddress.length === 0
                           ? 'border-border focus:border-violet-500/50 focus:ring-violet-500/30'
