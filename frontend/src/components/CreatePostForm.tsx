@@ -530,7 +530,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
         <>
           <div className="space-y-4">
             <div>
-              <label htmlFor="post-title" className="block text-sm text-white/70 mb-1.5">Title</label>
+              <label htmlFor="post-title" className="block text-sm text-white/70 mb-1.5">Title <span className="text-red-400" aria-hidden="true">*</span></label>
               <input
                 id="post-title"
                 type="text"
@@ -538,6 +538,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={200}
                 placeholder="Exclusive content title..."
+                aria-required="true"
                 className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base"
               />
             </div>
@@ -563,6 +564,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                 onChange={(e) => setPreview(e.target.value.slice(0, 300))}
                 placeholder="A short teaser to attract subscribers..."
                 rows={2}
+                maxLength={300}
                 className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base resize-none"
               />
               <p className="text-[10px] text-white/60 mt-0.5">{preview.length}/300</p>

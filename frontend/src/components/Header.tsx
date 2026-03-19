@@ -125,7 +125,7 @@ export default function Header() {
                       : 'hover:bg-white/5 text-white/50 hover:text-white/70'
                   }`}
                 >
-                  <Settings size={16} />
+                  <Settings size={16} aria-hidden="true" />
                 </Link>
               )}
               <WalletMultiButton />

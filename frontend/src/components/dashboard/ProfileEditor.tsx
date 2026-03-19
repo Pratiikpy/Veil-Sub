@@ -128,6 +128,7 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
             rows={2}
             className="w-full px-4 py-2.5 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all duration-300 text-base resize-none"
           />
+          <p className="text-[10px] text-white/50 mt-0.5">{bio.length}/200</p>
         </div>
         <button
           onClick={handleSave}

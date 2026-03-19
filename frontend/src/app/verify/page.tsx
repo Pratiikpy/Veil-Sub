@@ -400,6 +400,7 @@ export default function VerifyPage() {
                   >
                     <RefreshCw
                       className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
+                      aria-hidden="true"
                     />
                   </button>
                 </div>

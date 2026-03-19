@@ -76,7 +76,8 @@ export default function RevokeAccessPanel() {
           value={passId}
           onChange={(e) => setPassId(e.target.value)}
           placeholder="Enter AccessPass pass_id (field)"
-          aria-label="Pass ID to revoke"
+          aria-label="Pass ID to revoke (required)"
+          aria-required="true"
           className="flex-1 px-4 py-2.5 rounded-xl bg-black/40 border border-border text-white text-base font-mono placeholder-subtle focus:outline-none focus:border-red-500/[0.3] focus:ring-2 focus:ring-red-400/50 focus:shadow-[0_0_20px_rgba(239,68,68,0.08)] transition-all"
         />
         <Button

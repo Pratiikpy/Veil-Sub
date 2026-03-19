@@ -399,6 +399,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                 onClick={handleModalClose}
                 disabled={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed' && !isRevealReady}
                 aria-label="Close tip dialog"
+                title={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed' && !isRevealReady ? 'Transaction in progress - please wait' : 'Close dialog'}
                 className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
               >
                 <X className="w-5 h-5" aria-hidden="true" />

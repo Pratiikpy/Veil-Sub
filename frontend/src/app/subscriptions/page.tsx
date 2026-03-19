@@ -370,8 +370,8 @@ export default function SubscriptionsPage() {
 
           {/* Loading state */}
           {connected && (loading || blockLoading) && passes.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20">
-              <div className="w-8 h-8 border-2 border-violet-400/30 border-t-violet-400 rounded-full animate-spin mb-4" />
+            <div className="flex flex-col items-center justify-center py-20" role="status" aria-live="polite">
+              <div className="w-8 h-8 border-2 border-violet-400/30 border-t-violet-400 rounded-full animate-spin mb-4" aria-hidden="true" />
               <p className="text-sm text-white/60">
                 Loading your subscriptions from wallet...
               </p>

@@ -333,6 +333,7 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
             type="button"
             onClick={handleUrlSubmit}
             disabled={!urlInput.url.trim()}
+            title={!urlInput.url.trim() ? 'Enter a URL to insert' : 'Insert URL'}
             className="px-3 py-1 rounded-md text-xs font-medium bg-violet-500/20 text-violet-300 border border-violet-500/30 hover:bg-violet-500/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
           >
             Insert
@@ -359,8 +360,8 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
 
       {/* Upload indicator */}
       {imageUploading && (
-        <div className="flex items-center gap-2 px-3 py-1.5 border-b border-border bg-violet-500/5 text-xs text-violet-300">
-          <div className="w-3 h-3 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
+        <div className="flex items-center gap-2 px-3 py-1.5 border-b border-border bg-violet-500/5 text-xs text-violet-300" role="status" aria-live="polite">
+          <div className="w-3 h-3 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" aria-hidden="true" />
           Uploading image...
         </div>
       )}

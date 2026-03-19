@@ -113,6 +113,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                 onClick={handleClose}
                 disabled={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed'}
                 aria-label="Close reputation proof dialog"
+                title={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed' ? 'Transaction in progress - please wait' : 'Close dialog'}
                 className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
               >
                 <X className="w-5 h-5" aria-hidden="true" />
@@ -151,7 +152,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                 {/* Threshold Input */}
                 <div className="mb-4">
                   <label htmlFor="threshold-input" className="block text-xs text-white/60 font-medium uppercase tracking-wider mb-2">
-                    Minimum Subscriber Threshold
+                    Minimum Subscriber Threshold <span className="text-red-400" aria-hidden="true">*</span>
                   </label>
                   <input
                     id="threshold-input"
@@ -162,6 +163,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                     placeholder="e.g. 10"
                     min="1"
                     max="100000"
+                    aria-required="true"
                     className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base"
                   />
                   <p className="text-[10px] text-white/60 mt-1">

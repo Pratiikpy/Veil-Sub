@@ -117,9 +117,13 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
 
   useEffect(() => {
     let cancelled = false
-    fetchCreatorStats(creator.address).then((s) => {
-      if (!cancelled) setStats(s)
-    })
+    fetchCreatorStats(creator.address)
+      .then((s) => {
+        if (!cancelled) setStats(s)
+      })
+      .catch(() => {
+        // Silent fail for stats - creator card still renders
+      })
     return () => { cancelled = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [creator.address])
@@ -433,8 +437,8 @@ export default function ExplorePage() {
               )}
               {/* Debounce spinner */}
               {search !== debouncedSearch && search.trim() !== '' && (
-                <div className="absolute right-12 top-1/2 -translate-y-1/2">
-                  <div className="w-4 h-4 border-2 border-violet-400/30 border-t-violet-400 rounded-full animate-spin" />
+                <div className="absolute right-12 top-1/2 -translate-y-1/2" role="status" aria-label="Searching">
+                  <div className="w-4 h-4 border-2 border-violet-400/30 border-t-violet-400 rounded-full animate-spin" aria-hidden="true" />
                 </div>
               )}
             </div>

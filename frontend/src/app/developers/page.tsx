@@ -51,7 +51,7 @@ const client = new VeilSubClient({
 
 // Query creator stats (no wallet needed)
 const stats = await client.getCreatorStats(creatorHash)
-console.log(stats.subscriberCount, stats.tierPrice)
+// stats.subscriberCount, stats.tierPrice available
 
 // Verify subscriber access (zero-finalize)
 const hasAccess = await client.verifyAccess(accessPass)
@@ -230,6 +230,7 @@ function CopyButton({ text }: { text: string }) {
       onClick={handleCopy}
       className="absolute top-3 right-3 p-1.5 rounded-lg bg-white/[0.06] border border-border/50 text-white/40 hover:text-white/70 hover:bg-white/[0.1] transition-all"
       title="Copy to clipboard"
+      aria-label="Copy to clipboard"
     >
       {copied ? (
         <Check className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />

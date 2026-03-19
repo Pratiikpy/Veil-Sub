@@ -36,9 +36,13 @@ const HomepageCreatorCard = React.memo(function HomepageCreatorCard({
 
   useEffect(() => {
     let cancelled = false
-    fetchCreatorStats(creator.address).then((s) => {
-      if (!cancelled) setStats(s)
-    })
+    fetchCreatorStats(creator.address)
+      .then((s) => {
+        if (!cancelled) setStats(s)
+      })
+      .catch(() => {
+        // Silent fail for stats - creator card still renders
+      })
     return () => { cancelled = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [creator.address])

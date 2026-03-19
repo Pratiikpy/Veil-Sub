@@ -465,7 +465,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                 {/* Display name */}
                 <div>
                   <label htmlFor="onb-name" className="block text-sm text-white/70 mb-2">
-                    Display Name <span className="text-red-400">*</span>
+                    Display Name <span className="text-red-400" aria-hidden="true">*</span>
                   </label>
                   <input
                     id="onb-name"
@@ -474,6 +474,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Your creator name"
                     maxLength={50}
+                    aria-required="true"
                     className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/30 focus:shadow-accent-md transition-all duration-300"
                   />
                 </div>
@@ -539,7 +540,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                 {/* Base price — required for registration */}
                 <div>
                   <label htmlFor="onb-price" className="block text-sm text-white/70 mb-2">
-                    Base Subscription Price (ALEO) <span className="text-red-400">*</span>
+                    Base Subscription Price (ALEO) <span className="text-red-400" aria-hidden="true">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -552,6 +553,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                       min="0.000001"
                       max="1000000"
                       step="0.1"
+                      aria-required="true"
                       className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/30 focus:shadow-accent-md transition-all duration-300"
                     />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/40">
@@ -840,7 +842,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                   <div className="space-y-4">
                     <div>
                       <label htmlFor="onb-post-title" className="block text-sm text-white/70 mb-2">
-                        Post Title <span className="text-red-400">*</span>
+                        Post Title <span className="text-red-400" aria-hidden="true">*</span>
                       </label>
                       <input
                         id="onb-post-title"
@@ -849,6 +851,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                         onChange={(e) => setPostTitle(e.target.value)}
                         placeholder="Welcome to my page!"
                         maxLength={200}
+                        aria-required="true"
                         className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/30 focus:shadow-accent-md transition-all duration-300"
                       />
                     </div>

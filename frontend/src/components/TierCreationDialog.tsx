@@ -108,7 +108,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} aria-hidden="true" />
           <m.div
             ref={focusTrapRef}
             className="relative w-full max-w-md rounded-xl bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
@@ -184,7 +184,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
 
                 {/* Tier Name */}
                 <div>
-                  <label htmlFor="tier-name" className="mb-2 block text-xs font-medium text-white/70">Tier Name</label>
+                  <label htmlFor="tier-name" className="mb-2 block text-xs font-medium text-white/70">Tier Name <span className="text-red-400" aria-hidden="true">*</span></label>
                   <input
                     id="tier-name"
                     type="text"
@@ -193,12 +193,13 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
                     placeholder="e.g. Supporter, Premium, VIP"
                     className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base"
                     maxLength={32}
+                    aria-required="true"
                   />
                 </div>
 
                 {/* Price */}
                 <div>
-                  <label htmlFor="tier-price" className="mb-2 block text-xs font-medium text-white/70">Price (ALEO credits)</label>
+                  <label htmlFor="tier-price" className="mb-2 block text-xs font-medium text-white/70">Price (ALEO credits) <span className="text-red-400" aria-hidden="true">*</span></label>
                   <input
                     id="tier-price"
                     type="number"
@@ -206,9 +207,10 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
                     value={priceAleo}
                     onChange={(e) => setPriceAleo(e.target.value)}
                     placeholder="0.5"
-                    step="0.1"
+                    step="0.001"
                     min="0.001"
                     max="1000000"
+                    aria-required="true"
                     className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base"
                   />
                   {priceAleo && (
@@ -250,7 +252,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
                 >
                   {status === 'submitting' ? (
                     <>
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden="true" />
                       Creating tier...
                     </>
                   ) : (

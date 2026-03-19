@@ -440,6 +440,7 @@ function VoteModal({
                       onClick={handleCopySalt}
                       className="shrink-0 p-2.5 rounded-xl bg-white/[0.04] border border-border/50 text-white/50 hover:text-white/70 hover:bg-white/[0.06] transition-all"
                       title="Copy salt"
+                      aria-label="Copy salt"
                     >
                       {saltCopied ? (
                         <Check className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
@@ -451,6 +452,7 @@ function VoteModal({
                       onClick={handleRegenerateSalt}
                       className="shrink-0 p-2.5 rounded-xl bg-white/[0.04] border border-border/50 text-white/50 hover:text-white/70 hover:bg-white/[0.06] transition-all"
                       title="Regenerate salt"
+                      aria-label="Regenerate salt"
                     >
                       <Hash className="w-3.5 h-3.5" aria-hidden="true" />
                     </button>

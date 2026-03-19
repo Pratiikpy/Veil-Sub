@@ -671,19 +671,21 @@ export default function SettingsPage() {
                       <button
                         onClick={() => setShowAddress(!showAddress)}
                         title={showAddress ? 'Hide full address' : 'Show full address'}
+                        aria-label={showAddress ? 'Hide full address' : 'Show full address'}
                         className="p-2 rounded-lg hover:bg-white/[0.06] text-white/40 hover:text-white/70 transition-all"
                       >
-                        {showAddress ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showAddress ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
                       </button>
                       <button
                         onClick={handleCopyAddress}
                         title="Copy address"
+                        aria-label="Copy address"
                         className="p-2 rounded-lg hover:bg-white/[0.06] text-white/40 hover:text-white/70 transition-all"
                       >
                         {copied ? (
-                          <Check className="w-4 h-4 text-emerald-400" />
+                          <Check className="w-4 h-4 text-emerald-400" aria-hidden="true" />
                         ) : (
-                          <Copy className="w-4 h-4" />
+                          <Copy className="w-4 h-4" aria-hidden="true" />
                         )}
                       </button>
                     </div>

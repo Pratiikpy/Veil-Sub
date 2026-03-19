@@ -48,7 +48,7 @@ export default function RegistrationForm({
           <>
             <div className="mb-6">
               <label htmlFor="reg-price" className="block text-sm text-white/70 mb-2">
-                Base subscription price (ALEO credits)
+                Base subscription price (ALEO credits) <span className="text-red-400" aria-hidden="true">*</span>
               </label>
               <div className="relative">
                 <input
@@ -62,6 +62,9 @@ export default function RegistrationForm({
                   max="1000000"
                   step="0.1"
                   onKeyDown={(e) => e.key === 'Enter' && onRegister()}
+                  aria-required="true"
+                  aria-invalid={price ? (!Number.isFinite(parseFloat(price)) || parseFloat(price) <= 0) : undefined}
+                  aria-describedby={price && (!Number.isFinite(parseFloat(price)) || parseFloat(price) <= 0) ? 'price-error' : undefined}
                   className="w-full px-4 py-4 rounded-lg bg-surface-1 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/60">
@@ -72,7 +75,7 @@ export default function RegistrationForm({
                 const parsedPrice = parseFloat(price)
                 return !Number.isFinite(parsedPrice) || parsedPrice <= 0
               })() && (
-                <p className="text-xs text-red-400 mt-2" role="alert">
+                <p id="price-error" className="text-xs text-red-400 mt-2" role="alert">
                   Price must be greater than zero.
                 </p>
               )}

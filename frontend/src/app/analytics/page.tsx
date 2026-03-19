@@ -530,7 +530,7 @@ export default function AnalyticsPage() {
           {statsUnavailable && !hasCreatorData && (
             <div className="mb-8 p-4 rounded-xl bg-white/[0.04] border border-white/10 text-center">
               <p className="text-sm text-white/50 mb-2">Analytics will appear once there are subscribers on the platform. Share your creator page to get started.</p>
-              <button onClick={fetchGlobalStats} disabled={globalLoading} title={globalLoading ? 'Loading...' : 'Refresh stats'} className="px-4 py-2 rounded-lg bg-white/[0.06] border border-white/10 text-xs font-medium text-white/60 hover:bg-white/[0.1] transition-all disabled:opacity-50 inline-flex items-center gap-2">
+              <button onClick={fetchGlobalStats} disabled={globalLoading} title={globalLoading ? 'Loading...' : 'Refresh stats'} aria-label={globalLoading ? 'Loading stats' : 'Refresh stats'} className="px-4 py-2 rounded-lg bg-white/[0.06] border border-white/10 text-xs font-medium text-white/60 hover:bg-white/[0.1] transition-all disabled:opacity-50 inline-flex items-center gap-2">
                 <RefreshCw className={`w-3 h-3 ${globalLoading ? 'animate-spin' : ''}`} aria-hidden="true" />
                 {globalLoading ? 'Checking...' : 'Refresh'}
               </button>
@@ -559,7 +559,7 @@ export default function AnalyticsPage() {
                 {DATE_RANGE_OPTIONS.map((opt) => (
                   <button key={opt.value} onClick={() => analytics.setDateRange(opt.value)} className={`text-xs px-3 py-1.5 rounded-full border transition-all ${analytics.dateRange === opt.value ? 'bg-violet-500/20 border-violet-500/30 text-violet-300' : 'bg-white/[0.04] border-border text-white/50 hover:text-white/70'}`}>{opt.label}</button>
                 ))}
-                <button onClick={analytics.refresh} disabled={analytics.loading} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/50 hover:text-white/70 transition-all disabled:opacity-50" title="Refresh analytics">
+                <button onClick={analytics.refresh} disabled={analytics.loading} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/50 hover:text-white/70 transition-all disabled:opacity-50" title="Refresh analytics" aria-label="Refresh analytics">
                   <RefreshCw className={`w-4 h-4 ${analytics.loading ? 'animate-spin' : ''}`} aria-hidden="true" />
                 </button>
               </div>

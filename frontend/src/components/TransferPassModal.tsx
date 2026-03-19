@@ -81,7 +81,7 @@ export default function TransferPassModal({
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh] overflow-y-auto"
       >
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} aria-hidden="true" />
         <m.div
           ref={focusTrapRef}
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -134,7 +134,7 @@ export default function TransferPassModal({
           {/* Recipient input */}
           <div className="mb-6">
             <label htmlFor="transfer-recipient" className="block text-xs text-white/70 font-medium uppercase tracking-wider mb-2">
-              Recipient Address
+              Recipient Address <span className="text-red-400" aria-hidden="true">*</span>
             </label>
             <input
               id="transfer-recipient"
@@ -142,10 +142,13 @@ export default function TransferPassModal({
               value={recipientAddress}
               onChange={(e) => setRecipientAddress(e.target.value)}
               placeholder="aleo1..."
+              aria-required="true"
+              aria-invalid={recipientAddress && !isValidAddress ? true : undefined}
+              aria-describedby={recipientAddress && !isValidAddress ? 'transfer-address-error' : undefined}
               className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base font-mono"
             />
             {recipientAddress && !isValidAddress && (
-              <p className="text-xs text-red-400 mt-2 flex items-center gap-1" role="alert" aria-live="polite">
+              <p id="transfer-address-error" className="text-xs text-red-400 mt-2 flex items-center gap-1" role="alert" aria-live="polite">
                 <AlertTriangle className="w-3 h-3" aria-hidden="true" />
                 Enter a valid Aleo address
               </p>

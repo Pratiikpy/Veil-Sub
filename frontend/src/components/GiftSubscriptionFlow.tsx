@@ -109,7 +109,7 @@ export default function GiftSubscriptionFlow({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} aria-hidden="true" />
           <m.div
             ref={focusTrapRef}
             className="relative w-full max-w-md rounded-xl bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
@@ -171,7 +171,7 @@ export default function GiftSubscriptionFlow({
 
                 {/* Recipient address */}
                 <div>
-                  <label htmlFor="gift-recipient" className="mb-2 block text-xs font-medium text-white/70">Recipient Address</label>
+                  <label htmlFor="gift-recipient" className="mb-2 block text-xs font-medium text-white/70">Recipient Address <span className="text-red-400" aria-hidden="true">*</span></label>
                   <div className="relative">
                     <input
                       id="gift-recipient"
@@ -187,7 +187,9 @@ export default function GiftSubscriptionFlow({
                           ? 'border-green-500/50 focus:border-green-500/50 focus:ring-green-500/30'
                           : 'border-red-500/50 focus:border-red-500/50 focus:ring-red-500/30'
                       }`}
-                      aria-describedby="address-validation"
+                      aria-required="true"
+                      aria-invalid={recipientAddress.length > 0 && !(recipientAddress.startsWith('aleo1') && recipientAddress.length === 63) ? true : undefined}
+                      aria-describedby={recipientAddress.length > 0 && !(recipientAddress.startsWith('aleo1') && recipientAddress.length === 63) ? 'address-validation' : undefined}
                     />
                     {recipientAddress.length > 0 && (
                       <div className="absolute right-3 top-1/2 -translate-y-1/2">

@@ -293,7 +293,7 @@ function ActivePasses({
                               title="Renew subscription"
                               className="px-2 py-1 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-all flex items-center gap-1"
                             >
-                              <RefreshCw className="w-3 h-3" />
+                              <RefreshCw className="w-3 h-3" aria-hidden="true" />
                               Renew
                             </button>
                           </>
@@ -319,16 +319,18 @@ function ActivePasses({
                         <button
                           onClick={() => onTransfer(pass)}
                           title="Transfer pass"
+                          aria-label="Transfer pass"
                           className="px-2 py-1 rounded-lg bg-white/[0.04] border border-border text-xs text-white/60 hover:bg-white/[0.08] transition-all flex items-center gap-1"
                         >
-                          <ArrowLeftRight className="w-3 h-3" />
+                          <ArrowLeftRight className="w-3 h-3" aria-hidden="true" />
                         </button>
                         <button
                           onClick={() => onAuditToken(pass)}
                           title="Create audit token"
+                          aria-label="Create audit token"
                           className="px-2 py-1 rounded-lg bg-violet-500/[0.06] border border-violet-500/15 text-xs text-violet-300 hover:bg-violet-500/10 transition-all flex items-center gap-1"
                         >
-                          <FileKey className="w-3 h-3" />
+                          <FileKey className="w-3 h-3" aria-hidden="true" />
                         </button>
                       </span>
                     )}

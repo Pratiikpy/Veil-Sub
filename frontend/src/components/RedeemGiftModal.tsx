@@ -152,7 +152,7 @@ export default function RedeemGiftModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} aria-hidden="true" />
           <m.div
             ref={focusTrapRef}
             className="relative w-full max-w-md rounded-xl bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"

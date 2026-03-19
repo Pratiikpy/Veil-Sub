@@ -105,7 +105,7 @@ export default function DisputeContentModal({
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh] overflow-y-auto"
       >
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} aria-hidden="true" />
         <m.div
           ref={focusTrapRef}
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -120,6 +120,7 @@ export default function DisputeContentModal({
             onClick={handleClose}
             disabled={txStatus === 'signing' || txStatus === 'broadcasting'}
             aria-label="Close dispute modal"
+            title={txStatus === 'signing' || txStatus === 'broadcasting' ? 'Transaction in progress - please wait' : 'Close dialog'}
             className="absolute top-5 right-5 text-white/60 hover:text-white active:scale-[0.9] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <X className="w-5 h-5" aria-hidden="true" />
