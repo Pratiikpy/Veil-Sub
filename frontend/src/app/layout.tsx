@@ -75,6 +75,25 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <head>
         <link rel="preconnect" href="https://api.explorer.provable.com" />
+        {/* Theme initialization script - runs before paint to prevent FOUC */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const stored = localStorage.getItem('veilsub_theme');
+                const theme = (stored === 'light' || stored === 'dark') ? stored : null;
+                const preferLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+                const resolved = theme ?? (preferLight ? 'light' : 'dark');
+                if (resolved === 'light') {
+                  document.documentElement.classList.remove('dark');
+                  document.documentElement.classList.add('light');
+                }
+              } catch (e) {
+                // Fallback to dark (default in className)
+              }
+            `.replace(/\s+/g, ' '),
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

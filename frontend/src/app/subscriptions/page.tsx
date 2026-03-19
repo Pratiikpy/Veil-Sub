@@ -298,6 +298,15 @@ export default function SubscriptionsPage() {
     }
   }, [connected, blockHeight]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Clear state when wallet disconnects to prevent stale data across wallet switches
+  useEffect(() => {
+    if (!connected) {
+      setPasses([])
+      setRenewTarget(null)
+      setError(null)
+    }
+  }, [connected])
+
   const activePasses = useMemo(
     () => passes.filter((p) => p.status !== 'expired'),
     [passes]

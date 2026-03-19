@@ -261,6 +261,8 @@ export default function RegisteredDashboard({
             setWithdrawAmount('')
             setRefreshKey((k) => k + 1)  // Trigger stats refresh
             toast.success(`${type === 'platform' ? 'Platform fee' : 'Revenue'} withdrawal complete!`)
+            // Reset status after 3s so user can initiate another withdrawal
+            setTimeout(() => setWithdrawTxStatus('idle'), 3000)
           } else if (pollResult.status === 'failed') {
             setWithdrawTxStatus('failed')
             setWithdrawError('Withdrawal could not be completed. Check your on-chain balance and try again.')

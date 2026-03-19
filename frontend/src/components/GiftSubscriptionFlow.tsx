@@ -21,10 +21,11 @@ interface GiftSubscriptionFlowProps {
   tierPrice: number // microcredits
   tierId: number
   tierName: string
+  onSuccess?: () => void
 }
 
 export default function GiftSubscriptionFlow({
-  isOpen, onClose, creatorAddress, tierPrice, tierId, tierName,
+  isOpen, onClose, creatorAddress, tierPrice, tierId, tierName, onSuccess,
 }: GiftSubscriptionFlowProps) {
   const { giftSubscription, getCreditsRecords, connected } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
@@ -79,6 +80,7 @@ export default function GiftSubscriptionFlow({
           if (pollResult.status === 'confirmed') {
             if (pollResult.resolvedTxId) setTxId(pollResult.resolvedTxId)
             setTxStatus('confirmed')
+            onSuccess?.()
             toast.success('Gift sent! The recipient can redeem it anytime.')
           } else if (pollResult.status === 'failed') {
             setTxStatus('failed')

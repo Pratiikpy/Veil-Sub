@@ -163,7 +163,8 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
               wrappedSign
             )
           } catch {
-            // Non-critical
+            // Profile save failed — warn user but don't block registration
+            toast.error('Profile details couldn\'t be saved. You can update them in your dashboard.')
           }
 
           toast.success("You're registered as a creator!")

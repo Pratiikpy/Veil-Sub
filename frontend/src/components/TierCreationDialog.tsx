@@ -72,7 +72,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
           localStorage.setItem(storageKey, JSON.stringify(existing))
         } catch { /* localStorage unavailable */ }
 
-        // Sync to Supabase — fire-and-forget, doesn't block UI
+        // Sync to Supabase — background sync, warn user if it fails
         fetch('/api/tiers', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -82,7 +82,15 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
             name: tierName.trim(),
             price_microcredits: priceMicrocredits,
           }),
-        }).catch(() => { /* non-critical — localStorage already saved */ })
+        })
+          .then(async (res) => {
+            if (!res.ok) {
+              toast.error('Tier saved locally but cloud sync failed. It may not appear on other devices.')
+            }
+          })
+          .catch(() => {
+            toast.error('Tier saved locally but cloud sync failed. It may not appear on other devices.')
+          })
       }
       onSuccess?.(tierId)
     } catch (err: unknown) {

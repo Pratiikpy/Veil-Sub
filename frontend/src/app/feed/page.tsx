@@ -390,6 +390,14 @@ export default function FeedPage() {
     fetchPasses()
   }, [connected]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Clear feed when wallet disconnects to prevent stale data across wallet switches
+  useEffect(() => {
+    if (!connected) {
+      setFeedPosts([])
+      setError(null)
+    }
+  }, [connected])
+
   // Filter active passes (not expired)
   const activePasses = useMemo(() => {
     if (blockHeight == null) return passes
