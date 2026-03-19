@@ -90,6 +90,10 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
   const [draftDismissed, setDraftDismissed] = useState(false)
   const autoSaveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
+  // Track which button operation is in progress for spinner display
+  const [savingDraft, setSavingDraft] = useState(false)
+  const [scheduling, setScheduling] = useState(false)
+
   // Check for existing draft on mount
   useEffect(() => {
     if (editingPost) return
@@ -273,6 +277,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
       return
     }
     submittingRef.current = true
+    setSavingDraft(true)
     setError(null)
     try {
       const wrappedSign = getWrappedSign()
@@ -303,6 +308,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
       setError(err instanceof Error ? err.message : 'Draft couldn\u2019t be saved')
     } finally {
       submittingRef.current = false
+      setSavingDraft(false)
     }
   }
 
@@ -315,6 +321,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
     if (new Date(scheduledAt) <= new Date()) { setError('Scheduled time must be in the future.'); return }
 
     submittingRef.current = true
+    setScheduling(true)
     setError(null)
     try {
       const wrappedSign = getWrappedSign()
@@ -347,6 +354,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
       setError(err instanceof Error ? err.message : 'Post couldn\u2019t be scheduled')
     } finally {
       submittingRef.current = false
+      setScheduling(false)
     }
   }
 
@@ -824,8 +832,12 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
               disabled={!title.trim() || submittingRef.current}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.05] border border-blue-500/30 text-blue-300 text-sm font-medium hover:bg-blue-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
             >
-              <Save className="w-4 h-4" aria-hidden="true" />
-              Save Draft
+              {savingDraft ? (
+                <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <Save className="w-4 h-4" aria-hidden="true" />
+              )}
+              {savingDraft ? 'Saving...' : 'Save Draft'}
             </button>
             {(scheduleDate && scheduleTime) && (
               <button
@@ -833,8 +845,12 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                 disabled={!title.trim() || !hasBodyContent || submittingRef.current}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.05] border border-amber-500/30 text-amber-300 text-sm font-medium hover:bg-amber-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
               >
-                <Clock className="w-4 h-4" aria-hidden="true" />
-                Schedule
+                {scheduling ? (
+                  <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Clock className="w-4 h-4" aria-hidden="true" />
+                )}
+                {scheduling ? 'Scheduling...' : 'Schedule'}
               </button>
             )}
             <Button

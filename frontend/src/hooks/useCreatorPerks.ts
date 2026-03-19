@@ -37,7 +37,7 @@ export function useCreatorPerks(creatorAddress: string | undefined): CreatorPerk
       return
     }
 
-    let cancelled = false
+    const abortController = new AbortController()
 
     async function loadPerks() {
       // 1. Load from localStorage first (instant)
@@ -63,7 +63,8 @@ export function useCreatorPerks(creatorAddress: string | undefined): CreatorPerk
 
       try {
         const res = await fetch(
-          `/api/tiers/perks?creator=${encodeURIComponent(creatorAddress!)}`
+          `/api/tiers/perks?creator=${encodeURIComponent(creatorAddress!)}`,
+          { signal: abortController.signal }
         )
         if (res.ok) {
           const data = await res.json()
@@ -76,11 +77,13 @@ export function useCreatorPerks(creatorAddress: string | undefined): CreatorPerk
             }
           }
         }
-      } catch {
+      } catch (err) {
+        // Abort is expected on unmount — don't update state
+        if (err instanceof Error && err.name === 'AbortError') return
         // API unavailable — localStorage is sufficient
       }
 
-      if (cancelled) return
+      if (abortController.signal.aborted) return
 
       // 3. Merge: localStorage wins over API (more recent local edits)
       const mergedPerks: Record<number, string[]> = { ...apiPerks, ...localPerks }
@@ -93,7 +96,7 @@ export function useCreatorPerks(creatorAddress: string | undefined): CreatorPerk
 
     loadPerks()
 
-    return () => { cancelled = true }
+    return () => { abortController.abort() }
   }, [creatorAddress])
 
   const savePerks = useCallback(async (

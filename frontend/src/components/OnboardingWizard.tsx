@@ -91,8 +91,9 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   const [publishComplete, setPublishComplete] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
 
-  // Refs for cleanup
+  // Refs for cleanup and double-click prevention
   const confettiTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const submittingRef = useRef(false)
 
   useEffect(() => {
     return () => {
@@ -114,10 +115,11 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   // ── Step 2 → 3: Register as creator + save profile ──────────────────────
 
   const handleRegisterAndContinue = useCallback(async () => {
-    if (!publicKey || !tierPrice) return
+    if (!publicKey || !tierPrice || submittingRef.current) return
     const priceNum = parseFloat(tierPrice)
     if (!Number.isFinite(priceNum) || priceNum <= 0) return
 
+    submittingRef.current = true
     setRegTxStatus('signing')
     try {
       const id = await registerCreator(creditsToMicrocredits(priceNum))
@@ -169,14 +171,17 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
 
           toast.success("You're registered as a creator!")
           setRegComplete(true)
+          submittingRef.current = false
           goNext()
         } else if (result.status === 'failed') {
           setRegTxStatus('failed')
+          submittingRef.current = false
           toast.error('Registration couldn\u2019t be completed. Check your wallet and try again.')
         }
       })
     } catch (err) {
       setRegTxStatus('failed')
+      submittingRef.current = false
       toast.error(err instanceof Error ? err.message : 'Registration couldn\u2019t be completed')
     }
   }, [
@@ -194,10 +199,11 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   // ── Step 3: Create custom tier ───────────────────────────────────────────
 
   const handleCreateTier = useCallback(async () => {
-    if (!tierPrice) return
+    if (!tierPrice || submittingRef.current) return
     const priceNum = parseFloat(tierPrice)
     if (!Number.isFinite(priceNum) || priceNum <= 0) return
 
+    submittingRef.current = true
     setTierTxStatus('signing')
     try {
       const tierId = 1 // First custom tier
@@ -216,14 +222,17 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           setTierTxStatus('confirmed')
           toast.success('Subscription tier created!')
           setTierComplete(true)
+          submittingRef.current = false
           goNext()
         } else if (result.status === 'failed') {
           setTierTxStatus('failed')
+          submittingRef.current = false
           toast.error('Tier couldn\u2019t be created. Check your wallet and try again.')
         }
       })
     } catch (err) {
       setTierTxStatus('failed')
+      submittingRef.current = false
       toast.error(err instanceof Error ? err.message : 'Tier couldn\u2019t be created')
     }
   }, [tierPrice, createCustomTier, startPolling, goNext])
@@ -231,8 +240,9 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   // ── Step 4: Publish first post ───────────────────────────────────────────
 
   const handlePublish = useCallback(async () => {
-    if (!postTitle.trim()) return
+    if (!postTitle.trim() || submittingRef.current) return
 
+    submittingRef.current = true
     setPublishTxStatus('signing')
     try {
       // Generate cryptographically secure content ID using crypto.randomUUID()
@@ -248,17 +258,20 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           setPublishTxStatus('confirmed')
           toast.success('Your first post is live!')
           setPublishComplete(true)
+          submittingRef.current = false
           setShowConfetti(true)
           confettiTimerRef.current = setTimeout(() => {
             onComplete()
           }, 2000)
         } else if (result.status === 'failed') {
           setPublishTxStatus('failed')
+          submittingRef.current = false
           toast.error('Post couldn\u2019t be published. Check your wallet and try again.')
         }
       })
     } catch (err) {
       setPublishTxStatus('failed')
+      submittingRef.current = false
       toast.error(err instanceof Error ? err.message : 'Post couldn\u2019t be published')
     }
   }, [postTitle, publishContent, startPolling, onComplete])
