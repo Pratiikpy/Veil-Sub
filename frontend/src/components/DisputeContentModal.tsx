@@ -18,6 +18,7 @@ interface Props {
   contentId: string
   contentTitle: string
   accessPassPlaintext: string
+  onSuccess?: () => void
 }
 
 /**
@@ -43,6 +44,7 @@ export default function DisputeContentModal({
   contentId,
   contentTitle,
   accessPassPlaintext,
+  onSuccess,
 }: Props) {
   const { disputeContent, connected } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
@@ -87,6 +89,8 @@ export default function DisputeContentModal({
         startPolling(result, (pollResult) => {
           if (pollResult.status === 'confirmed') {
             setTxStatus('confirmed')
+            toast.success('Dispute recorded on-chain')
+            onSuccess?.()
             stopPolling()
           } else if (pollResult.status === 'failed') {
             setTxStatus('failed')

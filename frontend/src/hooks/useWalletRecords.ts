@@ -32,7 +32,14 @@ export function useWalletRecords() {
         if (text && text.includes('tier_id') && text.includes('name_hash') && text.includes('price')) results.push(text)
       }
       return results
-    } catch { return [] }
+    } catch (err) {
+      // Re-throw network/timeout errors so callers can show meaningful feedback
+      if (err instanceof Error &&
+          (err.message.includes('timed out') || err.message.includes('TimedOut') || err.message.includes('network'))) {
+        throw err
+      }
+      return []
+    }
   }, [connected, requestRecords, extractPlaintext])
 
   // Fetch GiftToken records (for gift recipients)
@@ -52,7 +59,13 @@ export function useWalletRecords() {
         if (text && text.includes('gifter_hash')) results.push(text)
       }
       return results
-    } catch { return [] }
+    } catch (err) {
+      if (err instanceof Error &&
+          (err.message.includes('timed out') || err.message.includes('TimedOut') || err.message.includes('network'))) {
+        throw err
+      }
+      return []
+    }
   }, [connected, requestRecords, extractPlaintext])
 
   // Split a single credits record into two via credits.aleo/split.
@@ -104,7 +117,11 @@ export function useWalletRecords() {
       }
 
       return results.sort((a, b) => b.amount - a.amount).map((r) => r.plaintext)
-    } catch {
+    } catch (err) {
+      if (err instanceof Error &&
+          (err.message.includes('timed out') || err.message.includes('TimedOut') || err.message.includes('network'))) {
+        throw err
+      }
       return []
     }
   }, [connected, requestRecords, extractPlaintext])
@@ -199,7 +216,11 @@ export function useWalletRecords() {
       }
 
       return results
-    } catch {
+    } catch (err) {
+      if (err instanceof Error &&
+          (err.message.includes('timed out') || err.message.includes('TimedOut') || err.message.includes('network'))) {
+        throw err
+      }
       return []
     }
   }, [connected, requestRecords, extractPlaintext])
@@ -223,7 +244,11 @@ export function useWalletRecords() {
       }
 
       return results
-    } catch {
+    } catch (err) {
+      if (err instanceof Error &&
+          (err.message.includes('timed out') || err.message.includes('TimedOut') || err.message.includes('network'))) {
+        throw err
+      }
       return []
     }
   }, [connected, requestRecords, extractPlaintext])
@@ -248,7 +273,11 @@ export function useWalletRecords() {
       }
 
       return results
-    } catch {
+    } catch (err) {
+      if (err instanceof Error &&
+          (err.message.includes('timed out') || err.message.includes('TimedOut') || err.message.includes('network'))) {
+        throw err
+      }
       return []
     }
   }, [connected, requestRecords, extractPlaintext])
