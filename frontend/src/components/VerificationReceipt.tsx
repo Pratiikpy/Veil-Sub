@@ -118,16 +118,18 @@ export default function VerificationReceipt({
       <div className="flex items-center justify-center gap-3">
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/70 hover:text-white hover:bg-white/[0.08] transition-all"
+          aria-label={copied ? 'Copied to clipboard' : 'Copy receipt to clipboard'}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/70 hover:text-white hover:bg-white/[0.08] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
         >
-          {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? <Check className="w-3.5 h-3.5 text-green-400" aria-hidden="true" /> : <Copy className="w-3.5 h-3.5" aria-hidden="true" />}
           {copied ? 'Copied!' : 'Share'}
         </button>
         <button
           onClick={handleDownload}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/70 hover:text-white hover:bg-white/[0.08] transition-all"
+          aria-label="Download receipt"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/70 hover:text-white hover:bg-white/[0.08] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
         >
-          <Download className="w-3.5 h-3.5" />
+          <Download className="w-3.5 h-3.5" aria-hidden="true" />
           Download
         </button>
       </div>

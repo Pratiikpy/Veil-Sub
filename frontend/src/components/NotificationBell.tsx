@@ -173,7 +173,7 @@ export default function NotificationBell() {
               {unreadCount > 0 && (
                 <button
                   onClick={() => markAllAsRead()}
-                  className="flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors"
+                  className="flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded px-1"
                 >
                   <CheckCheck className="w-3.5 h-3.5" aria-hidden="true" />
                   Mark all read

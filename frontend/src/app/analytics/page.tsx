@@ -22,6 +22,7 @@ import {
   BarChart3,
   FileText,
   AlertTriangle,
+  AlertCircle,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
@@ -532,6 +533,19 @@ export default function AnalyticsPage() {
               <button onClick={fetchGlobalStats} disabled={globalLoading} title={globalLoading ? 'Loading...' : 'Refresh stats'} className="px-4 py-2 rounded-lg bg-white/[0.06] border border-white/10 text-xs font-medium text-white/60 hover:bg-white/[0.1] transition-all disabled:opacity-50 inline-flex items-center gap-2">
                 <RefreshCw className={`w-3 h-3 ${globalLoading ? 'animate-spin' : ''}`} aria-hidden="true" />
                 {globalLoading ? 'Checking...' : 'Refresh'}
+              </button>
+            </div>
+          )}
+
+          {/* ── Analytics Error Display ────────────────────────────── */}
+          {analytics.error && (
+            <div role="alert" className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-400 shrink-0" aria-hidden="true" />
+                <p className="text-sm text-red-300">{analytics.error}</p>
+              </div>
+              <button onClick={analytics.refresh} disabled={analytics.loading} className="px-3 py-1.5 rounded-lg bg-red-500/20 text-xs font-medium text-red-300 hover:bg-red-500/30 transition-all disabled:opacity-50">
+                Try again
               </button>
             </div>
           )}

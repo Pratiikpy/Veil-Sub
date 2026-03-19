@@ -17,8 +17,8 @@ export async function GET(req: NextRequest) {
 
   const supabase = getServerSupabase()
   if (!supabase) {
-    // Database not configured — client uses localStorage as primary
-    return NextResponse.json({ tiers: [], fallback: 'no_database' }, { status: 200 })
+    // Database not configured — client uses localStorage as primary (graceful degradation)
+    return NextResponse.json({ tiers: [], fallback: 'no_database' }, { status: 503 })
   }
 
   const { data, error } = await supabase
@@ -27,8 +27,8 @@ export async function GET(req: NextRequest) {
     .eq('creator_address', creator)
 
   if (error) {
-    // Query failed (table may not exist) — client uses localStorage as primary
-    return NextResponse.json({ tiers: [], fallback: 'query_error' }, { status: 200 })
+    // Query failed (table may not exist) — client uses localStorage as primary (graceful degradation)
+    return NextResponse.json({ tiers: [], fallback: 'query_error' }, { status: 503 })
   }
 
   return NextResponse.json({ tiers: data ?? [] }, {

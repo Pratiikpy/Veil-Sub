@@ -59,7 +59,14 @@ export default function ActivityChart({ creatorAddress }: Props) {
 
   if (loading) {
     return (
-      <div className="h-48 rounded-xl bg-surface-1 border border-border animate-pulse" />
+      <div
+        role="status"
+        aria-live="polite"
+        aria-label="Loading subscription activity chart"
+        className="h-48 rounded-xl bg-surface-1 border border-border animate-pulse"
+      >
+        <span className="sr-only">Loading subscription activity...</span>
+      </div>
     )
   }
 
@@ -70,7 +77,13 @@ export default function ActivityChart({ creatorAddress }: Props) {
           <BarChart3 className="w-4 h-4 text-white/70" aria-hidden="true" />
           <h3 className="text-sm font-medium text-white">Subscription Activity</h3>
         </div>
-        <p className="text-xs text-white/60">Unable to load activity data.</p>
+        <p className="text-xs text-white/60 mb-3">Unable to load activity data.</p>
+        <button
+          onClick={() => { setFetchError(false); setLoading(true) }}
+          className="text-xs text-violet-400 hover:text-violet-300 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded px-2 py-1"
+        >
+          Try again
+        </button>
       </div>
     )
   }

@@ -374,9 +374,26 @@ export default function ExplorerPage() {
               className="mb-10"
             >
               {statsError && (
-                <div className="mb-4 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-center gap-2">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-                  <span>Could not fetch live stats. Showing cached values.</span>
+                <div className="mb-4 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                    <span>Could not fetch live stats. Showing cached values.</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setStatsError(false)
+                      fetch('/api/analytics?global_stats=true')
+                        .then((r) => r.json())
+                        .then(setGlobalStats)
+                        .catch(() => {
+                          setStatsError(true)
+                          setGlobalStats({ totalCreators: 1, totalSubscriptions: 0, totalRevenue: 0, activePrograms: 2 })
+                        })
+                    }}
+                    className="px-2 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 transition-colors focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none"
+                  >
+                    Retry
+                  </button>
                 </div>
               )}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

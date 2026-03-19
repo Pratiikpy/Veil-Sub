@@ -325,6 +325,7 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
                   ? 'https://example.com/image.jpg'
                   : 'https://www.youtube.com/watch?v=...'
             }
+            maxLength={2048}
             autoFocus
             className="flex-1 px-2 py-1 rounded-md bg-white/[0.05] border border-border text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500"
           />

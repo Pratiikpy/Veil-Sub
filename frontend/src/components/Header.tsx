@@ -133,7 +133,7 @@ export default function Header() {
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
                 aria-expanded={mobileOpen}
-                className="md:hidden p-2 rounded-lg hover:bg-white/[0.04] text-white/60 active:scale-[0.9] transition-all"
+                className="md:hidden p-2 rounded-lg hover:bg-white/[0.04] text-white/60 active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
               >
                 {mobileOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
               </button>

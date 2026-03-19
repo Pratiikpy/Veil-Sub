@@ -592,7 +592,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                   tabIndex={0}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click() }}
                   aria-label="Upload image: click or drag and drop"
-                  className={`w-full py-6 px-4 rounded-xl border-2 border-dashed cursor-pointer transition-all text-center ${
+                  className={`w-full py-6 px-4 rounded-xl border-2 border-dashed cursor-pointer transition-all text-center focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
                     isDragging
                       ? 'border-violet-500 bg-violet-500/10'
                       : 'border-border bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]'
@@ -649,6 +649,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                       value={imageUrl}
                       onChange={(e) => { setImageUrl(e.target.value); setImageError(false) }}
                       placeholder="or paste image URL: https://..."
+                      maxLength={2048}
                       className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-xs"
                     />
                   </div>
@@ -668,6 +669,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                     value={videoUrl}
                     onChange={(e) => setVideoUrl(e.target.value)}
                     placeholder="https://www.youtube.com/watch?v=..."
+                    maxLength={2048}
                     className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm"
                   />
                 </div>
@@ -745,6 +747,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                   onKeyDown={handleTagKeyDown}
                   placeholder={tags.length >= API_LIMITS.MAX_TAGS_PER_POST ? 'Max tags reached' : 'Add a tag and press Enter...'}
                   disabled={tags.length >= API_LIMITS.MAX_TAGS_PER_POST}
+                  maxLength={50}
                   className="w-full px-4 py-2 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm disabled:opacity-50"
                 />
                 {showTagSuggestions && filteredSuggestions.length > 0 && tags.length < API_LIMITS.MAX_TAGS_PER_POST && (

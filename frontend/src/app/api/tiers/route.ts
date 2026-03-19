@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   const supabase = getServerSupabase()
   if (!supabase) {
     // Database not configured — client falls back to on-chain/config tiers
-    return NextResponse.json({ tiers: [], fallback: 'no_database' }, { status: 200 })
+    return NextResponse.json({ tiers: [], fallback: 'no_database' }, { status: 503 })
   }
 
   const addressHash = await hashAddress(address)
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 
   if (error) {
     // Query failed — client falls back to on-chain/config tiers
-    return NextResponse.json({ tiers: [], fallback: 'query_error' }, { status: 200 })
+    return NextResponse.json({ tiers: [], fallback: 'query_error' }, { status: 503 })
   }
 
   return NextResponse.json({ tiers: data ?? [] }, {

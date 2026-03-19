@@ -231,6 +231,7 @@ export default function CommandPalette() {
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={onKeyDown}
                 placeholder="Search pages, actions, creators..."
+                maxLength={100}
                 className="flex-1 bg-transparent text-lg text-white placeholder:text-white/30 outline-none"
                 aria-label="Search commands"
                 aria-describedby="command-palette-hint"
@@ -269,7 +270,7 @@ export default function CommandPalette() {
                           data-index={idx}
                           onClick={() => executeItem(item)}
                           onMouseEnter={() => setSelectedIndex(idx)}
-                          className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors duration-75 ${
+                          className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors duration-75 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-inset focus-visible:outline-none ${
                             isSelected
                               ? 'bg-violet-500/10'
                               : 'hover:bg-white/[0.03]'
@@ -342,7 +343,7 @@ export function CommandPaletteTrigger() {
         )
       }}
       aria-label="Open command palette"
-      className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs text-white/40 hover:text-white/60 hover:bg-white/[0.06] transition-all duration-200"
+      className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs text-white/40 hover:text-white/60 hover:bg-white/[0.06] transition-all duration-200 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
     >
       <Search className="w-3 h-3" />
       <span className="font-mono text-[10px]">{isMac ? '\u2318K' : 'Ctrl+K'}</span>

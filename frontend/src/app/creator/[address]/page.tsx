@@ -664,6 +664,7 @@ export default function CreatorPage({
     }).catch(() => {
       if (cancelled) return
       setUserPasses([])
+      toast.error('Failed to load your access passes', { id: 'access-passes-error' })
     })
     return () => { cancelled = true }
   }, [connected, address, getAccessPasses])

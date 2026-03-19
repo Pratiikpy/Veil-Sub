@@ -85,7 +85,9 @@ export async function launchBrowserWithWallet(options?: {
     extensionId = new URL(sw.url()).hostname
   } catch {
     // Extension may already be loaded from persistent context
-    console.log('[wallet-helpers] Service worker already running, using known extension ID')
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[wallet-helpers] Service worker already running, using known extension ID')
+    }
   }
 
   return { context, extensionId }

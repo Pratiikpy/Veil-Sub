@@ -550,6 +550,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                       onChange={(e) => setTierPrice(e.target.value)}
                       placeholder="5"
                       min="0.000001"
+                      max="1000000"
                       step="0.1"
                       className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/30 focus:shadow-accent-md transition-all duration-300"
                     />
@@ -651,6 +652,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                         onChange={(e) => setTierPrice(e.target.value)}
                         placeholder="5"
                         min="0.000001"
+                        max="1000000"
                         step="0.1"
                         className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/30 focus:shadow-accent-md transition-all duration-300"
                       />

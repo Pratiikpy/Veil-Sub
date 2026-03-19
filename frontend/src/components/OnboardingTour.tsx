@@ -151,16 +151,16 @@ export default function OnboardingTour() {
               </div>
               <div className="flex items-center gap-3">
                 {!isFinal && (
-                  <button onClick={finish} className="text-[11px] text-white/40 hover:text-white/60 transition-colors">
+                  <button onClick={finish} className="text-[11px] text-white/40 hover:text-white/60 transition-colors rounded focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none px-1">
                     Skip tour
                   </button>
                 )}
                 <button
                   onClick={isFinal ? finish : next}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-violet-500/20 border border-violet-500/30 text-xs font-medium text-violet-200 hover:bg-violet-500/30 transition-all"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-violet-500/20 border border-violet-500/30 text-xs font-medium text-violet-200 hover:bg-violet-500/30 transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
                 >
                   {isFinal ? 'Get Started' : 'Next'}
-                  {!isFinal && <ArrowRight className="w-3 h-3" />}
+                  {!isFinal && <ArrowRight className="w-3 h-3" aria-hidden="true" />}
                 </button>
               </div>
             </div>
@@ -172,9 +172,9 @@ export default function OnboardingTour() {
           <button
             onClick={finish}
             aria-label="Close tour"
-            className="absolute top-4 right-4 p-2 rounded-lg bg-white/[0.06] border border-border text-white/50 hover:text-white hover:bg-white/[0.1] transition-all"
+            className="absolute top-4 right-4 p-2 rounded-lg bg-white/[0.06] border border-border text-white/50 hover:text-white hover:bg-white/[0.1] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4" aria-hidden="true" />
           </button>
         )}
       </m.div>

@@ -491,7 +491,7 @@ export default function RegisteredDashboard({
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setComposeExpanded(true) }}
             role="button"
             tabIndex={0}
-            className="p-4 rounded-xl bg-surface-1 border border-border cursor-text hover:border-violet-500/30 transition-all group flex items-center gap-3"
+            className="p-4 rounded-xl bg-surface-1 border border-border cursor-text hover:border-violet-500/30 transition-all group flex items-center gap-3 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
           >
             <AddressAvatar address={publicKey} size={36} className="shrink-0" />
             <p className="text-white/40 text-sm group-hover:text-white/60 transition-colors">
