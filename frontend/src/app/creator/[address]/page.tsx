@@ -620,7 +620,8 @@ export default function CreatorPage({
         .filter((p): p is NonNullable<typeof p> => p !== null && p.creator === address)
       setUserPasses(passes)
     } catch {
-      // Silent fail — user can refresh if needed
+      // Show error instead of silent fail so user knows to refresh
+      toast.error('Could not load your access passes. Refresh the page to see your subscription.', { id: 'load-passes-error' })
     }
   }, [connected, address, getAccessPasses])
 

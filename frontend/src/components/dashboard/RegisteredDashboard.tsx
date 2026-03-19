@@ -244,6 +244,12 @@ export default function RegisteredDashboard({
       toast.error('Enter a valid amount')
       return
     }
+    // Validate amount doesn't exceed available balance
+    const maxAmount = (stats?.totalRevenue ?? 0) / MICROCREDITS_PER_CREDIT
+    if (amount > maxAmount) {
+      toast.error(`Maximum available: ${maxAmount.toFixed(6)} ALEO`)
+      return
+    }
     setWithdrawTxStatus('signing')
     setWithdrawError(null)
     try {
@@ -938,6 +944,7 @@ export default function RegisteredDashboard({
         isOpen={showTierDialog}
         onClose={() => setShowTierDialog(false)}
         creatorAddress={publicKey}
+        existingTierIds={Object.keys(creatorTiers).map(Number)}
         onSuccess={() => {
           toast.success('New tier created!')
           invalidateCreatorTierCache(publicKey)

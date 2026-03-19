@@ -211,6 +211,8 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                     value={verifierAddress}
                     onChange={(e) => setVerifierAddress(e.target.value.trim())}
                     placeholder="aleo1..."
+                    maxLength={63}
+                    pattern="^aleo1[a-z0-9]{56}$"
                     className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm font-mono"
                   />
                   <p className="text-[10px] text-white/60 mt-1">

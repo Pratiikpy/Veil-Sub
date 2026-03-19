@@ -122,7 +122,12 @@ export default function RedeemGiftModal({
             if (pollResult.resolvedTxId) setTxId(pollResult.resolvedTxId)
             setTxStatus('confirmed')
             toast.success('Gift redeemed! Your new AccessPass is in your wallet.')
-            onSuccess?.()
+            // Delay onSuccess slightly to allow wallet record sync
+            // If first sync fails, retry once after 2 more seconds
+            setTimeout(() => {
+              onSuccess?.()
+              setTimeout(() => onSuccess?.(), 2000)
+            }, 1000)
           } else if (pollResult.status === 'failed') {
             setTxStatus('failed')
             setError('Gift couldn\u2019t be redeemed. It may have already been used or expired.')

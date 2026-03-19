@@ -428,8 +428,9 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                 : 'Post confirmed on-chain but the content couldn\u2019t be saved. Try re-publishing.'
               toast.error(msg)
               if (postError) clearError()
-              // Reset form but don't trigger parent refresh since server save failed
-              resetForm()
+              // Keep form content so user can retry - don't reset on failure
+              setTxStatus('failed')
+              setError('Content confirmed on-chain but save to server failed. Your content is preserved—try publishing again.')
             } else {
               toast.success('Post published!')
               resetForm()

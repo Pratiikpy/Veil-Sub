@@ -51,6 +51,22 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
   const handleSubmit = useCallback(async () => {
     if (submittingRef.current) return // Prevent double-submission
     if (!connected || tierId === 0 || !tierName.trim() || !priceAleo) return
+
+    // Validate tier name - min 1 char, max 32 chars, no script tags or SQL
+    const cleanName = tierName.trim()
+    if (cleanName.length === 0) {
+      setError('Tier name is required')
+      return
+    }
+    if (cleanName.length > 32) {
+      setError('Tier name must be 32 characters or less')
+      return
+    }
+    if (/<script|<\/script|drop\s+table|insert\s+into|delete\s+from/i.test(cleanName)) {
+      setError('Tier name contains invalid characters')
+      return
+    }
+
     submittingRef.current = true
     setTxStatus('signing')
     setError(null)
