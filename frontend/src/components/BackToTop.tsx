@@ -20,7 +20,10 @@ export default function BackToTop() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onClick={() => {
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+            window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' })
+          }}
           aria-label="Back to top"
           className="fixed bottom-20 md:bottom-8 right-4 z-40 w-10 h-10 rounded-full bg-surface-1 border border-border flex items-center justify-center text-white/60 hover:text-white hover:border-violet-500/30 active:scale-[0.9] focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none transition-all duration-200 shadow-lg"
         >

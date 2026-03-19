@@ -76,11 +76,20 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    const { data } = await supabase
+    const { data, error: recentErr } = await supabase
       .from('subscription_events')
       .select('tier, amount_microcredits, tx_id, created_at')
       .order('created_at', { ascending: false })
       .limit(API_LIMITS.ANALYTICS_EVENTS_LIMIT)
+
+    if (recentErr) {
+      return NextResponse.json({ events: [], error: 'Database query failed' }, {
+        status: 503,
+        headers: {
+          'Cache-Control': CACHE_HEADERS.ANALYTICS,
+        },
+      })
+    }
 
     return NextResponse.json({ events: data || [] }, {
       headers: {
@@ -98,12 +107,21 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ events: [], fallback: 'no_database' }, { status: 503 })
   }
 
-  const { data } = await supabase
+  const { data, error: queryErr } = await supabase
     .from('subscription_events')
     .select('tier, amount_microcredits, tx_id, created_at')
     .eq('creator_address_hash', addressHash)
     .order('created_at', { ascending: false })
     .limit(API_LIMITS.ANALYTICS_EVENTS_LIMIT)
+
+  if (queryErr) {
+    return NextResponse.json({ events: [], error: 'Database query failed' }, {
+      status: 503,
+      headers: {
+        'Cache-Control': CACHE_HEADERS.ANALYTICS,
+      },
+    })
+  }
 
   return NextResponse.json({ events: data || [] }, {
     headers: {

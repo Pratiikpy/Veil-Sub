@@ -198,7 +198,7 @@ export default function RegisteredDashboard({
   const [showProfileEditor, setShowProfileEditor] = useState(false)
 
   const { withdrawCreatorRevenue, withdrawPlatformFees } = useVeilSub()
-  const { tiers: creatorTiers, tierCount: creatorTierCount, refetch: refetchTiers } = useCreatorTiers(publicKey)
+  const { tiers: creatorTiers, tierCount: creatorTierCount, refetch: refetchTiers, error: tiersError } = useCreatorTiers(publicKey)
   const { startPolling, stopPolling } = useTransactionPoller()
   const composeRef = useRef<HTMLDivElement>(null)
 
@@ -715,6 +715,10 @@ export default function RegisteredDashboard({
             )}
           </div>
         </div>
+
+        {tiersError && (
+          <p className="text-xs text-yellow-400/80 px-1">Could not load custom tiers. Showing default tier only.</p>
+        )}
 
         <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
           {tierList.map((tier) => (
