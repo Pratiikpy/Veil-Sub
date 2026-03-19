@@ -17,6 +17,7 @@ interface Props {
   onClose: () => void
   accessPassPlaintext: string
   creatorAddress: string
+  onSuccess?: () => void
 }
 
 export default function TransferPassModal({
@@ -24,6 +25,7 @@ export default function TransferPassModal({
   onClose,
   accessPassPlaintext,
   creatorAddress,
+  onSuccess,
 }: Props) {
   const { connected, transferPass: executeTransfer } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
@@ -64,6 +66,7 @@ export default function TransferPassModal({
           if (pollResult.status === 'confirmed') {
             setTxStatus('confirmed')
             toast.success('Pass transferred to the new owner!')
+            onSuccess?.()
             stopPolling()
           } else if (pollResult.status === 'failed') {
             setTxStatus('failed')

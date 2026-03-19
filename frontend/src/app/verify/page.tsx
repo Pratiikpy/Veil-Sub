@@ -142,6 +142,7 @@ export default function VerifyPage() {
             if (result.resolvedTxId) setVerifyTxId(result.resolvedTxId)
             setVerifyTxStatus('confirmed')
             setVerifyResult('success')
+            loadPasses() // Refresh passes after verification (pass is consumed and re-created)
           } else if (result.status === 'failed') {
             setVerifyTxStatus('failed')
             setVerifyResult('failed')

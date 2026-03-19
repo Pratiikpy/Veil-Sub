@@ -259,6 +259,7 @@ export default function RegisteredDashboard({
             setWithdrawTxStatus('confirmed')
             stopPolling()
             setWithdrawAmount('')
+            setRefreshKey((k) => k + 1)  // Trigger stats refresh
             toast.success(`${type === 'platform' ? 'Platform fee' : 'Revenue'} withdrawal complete!`)
           } else if (pollResult.status === 'failed') {
             setWithdrawTxStatus('failed')
@@ -879,7 +880,7 @@ export default function RegisteredDashboard({
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <ProfileEditor address={publicKey} />
+            <ProfileEditor address={publicKey} onProfileUpdated={() => setRefreshKey((k) => k + 1)} />
           </m.div>
         )}
       </AnimatePresence>

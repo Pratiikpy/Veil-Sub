@@ -41,12 +41,14 @@ interface RedeemGiftModalProps {
   isOpen: boolean
   onClose: () => void
   creatorAddress: string
+  onSuccess?: () => void
 }
 
 export default function RedeemGiftModal({
   isOpen,
   onClose,
   creatorAddress,
+  onSuccess,
 }: RedeemGiftModalProps) {
   const { redeemGift, getGiftTokens, connected } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
@@ -120,6 +122,7 @@ export default function RedeemGiftModal({
             if (pollResult.resolvedTxId) setTxId(pollResult.resolvedTxId)
             setTxStatus('confirmed')
             toast.success('Gift redeemed! Your new AccessPass is in your wallet.')
+            onSuccess?.()
           } else if (pollResult.status === 'failed') {
             setTxStatus('failed')
             setError('Gift couldn\u2019t be redeemed. It may have already been used or expired.')
@@ -137,7 +140,7 @@ export default function RedeemGiftModal({
     } finally {
       submittingRef.current = false
     }
-  }, [connected, manualEntry, manualPlaintext, selectedToken, redeemGift, setTxStatus, setError, setTxId, startPolling, submittingRef])
+  }, [connected, manualEntry, manualPlaintext, selectedToken, redeemGift, setTxStatus, setError, setTxId, startPolling, submittingRef, onSuccess])
 
   const handleClose = () => {
     setSelectedToken(null)

@@ -28,6 +28,7 @@ interface Props {
   onClose: () => void
   pass: AccessPass
   basePrice: number // microcredits
+  onSuccess?: () => void
 }
 
 export default function RenewModal({
@@ -35,6 +36,7 @@ export default function RenewModal({
   onClose,
   pass,
   basePrice,
+  onSuccess,
 }: Props) {
   const { renew, renewBlind, getCreditsRecords, connected } = useVeilSub()
   const { signMessage } = useWallet()
@@ -156,6 +158,7 @@ export default function RenewModal({
               : null
             logSubscriptionEvent(pass.creator, selectedTierId, totalPrice, result.resolvedTxId || id, wrappedSign)
             toast.success('Subscription renewed!')
+            onSuccess?.()
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             setError('Renewal couldn\u2019t be completed. Check that you have enough credits and your subscription pass is still valid.')

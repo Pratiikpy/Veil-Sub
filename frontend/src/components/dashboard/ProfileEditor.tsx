@@ -9,9 +9,10 @@ import { useSupabase } from '@/hooks/useSupabase'
 
 interface ProfileEditorProps {
   address: string
+  onProfileUpdated?: () => void
 }
 
-export default function ProfileEditor({ address }: ProfileEditorProps) {
+export default function ProfileEditor({ address, onProfileUpdated }: ProfileEditorProps) {
   const { signMessage } = useWallet()
   const { getCreatorProfile, upsertCreatorProfile, error: supabaseError, clearError } = useSupabase()
   const [name, setName] = useState('')
@@ -56,6 +57,7 @@ export default function ProfileEditor({ address }: ProfileEditorProps) {
       if (result) {
         setSaved(true)
         toast.success('Profile updated!')
+        onProfileUpdated?.()
         setTimeout(() => setSaved(false), 2000)
       } else {
         toast.error('Profile couldn\u2019t be saved. Approve the signature request in your wallet to continue.')

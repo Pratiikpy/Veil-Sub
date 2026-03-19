@@ -607,6 +607,33 @@ export default function CreatorPage({
     }
   }, [displayName])
 
+  // Refetch user's access passes (called after subscribe/redeem success)
+  const loadPasses = useCallback(async () => {
+    if (!connected) {
+      setUserPasses([])
+      return
+    }
+    try {
+      const records = await getAccessPasses()
+      const passes = (records ?? [])
+        .map((r) => parseAccessPass(r))
+        .filter((p): p is NonNullable<typeof p> => p !== null && p.creator === address)
+      setUserPasses(passes)
+    } catch {
+      // Silent fail — user can refresh if needed
+    }
+  }, [connected, address, getAccessPasses])
+
+  // Refetch creator stats (called after tip success)
+  const refreshStats = useCallback(async () => {
+    try {
+      const s = await fetchCreatorStats(address)
+      setStats(s)
+    } catch {
+      // Silent fail — stats remain stale but page still works
+    }
+  }, [address, fetchCreatorStats])
+
   // Fetch creator stats and profile.
   // Privacy: check sessionStorage cache first to avoid individual Supabase requests
   // that would leak browsing interest patterns in server logs.
@@ -1031,12 +1058,14 @@ export default function CreatorPage({
           tier={selectedTier}
           creatorAddress={address}
           basePrice={basePrice}
+          onSuccess={loadPasses}
         />
       )}
       <TipModal
         isOpen={showTip}
         onClose={() => setShowTip(false)}
         creatorAddress={address}
+        onSuccess={refreshStats}
       />
       {renewPass && (
         <RenewModal
@@ -1044,6 +1073,7 @@ export default function CreatorPage({
           onClose={() => setRenewPass(null)}
           pass={renewPass}
           basePrice={basePrice}
+          onSuccess={loadPasses}
         />
       )}
       {giftTier && (
@@ -1062,6 +1092,7 @@ export default function CreatorPage({
           onClose={() => setTransferPass(null)}
           accessPassPlaintext={transferPass.rawPlaintext}
           creatorAddress={address}
+          onSuccess={loadPasses}
         />
       )}
       {disputeContentId && userPasses.length > 0 && (
@@ -1084,6 +1115,7 @@ export default function CreatorPage({
         isOpen={showRedeemGift}
         onClose={() => setShowRedeemGift(false)}
         creatorAddress={address}
+        onSuccess={loadPasses}
       />
       {/* Mobile sticky subscribe bar — always visible on scroll */}
       {!isSubscribed && connected && (
