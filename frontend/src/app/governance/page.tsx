@@ -351,7 +351,16 @@ function VoteModal({
                 Your vote has been sealed privately. Your secret code has been saved
                 for future verification.
               </p>
-              <div className="p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-6">
+              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 mb-4">
+                <p className="text-xs text-amber-300 font-medium mb-1">⚠️ Save this code NOW</p>
+                <p className="text-[11px] text-white/70 mb-2">
+                  Clearing browser cache before reveal will permanently lose this code. Save it securely outside your browser.
+                </p>
+                <code className="block p-2 bg-black/40 rounded-lg text-[10px] text-amber-400 font-mono break-all select-all">
+                  {salt}
+                </code>
+              </div>
+              <div className="p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-4">
                 <p className="text-xs text-violet-300/80 font-mono break-all">
                   Sealed vote: {voteChoice}, code: {salt.slice(0, 16)}...
                 </p>

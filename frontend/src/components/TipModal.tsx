@@ -95,12 +95,12 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
         creatorAddress: string
         timestamp: number
       }
-      // Only restore if it matches this creator and is less than 24 hours old
+      // Only restore if it matches this creator and is less than 7 days old
       if (
         pending.salt &&
         pending.amount > 0 &&
         pending.creatorAddress === creatorAddress &&
-        Date.now() - pending.timestamp < 24 * 60 * 60 * 1000
+        Date.now() - pending.timestamp < 7 * 24 * 60 * 60 * 1000
       ) {
         setSavedSalt(pending.salt)
         setSavedAmount(pending.amount)
@@ -466,13 +466,24 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
 
                 {/* Reveal Phase Banner */}
                 {isRevealReady && !pendingTipRestored && (
-                  <div className="p-4 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-4">
-                    <p className="text-xs text-violet-300 font-medium mb-1">Phase 2: Reveal Your Tip</p>
-                    <p className="text-[11px] text-white/70">
-                      Your commitment is on-chain. Click below to reveal {formatCredits(savedAmount)} ALEO
-                      and transfer it to the creator.
-                    </p>
-                  </div>
+                  <>
+                    <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 mb-4">
+                      <p className="text-xs text-amber-300 font-medium mb-1">⚠️ Save this code NOW — funds at risk</p>
+                      <p className="text-[11px] text-white/70 mb-2">
+                        Clearing browser cache before reveal will permanently lose your committed tip. Save this code securely outside your browser.
+                      </p>
+                      <code className="block p-2 bg-black/40 rounded-lg text-[10px] text-amber-400 font-mono break-all select-all">
+                        Amount: {formatCredits(savedAmount)} ALEO | Salt: {savedSalt}
+                      </code>
+                    </div>
+                    <div className="p-4 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-4">
+                      <p className="text-xs text-violet-300 font-medium mb-1">Phase 2: Reveal Your Tip</p>
+                      <p className="text-[11px] text-white/70">
+                        Your commitment is on-chain. Click below to reveal {formatCredits(savedAmount)} ALEO
+                        and transfer it to the creator.
+                      </p>
+                    </div>
+                  </>
                 )}
 
                 {/* Amount Selection (only in commit phase) */}
@@ -509,6 +520,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                         aria-label="Custom tip amount in ALEO"
                         min="0.1"
                         max="1000"
+                        maxLength={20}
                         step="0.1"
                         className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base pr-16"
                       />

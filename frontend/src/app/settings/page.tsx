@@ -308,7 +308,7 @@ function SubscriberProfileCard({ address }: { address: string }) {
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
-  const { address: publicKey, connected, disconnect } = useWallet()
+  const { address: publicKey, connected, disconnect, signMessage } = useWallet()
   const { getCreatorProfile, upsertCreatorProfile } = useSupabase()
 
   // Profile state
@@ -358,21 +358,25 @@ export default function SettingsPage() {
     if (!publicKey) return
     let cancelled = false
     setProfileLoading(true)
+    // Load from localStorage first as fallback
+    const storedCategory = localStorage.getItem('veilsub_profile_category') ?? ''
+    const storedImage = localStorage.getItem('veilsub_profile_image') ?? ''
+    setCategory(storedCategory)
+    setImageUrl(storedImage)
+    // Then fetch from Supabase and override if available
     getCreatorProfile(publicKey).then((profile) => {
       if (cancelled) return
       if (profile) {
         setDisplayName(profile.display_name ?? '')
         setBio(profile.bio ?? '')
+        // Use Supabase values if available, fallback to localStorage
+        if (profile.category) setCategory(profile.category)
+        if (profile.image_url) setImageUrl(profile.image_url)
       }
       setProfileLoading(false)
     }).catch(() => {
       if (!cancelled) setProfileLoading(false)
     })
-    // Also load local settings
-    const storedCategory = localStorage.getItem('veilsub_profile_category') ?? ''
-    const storedImage = localStorage.getItem('veilsub_profile_image') ?? ''
-    setCategory(storedCategory)
-    setImageUrl(storedImage)
     return () => { cancelled = true }
   }, [publicKey, getCreatorProfile])
 
@@ -383,8 +387,17 @@ export default function SettingsPage() {
     setProfileSaving(true)
     setProfileSaved(false)
     try {
-      const result = await upsertCreatorProfile(publicKey, displayName || undefined, bio || undefined)
-      // Save local-only fields (ignore storage quota errors)
+      // Pass all profile fields including category and imageUrl to Supabase
+      const result = await upsertCreatorProfile(
+        publicKey,
+        displayName || undefined,
+        bio || undefined,
+        signMessage,
+        undefined, // creatorHash - not needed for settings
+        category || undefined,
+        imageUrl || undefined
+      )
+      // Also save locally as backup (ignore storage quota errors)
       try {
         localStorage.setItem('veilsub_profile_category', category)
         localStorage.setItem('veilsub_profile_image', imageUrl)
@@ -402,7 +415,7 @@ export default function SettingsPage() {
     } finally {
       setProfileSaving(false)
     }
-  }, [publicKey, displayName, bio, category, imageUrl, upsertCreatorProfile])
+  }, [publicKey, displayName, bio, category, imageUrl, signMessage, upsertCreatorProfile])
 
   const handleSavePrivacy = useCallback(() => {
     savePrivacyMode(privacyMode)

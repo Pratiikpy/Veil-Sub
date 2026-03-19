@@ -63,6 +63,8 @@ export default function RedeemGiftModal({
   const [loadingTokens, setLoadingTokens] = useState(false)
   const [manualEntry, setManualEntry] = useState(false)
   const [manualPlaintext, setManualPlaintext] = useState('')
+  const [manualPlaintextError, setManualPlaintextError] = useState<string | null>(null)
+  const [syncingPass, setSyncingPass] = useState(false)
 
   // Map the hook's TxStatus to the simpler local status
   const status = txStatus === 'idle' ? 'idle' as const
@@ -121,12 +123,16 @@ export default function RedeemGiftModal({
           if (pollResult.status === 'confirmed') {
             if (pollResult.resolvedTxId) setTxId(pollResult.resolvedTxId)
             setTxStatus('confirmed')
-            toast.success('Gift redeemed! Your new AccessPass is in your wallet.')
+            setSyncingPass(true)
+            toast.success('Gift redeemed! Syncing AccessPass to your wallet...')
             // Delay onSuccess slightly to allow wallet record sync
             // If first sync fails, retry once after 2 more seconds
             setTimeout(() => {
               onSuccess?.()
-              setTimeout(() => onSuccess?.(), 2000)
+              setTimeout(() => {
+                onSuccess?.()
+                setSyncingPass(false)
+              }, 2000)
             }, 1000)
           } else if (pollResult.status === 'failed') {
             setTxStatus('failed')
@@ -152,6 +158,8 @@ export default function RedeemGiftModal({
     setGiftTokens([])
     setManualEntry(false)
     setManualPlaintext('')
+    setManualPlaintextError(null)
+    setSyncingPass(false)
     baseHandleClose()
   }
 
@@ -203,8 +211,15 @@ export default function RedeemGiftModal({
                 <div className="rounded-xl bg-surface-2 border border-border p-4 text-center">
                   <Sparkles className="mx-auto mb-2 h-8 w-8 text-green-400" aria-hidden="true" />
                   <p className="text-sm font-medium text-green-400">Gift redeemed!</p>
-                  <p className="mt-1 text-xs text-white/60">Your AccessPass is now in your wallet</p>
-                  {txId && <p className="mt-1 text-xs text-white/60 break-all">Tx: {txId.slice(0, 20)}...</p>}
+                  {syncingPass ? (
+                    <div className="mt-2 flex items-center justify-center gap-2">
+                      <Loader2 className="h-4 w-4 text-violet-400 animate-spin" aria-hidden="true" />
+                      <p className="text-xs text-white/60">Syncing AccessPass to wallet...</p>
+                    </div>
+                  ) : (
+                    <p className="mt-1 text-xs text-white/60">Your AccessPass is now in your wallet</p>
+                  )}
+                  {txId && <p className="mt-1 text-xs text-white/50 break-all font-mono">Tx: {txId.slice(0, 20)}...</p>}
                 </div>
                 <button
                   onClick={handleClose}
@@ -297,6 +312,7 @@ export default function RedeemGiftModal({
                           onClick={() => {
                             setManualEntry(false)
                             setManualPlaintext('')
+                            setManualPlaintextError(null)
                           }}
                           className="text-xs text-violet-400/70 hover:text-violet-300 transition-colors"
                         >
@@ -307,15 +323,39 @@ export default function RedeemGiftModal({
                     <textarea
                       id="gift-token-plaintext"
                       value={manualPlaintext}
-                      onChange={(e) => setManualPlaintext(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value
+                        setManualPlaintext(val)
+                        // Real-time validation feedback
+                        if (val.trim()) {
+                          const parsed = parseGiftToken(val.trim())
+                          if (!parsed) {
+                            setManualPlaintextError('Invalid format. Expected: { owner: aleo1..., creator: aleo1..., tier: 1u8, ... }')
+                          } else {
+                            setManualPlaintextError(null)
+                          }
+                        } else {
+                          setManualPlaintextError(null)
+                        }
+                      }}
                       placeholder='{ owner: aleo1..., creator: aleo1..., tier: 1u8, expires_at: 0u32, gifter_hash: 123field, gift_id: 456field }'
                       rows={4}
                       maxLength={2000}
-                      className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:ring-1 focus:border-violet-500/50 focus:ring-violet-500/30 transition-all text-xs font-mono resize-none"
+                      aria-invalid={!!manualPlaintextError}
+                      aria-describedby={manualPlaintextError ? 'plaintext-error' : undefined}
+                      className={`w-full rounded-lg bg-white/[0.05] border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:ring-1 transition-all text-xs font-mono resize-none ${
+                        manualPlaintextError
+                          ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/30'
+                          : 'border-border focus:border-violet-500/50 focus:ring-violet-500/30'
+                      }`}
                     />
-                    <p className="mt-1.5 text-[11px] text-white/50">
-                      Paste the full GiftToken record plaintext from the gifter
-                    </p>
+                    {manualPlaintextError ? (
+                      <p id="plaintext-error" className="mt-1.5 text-[11px] text-red-400">{manualPlaintextError}</p>
+                    ) : (
+                      <p className="mt-1.5 text-[11px] text-white/50">
+                        Paste the full GiftToken record plaintext from the gifter
+                      </p>
+                    )}
                   </div>
                 )}
 

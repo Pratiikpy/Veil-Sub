@@ -155,6 +155,7 @@ export default function TransferPassModal({
               placeholder="aleo1..."
               required
               pattern="^aleo1[a-z0-9]{56}$"
+              maxLength={63}
               aria-required="true"
               aria-invalid={recipientAddress && !isValidAddress ? true : undefined}
               aria-describedby={recipientAddress && !isValidAddress ? 'transfer-address-error' : undefined}

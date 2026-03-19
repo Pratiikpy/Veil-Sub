@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
   try {
     const { data, error } = await supabase
       .from('creator_profiles')
-      .select('address_hash, creator_hash, display_name, bio, category, created_at')
+      .select('address_hash, creator_hash, display_name, bio, category, image_url, created_at')
       .eq('address_hash', addressHash)
       .single()
 
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { address, display_name, bio, category, creator_hash, signature, timestamp } = payload
+    const { address, display_name, bio, category, image_url, creator_hash, signature, timestamp } = payload
     if (!address || !ALEO_ADDRESS_RE.test(address)) {
       return NextResponse.json({ error: 'Valid Aleo address required' }, { status: 400 })
     }
@@ -75,6 +75,20 @@ export async function POST(req: NextRequest) {
     const VALID_CATEGORIES = ['Content Creator', 'Writer', 'Artist', 'Developer', 'Educator', 'Journalist', 'Other']
     if (category && (typeof category !== 'string' || !VALID_CATEGORIES.includes(category))) {
       return NextResponse.json({ error: 'Invalid category' }, { status: 400 })
+    }
+    if (image_url && (typeof image_url !== 'string' || image_url.length > 500)) {
+      return NextResponse.json({ error: 'Image URL too long (max 500)' }, { status: 400 })
+    }
+    // Validate image URL format if provided
+    if (image_url) {
+      try {
+        const parsed = new URL(image_url)
+        if (parsed.protocol !== 'https:') {
+          return NextResponse.json({ error: 'Image URL must use HTTPS' }, { status: 400 })
+        }
+      } catch {
+        return NextResponse.json({ error: 'Invalid image URL format' }, { status: 400 })
+      }
     }
 
     const addressHashValue = await hashAddress(address)
@@ -98,6 +112,7 @@ export async function POST(req: NextRequest) {
       display_name: display_name || null,
       bio: bio || null,
       ...(category ? { category } : {}),
+      ...(image_url ? { image_url } : {}),
       ...(creator_hash ? { creator_hash } : {}),
     }
 

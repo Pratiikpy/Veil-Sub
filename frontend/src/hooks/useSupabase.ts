@@ -7,6 +7,8 @@ interface SupabaseCreatorProfile {
   creator_hash: string | null
   display_name: string | null
   bio: string | null
+  category: string | null
+  image_url: string | null
   created_at: string
 }
 
@@ -48,8 +50,10 @@ export function useSupabase() {
       address: string,
       displayName?: string,
       bio?: string,
-      signMessage?: ((msg: Uint8Array) => Promise<Uint8Array>) | null,
+      signMessage?: ((msg: Uint8Array) => Promise<Uint8Array | undefined>) | null,
       creatorHash?: string,
+      category?: string,
+      imageUrl?: string,
     ): Promise<SupabaseCreatorProfile | null> => {
       setError(null)
       try {
@@ -59,7 +63,9 @@ export function useSupabase() {
           try {
             const msg = new TextEncoder().encode(`veilsub:profile:${timestamp}`)
             const sig = await signMessage(msg)
-            signature = btoa(String.fromCharCode(...sig))
+            if (sig) {
+              signature = btoa(String.fromCharCode(...sig))
+            }
           } catch {
             // If signing fails, try without (will fail server-side with 403)
           }
@@ -67,7 +73,7 @@ export function useSupabase() {
         const res = await fetch('/api/creators', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ address, display_name: displayName, bio, creator_hash: creatorHash, signature, timestamp }),
+          body: JSON.stringify({ address, display_name: displayName, bio, creator_hash: creatorHash, signature, timestamp, category, image_url: imageUrl }),
         })
         if (!res.ok) {
           setError({ operation: 'upsertProfile', message: 'Failed to save profile', code: res.status })

@@ -476,7 +476,16 @@ function BidModal({
               <p className="text-sm text-white/60 mb-6">
                 Your bid has been sealed. The amount is hidden until the reveal phase.
               </p>
-              <div className="p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-6">
+              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 mb-4">
+                <p className="text-xs text-amber-300 font-medium mb-1">⚠️ Save this code NOW — funds at risk</p>
+                <p className="text-[11px] text-white/70 mb-2">
+                  Clearing browser cache before reveal will permanently lose your bid funds. Save this code securely outside your browser.
+                </p>
+                <code className="block p-2 bg-black/40 rounded-lg text-[10px] text-amber-400 font-mono break-all select-all">
+                  Amount: {bidAmount} ALEO | Salt: {salt}
+                </code>
+              </div>
+              <div className="p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-4">
                 <p className="text-xs text-violet-300/80 font-mono break-all">
                   Sealed bid: {bidAmount || '0'} ALEO, code: {salt.slice(0, 16)}...
                 </p>

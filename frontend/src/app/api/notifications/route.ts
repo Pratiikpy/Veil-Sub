@@ -271,3 +271,87 @@ export async function PATCH(req: NextRequest) {
 
   return NextResponse.json({ error: 'Storage not available' }, { status: 503 })
 }
+
+/**
+ * DELETE /api/notifications
+ * Dismiss (delete) a notification.
+ * Body: { wallet, notificationId }
+ */
+export async function DELETE(req: NextRequest) {
+  const ip = getClientIp(req)
+  const { allowed } = rateLimit(`${ip}:notifications:delete`, 30)
+  if (!allowed) return getRateLimitResponse()
+
+  let payload
+  try {
+    payload = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+
+  const { wallet, notificationId: nId } = payload
+
+  if (!wallet || typeof wallet !== 'string') {
+    return NextResponse.json({ error: 'Missing wallet' }, { status: 400 })
+  }
+  if (!nId || typeof nId !== 'string') {
+    return NextResponse.json({ error: 'Missing notificationId' }, { status: 400 })
+  }
+
+  const walletHash = ALEO_ADDRESS_RE.test(wallet)
+    ? await hashAddress(wallet)
+    : wallet
+
+  // Try Supabase first
+  const supabase = getServerSupabase()
+  if (supabase) {
+    try {
+      await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', nId)
+        .eq('wallet_hash', walletHash)
+      return NextResponse.json({ success: true })
+    } catch {
+      // Fall through to Redis
+    }
+  }
+
+  // Fallback: Redis — remove item from list
+  const redis = getRedis()
+  if (redis) {
+    try {
+      const key = redisKey(walletHash)
+      const items = await redis.lrange(key, 0, MAX_NOTIFICATIONS - 1)
+      const remaining: StoredNotification[] = []
+
+      for (const item of items) {
+        try {
+          const parsed: StoredNotification =
+            typeof item === 'string' ? JSON.parse(item) : (item as StoredNotification)
+          // Keep all except the one being dismissed
+          if (parsed.id !== nId) {
+            remaining.push(parsed)
+          }
+        } catch {
+          // Skip malformed
+        }
+      }
+
+      // Replace the list atomically
+      const pipeline = redis.pipeline()
+      pipeline.del(key)
+      for (const n of remaining) {
+        pipeline.rpush(key, JSON.stringify(n))
+      }
+      pipeline.expire(key, NOTIFICATION_TTL_SECONDS)
+      await pipeline.exec()
+
+      return NextResponse.json({ success: true })
+    } catch {
+      // Redis unavailable for DELETE
+    }
+  }
+
+  return NextResponse.json({ error: 'Storage not available' }, { status: 503 })
+}

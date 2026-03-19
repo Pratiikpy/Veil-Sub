@@ -42,6 +42,49 @@ function getDraftKey(address: string): string {
   return `veilsub:draft:${address}`
 }
 
+/** Validates video URL - only allows YouTube, Vimeo, or direct video files */
+function isValidVideoUrl(url: string): { valid: boolean; error?: string } {
+  if (!url.trim()) return { valid: true } // empty is valid (optional field)
+  try {
+    const parsed = new URL(url)
+    // Only allow HTTPS (or HTTP for localhost in dev)
+    if (parsed.protocol !== 'https:' && !(parsed.protocol === 'http:' && parsed.hostname === 'localhost')) {
+      return { valid: false, error: 'Video URL must use HTTPS' }
+    }
+    // YouTube
+    if (parsed.hostname === 'www.youtube.com' || parsed.hostname === 'youtube.com' || parsed.hostname === 'youtu.be') {
+      return { valid: true }
+    }
+    // Vimeo
+    if (parsed.hostname === 'www.vimeo.com' || parsed.hostname === 'vimeo.com' || parsed.hostname === 'player.vimeo.com') {
+      return { valid: true }
+    }
+    // Direct video files
+    const ext = parsed.pathname.split('.').pop()?.toLowerCase()
+    if (ext && ['mp4', 'webm', 'ogg', 'mov'].includes(ext)) {
+      return { valid: true }
+    }
+    return { valid: false, error: 'Only YouTube, Vimeo, or direct video files (.mp4, .webm) are supported' }
+  } catch {
+    return { valid: false, error: 'Invalid URL format' }
+  }
+}
+
+/** Validates image URL - must be HTTPS and valid format */
+function isValidImageUrl(url: string): { valid: boolean; error?: string } {
+  if (!url.trim()) return { valid: true } // empty is valid (optional field)
+  try {
+    const parsed = new URL(url)
+    // Only allow HTTPS (or HTTP for localhost in dev)
+    if (parsed.protocol !== 'https:' && !(parsed.protocol === 'http:' && parsed.hostname === 'localhost')) {
+      return { valid: false, error: 'Image URL must use HTTPS' }
+    }
+    return { valid: true }
+  } catch {
+    return { valid: false, error: 'Invalid URL format' }
+  }
+}
+
 interface DraftData {
   title: string
   body: string
@@ -67,6 +110,8 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
   const [imageUploading, setImageUploading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [videoUrl, setVideoUrl] = useState(editingPost?.videoUrl ?? '')
+  const [videoUrlError, setVideoUrlError] = useState<string | null>(null)
+  const [imageUrlError, setImageUrlError] = useState<string | null>(null)
 
   const [minTier, setMinTier] = useState(editingPost?.minTier ?? 1)
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
@@ -276,6 +321,11 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
       setError('Draft requires at least a title.')
       return
     }
+    // Validate URLs before saving draft
+    const videoCheck = isValidVideoUrl(videoUrl)
+    if (!videoCheck.valid) { setError(videoCheck.error || 'Invalid video URL'); return }
+    const imageCheck = isValidImageUrl(imageUrl)
+    if (!imageCheck.valid) { setError(imageCheck.error || 'Invalid image URL'); return }
     submittingRef.current = true
     setSavingDraft(true)
     setError(null)
@@ -319,6 +369,11 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
     if (!scheduleDate || !scheduleTime) { setError('Select a date and time for scheduling.'); return }
     const scheduledAt = new Date(`${scheduleDate}T${scheduleTime}`).toISOString()
     if (new Date(scheduledAt) <= new Date()) { setError('Scheduled time must be in the future.'); return }
+    // Validate URLs before scheduling
+    const videoCheck = isValidVideoUrl(videoUrl)
+    if (!videoCheck.valid) { setError(videoCheck.error || 'Invalid video URL'); return }
+    const imageCheck = isValidImageUrl(imageUrl)
+    if (!imageCheck.valid) { setError(imageCheck.error || 'Invalid image URL'); return }
 
     submittingRef.current = true
     setScheduling(true)
@@ -361,6 +416,11 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
   const handlePublish = async () => {
     if (submittingRef.current) return
     if (!title.trim() || !hasBodyContent) { setError('Title and body are required.'); return }
+    // Validate URLs before submission
+    const videoCheck = isValidVideoUrl(videoUrl)
+    if (!videoCheck.valid) { setError(videoCheck.error || 'Invalid video URL'); return }
+    const imageCheck = isValidImageUrl(imageUrl)
+    if (!imageCheck.valid) { setError(imageCheck.error || 'Invalid image URL'); return }
 
     // If editing an existing post, just update status to published (no on-chain tx needed)
     if (editingPost) {
@@ -661,13 +721,31 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                       id="post-image-url"
                       type="url"
                       value={imageUrl}
-                      onChange={(e) => { setImageUrl(e.target.value); setImageError(false) }}
+                      onChange={(e) => {
+                        const val = e.target.value
+                        setImageUrl(val)
+                        setImageError(false)
+                        // Real-time validation feedback
+                        if (val.trim()) {
+                          const check = isValidImageUrl(val)
+                          setImageUrlError(check.valid ? null : check.error || 'Invalid image URL')
+                        } else {
+                          setImageUrlError(null)
+                        }
+                      }}
                       placeholder="or paste image URL: https://..."
                       maxLength={2048}
-                      className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-xs"
+                      aria-invalid={!!imageUrlError}
+                      aria-describedby={imageUrlError ? 'image-url-error' : undefined}
+                      className={`w-full pl-9 pr-4 py-2 rounded-xl bg-white/[0.05] border text-white placeholder-subtle focus:outline-none focus:ring-2 focus:ring-violet-400/50 transition-all text-xs ${
+                        imageUrlError ? 'border-red-500/50 focus:border-red-500' : 'border-border focus:border-violet-500'
+                      }`}
                     />
                   </div>
                 </div>
+              )}
+              {imageUrlError && (
+                <p id="image-url-error" className="text-xs text-red-400 mt-1">{imageUrlError}</p>
               )}
             </div>
             <div>
@@ -681,16 +759,30 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                     id="post-video-url"
                     type="url"
                     value={videoUrl}
-                    onChange={(e) => setVideoUrl(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value
+                      setVideoUrl(val)
+                      // Real-time validation feedback
+                      if (val.trim()) {
+                        const check = isValidVideoUrl(val)
+                        setVideoUrlError(check.valid ? null : check.error || 'Invalid video URL')
+                      } else {
+                        setVideoUrlError(null)
+                      }
+                    }}
                     placeholder="https://www.youtube.com/watch?v=..."
                     maxLength={2048}
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm"
+                    aria-invalid={!!videoUrlError}
+                    aria-describedby={videoUrlError ? 'video-url-error' : undefined}
+                    className={`w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.05] border text-white placeholder-subtle focus:outline-none focus:ring-2 focus:ring-violet-400/50 transition-all text-sm ${
+                      videoUrlError ? 'border-red-500/50 focus:border-red-500' : 'border-border focus:border-violet-500'
+                    }`}
                   />
                 </div>
                 {videoUrl && (
                   <button
                     type="button"
-                    onClick={() => setVideoUrl('')}
+                    onClick={() => { setVideoUrl(''); setVideoUrlError(null) }}
                     className="px-2.5 rounded-xl bg-white/[0.05] border border-border text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors focus-visible:ring-2 focus-visible:ring-violet-400/50 focus-visible:ring-offset-0"
                     aria-label="Clear video"
                   >
@@ -698,6 +790,9 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                   </button>
                 )}
               </div>
+              {videoUrlError && (
+                <p id="video-url-error" className="text-xs text-red-400 mt-1">{videoUrlError}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm text-white/70 mb-1.5">Minimum tier required</label>

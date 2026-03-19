@@ -22,13 +22,18 @@ export async function GET(req: NextRequest) {
   try {
     const raw = await redis.zrange(`veilsub:posts:${creator}`, 0, -1, { rev: true })
     const now = new Date().toISOString()
-    const posts = raw.flatMap((p) => {
+    // Track posts that need status update in Redis (scheduled -> published)
+    const postsToPromote: { oldEntry: string; newPost: Record<string, unknown>; score: number }[] = []
+    const posts = raw.flatMap((p, index) => {
       try {
+        const rawEntry = typeof p === 'string' ? p : JSON.stringify(p)
         const post = typeof p === 'string' ? JSON.parse(p) : p
 
         // Auto-promote scheduled posts whose scheduledAt has passed
         if (post.status === 'scheduled' && post.scheduledAt && post.scheduledAt <= now) {
           post.status = 'published'
+          // Queue for Redis update (persist the status change)
+          postsToPromote.push({ oldEntry: rawEntry, newPost: post, score: Date.now() - index })
         }
 
         const effectiveStatus = post.status || 'published'
@@ -66,6 +71,20 @@ export async function GET(req: NextRequest) {
         return [{ ...post, body: decryptedBody, preview: decryptedPreview }]
       } catch { return [] }
     })
+
+    // Persist scheduled->published status changes to Redis (fire-and-forget, don't block response)
+    if (postsToPromote.length > 0) {
+      Promise.all(postsToPromote.map(async ({ oldEntry, newPost, score }) => {
+        try {
+          // Remove old entry and add updated entry
+          await redis.zrem(`veilsub:posts:${creator}`, oldEntry)
+          await redis.zadd(`veilsub:posts:${creator}`, { score, member: JSON.stringify(newPost) })
+        } catch {
+          // Silent fail — next request will try again
+        }
+      })).catch(() => { /* ignore batch errors */ })
+    }
+
     return NextResponse.json({ posts }, {
       headers: { 'Cache-Control': CACHE_HEADERS.POSTS },
     })

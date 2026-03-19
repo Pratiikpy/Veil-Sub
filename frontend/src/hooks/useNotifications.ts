@@ -162,9 +162,26 @@ export function useNotifications() {
     }
   }, [walletAddress, fetchNotifications])
 
-  const dismiss = useCallback((notificationId: string) => {
+  const dismiss = useCallback(async (notificationId: string) => {
+    if (!walletAddress) return
+    // Optimistic update
+    const previousNotifications = notifications
     setNotifications((prev) => prev.filter((n) => n.id !== notificationId))
-  }, [])
+
+    try {
+      await fetch('/api/notifications', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          wallet: walletAddress,
+          notificationId,
+        }),
+      })
+    } catch {
+      // Revert on failure
+      setNotifications(previousNotifications)
+    }
+  }, [walletAddress, notifications])
 
   return {
     notifications,
