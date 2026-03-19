@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
-import { X, Heart, EyeOff, Eye, Shield, AlertTriangle } from 'lucide-react'
+import { X, Heart, EyeOff, Eye, Shield, AlertTriangle, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
@@ -344,6 +345,8 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
       setSavedSalt(null)
       setSavedAmount(0)
       setTipMode('direct')
+      setSelectedAmount(5) // Reset to default
+      setCustomAmount('') // Clear custom amount
     }
     handleClose()
   }
@@ -603,11 +606,28 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                     aria-live="polite"
                   >
                     <p className="text-green-400 font-medium">Private tip sent!</p>
+                    <p className="text-xs text-white/70 mt-1">
+                      The creator has received your support anonymously.
+                    </p>
+
+                    {/* What's Next guidance */}
+                    <div className="mt-4 p-4 rounded-xl bg-surface-2 border border-border text-left">
+                      <p className="text-xs font-medium text-white/80 mb-3">What&apos;s Next?</p>
+                      <Link
+                        href={`/creator/${creatorAddress}`}
+                        onClick={handleModalClose}
+                        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-violet-500/15 border border-violet-500/25 text-sm font-medium text-violet-300 hover:bg-violet-500/25 transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                      >
+                        <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                        View Creator&apos;s Content
+                      </Link>
+                    </div>
+
                     <button
                       onClick={handleModalClose}
-                      className="mt-4 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
+                      className="mt-3 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
                     >
-                      Done
+                      Close
                     </button>
                   </m.div>
                 )}
@@ -623,11 +643,25 @@ export default function TipModal({ isOpen, onClose, creatorAddress }: Props) {
                     <p className="text-xs text-white/70 mt-1">
                       The creator has received {formatCredits(savedAmount)} ALEO privately. Both phases verified on-chain.
                     </p>
+
+                    {/* What's Next guidance */}
+                    <div className="mt-4 p-4 rounded-xl bg-surface-2 border border-border text-left">
+                      <p className="text-xs font-medium text-white/80 mb-3">What&apos;s Next?</p>
+                      <Link
+                        href={`/creator/${creatorAddress}`}
+                        onClick={handleModalClose}
+                        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-violet-500/15 border border-violet-500/25 text-sm font-medium text-violet-300 hover:bg-violet-500/25 transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                      >
+                        <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                        View Creator&apos;s Content
+                      </Link>
+                    </div>
+
                     <button
                       onClick={handleModalClose}
-                      className="mt-4 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
+                      className="mt-3 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
                     >
-                      Done
+                      Close
                     </button>
                   </m.div>
                 )}

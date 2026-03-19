@@ -161,14 +161,18 @@ function SectionHeader({ icon: Icon, title }: { icon: React.ComponentType<{ clas
   )
 }
 
-function SaveButton({ onClick, saving, label = 'Save Changes' }: { onClick: () => void; saving: boolean; label?: string }) {
+function SaveButton({ onClick, saving, saved, label = 'Save Changes' }: { onClick: () => void; saving: boolean; saved?: boolean; label?: string }) {
   return (
     <button
       onClick={onClick}
       disabled={saving}
-      className="px-5 py-2.5 rounded-lg bg-violet-500/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+      className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+        saved
+          ? 'bg-emerald-500/20 border border-emerald-500/30 text-emerald-300'
+          : 'bg-violet-500/20 border border-violet-500/30 text-violet-300 hover:bg-violet-500/30'
+      }`}
     >
-      {saving ? 'Saving...' : label}
+      {saving ? 'Saving...' : saved ? 'Saved!' : label}
     </button>
   )
 }
@@ -314,9 +318,11 @@ export default function SettingsPage() {
   const [imageUrl, setImageUrl] = useState('')
   const [profileLoading, setProfileLoading] = useState(false)
   const [profileSaving, setProfileSaving] = useState(false)
+  const [profileSaved, setProfileSaved] = useState(false)
 
   // Privacy state
   const [privacyMode, setPrivacyMode] = useState<PrivacyMode>('standard')
+  const [privacySaved, setPrivacySaved] = useState(false)
 
   // Display state
   const [themePref, setThemePref] = useState<ThemePreference>('dark')
@@ -330,6 +336,7 @@ export default function SettingsPage() {
   // Notification state
   const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs>(DEFAULT_NOTIFICATION_PREFS)
   const [notifSaving, setNotifSaving] = useState(false)
+  const [notifSaved, setNotifSaved] = useState(false)
 
   // Mounted flag for hydration safety
   const [mounted, setMounted] = useState(false)
@@ -374,6 +381,7 @@ export default function SettingsPage() {
   const handleSaveProfile = useCallback(async () => {
     if (!publicKey) return
     setProfileSaving(true)
+    setProfileSaved(false)
     try {
       const result = await upsertCreatorProfile(publicKey, displayName || undefined, bio || undefined)
       // Save local-only fields (ignore storage quota errors)
@@ -384,6 +392,8 @@ export default function SettingsPage() {
       if (result) {
         toast.success('Profile saved')
         sounds.success()
+        setProfileSaved(true)
+        setTimeout(() => setProfileSaved(false), 3000)
       } else {
         toast.error('Profile couldn\u2019t be saved. Check your wallet and try again.')
       }
@@ -398,6 +408,8 @@ export default function SettingsPage() {
     savePrivacyMode(privacyMode)
     toast.success('Privacy preference saved')
     sounds.success()
+    setPrivacySaved(true)
+    setTimeout(() => setPrivacySaved(false), 3000)
   }, [privacyMode])
 
   const handleThemeChange = useCallback((pref: string) => {
@@ -433,6 +445,8 @@ export default function SettingsPage() {
     saveNotificationPrefs(notifPrefs)
     toast.success('Notification preferences saved')
     sounds.success()
+    setNotifSaved(true)
+    setTimeout(() => setNotifSaved(false), 3000)
   }, [notifPrefs])
 
   const updateNotifPref = useCallback((key: keyof NotificationPrefs, value: boolean) => {
@@ -563,7 +577,7 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div className="pt-2">
-                    <SaveButton onClick={handleSaveProfile} saving={profileSaving} />
+                    <SaveButton onClick={handleSaveProfile} saving={profileSaving} saved={profileSaved} />
                   </div>
                 </div>
               )}
@@ -617,7 +631,7 @@ export default function SettingsPage() {
                   )}
                 </div>
                 <div className="pt-2">
-                  <SaveButton onClick={handleSavePrivacy} saving={false} label="Save Preference" />
+                  <SaveButton onClick={handleSavePrivacy} saving={false} saved={privacySaved} label="Save Preference" />
                 </div>
               </div>
             </GlassCard>
@@ -745,7 +759,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="pt-2">
-                  <SaveButton onClick={handleSaveNotifications} saving={notifSaving} label="Save Preferences" />
+                  <SaveButton onClick={handleSaveNotifications} saving={notifSaving} saved={notifSaved} label="Save Preferences" />
                 </div>
               </div>
             </GlassCard>

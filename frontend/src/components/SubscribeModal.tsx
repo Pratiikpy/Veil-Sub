@@ -175,6 +175,7 @@ export default function SubscribeModal({
 
   const handleModalClose = () => {
     setInsufficientBalance(false)
+    setPrivacyMode('standard') // Reset privacy mode for next open
     handleClose()
   }
 

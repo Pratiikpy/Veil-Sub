@@ -29,15 +29,23 @@ export default function TransferPassModal({
   const { startPolling, stopPolling } = useTransactionPoller()
   const {
     txStatus, setTxStatus, txId, setTxId,
-    error, setError, submittingRef, handleClose,
+    error, setError, submittingRef, handleClose: baseHandleClose,
   } = useTransactionFlow({ isOpen, onClose, connected, stopPolling })
-  const focusTrapRef = useFocusTrap(isOpen, handleClose)
 
   const [recipientAddress, setRecipientAddress] = useState('')
   const [confirmed, setConfirmed] = useState(false)
 
   const isValidAddress = isValidAleoAddress(recipientAddress)
   const canTransfer = isValidAddress && confirmed && txStatus !== 'signing' && txStatus !== 'broadcasting'
+
+  // Reset form state on modal close
+  const handleModalClose = () => {
+    setRecipientAddress('')
+    setConfirmed(false)
+    baseHandleClose()
+  }
+
+  const focusTrapRef = useFocusTrap(isOpen, handleModalClose)
 
   const handleTransfer = async () => {
     if (!connected || submittingRef.current || !isValidAddress) return
@@ -81,7 +89,7 @@ export default function TransferPassModal({
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh] overflow-y-auto"
       >
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} aria-hidden="true" />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleModalClose} aria-hidden="true" />
         <m.div
           ref={focusTrapRef}
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -94,7 +102,7 @@ export default function TransferPassModal({
         >
           {/* Close */}
           <button
-            onClick={handleClose}
+            onClick={handleModalClose}
             disabled={txStatus === 'signing' || txStatus === 'broadcasting'}
             aria-label="Close transfer modal"
             className={`absolute top-5 right-5 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded ${
@@ -199,12 +207,12 @@ export default function TransferPassModal({
           {/* Actions */}
           <div className="flex gap-4">
             {txStatus === 'confirmed' ? (
-              <Button variant="accent" onClick={handleClose} className="w-full">
+              <Button variant="accent" onClick={handleModalClose} className="w-full">
                 Done
               </Button>
             ) : txStatus === 'failed' ? (
               <>
-                <Button variant="secondary" onClick={handleClose} className="flex-1">
+                <Button variant="secondary" onClick={handleModalClose} className="flex-1">
                   Close
                 </Button>
                 <Button
@@ -220,7 +228,7 @@ export default function TransferPassModal({
               </>
             ) : (
               <>
-                <Button variant="secondary" onClick={handleClose} className="flex-1" disabled={txStatus === 'signing' || txStatus === 'broadcasting'}>
+                <Button variant="secondary" onClick={handleModalClose} className="flex-1" disabled={txStatus === 'signing' || txStatus === 'broadcasting'}>
                   Cancel
                 </Button>
                 <Button

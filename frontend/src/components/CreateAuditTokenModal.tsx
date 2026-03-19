@@ -29,7 +29,6 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
     error, setError, statusMessage,
     submittingRef, handleClose, resetFlow,
   } = useTransactionFlow({ isOpen, onClose, connected, stopPolling })
-  const focusTrapRef = useFocusTrap(isOpen, handleClose)
 
   const [verifierAddress, setVerifierAddress] = useState('')
   // v27: Scope mask — controls which fields the verifier can see
@@ -37,6 +36,15 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
   const [scopeFlags, setScopeFlags] = useState({ creator: true, tier: true, expiry: true, subscriberHash: false })
 
   const scopeMask = (scopeFlags.creator ? 1 : 0) + (scopeFlags.tier ? 2 : 0) + (scopeFlags.expiry ? 4 : 0) + (scopeFlags.subscriberHash ? 8 : 0)
+
+  // Reset form state on modal close
+  const handleModalClose = () => {
+    setVerifierAddress('')
+    setScopeFlags({ creator: true, tier: true, expiry: true, subscriberHash: false })
+    handleClose()
+  }
+
+  const focusTrapRef = useFocusTrap(isOpen, handleModalClose)
 
   const handleCreate = async () => {
     if (submittingRef.current) return
@@ -100,7 +108,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh] bg-black/60 backdrop-blur-sm overflow-y-auto"
-          onClick={handleClose}
+          onClick={handleModalClose}
         >
           <m.div
             ref={focusTrapRef}
@@ -119,7 +127,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                 <h3 className="text-lg font-semibold text-white">Create Verification Token</h3>
               </div>
               <button
-                onClick={handleClose}
+                onClick={handleModalClose}
                 disabled={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed'}
                 aria-label="Close audit token dialog"
                 title={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed' ? 'Transaction in progress - please wait' : 'Close dialog'}
@@ -246,7 +254,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                       Token created for verifier. Completely private—no public record on-chain.
                     </p>
                     <button
-                      onClick={handleClose}
+                      onClick={handleModalClose}
                       className="mt-4 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                     >
                       Done
