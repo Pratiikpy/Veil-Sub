@@ -28,6 +28,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import dynamic from 'next/dynamic'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 
 const CelebrationBurst = dynamic(() => import('@/components/CelebrationBurst'), { ssr: false })
 import AddressAvatar from '@/components/ui/AddressAvatar'
@@ -198,9 +199,22 @@ export default function RegisteredDashboard({
   const [showProfileEditor, setShowProfileEditor] = useState(false)
 
   const { withdrawCreatorRevenue, withdrawPlatformFees } = useVeilSub()
+  const { connected } = useWallet()
   const { tiers: creatorTiers, tierCount: creatorTierCount, refetch: refetchTiers, error: tiersError } = useCreatorTiers(publicKey)
   const { startPolling, stopPolling } = useTransactionPoller()
   const composeRef = useRef<HTMLDivElement>(null)
+
+  // Detect wallet disconnect during withdrawal transaction
+  useEffect(() => {
+    if (
+      connected === false &&
+      (withdrawTxStatus === 'signing' || withdrawTxStatus === 'broadcasting')
+    ) {
+      setWithdrawTxStatus('failed')
+      setWithdrawError('Wallet disconnected. Please reconnect and try again.')
+      stopPolling()
+    }
+  }, [connected, withdrawTxStatus, stopPolling])
 
   // Fake sparkline data (placeholder until real analytics data is available)
   const revenueSpark = useMemo(() => [0, 1, 1, 2, 3, 2, 4, 5, 4, 6, 7, 5, 8], [])

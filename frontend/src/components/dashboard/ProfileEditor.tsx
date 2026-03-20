@@ -69,7 +69,28 @@ export default function ProfileEditor({ address, onProfileUpdated }: ProfileEdit
     }
   }
 
-  if (!profileLoaded) return null
+  if (!profileLoaded) {
+    return (
+      <div className="p-6 rounded-xl bg-surface-1 border border-border animate-pulse" role="status" aria-live="polite">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-5 h-5 rounded bg-white/10" />
+          <div className="h-5 w-20 bg-white/10 rounded" />
+        </div>
+        <div className="space-y-4">
+          <div>
+            <div className="h-4 w-24 bg-white/10 rounded mb-1.5" />
+            <div className="h-10 bg-white/10 rounded-lg" />
+          </div>
+          <div>
+            <div className="h-4 w-12 bg-white/10 rounded mb-1.5" />
+            <div className="h-20 bg-white/10 rounded-lg" />
+          </div>
+          <div className="h-10 w-28 bg-white/10 rounded-lg" />
+        </div>
+        <span className="sr-only">Loading profile editor...</span>
+      </div>
+    )
+  }
 
   // Show load error with retry option
   if (loadError || supabaseError) {

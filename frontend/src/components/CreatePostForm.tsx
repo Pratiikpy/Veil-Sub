@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react'
 import { m } from 'framer-motion'
-import { FileText, Send, Image as ImageIcon, X, Video, Upload, Loader2, Save, Clock, Tag, Plus } from 'lucide-react'
+import { FileText, Send, Image as ImageIcon, X, Video, Upload, Loader2, Save, Clock, Tag, Plus, ExternalLink } from 'lucide-react'
+import Link from 'next/link'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
@@ -969,14 +970,23 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
               className="mt-4 text-center"
             >
               <p className="text-green-400 font-medium mb-1">Published!</p>
-              <p className="text-xs text-white/70">Content metadata is now on-chain.</p>
-              <button
-                onClick={handleReset}
-                aria-label="Create another post"
-                className="mt-4 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50"
-              >
-                Create Another Post
-              </button>
+              <p className="text-xs text-white/70 mb-4">Content metadata is now on-chain. Subscribers can now view your post.</p>
+              <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                <Link
+                  href={`/creator/${creatorAddress}#posts`}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-2 rounded-lg bg-violet-500/10 border border-violet-500/30 text-sm text-violet-300 hover:bg-violet-500/20 active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50"
+                >
+                  <ExternalLink className="w-4 h-4" aria-hidden="true" />
+                  View Your Page
+                </Link>
+                <button
+                  onClick={handleReset}
+                  aria-label="Create another post"
+                  className="px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50"
+                >
+                  Create Another Post
+                </button>
+              </div>
             </m.div>
           )}
         </div>

@@ -1085,6 +1085,7 @@ export default function CreatorPage({
           tierPrice={giftTier.price}
           tierId={giftTier.id}
           tierName={giftTier.name}
+          onSuccess={refreshStats}
         />
       )}
       {transferPass && (

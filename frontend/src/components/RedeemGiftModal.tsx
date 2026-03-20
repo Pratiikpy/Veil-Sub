@@ -2,7 +2,8 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
-import { Gift, X, Sparkles, AlertCircle, Shield, Loader2, Package } from 'lucide-react'
+import { Gift, X, Sparkles, AlertCircle, Shield, Loader2, Package, ExternalLink } from 'lucide-react'
+import Link from 'next/link'
 import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
@@ -221,12 +222,23 @@ export default function RedeemGiftModal({
                   )}
                   {txId && <p className="mt-1 text-xs text-white/50 break-all font-mono">Tx: {txId.slice(0, 20)}...</p>}
                 </div>
-                <button
-                  onClick={handleClose}
-                  className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
-                >
-                  Done
-                </button>
+                <p className="text-xs text-white/60 text-center">What&apos;s next?</p>
+                <div className="flex flex-col gap-2">
+                  <Link
+                    href={`/creator/${creatorAddress}`}
+                    onClick={handleClose}
+                    className="flex items-center justify-center gap-2 w-full rounded-lg bg-violet-500/10 border border-violet-500/30 py-2.5 text-sm font-medium text-violet-300 hover:bg-violet-500/20 active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                  >
+                    <ExternalLink className="w-4 h-4" aria-hidden="true" />
+                    View Creator&apos;s Content
+                  </Link>
+                  <button
+                    onClick={handleClose}
+                    className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                  >
+                    Done
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="space-y-4">

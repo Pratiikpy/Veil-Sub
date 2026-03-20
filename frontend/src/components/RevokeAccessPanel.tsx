@@ -9,7 +9,11 @@ import TransactionStatus from './TransactionStatus'
 import Button from './ui/Button'
 import type { TxStatus } from '@/types'
 
-export default function RevokeAccessPanel() {
+interface Props {
+  onSuccess?: () => void
+}
+
+export default function RevokeAccessPanel({ onSuccess }: Props) {
   const { revokeAccess, connected } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
   const [passId, setPassId] = useState('')
@@ -36,6 +40,8 @@ export default function RevokeAccessPanel() {
             setTxStatus('confirmed')
             stopPolling()
             setPassId('')
+            toast.success('Access revoked successfully')
+            onSuccess?.()
           } else if (pollResult.status === 'failed') {
             setTxStatus('failed')
             stopPolling()

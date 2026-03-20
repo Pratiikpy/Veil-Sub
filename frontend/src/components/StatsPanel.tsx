@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { m } from 'framer-motion'
-import { Users, Coins, Tag } from 'lucide-react'
+import { Users, Coins, Tag, RefreshCw } from 'lucide-react'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { formatCredits } from '@/lib/utils'
 import type { CreatorProfile } from '@/types'
@@ -46,12 +46,28 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
     )
   }
 
+  const handleRetry = () => {
+    setFetchError(null)
+    clearError()
+    fetchCreatorStats(creatorAddress).then(setStats).catch((err) => {
+      setFetchError(err instanceof Error ? err.message : 'Failed to load stats')
+    })
+  }
+
   if (!stats && errorMessage) {
     return (
-      <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/15 text-center">
-        <p className="text-xs text-red-300">
+      <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/15">
+        <p className="text-xs text-red-300 mb-3 text-center">
           {errorMessage || 'On-chain creator stats unavailable. The Aleo testnet may be congested.'}
         </p>
+        <button
+          onClick={handleRetry}
+          disabled={loading}
+          className="mx-auto flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-300 hover:bg-red-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-red-400/50"
+        >
+          <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} aria-hidden="true" />
+          {loading ? 'Retrying...' : 'Retry'}
+        </button>
       </div>
     )
   }
