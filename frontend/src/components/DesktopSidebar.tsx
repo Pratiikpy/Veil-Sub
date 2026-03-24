@@ -1,0 +1,138 @@
+'use client'
+
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
+import { Home, Compass, PlusCircle, Bell, LayoutDashboard, Search, Settings } from 'lucide-react'
+import { useNotifications } from '@/hooks/useNotifications'
+
+const NAV_ITEMS = [
+  { href: '/feed', label: 'Feed', icon: Home },
+  { href: '/explore', label: 'Explore', icon: Compass },
+  { href: '/dashboard', label: 'Create', icon: PlusCircle, requiresWallet: true, noActive: true },
+  { href: '/notifications', label: 'Notifications', icon: Bell, requiresWallet: true, showBadge: true },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, requiresWallet: true },
+]
+
+function openCommandPalette() {
+  window.dispatchEvent(
+    new KeyboardEvent('keydown', { key: 'k', metaKey: true, ctrlKey: true, bubbles: true })
+  )
+}
+
+export default function DesktopSidebar() {
+  const { connected, address } = useWallet()
+  const pathname = usePathname()
+  const { unreadCount } = useNotifications()
+
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/'
+    return pathname.startsWith(href)
+  }
+
+  const truncatedAddress = address
+    ? `${address.slice(0, 8)}...${address.slice(-4)}`
+    : null
+
+  const visibleNav = NAV_ITEMS.filter(item => !item.requiresWallet || connected)
+
+  return (
+    <aside className="hidden md:flex flex-col fixed top-0 left-0 bottom-0 w-[220px] bg-[#050507] border-r border-white/[0.06] z-40">
+      {/* Logo */}
+      <div className="px-5 pt-6 pb-4">
+        <Link
+          href="/"
+          className="group flex items-center gap-2 transition-opacity duration-200 hover:opacity-80"
+        >
+          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-400 font-serif italic text-lg font-bold">
+            V
+          </span>
+          <span className="font-serif italic text-white text-lg">veil</span>
+          <span className="text-[9px] font-sans not-italic font-medium text-white/25 ml-0.5">
+            testnet
+          </span>
+        </Link>
+      </div>
+
+      {/* Main navigation */}
+      <nav aria-label="Main navigation" className="flex-1 px-3 py-2 space-y-0.5">
+        {visibleNav.map((item) => {
+          const Icon = item.icon
+          const active = item.noActive ? false : isActive(item.href)
+          return (
+            <Link
+              key={`${item.href}-${item.label}`}
+              href={item.href}
+              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+                active
+                  ? 'text-white bg-white/[0.05]'
+                  : 'text-white/50 hover:text-white/80 hover:bg-white/[0.03]'
+              }`}
+            >
+              <div className="relative">
+                <Icon size={18} strokeWidth={active ? 2.5 : 2} aria-hidden="true" />
+                {item.showBadge && unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[9px] font-bold text-white bg-red-500 rounded-full">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </div>
+              {item.label}
+            </Link>
+          )
+        })}
+      </nav>
+
+      {/* Bottom section */}
+      <div className="px-3 pb-3 space-y-0.5">
+        {/* Search trigger */}
+        <button
+          onClick={openCommandPalette}
+          className="group flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-[13px] font-semibold text-white/50 hover:text-white/80 hover:bg-white/[0.03] transition-all duration-150 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+        >
+          <Search size={18} strokeWidth={2} aria-hidden="true" />
+          <span>Search</span>
+          <kbd className="ml-auto text-[10px] font-mono text-white/25 bg-white/[0.04] border border-white/[0.08] rounded px-1.5 py-0.5">
+            /K
+          </kbd>
+        </button>
+
+        {/* Settings */}
+        {connected && (
+          <Link
+            href="/settings"
+            className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+              isActive('/settings')
+                ? 'text-white bg-white/[0.05]'
+                : 'text-white/50 hover:text-white/80 hover:bg-white/[0.03]'
+            }`}
+          >
+            <Settings size={18} strokeWidth={isActive('/settings') ? 2.5 : 2} aria-hidden="true" />
+            Settings
+          </Link>
+        )}
+
+        {/* Wallet status */}
+        <div className="mt-2 mx-1 px-3 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+          {connected ? (
+            <div className="flex items-center gap-2.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-50" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[11px] font-medium text-white/70">Connected</p>
+                <p className="text-[10px] font-mono text-white/35 truncate">{truncatedAddress}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2.5">
+              <span className="h-2 w-2 rounded-full bg-white/20" />
+              <p className="text-[11px] text-white/40">Not connected</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </aside>
+  )
+}

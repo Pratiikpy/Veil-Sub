@@ -23,14 +23,18 @@ import {
   X,
   Bookmark,
   MessageCircle,
+  FileText,
 } from 'lucide-react'
 import Fuse from 'fuse.js'
 import dynamic from 'next/dynamic'
 const RichContentRenderer = dynamic(() => import('@/components/RichContentRenderer'), { ssr: false })
 const VideoEmbed = dynamic(() => import('@/components/VideoEmbed'), { ssr: false })
 const PostInteractions = dynamic(() => import('@/components/PostInteractions'), { ssr: false })
+const EmojiReactions = dynamic(() => import('@/components/EmojiReactions'), { ssr: false })
 const PostComments = dynamic(() => import('@/components/PostComments'), { ssr: false })
 const SavedPosts = dynamic(() => import('@/components/SavedPosts'), { ssr: false })
+const ImageLightbox = dynamic(() => import('@/components/ImageLightbox'), { ssr: false })
+const ArticleReader = dynamic(() => import('@/components/ArticleReader'), { ssr: false })
 import PageTransition from '@/components/PageTransition'
 import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
@@ -166,6 +170,8 @@ function FeedPostCard({
   const tierName = getTierName(post.creatorAddress, post.minTier)
   const unlocked = hasAccess && post.body != null
   const [showComments, setShowComments] = useState(false)
+  const [lightboxImages, setLightboxImages] = useState<string[] | null>(null)
+  const [showReader, setShowReader] = useState(false)
 
   // Preview text: use post.preview, or strip HTML from body, or show placeholder
   const previewText = useMemo(() => {
@@ -190,7 +196,7 @@ function FeedPostCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...spring.gentle, delay: Math.min(index * 0.05, 0.3) }}
-      className="rounded-2xl border border-white/[0.06] bg-[#0A0A0F] overflow-hidden hover:border-white/[0.1] transition-colors duration-200"
+      className="post-card-mobile rounded-2xl border border-white/[0.06] bg-[#0A0A0F] overflow-hidden hover:border-white/[0.1] transition-colors duration-200"
     >
       <div className="p-6">
         {/* Creator attribution */}
@@ -236,12 +242,20 @@ function FeedPostCard({
           {post.title}
         </h2>
 
-        {/* Unlocked image */}
+        {/* Unlocked image -- click to open lightbox */}
         {unlocked && post.imageUrl && (
-          <div className="mb-4 rounded-xl overflow-hidden border border-white/[0.06] aspect-video bg-white/[0.02]">
+          <div
+            className="mb-4 rounded-xl overflow-hidden border border-white/[0.06] aspect-video bg-white/[0.02] cursor-zoom-in"
+            onClick={() => {
+              const imgs = post.imageUrl!.includes(',')
+                ? post.imageUrl!.split(',').map((s: string) => s.trim()).filter(Boolean)
+                : [post.imageUrl!]
+              setLightboxImages(imgs)
+            }}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={post.imageUrl}
+              src={post.imageUrl.includes(',') ? post.imageUrl.split(',')[0].trim() : post.imageUrl}
               alt={`Image for ${post.title}`}
               className="w-full h-full object-cover content-unlocked"
               loading="lazy"
@@ -283,6 +297,15 @@ function FeedPostCard({
         {unlocked && post.body ? (
           <div className="content-unlocked">
             <RichContentRenderer html={post.body} />
+            {post.body.length > 500 && (
+              <button
+                onClick={() => setShowReader(true)}
+                className="mt-3 flex items-center gap-1.5 text-xs text-violet-400/70 hover:text-violet-300 transition-colors"
+              >
+                <FileText className="w-3.5 h-3.5" aria-hidden="true" />
+                Read in focus mode
+              </button>
+            )}
           </div>
         ) : (
           <div className="relative min-h-[80px]">
@@ -334,6 +357,7 @@ function FeedPostCard({
             readingTime={readingTime || undefined}
             onCommentClick={() => setShowComments(!showComments)}
           />
+          <EmojiReactions contentId={post.id} />
         </div>
 
         {/* Collapsible comments */}
@@ -350,6 +374,24 @@ function FeedPostCard({
           </button>
         )}
       </div>
+
+      {lightboxImages && (
+        <ImageLightbox
+          images={lightboxImages}
+          onClose={() => setLightboxImages(null)}
+        />
+      )}
+
+      {showReader && post.body && (
+        <ArticleReader
+          title={post.title}
+          body={post.body}
+          creator={{ name: post.creatorLabel, address: post.creatorAddress }}
+          publishedAt={post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}
+          readingTime={readingTime || ''}
+          onClose={() => setShowReader(false)}
+        />
+      )}
     </m.article>
   )
 }

@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'VeilSub—Private Creator Subscriptions',
     short_name: 'VeilSub',
     description: 'Subscribe privately. Prove access. Nobody sees who you support. Zero-knowledge subscriptions on Aleo.',
-    start_url: '/',
+    start_url: '/feed',
     display: 'standalone',
     background_color: '#000000',
     theme_color: '#8B5CF6',
@@ -13,21 +13,21 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ['finance', 'social', 'productivity'],
     icons: [
       {
-        src: '/icon',
-        sizes: '32x32',
+        src: '/brand/veilsub-icon-64.png',
+        sizes: '64x64',
         type: 'image/png',
       },
       {
-        src: '/apple-icon',
-        sizes: '180x180',
-        type: 'image/png',
-        purpose: 'maskable',
-      },
-      {
-        src: '/opengraph-image',
-        sizes: '1200x630',
+        src: '/brand/veilsub-icon-192.png',
+        sizes: '192x192',
         type: 'image/png',
         purpose: 'any',
+      },
+      {
+        src: '/brand/veilsub-icon-512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable',
       },
     ],
   }

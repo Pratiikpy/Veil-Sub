@@ -1059,6 +1059,51 @@ a:focus:not(:focus-visible) {
   display: none;
 }
 
+/* ─── Image Lightbox / Article Reader fade-in ─── */
+@keyframes lightbox-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-lightbox-in {
+  animation: lightbox-in 200ms ease-out;
+}
+
+/* ─── Emoji reactions pop-in ─── */
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ─── Article Reader — serif body, generous spacing ─── */
+.article-reader-body {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.85);
+}
+.article-reader-body p {
+  margin-bottom: 1.2em;
+}
+.article-reader-body h2,
+.article-reader-body h3 {
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* ─── Edge-to-edge mobile post cards ─── */
+@media (max-width: 639px) {
+  .post-card-mobile {
+    border-radius: 0 !important;
+    margin-left: -16px;
+    margin-right: -16px;
+    border-left: none !important;
+    border-right: none !important;
+  }
+  .post-card-mobile + .post-card-mobile {
+    border-top: 1px solid var(--border-subtle);
+    margin-top: 0 !important;
+  }
+}
+
 /* ─── Reduced motion ─── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

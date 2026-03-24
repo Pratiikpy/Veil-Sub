@@ -5,12 +5,16 @@ import { ClientProviders } from '@/providers/ClientProviders'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
+import DesktopSidebar from '@/components/DesktopSidebar'
+import RightSidebar from '@/components/RightSidebar'
 import BackToTop from '@/components/BackToTop'
 import ScrollProgress from '@/components/ui/ScrollProgress'
 import CustomCursor from '@/components/CustomCursor'
 import ChangelogOverlay from '@/components/ChangelogOverlay'
 import CommandPalette from '@/components/CommandPalette'
 import OnboardingTour from '@/components/OnboardingTour'
+import PWAInstallPrompt from '@/components/PWAInstallPrompt'
+import KeyboardShortcuts from '@/components/KeyboardShortcuts'
 import { Toaster } from 'sonner'
 import NextTopLoader from 'nextjs-toploader'
 import { APP_NAME, APP_DESCRIPTION } from '@/lib/config'
@@ -75,6 +79,9 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <head>
         <link rel="preconnect" href="https://api.explorer.provable.com" />
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="theme-color" content="#8B5CF6" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
         {/* Theme initialization script - runs before paint to prevent FOUC */}
         <script
           dangerouslySetInnerHTML={{
@@ -130,15 +137,24 @@ export default function RootLayout({
           >
             Skip to main content
           </a>
+          {/* Desktop left sidebar — hidden on mobile */}
+          <DesktopSidebar />
+          {/* Mobile header — hidden on desktop */}
           <Header />
-          <main id="main-content" className="pt-16 pb-20 md:pb-0">{children}</main>
-          <Footer />
+          <div className="md:ml-[220px] lg:mr-[260px]">
+            <main id="main-content" className="pt-16 md:pt-0 pb-20 md:pb-0">{children}</main>
+            <Footer />
+          </div>
+          {/* Desktop right sidebar — hidden below 1024px */}
+          <RightSidebar />
           <MobileBottomNav />
           <BackToTop />
           <CustomCursor />
           <ChangelogOverlay />
           <CommandPalette />
           <OnboardingTour />
+          <PWAInstallPrompt />
+          <KeyboardShortcuts />
           <Toaster
             theme="dark"
             position="bottom-right"

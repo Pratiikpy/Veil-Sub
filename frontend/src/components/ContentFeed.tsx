@@ -11,7 +11,10 @@ const DisputeContentModal = dynamic(() => import('./DisputeContentModal'), { ssr
 const RichContentRenderer = dynamic(() => import('./RichContentRenderer'), { ssr: false })
 const VideoEmbed = dynamic(() => import('./VideoEmbed'), { ssr: false })
 const PostInteractions = dynamic(() => import('./PostInteractions'), { ssr: false })
-import { estimateReadingTime } from '@/lib/utils'
+const ImageLightbox = dynamic(() => import('./ImageLightbox'), { ssr: false })
+const ArticleReader = dynamic(() => import('./ArticleReader'), { ssr: false })
+import { estimateReadingTime, shortenAddress } from '@/lib/utils'
+import { FEATURED_CREATORS } from '@/lib/config'
 import type { AccessPass, ContentPost } from '@/types'
 
 interface Props {
@@ -83,6 +86,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   const [error, setError] = useState(false)
   const [initialLoad, setInitialLoad] = useState(true)
   const [disputePost, setDisputePost] = useState<{ contentId: string; title: string } | null>(null)
+  const [lightboxImages, setLightboxImages] = useState<string[] | null>(null)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
+  const [readerPost, setReaderPost] = useState<ContentPost | null>(null)
 
   // Keep refs in sync without triggering effects
   signMessageRef.current = signMessage
@@ -346,7 +352,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
-                className={`relative rounded-xl border overflow-hidden ${
+                className={`post-card-mobile relative rounded-xl border overflow-hidden ${
                   unlocked
                     ? `${tier.border} ${tier.bg}`
                     : 'border-white/5 bg-white/[0.01]'
@@ -419,19 +425,27 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     </div>
                   )}
 
-                  {/* Unlocked image */}
+                  {/* Unlocked image — click to open lightbox */}
                   {unlocked && displayImage && (
-                    <div className="mb-4 rounded-lg overflow-hidden border border-white/[0.06] aspect-video bg-white/[0.02]">
+                    <div
+                      className="mb-4 rounded-lg overflow-hidden border border-white/[0.06] aspect-video bg-white/[0.02] cursor-zoom-in"
+                      onClick={() => {
+                        const imgs = displayImage.includes(',')
+                          ? displayImage.split(',').map((s: string) => s.trim()).filter(Boolean)
+                          : [displayImage]
+                        setLightboxImages(imgs)
+                        setLightboxIndex(0)
+                      }}
+                    >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={displayImage}
+                        src={displayImage.includes(',') ? displayImage.split(',')[0].trim() : displayImage}
                         alt={`Image for ${post.title}`}
                         className="w-full h-full object-cover"
                         loading="lazy"
                         onError={(e) => {
                           const img = e.target as HTMLImageElement
                           img.style.display = 'none'
-                          // Show a fallback placeholder sibling
                           const fallback = img.nextElementSibling as HTMLElement | null
                           if (fallback) fallback.classList.remove('hidden')
                         }}
@@ -453,7 +467,18 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                   )}
 
                   {unlocked && displayBody ? (
-                    <RichContentRenderer html={displayBody} />
+                    <div>
+                      <RichContentRenderer html={displayBody} />
+                      {displayBody.length > 500 && (
+                        <button
+                          onClick={() => setReaderPost(post)}
+                          className="mt-3 flex items-center gap-1.5 text-xs text-violet-400/70 hover:text-violet-300 transition-colors"
+                        >
+                          <FileText className="w-3.5 h-3.5" aria-hidden="true" />
+                          Read in focus mode
+                        </button>
+                      )}
+                    </div>
                   ) : isUnlocking ? (
                     <div className="flex items-center gap-2 py-4" role="status" aria-live="polite">
                       <Loader2 className="w-4 h-4 text-violet-400 animate-spin" aria-hidden="true" />
@@ -593,6 +618,28 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
           contentId={disputePost.contentId}
           contentTitle={disputePost.title}
           accessPassPlaintext={activePasses[0].rawPlaintext}
+        />
+      )}
+
+      {lightboxImages && (
+        <ImageLightbox
+          images={lightboxImages}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxImages(null)}
+        />
+      )}
+
+      {readerPost && (unlockedBodies[readerPost.id] || readerPost.body) && (
+        <ArticleReader
+          title={readerPost.title}
+          body={unlockedBodies[readerPost.id] || readerPost.body || ''}
+          creator={{
+            name: FEATURED_CREATORS.find(c => c.address === creatorAddress)?.label || '',
+            address: creatorAddress,
+          }}
+          publishedAt={readerPost.createdAt ? new Date(readerPost.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}
+          readingTime={estimateReadingTime(unlockedBodies[readerPost.id] || readerPost.body || '')}
+          onClose={() => setReaderPost(null)}
         />
       )}
     </div>
