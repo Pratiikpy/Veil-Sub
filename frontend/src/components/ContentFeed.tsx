@@ -215,7 +215,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
     } finally {
       setPpvPayingId(null)
     }
-  }, [ppvPayingId, getCreditsRecords, tip, creatorAddress, markPpvUnlocked])
+  }, [ppvPayingId, getCreditsRecords, tip, creatorAddress, markPpvUnlocked, walletAddress])
 
   // Keep refs in sync without triggering effects
   signMessageRef.current = signMessage
@@ -606,7 +606,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
             const displayImage = unlockedImage || post.imageUrl
             const displayVideo = unlockedVideo || post.videoUrl
             // Free posts are always unlocked (body comes from API); gated posts need tier access
-            const unlocked = isFreePost ? displayBody != null : (hasAccess && displayBody != null)
+            // PPV posts require PPV unlock in ADDITION to tier access
+            const tierUnlocked = isFreePost ? displayBody != null : (hasAccess && displayBody != null)
+            const unlocked = isPPV ? (tierUnlocked && isPPVUnlocked) : tierUnlocked
             const Icon = isFreePost ? Globe : tier.icon
             const postIsE2E = !!post.e2e
             // Use decrypted preview for E2E posts, fall back to raw preview
@@ -740,8 +742,8 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     </div>
                   )}
 
-                  {/* PPV paywall for free posts — body available but blurred until paid */}
-                  {isPPV && isFreePost && displayBody && !isPPVUnlocked ? (
+                  {/* PPV paywall — shown for all PPV posts where user has tier access but hasn't paid PPV yet */}
+                  {isPPV && !isPPVUnlocked && tierUnlocked && displayBody ? (
                     <div className="relative">
                       <div className="relative overflow-hidden">
                         <p className="text-sm text-white/70 leading-relaxed">
