@@ -185,7 +185,7 @@ export function hasFlag(args: ReadonlyArray<string>, flag: string): boolean {
 }
 
 /**
- * Get a flag value from args (e.g., --program veilsub_v28.aleo).
+ * Get a flag value from args (e.g., --program veilsub_v29.aleo).
  * Returns null if not found.
  */
 export function getFlagValue(args: ReadonlyArray<string>, flag: string): string | null {

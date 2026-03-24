@@ -56,7 +56,7 @@ export default function ConnectWalletPrompt() {
               Creator Dashboard
             </h2>
             <p className="text-lg text-white/70 mb-8 max-w-sm mx-auto">
-              Connect your wallet to register on <span className="text-violet-400 font-medium">veilsub_v27.aleo</span>—your subscribers remain anonymous via BSP.
+              Connect your wallet to register on <span className="text-violet-400 font-medium">veilsub_v29.aleo</span>—your subscribers remain anonymous via BSP.
             </p>
           </m.div>
 

@@ -37,7 +37,7 @@ Copy `.env.example` to `.env` and configure:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PROGRAM_ID` | `veilsub_v28.aleo` | On-chain program to monitor |
+| `PROGRAM_ID` | `veilsub_v29.aleo` | On-chain program to monitor |
 | `API_URL` | `https://api.explorer.provable.com/v1/testnet` | Aleo API endpoint |
 | `POLL_INTERVAL_MS` | `30000` | Polling interval in milliseconds |
 | `WEBHOOK_URL` | _(empty)_ | Webhook endpoint for event delivery |
@@ -77,7 +77,7 @@ Copy `.env.example` to `.env` and configure:
     }
   },
   "botVersion": "0.1.0",
-  "programId": "veilsub_v28.aleo"
+  "programId": "veilsub_v29.aleo"
 }
 ```
 

@@ -16,7 +16,7 @@ import { isValidAleoAddress } from '../utils'
 
 describe('program configuration', () => {
   it('PROGRAM_ID matches deployed contract', () => {
-    expect(PROGRAM_ID).toBe('veilsub_v28.aleo')
+    expect(PROGRAM_ID).toBe('veilsub_v29.aleo')
   })
 
   it('DEPLOYED_PROGRAM_ID matches PROGRAM_ID', () => {
@@ -61,7 +61,7 @@ describe('FEES', () => {
     expect(FEES.VERIFY).toBeLessThanOrEqual(FEES.REGISTER)
   })
 
-  it('covers all 27 transitions', () => {
+  it('covers all 31 transitions', () => {
     const feeKeys = Object.keys(FEES)
     expect(feeKeys.length).toBeGreaterThanOrEqual(22)
   })

@@ -17,7 +17,7 @@
 //     "tier":            3,                   (required) subscription tier (1-20)
 //     "expires_at":      500000,              (required) block height expiry
 //     "issued_to":       "aleo1...",          (required) verifier/owner address
-//     "program_id":      "veilsub_v27.aleo",  (required) deployed program ID
+//     "program_id":      "veilsub_v29.aleo",  (required) deployed program ID
 //     "pass_id":         "9876field"          (optional) for revocation check
 //   }
 //

@@ -2,7 +2,7 @@
 // @veilsub/sdk — Constants
 //
 // Program IDs, fee schedules, network endpoints, and contract limits.
-// All values sourced from the deployed veilsub_v28.aleo contract.
+// All values sourced from the deployed veilsub_v29.aleo contract.
 // =============================================================================
 
 import type { TokenMeta, TokenType } from './types';
@@ -11,8 +11,8 @@ import type { TokenMeta, TokenType } from './types';
 // Program & Network
 // ---------------------------------------------------------------------------
 
-/** Default program ID for VeilSub v28 */
-export const DEFAULT_PROGRAM_ID = 'veilsub_v28.aleo';
+/** Default program ID for VeilSub v29 */
+export const DEFAULT_PROGRAM_ID = 'veilsub_v29.aleo';
 
 /** Aleo testnet API base URL */
 export const TESTNET_API_URL = 'https://api.explorer.provable.com/v1/testnet';

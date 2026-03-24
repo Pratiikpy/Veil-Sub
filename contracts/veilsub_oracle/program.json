@@ -8,7 +8,7 @@
     {
       "name": "official_oracle_v2.aleo",
       "location": "network",
-      "network": "testnetbeta"
+      "network": "testnet"
     }
   ]
 }

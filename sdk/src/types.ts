@@ -14,7 +14,7 @@ export type Network = 'testnet' | 'mainnet';
 
 /** SDK client configuration */
 export interface VeilSubConfig {
-  /** VeilSub program ID (default: veilsub_v28.aleo) */
+  /** VeilSub program ID (default: veilsub_v29.aleo) */
   programId?: string;
   /** Aleo API base URL (default: https://api.explorer.provable.com/v1/testnet) */
   networkUrl?: string;
@@ -499,7 +499,7 @@ export class VeilSubError extends Error {
 // Mapping Names Enum (for type-safe mapping queries)
 // ---------------------------------------------------------------------------
 
-/** All 26 on-chain mapping names in veilsub_v28.aleo */
+/** All 30 on-chain mapping names in veilsub_v29.aleo */
 export const MAPPING_NAMES = {
   TIER_PRICES: 'tier_prices',
   SUBSCRIBER_COUNT: 'subscriber_count',
@@ -527,6 +527,11 @@ export const MAPPING_NAMES = {
   TOTAL_CREATORS: 'total_creators',
   TOTAL_CONTENT: 'total_content',
   STABLECOIN_REVENUE: 'stablecoin_revenue',
+  // v29: Pedersen commitment mappings for privacy-preserving aggregation
+  SUBSCRIBER_COMMIT: 'subscriber_commit',
+  REVENUE_COMMIT: 'revenue_commit',
+  BLIND_SUM: 'blind_sum',
+  REVENUE_BLIND_SUM: 'revenue_blind_sum',
 } as const;
 
 export type MappingName = typeof MAPPING_NAMES[keyof typeof MAPPING_NAMES];

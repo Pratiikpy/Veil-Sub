@@ -17,7 +17,7 @@ const FEATURES = [
     color: 'text-violet-400',
     bgColor: 'bg-violet-500/10',
     title: 'Zero-Address Finalize',
-    desc: 'All 25 mappings keyed by Poseidon2 hashes—subscriber addresses never reach on-chain storage',
+    desc: 'All 30 mappings keyed by Poseidon2 hashes—subscriber addresses never reach on-chain storage',
   },
   {
     icon: Eye,

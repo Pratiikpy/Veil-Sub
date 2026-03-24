@@ -275,7 +275,7 @@ describe('Error Code Parsing', () => {
 
 describe('Constants', () => {
   it('should have correct program ID', () => {
-    expect(DEFAULT_PROGRAM_ID).toBe('veilsub_v28.aleo');
+    expect(DEFAULT_PROGRAM_ID).toBe('veilsub_v29.aleo');
   });
   it('should have correct API URL', () => {
     expect(TESTNET_API_URL).toBe('https://api.explorer.provable.com/v1/testnet');

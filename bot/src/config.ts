@@ -61,7 +61,7 @@ function envLogLevel(key: string, fallback: LogLevel): LogLevel {
 
 export function buildConfig(): BotConfig {
   return Object.freeze({
-    programId: envString('PROGRAM_ID', 'veilsub_v28.aleo'),
+    programId: envString('PROGRAM_ID', 'veilsub_v29.aleo'),
     apiUrl: envString('API_URL', 'https://api.explorer.provable.com/v1/testnet'),
     pollIntervalMs: envInt('POLL_INTERVAL_MS', 30_000),
     webhookUrl: envString('WEBHOOK_URL', ''),
@@ -73,7 +73,7 @@ export function buildConfig(): BotConfig {
 }
 
 // ─── Mapping Names ──────────────────────────────────────────────────────────
-// These match the 26 mappings in veilsub_v28.aleo
+// These match the 30 mappings in veilsub_v29.aleo
 
 export const MAPPINGS = {
   // Creator mappings (keyed by creator_hash: field)

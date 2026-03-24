@@ -92,7 +92,7 @@ export function useContractExecute() {
           function: functionName,
           inputs,
           fee,
-          privateFee: false,
+          privateFee: process.env.NEXT_PUBLIC_PRIVATE_FEE === 'true' || false,
         }),
         ZK_PROOF_TIMEOUT_MS,
         `ZK proof for ${functionName}`

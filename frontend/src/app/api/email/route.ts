@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendEmail } from '@/lib/email'
 import { resolveTemplate, type EmailTemplateType, type EmailTemplateData } from '@/lib/emailTemplates'
+import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 
 const VALID_TYPES: EmailTemplateType[] = ['new_subscriber', 'content_published', 'expiring', 'tip']
 
@@ -9,8 +10,8 @@ const VALID_TYPES: EmailTemplateType[] = ['new_subscriber', 'content_published',
 function isAuthorized(req: NextRequest): boolean {
   const secret = process.env.EMAIL_INTERNAL_SECRET
   if (!secret) {
-    // If no secret configured, allow (for dev/testing)
-    return true
+    // DENY when not configured — prevents open relay in production
+    return false
   }
   return req.headers.get('x-internal-secret') === secret
 }
@@ -27,6 +28,13 @@ function isAuthorized(req: NextRequest): boolean {
  * }
  */
 export async function POST(req: NextRequest) {
+  // Rate limit: max 10 emails per minute per IP
+  const ip = getClientIp(req)
+  const { allowed } = rateLimit(`email:${ip}`, 10, 60_000)
+  if (!allowed) {
+    return getRateLimitResponse()
+  }
+
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

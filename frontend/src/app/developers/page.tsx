@@ -130,8 +130,8 @@ const SDK_FEATURES = [
   {
     icon: Database,
     title: 'Query Mappings',
-    description: '26 on-chain mappings queryable without a wallet. All keys are Poseidon2 field hashes.',
-    tag: '26 field-keyed mappings',
+    description: '30 on-chain mappings queryable without a wallet. All keys are Poseidon2 field hashes.',
+    tag: '30 field-keyed mappings',
   },
   {
     icon: Zap,
@@ -157,15 +157,15 @@ const SDK_FEATURES = [
 
 const PROGRAMS = [
   {
-    name: 'veilsub_v28.aleo',
+    name: DEPLOYED_PROGRAM_ID,
     transitions: 31,
-    mappings: 26,
+    mappings: 30,
     features: 'Core subscriptions, tipping, content, access verification, stablecoin support',
     status: 'deployed' as const,
     explorerUrl: `https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`,
   },
   {
-    name: 'veilsub_governance.aleo',
+    name: 'veilsub_governance_v1.aleo',
     transitions: 8,
     mappings: 5,
     features: 'Private voting, proposal lifecycle, BHP256 commit-reveal',
@@ -173,7 +173,7 @@ const PROGRAMS = [
     explorerUrl: null,
   },
   {
-    name: 'veilsub_marketplace.aleo',
+    name: 'veilsub_marketplace_v1.aleo',
     transitions: 10,
     mappings: 6,
     features: 'Sealed-bid auctions, reputation scores, Pedersen aggregated ratings',
@@ -181,7 +181,7 @@ const PROGRAMS = [
     explorerUrl: null,
   },
   {
-    name: 'veilsub_reputation.aleo',
+    name: 'veilsub_reputation_v1.aleo',
     transitions: 6,
     mappings: 4,
     features: 'Threshold proofs, tier badges, subscriber count commitments',
@@ -189,7 +189,7 @@ const PROGRAMS = [
     explorerUrl: null,
   },
   {
-    name: 'veilsub_oracle.aleo',
+    name: 'veilsub_oracle_v1.aleo',
     transitions: 4,
     mappings: 3,
     features: 'Price feeds, exchange rate proofs, compliance attestations',
@@ -290,7 +290,7 @@ export default function DevelopersPage() {
 
             <p className="text-lg text-white/70 max-w-2xl mx-auto mb-8 leading-relaxed">
               Add privacy-preserving access control to any Aleo application. 7 composable programs,
-              31+ transitions, 26+ mappings -- all field-hashed, zero addresses in finalize.
+              31+ transitions, 30+ mappings -- all field-hashed, zero addresses in finalize.
             </p>
 
             <div className="flex items-center justify-center gap-3 flex-wrap">
@@ -650,7 +650,7 @@ docker run -d veilsub/monitor:latest \\
           <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               { icon: Activity, value: '31+', label: 'Transitions', color: 'violet' },
-              { icon: Database, value: '26+', label: 'Mappings', color: 'blue' },
+              { icon: Database, value: '30+', label: 'Mappings', color: 'blue' },
               { icon: GitBranch, value: '866+', label: 'Statements', color: 'emerald' },
               { icon: Eye, value: '0', label: 'Addresses in Finalize', color: 'amber' },
             ].map((stat, i) => {
@@ -681,7 +681,7 @@ docker run -d veilsub/monitor:latest \\
                     <strong className="text-violet-300">Layer 1</strong> (Blind Identity Rotation)
                     uses nonce-rotated Poseidon2 hashes.{' '}
                     <strong className="text-violet-300">Layer 2</strong> (Zero-Address Finalize)
-                    ensures all 26 mappings are field-keyed.{' '}
+                    ensures all 30 mappings are field-keyed.{' '}
                     <strong className="text-violet-300">Layer 3</strong> (Selective Disclosure)
                     enables scoped audit tokens. When you build on VeilSub, your users inherit all
                     three layers automatically.

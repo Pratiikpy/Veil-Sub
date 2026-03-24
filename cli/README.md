@@ -111,7 +111,7 @@ $ veilsub platform --json
 ### Query with custom program
 
 ```bash
-$ veilsub query tier_prices 123field --program veilsub_v28.aleo
+$ veilsub query tier_prices 123field --program veilsub_v29.aleo
 ```
 
 ## Design Principles

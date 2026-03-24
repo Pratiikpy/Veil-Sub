@@ -523,7 +523,7 @@ function AboutTab({
           </div>
           <div>
             <p className="text-white/40 mb-1">Program</p>
-            <p className="font-mono">veilsub_v28.aleo</p>
+            <p className="font-mono">veilsub_v29.aleo</p>
           </div>
           <a
             href={`https://testnet.explorer.provable.com/address/${address}`}

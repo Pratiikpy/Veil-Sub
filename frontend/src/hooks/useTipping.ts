@@ -101,10 +101,60 @@ export function useTipping() {
     [execute]
   )
 
+  // v29: USDCx stablecoin tip
+  // NOTE: Requires USDCx Token records and MerkleProof compliance arrays from test_usdcx_stablecoin.aleo.
+  // TODO: Full integration pending Shield Wallet support for stablecoin record selection.
+  const tipUsdcx = useCallback(
+    async (
+      tokenRecord: string,
+      creatorAddress: string,
+      amountU128: string,
+      merkleProofs: string
+    ) => {
+      return execute(
+        'tip_usdcx',
+        [
+          tokenRecord,
+          creatorAddress,
+          `${amountU128}u128`,
+          merkleProofs,
+        ],
+        FEES.TIP_USDCX
+      )
+    },
+    [execute]
+  )
+
+  // v29: USAD stablecoin tip
+  // NOTE: Requires USAD Token records and MerkleProof compliance arrays from test_usad_stablecoin.aleo.
+  // TODO: Full integration pending Shield Wallet support for stablecoin record selection.
+  const tipUsad = useCallback(
+    async (
+      tokenRecord: string,
+      creatorAddress: string,
+      amountU128: string,
+      merkleProofs: string
+    ) => {
+      return execute(
+        'tip_usad',
+        [
+          tokenRecord,
+          creatorAddress,
+          `${amountU128}u128`,
+          merkleProofs,
+        ],
+        FEES.TIP_USAD
+      )
+    },
+    [execute]
+  )
+
   return {
     tip,
     commitTip,
     revealTip,
+    tipUsdcx,
+    tipUsad,
     createAuditToken,
     verifyAccess,
     verifyTierAccess,

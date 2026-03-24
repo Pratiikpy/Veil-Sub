@@ -1,15 +1,15 @@
 #!/bin/bash
-# VeilSub v27 Testnet Execution Script
+# VeilSub v29 Testnet Execution Script
 # Execute transitions to populate on-chain data for judges
 # Account: aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk
 
 PRIVATE_KEY="${PRIVATE_KEY:?Set PRIVATE_KEY env var before running}"
-PROGRAM="veilsub_v27.aleo"
+PROGRAM="veilsub_v29.aleo"
 API="https://api.explorer.provable.com/v1/testnet/transaction/broadcast"
 QUERY="https://api.explorer.provable.com/v1"
 FEE=10000000
 
-echo "=== VeilSub v26 Testnet Execution ==="
+echo "=== VeilSub v29 Testnet Execution ==="
 echo "Program: $PROGRAM"
 echo "Privacy: ZERO addresses in finalize"
 echo ""

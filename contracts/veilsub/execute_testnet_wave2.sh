@@ -13,13 +13,13 @@
 #       or the frontend wallet. See instructions at bottom.
 
 PRIVATE_KEY="${PRIVATE_KEY:?Set PRIVATE_KEY env var before running}"
-PROGRAM="veilsub_v27.aleo"
+PROGRAM="veilsub_v29.aleo"
 API="https://api.explorer.provable.com/v1/testnet/transaction/broadcast"
 QUERY="https://api.explorer.provable.com/v1"
 FEE=10000000
 CREATOR="aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk"
 
-echo "=== VeilSub v23 — Wave 2 Testnet Execution ==="
+echo "=== VeilSub v29 — Wave 2 Testnet Execution ==="
 echo "Program: $PROGRAM"
 echo "These transitions were NOT executed in Wave 1"
 echo ""

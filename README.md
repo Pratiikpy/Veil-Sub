@@ -7,7 +7,7 @@
 *Pay privately. Prove access. Nobody sees who you support.*
 
 [![Live](https://img.shields.io/badge/app-live-brightgreen)](https://veil-sub.vercel.app)
-[![Contract](https://img.shields.io/badge/contract-v28-8B5CF6)](https://testnet.aleoscan.io/program?id=veilsub_v28.aleo)
+[![Contract](https://img.shields.io/badge/contract-v29-8B5CF6)](https://testnet.aleoscan.io/program?id=veilsub_v29.aleo)
 [![Tests](https://img.shields.io/badge/tests-303%20passing-brightgreen)](#testing)
 [![Transitions](https://img.shields.io/badge/transitions-31-blue)](#smart-contract)
 [![Tokens](https://img.shields.io/badge/tokens-Credits%20%2B%20USDCx%20%2B%20USAD-orange)](#triple-token-payments)
@@ -55,7 +55,7 @@ VeilSub supports triple-token payments (Credits, USDCx, USAD), encrypted content
 
 ### For Developers
 
-- **@veilsub/sdk** — TypeScript SDK with full type coverage for all 31 transitions, 6 records, and 26 mappings.
+- **@veilsub/sdk** — TypeScript SDK with full type coverage for all 31 transitions, 6 records, and 30 mappings.
 - **Monitor Bot** — Autonomous daemon that polls on-chain state and fires notifications for subscription events.
 - **Companion Programs** — `veilsub_extras_v1.aleo` (anonymous reviews with nullifiers + on-chain lottery) and `veilsub_identity_v1.aleo` (signature-verified authorship + cross-chain ECDSA identity).
 - **On-Chain Explorer** — Query any mapping value without a wallet. Verify proofs independently.
@@ -100,7 +100,7 @@ subscriber_hash = Poseidon2::hash_to_field(BlindKey { subscriber: caller, nonce:
 // Different nonce each time -> different hash -> unlinkable identity rotation
 ```
 
-**Layer 2: Zero-Address Finalize** — Every finalize function receives `creator_hash: field` instead of `creator: address`. All 26 mappings are field-keyed. No raw address ever appears in any finalize block. `self.caller` is never passed to finalize.
+**Layer 2: Zero-Address Finalize** — Every finalize function receives `creator_hash: field` instead of `creator: address`. All 30 mappings are field-keyed. No raw address ever appears in any finalize block. `self.caller` is never passed to finalize.
 
 ```leo
 // Before (v21):  finalize_subscribe(creator: address, ...)
@@ -186,10 +186,10 @@ graph TD
     A2 --> Redis["Upstash Redis<br/>Posts · Rate limits"]
     A3 --> Aleo
 
-    subgraph Aleo["Aleo Network — veilsub_v28.aleo"]
+    subgraph Aleo["Aleo Network — veilsub_v29.aleo"]
         direction LR
         T["31 transitions"]
-        M["26 mappings<br/>(field-keyed)"]
+        M["30 mappings<br/>(field-keyed)"]
         R["6 records · 5 structs"]
         S["3 token standards"]
         Z["ZERO addresses<br/>in finalize"]
@@ -208,7 +208,7 @@ graph TD
 
 ## Smart Contract
 
-> **Program:** `veilsub_v28.aleo` — 31 transitions · 26 mappings · 6 records · 5 structs · 3 token standards
+> **Program:** `veilsub_v29.aleo` — 31 transitions · 30 mappings · 6 records · 5 structs · 3 token standards
 
 ### Records
 
@@ -428,7 +428,7 @@ cd bot && npm install && npm run dev
 <summary><strong>Environment Variables</strong></summary>
 
 ```env
-NEXT_PUBLIC_PROGRAM_ID=veilsub_v28.aleo
+NEXT_PUBLIC_PROGRAM_ID=veilsub_v29.aleo
 NEXT_PUBLIC_ALEO_API_URL=https://api.explorer.provable.com/v1/testnet
 NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-key>
@@ -486,6 +486,7 @@ cd frontend && npm test
 | v26 | Trial passes — ephemeral ~12hr access at 20% of tier price |
 | v27 | Scoped audit tokens, trial rate-limiting, gift revocation fix |
 | **v28** | **Triple token support (Credits + USDCx + USAD).** 4 new stablecoin transitions, MerkleProof compliance, dollar-denominated subscriptions. Companion programs: `veilsub_extras_v1` (reviews + lottery), `veilsub_identity_v1` (signatures + ECDSA). TypeScript SDK (`@veilsub/sdk`). Monitor bot. Content encryption (AES-256-GCM). Rich text editor. Privacy dashboard. Creator onboarding wizard. Push notifications. **31 transitions, 26 mappings, 3 token standards.** |
+| **v29** | **Pedersen commitment mappings.** 4 new privacy-preserving aggregation mappings (`subscriber_commit`, `revenue_commit`, `blind_sum`, `revenue_blind_sum`). Error codes ERR_120-137 for stablecoin edge cases. **31 transitions, 30 mappings.** |
 
 </details>
 
@@ -497,7 +498,7 @@ cd frontend && npm test
 |---------------|-----|
 | Contract compiles | `cd contracts/veilsub && leo build` |
 | Zero addresses in finalize | Search `main.leo` for `address` in any finalize block — you will find none |
-| On-chain state | [AleoScan](https://testnet.aleoscan.io/program?id=veilsub_v28.aleo) |
+| On-chain state | [AleoScan](https://testnet.aleoscan.io/program?id=veilsub_v29.aleo) |
 | 6 record types | Search `record` in `main.leo` |
 | Blind Subscription Protocol | Search `BlindKey` in `main.leo` |
 | Commit-reveal tipping | Search `BHP256::commit_to_field` in `main.leo` |

@@ -7,7 +7,7 @@
 
 TypeScript SDK for **VeilSub** -- privacy-first creator subscriptions on the Aleo blockchain.
 
-Wraps all 31 on-chain transitions from `veilsub_v28.aleo` into a clean, type-safe API. Query on-chain data without a wallet. Build transactions for any Aleo wallet adapter.
+Wraps all 31 on-chain transitions from `veilsub_v29.aleo` into a clean, type-safe API. Query on-chain data without a wallet. Build transactions for any Aleo wallet adapter.
 
 ## Features
 
@@ -282,7 +282,7 @@ import {
 
 ```typescript
 import {
-  DEFAULT_PROGRAM_ID,         // "veilsub_v28.aleo"
+  DEFAULT_PROGRAM_ID,         // "veilsub_v29.aleo"
   TESTNET_API_URL,            // "https://api.explorer.provable.com/v1/testnet"
   PLATFORM_ADDRESS,           // platform fee recipient
   FEES,                       // fee schedule for all 31 transitions
@@ -310,7 +310,7 @@ import {
 
 ```typescript
 const client = new VeilSubClient({
-  programId: 'veilsub_v28.aleo',   // default
+  programId: 'veilsub_v29.aleo',   // default
   network: 'testnet',               // 'testnet' | 'mainnet'
   networkUrl: 'https://...',        // override API URL
   timeoutMs: 15_000,                // request timeout
@@ -344,7 +344,7 @@ const client = new VeilSubClient({
 
 ```typescript
 interface TransactionParams {
-  programId: string;      // "veilsub_v28.aleo"
+  programId: string;      // "veilsub_v29.aleo"
   functionName: string;   // e.g., "subscribe"
   inputs: string[];       // Leo-formatted inputs
   fee: number;            // suggested fee in microcredits
@@ -353,10 +353,10 @@ interface TransactionParams {
 
 ## On-Chain Architecture
 
-VeilSub v28 contains:
+VeilSub v29 contains:
 
 - **31 transitions** -- creator management, subscriptions (standard/blind/trial/stablecoin), content, tipping, verification, social, privacy proofs
-- **26 mappings** -- all field-keyed (zero raw addresses in finalize)
+- **30 mappings** -- all field-keyed (zero raw addresses in finalize)
 - **6 record types** -- AccessPass, CreatorReceipt, AuditToken, SubscriptionTier, ContentDeletion, GiftToken
 - **5 structs** -- TierKey, BlindKey, TipCommitData, DisputeKey, TrialKey
 - **3 token types** -- Aleo credits, USDCx, USAD
@@ -366,7 +366,7 @@ VeilSub v28 contains:
 VeilSub implements the **Blind Subscription Protocol (BSP)** with three privacy layers:
 
 1. **Blind Identity Rotation** -- nonce-rotated Poseidon2 hashes prevent subscriber tracking
-2. **Zero-Address Finalize** -- all 26 mappings are field-keyed; zero raw addresses in the public layer
+2. **Zero-Address Finalize** -- all 30 mappings are field-keyed; zero raw addresses in the public layer
 3. **Selective Disclosure** -- scoped audit tokens let subscribers prove access without revealing identity
 
 ## License

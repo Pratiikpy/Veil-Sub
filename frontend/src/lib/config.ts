@@ -1,6 +1,6 @@
-export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v28.aleo'
-// v28: USDCx/USAD stablecoin subscriptions + tipping, 5 structs, 6 records, 31 transitions, 26 mappings
-export const DEPLOYED_PROGRAM_ID = process.env.NEXT_PUBLIC_DEPLOYED_PROGRAM_ID || 'veilsub_v28.aleo'
+export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v29.aleo'
+// v29: Pedersen commitment mappings, 5 structs, 6 records, 31 transitions, 30 mappings
+export const DEPLOYED_PROGRAM_ID = process.env.NEXT_PUBLIC_DEPLOYED_PROGRAM_ID || 'veilsub_v29.aleo'
 // API calls use Next.js rewrite proxy (/api/aleo/*) to avoid leaking user interest to third parties
 // The actual endpoint is configured in next.config.ts rewrites
 export const APP_NAME = 'VeilSub'
@@ -140,7 +140,7 @@ export const ALEO_ADDRESS_RE = /^aleo1[a-z0-9]{58}$/
 export const PLATFORM_ADDRESS = 'aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk'
 export const PLATFORM_FEE_PCT = 5 // 5% display value
 
-// v28: Stablecoin support — token type constants matching on-chain values
+// v29: Stablecoin support — token type constants matching on-chain values
 export const TOKEN_CREDITS = 0 as const  // Aleo native credits (u64)
 export const TOKEN_USDCX = 1 as const    // USDCx stablecoin (u128, 6 decimals)
 export const TOKEN_USAD = 2 as const     // USAD stablecoin (u128, 6 decimals)
@@ -280,7 +280,7 @@ export const FEATURED_CREATORS: { address: string; label: string; bio?: string; 
   {
     address: 'aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk',
     label: 'Prateek (VeilSub Creator)',
-    bio: 'Building the private access layer for the creator economy. VeilSub founder—27 transitions, zero addresses in finalize.',
+    bio: 'Building the private access layer for the creator economy. VeilSub founder—31 transitions, zero addresses in finalize.',
     category: 'Developer',
   },
   {

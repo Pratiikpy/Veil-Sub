@@ -193,10 +193,72 @@ export function useSubscription() {
     [execute]
   )
 
+  // v29: USDCx stablecoin subscription
+  // NOTE: Requires USDCx Token records and MerkleProof compliance arrays from test_usdcx_stablecoin.aleo.
+  // TODO: Full integration pending Shield Wallet support for stablecoin record selection.
+  const subscribeUsdcx = useCallback(
+    async (
+      tokenRecord: string,
+      creatorAddress: string,
+      tier: number,
+      amountU128: string,
+      passId: string,
+      expiresAt: number,
+      merkleProofs: string
+    ) => {
+      return execute(
+        'subscribe_usdcx',
+        [
+          tokenRecord,
+          creatorAddress,
+          `${tier}u8`,
+          `${amountU128}u128`,
+          `${passId}field`,
+          `${expiresAt}u32`,
+          merkleProofs,
+        ],
+        FEES.SUBSCRIBE_USDCX
+      )
+    },
+    [execute]
+  )
+
+  // v29: USAD stablecoin subscription
+  // NOTE: Requires USAD Token records and MerkleProof compliance arrays from test_usad_stablecoin.aleo.
+  // TODO: Full integration pending Shield Wallet support for stablecoin record selection.
+  const subscribeUsad = useCallback(
+    async (
+      tokenRecord: string,
+      creatorAddress: string,
+      tier: number,
+      amountU128: string,
+      passId: string,
+      expiresAt: number,
+      merkleProofs: string
+    ) => {
+      return execute(
+        'subscribe_usad',
+        [
+          tokenRecord,
+          creatorAddress,
+          `${tier}u8`,
+          `${amountU128}u128`,
+          `${passId}field`,
+          `${expiresAt}u32`,
+          merkleProofs,
+        ],
+        FEES.SUBSCRIBE_USAD
+      )
+    },
+    [execute]
+  )
+
   return {
     subscribe,
     subscribeBlind,
     subscribeTrial,
+    subscribeUsdcx,
+    subscribeUsad,
     renew,
     renewBlind,
     giftSubscription,

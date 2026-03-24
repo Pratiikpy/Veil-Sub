@@ -366,7 +366,7 @@ function OverviewTab() {
               </div>
               <h4 className="text-sm font-semibold text-white mb-2">VeilSub Contract</h4>
               <div className="flex flex-wrap gap-1.5 mb-2">
-                {['27 transitions', '25 mappings', '6 records'].map((s) => (
+                {['31 transitions', '30 mappings', '6 records'].map((s) => (
                   <span key={s} className="px-2 py-0.5 rounded-full text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20">{s}</span>
                 ))}
               </div>
@@ -465,7 +465,7 @@ function ContractTab() {
               <code className="block text-white/80 text-sm font-mono mt-1">{DEPLOYED_PROGRAM_ID}</code>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xs text-white/50">27 transitions &middot; 25 mappings</span>
+              <span className="text-xs text-white/50">31 transitions &middot; 30 mappings</span>
               <a
                 href={`https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`}
                 target="_blank"
@@ -835,7 +835,7 @@ function FaqTab() {
     { q: 'Can I tip a creator without subscribing?', a: 'Yes! The tip() transition lets you send a private tip to any registered creator. The creator receives ALEO credits but never sees your address.' },
     { q: 'How can I test subscribing?', a: 'Connect your wallet on the app, visit a creator page, and subscribe. If no creator is registered, register yourself on the Dashboard page first. Then open the creator page in a different browser/wallet to test subscribing. Use the Verify page to check on-chain data.' },
     { q: 'Is there a pre-registered test creator?', a: 'Yes! The platform account (aleo1hp9m...sprk5wk) is registered with base price 1000 microcredits, 3 custom tiers (Supporter @ 500, Premium @ 2000, VIP @ 5000), and 5+ published content pieces. Visit Explore to find it.' },
-    { q: 'How did VeilSub evolve from v15 to v27?', a: 'v15 was the first testnet deploy (security hardening). v16–v21 added features but exceeded testnet limits. v23 was a privacy overhaul: all mapping keys use Poseidon2 field hashes. v24 added content auth. v25 added threshold proofs. v26 added trial passes. v27 added scoped audit tokens and trial rate-limiting. Result: 27 transitions, 25 mappings, 866 statements.' },
+    { q: 'How did VeilSub evolve from v15 to v29?', a: 'v15 was the first testnet deploy (security hardening). v16–v21 added features but exceeded testnet limits. v23 was a privacy overhaul: all mapping keys use Poseidon2 field hashes. v24 added content auth. v25 added threshold proofs. v26 added trial passes. v27 added scoped audit tokens and trial rate-limiting. v28 added stablecoin support (USDCx + USAD). v29 added Pedersen commitment mappings. Result: 31 transitions, 30 mappings.' },
   ]
 
   return (

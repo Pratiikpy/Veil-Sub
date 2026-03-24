@@ -1,5 +1,5 @@
 /**
- * Maps on-chain error codes from VeilSub smart contract (veilsub_v27.aleo)
+ * Maps on-chain error codes from VeilSub smart contract (veilsub_v29.aleo)
  * to user-friendly messages displayed in the frontend.
  *
  * Error codes are embedded as comments in the Leo contract's assert statements.
@@ -150,6 +150,30 @@ export const ERROR_MESSAGES: Record<string, string> = {
 
   // === Trial Rate Limiting (v27) ===
   'ERR_119': 'You have already used a trial subscription for this creator.',
+
+  // === USDCx Stablecoin Subscriptions & Tipping (v29) ===
+  'ERR_120': 'USDCx subscription failed — insufficient token balance.',
+  'ERR_121': 'USDCx subscription — invalid tier.',
+  'ERR_122': 'USDCx subscription — amount below tier price.',
+  'ERR_123': 'USDCx subscription — creator not registered.',
+  'ERR_124': 'USDCx tip failed — insufficient token balance.',
+  'ERR_125': 'USDCx tip — invalid amount.',
+  'ERR_126': 'USDCx tip — creator not registered.',
+
+  // === USAD Stablecoin Subscriptions & Tipping (v29) ===
+  'ERR_127': 'USAD subscription failed — insufficient token balance.',
+  'ERR_128': 'USAD subscription — invalid tier.',
+  'ERR_129': 'USAD subscription — amount below tier price.',
+  'ERR_130': 'USAD subscription — creator not registered.',
+  'ERR_131': 'USAD tip failed — insufficient token balance.',
+  'ERR_132': 'USAD tip — invalid amount.',
+  'ERR_133': 'USAD tip — creator not registered.',
+
+  // === Stablecoin General Errors (v29) ===
+  'ERR_134': 'Stablecoin transfer failed.',
+  'ERR_135': 'Stablecoin compliance check failed.',
+  'ERR_136': 'Stablecoin amount overflow.',
+  'ERR_137': 'Stablecoin transfer — recipient mismatch.',
 }
 
 /**
