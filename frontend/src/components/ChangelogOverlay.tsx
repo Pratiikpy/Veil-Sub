@@ -5,7 +5,7 @@ import { m, AnimatePresence } from 'framer-motion'
 import { X, Sparkles, ArrowRight, Shield, Eye, Gift, Zap } from 'lucide-react'
 import Link from 'next/link'
 
-const CHANGELOG_VERSION = 'v27'
+const CHANGELOG_VERSION = 'v29'
 const STORAGE_KEY = `veilsub-changelog-seen-${CHANGELOG_VERSION}`
 const SESSION_KEY = `veilsub-changelog-shown-${CHANGELOG_VERSION}`
 const AUTO_DISMISS_MS = 5000 // Auto-dismiss after 5 seconds (reduced from 6s)
@@ -24,7 +24,7 @@ const FEATURES = [
     color: 'text-emerald-400',
     bgColor: 'bg-emerald-500/10',
     title: 'Scoped Audit Tokens',
-    desc: 'scope_mask bitfield for selective disclosure: bit 0=tier, bit 1=expiry, bit 2=status',
+    desc: 'scope_mask bitfield for selective disclosure: bit 0=creator, bit 1=tier, bit 2=expiry, bit 3=subscriber_hash',
   },
   {
     icon: Zap,

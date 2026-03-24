@@ -77,7 +77,7 @@ export default function Header() {
             >
               <span className="relative z-10">VeilSub</span>
               <span className="absolute -inset-2 rounded-lg bg-violet-500/0 group-hover:bg-violet-500/[0.06] transition-colors duration-300" />
-              <span className="relative z-10 text-[9px] font-sans not-italic font-medium text-white/30 ml-1.5">
+              <span className="relative z-10 text-[9px] font-sans not-italic font-medium text-white/20 ml-1.5 hidden">
                 testnet
               </span>
             </Link>

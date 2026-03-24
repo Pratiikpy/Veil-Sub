@@ -8,7 +8,7 @@ import PageTransition from '@/components/PageTransition'
 const PLATFORM_STATS = [
   { icon: Users, value: '8', label: 'Creators', color: 'violet' },
   { icon: Lock, value: '0', label: 'Identity Leaks', color: 'emerald' },
-  { icon: FileCode, value: 'v27', label: 'Contract', color: 'violet' },
+  { icon: FileCode, value: 'v29', label: 'Contract', color: 'violet' },
 ]
 
 const WHY_VEILSUB = [
