@@ -64,3 +64,4 @@ scripts/skill-create-output.js
 
 # Root package.json (Playwright installed at root, project is in frontend/)
 /package.json
+contracts/.env
