@@ -171,32 +171,39 @@ export default function PostComments({ contentId, isSubscribed }: PostCommentsPr
     setText('')
     setReplyTo(null)
 
-    // Persist to server
+    // Persist to server with retry logic
     if (serverAvailable) {
-      try {
-        const res = await fetch('/api/social', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'comment',
-            contentId,
-            text: trimmed,
-            subscriberHash: subHash,
-            parentId: replyTo || undefined,
-          }),
-        })
-        if (res.ok) {
-          const { comment: saved } = await res.json()
-          // Replace optimistic entry with server-assigned ID
-          setComments(prev => {
-            const updated = prev.map(c => c.id === optimistic.id ? { ...saved } : c)
-            saveLocal(updated)
-            return updated
+      const payload = JSON.stringify({
+        type: 'comment',
+        contentId,
+        text: trimmed,
+        subscriberHash: subHash,
+        parentId: replyTo || undefined,
+      })
+      let retries = 3
+      while (retries > 0) {
+        try {
+          const res = await fetch('/api/social', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: payload,
           })
+          if (res.ok) {
+            const { comment: saved } = await res.json()
+            // Replace optimistic entry with server-assigned ID
+            setComments(prev => {
+              const updated = prev.map(c => c.id === optimistic.id ? { ...saved } : c)
+              saveLocal(updated)
+              return updated
+            })
+            break
+          }
+          retries--
+        } catch {
+          retries--
         }
-      } catch {
-        // Server failed, optimistic entry stays (localStorage only)
       }
+      // After all retries exhausted, optimistic entry stays (localStorage only)
     }
   }, [text, comments, replyTo, contentId, serverAvailable, saveLocal])
 

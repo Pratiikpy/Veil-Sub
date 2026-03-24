@@ -103,7 +103,13 @@ export async function POST(req: NextRequest) {
         currentHeight = parseInt(await heightRes.text(), 10) || 0
       }
     } catch {
-      // If height unavailable, skip expiry check (fail open for availability)
+      // Height unavailable — handled below
+    }
+
+    // SECURITY: Never skip expiry check. If block height is unavailable,
+    // reject the request rather than allowing expired passes through.
+    if (currentHeight === 0) {
+      return NextResponse.json({ error: 'Cannot verify subscription status. Try again.' }, { status: 503 })
     }
 
     // Verify the caller has a valid, non-expired AccessPass for this creator

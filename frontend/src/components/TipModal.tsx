@@ -9,7 +9,7 @@ import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
-import { creditsToMicrocredits, formatCredits, formatUsd, generatePassId, ALEO_USD_ESTIMATE } from '@/lib/utils'
+import { creditsToMicrocredits, formatCredits, formatUsd, generatePassId, ALEO_USD_ESTIMATE, computeWalletHash } from '@/lib/utils'
 import { logSubscriptionEvent } from '@/lib/logEvent'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
@@ -72,6 +72,14 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
     } catch {
       // localStorage unavailable — salt stays in state only
     }
+    // Also save to server (Redis) as backup — fire-and-forget
+    computeWalletHash(creatorAddress).then(subscriberHash => {
+      fetch('/api/tip-recovery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscriberHash, creatorAddress, salt, amount, commitTxId }),
+      }).catch(() => { /* server backup is best-effort */ })
+    }).catch(() => { /* hash computation failed */ })
   }, [PENDING_TIP_KEY, creatorAddress])
 
   const clearPendingTip = useCallback(() => {
@@ -80,22 +88,23 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
     } catch {
       // ignore
     }
-  }, [PENDING_TIP_KEY])
+    // Also clear server backup — fire-and-forget
+    computeWalletHash(creatorAddress).then(subscriberHash => {
+      fetch('/api/tip-recovery', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscriberHash, creatorAddress }),
+      }).catch(() => { /* best-effort */ })
+    }).catch(() => { /* hash computation failed */ })
+  }, [PENDING_TIP_KEY, creatorAddress])
 
   // Restore pending tip on mount / when modal opens
   useEffect(() => {
     if (!isOpen) return
-    try {
-      const raw = localStorage.getItem(PENDING_TIP_KEY)
-      if (!raw) return
-      const pending = JSON.parse(raw) as {
-        salt: string
-        amount: number
-        commitTxId: string
-        creatorAddress: string
-        timestamp: number
-      }
-      // Only restore if it matches this creator and is less than 7 days old
+    let cancelled = false
+
+    function restoreFromData(pending: { salt: string; amount: number; commitTxId: string; creatorAddress: string; timestamp: number }) {
+      if (cancelled) return
       if (
         pending.salt &&
         pending.amount > 0 &&
@@ -110,13 +119,35 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
         setTxId(pending.commitTxId)
         setPendingTipRestored(true)
       } else {
-        // Stale entry — clean up
         clearPendingTip()
       }
-    } catch {
-      // corrupted entry — clean up
-      clearPendingTip()
     }
+
+    // Try localStorage first
+    try {
+      const raw = localStorage.getItem(PENDING_TIP_KEY)
+      if (raw) {
+        restoreFromData(JSON.parse(raw))
+        return
+      }
+    } catch {
+      // corrupted entry — clean up localStorage
+      try { localStorage.removeItem(PENDING_TIP_KEY) } catch { /* */ }
+    }
+
+    // Fallback: check server backup (handles cleared browser cache)
+    computeWalletHash(creatorAddress).then(subscriberHash => {
+      if (cancelled) return
+      fetch(`/api/tip-recovery?subscriberHash=${subscriberHash}&creatorAddress=${creatorAddress}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (cancelled || !data?.pending) return
+          restoreFromData(data.pending)
+        })
+        .catch(() => { /* server unavailable */ })
+    }).catch(() => { /* hash failed */ })
+
+    return () => { cancelled = true }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, creatorAddress])
 

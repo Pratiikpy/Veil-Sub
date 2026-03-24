@@ -46,8 +46,12 @@ export async function GET(req: NextRequest) {
           if (effectiveStatus !== 'published') return []
         }
 
-        // Decrypt metadata fields for display (backward-compatible: unencrypted data passes through)
-        const decryptedTitle = post.title ? decryptContent(post.title, creator) : ''
+        // Decrypt metadata fields for display (backward-compatible: unencrypted data passes through).
+        // Each decryptContent call is wrapped in try/catch so one corrupted post
+        // doesn't break the entire post list.
+        let decryptedTitle = ''
+        try { decryptedTitle = post.title ? decryptContent(post.title, creator) : '' } catch { decryptedTitle = post.title || '' }
+
         // Tags: stored as encrypted JSON string (new) or plaintext array (legacy)
         let decryptedTags: string[] = []
         if (post.tags) {
@@ -69,16 +73,21 @@ export async function GET(req: NextRequest) {
         if (tagFilter && !decryptedTags.includes(tagFilter)) return []
 
         // Decrypt media URLs (may be encrypted or plaintext legacy)
-        const decryptedImageUrl = post.imageUrl ? decryptContent(post.imageUrl, creator) : undefined
-        const decryptedVideoUrl = post.videoUrl ? decryptContent(post.videoUrl, creator) : undefined
+        let decryptedImageUrl: string | undefined
+        let decryptedVideoUrl: string | undefined
+        try { decryptedImageUrl = post.imageUrl ? decryptContent(post.imageUrl, creator) : undefined } catch { decryptedImageUrl = post.imageUrl || undefined }
+        try { decryptedVideoUrl = post.videoUrl ? decryptContent(post.videoUrl, creator) : undefined } catch { decryptedVideoUrl = post.videoUrl || undefined }
 
         // Server-side content gating: redact body + imageUrl + videoUrl for tier-gated posts, keep preview
         if (post.minTier && post.minTier > 0) {
           // E2E-encrypted preview: pass through as-is (server cannot decrypt).
           // Legacy server-encrypted preview: decrypt server-side for display.
-          const previewValue = post.preview
-            ? (post.preview.startsWith('e2e:') ? post.preview : decryptContent(post.preview, creator))
-            : ''
+          let previewValue = ''
+          try {
+            previewValue = post.preview
+              ? (post.preview.startsWith('e2e:') ? post.preview : decryptContent(post.preview, creator))
+              : ''
+          } catch { previewValue = post.preview || '' }
           return [{
             ...post,
             title: decryptedTitle,
@@ -91,8 +100,10 @@ export async function GET(req: NextRequest) {
         }
         // Free posts (minTier 0): decrypt body for public display
         // Note: free posts are never E2E-encrypted, so always server-decrypt
-        const decryptedBody = post.body ? decryptContent(post.body, creator) : ''
-        const decryptedPreview = post.preview ? decryptContent(post.preview, creator) : ''
+        let decryptedBody = ''
+        let decryptedPreview = ''
+        try { decryptedBody = post.body ? decryptContent(post.body, creator) : '' } catch { decryptedBody = post.body || '' }
+        try { decryptedPreview = post.preview ? decryptContent(post.preview, creator) : '' } catch { decryptedPreview = post.preview || '' }
         return [{
           ...post,
           title: decryptedTitle,
@@ -162,9 +173,9 @@ async function verifyWalletAuth(
     return 'Request expired'
   }
   // Server-salted hash: SHA-256(address + salt).
-  // Client uses NEXT_PUBLIC_WALLET_AUTH_SALT; server checks the same value.
-  // Falls back to SUPABASE_ENCRYPTION_KEY if the public salt isn't configured.
-  const salt = process.env.NEXT_PUBLIC_WALLET_AUTH_SALT || ''
+  // Prefer server-only secret (WALLET_AUTH_SECRET) when available.
+  // Falls back to NEXT_PUBLIC_WALLET_AUTH_SALT for backward compatibility.
+  const salt = process.env.WALLET_AUTH_SECRET || process.env.NEXT_PUBLIC_WALLET_AUTH_SALT || 'veilsub-auth-v1'
   const encoder = new TextEncoder()
   const hashBuf = await crypto.subtle.digest('SHA-256', encoder.encode(creator + salt))
   const expectedHash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')

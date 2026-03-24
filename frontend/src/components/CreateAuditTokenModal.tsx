@@ -10,7 +10,7 @@ import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { getErrorMessage } from '@/lib/errorMessages'
-import { FEES } from '@/lib/config'
+import { FEES, getCreatorCustomTiers } from '@/lib/config'
 import { formatCredits, isValidAleoAddress } from '@/lib/utils'
 import TransactionStatus from './TransactionStatus'
 import Button from './ui/Button'
@@ -99,7 +99,9 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
     }
   }
 
-  const tierName = pass.tier === 3 ? 'VIP' : pass.tier === 2 ? 'Premium' : 'Supporter'
+  // Dynamic tier name: check creator's custom tiers first, fall back to generic label
+  const customTiers = getCreatorCustomTiers(pass.creator ?? '')
+  const tierName = customTiers[pass.tier]?.name ?? `Tier ${pass.tier}`
 
   return (
     <AnimatePresence>

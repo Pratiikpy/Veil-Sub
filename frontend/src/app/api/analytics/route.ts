@@ -153,8 +153,8 @@ async function verifyAnalyticsAuth(
   if (Math.abs(Date.now() - timestamp) > TIMESTAMP_WINDOW_MS) {
     return 'Request expired'
   }
-  // Server-salted hash verification
-  const salt = process.env.NEXT_PUBLIC_WALLET_AUTH_SALT || process.env.SUPABASE_ENCRYPTION_KEY || ''
+  // Server-salted hash verification — prefer server-only secret for security
+  const salt = process.env.WALLET_AUTH_SECRET || process.env.NEXT_PUBLIC_WALLET_AUTH_SALT || 'veilsub-auth-v1'
   const encoder = new TextEncoder()
   const hashBuf = await crypto.subtle.digest('SHA-256', encoder.encode(address + salt))
   const expectedHash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')

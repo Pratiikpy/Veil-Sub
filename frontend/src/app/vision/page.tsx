@@ -70,7 +70,7 @@ const USE_CASES = [
 ]
 
 const fadeUp = {
-  initial: { opacity: 1, y: 0 },
+  initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
 }
 
@@ -145,7 +145,7 @@ export default function VisionPage() {
               ].map((item, i) => (
                 <m.div
                   key={item.label}
-                  initial={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="text-center p-4 rounded-xl glass hover:border-border-accent transition-colors"
                 >
@@ -198,7 +198,7 @@ export default function VisionPage() {
               ].map((item, i) => (
                 <m.div
                   key={item.phase}
-                  initial={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   className={`flex items-start gap-4 p-8 rounded-xl border ${
                     item.status === 'current'
@@ -248,7 +248,7 @@ export default function VisionPage() {
         <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <m.div
-              initial={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="relative rounded-3xl glass p-8 sm:p-12 text-center overflow-hidden"
             >

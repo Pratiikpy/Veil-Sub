@@ -111,6 +111,8 @@ export default function OraclePage() {
 
   // Track whether component is mounted
   const mountedRef = useRef(true)
+  // Throttle: minimum 120s between CoinGecko fetches to avoid rate-limiting
+  const lastFetchRef = useRef(0)
   useEffect(() => {
     return () => {
       mountedRef.current = false
@@ -120,6 +122,9 @@ export default function OraclePage() {
   // ── Fetch Price ─────────────────────────────────────────────────────
 
   const fetchPrice = useCallback(async () => {
+    // Throttle: skip if last fetch was less than 120s ago
+    if (Date.now() - lastFetchRef.current < 120_000) return
+    lastFetchRef.current = Date.now()
     setLoading(true)
     try {
       const res = await fetch(COINGECKO_PRICE_URL)
@@ -172,7 +177,7 @@ export default function OraclePage() {
   useEffect(() => {
     fetchPrice()
     fetchHistory()
-    const interval = setInterval(fetchPrice, 30_000)
+    const interval = setInterval(fetchPrice, 120_000)
     return () => clearInterval(interval)
   }, [fetchPrice, fetchHistory])
 

@@ -69,8 +69,8 @@ export default function SubscribeModal({
 
   const fullPrice = basePrice * tier.priceMultiplier
   const totalPrice = privacyMode === 'trial' ? Math.floor(fullPrice / TRIAL_PRICE_DIVISOR) : fullPrice
-  const creatorCut = totalPrice - Math.floor(totalPrice / 20)
-  const platformCut = Math.floor(totalPrice / 20)
+  const platformCut = Math.floor(totalPrice * PLATFORM_FEE_PCT / 100)
+  const creatorCut = totalPrice - platformCut
 
   const handleSubscribe = async () => {
     if (submittingRef.current) return

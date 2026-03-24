@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import { Gift, X, Sparkles, AlertCircle, Shield, Loader2, Package, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
@@ -66,6 +66,8 @@ export default function RedeemGiftModal({
   const [manualPlaintext, setManualPlaintext] = useState('')
   const [manualPlaintextError, setManualPlaintextError] = useState<string | null>(null)
   const [syncingPass, setSyncingPass] = useState(false)
+  const successCalledRef = useRef(false)
+  const timeoutRefs = useRef<ReturnType<typeof setTimeout>[]>([])
 
   // Map the hook's TxStatus to the simpler local status
   const status = txStatus === 'idle' ? 'idle' as const
@@ -126,15 +128,19 @@ export default function RedeemGiftModal({
             setTxStatus('confirmed')
             setSyncingPass(true)
             toast.success('Gift redeemed! Syncing AccessPass to your wallet...')
-            // Delay onSuccess slightly to allow wallet record sync
-            // If first sync fails, retry once after 2 more seconds
-            setTimeout(() => {
-              onSuccess?.()
-              setTimeout(() => {
+            // Delay onSuccess slightly to allow wallet record sync.
+            // Use ref guard to prevent double-fire.
+            if (!successCalledRef.current) {
+              successCalledRef.current = true
+              const t1 = setTimeout(() => {
                 onSuccess?.()
-                setSyncingPass(false)
-              }, 2000)
-            }, 1000)
+                const t2 = setTimeout(() => {
+                  setSyncingPass(false)
+                }, 2000)
+                timeoutRefs.current.push(t2)
+              }, 1000)
+              timeoutRefs.current.push(t1)
+            }
           } else if (pollResult.status === 'failed') {
             setTxStatus('failed')
             setError('Gift couldn\u2019t be redeemed. It may have already been used or expired.')
@@ -154,6 +160,14 @@ export default function RedeemGiftModal({
     }
   }, [connected, manualEntry, manualPlaintext, selectedToken, redeemGift, setTxStatus, setError, setTxId, startPolling, submittingRef, onSuccess])
 
+  // Clean up pending timeouts on unmount
+  useEffect(() => {
+    return () => {
+      timeoutRefs.current.forEach(clearTimeout)
+      timeoutRefs.current = []
+    }
+  }, [])
+
   const handleClose = () => {
     setSelectedToken(null)
     setGiftTokens([])
@@ -161,6 +175,9 @@ export default function RedeemGiftModal({
     setManualPlaintext('')
     setManualPlaintextError(null)
     setSyncingPass(false)
+    successCalledRef.current = false
+    timeoutRefs.current.forEach(clearTimeout)
+    timeoutRefs.current = []
     baseHandleClose()
   }
 
