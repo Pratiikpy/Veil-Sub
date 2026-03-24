@@ -17,7 +17,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-xs text-white/60 leading-relaxed max-w-[260px]">
-              Subscribe privately. Prove access. Nobody sees who you support. Zero-address finalize makes subscriber identities cryptographically unreachable.
+              Subscribe privately. Prove access. Nobody sees who you support. Your address is never stored on-chain — subscriber identities are cryptographically unreachable.
             </p>
           </div>
           {/* Navigation */}
@@ -49,7 +49,7 @@ export default function Footer() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <Shield className="w-3 h-3 text-violet-400/50" aria-hidden="true" />
-              <span>BSP blind renewals • Zero-address finalize • Complete privacy</span>
+              <span>Blind renewals • Address-free on-chain storage • Complete privacy</span>
             </div>
             <span className="text-white/60">© 2026 VeilSub</span>
           </div>
@@ -87,7 +87,7 @@ export default function Footer() {
         <div className="pt-3 border-t border-border/75 flex items-center justify-between text-xs text-white/60">
           <div className="flex items-center gap-2">
             <Shield className="w-3 h-3 text-violet-400/50 shrink-0" aria-hidden="true" />
-            <span>Zero-address finalize</span>
+            <span>Your address is never stored</span>
           </div>
           <span className="text-white/60">© 2026 VeilSub</span>
         </div>

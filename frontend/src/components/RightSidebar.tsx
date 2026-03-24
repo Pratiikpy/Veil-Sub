@@ -39,7 +39,7 @@ export default function RightSidebar() {
         {/* Suggested creators */}
         <div className="mb-6">
           <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3">
-            Suggested for you
+            Featured Creators
           </h3>
           <div className="space-y-1">
             {FEATURED_CREATORS.map((creator) => (
@@ -55,7 +55,7 @@ export default function RightSidebar() {
             <span className="text-[11px] font-semibold text-white/60">Privacy by Default</span>
           </div>
           <p className="text-[11px] text-white/35 leading-relaxed">
-            All subscriptions use zero-knowledge proofs. Only aggregates are visible on-chain. Your identity stays private.
+            Your subscriptions are invisible. Only total subscriber counts show publicly. Your identity stays private.
           </p>
         </div>
       </div>
@@ -63,15 +63,13 @@ export default function RightSidebar() {
       {/* Footer links */}
       <div className="px-5 pb-6">
         <div className="flex flex-wrap gap-x-2 gap-y-1 mb-3">
-          <Link href="/docs" className="text-[11px] text-white/25 hover:text-white/45 transition-colors">About</Link>
-          <span className="text-white/15">·</span>
           <Link href="/privacy" className="text-[11px] text-white/25 hover:text-white/45 transition-colors">Privacy</Link>
           <span className="text-white/15">·</span>
-          <Link href="/docs" className="text-[11px] text-white/25 hover:text-white/45 transition-colors">Terms</Link>
-          <span className="text-white/15">·</span>
           <Link href="/docs" className="text-[11px] text-white/25 hover:text-white/45 transition-colors">Docs</Link>
+          <span className="text-white/15">·</span>
+          <Link href="/vision" className="text-[11px] text-white/25 hover:text-white/45 transition-colors">Vision</Link>
         </div>
-        <p className="text-[10px] text-white/20">&copy; 2026 Veil</p>
+        <p className="text-[10px] text-white/20">&copy; 2026 VeilSub</p>
       </div>
     </aside>
   )

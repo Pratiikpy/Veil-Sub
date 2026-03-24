@@ -23,7 +23,11 @@ function getServerSecret(): string {
   const secret = process.env.CONTENT_ENCRYPTION_SECRET
   if (secret) return secret
   if (process.env.NODE_ENV === 'production') {
-    throw new Error('[contentEncryption] CONTENT_ENCRYPTION_SECRET must be set in production')
+    throw new Error(
+      '[VeilSub] CONTENT_ENCRYPTION_SECRET is required in production. ' +
+      'Generate one: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))" ' +
+      'Then add it to your Vercel environment variables.'
+    )
   }
   // Dev-only fallback — never runs in production
   return 'veilsub-default-content-key-change-in-production'

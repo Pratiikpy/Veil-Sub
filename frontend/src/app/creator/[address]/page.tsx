@@ -551,7 +551,7 @@ function AboutTab({
             </p>
             <p className="pt-1">
               <Link href="/privacy" className="text-violet-400/70 hover:text-violet-300 transition-colors inline-flex items-center gap-1">
-                See how zero-address finalize protects you
+                See how your privacy is protected
                 <ArrowRight className="w-3 h-3" />
               </Link>
             </p>

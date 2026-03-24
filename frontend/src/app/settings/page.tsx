@@ -661,6 +661,8 @@ export default function SettingsPage() {
     setNotifEmailSaved(false)
     try {
       const subscriberHash = await computeSubscriberHash(publicKey)
+      const walletHash = await computeWalletHash(publicKey)
+      const timestamp = Date.now()
       // For now, subscribe to all creators (empty array means "all").
       // Future: let user pick specific creators.
       const res = await fetch('/api/notification-emails', {
@@ -670,6 +672,9 @@ export default function SettingsPage() {
           subscriberHash,
           email: notifEmail.trim(),
           creatorHashes: [], // empty = all creators
+          walletAddress: publicKey,
+          walletHash,
+          timestamp,
         }),
       })
       if (res.ok) {
@@ -693,10 +698,17 @@ export default function SettingsPage() {
     setNotifEmailRemoving(true)
     try {
       const subscriberHash = await computeSubscriberHash(publicKey)
+      const walletHash = await computeWalletHash(publicKey)
+      const timestamp = Date.now()
       const res = await fetch('/api/notification-emails', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscriberHash }),
+        body: JSON.stringify({
+          subscriberHash,
+          walletAddress: publicKey,
+          walletHash,
+          timestamp,
+        }),
       })
       if (res.ok) {
         toast.success('Email notifications disabled')

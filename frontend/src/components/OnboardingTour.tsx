@@ -19,7 +19,7 @@ const STEPS: Step[] = [
   { selector: '[aria-live="polite"]', title: 'Connect Your Wallet', description: 'Connect any Aleo wallet to subscribe, tip, and verify access.' },
   { selector: 'input[aria-label*="Search"], input[aria-label*="search"], #creator-search', title: 'Search Creators', description: 'Search by name, category, or paste an aleo1... address to find anyone.' },
   { selector: 'a[href^="/creator/"]', title: 'Visit a Creator', description: 'Click any creator card to see their content and subscription tiers.' },
-  { selector: '', title: "You're Ready!", description: 'Everything you do here is private by default. Subscribe, verify, and tip — all with zero-knowledge proofs.' },
+  { selector: '', title: "You're Ready!", description: 'Everything you do here is private by default. Subscribe, verify, and tip — all mathematically private.' },
 ]
 
 export default function OnboardingTour() {

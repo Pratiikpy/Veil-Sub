@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import type { Notification } from '@/lib/notifications'
+import { computeWalletHash } from '@/lib/utils'
 
 const MAX_NOTIFICATIONS = 20
 const POLL_INTERVAL_MS = 30_000 // 30 seconds
@@ -123,12 +124,17 @@ export function useNotifications() {
         prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
       )
       try {
+        const walletHash = await computeWalletHash(walletAddress)
+        const timestamp = Date.now()
         await fetch('/api/notifications', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             wallet: walletAddress,
             notificationId,
+            walletAddress,
+            walletHash,
+            timestamp,
           }),
         })
       } catch {
@@ -148,12 +154,17 @@ export function useNotifications() {
     // Optimistic update
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
     try {
+      const walletHash = await computeWalletHash(walletAddress)
+      const timestamp = Date.now()
       await fetch('/api/notifications', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           wallet: walletAddress,
           markAll: true,
+          walletAddress,
+          walletHash,
+          timestamp,
         }),
       })
     } catch {
@@ -169,12 +180,17 @@ export function useNotifications() {
     setNotifications((prev) => prev.filter((n) => n.id !== notificationId))
 
     try {
+      const walletHash = await computeWalletHash(walletAddress)
+      const timestamp = Date.now()
       await fetch('/api/notifications', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           wallet: walletAddress,
           notificationId,
+          walletAddress,
+          walletHash,
+          timestamp,
         }),
       })
     } catch {

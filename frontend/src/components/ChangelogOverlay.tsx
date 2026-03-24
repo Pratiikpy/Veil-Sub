@@ -16,8 +16,8 @@ const FEATURES = [
     icon: Shield,
     color: 'text-violet-400',
     bgColor: 'bg-violet-500/10',
-    title: 'Zero-Address Finalize',
-    desc: 'All 30 mappings keyed by Poseidon2 hashes—subscriber addresses never reach on-chain storage',
+    title: 'Address-Free Storage',
+    desc: 'All 30 on-chain mappings use one-way hashes — subscriber addresses never reach public storage',
   },
   {
     icon: Eye,

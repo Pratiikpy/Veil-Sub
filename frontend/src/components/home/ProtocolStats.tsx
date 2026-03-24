@@ -12,7 +12,7 @@ import { useProtocolStats } from '@/hooks/useProtocolStats'
 const QUOTE_STYLE = { letterSpacing: '-0.02em' } as const
 
 const STATS = [
-  { key: 'privacy', value: 100, suffix: '%', label: 'Private', sublabel: 'Zero-address finalize scope' },
+  { key: 'privacy', value: 100, suffix: '%', label: 'Private', sublabel: 'No addresses stored on-chain' },
   { key: 'transitions', value: 27, suffix: '', label: 'Transitions', sublabel: 'Leo smart contract functions' },
   { key: 'records', value: 6, suffix: '', label: 'Record Types', sublabel: 'AccessPass, AuditToken, etc.' },
   { key: 'versions', value: 27, suffix: '', label: 'Versions', sublabel: 'Iterative testnet deploys', prefix: 'v' },
@@ -36,7 +36,7 @@ export default function ProtocolStats() {
                   className="mt-6 text-2xl sm:text-3xl font-serif italic text-white leading-snug"
                   style={QUOTE_STYLE}
                 >
-                  <span className="text-violet-400">&ldquo;</span>Zero addresses in finalize—even the smart contract
+                  <span className="text-violet-400">&ldquo;</span>No addresses stored on-chain — even the smart contract
                   never learns who subscribes to whom.<span className="text-violet-400">&rdquo;</span>
                 </p>
               </div>

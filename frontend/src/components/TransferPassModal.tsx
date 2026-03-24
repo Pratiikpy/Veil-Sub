@@ -134,7 +134,7 @@ export default function TransferPassModal({
             <div className="flex gap-2">
               <Shield className="w-4 h-4 text-violet-400/60 mt-0.5 shrink-0" aria-hidden="true" />
               <div>
-                <p className="text-xs text-violet-300/80 font-medium mb-1">BSP Transfer Privacy</p>
+                <p className="text-xs text-violet-300/80 font-medium mb-1">Transfer Privacy</p>
                 <p className="text-xs text-white/60 leading-relaxed">
                   Your subscription pass is transferred securely. The recipient receives a new pass with
                   cryptographic privacy protecting both identities.
