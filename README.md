@@ -8,7 +8,7 @@
 
 [![Live](https://img.shields.io/badge/app-live-brightgreen)](https://veil-sub.vercel.app)
 [![Contract](https://img.shields.io/badge/contract-v29-8B5CF6)](https://testnet.aleoscan.io/program?id=veilsub_v29.aleo)
-[![Tests](https://img.shields.io/badge/tests-303%20passing-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-341%20passing-brightgreen)](#testing)
 [![Transitions](https://img.shields.io/badge/transitions-31-blue)](#smart-contract)
 [![Tokens](https://img.shields.io/badge/tokens-Credits%20%2B%20USDCx%20%2B%20USAD-orange)](#triple-token-payments)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
