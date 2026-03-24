@@ -1,0 +1,14 @@
+{
+  "program": "veilsub_collab_v1.aleo",
+  "version": "0.1.0",
+  "description": "VeilSub collaboration: revenue splits, co-authored content",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    }
+  ]
+}
