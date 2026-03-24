@@ -301,6 +301,34 @@ export function subscriberThresholdLabel(count: number): string {
   return 'New'
 }
 
+// ─── Block Expiry Utilities ───────────────────────────────────────────────────
+
+/**
+ * Convert remaining blocks to a compact time-remaining string.
+ * Uses a configurable block time (default 3s for Aleo testnet).
+ *
+ * Examples: "~2d 5h", "~3h", "~12m", "Expired"
+ */
+export function blocksToTimeRemaining(blocksLeft: number, blockTimeSeconds: number = 3): string {
+  if (blocksLeft <= 0) return 'Expired'
+  const seconds = blocksLeft * blockTimeSeconds
+  const days = Math.floor(seconds / 86400)
+  const hours = Math.floor((seconds % 86400) / 3600)
+  if (days > 0) return `~${days}d ${hours}h`
+  if (hours > 0) return `~${hours}h`
+  const mins = Math.floor(seconds / 60)
+  return `~${mins}m`
+}
+
+/**
+ * Format a block-height expiry relative to the current height as a compact
+ * time-remaining string. Delegates to `blocksToTimeRemaining`.
+ */
+export function formatBlockExpiry(expiresAt: number, currentHeight: number): string {
+  const blocksLeft = expiresAt - currentHeight
+  return blocksToTimeRemaining(blocksLeft)
+}
+
 // ─── USD Price Estimates ──────────────────────────────────────────────────────
 
 /**

@@ -684,8 +684,9 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                         {displayName?.[0]?.toUpperCase() || '?'}
                       </div>
                       <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                        <span className="sr-only">Upload profile image</span>
                         {imageUploading ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <Camera className="w-4 h-4 text-white" />}
-                        <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleProfileImageUpload} disabled={imageUploading} />
+                        <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleProfileImageUpload} disabled={imageUploading} aria-label="Upload profile image" />
                       </label>
                     </div>
                     <div>
@@ -852,7 +853,9 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                     </div>
                     {tierFeatures.length < 6 && (
                       <div className="flex gap-2">
+                        <label htmlFor="onb-new-feature" className="sr-only">Add a tier benefit</label>
                         <input
+                          id="onb-new-feature"
                           type="text"
                           value={newFeature}
                           onChange={(e) => setNewFeature(e.target.value)}

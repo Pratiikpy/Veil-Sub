@@ -63,7 +63,8 @@ async function fetchMapping(
     const result = isNaN(parsed) ? null : parsed
     mappingCache.set(cacheKey, { data: result, timestamp: Date.now() })
     return result
-  } catch {
+  } catch (err) {
+    console.error(`[useCreatorStats] fetchMapping failed for ${mapping}:${key}`, err)
     return null
   }
 }
@@ -95,8 +96,8 @@ export function useCreatorStats() {
                 saveCreatorHash(creatorAddress, recovered)
               }
             }
-          } catch {
-            // Recovery failed — continue with null hash (graceful degradation)
+          } catch (err) {
+            console.error('[useCreatorStats] Hash recovery failed for', creatorAddress, err)
           }
         }
 
