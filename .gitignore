@@ -65,3 +65,30 @@ scripts/skill-create-output.js
 # Root package.json (Playwright installed at root, project is in frontend/)
 /package.json
 contracts/.env
+
+# Personal strategy docs
+BILLION_DOLLAR_SOCIAL_UX.md
+MATHEMATICALLY_UNCATCHABLE.md
+PRODUCT_GAP_ANALYSIS.md
+SOCIAL_MEDIA_TRANSFORMATION.md
+UNCATCHABLE_FRONTEND_UX.md
+UNIVERSAL_SCALE_PROMPT.md
+VEILSUB_*.md
+VEILSUB_*.docx
+MEMORY.md
+*_ROADMAP.md
+
+# Build artifacts
+bot/dist/
+cli/dist/
+sdk/dist/
+contracts/*/build/
+bot/package-lock.json
+cli/package-lock.json
+sdk/package-lock.json
+
+# Test scripts (not part of vitest suite)
+frontend/comprehensive-test.js
+frontend/find-undefined.js
+frontend/real-issues-test.js
+frontend/test-pages.js
