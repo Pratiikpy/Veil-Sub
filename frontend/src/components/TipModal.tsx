@@ -33,7 +33,7 @@ type TipMode = 'direct' | 'private'
 type CommitPhase = 'commit' | 'reveal' | 'done'
 
 export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }: Props) {
-  const { tip, commitTip, revealTip, getCreditsRecords, connected } = useVeilSub()
+  const { tip, commitTip, revealTip, getCreditsRecords, connected, publicKey: walletAddress } = useVeilSub()
   const { signMessage } = useWallet()
   const { startPolling, stopPolling } = useTransactionPoller()
   const {
@@ -60,7 +60,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
   // --- localStorage persistence for commit-reveal salt ---
   const PENDING_TIP_KEY = `veilsub_pending_tip_${creatorAddress}`
 
-  const savePendingTip = useCallback((salt: string, amount: number, commitTxId: string) => {
+  const savePendingTip = useCallback(async (salt: string, amount: number, commitTxId: string) => {
     try {
       localStorage.setItem(PENDING_TIP_KEY, JSON.stringify({
         salt,
@@ -73,30 +73,61 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
       // localStorage unavailable — salt stays in state only
     }
     // Also save to server (Redis) as backup — fire-and-forget
-    computeWalletHash(creatorAddress).then(subscriberHash => {
+    if (!walletAddress) return // Need wallet to authenticate
+    try {
+      const [subscriberHash, walletHash] = await Promise.all([
+        computeWalletHash(creatorAddress),
+        computeWalletHash(walletAddress),
+      ])
+      const timestamp = Date.now()
       fetch('/api/tip-recovery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscriberHash, creatorAddress, salt, amount, commitTxId }),
+        body: JSON.stringify({
+          subscriberHash,
+          creatorAddress,
+          salt,
+          amount,
+          commitTxId,
+          walletAddress,
+          walletHash,
+          timestamp,
+        }),
       }).catch(() => { /* server backup is best-effort */ })
-    }).catch(() => { /* hash computation failed */ })
-  }, [PENDING_TIP_KEY, creatorAddress])
+    } catch {
+      // hash computation failed — server backup won't work
+    }
+  }, [PENDING_TIP_KEY, creatorAddress, walletAddress])
 
-  const clearPendingTip = useCallback(() => {
+  const clearPendingTip = useCallback(async () => {
     try {
       localStorage.removeItem(PENDING_TIP_KEY)
     } catch {
       // ignore
     }
     // Also clear server backup — fire-and-forget
-    computeWalletHash(creatorAddress).then(subscriberHash => {
+    if (!walletAddress) return // Need wallet to authenticate
+    try {
+      const [subscriberHash, walletHash] = await Promise.all([
+        computeWalletHash(creatorAddress),
+        computeWalletHash(walletAddress),
+      ])
+      const timestamp = Date.now()
       fetch('/api/tip-recovery', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscriberHash, creatorAddress }),
+        body: JSON.stringify({
+          subscriberHash,
+          creatorAddress,
+          walletAddress,
+          walletHash,
+          timestamp,
+        }),
       }).catch(() => { /* best-effort */ })
-    }).catch(() => { /* hash computation failed */ })
-  }, [PENDING_TIP_KEY, creatorAddress])
+    } catch {
+      // hash computation failed
+    }
+  }, [PENDING_TIP_KEY, creatorAddress, walletAddress])
 
   // Restore pending tip on mount / when modal opens
   useEffect(() => {

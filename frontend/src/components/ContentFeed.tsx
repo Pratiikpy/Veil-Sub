@@ -15,7 +15,7 @@ const VideoEmbed = dynamic(() => import('./VideoEmbed'), { ssr: false })
 const PostInteractions = dynamic(() => import('./PostInteractions'), { ssr: false })
 const ImageLightbox = dynamic(() => import('./ImageLightbox'), { ssr: false })
 const ArticleReader = dynamic(() => import('./ArticleReader'), { ssr: false })
-import { estimateReadingTime, shortenAddress, formatCredits, formatUsd, creditsToMicrocredits } from '@/lib/utils'
+import { estimateReadingTime, shortenAddress, formatCredits, formatUsd, creditsToMicrocredits, computeWalletHash } from '@/lib/utils'
 import { FEATURED_CREATORS, FEES } from '@/lib/config'
 import { toast } from 'sonner'
 import type { AccessPass, ContentPost } from '@/types'
@@ -99,16 +99,47 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   // PPV payment state
   const [ppvPayingId, setPpvPayingId] = useState<string | null>(null)
   const [ppvConfirmId, setPpvConfirmId] = useState<string | null>(null)
-  const { tip, getCreditsRecords } = useVeilSub()
+  const { tip, getCreditsRecords, publicKey } = useVeilSub()
   const { startPolling: startPpvPolling } = useTransactionPoller()
 
-  // PPV unlock tracking (localStorage-backed)
-  const [ppvUnlocked, setPpvUnlocked] = useState<Set<string>>(() => {
-    try {
-      const stored = localStorage.getItem('veilsub_ppv_unlocked')
-      return stored ? new Set(JSON.parse(stored)) : new Set()
-    } catch { return new Set() }
-  })
+  // PPV unlock tracking (server-backed with localStorage cache)
+  const [ppvUnlocked, setPpvUnlocked] = useState<Set<string>>(new Set())
+  const ppvLoadedRef = useRef(false)
+
+  // Load PPV unlocks from server on wallet connection
+  useEffect(() => {
+    if (!walletAddress || ppvLoadedRef.current) return
+    ppvLoadedRef.current = true
+
+    ;(async () => {
+      try {
+        const walletHash = await computeWalletHash(walletAddress)
+        const res = await fetch(`/api/posts/ppv-unlock?walletHash=${walletHash}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.unlockedPosts && Array.isArray(data.unlockedPosts)) {
+            setPpvUnlocked(new Set(data.unlockedPosts))
+            // Update localStorage cache
+            try { localStorage.setItem('veilsub_ppv_unlocked', JSON.stringify(data.unlockedPosts)) } catch { /* ignore */ }
+          }
+        }
+      } catch {
+        // Fall back to localStorage if server is unavailable
+        try {
+          const stored = localStorage.getItem('veilsub_ppv_unlocked')
+          if (stored) setPpvUnlocked(new Set(JSON.parse(stored)))
+        } catch { /* ignore */ }
+      }
+    })()
+  }, [walletAddress])
+
+  // Reset PPV loaded state when wallet changes
+  useEffect(() => {
+    if (!walletAddress) {
+      ppvLoadedRef.current = false
+      setPpvUnlocked(new Set())
+    }
+  }, [walletAddress])
 
   const markPpvUnlocked = useCallback((postId: string) => {
     setPpvUnlocked(prev => {
@@ -156,14 +187,25 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       if (txId) {
         toast.success('PPV payment confirmed! Unlocking content...')
         markPpvUnlocked(postId)
-        // Also notify the API about the unlock
-        try {
-          await fetch('/api/posts/ppv-unlock', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ postId, txId }),
-          }).catch(() => { /* optional tracking, don't block unlock */ })
-        } catch { /* ignore API tracking failures */ }
+        // Persist unlock to server with proper authentication
+        if (walletAddress) {
+          try {
+            const walletHash = await computeWalletHash(walletAddress)
+            const timestamp = Date.now()
+            await fetch('/api/posts/ppv-unlock', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                postId,
+                txId,
+                walletAddress,
+                walletHash,
+                timestamp,
+                creatorAddress,
+              }),
+            }).catch(() => { /* server backup is best-effort */ })
+          } catch { /* ignore API tracking failures */ }
+        }
       } else {
         toast.error('PPV payment failed or was cancelled. Content not unlocked.')
       }

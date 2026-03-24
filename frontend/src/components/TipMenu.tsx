@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react'
 import { m } from 'framer-motion'
 import { toast } from 'sonner'
-import { formatCredits, formatUsd, creditsToMicrocredits } from '@/lib/utils'
+import { formatCredits, formatUsd, creditsToMicrocredits, computeWalletHash } from '@/lib/utils'
 import { Loader2, CheckCircle2 } from 'lucide-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
@@ -37,7 +37,7 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
   const [orderingId, setOrderingId] = useState<string | null>(null)
   const [confirmingItem, setConfirmingItem] = useState<TipMenuItem | null>(null)
   const [payingItem, setPayingItem] = useState<string | null>(null)
-  const { tip, getCreditsRecords } = useVeilSub()
+  const { tip, getCreditsRecords, publicKey: walletAddress } = useVeilSub()
   const { startPolling } = useTransactionPoller()
 
   const menuItems = items ?? DEFAULT_MENU
@@ -75,7 +75,29 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
       const txId = await tip(paymentRecord, creatorAddress, item.price)
 
       if (txId) {
-        // Save order to localStorage for creator dashboard
+        // Save order to server (persistent) with authentication
+        if (walletAddress) {
+          try {
+            const walletHash = await computeWalletHash(walletAddress)
+            const timestamp = Date.now()
+            await fetch('/api/tip-menu', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                creatorAddress,
+                itemId: item.id,
+                itemName: item.name,
+                price: item.price,
+                txId,
+                walletAddress,
+                walletHash,
+                timestamp,
+              }),
+            }).catch(() => { /* server save is best-effort */ })
+          } catch { /* ignore */ }
+        }
+
+        // Also save to localStorage as fallback cache
         try {
           const key = `veilsub_tip_menu_orders_${creatorAddress}`
           const existing = JSON.parse(localStorage.getItem(key) || '[]')
@@ -106,7 +128,7 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
     } finally {
       setPayingItem(null)
     }
-  }, [getCreditsRecords, tip, creatorAddress, creatorName, onTipRequest])
+  }, [getCreditsRecords, tip, creatorAddress, creatorName, onTipRequest, walletAddress])
 
   const handleOrder = useCallback((item: TipMenuItem) => {
     if (!connected) {
