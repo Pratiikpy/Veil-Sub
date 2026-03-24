@@ -9,7 +9,7 @@
 [![Live](https://img.shields.io/badge/app-live-brightgreen)](https://veil-sub.vercel.app)
 [![Contract](https://img.shields.io/badge/contract-v29-8B5CF6)](https://testnet.aleoscan.io/program?id=veilsub_v29.aleo)
 [![Tests](https://img.shields.io/badge/tests-341%20passing-brightgreen)](#testing)
-[![Transitions](https://img.shields.io/badge/transitions-31-blue)](#smart-contract)
+[![Transitions](https://img.shields.io/badge/transitions-27-blue)](#smart-contract)
 [![Tokens](https://img.shields.io/badge/tokens-Credits%20%2B%20USDCx%20%2B%20USAD-orange)](#triple-token-payments)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://veil-sub.vercel.app)
@@ -486,7 +486,7 @@ cd frontend && npm test
 | v26 | Trial passes — ephemeral ~12hr access at 20% of tier price |
 | v27 | Scoped audit tokens, trial rate-limiting, gift revocation fix |
 | **v28** | **Triple token support (Credits + USDCx + USAD).** 4 new stablecoin transitions, MerkleProof compliance, dollar-denominated subscriptions. Companion programs: `veilsub_extras_v1` (reviews + lottery), `veilsub_identity_v1` (signatures + ECDSA). TypeScript SDK (`@veilsub/sdk`). Monitor bot. Content encryption (AES-256-GCM). Rich text editor. Privacy dashboard. Creator onboarding wizard. Push notifications. **31 transitions, 26 mappings, 3 token standards.** |
-| **v29** | **Pedersen commitment mappings.** 4 new privacy-preserving aggregation mappings (`subscriber_commit`, `revenue_commit`, `blind_sum`, `revenue_blind_sum`). Error codes ERR_120-137 for stablecoin edge cases. **31 transitions, 30 mappings.** |
+| **v29** | **Deployed to testnet.** Pedersen commitment mappings (`subscriber_commit`, `revenue_commit`, `blind_sum`, `revenue_blind_sum`). Error codes ERR_120-137. Deployment tx: `at1ql2rukfdkq85k8cp988llexg7caa6f6w7t3mqht09lsxcarxqvgqtq9xl9`. **27 transitions, 29 mappings** (stablecoin transitions disabled pending interface verification). |
 
 </details>
 
