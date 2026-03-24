@@ -10,7 +10,7 @@
 [![Contract](https://img.shields.io/badge/contract-v29-8B5CF6)](https://testnet.aleoscan.io/program?id=veilsub_v29.aleo)
 [![Tests](https://img.shields.io/badge/tests-341%20passing-brightgreen)](#testing)
 [![Transitions](https://img.shields.io/badge/transitions-27-blue)](#smart-contract)
-[![Tokens](https://img.shields.io/badge/tokens-Credits%20%2B%20USDCx%20%2B%20USAD-orange)](#triple-token-payments)
+[![Tokens](https://img.shields.io/badge/tokens-Credits%20%28live%29-orange)](#triple-token-payments)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://veil-sub.vercel.app)
 [![SDK](https://img.shields.io/badge/npm-%40veilsub%2Fsdk-red)](sdk/)
@@ -25,7 +25,7 @@
 
 VeilSub is a privacy-first creator subscription platform built on the Aleo blockchain. Creators publish content, set pricing tiers, and earn revenue — while subscribers pay and access content without ever revealing their identity on-chain. Every interaction is protected by zero-knowledge proofs: the subscriber's wallet address never appears in any public state.
 
-VeilSub supports triple-token payments (Credits, USDCx, USAD), encrypted content delivery, rich text publishing, and a full creator economy with gifting, tipping, trials, and dispute resolution — all with privacy guarantees no Web2 platform can offer.
+VeilSub supports encrypted content delivery, rich text publishing, and a full creator economy with gifting, tipping, trials, and dispute resolution — all with privacy guarantees no Web2 platform can offer. Credits are live on v29; USDCx and USAD stablecoin support is implemented in the contract source and will be enabled in v30 after stablecoin interface verification.
 
 ---
 
@@ -33,9 +33,9 @@ VeilSub supports triple-token payments (Credits, USDCx, USAD), encrypted content
 
 ### For Subscribers
 
-- **Private Subscriptions** — Pay with Credits, USDCx, or USAD. Your identity never hits public state.
+- **Private Subscriptions** — Pay with Credits. Your identity never hits public state.
 - **Blind Renewal** — Each renewal rotates your on-chain identity via nonce-based Poseidon2 hashing. Even your creator cannot tell it is the same subscriber renewing.
-- **Trial Passes** — Try any creator for ~12 hours at 20% of the tier price. No commitment.
+- **Trial Passes** — Try any creator for ~50 minutes (1,000 blocks) at 20% of the tier price. No commitment.
 - **Subscription Management** — View active passes, expiry countdowns, renewal status, and privacy mode from a single dashboard.
 - **Gift Subscriptions** — Gift access to any creator. The recipient redeems without knowing who sent it.
 - **Commit-Reveal Tipping** — Tip amounts stay hidden on-chain until you choose to reveal.
@@ -55,9 +55,9 @@ VeilSub supports triple-token payments (Credits, USDCx, USAD), encrypted content
 
 ### For Developers
 
-- **@veilsub/sdk** — TypeScript SDK with full type coverage for all 31 transitions, 6 records, and 30 mappings.
+- **@veilsub/sdk** — TypeScript SDK with full type coverage for all 27 transitions, 6 records, and 29 mappings.
 - **Monitor Bot** — Autonomous daemon that polls on-chain state and fires notifications for subscription events.
-- **Companion Programs** — `veilsub_extras_v1.aleo` (anonymous reviews with nullifiers + on-chain lottery) and `veilsub_identity_v1.aleo` (signature-verified authorship + cross-chain ECDSA identity).
+- **9 Companion Programs** — `veilsub_extras_v1.aleo` (anonymous reviews + lottery), `veilsub_identity_v1.aleo` (signatures + ECDSA), `veilsub_governance_v1.aleo` (private voting), `veilsub_marketplace_v1.aleo` (reputation + sealed-bid auctions), `veilsub_oracle_v1.aleo` (USD-pegged pricing), `veilsub_access_v1.aleo` (Login with VeilSub), `veilsub_social_v1.aleo` (paid DMs + chat + stories), `veilsub_collab_v1.aleo` (revenue splits), `hash_helper.aleo` (Poseidon2 utility).
 - **On-Chain Explorer** — Query any mapping value without a wallet. Verify proofs independently.
 
 ---
@@ -66,13 +66,13 @@ VeilSub supports triple-token payments (Credits, USDCx, USAD), encrypted content
 
 VeilSub is the first Aleo subscription platform to support multiple token standards:
 
-| Token | Use Case | Program |
-|-------|----------|---------|
-| **Credits** | Native ALEO payments (subscribe, renew, tip, gift) | `credits.aleo` |
-| **USDCx** | Dollar-pegged subscriptions and tipping | `test_usdcx_stablecoin.aleo` |
-| **USAD** | Alternative stablecoin subscriptions and tipping | `test_usad_stablecoin.aleo` |
+| Token | Use Case | Program | Status |
+|-------|----------|---------|--------|
+| **Credits** | Native ALEO payments (subscribe, renew, tip, gift) | `credits.aleo` | **Live on v29** |
+| **USDCx** | Dollar-pegged subscriptions and tipping | `test_usdcx_stablecoin.aleo` | In contract source, disabled for v29 |
+| **USAD** | Alternative stablecoin subscriptions and tipping | `test_usad_stablecoin.aleo` | In contract source, disabled for v29 |
 
-Each token type has dedicated transitions with MerkleProof compliance verification. Revenue tracking is separated per token type via the `stablecoin_revenue` mapping.
+Credits are live on v29. USDCx and USAD support is implemented in the contract source (4 transitions: `subscribe_usdcx`, `tip_usdcx`, `subscribe_usad`, `tip_usad`) and will be enabled in v30 after stablecoin interface verification. The `stablecoin_revenue` mapping is likewise planned for v30.
 
 ---
 
@@ -85,7 +85,7 @@ Each token type has dedicated transitions with MerkleProof compliance verificati
 | Query on-chain data | [/explorer](https://veil-sub.vercel.app/explorer) | Read live mapping values — no wallet needed |
 | Verify an AccessPass | [/verify](https://veil-sub.vercel.app/verify) | Zero-footprint verification flow |
 | Review the privacy model | [/privacy](https://veil-sub.vercel.app/privacy) | What the chain sees vs. what stays hidden |
-| Read the docs | [/docs](https://veil-sub.vercel.app/docs) | All 31 transitions documented with privacy levels |
+| Read the docs | [/docs](https://veil-sub.vercel.app/docs) | All 27 transitions documented with privacy levels |
 
 ---
 
@@ -100,7 +100,7 @@ subscriber_hash = Poseidon2::hash_to_field(BlindKey { subscriber: caller, nonce:
 // Different nonce each time -> different hash -> unlinkable identity rotation
 ```
 
-**Layer 2: Zero-Address Finalize** — Every finalize function receives `creator_hash: field` instead of `creator: address`. All 30 mappings are field-keyed. No raw address ever appears in any finalize block. `self.caller` is never passed to finalize.
+**Layer 2: Zero-Address Finalize** — Every finalize function receives `creator_hash: field` instead of `creator: address`. All 29 mappings are field-keyed. No raw address ever appears in any finalize block. `self.caller` is never passed to finalize.
 
 ```leo
 // Before (v21):  finalize_subscribe(creator: address, ...)
@@ -120,7 +120,7 @@ subscriber_hash = Poseidon2::hash_to_field(BlindKey { subscriber: caller, nonce:
 | Platform aggregate revenue | Individual payment amounts |
 | That a tip commitment exists | Tip amount (until voluntary reveal) |
 | That a dispute was filed | Who filed the dispute |
-| Stablecoin revenue totals (by token type) | Which token a specific subscriber used |
+| Stablecoin revenue totals (planned for v30) | Which token a specific subscriber used |
 
 ### Subscription Flow
 
@@ -173,7 +173,7 @@ graph TD
         W5[Soter Wallet]
     end
 
-    Frontend -->|"75 components · 21 hooks · 12 routes · 303 tests"| API
+    Frontend -->|"75 components · 21 hooks · 12 routes · 341 tests"| API
 
     subgraph API["API Layer — Next.js"]
         direction LR
@@ -188,17 +188,24 @@ graph TD
 
     subgraph Aleo["Aleo Network — veilsub_v29.aleo"]
         direction LR
-        T["31 transitions"]
-        M["30 mappings<br/>(field-keyed)"]
+        T["27 transitions (+ 4 stablecoin in source)"]
+        M["29 mappings<br/>(field-keyed)"]
         R["6 records · 5 structs"]
-        S["3 token standards"]
+        S["Credits live · USDCx/USAD in v30"]
         Z["ZERO addresses<br/>in finalize"]
     end
 
-    subgraph Companion["Companion Programs"]
+    subgraph Companion["9 Companion Programs"]
         direction LR
         E["veilsub_extras_v1<br/>Reviews + Lottery"]
         I["veilsub_identity_v1<br/>Signatures + ECDSA"]
+        G["veilsub_governance_v1<br/>Private Voting"]
+        MK["veilsub_marketplace_v1<br/>Reputation + Auctions"]
+        O["veilsub_oracle_v1<br/>USD Pricing"]
+        AC["veilsub_access_v1<br/>Login with VeilSub"]
+        SO["veilsub_social_v1<br/>DMs + Chat + Stories"]
+        CO["veilsub_collab_v1<br/>Revenue Splits"]
+        H["hash_helper<br/>Poseidon2 Utility"]
     end
 
     Aleo --- Companion
@@ -208,7 +215,7 @@ graph TD
 
 ## Smart Contract
 
-> **Program:** `veilsub_v29.aleo` — 31 transitions · 30 mappings · 6 records · 5 structs · 3 token standards
+> **Program:** `veilsub_v29.aleo` — 27 active transitions (+ 4 stablecoin in source) · 29 mappings · 6 records · 5 structs · Credits live, USDCx/USAD in v30
 
 ### Records
 
@@ -221,7 +228,7 @@ graph TD
 | `ContentDeletion` | Proof of content removal (content_id, reason_hash) |
 | `GiftToken` | Transferable subscription gift (recipient, creator, tier, expiry) |
 
-### 31 Transitions
+### 27 Active Transitions (+ 4 Stablecoin in Source)
 
 <details>
 <summary><strong>Creator Management (6)</strong></summary>
@@ -246,12 +253,14 @@ graph TD
 | `renew` | Extend existing subscription |
 | `subscribe_blind` | Nonce-rotated identity (Blind Renewal) |
 | `renew_blind` | Unlinkable blind renewal |
-| `subscribe_trial` | Ephemeral trial pass (20% of tier price, ~12hr, one per creator) |
+| `subscribe_trial` | Ephemeral trial pass (20% of tier price, ~50 min / 1,000 blocks, one per creator) |
 
 </details>
 
 <details>
-<summary><strong>Subscriptions — Stablecoins (4)</strong></summary>
+<summary><strong>Subscriptions — Stablecoins (4) — in contract source, disabled for v29</strong></summary>
+
+> **Note:** These 4 transitions are implemented in the contract source but disabled on the deployed v29 build pending stablecoin interface verification. They will be enabled in v30.
 
 | Transition | Description |
 |-----------|-------------|
@@ -329,7 +338,7 @@ graph TD
 | Transfer Safety | `transfer_pass` checks revocation before allowing transfer |
 | Nonce Replay Prevention | `nonce_used` mapping prevents blind renewal nonce reuse |
 | Trial Rate-Limiting | `trial_used` mapping prevents multiple trials per creator per subscriber |
-| Stablecoin Future Await | Stablecoin payment Futures are awaited before business logic executes |
+| Stablecoin Future Await | Stablecoin payment Futures are awaited before business logic executes (planned for v30) |
 | Anti-Abuse Constants | `MAX_CONTENT` (1000), `MAX_SUBS` (100K), `MIN_PRICE` (100), `MAX_TIER` (20) |
 
 ---
@@ -389,7 +398,7 @@ import type { AccessPass, CreatorStats, SubscribeParams } from '@veilsub/sdk'
 import { MAPPING_NAMES, VeilSubError } from '@veilsub/sdk'
 ```
 
-Includes typed interfaces for all 6 records, 5 structs, 26 mapping names, and transaction parameter builders for every transition.
+Includes typed interfaces for all 6 records, 5 structs, 29 mapping names, and transaction parameter builders for every transition.
 
 ### Monitor Bot
 
@@ -399,12 +408,19 @@ Autonomous daemon (`@veilsub/monitor-bot`) that continuously polls on-chain stat
 cd bot && npm run dev
 ```
 
-### Companion Programs
+### 9 Companion Programs
 
-| Program | Transitions | Mappings | Features |
-|---------|------------|----------|----------|
-| `veilsub_extras_v1.aleo` | Anonymous reviews with nullifiers, on-chain lottery with ChaCha randomness | Nullifier-based double-review prevention, verifiably random winner selection |
-| `veilsub_identity_v1.aleo` | Signature-verified content authorship, cross-chain ECDSA identity (Ethereum), content timestamp notarization, identity proof via signature challenge |
+| Program | Purpose |
+|---------|---------|
+| `veilsub_extras_v1.aleo` | Anonymous reviews with nullifiers + on-chain lottery with ChaCha randomness |
+| `veilsub_identity_v1.aleo` | Signature-verified content authorship + cross-chain ECDSA identity (Ethereum) + content timestamp notarization |
+| `veilsub_governance_v1.aleo` | Private voting with homomorphic Pedersen aggregation — vote direction hidden via commitment deltas |
+| `veilsub_marketplace_v1.aleo` | Homomorphic Pedersen reputation + sealed-bid content auctions (BHP256) + creator discovery badges |
+| `veilsub_oracle_v1.aleo` | USD-pegged subscription pricing via `official_oracle_v2.aleo` — anti-manipulation guards + staleness detection |
+| `veilsub_access_v1.aleo` | "Login with VeilSub" protocol — any Aleo app can gate resources behind VeilSub subscriptions |
+| `veilsub_social_v1.aleo` | Paid DMs, community chat rooms, ephemeral stories with block-height expiry |
+| `veilsub_collab_v1.aleo` | Revenue splits and co-authored content — atomic payment splitting in the ZK circuit |
+| `hash_helper.aleo` | Poseidon2 hash utility for address and field hashing |
 
 ---
 
@@ -446,15 +462,16 @@ UPSTASH_REDIS_REST_TOKEN=<your-redis-token>
 cd frontend && npm test
 ```
 
-> **303 tests** across **11 files** — all passing
+> **341 tests** across **12 files** — all passing
 
 | Test File | Tests | Coverage |
 |-----------|-------|----------|
-| `utils.test.ts` | 34 | Core utility functions |
+| `utils.test.ts` | 67 | Core utility functions |
 | `utilsEdgeCases.test.ts` | 60 | Edge cases for all utils |
-| `config.test.ts` | 23 | Program configuration |
-| `configAdvanced.test.ts` | 40 | Cross-validation of creators, tiers, fees |
-| `contentEncryption.test.ts` | 24 | AES-256-GCM content encryption |
+| `config.test.ts` | 20 | Program configuration |
+| `configAdvanced.test.ts` | 31 | Cross-validation of creators, tiers, fees |
+| `contentEncryption.test.ts` | 18 | AES-256-GCM content encryption |
+| `e2eEncryption.test.ts` | 21 | End-to-end encryption (encrypt/decrypt/key derivation) |
 | `encryption.test.ts` | 16 | Encryption helpers |
 | `aleoUtils.test.ts` | 22 | Aleo-specific utilities |
 | `types.test.ts` | 27 | Type guards and validators |
@@ -467,7 +484,7 @@ cd frontend && npm test
 ## Version History
 
 <details>
-<summary><strong>Full changelog (v4 — v28)</strong></summary>
+<summary><strong>Full changelog (v4 — v29)</strong></summary>
 
 | Version | Key Changes |
 |---------|------------|
@@ -483,9 +500,9 @@ cd frontend && npm test
 | v23 | **Privacy overhaul** — zero addresses in finalize, all field-keyed mappings |
 | v24 | Content auth fix, on-chain expiry enforcement |
 | v25 | Threshold proofs (`prove_subscriber_threshold`), platform-wide stats mappings |
-| v26 | Trial passes — ephemeral ~12hr access at 20% of tier price |
+| v26 | Trial passes — ephemeral ~50 min (1,000 blocks) access at 20% of tier price |
 | v27 | Scoped audit tokens, trial rate-limiting, gift revocation fix |
-| **v28** | **Triple token support (Credits + USDCx + USAD).** 4 new stablecoin transitions, MerkleProof compliance, dollar-denominated subscriptions. Companion programs: `veilsub_extras_v1` (reviews + lottery), `veilsub_identity_v1` (signatures + ECDSA). TypeScript SDK (`@veilsub/sdk`). Monitor bot. Content encryption (AES-256-GCM). Rich text editor. Privacy dashboard. Creator onboarding wizard. Push notifications. **31 transitions, 26 mappings, 3 token standards.** |
+| **v28** | **Triple token support (Credits + USDCx + USAD).** 4 stablecoin transitions added to contract source, MerkleProof compliance, dollar-denominated subscriptions. 9 companion programs. TypeScript SDK (`@veilsub/sdk`). Monitor bot. Content encryption (AES-256-GCM). Rich text editor. Privacy dashboard. Creator onboarding wizard. Push notifications. **31 transitions in source, 26 mappings, 3 token standards.** |
 | **v29** | **Deployed to testnet.** Pedersen commitment mappings (`subscriber_commit`, `revenue_commit`, `blind_sum`, `revenue_blind_sum`). Error codes ERR_120-137. Deployment tx: `at1ql2rukfdkq85k8cp988llexg7caa6f6w7t3mqht09lsxcarxqvgqtq9xl9`. **27 transitions, 29 mappings** (stablecoin transitions disabled pending interface verification). |
 
 </details>
