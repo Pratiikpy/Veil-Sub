@@ -227,8 +227,8 @@ export async function POST(req: NextRequest) {
     if (typeof body !== 'string' || body.length > API_LIMITS.MAX_POST_BODY_LENGTH) {
       return NextResponse.json({ error: `Body too long (max ${API_LIMITS.MAX_POST_BODY_LENGTH})` }, { status: 400 })
     }
-    if (typeof minTier === 'number' && (minTier < 1 || minTier > API_LIMITS.MAX_TIER_ID)) {
-      return NextResponse.json({ error: `Invalid tier (1-${API_LIMITS.MAX_TIER_ID})` }, { status: 400 })
+    if (typeof minTier === 'number' && (minTier < 0 || minTier > API_LIMITS.MAX_TIER_ID)) {
+      return NextResponse.json({ error: `Invalid tier (0-${API_LIMITS.MAX_TIER_ID})` }, { status: 400 })
     }
 
     // Validate optional image URL (prevent XSS via javascript: or data: schemes)
@@ -334,7 +334,7 @@ export async function POST(req: NextRequest) {
       title: encryptedTitle,
       body: encryptedBody,
       preview: encryptedPreview,
-      minTier: minTier ?? 1,
+      minTier: typeof minTier === 'number' ? minTier : 1,
       createdAt: new Date().toISOString(),
       contentId: typeof contentId === 'string' ? contentId.slice(0, API_LIMITS.MAX_CONTENT_ID_LENGTH) : '',
       status: postStatus,
@@ -404,8 +404,8 @@ export async function PUT(req: NextRequest) {
     if (body !== undefined && (typeof body !== 'string' || body.length > API_LIMITS.MAX_POST_BODY_LENGTH)) {
       return NextResponse.json({ error: `Body too long (max ${API_LIMITS.MAX_POST_BODY_LENGTH})` }, { status: 400 })
     }
-    if (minTier !== undefined && (typeof minTier !== 'number' || minTier < 1 || minTier > API_LIMITS.MAX_TIER_ID)) {
-      return NextResponse.json({ error: `Invalid tier (1-${API_LIMITS.MAX_TIER_ID})` }, { status: 400 })
+    if (minTier !== undefined && (typeof minTier !== 'number' || minTier < 0 || minTier > API_LIMITS.MAX_TIER_ID)) {
+      return NextResponse.json({ error: `Invalid tier (0-${API_LIMITS.MAX_TIER_ID})` }, { status: 400 })
     }
 
     // Rate limit: edits per minute per address

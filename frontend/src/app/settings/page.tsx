@@ -17,6 +17,9 @@ import {
   CreditCard,
   Eye,
   EyeOff,
+  Mail,
+  Loader2,
+  Trash2,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
@@ -339,6 +342,14 @@ export default function SettingsPage() {
   const [notifSaving, setNotifSaving] = useState(false)
   const [notifSaved, setNotifSaved] = useState(false)
 
+  // Email notification state
+  const [notifEmail, setNotifEmail] = useState('')
+  const [notifEmailLoading, setNotifEmailLoading] = useState(false)
+  const [notifEmailSaving, setNotifEmailSaving] = useState(false)
+  const [notifEmailSaved, setNotifEmailSaved] = useState(false)
+  const [notifEmailExists, setNotifEmailExists] = useState(false)
+  const [notifEmailRemoving, setNotifEmailRemoving] = useState(false)
+
   // Mounted flag for hydration safety
   const [mounted, setMounted] = useState(false)
 
@@ -380,6 +391,38 @@ export default function SettingsPage() {
     })
     return () => { cancelled = true }
   }, [publicKey, getCreatorProfile])
+
+  // ─── Load email notification preferences ───────────────────────────────────
+
+  const computeSubscriberHash = useCallback(async (address: string): Promise<string> => {
+    const encoder = new TextEncoder()
+    const hashBuf = await crypto.subtle.digest('SHA-256', encoder.encode(address))
+    return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
+  }, [])
+
+  useEffect(() => {
+    if (!publicKey) return
+    let cancelled = false
+    setNotifEmailLoading(true)
+    computeSubscriberHash(publicKey).then(async (hash) => {
+      if (cancelled) return
+      try {
+        const res = await fetch(`/api/notification-emails?subscriber_hash=${hash}`)
+        if (res.ok) {
+          const { subscription } = await res.json()
+          if (!cancelled && subscription) {
+            setNotifEmail(subscription.email || '')
+            setNotifEmailExists(true)
+          }
+        }
+      } catch {
+        // Ignore — email notifications are optional
+      } finally {
+        if (!cancelled) setNotifEmailLoading(false)
+      }
+    })
+    return () => { cancelled = true }
+  }, [publicKey, computeSubscriberHash])
 
   // ─── Handlers ──────────────────────────────────────────────────────────────
 
@@ -467,6 +510,66 @@ export default function SettingsPage() {
   const updateNotifPref = useCallback((key: keyof NotificationPrefs, value: boolean) => {
     setNotifPrefs((prev) => ({ ...prev, [key]: value }))
   }, [])
+
+  const handleSaveNotifEmail = useCallback(async () => {
+    if (!publicKey || !notifEmail.trim() || !notifEmail.includes('@')) {
+      toast.error('Please enter a valid email address.')
+      return
+    }
+    setNotifEmailSaving(true)
+    setNotifEmailSaved(false)
+    try {
+      const subscriberHash = await computeSubscriberHash(publicKey)
+      // For now, subscribe to all creators (empty array means "all").
+      // Future: let user pick specific creators.
+      const res = await fetch('/api/notification-emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subscriberHash,
+          email: notifEmail.trim(),
+          creatorHashes: [], // empty = all creators
+        }),
+      })
+      if (res.ok) {
+        toast.success('Email notification preferences saved')
+        sounds.success()
+        setNotifEmailSaved(true)
+        setNotifEmailExists(true)
+        setTimeout(() => setNotifEmailSaved(false), 3000)
+      } else {
+        toast.error('Could not save email preferences. Try again.')
+      }
+    } catch {
+      toast.error('Could not save email preferences. Check your connection.')
+    } finally {
+      setNotifEmailSaving(false)
+    }
+  }, [publicKey, notifEmail, computeSubscriberHash])
+
+  const handleRemoveNotifEmail = useCallback(async () => {
+    if (!publicKey) return
+    setNotifEmailRemoving(true)
+    try {
+      const subscriberHash = await computeSubscriberHash(publicKey)
+      const res = await fetch('/api/notification-emails', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscriberHash }),
+      })
+      if (res.ok) {
+        toast.success('Email notifications disabled')
+        setNotifEmail('')
+        setNotifEmailExists(false)
+      } else {
+        toast.error('Could not remove email preferences.')
+      }
+    } catch {
+      toast.error('Could not remove email preferences.')
+    } finally {
+      setNotifEmailRemoving(false)
+    }
+  }, [publicKey, computeSubscriberHash])
 
   // ─── Privacy explainer toggle ──────────────────────────────────────────────
 
@@ -777,6 +880,67 @@ export default function SettingsPage() {
                 <div className="pt-2">
                   <SaveButton onClick={handleSaveNotifications} saving={notifSaving} saved={notifSaved} label="Save Preferences" />
                 </div>
+
+                {/* ── Email Notifications (opt-in) ─────────────────── */}
+                {connected && publicKey && (
+                  <div className="border-t border-border/50 pt-5 mt-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Mail className="w-4 h-4 text-violet-400" />
+                      <p className="text-sm font-medium text-white">Email notifications</p>
+                    </div>
+                    <p className="text-xs text-white/50 mb-3">
+                      Get notified by email when creators you subscribe to publish new content. Your email is stored privately, keyed by a hash of your wallet — not your address.
+                    </p>
+                    {notifEmailLoading ? (
+                      <div className="flex items-center gap-2 py-2">
+                        <Loader2 className="w-4 h-4 text-white/40 animate-spin" />
+                        <span className="text-xs text-white/40">Loading preferences...</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div>
+                          <label htmlFor="notif-email" className="block text-xs text-white/50 mb-1.5">
+                            Email address {notifEmailExists && <span className="text-emerald-400">(active)</span>}
+                          </label>
+                          <input
+                            id="notif-email"
+                            type="email"
+                            value={notifEmail}
+                            onChange={(e) => setNotifEmail(e.target.value)}
+                            placeholder="you@example.com"
+                            maxLength={320}
+                            className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-500/30 transition-all"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <SaveButton
+                            onClick={handleSaveNotifEmail}
+                            saving={notifEmailSaving}
+                            saved={notifEmailSaved}
+                            label={notifEmailExists ? 'Update Email' : 'Enable Notifications'}
+                          />
+                          {notifEmailExists && (
+                            <button
+                              onClick={handleRemoveNotifEmail}
+                              disabled={notifEmailRemoving}
+                              className="px-4 py-2.5 rounded-lg text-sm font-medium bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/15 transition-all disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
+                            >
+                              {notifEmailRemoving ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-3.5 h-3.5" />
+                              )}
+                              Disable
+                            </button>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-white/30">
+                          Your email is never shared. Notifications are sent via Resend. You can disable them at any time.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </GlassCard>
 

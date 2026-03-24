@@ -53,11 +53,37 @@ export default function PostInteractions({
   const burstTimer = useRef<ReturnType<typeof setTimeout>>(null)
   const lastTap = useRef(0)
   const containerRef = useRef<HTMLDivElement>(null)
+  const serverAvailable = useRef(true)
 
   // Cleanup timer
   useEffect(() => () => { if (burstTimer.current) clearTimeout(burstTimer.current) }, [])
 
-  const triggerLike = useCallback(() => {
+  // Fetch server-side heart count on mount
+  useEffect(() => {
+    let cancelled = false
+
+    async function fetchHeartCount() {
+      try {
+        const res = await fetch(`/api/social?type=reactions&contentId=${encodeURIComponent(contentId)}`)
+        if (!cancelled && res.ok) {
+          const { counts } = await res.json()
+          if (counts?.heart !== undefined && counts.heart > 0) {
+            setLikes(counts.heart)
+            try { localStorage.setItem(LIKES_PREFIX + contentId, String(counts.heart)) } catch { /* quota */ }
+          }
+        } else if (!cancelled) {
+          serverAvailable.current = false
+        }
+      } catch {
+        if (!cancelled) serverAvailable.current = false
+      }
+    }
+
+    fetchHeartCount()
+    return () => { cancelled = true }
+  }, [contentId])
+
+  const triggerLike = useCallback(async () => {
     if (liked) {
       // Unlike
       const next = Math.max(0, likes - 1)
@@ -67,8 +93,20 @@ export default function PostInteractions({
         localStorage.setItem(LIKES_PREFIX + contentId, String(next))
         localStorage.removeItem(LIKED_PREFIX + contentId)
       } catch { /* quota */ }
+
+      // Persist decrement to server
+      if (serverAvailable.current) {
+        try {
+          await fetch('/api/social', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'reaction', contentId, reactionType: 'heart', delta: -1 }),
+          })
+        } catch { /* server down */ }
+      }
       return
     }
+
     const next = likes + 1
     setLikes(next)
     setLiked(true)
@@ -79,6 +117,17 @@ export default function PostInteractions({
       localStorage.setItem(LIKES_PREFIX + contentId, String(next))
       localStorage.setItem(LIKED_PREFIX + contentId, '1')
     } catch { /* quota */ }
+
+    // Persist increment to server
+    if (serverAvailable.current) {
+      try {
+        await fetch('/api/social', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'reaction', contentId, reactionType: 'heart', delta: 1 }),
+        })
+      } catch { /* server down */ }
+    }
   }, [liked, likes, contentId])
 
   const handleDoubleTap = useCallback(() => {
@@ -160,7 +209,7 @@ export default function PostInteractions({
           <Share2 className="w-4 h-4" />
         </button>
 
-        {/* Save/Bookmark */}
+        {/* Save/Bookmark — stays localStorage only for privacy */}
         <button
           onClick={(e) => { e.stopPropagation(); toggleSave() }}
           className={`transition-colors ${saved ? 'text-amber-400' : 'text-white/50 hover:text-amber-400'}`}

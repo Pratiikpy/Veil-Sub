@@ -155,6 +155,38 @@ export function tipReceivedEmail(creatorName: string, amount: string): string {
   `)
 }
 
+// ── Template: New Post Notification (for subscribers) ─────────────
+
+export function newPostNotificationEmail(
+  creatorName: string,
+  postTitle: string,
+  postPreview: string,
+  creatorAddress: string,
+  postId: string
+): string {
+  const creatorUrl = `${APP_URL}/creator/${creatorAddress}`
+
+  return layout(`
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="display:inline-block;width:48px;height:48px;background-color:rgba(139,92,246,0.15);border-radius:12px;line-height:48px;font-size:24px;">&#128276;</div>
+    </div>
+    <h1 style="color:#ffffff;font-size:22px;font-weight:700;margin:0 0 8px;text-align:center;letter-spacing:-0.02em;">New from ${escapeHtml(creatorName)}</h1>
+    <div style="background-color:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.15);border-radius:12px;padding:20px;margin:16px 0 8px;text-align:center;">
+      <h2 style="color:#ffffff;font-size:18px;font-weight:600;margin:0 0 12px;letter-spacing:-0.01em;">${escapeHtml(postTitle)}</h2>
+      ${postPreview ? `<p style="color:rgba(255,255,255,0.6);font-size:14px;line-height:1.6;margin:0;">${escapeHtml(postPreview)}</p>` : ''}
+    </div>
+    <div style="text-align:center;margin-top:24px;">
+      ${ctaButton('Read on VeilSub', creatorUrl)}
+    </div>
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+      <p style="color:rgba(255,255,255,0.3);font-size:11px;margin:0;line-height:1.6;">
+        You received this because you subscribed to ${escapeHtml(creatorName)} on VeilSub and opted in to email notifications.<br>
+        <a href="${APP_URL}/settings" style="color:#8B5CF6;text-decoration:none;">Manage notification preferences</a>
+      </p>
+    </div>
+  `)
+}
+
 // ── Utility ───────────────────────────────────────────────────────
 
 function escapeHtml(text: string): string {

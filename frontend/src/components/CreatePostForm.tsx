@@ -19,6 +19,29 @@ import { useCreatorTiers } from '@/hooks/useCreatorTiers'
 
 const RichTextEditor = lazy(() => import('./RichTextEditor'))
 
+/** Best-effort subscriber email notification after publishing. Never blocks or errors. */
+function triggerSubscriberNotification(
+  creatorAddress: string,
+  postTitle: string,
+  postBody: string,
+  postId: string
+): void {
+  // Strip HTML tags for preview text
+  const previewText = postBody.replace(/<[^>]*>/g, '').slice(0, 200)
+  fetch('/api/email/notify-subscribers', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      creatorAddress,
+      postTitle,
+      postPreview: previewText,
+      postId,
+    }),
+  }).catch(() => {
+    // Best-effort — never block the publish flow
+  })
+}
+
 interface Props {
   creatorAddress: string
   onPostCreated?: () => void
@@ -114,7 +137,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
   const [videoUrlError, setVideoUrlError] = useState<string | null>(null)
   const [imageUrlError, setImageUrlError] = useState<string | null>(null)
 
-  const [minTier, setMinTier] = useState(editingPost?.minTier ?? 1)
+  const [minTier, setMinTier] = useState(editingPost?.minTier ?? 0)
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
   const [txId, setTxId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -190,7 +213,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
         setPreview(draft.preview || '')
         setImageUrl(draft.imageUrl || '')
         setVideoUrl(draft.videoUrl || '')
-        setMinTier(draft.minTier || 1)
+        setMinTier(typeof draft.minTier === 'number' ? draft.minTier : 0)
         setTags(draft.tags || [])
         toast.success('Draft restored')
       }
@@ -296,7 +319,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
     setImageUrl('')
     setImageError(false)
     setVideoUrl('')
-    setMinTier(1)
+    setMinTier(0)
     setTags([])
     setTagInput('')
     setScheduleDate('')
@@ -450,6 +473,38 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
 
     submittingRef.current = true
     setError(null)
+
+    // Free posts (minTier === 0) skip on-chain transaction — save directly to Redis
+    if (minTier === 0) {
+      try {
+        const contentId = generatePassId()
+        const wrappedSign = getWrappedSign()
+        const saved = await createPost(
+          creatorAddress, title.trim(), body, 0, contentId,
+          wrappedSign, imageUrl.trim() || undefined, undefined,
+          preview.trim() || undefined, videoUrl.trim() || undefined,
+          'published', tags.length > 0 ? [...tags] : undefined
+        )
+        if (saved) {
+          toast.success('Free post published!')
+          // Trigger subscriber email notification (best-effort, non-blocking)
+          triggerSubscriberNotification(creatorAddress, title.trim(), body, saved.id)
+          resetForm()
+          onPostCreated?.()
+        } else {
+          toast.error(postError?.message || 'Post could not be published')
+          if (postError) clearError()
+          setError('Post could not be saved. Check your wallet and try again.')
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Post could not be published')
+      } finally {
+        submittingRef.current = false
+      }
+      return
+    }
+
+    // Gated posts (minTier >= 1) need on-chain publishContent transaction
     setTxStatus('signing')
     toast.loading(`Publishing "${title.trim()}"...`, { id: 'post-optimistic', duration: 60000 })
 
@@ -494,6 +549,8 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
               setError('Content confirmed on-chain but save to server failed. Your content is preserved—try publishing again.')
             } else {
               toast.success('Post published!')
+              // Trigger subscriber email notification (best-effort, non-blocking)
+              triggerSubscriberNotification(creatorAddress, postTitle, postBody, saved.id)
               resetForm()
               onPostCreated?.()
             }
@@ -550,8 +607,9 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
     return TAG_COLORS[tag] || 'text-violet-300 bg-violet-500/10 border-violet-500/20'
   }
 
-  // Build tier options from actual on-chain tiers
-  const tierOptions: { id: number; name: string }[] = [
+  // Build tier options from actual on-chain tiers (Free first, then paid tiers)
+  const tierOptions: { id: number; name: string; description?: string }[] = [
+    { id: 0, name: 'Free', description: 'Visible to everyone' },
     { id: 1, name: 'Supporter' },
     ...Object.entries(onChainTiers)
       .filter(([, t]) => t.price > 0)
@@ -804,22 +862,30 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                 <p className="text-xs text-yellow-400/80 mb-2">Could not load custom tiers. Showing default tier only.</p>
               )}
               <div className="flex flex-wrap gap-2" role="group" aria-label="Minimum tier selection">
-                {tierOptions.map(({ id, name }) => (
+                {tierOptions.map(({ id, name, description }) => (
                   <button
                     key={id}
                     onClick={() => setMinTier(id)}
-                    aria-label={`Set minimum tier to ${name}`}
+                    aria-label={`Set minimum tier to ${name}${description ? ` — ${description}` : ''}`}
                     aria-pressed={minTier === id}
                     className={`py-2.5 px-4 rounded-lg text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50 focus-visible:ring-offset-0 ${
                       minTier === id
-                        ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
+                        ? id === 0
+                          ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 shadow-accent-sm'
+                          : 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
                         : 'bg-white/[0.05] border border-border text-white/70 hover:bg-white/[0.08] hover:border-white/15'
                     }`}
                   >
                     {name}
+                    {description && <span className="ml-1 text-[10px] opacity-70">({description})</span>}
                   </button>
                 ))}
               </div>
+              {minTier === 0 && (
+                <p className="text-xs text-emerald-400/70 mt-2">
+                  Free posts are visible to everyone, even without a wallet. Great for attracting new subscribers.
+                </p>
+              )}
             </div>
 
             {/* Tags input */}

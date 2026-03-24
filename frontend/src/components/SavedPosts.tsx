@@ -51,6 +51,7 @@ export default function SavedPosts() {
         <Bookmark className="w-10 h-10 text-white/20 mx-auto mb-3" aria-hidden="true" />
         <h3 className="text-sm font-medium text-white/70 mb-1">No saved posts</h3>
         <p className="text-xs text-white/40">Bookmark posts from your feed and they will appear here.</p>
+        <p className="text-[10px] text-white/30 mt-2">Bookmarks are stored on this device for your privacy.</p>
       </div>
     )
   }
@@ -93,6 +94,7 @@ export default function SavedPosts() {
           </div>
         ))}
       </div>
+      <p className="text-[10px] text-white/30 text-center mt-3">Bookmarks are stored on this device for your privacy.</p>
     </div>
   )
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { m } from 'framer-motion'
-import { Lock, Unlock, Shield, RefreshCw, Loader2, FileText, ArrowRight, Flag, Image as ImageIcon, Video, ShieldCheck } from 'lucide-react'
+import { Lock, Unlock, Shield, RefreshCw, Loader2, FileText, ArrowRight, Flag, Image as ImageIcon, Video, ShieldCheck, Globe } from 'lucide-react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { isE2EEncrypted, decryptContent as e2eDecrypt } from '@/lib/e2eEncryption'
@@ -311,10 +311,10 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   return (
     <div>
       <h2 className="text-lg font-semibold text-white mb-2">
-        Exclusive Content
+        Content
       </h2>
       <p className="text-xs text-white/60 mb-4">
-        Content is end-to-end encrypted and server-gated. Bodies are decrypted in your browser after AccessPass verification.
+        Free posts are visible to everyone. Gated content is end-to-end encrypted and decrypted in your browser after AccessPass verification.
       </p>
 
       {initialLoad && loading ? (
@@ -343,8 +343,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
             </div>
           )}
           {posts.map((post, i) => {
+            const isFreePost = post.minTier === 0
             const tier = tierConfig[post.minTier] || tierConfig[1]
-            const hasAccess = highestTier >= post.minTier
+            const hasAccess = isFreePost || highestTier >= post.minTier
             const unlockedBody = unlockedBodies[post.id]
             const unlockedImage = unlockedImages[post.id]
             const unlockedVideo = unlockedVideos[post.id]
@@ -353,8 +354,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
             const displayBody = unlockedBody || post.body
             const displayImage = unlockedImage || post.imageUrl
             const displayVideo = unlockedVideo || post.videoUrl
-            const unlocked = hasAccess && displayBody != null
-            const Icon = tier.icon
+            // Free posts are always unlocked (body comes from API); gated posts need tier access
+            const unlocked = isFreePost ? displayBody != null : (hasAccess && displayBody != null)
+            const Icon = isFreePost ? Globe : tier.icon
             const postIsE2E = !!post.e2e
             // Use decrypted preview for E2E posts, fall back to raw preview
             const displayPreview = decryptedPreviews[post.id] || post.preview
@@ -396,9 +398,11 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       </h3>
                       <span
                         className={`px-3 py-1 rounded-full text-xs border shrink-0 ${
-                          unlocked
-                            ? `${tier.text} ${tier.lockBg} ${tier.border}`
-                            : 'text-white/60 bg-surface-1 border-border'
+                          isFreePost
+                            ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20'
+                            : unlocked
+                              ? `${tier.text} ${tier.lockBg} ${tier.border}`
+                              : 'text-white/60 bg-surface-1 border-border'
                         }`}
                       >
                         {tier.name}
@@ -582,6 +586,15 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                         contentId={post.id}
                         readingTime={displayBody ? estimateReadingTime(displayBody) : undefined}
                       />
+                    </div>
+                  )}
+
+                  {/* Free post CTA — subtle nudge to subscribe for more */}
+                  {isFreePost && unlocked && (
+                    <div className="mt-3 pt-2 border-t border-emerald-500/10">
+                      <p className="text-xs text-white/40 text-center">
+                        Enjoying this free post? <span className="text-violet-400">Subscribe</span> to unlock exclusive content from this creator.
+                      </p>
                     </div>
                   )}
 

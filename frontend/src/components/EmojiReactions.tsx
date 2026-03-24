@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 
 interface EmojiReactionsProps {
   contentId: string
@@ -17,37 +17,78 @@ const EMOJIS = [
 
 const STORAGE_KEY = 'veilsub_reactions_'
 
-function loadReactions(contentId: string): Record<string, number> {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY + contentId) || '{}')
-  } catch { return {} }
-}
-
 function loadMyReactions(contentId: string): Set<string> {
   try {
     return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY + contentId + '_my') || '[]'))
   } catch { return new Set() }
 }
 
+function loadLocalCounts(contentId: string): Record<string, number> {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY + contentId) || '{}')
+  } catch { return {} }
+}
+
 export default function EmojiReactions({ contentId }: EmojiReactionsProps) {
   const [expanded, setExpanded] = useState(false)
-  const [counts, setCounts] = useState(() => loadReactions(contentId))
+  const [counts, setCounts] = useState<Record<string, number>>(() => loadLocalCounts(contentId))
   const [mine, setMine] = useState(() => loadMyReactions(contentId))
+  const serverAvailable = useRef(true)
 
-  const toggle = useCallback((key: string) => {
+  // Fetch aggregate counts from server on mount
+  useEffect(() => {
+    let cancelled = false
+
+    async function fetchCounts() {
+      try {
+        const res = await fetch(`/api/social?type=reactions&contentId=${encodeURIComponent(contentId)}`)
+        if (!cancelled && res.ok) {
+          const { counts: serverCounts } = await res.json()
+          if (serverCounts && Object.keys(serverCounts).length > 0) {
+            setCounts(serverCounts)
+            try { localStorage.setItem(STORAGE_KEY + contentId, JSON.stringify(serverCounts)) } catch { /* quota */ }
+            return
+          }
+        }
+        if (!cancelled && !res.ok) serverAvailable.current = false
+      } catch {
+        if (!cancelled) serverAvailable.current = false
+      }
+    }
+
+    fetchCounts()
+    return () => { cancelled = true }
+  }, [contentId])
+
+  const toggle = useCallback(async (key: string) => {
+    const isActive = mine.has(key)
+    const delta = isActive ? -1 : 1
+
+    // Optimistic local update
     setCounts(prev => {
-      const isActive = mine.has(key)
-      const next = { ...prev, [key]: Math.max(0, (prev[key] || 0) + (isActive ? -1 : 1)) }
+      const next = { ...prev, [key]: Math.max(0, (prev[key] || 0) + delta) }
       if (next[key] === 0) delete next[key]
       try { localStorage.setItem(STORAGE_KEY + contentId, JSON.stringify(next)) } catch { /* quota */ }
       return next
     })
+
     setMine(prev => {
       const next = new Set(prev)
       if (next.has(key)) next.delete(key); else next.add(key)
       try { localStorage.setItem(STORAGE_KEY + contentId + '_my', JSON.stringify([...next])) } catch { /* quota */ }
       return next
     })
+
+    // Persist aggregate count change to server
+    if (serverAvailable.current) {
+      try {
+        await fetch('/api/social', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'reaction', contentId, reactionType: key, delta }),
+        })
+      } catch { /* server down, local state is fine */ }
+    }
   }, [contentId, mine])
 
   return (

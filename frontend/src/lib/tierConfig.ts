@@ -1,6 +1,15 @@
-import { Star, MessageSquare, Crown } from 'lucide-react'
+import { Globe, Star, MessageSquare, Crown } from 'lucide-react'
 
 export const tierConfig: Record<number, { name: string; icon: typeof Star; color: string; border: string; bg: string; text: string; lockBg: string }> = {
+  0: {
+    name: 'Free',
+    icon: Globe,
+    color: 'emerald',
+    border: 'border-emerald-500/20',
+    bg: 'bg-emerald-500/5',
+    text: 'text-emerald-300',
+    lockBg: 'bg-emerald-500/10',
+  },
   1: {
     name: 'Supporter',
     icon: Star,

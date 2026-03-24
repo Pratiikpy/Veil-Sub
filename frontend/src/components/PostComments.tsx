@@ -1,9 +1,19 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Heart, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react'
 
 interface Comment {
+  id: string
+  text: string
+  created_at: string
+  subscriber_hash: string
+  parent_id?: string | null
+  likes_count: number
+}
+
+/** Legacy shape stored in localStorage (pre-Supabase) */
+interface LegacyComment {
   id: string
   text: string
   timestamp: number
@@ -21,18 +31,36 @@ const MAX_CHARS = 280
 const MAX_COMMENTS = 50
 const STORAGE_PREFIX = 'veilsub_comments_'
 
-function getSubscriberHash(): string {
+/** SHA-256 hash of a string, returned as lowercase hex */
+async function sha256(input: string): Promise<string> {
+  const data = new TextEncoder().encode(input)
+  const buf = await crypto.subtle.digest('SHA-256', data)
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+/** Get or create a stable subscriber hash from wallet address or session */
+async function getSubscriberHash(): Promise<string> {
+  // Try to use wallet address for cross-device consistency
+  const walletAddr = typeof window !== 'undefined'
+    ? localStorage.getItem('aleo_wallet_address') || sessionStorage.getItem('aleo_wallet_address')
+    : null
+
+  if (walletAddr) {
+    return sha256(walletAddr)
+  }
+
+  // Fallback: session-scoped random hash (localStorage cache for tab lifetime)
   const key = 'veilsub_session_hash'
   let hash = sessionStorage.getItem(key)
   if (!hash) {
-    hash = 'S' + Math.random().toString(36).slice(2, 8)
+    hash = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '')
     sessionStorage.setItem(key, hash)
   }
   return hash
 }
 
-function timeAgo(ts: number): string {
-  const diff = Date.now() - ts
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime()
   if (diff < 60000) return 'now'
   const m = Math.floor(diff / 60000)
   if (m < 60) return `${m}m`
@@ -49,64 +77,166 @@ function avatarColor(hash: string): string {
   return colors[n % colors.length]
 }
 
+/** Migrate legacy localStorage comments to the new shape */
+function migrateLegacy(raw: string): Comment[] {
+  try {
+    const arr = JSON.parse(raw)
+    if (!Array.isArray(arr) || arr.length === 0) return []
+    // Detect legacy shape: has `timestamp` number and `subscriberHash`
+    if (typeof arr[0].timestamp === 'number') {
+      return (arr as LegacyComment[]).map(c => ({
+        id: c.id,
+        text: c.text,
+        created_at: new Date(c.timestamp).toISOString(),
+        subscriber_hash: c.subscriberHash,
+        parent_id: c.parentId || null,
+        likes_count: c.likes || 0,
+      }))
+    }
+    return arr as Comment[]
+  } catch {
+    return []
+  }
+}
+
 export default function PostComments({ contentId, isSubscribed }: PostCommentsProps) {
   const [comments, setComments] = useState<Comment[]>([])
   const [text, setText] = useState('')
   const [replyTo, setReplyTo] = useState<string | null>(null)
   const [expanded, setExpanded] = useState(false)
+  const [serverAvailable, setServerAvailable] = useState(true)
+  const hashRef = useRef<string | null>(null)
   const storageKey = STORAGE_PREFIX + contentId
 
+  // Resolve subscriber hash once
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(storageKey)
-      if (raw) setComments(JSON.parse(raw))
-    } catch { /* empty */ }
-  }, [storageKey])
+    getSubscriberHash().then(h => { hashRef.current = h })
+  }, [])
 
-  const save = useCallback((next: Comment[]) => {
-    setComments(next)
+  // Fetch comments: server first, localStorage fallback
+  useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      try {
+        const res = await fetch(`/api/social?type=comments&contentId=${encodeURIComponent(contentId)}`)
+        if (!cancelled && res.ok) {
+          const { comments: serverComments } = await res.json()
+          if (serverComments && serverComments.length > 0) {
+            setComments(serverComments)
+            try { localStorage.setItem(storageKey, JSON.stringify(serverComments)) } catch { /* quota */ }
+            return
+          }
+        }
+        if (!cancelled && !res.ok) setServerAvailable(false)
+      } catch {
+        if (!cancelled) setServerAvailable(false)
+      }
+
+      // Fallback: localStorage
+      if (!cancelled) {
+        try {
+          const raw = localStorage.getItem(storageKey)
+          if (raw) setComments(migrateLegacy(raw))
+        } catch { /* empty */ }
+      }
+    }
+
+    load()
+    return () => { cancelled = true }
+  }, [contentId, storageKey])
+
+  const saveLocal = useCallback((next: Comment[]) => {
     try { localStorage.setItem(storageKey, JSON.stringify(next)) } catch { /* quota */ }
   }, [storageKey])
 
-  const submit = useCallback(() => {
+  const submit = useCallback(async () => {
     const trimmed = text.trim()
     if (!trimmed || trimmed.length > MAX_CHARS) return
-    const comment: Comment = {
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+
+    const subHash = hashRef.current || crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '')
+
+    // Optimistic local-only comment (shown immediately)
+    const optimistic: Comment = {
+      id: crypto.randomUUID(),
       text: trimmed,
-      timestamp: Date.now(),
-      subscriberHash: getSubscriberHash(),
-      parentId: replyTo || undefined,
-      likes: 0,
+      created_at: new Date().toISOString(),
+      subscriber_hash: subHash,
+      parent_id: replyTo || null,
+      likes_count: 0,
     }
-    const next = [comment, ...comments].slice(0, MAX_COMMENTS)
-    save(next)
+    const next = [optimistic, ...comments].slice(0, MAX_COMMENTS)
+    setComments(next)
+    saveLocal(next)
     setText('')
     setReplyTo(null)
-  }, [text, comments, replyTo, save])
 
-  const toggleLike = useCallback((id: string) => {
+    // Persist to server
+    if (serverAvailable) {
+      try {
+        const res = await fetch('/api/social', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'comment',
+            contentId,
+            text: trimmed,
+            subscriberHash: subHash,
+            parentId: replyTo || undefined,
+          }),
+        })
+        if (res.ok) {
+          const { comment: saved } = await res.json()
+          // Replace optimistic entry with server-assigned ID
+          setComments(prev => {
+            const updated = prev.map(c => c.id === optimistic.id ? { ...saved } : c)
+            saveLocal(updated)
+            return updated
+          })
+        }
+      } catch {
+        // Server failed, optimistic entry stays (localStorage only)
+      }
+    }
+  }, [text, comments, replyTo, contentId, serverAvailable, saveLocal])
+
+  const toggleLike = useCallback(async (id: string) => {
     const likeKey = `veilsub_comment_like_${id}`
     const liked = localStorage.getItem(likeKey)
+    const delta = liked ? -1 : 1
+
+    // Optimistic update
     const next = comments.map(c => {
       if (c.id !== id) return c
       if (liked) {
         localStorage.removeItem(likeKey)
-        return { ...c, likes: Math.max(0, c.likes - 1) }
+        return { ...c, likes_count: Math.max(0, c.likes_count - 1) }
       }
       localStorage.setItem(likeKey, '1')
-      return { ...c, likes: c.likes + 1 }
+      return { ...c, likes_count: c.likes_count + 1 }
     })
-    save(next)
-  }, [comments, save])
+    setComments(next)
+    saveLocal(next)
 
-  const topLevel = useMemo(() => comments.filter(c => !c.parentId), [comments])
+    // Persist to server
+    if (serverAvailable) {
+      try {
+        await fetch('/api/social', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'comment_like', contentId, commentId: id, delta }),
+        })
+      } catch { /* server down, local state is fine */ }
+    }
+  }, [comments, contentId, serverAvailable, saveLocal])
+
+  const topLevel = useMemo(() => comments.filter(c => !c.parent_id), [comments])
   const replies = useMemo(() => {
     const map: Record<string, Comment[]> = {}
     for (const c of comments) {
-      if (c.parentId) {
-        if (!map[c.parentId]) map[c.parentId] = []
-        map[c.parentId].push(c)
+      if (c.parent_id) {
+        if (!map[c.parent_id]) map[c.parent_id] = []
+        map[c.parent_id].push(c)
       }
     }
     return map
@@ -120,25 +250,28 @@ export default function PostComments({ contentId, isSubscribed }: PostCommentsPr
       <div className="flex items-center gap-1.5 mb-3">
         <MessageCircle className="w-3.5 h-3.5 text-white/50" aria-hidden="true" />
         <span className="text-xs text-white/50">{comments.length} comment{comments.length !== 1 ? 's' : ''}</span>
+        {!serverAvailable && (
+          <span className="text-[9px] text-amber-400/60 ml-1" title="Comments stored on this device only">(local)</span>
+        )}
       </div>
 
       {/* Comments list */}
       {visible.map(c => (
         <div key={c.id} className="mb-2.5">
           <div className="flex gap-2.5">
-            <div className={`w-7 h-7 rounded-full ${avatarColor(c.subscriberHash)} flex items-center justify-center shrink-0`}>
+            <div className={`w-7 h-7 rounded-full ${avatarColor(c.subscriber_hash)} flex items-center justify-center shrink-0`}>
               <span className="text-[10px] font-bold text-white/70">S</span>
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-white/70">Subscriber</span>
-                <span className="text-[10px] text-white/40">{timeAgo(c.timestamp)}</span>
+                <span className="text-[10px] text-white/40">{timeAgo(c.created_at)}</span>
               </div>
               <p className="text-sm text-white/80 leading-relaxed mt-0.5 break-words">{c.text}</p>
               <div className="flex items-center gap-3 mt-1">
                 <button onClick={() => toggleLike(c.id)} className="flex items-center gap-1 text-white/40 hover:text-rose-400 transition-colors">
                   <Heart className={`w-3 h-3 ${localStorage.getItem(`veilsub_comment_like_${c.id}`) ? 'fill-rose-400 text-rose-400' : ''}`} />
-                  {c.likes > 0 && <span className="text-[10px]">{c.likes}</span>}
+                  {c.likes_count > 0 && <span className="text-[10px]">{c.likes_count}</span>}
                 </button>
                 {isSubscribed && (
                   <button onClick={() => setReplyTo(replyTo === c.id ? null : c.id)} className="text-[10px] text-white/40 hover:text-violet-400 transition-colors">
@@ -151,13 +284,13 @@ export default function PostComments({ contentId, isSubscribed }: PostCommentsPr
           {/* Replies */}
           {replies[c.id]?.map(r => (
             <div key={r.id} className="flex gap-2.5 ml-9 mt-2">
-              <div className={`w-6 h-6 rounded-full ${avatarColor(r.subscriberHash)} flex items-center justify-center shrink-0`}>
+              <div className={`w-6 h-6 rounded-full ${avatarColor(r.subscriber_hash)} flex items-center justify-center shrink-0`}>
                 <span className="text-[10px] font-bold text-white/60">S</span>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-medium text-white/60">Subscriber</span>
-                  <span className="text-[10px] text-white/35">{timeAgo(r.timestamp)}</span>
+                  <span className="text-[10px] text-white/35">{timeAgo(r.created_at)}</span>
                 </div>
                 <p className="text-xs text-white/70 leading-relaxed mt-0.5 break-words">{r.text}</p>
               </div>
