@@ -2,7 +2,8 @@
 
 import { useState, useCallback } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
-import { Gift, X, Send, Sparkles, AlertCircle, Shield } from 'lucide-react'
+import Link from 'next/link'
+import { Gift, X, Send, Sparkles, AlertCircle, Shield, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
@@ -156,6 +157,16 @@ export default function GiftSubscriptionFlow({
                   <p className="text-sm font-medium text-green-400">Gift sent!</p>
                   <p className="mt-1 text-xs text-white/60">Recipient will receive a GiftToken to redeem</p>
                   {txId && <p className="mt-1 text-xs text-white/60 break-all">Tx: {txId.slice(0, 20)}...</p>}
+                </div>
+                <div className="rounded-xl bg-surface-2 border border-border p-4">
+                  <p className="text-xs text-white/50 mb-2">What's next?</p>
+                  <Link
+                    href={`/creator/${creatorAddress}`}
+                    className="inline-flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
+                  >
+                    View Creator's Content
+                    <ExternalLink className="w-3 h-3" aria-hidden="true" />
+                  </Link>
                 </div>
                 <button onClick={handleClose} className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none">
                   Done

@@ -26,7 +26,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import { useCreatorStats } from '@/hooks/useCreatorStats'
+import { useCreatorStats, clearMappingCache } from '@/hooks/useCreatorStats'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
@@ -41,6 +41,7 @@ const DisputeContentModal = dynamic(() => import('@/components/DisputeContentMod
 const CreateAuditTokenModal = dynamic(() => import('@/components/CreateAuditTokenModal'), { ssr: false })
 const RedeemGiftModal = dynamic(() => import('@/components/RedeemGiftModal'), { ssr: false })
 import ContentFeed from '@/components/ContentFeed'
+import ReadingProgressBar from '@/components/ReadingProgressBar'
 import PageTransition from '@/components/PageTransition'
 import AnimatedTabs from '@/components/ui/AnimatedTabs'
 import AddressAvatar from '@/components/ui/AddressAvatar'
@@ -625,9 +626,11 @@ export default function CreatorPage({
     }
   }, [connected, address, getAccessPasses])
 
-  // Refetch creator stats (called after tip success)
+  // Refetch creator stats (called after tip/subscribe success)
   const refreshStats = useCallback(async () => {
     try {
+      // Clear mapping cache to ensure fresh data from on-chain
+      clearMappingCache()
       const s = await fetchCreatorStats(address)
       setStats(s)
     } catch {
@@ -817,6 +820,7 @@ export default function CreatorPage({
 
   return (
     <PageTransition className="min-h-screen">
+      <ReadingProgressBar />
       {!isRegistered ? (
         /* Unregistered creator state */
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -1074,7 +1078,7 @@ export default function CreatorPage({
           onClose={() => setRenewPass(null)}
           pass={renewPass}
           basePrice={basePrice}
-          onSuccess={loadPasses}
+          onSuccess={() => { loadPasses(); refreshStats() }}
         />
       )}
       {giftTier && (

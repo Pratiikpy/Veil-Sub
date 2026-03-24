@@ -28,10 +28,17 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
     error, setError, statusMessage,
     submittingRef, handleClose, resetFlow,
   } = useTransactionFlow({ isOpen, onClose, connected, stopPolling })
-  const focusTrapRef = useFocusTrap(isOpen, handleClose)
-
   const [threshold, setThreshold] = useState('')
   const [provenThreshold, setProvenThreshold] = useState<number | null>(null)
+
+  // Reset form state on modal close
+  const handleModalClose = () => {
+    setThreshold('')
+    setProvenThreshold(null)
+    handleClose()
+  }
+
+  const focusTrapRef = useFocusTrap(isOpen, handleModalClose)
 
   const handleProve = async () => {
     if (submittingRef.current) return
@@ -91,7 +98,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh] bg-black/60 backdrop-blur-sm overflow-y-auto"
-          onClick={handleClose}
+          onClick={handleModalClose}
         >
           <m.div
             ref={focusTrapRef}
@@ -110,7 +117,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                 <h3 className="text-lg font-semibold text-white">Prove Subscriber Threshold</h3>
               </div>
               <button
-                onClick={handleClose}
+                onClick={handleModalClose}
                 disabled={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed'}
                 aria-label="Close reputation proof dialog"
                 title={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed' ? 'Transaction in progress - please wait' : 'Close dialog'}
@@ -209,12 +216,18 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                       On-chain proof confirmed: you have at least <span className="text-white font-bold">{provenThreshold}</span> subscribers.
                       The exact count remains private.
                     </p>
+                    <div className="mt-4 space-y-2">
+                      <p className="text-xs text-white/60">What's next?</p>
+                      <p className="text-xs text-white/50">
+                        Share this proof with partners, platforms, or advertisers to prove your creator status without revealing your exact subscriber count.
+                      </p>
+                    </div>
                     <button
-                      onClick={handleClose}
+                      onClick={handleModalClose}
                       aria-label="Close proof confirmation dialog"
                       className="mt-4 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50"
                     >
-                      Proof Confirmed
+                      Done
                     </button>
                   </m.div>
                 )}

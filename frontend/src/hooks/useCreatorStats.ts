@@ -15,6 +15,25 @@ export interface CreatorStatsError {
 const mappingCache = new Map<string, { data: number | null; timestamp: number }>()
 const MAPPING_CACHE_TTL = 30_000 // 30 seconds
 
+/**
+ * Clear the mapping cache for a specific creator hash or all entries.
+ * Call this after actions that modify on-chain state (subscribe, tip, etc.)
+ * to ensure the next stats fetch returns fresh data.
+ */
+export function clearMappingCache(creatorHash?: string): void {
+  if (creatorHash) {
+    // Clear only entries for this creator
+    for (const key of mappingCache.keys()) {
+      if (key.includes(creatorHash)) {
+        mappingCache.delete(key)
+      }
+    }
+  } else {
+    // Clear all entries
+    mappingCache.clear()
+  }
+}
+
 async function fetchMapping(
   mapping: string,
   key: string

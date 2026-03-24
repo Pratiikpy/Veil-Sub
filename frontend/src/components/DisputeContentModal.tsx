@@ -220,6 +220,13 @@ export default function DisputeContentModal({
                 Your dispute has been recorded on-chain. The creator and platform will review your concern.
                 Your subscriber identity remains private via hash commitment.
               </p>
+              <div className="mt-4 pt-3 border-t border-emerald-500/10">
+                <p className="text-xs text-white/50 mb-2">What happens next?</p>
+                <p className="text-xs text-white/40">
+                  Disputes are reviewed by the platform. You'll be notified if action is taken.
+                  Continue browsing other content in the meantime.
+                </p>
+              </div>
             </div>
           )}
 

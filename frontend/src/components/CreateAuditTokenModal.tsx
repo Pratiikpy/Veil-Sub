@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
-import { X, FileKey, Shield } from 'lucide-react'
+import Link from 'next/link'
+import { X, FileKey, Shield, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
@@ -255,9 +256,22 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                     <p className="text-xs text-white/60">
                       Token created for verifier. Completely private—no public record on-chain.
                     </p>
+                    <div className="mt-4 pt-3 border-t border-green-500/10 text-left">
+                      <p className="text-xs text-white/50 mb-2">What's next?</p>
+                      <p className="text-xs text-white/40 mb-3">
+                        Share the verifier's address with them so they can check your subscription status.
+                      </p>
+                      <Link
+                        href="/subscriptions"
+                        className="inline-flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
+                      >
+                        Manage Subscriptions
+                        <ExternalLink className="w-3 h-3" aria-hidden="true" />
+                      </Link>
+                    </div>
                     <button
                       onClick={handleModalClose}
-                      className="mt-4 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all"
+                      className="mt-4 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all w-full"
                     >
                       Done
                     </button>

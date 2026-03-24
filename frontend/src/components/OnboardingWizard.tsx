@@ -548,6 +548,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                     value={imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
                     placeholder="https://example.com/avatar.png"
+                    maxLength={2048}
                     className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/30 focus:shadow-accent-md transition-all duration-300"
                   />
                 </div>

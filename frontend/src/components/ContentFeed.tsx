@@ -10,6 +10,8 @@ import dynamic from 'next/dynamic'
 const DisputeContentModal = dynamic(() => import('./DisputeContentModal'), { ssr: false })
 const RichContentRenderer = dynamic(() => import('./RichContentRenderer'), { ssr: false })
 const VideoEmbed = dynamic(() => import('./VideoEmbed'), { ssr: false })
+const PostInteractions = dynamic(() => import('./PostInteractions'), { ssr: false })
+import { estimateReadingTime } from '@/lib/utils'
 import type { AccessPass, ContentPost } from '@/types'
 
 interface Props {
@@ -532,6 +534,16 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                             : 'Content is server-protected and never exposed in network requests'}
                         </p>
                       </div>
+                    </div>
+                  )}
+
+                  {/* Interactions bar */}
+                  {unlocked && (
+                    <div className="mt-3 pt-2 border-t border-white/[0.04]">
+                      <PostInteractions
+                        contentId={post.id}
+                        readingTime={displayBody ? estimateReadingTime(displayBody) : undefined}
+                      />
                     </div>
                   )}
 

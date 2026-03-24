@@ -1,0 +1,193 @@
+'use client'
+
+import { useState, useCallback, useRef, useEffect } from 'react'
+import { Heart, MessageCircle, Share2, Bookmark, BookOpen, Coins } from 'lucide-react'
+import { toast } from 'sonner'
+
+interface PostInteractionsProps {
+  contentId: string
+  initialLikes?: number
+  onTip?: () => void
+  onShare?: () => void
+  readingTime?: string
+  commentCount?: number
+  onCommentClick?: () => void
+}
+
+interface SavedEntry {
+  contentId: string
+  creatorAddress: string
+  title: string
+  savedAt: number
+}
+
+const LIKES_PREFIX = 'veilsub_likes_'
+const LIKED_PREFIX = 'veilsub_liked_'
+const SAVED_KEY = 'veilsub_saved_posts'
+
+function getSaved(): SavedEntry[] {
+  try {
+    return JSON.parse(localStorage.getItem(SAVED_KEY) || '[]')
+  } catch { return [] }
+}
+
+export default function PostInteractions({
+  contentId,
+  initialLikes = 0,
+  onTip,
+  onShare,
+  readingTime,
+  commentCount = 0,
+  onCommentClick,
+}: PostInteractionsProps) {
+  const [likes, setLikes] = useState(() => {
+    try { return Number(localStorage.getItem(LIKES_PREFIX + contentId)) || initialLikes } catch { return initialLikes }
+  })
+  const [liked, setLiked] = useState(() => {
+    try { return localStorage.getItem(LIKED_PREFIX + contentId) === '1' } catch { return false }
+  })
+  const [saved, setSaved] = useState(() => {
+    return getSaved().some(e => e.contentId === contentId)
+  })
+  const [showBurst, setShowBurst] = useState(false)
+  const burstTimer = useRef<ReturnType<typeof setTimeout>>(null)
+  const lastTap = useRef(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Cleanup timer
+  useEffect(() => () => { if (burstTimer.current) clearTimeout(burstTimer.current) }, [])
+
+  const triggerLike = useCallback(() => {
+    if (liked) {
+      // Unlike
+      const next = Math.max(0, likes - 1)
+      setLikes(next)
+      setLiked(false)
+      try {
+        localStorage.setItem(LIKES_PREFIX + contentId, String(next))
+        localStorage.removeItem(LIKED_PREFIX + contentId)
+      } catch { /* quota */ }
+      return
+    }
+    const next = likes + 1
+    setLikes(next)
+    setLiked(true)
+    setShowBurst(true)
+    if (burstTimer.current) clearTimeout(burstTimer.current)
+    burstTimer.current = setTimeout(() => setShowBurst(false), 800)
+    try {
+      localStorage.setItem(LIKES_PREFIX + contentId, String(next))
+      localStorage.setItem(LIKED_PREFIX + contentId, '1')
+    } catch { /* quota */ }
+  }, [liked, likes, contentId])
+
+  const handleDoubleTap = useCallback(() => {
+    const now = Date.now()
+    if (now - lastTap.current < 400) {
+      if (!liked) triggerLike()
+      else {
+        // Already liked, still show burst animation
+        setShowBurst(true)
+        if (burstTimer.current) clearTimeout(burstTimer.current)
+        burstTimer.current = setTimeout(() => setShowBurst(false), 800)
+      }
+    }
+    lastTap.current = now
+  }, [liked, triggerLike])
+
+  const toggleSave = useCallback(() => {
+    const entries = getSaved()
+    if (saved) {
+      const next = entries.filter(e => e.contentId !== contentId)
+      localStorage.setItem(SAVED_KEY, JSON.stringify(next))
+      setSaved(false)
+      toast.success('Removed from saved')
+    } else {
+      const entry: SavedEntry = { contentId, creatorAddress: '', title: '', savedAt: Date.now() }
+      const next = [entry, ...entries].slice(0, 200)
+      localStorage.setItem(SAVED_KEY, JSON.stringify(next))
+      setSaved(true)
+      toast.success('Saved to bookmarks')
+    }
+  }, [saved, contentId])
+
+  const handleShare = useCallback(() => {
+    const url = window.location.href
+    navigator.clipboard.writeText(url).then(
+      () => toast.success('Link copied to clipboard'),
+      () => toast.error('Could not copy link')
+    )
+    onShare?.()
+  }, [onShare])
+
+  return (
+    <div ref={containerRef} onClick={handleDoubleTap} className="relative">
+      {/* Heart burst overlay */}
+      {showBurst && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10" aria-hidden="true">
+          <Heart className="w-16 h-16 fill-rose-500 text-rose-500 heart-burst" />
+        </div>
+      )}
+
+      {/* Interaction bar */}
+      <div className="flex items-center gap-4 py-2">
+        {/* Like */}
+        <button
+          onClick={(e) => { e.stopPropagation(); triggerLike() }}
+          className={`flex items-center gap-1.5 transition-colors ${liked ? 'text-rose-400' : 'text-white/50 hover:text-rose-400'}`}
+          aria-label={liked ? 'Unlike' : 'Like'}
+        >
+          <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''} ${liked ? 'scale-110' : ''} transition-transform`} />
+          {likes > 0 && <span className="text-xs">{likes}</span>}
+        </button>
+
+        {/* Comments */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onCommentClick?.() }}
+          className="flex items-center gap-1.5 text-white/50 hover:text-violet-400 transition-colors"
+          aria-label="Comments"
+        >
+          <MessageCircle className="w-4 h-4" />
+          {commentCount > 0 && <span className="text-xs">{commentCount}</span>}
+        </button>
+
+        {/* Share */}
+        <button
+          onClick={(e) => { e.stopPropagation(); handleShare() }}
+          className="text-white/50 hover:text-white/80 transition-colors"
+          aria-label="Share"
+        >
+          <Share2 className="w-4 h-4" />
+        </button>
+
+        {/* Save/Bookmark */}
+        <button
+          onClick={(e) => { e.stopPropagation(); toggleSave() }}
+          className={`transition-colors ${saved ? 'text-amber-400' : 'text-white/50 hover:text-amber-400'}`}
+          aria-label={saved ? 'Unsave' : 'Save'}
+        >
+          <Bookmark className={`w-4 h-4 ${saved ? 'fill-current' : ''}`} />
+        </button>
+
+        {/* Tip */}
+        {onTip && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onTip() }}
+            className="text-white/50 hover:text-emerald-400 transition-colors"
+            aria-label="Tip creator"
+          >
+            <Coins className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Reading time */}
+        {readingTime && (
+          <span className="flex items-center gap-1 text-xs text-white/40 ml-auto">
+            <BookOpen className="w-3 h-3" aria-hidden="true" />
+            {readingTime}
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}

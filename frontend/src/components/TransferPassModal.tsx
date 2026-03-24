@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
-import { X, ArrowLeftRight, Shield, AlertTriangle } from 'lucide-react'
+import Link from 'next/link'
+import { X, ArrowLeftRight, Shield, AlertTriangle, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
@@ -207,6 +208,16 @@ export default function TransferPassModal({
                 Your AccessPass has been transferred to <span className="font-mono text-violet-300">{recipientAddress.slice(0, 12)}...{recipientAddress.slice(-6)}</span>.
                 The recipient now owns this subscription.
               </p>
+              <div className="mt-4 pt-3 border-t border-emerald-500/10">
+                <p className="text-xs text-white/50 mb-2">What's next?</p>
+                <Link
+                  href="/subscriptions"
+                  className="inline-flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
+                >
+                  View Your Subscriptions
+                  <ExternalLink className="w-3 h-3" aria-hidden="true" />
+                </Link>
+              </div>
             </div>
           )}
 

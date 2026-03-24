@@ -21,11 +21,16 @@ import {
   ChevronDown,
   Search,
   X,
+  Bookmark,
+  MessageCircle,
 } from 'lucide-react'
 import Fuse from 'fuse.js'
 import dynamic from 'next/dynamic'
 const RichContentRenderer = dynamic(() => import('@/components/RichContentRenderer'), { ssr: false })
 const VideoEmbed = dynamic(() => import('@/components/VideoEmbed'), { ssr: false })
+const PostInteractions = dynamic(() => import('@/components/PostInteractions'), { ssr: false })
+const PostComments = dynamic(() => import('@/components/PostComments'), { ssr: false })
+const SavedPosts = dynamic(() => import('@/components/SavedPosts'), { ssr: false })
 import PageTransition from '@/components/PageTransition'
 import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
@@ -160,6 +165,7 @@ function FeedPostCard({
   const tier = tierConfig[post.minTier] || tierConfig[1]
   const tierName = getTierName(post.creatorAddress, post.minTier)
   const unlocked = hasAccess && post.body != null
+  const [showComments, setShowComments] = useState(false)
 
   // Preview text: use post.preview, or strip HTML from body, or show placeholder
   const previewText = useMemo(() => {
@@ -310,24 +316,39 @@ function FeedPostCard({
           </div>
         )}
 
-        {/* Footer: reading time + meta */}
-        <div className="flex items-center gap-3 mt-4 pt-3 border-t border-white/[0.04]">
-          {readingTime && (
-            <span className="flex items-center gap-1 text-xs text-white/60">
-              <BookOpen className="w-3 h-3" aria-hidden="true" />
-              {readingTime}
-            </span>
-          )}
-          {unlocked && (
-            <span className="flex items-center gap-1 text-xs text-green-400/70">
-              <Unlock className="w-3 h-3" aria-hidden="true" />
-              Unlocked
-            </span>
-          )}
-          {post.updatedAt && (
-            <span className="text-xs text-white/50 ml-auto">edited</span>
-          )}
+        {/* Interactions bar */}
+        <div className="mt-4 pt-3 border-t border-white/[0.04]">
+          <div className="flex items-center gap-3">
+            {unlocked && (
+              <span className="flex items-center gap-1 text-xs text-green-400/70">
+                <Unlock className="w-3 h-3" aria-hidden="true" />
+                Unlocked
+              </span>
+            )}
+            {post.updatedAt && (
+              <span className="text-xs text-white/50 ml-auto">edited</span>
+            )}
+          </div>
+          <PostInteractions
+            contentId={post.id}
+            readingTime={readingTime || undefined}
+            onCommentClick={() => setShowComments(!showComments)}
+          />
         </div>
+
+        {/* Collapsible comments */}
+        {showComments && (
+          <PostComments contentId={post.id} isSubscribed={hasAccess} />
+        )}
+        {!showComments && (
+          <button
+            onClick={() => setShowComments(true)}
+            className="flex items-center gap-1.5 mt-2 text-xs text-white/40 hover:text-white/60 transition-colors"
+          >
+            <MessageCircle className="w-3 h-3" aria-hidden="true" />
+            View comments
+          </button>
+        )}
       </div>
     </m.article>
   )
@@ -352,6 +373,7 @@ export default function FeedPage() {
   const [visibleCount, setVisibleCount] = useState(POSTS_PER_PAGE)
   const [showSortMenu, setShowSortMenu] = useState(false)
   const [feedSearchQuery, setFeedSearchQuery] = useState('')
+  const [showSaved, setShowSaved] = useState(false)
   const sortRef = useRef<HTMLDivElement>(null)
   const feedSearchRef = useRef<HTMLInputElement>(null)
 
@@ -412,6 +434,14 @@ export default function FeedPage() {
     }
     return Array.from(set)
   }, [activePasses])
+
+  // Stories row data: subscribed creators with labels
+  const storiesCreators = useMemo(() => {
+    return subscribedCreators.map(address => ({
+      address,
+      name: getCreatorLabel(address),
+    }))
+  }, [subscribedCreators])
 
   // Build a lookup: creator address -> highest tier the user has
   const creatorTierMap = useMemo(() => {
@@ -642,6 +672,26 @@ export default function FeedPage() {
           {/* Feed content */}
           {connected && feedPosts.length > 0 && (
             <>
+              {/* Creator stories row */}
+              {storiesCreators.length > 0 && (
+                <div className="flex gap-3 overflow-x-auto pb-3 mb-4 scrollbar-hide">
+                  {storiesCreators.map(creator => (
+                    <Link href={`/creator/${creator.address}`} key={creator.address}>
+                      <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 p-[2px]">
+                          <div className="w-full h-full rounded-full bg-[var(--bg-base)] flex items-center justify-center text-sm font-bold text-white/80">
+                            {creator.name?.[0]?.toUpperCase() || '?'}
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-white/50 max-w-[56px] truncate">
+                          {creator.name || 'Creator'}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+
               {/* Search bar */}
               <div className="relative mb-4">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" aria-hidden="true" />
@@ -669,14 +719,25 @@ export default function FeedPage() {
                 {/* Creator filter chips */}
                 <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
                   <button
-                    onClick={() => setSelectedCreator(null)}
+                    onClick={() => { setSelectedCreator(null); setShowSaved(false) }}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                      selectedCreator === null
+                      selectedCreator === null && !showSaved
                         ? 'bg-violet-500/15 border-violet-500/30 text-violet-300'
                         : 'bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white/70 hover:bg-white/[0.06]'
                     }`}
                   >
                     All
+                  </button>
+                  <button
+                    onClick={() => { setShowSaved(!showSaved); setSelectedCreator(null) }}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all flex items-center gap-1 ${
+                      showSaved
+                        ? 'bg-amber-500/15 border-amber-500/30 text-amber-300'
+                        : 'bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white/70 hover:bg-white/[0.06]'
+                    }`}
+                  >
+                    <Bookmark className="w-3 h-3" aria-hidden="true" />
+                    Saved
                   </button>
                   {feedCreators.map(([address, label]) => (
                     <button
@@ -727,46 +788,53 @@ export default function FeedPage() {
                 </div>
               </div>
 
-              {/* Post count / no results */}
-              {filteredPosts.length === 0 && feedSearchQuery.trim() ? (
-                <div className="rounded-2xl border border-white/[0.06] bg-[#0A0A0F] p-8 text-center mb-6">
-                  <Search className="w-8 h-8 text-white/20 mx-auto mb-3" aria-hidden="true" />
-                  <p className="text-sm text-white/50">No results for &ldquo;{feedSearchQuery}&rdquo;</p>
-                </div>
+              {/* Saved posts view */}
+              {showSaved ? (
+                <SavedPosts />
               ) : (
-                <p className="text-xs text-white/50 mb-4">
-                  {filteredPosts.length} post{filteredPosts.length !== 1 ? 's' : ''}
-                  {selectedCreator ? ` from ${getCreatorLabel(selectedCreator)}` : ''}
-                  {feedSearchQuery.trim() ? ` matching "${feedSearchQuery}"` : ''}
-                </p>
-              )}
+                <>
+                  {/* Post count / no results */}
+                  {filteredPosts.length === 0 && feedSearchQuery.trim() ? (
+                    <div className="rounded-2xl border border-white/[0.06] bg-[#0A0A0F] p-8 text-center mb-6">
+                      <Search className="w-8 h-8 text-white/20 mx-auto mb-3" aria-hidden="true" />
+                      <p className="text-sm text-white/50">No results for &ldquo;{feedSearchQuery}&rdquo;</p>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-white/50 mb-4">
+                      {filteredPosts.length} post{filteredPosts.length !== 1 ? 's' : ''}
+                      {selectedCreator ? ` from ${getCreatorLabel(selectedCreator)}` : ''}
+                      {feedSearchQuery.trim() ? ` matching "${feedSearchQuery}"` : ''}
+                    </p>
+                  )}
 
-              {/* Posts list */}
-              <div className="space-y-5">
-                {visiblePosts.map((post, i) => {
-                  const highestTier = creatorTierMap[post.creatorAddress] || 0
-                  const hasAccess = highestTier >= post.minTier
-                  return (
-                    <FeedPostCard
-                      key={post.id}
-                      post={post}
-                      hasAccess={hasAccess}
-                      index={i}
-                    />
-                  )
-                })}
-              </div>
+                  {/* Posts list */}
+                  <div className="space-y-5">
+                    {visiblePosts.map((post, i) => {
+                      const highestTier = creatorTierMap[post.creatorAddress] || 0
+                      const hasAccess = highestTier >= post.minTier
+                      return (
+                        <FeedPostCard
+                          key={post.id}
+                          post={post}
+                          hasAccess={hasAccess}
+                          index={i}
+                        />
+                      )
+                    })}
+                  </div>
 
-              {/* Load more */}
-              {hasMore && (
-                <div className="mt-8 text-center">
-                  <button
-                    onClick={() => setVisibleCount(prev => prev + POSTS_PER_PAGE)}
-                    className="px-6 py-3 rounded-lg bg-white/[0.06] border border-border text-white/70 text-sm font-medium hover:bg-white/10 transition-all"
-                  >
-                    Load more ({filteredPosts.length - visibleCount} remaining)
-                  </button>
-                </div>
+                  {/* Load more */}
+                  {hasMore && (
+                    <div className="mt-8 text-center">
+                      <button
+                        onClick={() => setVisibleCount(prev => prev + POSTS_PER_PAGE)}
+                        className="px-6 py-3 rounded-lg bg-white/[0.06] border border-border text-white/70 text-sm font-medium hover:bg-white/10 transition-all"
+                      >
+                        Load more ({filteredPosts.length - visibleCount} remaining)
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
 
               {/* Privacy notice */}
