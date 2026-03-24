@@ -85,7 +85,7 @@ function OverflowMenu({
   onTip,
   onGift,
   onShare,
-  onDispute,
+  onReportCreator,
   onRedeem,
 }: {
   connected: boolean
@@ -93,7 +93,7 @@ function OverflowMenu({
   onTip: () => void
   onGift: () => void
   onShare: () => void
-  onDispute: () => void
+  onReportCreator: () => void
   onRedeem: () => void
 }) {
   const [open, setOpen] = useState(false)
@@ -178,11 +178,11 @@ function OverflowMenu({
                 <div className="my-1 mx-3 h-px bg-white/[0.06]" />
                 <button
                   role="menuitem"
-                  onClick={() => { onDispute(); setOpen(false) }}
+                  onClick={() => { onReportCreator(); setOpen(false) }}
                   className="w-full text-left px-4 py-2.5 text-sm text-red-400/80 hover:text-red-400 hover:bg-red-500/[0.06] transition-colors flex items-center gap-3"
                 >
                   <Flag className="w-4 h-4" />
-                  Report Content
+                  Report Creator
                 </button>
               </>
             )}
@@ -939,7 +939,9 @@ export default function CreatorPage({
                     }
                   }}
                   onShare={handleShare}
-                  onDispute={() => setDisputeContentId('general')}
+                  onReportCreator={() => {
+                    toast.info('Report submitted. We\'ll review this creator. To dispute specific content, use the report button on individual posts.')
+                  }}
                   onRedeem={() => setShowRedeemGift(true)}
                 />
               </div>

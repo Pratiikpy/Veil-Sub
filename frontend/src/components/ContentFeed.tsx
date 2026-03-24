@@ -184,8 +184,21 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
     })()
   }, [posts, activePasses, creatorAddress, decryptedPreviews])
 
-  // One-shot auto-unlock: runs once when posts load and user has passes.
-  // Does NOT re-run on signMessage/unlockedBodies/activePasses changes.
+  // Reset unlock state when the user's highest tier changes (e.g., after subscribing).
+  // This allows previously-failed or not-yet-attempted unlocks to be retried.
+  const prevHighestTierRef = useRef(highestTier)
+  useEffect(() => {
+    if (highestTier > prevHighestTierRef.current) {
+      // Tier increased — clear failed unlocks so the auto-unlock loop retries them
+      failedUnlocksRef.current = new Set()
+      setFailedUnlocks(new Set())
+      unlockRunningRef.current = false
+    }
+    prevHighestTierRef.current = highestTier
+  }, [highestTier])
+
+  // Auto-unlock: runs when posts load and user has passes, and re-runs when
+  // highestTier changes (e.g., after subscribing) so newly-accessible posts get unlocked.
   // Always processes results even if component re-renders mid-sign.
   useEffect(() => {
     if (!walletAddress || highestTier === 0 || posts.length === 0) return

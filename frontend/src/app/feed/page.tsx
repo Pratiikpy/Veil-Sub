@@ -401,10 +401,10 @@ function FeedPostCard({
 type SortOrder = 'newest' | 'oldest'
 
 export default function FeedPage() {
-  const { connected } = useWallet()
+  const { connected, address: publicKey, signMessage } = useWallet()
   const { getAccessPasses } = useWalletRecords()
   const { blockHeight } = useBlockHeight()
-  const { getPostsForCreator } = useContentFeed()
+  const { getPostsForCreator, unlockPost } = useContentFeed()
 
   const [passes, setPasses] = useState<AccessPass[]>([])
   const [feedPosts, setFeedPosts] = useState<FeedPost[]>([])
@@ -549,6 +549,73 @@ export default function FeedPage() {
       setLoading(false)
     }
   }, [connected, subscribedCreators.length]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-unlock gated posts for subscribed creators.
+  // Uses refs to keep signMessage current and avoid re-triggering on every render.
+  const signMessageRef = useRef(signMessage)
+  signMessageRef.current = signMessage
+  const unlockRunningRef = useRef(false)
+  const unlockedIdsRef = useRef(new Set<string>())
+
+  useEffect(() => {
+    if (!publicKey || feedPosts.length === 0 || activePasses.length === 0) return
+    if (unlockRunningRef.current) return
+
+    // Find gated posts that the user has access to but haven't been unlocked yet
+    const gatedPosts = feedPosts.filter((post) => {
+      if (post.body !== null) return false // already has body
+      if (post.minTier === 0) return false // free post
+      if (unlockedIdsRef.current.has(post.id)) return false // already attempted
+      const highestTier = creatorTierMap[post.creatorAddress] || 0
+      return highestTier >= post.minTier
+    })
+
+    if (gatedPosts.length === 0) return
+
+    unlockRunningRef.current = true
+
+    ;(async () => {
+      for (const post of gatedPosts) {
+        if (unlockedIdsRef.current.has(post.id)) continue
+        unlockedIdsRef.current.add(post.id)
+
+        const creatorPasses = activePasses.filter(p => p.creator === post.creatorAddress)
+        if (creatorPasses.length === 0) continue
+
+        const currentSign = signMessageRef.current
+        const wrappedSign = currentSign
+          ? async (msg: Uint8Array) => {
+              const result = await currentSign(msg)
+              if (!result) throw new Error('Signing cancelled')
+              return result
+            }
+          : null
+
+        try {
+          const result = await unlockPost(post.id, post.creatorAddress, publicKey, creatorPasses, wrappedSign)
+          if (result) {
+            setFeedPosts((prev) =>
+              prev.map((p) =>
+                p.id === post.id
+                  ? { ...p, body: result.body, imageUrl: result.imageUrl || p.imageUrl, videoUrl: result.videoUrl || p.videoUrl }
+                  : p
+              )
+            )
+          }
+        } catch {
+          // Non-critical — post stays locked, user can visit creator page
+        }
+      }
+      unlockRunningRef.current = false
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedPosts.length, activePasses.length, publicKey])
+
+  // Reset unlock tracking when wallet changes or disconnects
+  useEffect(() => {
+    unlockedIdsRef.current = new Set()
+    unlockRunningRef.current = false
+  }, [publicKey])
 
   // Fuse.js instance for feed search
   const feedFuse = useMemo(() => {

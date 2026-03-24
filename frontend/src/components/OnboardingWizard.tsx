@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useSupabase } from '@/hooks/useSupabase'
+import { useContentFeed } from '@/hooks/useContentFeed'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { creditsToMicrocredits, formatCredits } from '@/lib/utils'
 import { saveCreatorHash, PLATFORM_FEE_PCT, FEES } from '@/lib/config'
@@ -61,6 +62,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   const { address: publicKey, connected, signMessage } = useWallet()
   const { registerCreator, createCustomTier, publishContent } = useVeilSub()
   const { upsertCreatorProfile } = useSupabase()
+  const { createPost } = useContentFeed()
   const { startPolling, stopPolling } = useTransactionPoller()
 
   // Step state
@@ -134,6 +136,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           const resolvedId = result.resolvedTxId ?? id
 
           // Extract creator hash
+          let creatorHash: string | undefined
           try {
             const r = await fetch(`/api/aleo/transaction/${encodeURIComponent(resolvedId)}`)
             const tx = await r.json()
@@ -144,12 +147,13 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                 : undefined
             if (hash && hash.endsWith('field')) {
               saveCreatorHash(publicKey, hash)
+              creatorHash = hash
             }
           } catch {
             // Non-critical
           }
 
-          // Save profile to Supabase
+          // Save profile to Supabase (including category, imageUrl, and creatorHash)
           const wrappedSign = signMessage
             ? async (msg: Uint8Array) => {
                 const r = await signMessage(msg)
@@ -162,7 +166,10 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
               publicKey,
               displayName || undefined,
               bio || undefined,
-              wrappedSign
+              wrappedSign,
+              creatorHash,
+              category || undefined,
+              imageUrl || undefined
             )
           } catch {
             // Profile save failed — warn user but don't block registration
@@ -193,6 +200,8 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
     upsertCreatorProfile,
     displayName,
     bio,
+    category,
+    imageUrl,
     goNext,
   ])
 
@@ -253,9 +262,32 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
         return
       }
       setPublishTxStatus('broadcasting')
-      startPolling(id, (result) => {
+      startPolling(id, async (result) => {
         if (result.status === 'confirmed') {
           setPublishTxStatus('confirmed')
+
+          // Save the post body/title to Redis so it's actually visible in the feed
+          try {
+            const wrappedSign = signMessage
+              ? async (msg: Uint8Array) => {
+                  const r = await signMessage(msg)
+                  if (!r) throw new Error('Signing cancelled')
+                  return r
+                }
+              : null
+            await createPost(
+              publicKey!,
+              postTitle,
+              postBody || postTitle, // use title as body fallback if body is empty
+              1, // minTier (Supporter tier)
+              contentId,
+              wrappedSign
+            )
+          } catch {
+            // Non-critical: on-chain record exists, Redis save failed
+            // Creator can re-publish from the dashboard
+          }
+
           toast.success('Your first post is live!')
           setPublishComplete(true)
           submittingRef.current = false
@@ -274,7 +306,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
       submittingRef.current = false
       toast.error(err instanceof Error ? err.message : 'Post couldn\u2019t be published')
     }
-  }, [postTitle, publishContent, startPolling, onComplete])
+  }, [postTitle, postBody, publicKey, signMessage, publishContent, createPost, startPolling, onComplete])
 
   // ── Skip publish and finish ──────────────────────────────────────────────
 
