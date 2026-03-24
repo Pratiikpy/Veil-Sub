@@ -32,15 +32,15 @@ const ICON_MAP: Record<NotificationType, typeof Bell> = {
 }
 
 export default function NotificationsPage() {
-  const { notifications, loading, markAsRead } = useNotifications()
+  const { notifications, loading, markAllAsRead } = useNotifications()
 
-  // Mark all as read when page is viewed
+  // Mark all as read when page is viewed (single batch request)
   useEffect(() => {
-    const unread = notifications.filter((n) => !n.read)
-    for (const n of unread) {
-      markAsRead(n.id)
+    const hasUnread = notifications.some((n) => !n.read)
+    if (hasUnread && !loading) {
+      markAllAsRead()
     }
-  }, [notifications, markAsRead])
+  }, [notifications, loading, markAllAsRead])
 
   return (
     <PageTransition>
