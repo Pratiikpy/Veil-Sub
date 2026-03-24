@@ -6,11 +6,9 @@ import { m } from 'framer-motion'
 import { Users, ArrowRight } from 'lucide-react'
 import AddressAvatar from '@/components/ui/AddressAvatar'
 import { FEATURED_CREATORS } from '@/lib/config'
-import { shortenAddress } from '@/lib/utils'
 
 interface RecommendationsCardProps {
   creatorAddress: string
-  creatorName?: string
   /** Maximum number of recommendations to show */
   maxItems?: number
   /** Compact mode for embedding in modals */
@@ -18,16 +16,16 @@ interface RecommendationsCardProps {
 }
 
 /**
- * Creator Recommendations Loop -- the most powerful organic growth mechanic
- * in the creator economy. Shows creators that [Name] also recommends,
- * with direct links to their pages.
+ * Creator Discovery Card -- helps subscribers find more creators.
  *
- * Data source: FEATURED_CREATORS (all creators recommend each other).
- * In production, creators would set their own recommendations in settings.
+ * Shows other verified creators on the platform. This is NOT personalized
+ * recommendations from the creator (that feature requires backend support).
+ * Instead, it shows featured creators for discovery purposes.
+ *
+ * Data source: FEATURED_CREATORS (platform-curated list).
  */
 export default function RecommendationsCard({
   creatorAddress,
-  creatorName,
   maxItems = 3,
   compact = false,
 }: RecommendationsCardProps) {
@@ -40,10 +38,6 @@ export default function RecommendationsCard({
 
   if (recommendations.length === 0) return null
 
-  const displayName = creatorName
-    || FEATURED_CREATORS.find((c) => c.address === creatorAddress)?.label
-    || shortenAddress(creatorAddress)
-
   return (
     <m.div
       initial={{ opacity: 0, y: 8 }}
@@ -54,7 +48,7 @@ export default function RecommendationsCard({
       <div className="flex items-center gap-2 mb-3">
         <Users className="w-4 h-4 text-violet-400" aria-hidden="true" />
         <p className={`font-medium text-white ${compact ? 'text-xs' : 'text-sm'}`}>
-          {displayName} also recommends
+          Discover more creators
         </p>
       </div>
 

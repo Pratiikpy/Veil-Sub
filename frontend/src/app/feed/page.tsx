@@ -812,7 +812,6 @@ export default function FeedPage() {
                 <div className="mt-8 max-w-md mx-auto text-left">
                   <RecommendationsCard
                     creatorAddress=""
-                    creatorName="VeilSub"
                     maxItems={3}
                   />
                 </div>
