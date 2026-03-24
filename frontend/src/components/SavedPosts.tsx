@@ -78,7 +78,7 @@ export default function SavedPosts() {
             {entry.creatorAddress && (
               <Link
                 href={`/creator/${entry.creatorAddress}`}
-                className="text-white/30 hover:text-violet-400 transition-colors shrink-0"
+                className="text-white/30 hover:text-white/60 transition-colors shrink-0"
                 aria-label="View creator"
               >
                 <ExternalLink className="w-3.5 h-3.5" />

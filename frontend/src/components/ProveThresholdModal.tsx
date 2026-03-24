@@ -117,7 +117,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-violet-400" aria-hidden="true" />
+                <Award className="w-5 h-5 text-white/60" aria-hidden="true" />
                 <h3 className="text-lg font-semibold text-white">Prove Subscriber Threshold</h3>
               </div>
               <button
@@ -125,7 +125,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                 disabled={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed'}
                 aria-label="Close reputation proof dialog"
                 title={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed' ? 'Transaction in progress - please wait' : 'Close dialog'}
-                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
               >
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
@@ -152,8 +152,8 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                 </div>
 
                 {currentSubscriberCount !== undefined && currentSubscriberCount > 0 && (
-                  <div className="p-4 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-4">
-                    <p className="text-[11px] text-violet-300">
+                  <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] mb-4">
+                    <p className="text-[11px] text-white/70">
                       Your current subscriber count is visible to you: <span className="font-bold">{currentSubscriberCount}</span>.
                       Choose a threshold at or below this number for the proof to succeed.
                     </p>
@@ -177,7 +177,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                     step="1"
                     required
                     aria-required="true"
-                    className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base"
+                    className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all text-base"
                   />
                   <p className="text-[10px] text-white/60 mt-1">
                     The proof will confirm you have at least this many subscribers.
@@ -197,7 +197,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                   </div>
                 )}
 
-                <Button variant="accent" onClick={handleProve} disabled={txStatus !== 'idle'} className="w-full focus-visible:ring-2 focus-visible:ring-violet-400/50">
+                <Button variant="accent" onClick={handleProve} disabled={txStatus !== 'idle'} className="w-full focus-visible:ring-2 focus-visible:ring-white/30">
                   Generate Proof
                 </Button>
               </>
@@ -229,7 +229,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                     <button
                       onClick={handleModalClose}
                       aria-label="Close proof confirmation dialog"
-                      className="mt-4 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50"
+                      className="mt-4 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-white/30"
                     >
                       Done
                     </button>

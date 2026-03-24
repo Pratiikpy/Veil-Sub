@@ -24,7 +24,7 @@ const TICKER_ITEMS = [
 
 export default function TrustTicker() {
   return (
-    <div className="relative overflow-hidden border-y border-violet-500/10 py-5 bg-gradient-to-r from-transparent via-violet-500/[0.02] to-transparent">
+    <div className="relative overflow-hidden border-y border-white/[0.06] py-5 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent">
       <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-black to-transparent z-10" />
       <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-black to-transparent z-10" />
       <div className="flex animate-marquee whitespace-nowrap">
@@ -37,7 +37,7 @@ export default function TrustTicker() {
                   key={`${dupeIdx}-${item.text}`}
                   className="inline-flex items-center gap-2.5 text-sm text-white/70 font-semibold tracking-wide"
                 >
-                  <Icon className="w-4 h-4 text-violet-300" aria-hidden="true" />
+                  <Icon className="w-4 h-4 text-white/70" aria-hidden="true" />
                   {item.text}
                 </span>
               )

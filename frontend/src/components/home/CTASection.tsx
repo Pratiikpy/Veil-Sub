@@ -6,7 +6,7 @@ import ScrollReveal from '@/components/ScrollReveal'
 
 // Extracted style constants to prevent re-renders
 const CTA_GLOW_STYLE = {
-  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.08) 0%, transparent 70%)',
+  background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.04) 0%, transparent 70%)',
 } as const
 
 const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const

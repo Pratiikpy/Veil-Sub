@@ -77,11 +77,11 @@ function ScoreCard({
   return (
     <SpotlightCard
       className={`p-4 sm:p-8 rounded-2xl glass transition-all duration-300 ${
-        highlight ? 'glass-accent ring-1 ring-violet-500/20' : ''
+        highlight ? 'glass-accent ring-1 ring-white/10' : ''
       }`}
     >
       <div className="flex items-center justify-between mb-4">
-        <h4 className={`font-semibold ${highlight ? 'text-violet-300' : 'text-white/80'}`}>
+        <h4 className={`font-semibold ${highlight ? 'text-white/70' : 'text-white/80'}`}>
           {platform}
         </h4>
         {highlight && <Shield className="w-5 h-5 text-emerald-400" aria-hidden="true" />}
@@ -138,9 +138,9 @@ export default function PlatformComparison() {
         <div className="mt-16 space-y-4">
           <ScrollReveal delay={0.2}>
             <div className="flex items-center gap-4 mb-6">
-              <Shield className="w-5 h-5 text-violet-400/60" aria-hidden="true" />
+              <Shield className="w-5 h-5 text-white/40" aria-hidden="true" />
               <h3 className="text-lg font-semibold text-white">Privacy-First Features</h3>
-              <div className="flex-1 h-px bg-gradient-to-r from-violet-500/20 to-transparent" />
+              <div className="flex-1 h-px bg-gradient-to-r from-white/10 to-transparent" />
             </div>
           </ScrollReveal>
 
@@ -157,7 +157,7 @@ export default function PlatformComparison() {
                     ].map((col) => (
                       <div key={col.label} className="flex flex-col items-center gap-1.5">
                         <CellValue val={col.val} accent={col.accent} />
-                        <span className={`text-[10px] ${col.accent ? 'text-violet-400/80 font-medium' : 'text-white/50'}`}>
+                        <span className={`text-[10px] ${col.accent ? 'text-white/50 font-medium' : 'text-white/50'}`}>
                           {col.label}
                         </span>
                       </div>
@@ -192,7 +192,7 @@ export default function PlatformComparison() {
                     ].map((col) => (
                       <div key={col.label} className="flex flex-col items-center gap-1.5">
                         <CellValue val={col.val} accent={col.accent} />
-                        <span className={`text-[10px] ${col.accent ? 'text-violet-400/80 font-medium' : 'text-white/50'}`}>
+                        <span className={`text-[10px] ${col.accent ? 'text-white/50 font-medium' : 'text-white/50'}`}>
                           {col.label}
                         </span>
                       </div>
@@ -229,7 +229,7 @@ export default function PlatformComparison() {
               <p className="text-xs text-white/60">Privacy features others lack</p>
             </div>
             <div className="p-4 sm:p-8 rounded-2xl glass text-center">
-              <div className="text-3xl font-bold text-violet-400 mb-2">5%</div>
+              <div className="text-3xl font-bold text-white/60 mb-2">5%</div>
               <p className="text-xs text-white/60">Platform fee (vs 8-12%)</p>
             </div>
             <div className="p-4 sm:p-8 rounded-2xl glass text-center">

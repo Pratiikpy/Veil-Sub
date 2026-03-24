@@ -59,8 +59,8 @@ export default function SubscriberWelcome({ onDismiss }: { onDismiss?: () => voi
 
           <div className="p-8 text-center">
             {/* Icon */}
-            <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-              <Shield className="w-8 h-8 text-violet-400" aria-hidden="true" />
+            <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center">
+              <Shield className="w-8 h-8 text-white/60" aria-hidden="true" />
             </div>
 
             <h2 className="text-xl font-bold text-white mb-3">
@@ -79,7 +79,7 @@ export default function SubscriberWelcome({ onDismiss }: { onDismiss?: () => voi
                 'Your feed fills with exclusive content',
               ].map((step, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <span className="shrink-0 w-6 h-6 rounded-full bg-violet-500/15 border border-violet-500/20 flex items-center justify-center text-xs font-bold text-violet-400">
+                  <span className="shrink-0 w-6 h-6 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-xs font-bold text-white/60">
                     {i + 1}
                   </span>
                   <span className="text-sm text-white/70 pt-0.5">{step}</span>

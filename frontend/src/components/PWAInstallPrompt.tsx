@@ -38,10 +38,10 @@ export default function PWAInstallPrompt() {
 
   return (
     <div className="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-50 animate-in slide-in-from-bottom-4 duration-300">
-      <div className="rounded-xl border border-violet-500/20 bg-[#0A0A0F]/95 backdrop-blur-md p-4 shadow-xl shadow-violet-500/5">
+      <div className="rounded-xl border border-white/10 bg-[#0A0A0F]/95 backdrop-blur-md p-4 shadow-xl shadow-white/[0.02]">
         <p className="text-sm text-white/80 mb-3">Add VeilSub to your home screen for quick access</p>
         <div className="flex items-center gap-2">
-          <button onClick={install} className="px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium transition-colors">
+          <button onClick={install} className="px-3 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 text-white text-xs font-medium transition-colors">
             Install
           </button>
           <button onClick={dismiss} className="px-3 py-1.5 rounded-lg text-white/40 hover:text-white/60 text-xs transition-colors">

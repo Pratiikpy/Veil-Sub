@@ -126,7 +126,7 @@ export default function ProfileEditor({ address, onProfileUpdated }: ProfileEdit
       className="p-6 rounded-xl bg-surface-1 border border-border"
     >
       <div className="flex items-center gap-2 mb-4">
-        <Settings className="w-5 h-5 text-violet-400" aria-hidden="true" />
+        <Settings className="w-5 h-5 text-white/60" aria-hidden="true" />
         <h2 className="text-lg font-semibold text-white">Profile</h2>
       </div>
       <div className="space-y-4">
@@ -139,7 +139,7 @@ export default function ProfileEditor({ address, onProfileUpdated }: ProfileEdit
             onChange={(e) => setName(e.target.value)}
             placeholder="Your creator name"
             maxLength={50}
-            className="w-full px-4 py-2.5 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all duration-300 text-base"
+            className="w-full px-4 py-2.5 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all duration-300 text-base"
           />
         </div>
         <div>
@@ -151,7 +151,7 @@ export default function ProfileEditor({ address, onProfileUpdated }: ProfileEdit
             placeholder="Tell subscribers what you create..."
             maxLength={200}
             rows={2}
-            className="w-full px-4 py-2.5 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all duration-300 text-base resize-none"
+            className="w-full px-4 py-2.5 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all duration-300 text-base resize-none"
           />
           <p className="text-[10px] text-white/50 mt-0.5">{bio.length}/200</p>
         </div>
@@ -159,7 +159,7 @@ export default function ProfileEditor({ address, onProfileUpdated }: ProfileEdit
           onClick={handleSave}
           disabled={isSaving}
           title={isSaving ? 'Saving profile to server...' : 'Save your display name and bio'}
-          className="px-5 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-sm text-violet-300 hover:bg-violet-500/20 transition-all duration-300 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-violet-400/50 focus-visible:ring-offset-0"
+          className="px-5 py-2 rounded-lg bg-white/[0.04] border border-white/10 text-sm text-white/70 hover:bg-white/[0.08] transition-all duration-300 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-0"
         >
           {isSaving && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
           {saved ? 'Saved!' : isSaving ? 'Saving...' : 'Save Profile'}

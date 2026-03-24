@@ -21,12 +21,12 @@ const QUICK_START_STEPS = [
   {
     icon: Wallet,
     step: '1',
-    text: <>Install <a href="https://www.leo.app/" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300 underline">Leo Wallet</a> or <a href="https://www.foxwallet.com/" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300 underline">Fox Wallet</a></>
+    text: <>Install <a href="https://www.leo.app/" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white/80 underline">Leo Wallet</a> or <a href="https://www.foxwallet.com/" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white/80 underline">Fox Wallet</a></>
   },
   {
     icon: Droplets,
     step: '2',
-    text: <>Get testnet credits from the <a href="https://faucet.aleo.org/" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300 underline">Aleo Faucet</a></>
+    text: <>Get testnet credits from the <a href="https://faucet.aleo.org/" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white/80 underline">Aleo Faucet</a></>
   },
   {
     icon: Plug,
@@ -46,17 +46,17 @@ export default function ConnectWalletPrompt() {
             className="text-center"
           >
             <div className="relative w-20 h-20 mx-auto mb-6">
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-violet-500/30 to-violet-600/10 animate-pulse" />
-              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-violet-500/20 to-transparent blur-sm" />
-              <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-violet-500/30 flex items-center justify-center">
-                <Shield className="w-10 h-10 text-violet-400" aria-hidden="true" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/10 to-white/[0.03] animate-pulse" />
+              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-white/[0.08] to-transparent blur-sm" />
+              <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-white/15 flex items-center justify-center">
+                <Shield className="w-10 h-10 text-white/60" aria-hidden="true" />
               </div>
             </div>
             <h2 className="text-3xl font-bold text-white mb-4">
               Creator Dashboard
             </h2>
             <p className="text-lg text-white/70 mb-8 max-w-sm mx-auto">
-              Connect your wallet to register on <span className="text-violet-400 font-medium">veilsub_v29.aleo</span>—your subscribers remain completely anonymous.
+              Connect your wallet to register on <span className="text-white/60 font-medium">veilsub_v29.aleo</span>—your subscribers remain completely anonymous.
             </p>
           </m.div>
 
@@ -70,9 +70,9 @@ export default function ConnectWalletPrompt() {
             {PLATFORM_STATS.map((stat) => (
               <div
                 key={stat.label}
-                className="p-4 rounded-xl bg-surface-1 border border-border text-center hover:border-violet-500/20 transition-colors"
+                className="p-4 rounded-xl bg-surface-1 border border-border text-center hover:border-white/10 transition-colors"
               >
-                <stat.icon className={`w-5 h-5 mx-auto mb-2 ${stat.color === 'emerald' ? 'text-emerald-400' : 'text-violet-400'}`} aria-hidden="true" />
+                <stat.icon className={`w-5 h-5 mx-auto mb-2 ${stat.color === 'emerald' ? 'text-emerald-400' : 'text-white/60'}`} aria-hidden="true" />
                 <p className="text-xl font-semibold text-white">{stat.value}</p>
                 <p className="text-xs text-white/50 uppercase tracking-wider">{stat.label}</p>
               </div>
@@ -88,7 +88,7 @@ export default function ConnectWalletPrompt() {
           >
             {WHY_VEILSUB.map((item, i) => (
               <div key={item.title} className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04] text-center">
-                <item.icon className="w-4 h-4 text-violet-400 mx-auto mb-2" aria-hidden="true" />
+                <item.icon className="w-4 h-4 text-white/60 mx-auto mb-2" aria-hidden="true" />
                 <p className="text-xs font-medium text-white mb-0.5">{item.title}</p>
                 <p className="text-[10px] text-white/50 leading-tight">{item.desc}</p>
               </div>
@@ -102,13 +102,13 @@ export default function ConnectWalletPrompt() {
             className="p-6 rounded-2xl glass space-y-4"
           >
             <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-violet-400" aria-hidden="true" />
+              <Zap className="w-4 h-4 text-white/60" aria-hidden="true" />
               <p className="text-sm font-medium text-white">Quick Start</p>
             </div>
             <div className="space-y-4">
               {QUICK_START_STEPS.map((item) => (
                 <div key={item.step} className="flex gap-4 items-start">
-                  <span className="shrink-0 w-7 h-7 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-400 flex items-center justify-center">
+                  <span className="shrink-0 w-7 h-7 rounded-lg bg-white/[0.04] border border-white/10 text-white/60 flex items-center justify-center">
                     <item.icon className="w-3.5 h-3.5" aria-hidden="true" />
                   </span>
                   <div className="flex-1 pt-0.5">
@@ -123,7 +123,7 @@ export default function ConnectWalletPrompt() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="mt-4 p-4 rounded-xl bg-violet-500/5 border border-violet-500/10"
+            className="mt-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]"
           >
             <p className="text-xs text-white/60 text-center">
               Your identity stays private—creators only see aggregate subscriber counts and revenue. VeilSub never exposes who subscribes.
@@ -140,7 +140,7 @@ export default function ConnectWalletPrompt() {
             <p className="text-xs text-white/50 mb-4">Want to subscribe instead?</p>
             <Link
               href="/explore"
-              className="inline-flex items-center gap-2 text-sm text-violet-400 hover:text-violet-300 transition-colors group"
+              className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white/80 transition-colors group"
             >
               <Eye className="w-4 h-4" aria-hidden="true" />
               Explore Creators

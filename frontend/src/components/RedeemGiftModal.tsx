@@ -209,8 +209,8 @@ export default function RedeemGiftModal({
             {/* Header */}
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="rounded-lg bg-violet-500/20 p-2">
-                  <Gift className="h-5 w-5 text-violet-400" aria-hidden="true" />
+                <div className="rounded-lg bg-white/[0.08] p-2">
+                  <Gift className="h-5 w-5 text-white/60" aria-hidden="true" />
                 </div>
                 <h3 className="text-lg font-semibold text-white">Redeem Gift</h3>
               </div>
@@ -218,7 +218,7 @@ export default function RedeemGiftModal({
                 onClick={handleClose}
                 disabled={status === 'submitting'}
                 aria-label="Close redeem gift modal"
-                className={`rounded-lg p-1 transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+                className={`rounded-lg p-1 transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                   status === 'submitting'
                     ? 'text-white/30 cursor-not-allowed'
                     : 'text-white/70 hover:bg-white/[0.1] hover:text-white active:scale-[0.9]'
@@ -235,7 +235,7 @@ export default function RedeemGiftModal({
                   <p className="text-sm font-medium text-green-400">Gift redeemed!</p>
                   {syncingPass ? (
                     <div className="mt-2 flex items-center justify-center gap-2">
-                      <Loader2 className="h-4 w-4 text-violet-400 animate-spin" aria-hidden="true" />
+                      <Loader2 className="h-4 w-4 text-white/60 animate-spin" aria-hidden="true" />
                       <p className="text-xs text-white/60">Syncing AccessPass to wallet...</p>
                     </div>
                   ) : (
@@ -248,14 +248,14 @@ export default function RedeemGiftModal({
                   <Link
                     href={`/creator/${creatorAddress}`}
                     onClick={handleClose}
-                    className="flex items-center justify-center gap-2 w-full rounded-lg bg-violet-500/10 border border-violet-500/30 py-2.5 text-sm font-medium text-violet-300 hover:bg-violet-500/20 active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                    className="flex items-center justify-center gap-2 w-full rounded-lg bg-white/[0.04] border border-white/15 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                   >
                     <ExternalLink className="w-4 h-4" aria-hidden="true" />
                     View Creator&apos;s Content
                   </Link>
                   <button
                     onClick={handleClose}
-                    className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                    className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                   >
                     Done
                   </button>
@@ -266,7 +266,7 @@ export default function RedeemGiftModal({
                 {/* Auto-detected tokens */}
                 {loadingTokens ? (
                   <div className="rounded-xl bg-surface-2 border border-border p-4 flex items-center justify-center gap-2">
-                    <Loader2 className="h-4 w-4 text-violet-400 animate-spin" aria-hidden="true" />
+                    <Loader2 className="h-4 w-4 text-white/60 animate-spin" aria-hidden="true" />
                     <span className="text-sm text-white/70">Scanning wallet for gift tokens...</span>
                   </div>
                 ) : !manualEntry && giftTokens.length > 0 ? (
@@ -278,19 +278,19 @@ export default function RedeemGiftModal({
                       <button
                         key={token.giftId || i}
                         onClick={() => setSelectedToken(token)}
-                        className={`w-full text-left rounded-xl border p-4 transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+                        className={`w-full text-left rounded-xl border p-4 transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                           selectedToken?.giftId === token.giftId
-                            ? 'border-violet-500/40 bg-violet-500/[0.08] shadow-accent-sm'
+                            ? 'border-white/20 bg-white/[0.04] shadow-accent-sm'
                             : 'border-border bg-surface-2 hover:border-glass-hover'
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <Package className="h-5 w-5 text-violet-400 shrink-0" aria-hidden="true" />
+                          <Package className="h-5 w-5 text-white/60 shrink-0" aria-hidden="true" />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-sm font-medium text-white">Tier {token.tier}</span>
                               {selectedToken?.giftId === token.giftId && (
-                                <span className="text-[10px] font-medium text-violet-300 bg-violet-500/10 px-2 py-0.5 rounded-full">
+                                <span className="text-[10px] font-medium text-white/70 bg-white/[0.04] px-2 py-0.5 rounded-full">
                                   Selected
                                 </span>
                               )}
@@ -312,7 +312,7 @@ export default function RedeemGiftModal({
                         setManualEntry(true)
                         setSelectedToken(null)
                       }}
-                      className="text-xs text-violet-400/70 hover:text-violet-300 transition-colors"
+                      className="text-xs text-white/50 hover:text-white/70 transition-colors"
                     >
                       Or paste token manually
                     </button>
@@ -326,7 +326,7 @@ export default function RedeemGiftModal({
                     </div>
                     <button
                       onClick={() => setManualEntry(true)}
-                      className="w-full rounded-lg bg-white/[0.05] border border-border py-2 text-sm text-violet-400 hover:bg-white/[0.08] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                      className="w-full rounded-lg bg-white/[0.05] border border-border py-2 text-sm text-white/60 hover:bg-white/[0.08] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                     >
                       Paste Gift Token Manually
                     </button>
@@ -347,7 +347,7 @@ export default function RedeemGiftModal({
                             setManualPlaintext('')
                             setManualPlaintextError(null)
                           }}
-                          className="text-xs text-violet-400/70 hover:text-violet-300 transition-colors"
+                          className="text-xs text-white/50 hover:text-white/70 transition-colors"
                         >
                           Back to auto-detect
                         </button>
@@ -379,7 +379,7 @@ export default function RedeemGiftModal({
                       className={`w-full rounded-lg bg-white/[0.05] border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:ring-1 transition-all text-xs font-mono resize-none ${
                         manualPlaintextError
                           ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/30'
-                          : 'border-border focus:border-violet-500/50 focus:ring-violet-500/30'
+                          : 'border-border focus:border-white/30 focus:ring-white/20'
                       }`}
                     />
                     {manualPlaintextError ? (
@@ -417,7 +417,7 @@ export default function RedeemGiftModal({
                     <div className="flex gap-4">
                       <button
                         onClick={handleClose}
-                        className="flex-1 rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                        className="flex-1 rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                       >
                         Cancel
                       </button>

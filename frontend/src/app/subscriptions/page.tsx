@@ -95,8 +95,8 @@ function SubscriptionCard({ sub, onRenew, blockHeight }: { sub: ParsedSubscripti
     <GlassCard hover>
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-violet-500/10 border border-violet-500/20">
-            <Shield className="w-5 h-5 text-violet-400" aria-hidden="true" />
+          <div className="p-2 rounded-lg bg-white/[0.04] border border-white/10">
+            <Shield className="w-5 h-5 text-white/60" aria-hidden="true" />
           </div>
           <div>
             <p className="text-sm font-medium text-white">{sub.creatorLabel}</p>
@@ -116,7 +116,7 @@ function SubscriptionCard({ sub, onRenew, blockHeight }: { sub: ParsedSubscripti
         <div className="flex items-center justify-between">
           <span className="text-xs text-white/50">Tier</span>
           <span className="text-sm font-medium text-white flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-violet-400" aria-hidden="true" />
+            <Sparkles className="w-3.5 h-3.5 text-white/60" aria-hidden="true" />
             {sub.tierName}
           </span>
         </div>
@@ -145,14 +145,14 @@ function SubscriptionCard({ sub, onRenew, blockHeight }: { sub: ParsedSubscripti
         {sub.status === 'expired' ? (
           <Link
             href={`/creator/${sub.creator}`}
-            className="flex-1 text-center px-4 py-2.5 rounded-lg bg-violet-500/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-500/30 transition-all"
+            className="flex-1 text-center px-4 py-2.5 rounded-lg bg-white/[0.08] border border-white/15 text-white/70 text-sm font-medium hover:bg-white/30 transition-all"
           >
             Resubscribe
           </Link>
         ) : sub.status === 'expiring' && onRenew ? (
           <button
             onClick={() => onRenew(sub)}
-            className="flex-1 text-center px-4 py-2.5 rounded-lg bg-violet-500/20 border border-violet-500/30 text-violet-300 text-sm font-medium hover:bg-violet-500/30 transition-all"
+            className="flex-1 text-center px-4 py-2.5 rounded-lg bg-white/[0.08] border border-white/15 text-white/70 text-sm font-medium hover:bg-white/30 transition-all"
           >
             <RefreshCw className="w-3.5 h-3.5 inline mr-1.5" aria-hidden="true" />
             Renew Now
@@ -382,7 +382,7 @@ export default function SubscriptionsPage() {
           {/* Loading state */}
           {connected && (loading || blockLoading) && passes.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20" role="status" aria-live="polite">
-              <div className="w-8 h-8 border-2 border-violet-400/30 border-t-violet-400 rounded-full animate-spin mb-4" aria-hidden="true" />
+              <div className="w-8 h-8 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mb-4" aria-hidden="true" />
               <p className="text-sm text-white/60">
                 Loading your subscriptions from wallet...
               </p>

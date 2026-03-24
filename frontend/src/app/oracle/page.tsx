@@ -46,7 +46,7 @@ import { HERO_GLOW_STYLE_SUBTLE as HERO_GLOW_STYLE, TITLE_STYLE as LETTER_SPACIN
 
 const CHART_GRID_STROKE = 'rgba(255,255,255,0.05)'
 const CHART_AXIS_TICK = { fill: 'rgba(255,255,255,0.4)', fontSize: 12 }
-const CHART_VIOLET = '#8B5CF6'
+const CHART_VIOLET = '#ffffff'
 
 // ── Types ─────────────────────────────────────────────────────────────
 
@@ -79,7 +79,7 @@ function ChartTooltipContent({
       {payload.map((entry, i) => (
         <p key={i} className="text-sm font-medium text-white">
           {entry.name}:{' '}
-          <span className="text-violet-300">${entry.value.toFixed(4)}</span>
+          <span className="text-white/70">${entry.value.toFixed(4)}</span>
         </p>
       ))}
     </div>
@@ -217,10 +217,10 @@ export default function OraclePage() {
 
           <div className="mb-8 sm:mb-16">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-violet-500/10 border border-violet-500/20">
-                <Zap className="w-5 h-5 text-violet-400" aria-hidden="true" />
+              <div className="p-2 rounded-lg bg-white/[0.04] border border-white/10">
+                <Zap className="w-5 h-5 text-white/60" aria-hidden="true" />
               </div>
-              <span className="text-xs font-medium text-violet-400 uppercase tracking-wider">
+              <span className="text-xs font-medium text-white/60 uppercase tracking-wider">
                 Oracle Integration
               </span>
             </div>
@@ -245,7 +245,7 @@ export default function OraclePage() {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <DollarSign
-                    className="w-4 h-4 text-violet-400"
+                    className="w-4 h-4 text-white/60"
                     aria-hidden="true"
                   />
                   <span className="text-xs text-white/60 uppercase tracking-wider">
@@ -325,7 +325,7 @@ export default function OraclePage() {
               <GlassCard hover={false}>
                 <div className="flex items-center gap-2 mb-3">
                   <ShieldCheck
-                    className="w-4 h-4 text-violet-400"
+                    className="w-4 h-4 text-white/60"
                     aria-hidden="true"
                   />
                   <span className="text-xs text-white/60 uppercase tracking-wider">
@@ -349,7 +349,7 @@ export default function OraclePage() {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <TrendingUp
-                    className="w-4 h-4 text-violet-400"
+                    className="w-4 h-4 text-white/60"
                     aria-hidden="true"
                   />
                   <h2 className="text-sm font-medium text-white">
@@ -357,7 +357,7 @@ export default function OraclePage() {
                   </h2>
                 </div>
                 {history.length > 0 && (
-                  <span className="text-xs text-violet-400/80 bg-violet-500/10 px-3 py-1 rounded-full">
+                  <span className="text-xs text-white/50 bg-white/[0.04] px-3 py-1 rounded-full">
                     {history.length} data points
                   </span>
                 )}
@@ -469,7 +469,7 @@ export default function OraclePage() {
               <GlassCard hover={false}>
                 <div className="flex items-center gap-2 mb-6">
                   <ArrowRightLeft
-                    className="w-4 h-4 text-violet-400"
+                    className="w-4 h-4 text-white/60"
                     aria-hidden="true"
                   />
                   <h3 className="text-sm font-medium text-white">
@@ -493,7 +493,7 @@ export default function OraclePage() {
                         onChange={(e) => setUsdInput(e.target.value)}
                         min="0.01"
                         step="0.01"
-                        className="w-full pl-10 pr-4 py-4 bg-white/[0.04] border border-white/10 rounded-xl text-white text-2xl font-semibold tabular-nums focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all"
+                        className="w-full pl-10 pr-4 py-4 bg-white/[0.04] border border-white/10 rounded-xl text-white text-2xl font-semibold tabular-nums focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all"
                         placeholder="5.00"
                       />
                     </div>
@@ -503,7 +503,7 @@ export default function OraclePage() {
                   <div className="flex justify-center">
                     <div className="p-2 rounded-full bg-white/[0.06] border border-white/10">
                       <ArrowRight
-                        className="w-4 h-4 text-violet-400"
+                        className="w-4 h-4 text-white/60"
                         aria-hidden="true"
                       />
                     </div>
@@ -514,8 +514,8 @@ export default function OraclePage() {
                     <label className="text-xs text-white/50 uppercase tracking-wider mb-2 block">
                       Equivalent in ALEO
                     </label>
-                    <div className="p-4 bg-violet-500/5 border border-violet-500/20 rounded-xl">
-                      <p className="text-2xl font-bold text-violet-300 tabular-nums">
+                    <div className="p-4 bg-white/[0.02] border border-white/10 rounded-xl">
+                      <p className="text-2xl font-bold text-white/70 tabular-nums">
                         {aleoResult !== null
                           ? `${aleoResult.toFixed(4)} ALEO`
                           : '---'}
@@ -568,7 +568,7 @@ export default function OraclePage() {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-semibold text-violet-300 tabular-nums">
+                          <p className="text-sm font-semibold text-white/70 tabular-nums">
                             {aleoAmount !== null
                               ? `${aleoAmount.toFixed(4)} ALEO`
                               : '---'}
@@ -607,8 +607,8 @@ export default function OraclePage() {
             <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
               <GlassCard delay={0}>
                 <div className="text-center">
-                  <div className="w-10 h-10 rounded-full bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mx-auto mb-4">
-                    <span className="text-sm font-bold text-violet-400">1</span>
+                  <div className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center mx-auto mb-4">
+                    <span className="text-sm font-bold text-white/60">1</span>
                   </div>
                   <p className="text-sm font-medium text-white mb-2">
                     Price Feed
@@ -621,8 +621,8 @@ export default function OraclePage() {
 
               <GlassCard delay={0.05}>
                 <div className="text-center">
-                  <div className="w-10 h-10 rounded-full bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mx-auto mb-4">
-                    <span className="text-sm font-bold text-violet-400">2</span>
+                  <div className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center mx-auto mb-4">
+                    <span className="text-sm font-bold text-white/60">2</span>
                   </div>
                   <p className="text-sm font-medium text-white mb-2">
                     On-Chain Update
@@ -635,8 +635,8 @@ export default function OraclePage() {
 
               <GlassCard delay={0.1}>
                 <div className="text-center">
-                  <div className="w-10 h-10 rounded-full bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mx-auto mb-4">
-                    <span className="text-sm font-bold text-violet-400">3</span>
+                  <div className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center mx-auto mb-4">
+                    <span className="text-sm font-bold text-white/60">3</span>
                   </div>
                   <p className="text-sm font-medium text-white mb-2">
                     Tier Conversion
@@ -650,8 +650,8 @@ export default function OraclePage() {
 
               <GlassCard delay={0.15}>
                 <div className="text-center">
-                  <div className="w-10 h-10 rounded-full bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mx-auto mb-4">
-                    <span className="text-sm font-bold text-violet-400">4</span>
+                  <div className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center mx-auto mb-4">
+                    <span className="text-sm font-bold text-white/60">4</span>
                   </div>
                   <p className="text-sm font-medium text-white mb-2">
                     Fair Pricing
@@ -676,21 +676,21 @@ export default function OraclePage() {
                 <div>
                   <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
                     <ShieldCheck
-                      className="w-4 h-4 text-violet-400"
+                      className="w-4 h-4 text-white/60"
                       aria-hidden="true"
                     />
                     Contract Features
                   </h3>
                   <ul className="space-y-3 text-sm text-white/60">
                     <li className="flex items-start gap-2">
-                      <span className="text-violet-400 mt-0.5">*</span>
+                      <span className="text-white/60 mt-0.5">*</span>
                       <span>
                         4 mappings: price_feed, price_updated_at,
                         dynamic_tier_price, oracle_admin
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-violet-400 mt-0.5">*</span>
+                      <span className="text-white/60 mt-0.5">*</span>
                       <span>
                         5 transitions: initialize, update_price,
                         compute_tier_price, verify_freshness,
@@ -698,19 +698,19 @@ export default function OraclePage() {
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-violet-400 mt-0.5">*</span>
+                      <span className="text-white/60 mt-0.5">*</span>
                       <span>
                         Anti-manipulation: max 50% price deviation per update
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-violet-400 mt-0.5">*</span>
+                      <span className="text-white/60 mt-0.5">*</span>
                       <span>
                         Staleness detection: 1000-block freshness window
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-violet-400 mt-0.5">*</span>
+                      <span className="text-white/60 mt-0.5">*</span>
                       <span>
                         Imports official_oracle_v2.aleo (SGX/Nitro attested)
                       </span>
@@ -766,7 +766,7 @@ export default function OraclePage() {
           <section>
             <div className="rounded-2xl glass p-8 text-center">
               <Zap
-                className="w-8 h-8 text-violet-400 mx-auto mb-4"
+                className="w-8 h-8 text-white/60 mx-auto mb-4"
                 aria-hidden="true"
               />
               <h3 className="text-xl font-semibold text-white mb-2">

@@ -29,7 +29,7 @@ const STATUS_CONFIG: Record<Status, { dot: string; text: string; defaultLabel: s
   },
   beta: {
     dot: 'bg-[var(--accent)]',
-    text: 'text-violet-300',
+    text: 'text-white/70',
     defaultLabel: 'Beta',
   },
   'coming-soon': {

@@ -80,7 +80,7 @@ export default function ActivityChart({ creatorAddress }: Props) {
         <p className="text-xs text-white/60 mb-3">Unable to load activity data.</p>
         <button
           onClick={() => { setFetchError(false); setLoading(true) }}
-          className="text-xs text-violet-400 hover:text-violet-300 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded px-2 py-1"
+          className="text-xs text-white/60 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded px-2 py-1"
         >
           Try again
         </button>
@@ -113,8 +113,8 @@ export default function ActivityChart({ creatorAddress }: Props) {
                 className={`w-full rounded-t transition-all ${
                   day.subscriptions > 0
                     ? isToday
-                      ? 'bg-violet-400'
-                      : 'bg-violet-500/60 group-hover:bg-violet-400/80'
+                      ? 'bg-white/70'
+                      : 'bg-white/40 group-hover:bg-white/60'
                     : 'bg-white/[0.04]'
                 }`}
                 style={{

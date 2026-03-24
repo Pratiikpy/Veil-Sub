@@ -39,7 +39,7 @@ export default function AnimatedAccordion({ items, allowMultiple = false, classN
             <button
               onClick={() => toggle(item.id)}
               aria-expanded={isOpen}
-              className="flex w-full items-center justify-between gap-3 py-4 text-left text-sm font-medium text-white/90 hover:text-white transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-inset focus-visible:outline-none rounded-lg"
+              className="flex w-full items-center justify-between gap-3 py-4 text-left text-sm font-medium text-white/90 hover:text-white transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-inset focus-visible:outline-none rounded-lg"
             >
               <span>{item.title}</span>
               <ChevronDown

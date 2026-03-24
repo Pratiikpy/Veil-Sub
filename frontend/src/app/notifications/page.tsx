@@ -91,12 +91,12 @@ export default function NotificationsPage() {
                     className={`p-4 rounded-xl border transition-colors ${
                       n.read
                         ? 'bg-surface-1/40 border-border/50'
-                        : 'bg-violet-500/[0.04] border-violet-500/15'
+                        : 'bg-white/[0.02] border-white/[0.08]'
                     }`}
                   >
                     <div className="flex items-start gap-3">
                       <div className="p-2 rounded-lg bg-white/[0.04] border border-border shrink-0">
-                        <Icon className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                        <Icon className="w-4 h-4 text-white/60" aria-hidden="true" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-white">{n.title}</p>
@@ -104,7 +104,7 @@ export default function NotificationsPage() {
                         <p className="text-xs text-white/40 mt-1.5">{timeAgo(n.createdAt)}</p>
                       </div>
                       {!n.read && (
-                        <span className="w-2 h-2 rounded-full bg-violet-400 shrink-0 mt-2" />
+                        <span className="w-2 h-2 rounded-full bg-white/70 shrink-0 mt-2" />
                       )}
                     </div>
                   </div>

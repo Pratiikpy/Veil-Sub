@@ -270,9 +270,9 @@ export default function CommandPalette() {
                           data-index={idx}
                           onClick={() => executeItem(item)}
                           onMouseEnter={() => setSelectedIndex(idx)}
-                          className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors duration-75 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-inset focus-visible:outline-none ${
+                          className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors duration-75 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-inset focus-visible:outline-none ${
                             isSelected
-                              ? 'bg-violet-500/10'
+                              ? 'bg-white/[0.04]'
                               : 'hover:bg-white/[0.03]'
                           }`}
                           role="option"
@@ -280,7 +280,7 @@ export default function CommandPalette() {
                         >
                           <span
                             className={`shrink-0 transition-colors duration-75 ${
-                              isSelected ? 'text-violet-400' : 'text-white/40'
+                              isSelected ? 'text-white/60' : 'text-white/40'
                             }`}
                           >
                             {item.icon}
@@ -343,7 +343,7 @@ export function CommandPaletteTrigger() {
         )
       }}
       aria-label="Open command palette"
-      className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs text-white/40 hover:text-white/60 hover:bg-white/[0.06] transition-all duration-200 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+      className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs text-white/40 hover:text-white/60 hover:bg-white/[0.06] transition-all duration-200 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
     >
       <Search className="w-3 h-3" />
       <span className="font-mono text-[10px]">{isMac ? '\u2318K' : 'Ctrl+K'}</span>

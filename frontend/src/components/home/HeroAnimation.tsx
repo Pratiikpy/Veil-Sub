@@ -7,15 +7,15 @@ import { spring } from '@/lib/motion'
 
 // ── Styles ──
 const CONTAINER_STYLE = {
-  background: 'radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.06) 0%, transparent 70%)',
+  background: 'radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 70%)',
 } as const
 
 // ── Particle along the path ──
 function Particle({ delay, duration }: { delay: number; duration: number }) {
   return (
     <m.div
-      className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-violet-400"
-      style={{ left: 0, boxShadow: '0 0 8px rgba(139,92,246,0.6)' }}
+      className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white/70"
+      style={{ left: 0, boxShadow: '0 0 8px rgba(255,255,255,0.3)' }}
       initial={{ left: '15%', opacity: 0, scale: 0 }}
       animate={{
         left: ['15%', '85%'],
@@ -37,8 +37,8 @@ function GlowPulse() {
     <m.div
       className="absolute top-1/2 -translate-y-1/2 h-1 rounded-full"
       style={{
-        background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.8), rgba(139,92,246,0.4), transparent)',
-        boxShadow: '0 0 20px rgba(139,92,246,0.4), 0 0 40px rgba(139,92,246,0.2)',
+        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), rgba(255,255,255,0.2), transparent)',
+        boxShadow: '0 0 20px rgba(255,255,255,0.2), 0 0 40px rgba(255,255,255,0.1)',
       }}
       initial={{ left: '10%', width: '0%', opacity: 0 }}
       animate={{
@@ -94,16 +94,16 @@ function StaticDiagram() {
       </div>
 
       <div className="flex-1 mx-4 sm:mx-8 flex flex-col items-center gap-2">
-        <div className="w-full h-px border-t border-dashed border-violet-400/30" />
-        <div className="w-10 h-10 rounded-xl border border-violet-500/30 bg-violet-500/[0.08] flex items-center justify-center">
-          <Shield className="w-5 h-5 text-violet-400" />
+        <div className="w-full h-px border-t border-dashed border-white/20" />
+        <div className="w-10 h-10 rounded-xl border border-white/15 bg-white/[0.04] flex items-center justify-center">
+          <Shield className="w-5 h-5 text-white/60" />
         </div>
-        <span className="text-[10px] text-violet-300/60">ZK Privacy Proof</span>
+        <span className="text-[10px] text-white/50">ZK Privacy Proof</span>
       </div>
 
       <div className="flex flex-col items-center gap-2">
         <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center">
-          <Star className="w-6 h-6 sm:w-7 sm:h-7 text-violet-300/70" />
+          <Star className="w-6 h-6 sm:w-7 sm:h-7 text-white/70" />
         </div>
         <span className="text-[11px] text-white/50">Creator</span>
       </div>
@@ -219,7 +219,7 @@ export default function HeroAnimation() {
                     <CircleDollarSign className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-400" />
                   </m.div>
                 ) : (
-                  <Star className="w-6 h-6 sm:w-7 sm:h-7 text-violet-300/70" />
+                  <Star className="w-6 h-6 sm:w-7 sm:h-7 text-white/70" />
                 )}
               </IconNode>
             </m.div>
@@ -250,7 +250,7 @@ export default function HeroAnimation() {
                   y1="2"
                   x2="100%"
                   y2="2"
-                  stroke="rgba(139,92,246,0.3)"
+                  stroke="rgba(255,255,255,0.15)"
                   strokeWidth="2"
                   strokeDasharray="6 6"
                   initial={{ pathLength: 0 }}
@@ -305,10 +305,10 @@ export default function HeroAnimation() {
               transition={spring.bouncy}
             >
               <div
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl border border-violet-500/40 bg-violet-500/[0.12] backdrop-blur-sm flex items-center justify-center"
-                style={{ boxShadow: '0 0 24px rgba(139,92,246,0.3)' }}
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl border border-white/20 bg-white/[0.06] backdrop-blur-sm flex items-center justify-center"
+                style={{ boxShadow: '0 0 24px rgba(255,255,255,0.15)' }}
               >
-                <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-violet-400" />
+                <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-white/60" />
               </div>
             </m.div>
           )}
@@ -337,7 +337,7 @@ export default function HeroAnimation() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="text-xs sm:text-sm text-violet-300/80 font-medium tracking-wide"
+              className="text-xs sm:text-sm text-white/50 font-medium tracking-wide"
             >
               Privacy proof generated
             </m.span>
@@ -422,9 +422,9 @@ export default function HeroAnimation() {
               key={i}
               className={`w-1 h-1 rounded-full transition-all duration-500 ${
                 i === activeDisplay
-                  ? 'bg-violet-400 w-3'
+                  ? 'bg-white/70 w-3'
                   : i < activeDisplay
-                  ? 'bg-violet-400/40'
+                  ? 'bg-white/30'
                   : 'bg-white/15'
               }`}
             />

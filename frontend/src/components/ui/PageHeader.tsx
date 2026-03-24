@@ -14,7 +14,7 @@ interface Props {
 }
 
 const BADGE_STYLES: Record<BadgeInfo['color'], string> = {
-  violet: 'bg-violet-500/10 text-violet-300 border-violet-500/20',
+  violet: 'bg-white/[0.04] text-white/70 border-white/10',
   emerald: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20',
   amber: 'bg-amber-500/10 text-amber-300 border-amber-500/20',
   blue: 'bg-blue-500/10 text-blue-300 border-blue-500/20',

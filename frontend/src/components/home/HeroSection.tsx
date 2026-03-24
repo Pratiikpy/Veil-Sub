@@ -12,11 +12,11 @@ import HeroAnimation from '@/components/home/HeroAnimation'
 
 // Extracted style constants to prevent re-renders
 const HERO_GLOW_STYLE = {
-  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.07) 0%, rgba(139,92,246,0.02) 40%, transparent 70%)',
+  background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 40%, transparent 70%)',
 } as const
 
 const HERO_BLUR_STYLE = {
-  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
+  background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.03) 0%, transparent 70%)',
 } as const
 
 const LETTER_SPACING_TIGHT = { letterSpacing: '-0.035em' } as const
@@ -86,7 +86,7 @@ export default function HeroSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ ...spring.gentle, delay: 0.3 }}
-                className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-serif italic bg-gradient-to-r from-white via-violet-200 to-violet-400 bg-clip-text text-transparent"
+                className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-serif italic bg-gradient-to-r from-white via-white/80 to-white/60 bg-clip-text text-transparent"
                 style={LETTER_SPACING_MEDIUM}
               >
                 Nobody will ever know.
@@ -111,7 +111,7 @@ export default function HeroSection() {
               style={{ y: descY }}
             >
               <div className="relative inline-flex rounded-full p-[1.5px] overflow-hidden">
-                <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,#8B5CF6_80deg,#3B82F6_160deg,#10B981_220deg,#3B82F6_280deg,#8B5CF6_330deg,transparent_360deg)]" />
+                <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,#ffffff_80deg,#3B82F6_160deg,#10B981_220deg,#3B82F6_280deg,#ffffff_330deg,transparent_360deg)]" />
                 <Link href="/explore">
                   <Button variant="accent" size="lg" className="relative rounded-full shadow-accent-lg">
                     Explore Creators

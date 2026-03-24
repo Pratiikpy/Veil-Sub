@@ -121,7 +121,7 @@ export default function VerificationResult({
             href={`https://testnet.explorer.provable.com/transaction/${txId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-white/70 hover:text-white focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded px-1 transition-all"
+            className="inline-flex items-center gap-1 text-xs text-white/70 hover:text-white focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded px-1 transition-all"
           >
             View on Explorer
             <ExternalLink className="w-3 h-3" aria-hidden="true" />
@@ -131,7 +131,7 @@ export default function VerificationResult({
             href={`https://testnet.aleoscan.io/program?id=${PROGRAM_ID}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-white/70 hover:text-white focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded px-1 transition-all"
+            className="inline-flex items-center gap-1 text-xs text-white/70 hover:text-white focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded px-1 transition-all"
           >
             View program on Explorer
             <ExternalLink className="w-3 h-3" aria-hidden="true" />

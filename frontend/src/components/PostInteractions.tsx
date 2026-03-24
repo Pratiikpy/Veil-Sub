@@ -252,7 +252,7 @@ export default function PostInteractions({
         {/* Comments */}
         <button
           onClick={(e) => { e.stopPropagation(); onCommentClick?.() }}
-          className="flex items-center gap-1.5 text-white/50 hover:text-violet-400 transition-colors"
+          className="flex items-center gap-1.5 text-white/50 hover:text-white/60 transition-colors"
           aria-label="Comments"
         >
           <MessageCircle className="w-4 h-4" />

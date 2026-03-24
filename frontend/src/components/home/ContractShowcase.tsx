@@ -45,9 +45,9 @@ const FEATURE_GROUPS: FeatureGroup[] = [
     badge: '5 cryptographic innovations',
     description: 'Identity separation, commitment schemes, and zero-knowledge proofs prevent subscriber tracking.',
     icon: Lock,
-    colorClass: 'from-violet-600 to-violet-400',
-    cardIconBg: 'bg-violet-500/[0.06] border border-violet-500/[0.12] group-hover:bg-violet-500/[0.12]',
-    cardIconColor: 'text-violet-400',
+    colorClass: 'from-white/10 to-white/60',
+    cardIconBg: 'bg-white/[0.03] border border-white/[0.06] group-hover:bg-white/[0.06]',
+    cardIconColor: 'text-white/60',
     features: [
       { icon: EyeOff, title: 'Zero Addresses in Finalize', desc: 'All mapping keys are Poseidon2 field hashes', version: 'v23' },
       { icon: Eye, title: 'Minimal-Footprint Verify', desc: 'Revocation check only—subscriber identity never in finalize', version: 'v8' },
@@ -138,12 +138,12 @@ export default function ContractShowcase() {
                         <SpotlightCard
                           className={`group relative p-4 sm:p-8 rounded-2xl transition-all duration-300 h-full ${
                             isHero
-                              ? 'ring-1 ring-violet-400/40 bg-gradient-to-br from-violet-950/30 to-violet-900/10'
+                              ? 'ring-1 ring-white/50/40 bg-gradient-to-br from-white/[0.04] to-white/[0.02]'
                               : 'glass glass-accent'
                           }`}
                         >
                           {isHero && (
-                            <div className="absolute -top-2.5 left-4 text-xs font-medium text-violet-300 bg-violet-600/30 px-3 py-1 rounded-full border border-violet-400/30">
+                            <div className="absolute -top-2.5 left-4 text-xs font-medium text-white/70 bg-white text-black/30 px-3 py-1 rounded-full border border-white/20">
                               Latest
                             </div>
                           )}
@@ -152,16 +152,16 @@ export default function ContractShowcase() {
                             <div
                               className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
                                 isHero
-                                  ? 'bg-violet-500/20 border border-violet-400/40'
+                                  ? 'bg-white/[0.08] border border-white/15'
                                   : group.cardIconBg
                               }`}
                             >
                               <Icon
-                                className={`transition-colors ${isHero ? 'w-5 h-5 text-violet-400' : `w-4 h-4 ${group.cardIconColor}`}`}
+                                className={`transition-colors ${isHero ? 'w-5 h-5 text-white/60' : `w-4 h-4 ${group.cardIconColor}`}`}
                                 aria-hidden="true"
                               />
                             </div>
-                            <span className="text-[11px] font-mono text-violet-400 bg-violet-500/[0.06] px-2.5 py-1 rounded-full border border-violet-500/[0.12]">
+                            <span className="text-[11px] font-mono text-white/60 bg-white/[0.03] px-2.5 py-1 rounded-full border border-white/[0.06]">
                               {feature.version}
                             </span>
                           </div>
@@ -181,7 +181,7 @@ export default function ContractShowcase() {
                 {/* Timeline Divider — between groups */}
                 {groupIdx < FEATURE_GROUPS.length - 1 && (
                   <div className="flex items-center gap-4 mt-10" aria-hidden="true">
-                    <div className="h-px flex-1 bg-gradient-to-r from-violet-500/20 via-white/5 to-transparent" />
+                    <div className="h-px flex-1 bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
                     <span className="text-xs font-mono text-white/60 px-3 py-1 rounded-full bg-white/[0.02] border border-white/5">
                       Evolution ↓
                     </span>

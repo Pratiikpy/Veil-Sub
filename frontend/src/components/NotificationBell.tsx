@@ -19,7 +19,7 @@ const ICON_MAP: Record<NotificationType, typeof Bell> = {
 const ICON_COLOR_MAP: Record<NotificationType, string> = {
   new_subscriber: 'text-emerald-400',
   new_tip: 'text-amber-400',
-  content_published: 'text-violet-400',
+  content_published: 'text-white/60',
   subscription_expiring: 'text-orange-400',
   gift_received: 'text-pink-400',
   dispute_filed: 'text-red-400',
@@ -83,7 +83,7 @@ function NotificationItem({
               onRead(notification.id)
             }}
             aria-label="Mark as read"
-            className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+            className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
           >
             <Check className="w-3 h-3" aria-hidden="true" />
           </button>
@@ -94,7 +94,7 @@ function NotificationItem({
             onDismiss(notification.id)
           }}
           aria-label="Dismiss notification"
-          className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+          className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
         >
           <X className="w-3 h-3" aria-hidden="true" />
         </button>
@@ -146,7 +146,7 @@ export default function NotificationBell() {
         onClick={() => setOpen(!open)}
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
         aria-expanded={open}
-        className="relative p-2 rounded-lg hover:bg-white/[0.06] text-white/60 hover:text-white/80 transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+        className="relative p-2 rounded-lg hover:bg-white/[0.06] text-white/60 hover:text-white/80 transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
       >
         <Bell className="w-5 h-5" aria-hidden="true" />
         {unreadCount > 0 && (
@@ -175,7 +175,7 @@ export default function NotificationBell() {
               {unreadCount > 0 && (
                 <button
                   onClick={() => markAllAsRead()}
-                  className="flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded px-1"
+                  className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded px-1"
                 >
                   <CheckCheck className="w-3.5 h-3.5" aria-hidden="true" />
                   Mark all read

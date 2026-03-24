@@ -130,7 +130,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <FileKey className="w-5 h-5 text-violet-400" aria-hidden="true" />
+                <FileKey className="w-5 h-5 text-white/60" aria-hidden="true" />
                 <h3 className="text-lg font-semibold text-white">Create Verification Token</h3>
               </div>
               <button
@@ -138,7 +138,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                 disabled={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed'}
                 aria-label="Close audit token dialog"
                 title={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed' ? 'Transaction in progress - please wait' : 'Close dialog'}
-                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
               >
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
@@ -193,7 +193,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                         aria-label={`${label}: ${desc}`}
                         className={`p-2.5 rounded-lg border text-left transition-all ${
                           scopeFlags[key]
-                            ? 'border-violet-500/50 bg-violet-500/10 text-white'
+                            ? 'border-white/30 bg-white/[0.04] text-white'
                             : 'border-border bg-white/[0.02] text-white/60'
                         }`}
                       >
@@ -220,7 +220,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                     placeholder="aleo1..."
                     maxLength={63}
                     pattern="^aleo1[a-z0-9]{56}$"
-                    className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-sm font-mono"
+                    className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all text-sm font-mono"
                   />
                   <p className="text-[10px] text-white/60 mt-1">
                     The Aleo address that will receive and hold the audit token.
@@ -269,7 +269,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                       </p>
                       <Link
                         href="/subscriptions"
-                        className="inline-flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
+                        className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white/80 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded"
                       >
                         Manage Subscriptions
                         <ExternalLink className="w-3 h-3" aria-hidden="true" />

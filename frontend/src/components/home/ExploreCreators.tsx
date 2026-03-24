@@ -92,7 +92,7 @@ const HomepageCreatorCard = React.memo(function HomepageCreatorCard({
           <Shield className="w-2.5 h-2.5" aria-hidden="true" />
           Private
         </span>
-        <span className="text-xs text-white/50 group-hover:text-violet-300 flex items-center gap-1 transition-colors">
+        <span className="text-xs text-white/50 group-hover:text-white/70 flex items-center gap-1 transition-colors">
           View creator <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
         </span>
       </div>
@@ -199,7 +199,7 @@ export default function ExploreCreators() {
         <ScrollReveal delay={0.2} className="max-w-xl mx-auto mt-10">
           <div className="flex gap-4">
             <div className="relative flex-1 group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-violet-400 transition-colors" aria-hidden="true" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-white/60 transition-colors" aria-hidden="true" />
               <input
                 type="text"
                 id="creator-search"
@@ -209,7 +209,7 @@ export default function ExploreCreators() {
                 placeholder="Search by Aleo address..."
                 aria-label="Enter creator Aleo address"
                 aria-describedby="creator-search-help"
-                className="w-full pl-11 pr-4 py-4 rounded-full glass text-white placeholder-subtle focus:outline-none focus:border-violet-500/40 focus:shadow-accent-lg focus:scale-[1.01] transition-all duration-300 text-base"
+                className="w-full pl-11 pr-4 py-4 rounded-full glass text-white placeholder-subtle focus:outline-none focus:border-white/20 focus:shadow-accent-lg focus:scale-[1.01] transition-all duration-300 text-base"
               />
             </div>
             <Button
@@ -226,7 +226,7 @@ export default function ExploreCreators() {
             </p>
             <Link
               href="/explore"
-              className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors whitespace-nowrap rounded focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+              className="text-xs text-white/60 hover:text-white/70 flex items-center gap-1 transition-colors whitespace-nowrap rounded focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
             >
               View all creators <ArrowRight className="w-3 h-3" aria-hidden="true" />
             </Link>

@@ -42,7 +42,7 @@ const FAQItem = React.memo(function FAQItem({
         onKeyDown={handleKeyDown}
         aria-expanded={open}
         aria-controls={answerId}
-        className="w-full flex items-center justify-between gap-4 px-4 sm:px-8 py-4 sm:py-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-inset"
+        className="w-full flex items-center justify-between gap-4 px-4 sm:px-8 py-4 sm:py-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-inset"
       >
         <span className="text-[15px] font-medium text-white">{question}</span>
         <m.span
@@ -50,7 +50,7 @@ const FAQItem = React.memo(function FAQItem({
           transition={{ duration: 0.2 }}
           className="shrink-0"
         >
-          <ChevronRight className={`w-4 h-4 transition-colors ${open ? 'text-violet-400' : 'text-white/60'}`} aria-hidden="true" />
+          <ChevronRight className={`w-4 h-4 transition-colors ${open ? 'text-white/60' : 'text-white/60'}`} aria-hidden="true" />
         </m.span>
       </button>
       <m.div

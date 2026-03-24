@@ -46,7 +46,7 @@ import {
 } from 'recharts'
 
 const HERO_GLOW_STYLE = {
-  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.05) 0%, transparent 70%)',
+  background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.03) 0%, transparent 70%)',
 } as const
 
 const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const
@@ -91,8 +91,8 @@ const DATE_RANGE_OPTIONS: { value: DateRange; label: string }[] = [
 
 const CHART_GRID_STROKE = 'rgba(255,255,255,0.05)'
 const CHART_AXIS_TICK = { fill: 'rgba(255,255,255,0.4)', fontSize: 12 }
-const CHART_VIOLET = '#8B5CF6'
-const CHART_VIOLET_LIGHT = 'rgba(139,92,246,0.15)'
+const CHART_VIOLET = '#ffffff'
+const CHART_VIOLET_LIGHT = 'rgba(255,255,255,0.07)'
 
 // ── Custom Recharts Tooltip ───────────────────────────────────────
 
@@ -103,7 +103,7 @@ function ChartTooltipContent({ active, payload, label }: { active?: boolean; pay
       <p className="text-xs text-white/50 mb-1">{label}</p>
       {payload.map((entry, i) => (
         <p key={i} className="text-sm font-medium text-white">
-          {entry.name}: <span className="text-violet-300">{entry.value}</span>
+          {entry.name}: <span className="text-white/70">{entry.value}</span>
         </p>
       ))}
     </div>
@@ -112,7 +112,7 @@ function ChartTooltipContent({ active, payload, label }: { active?: boolean; pay
 
 // ── Sparkline (kept for metric cards) ─────────────────────────────
 
-function Sparkline({ data, color = 'stroke-violet-400' }: { data: number[]; color?: string }) {
+function Sparkline({ data, color = 'stroke-white/60' }: { data: number[]; color?: string }) {
   if (!data.length || data.every((d) => d === 0)) return null
   const max = Math.max(...data, 1)
   const w = 64
@@ -255,7 +255,7 @@ function RevenuePieChart({
               <div className="bg-[#12121A] border border-white/10 rounded-xl px-4 py-3 shadow-xl">
                 <p className="text-sm font-medium text-white mb-1">{item.name}</p>
                 <p className="text-xs text-white/60">
-                  Revenue: <span className="text-violet-300">{formatCredits(item.revenue)} ALEO</span>
+                  Revenue: <span className="text-white/70">{formatCredits(item.revenue)} ALEO</span>
                 </p>
                 <p className="text-xs text-white/60">
                   Subscribers: <span className="text-white">{item.subscribers}</span>
@@ -394,12 +394,12 @@ function RecentActivityList({ events, loading }: { events: { tier: number; amoun
         const timeAgo = getTimeAgo(event.created_at)
         return (
           <div key={i} className={`flex items-center gap-3 py-3 ${i < events.length - 1 ? 'border-b border-white/[0.05]' : ''}`}>
-            <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0">
-              <CreditCard className="w-4 h-4 text-violet-400" aria-hidden="true" />
+            <div className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center shrink-0">
+              <CreditCard className="w-4 h-4 text-white/60" aria-hidden="true" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-white truncate">
-                New <span className="text-violet-300 font-medium">{tierName}</span> subscription
+                New <span className="text-white/70 font-medium">{tierName}</span> subscription
               </p>
               <p className="text-xs text-white/40">{timeAgo}</p>
             </div>
@@ -437,7 +437,7 @@ function ContractVersionsSection() {
       <div className="flex items-center justify-between mb-6 sm:mb-8">
         <h2 className="text-lg font-medium text-white">Contract Versions</h2>
         {hiddenCount > 0 && !showAll && (
-          <button onClick={() => setShowAll(true)} className="text-xs text-violet-300 hover:text-violet-200 transition-colors">Show all {CONTRACT_VERSIONS.length} versions</button>
+          <button onClick={() => setShowAll(true)} className="text-xs text-white/70 hover:text-white transition-colors">Show all {CONTRACT_VERSIONS.length} versions</button>
         )}
         {showAll && (
           <button onClick={() => setShowAll(false)} className="text-xs text-white/50 hover:text-white/70 transition-colors">Show deployed only</button>
@@ -514,7 +514,7 @@ export default function AnalyticsPage() {
             {hasCreatorData ? (
               <>
                 <MetricCard icon={Coins} label="Revenue" value={`${formatCredits(analytics.data!.summary.totalRevenue)} ALEO (${formatUsd(analytics.data!.summary.totalRevenue)})`} trend={analytics.data!.summary.revenueTrend} sparkline={analytics.data!.summary.revenueSparkline} sparkColor="stroke-emerald-400" />
-                <MetricCard icon={Users} label="Subscribers" value={analytics.data!.summary.activeSubscribers.toString()} trend={analytics.data!.summary.subscriberTrend} sparkline={analytics.data!.summary.subscriberSparkline} sparkColor="stroke-violet-400" />
+                <MetricCard icon={Users} label="Subscribers" value={analytics.data!.summary.activeSubscribers.toString()} trend={analytics.data!.summary.subscriberTrend} sparkline={analytics.data!.summary.subscriberSparkline} sparkColor="stroke-white/60" />
                 <MetricCard icon={FileText} label="Content" value={analytics.data!.summary.contentPublished.toString()} trend={analytics.data!.summary.contentTrend} sparkline={analytics.data!.summary.contentSparkline} sparkColor="stroke-blue-400" />
                 <ChurnStatCard churn={churnData} loading={analytics.loading} />
               </>
@@ -558,7 +558,7 @@ export default function AnalyticsPage() {
               <h2 className="text-lg font-medium text-white">Your Analytics</h2>
               <div className="flex items-center gap-2">
                 {DATE_RANGE_OPTIONS.map((opt) => (
-                  <button key={opt.value} onClick={() => analytics.setDateRange(opt.value)} className={`text-xs px-3 py-1.5 rounded-full border transition-all ${analytics.dateRange === opt.value ? 'bg-violet-500/20 border-violet-500/30 text-violet-300' : 'bg-white/[0.04] border-border text-white/50 hover:text-white/70'}`}>{opt.label}</button>
+                  <button key={opt.value} onClick={() => analytics.setDateRange(opt.value)} className={`text-xs px-3 py-1.5 rounded-full border transition-all ${analytics.dateRange === opt.value ? 'bg-white/[0.08] border-white/15 text-white/70' : 'bg-white/[0.04] border-border text-white/50 hover:text-white/70'}`}>{opt.label}</button>
                 ))}
                 <button onClick={analytics.refresh} disabled={analytics.loading} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/50 hover:text-white/70 transition-all disabled:opacity-50" title="Refresh analytics" aria-label="Refresh analytics">
                   <RefreshCw className={`w-4 h-4 ${analytics.loading ? 'animate-spin' : ''}`} aria-hidden="true" />
@@ -574,11 +574,11 @@ export default function AnalyticsPage() {
               <GlassCard hover={false}>
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                    <TrendingUp className="w-4 h-4 text-white/60" aria-hidden="true" />
                     <h3 className="text-sm font-medium text-white">Subscriber Growth</h3>
                   </div>
                   {analytics.data!.subscriberGrowth.length > 0 && (
-                    <span className="text-xs text-violet-400/80 bg-violet-500/10 px-3 py-1 rounded-full">
+                    <span className="text-xs text-white/50 bg-white/[0.04] px-3 py-1 rounded-full">
                       {analytics.data!.subscriberGrowth.length} data points
                     </span>
                   )}
@@ -597,7 +597,7 @@ export default function AnalyticsPage() {
             <section className="grid md:grid-cols-2 gap-6 sm:gap-8 mb-10 sm:mb-16">
               <GlassCard hover={false}>
                 <div className="flex items-center gap-2 mb-6">
-                  <BarChart3 className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                  <BarChart3 className="w-4 h-4 text-white/60" aria-hidden="true" />
                   <h3 className="text-sm font-medium text-white">Revenue by Tier</h3>
                 </div>
                 <RevenuePieChart
@@ -704,8 +704,8 @@ export default function AnalyticsPage() {
             <h2 className="text-lg font-medium text-white mb-6 sm:mb-8">Privacy Modes</h2>
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
               <GlassCard delay={0}><div className="flex items-center gap-2 mb-4"><ShieldCheck className="w-4 h-4 text-green-400" aria-hidden="true" /><span className="text-sm font-medium text-white">Standard</span></div><p className="text-sm text-white/70 leading-relaxed mb-4">Each payment is completely private. Your wallet is never connected to a creator or linked to your subscription history.</p><div className="text-xs text-white/70">Subscribe / Renew</div></GlassCard>
-              <GlassCard delay={0.05} variant="accent"><div className="flex items-center gap-2 mb-4"><EyeOff className="w-4 h-4 text-violet-400" aria-hidden="true" /><span className="text-sm font-medium text-white">Blind</span></div><p className="text-sm text-white/70 leading-relaxed mb-4">Each renewal looks like a different subscriber. Even the creator can&apos;t track renewals from the same person.</p><div className="text-xs text-white/70">Blind Subscribe / Blind Renew</div></GlassCard>
-              <GlassCard delay={0.1}><div className="flex items-center gap-2 mb-4"><Lock className="w-4 h-4 text-violet-400" aria-hidden="true" /><span className="text-sm font-medium text-white">Maximum (v27)</span></div><p className="text-sm text-white/70 leading-relaxed mb-4">All creator metrics are anonymized. No way to connect data points to individual addresses -- privacy enforced at the protocol level.</p><div className="text-xs text-white/70">All actions / Hash-indexed privacy</div></GlassCard>
+              <GlassCard delay={0.05} variant="accent"><div className="flex items-center gap-2 mb-4"><EyeOff className="w-4 h-4 text-white/60" aria-hidden="true" /><span className="text-sm font-medium text-white">Blind</span></div><p className="text-sm text-white/70 leading-relaxed mb-4">Each renewal looks like a different subscriber. Even the creator can&apos;t track renewals from the same person.</p><div className="text-xs text-white/70">Blind Subscribe / Blind Renew</div></GlassCard>
+              <GlassCard delay={0.1}><div className="flex items-center gap-2 mb-4"><Lock className="w-4 h-4 text-white/60" aria-hidden="true" /><span className="text-sm font-medium text-white">Maximum (v27)</span></div><p className="text-sm text-white/70 leading-relaxed mb-4">All creator metrics are anonymized. No way to connect data points to individual addresses -- privacy enforced at the protocol level.</p><div className="text-xs text-white/70">All actions / Hash-indexed privacy</div></GlassCard>
             </div>
           </section>
 
@@ -717,7 +717,7 @@ export default function AnalyticsPage() {
 
           <section>
             <m.div initial={{ opacity: 1, y: 0 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl glass p-8 text-center">
-              <Search className="w-8 h-8 text-violet-400 mx-auto mb-4" aria-hidden="true" />
+              <Search className="w-8 h-8 text-white/60 mx-auto mb-4" aria-hidden="true" />
               <h3 className="text-xl font-semibold text-white mb-2">Query the chain yourself</h3>
               <p className="text-sm text-white/60 max-w-md mx-auto mb-4">Look up any creator&apos;s public stats, query on-chain mappings directly, and verify data with no wallet required.</p>
               <Link href="/explorer" className="inline-flex items-center gap-2 px-8 py-4 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all btn-shimmer">Open On-Chain Explorer<ArrowRight className="w-4 h-4" aria-hidden="true" /></Link>
@@ -732,7 +732,7 @@ export default function AnalyticsPage() {
 // ── Card Components ─────────────────────────────────────────────
 
 function StatsCard({ icon: Icon, label, value, loading, delay }: { icon: typeof Users; label: string; value: string; loading?: boolean; delay: number }) {
-  return (<GlassCard delay={delay}><div className="flex items-center gap-4 mb-4"><Icon className="w-4 h-4 text-white/60" aria-hidden="true" /><span className="text-xs text-white/60 uppercase tracking-wider">{label}</span></div>{loading ? (<div className="h-8 flex items-center"><div className="w-6 h-6 border-2 border-violet-400/30 border-t-violet-400 rounded-full animate-spin" aria-label="Loading" /></div>) : (<p className="text-2xl font-semibold text-white">{value}</p>)}</GlassCard>)
+  return (<GlassCard delay={delay}><div className="flex items-center gap-4 mb-4"><Icon className="w-4 h-4 text-white/60" aria-hidden="true" /><span className="text-xs text-white/60 uppercase tracking-wider">{label}</span></div>{loading ? (<div className="h-8 flex items-center"><div className="w-6 h-6 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" aria-label="Loading" /></div>) : (<p className="text-2xl font-semibold text-white">{value}</p>)}</GlassCard>)
 }
 
 function MetricCard({ icon: Icon, label, value, trend, sparkline, sparkColor }: { icon: typeof Users; label: string; value: string; trend: number; sparkline: number[]; sparkColor: string }) {
@@ -757,7 +757,7 @@ function ChurnStatCard({ churn, loading }: { churn: { churnRate: number; previou
         </div>
       </div>
       {loading ? (
-        <div className="h-8 flex items-center"><div className="w-6 h-6 border-2 border-violet-400/30 border-t-violet-400 rounded-full animate-spin" aria-label="Loading" /></div>
+        <div className="h-8 flex items-center"><div className="w-6 h-6 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" aria-label="Loading" /></div>
       ) : (
         <>
           <p className={`text-2xl font-semibold mb-1 ${churnColor}`}>{pct}%</p>

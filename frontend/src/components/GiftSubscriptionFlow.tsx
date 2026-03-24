@@ -152,7 +152,7 @@ export default function GiftSubscriptionFlow({
                 onClick={handleClose}
                 disabled={status === 'submitting'}
                 aria-label="Close gift modal"
-                className={`rounded-lg p-1 transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+                className={`rounded-lg p-1 transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                   status === 'submitting'
                     ? 'text-white/30 cursor-not-allowed'
                     : 'text-white/70 hover:bg-white/[0.1] hover:text-white active:scale-[0.9]'
@@ -174,13 +174,13 @@ export default function GiftSubscriptionFlow({
                   <p className="text-xs text-white/50 mb-2">What's next?</p>
                   <Link
                     href={`/creator/${creatorAddress}`}
-                    className="inline-flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
+                    className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white/80 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded"
                   >
                     View Creator's Content
                     <ExternalLink className="w-3 h-3" aria-hidden="true" />
                   </Link>
                 </div>
-                <button onClick={handleClose} className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none">
+                <button onClick={handleClose} className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none">
                   Done
                 </button>
               </div>
@@ -214,7 +214,7 @@ export default function GiftSubscriptionFlow({
                       pattern="^aleo1[a-z0-9]{56}$"
                       className={`w-full rounded-lg bg-white/[0.05] border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:ring-1 transition-all text-base font-mono pr-10 ${
                         recipientAddress.length === 0
-                          ? 'border-border focus:border-violet-500/50 focus:ring-violet-500/30'
+                          ? 'border-border focus:border-white/30 focus:ring-white/20'
                           : recipientAddress.startsWith('aleo1') && recipientAddress.length === 63
                           ? 'border-green-500/50 focus:border-green-500/50 focus:ring-green-500/30'
                           : 'border-red-500/50 focus:border-red-500/50 focus:ring-red-500/30'
@@ -275,7 +275,7 @@ export default function GiftSubscriptionFlow({
                     <div className="flex gap-4">
                       <button
                         onClick={handleClose}
-                        className="flex-1 rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                        className="flex-1 rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                       >
                         Cancel
                       </button>

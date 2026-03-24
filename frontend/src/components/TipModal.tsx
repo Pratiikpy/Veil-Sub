@@ -480,7 +480,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                 disabled={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed' && !isRevealReady}
                 aria-label="Close tip dialog"
                 title={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed' && !isRevealReady ? 'Transaction in progress - please wait' : 'Close dialog'}
-                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
               >
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
@@ -496,9 +496,9 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                       aria-checked={tipMode === 'direct'}
                       tabIndex={tipMode === 'direct' ? 0 : -1}
                       onClick={() => setTipMode('direct')}
-                      className={`p-2.5 rounded-lg border text-center transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+                      className={`p-2.5 rounded-lg border text-center transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                         tipMode === 'direct'
-                          ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300 shadow-accent-sm'
+                          ? 'border-white/20 bg-white/[0.04] text-white/70 shadow-accent-sm'
                           : 'border-border/75 bg-transparent text-white/60 hover:border-glass-hover hover:text-white/70'
                       }`}
                     >
@@ -511,9 +511,9 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                       aria-checked={tipMode === 'private'}
                       tabIndex={tipMode === 'private' ? 0 : -1}
                       onClick={() => setTipMode('private')}
-                      className={`p-2.5 rounded-lg border text-center transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+                      className={`p-2.5 rounded-lg border text-center transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                         tipMode === 'private'
-                          ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300 shadow-accent-sm'
+                          ? 'border-white/20 bg-white/[0.04] text-white/70 shadow-accent-sm'
                           : 'border-border/75 bg-transparent text-white/60 hover:border-glass-hover hover:text-white/70'
                       }`}
                     >
@@ -550,8 +550,8 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                         Amount: {formatCredits(savedAmount)} ALEO | Salt: {savedSalt}
                       </code>
                     </div>
-                    <div className="p-4 rounded-xl bg-violet-500/[0.06] border border-violet-500/15 mb-4">
-                      <p className="text-xs text-violet-300 font-medium mb-1">Phase 2: Reveal Your Tip</p>
+                    <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] mb-4">
+                      <p className="text-xs text-white/70 font-medium mb-1">Phase 2: Reveal Your Tip</p>
                       <p className="text-[11px] text-white/70">
                         Your commitment is on-chain. Click below to reveal {formatCredits(savedAmount)} ALEO
                         and transfer it to the creator.
@@ -571,9 +571,9 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                           aria-checked={selectedAmount === amount && !customAmount}
                           tabIndex={selectedAmount === amount && !customAmount ? 0 : -1}
                           onClick={() => { setSelectedAmount(amount); setCustomAmount('') }}
-                          className={`py-3 rounded-xl text-center transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+                          className={`py-3 rounded-xl text-center transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                             selectedAmount === amount && !customAmount
-                              ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
+                              ? 'bg-white/[0.08] border border-white/20 text-white/70 shadow-accent-sm'
                               : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:border-white/15'
                           }`}
                         >
@@ -597,7 +597,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                         max="1000"
                         maxLength={20}
                         step="0.1"
-                        className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base pr-16"
+                        className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all text-base pr-16"
                       />
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/60">ALEO</span>
                     </div>
@@ -708,7 +708,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                       <Link
                         href={`/creator/${creatorAddress}`}
                         onClick={handleModalClose}
-                        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-violet-500/15 border border-violet-500/25 text-sm font-medium text-violet-300 hover:bg-violet-500/25 transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white/[0.06] border border-white/12 text-sm font-medium text-white/70 hover:bg-white/12 transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                       >
                         <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                         View Creator&apos;s Content
@@ -717,7 +717,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
 
                     <button
                       onClick={handleModalClose}
-                      className="mt-3 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                      className="mt-3 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                     >
                       Close
                     </button>
@@ -742,7 +742,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                       <Link
                         href={`/creator/${creatorAddress}`}
                         onClick={handleModalClose}
-                        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-violet-500/15 border border-violet-500/25 text-sm font-medium text-violet-300 hover:bg-violet-500/25 transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white/[0.06] border border-white/12 text-sm font-medium text-white/70 hover:bg-white/12 transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                       >
                         <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                         View Creator&apos;s Content
@@ -751,7 +751,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
 
                     <button
                       onClick={handleModalClose}
-                      className="mt-3 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                      className="mt-3 px-8 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                     >
                       Close
                     </button>

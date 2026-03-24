@@ -56,7 +56,7 @@ export default function SpotlightCard({
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
       tabIndex={0}
-      className={`relative overflow-hidden cursor-pointer focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${className}`}
+      className={`relative overflow-hidden cursor-pointer focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${className}`}
       style={{
         transform: transform || undefined,
         transition: transform ? 'transform 0.1s ease-out' : 'transform 0.4s ease-out',
@@ -68,7 +68,7 @@ export default function SpotlightCard({
         className="pointer-events-none absolute inset-0 z-10 transition-opacity duration-300"
         style={{
           opacity: spotlight.opacity,
-          background: `radial-gradient(${spotlightSize}px circle at ${spotlight.x}px ${spotlight.y}px, rgba(139,92,246,0.07), transparent 70%)`,
+          background: `radial-gradient(${spotlightSize}px circle at ${spotlight.x}px ${spotlight.y}px, rgba(255,255,255,0.04), transparent 70%)`,
         }}
       />
       {children}

@@ -133,7 +133,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
                 ? 'rgb(239, 68, 68)'
                 : isSuccess
                 ? 'rgb(34, 197, 94)'
-                : 'var(--accent, #8B5CF6)',
+                : 'var(--accent, #ffffff)',
             }}
             initial={{ width: '0%' }}
             animate={{
@@ -165,7 +165,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
                     isDone
                       ? 'bg-green-500 text-white'
                       : isActive
-                      ? 'bg-[var(--accent,#8B5CF6)] text-white shadow-[0_0_16px_rgba(139,92,246,0.4)]'
+                      ? 'bg-[var(--accent,#ffffff)] text-white shadow-[0_0_16px_rgba(255,255,255,0.2)]'
                       : isErrorStep
                       ? 'bg-red-500 text-white'
                       : 'bg-white/10 text-white/60'
@@ -230,7 +230,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
                       isDone
                         ? 'bg-green-500 text-white'
                         : isActive
-                        ? 'bg-[var(--accent,#8B5CF6)] text-white shadow-[0_0_16px_rgba(139,92,246,0.4)]'
+                        ? 'bg-[var(--accent,#ffffff)] text-white shadow-[0_0_16px_rgba(255,255,255,0.2)]'
                         : isErrorStep
                         ? 'bg-red-500 text-white'
                         : 'bg-white/10 text-white/60'
@@ -257,7 +257,7 @@ export default function TransactionProgress({ currentStep, error }: Props) {
                             : isDone || (isActive && activeIdx > i)
                             ? 'rgb(34, 197, 94)'
                             : isActive
-                            ? 'var(--accent, #8B5CF6)'
+                            ? 'var(--accent, #ffffff)'
                             : 'transparent',
                         }}
                         initial={{ height: '0%' }}

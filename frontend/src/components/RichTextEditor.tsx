@@ -57,9 +57,9 @@ function ToolbarButton({
       title={title}
       aria-label={title}
       aria-pressed={active}
-      className={`p-1.5 rounded-md transition-all duration-150 focus-visible:ring-2 focus-visible:ring-violet-400/50 focus-visible:ring-offset-0 ${
+      className={`p-1.5 rounded-md transition-all duration-150 focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-0 ${
         active
-          ? 'bg-violet-500/20 text-violet-300'
+          ? 'bg-white/[0.08] text-white/70'
           : disabled
             ? 'text-white/20 cursor-not-allowed'
             : 'text-white/60 hover:text-white hover:bg-white/[0.08]'
@@ -183,7 +183,7 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
   if (!editor) return null
 
   return (
-    <div className="rounded-xl border border-border bg-white/[0.03] overflow-hidden focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-400/50 transition-all">
+    <div className="rounded-xl border border-border bg-white/[0.03] overflow-hidden focus-within:border-white/30 focus-within:ring-2 focus-within:ring-white/30 transition-all">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-border bg-white/[0.02]">
         {/* Text formatting */}
@@ -327,21 +327,21 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
             }
             maxLength={2048}
             autoFocus
-            className="flex-1 px-2 py-1 rounded-md bg-white/[0.05] border border-border text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500"
+            className="flex-1 px-2 py-1 rounded-md bg-white/[0.05] border border-border text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/30"
           />
           <button
             type="button"
             onClick={handleUrlSubmit}
             disabled={!urlInput.url.trim()}
             title={!urlInput.url.trim() ? 'Enter a URL to insert' : 'Insert URL'}
-            className="px-3 py-1 rounded-md text-xs font-medium bg-violet-500/20 text-violet-300 border border-violet-500/30 hover:bg-violet-500/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+            className="px-3 py-1 rounded-md text-xs font-medium bg-white/[0.08] text-white/70 border border-white/15 hover:bg-white/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
           >
             Insert
           </button>
           <button
             type="button"
             onClick={closeUrlInput}
-            className="px-2 py-1 rounded-md text-xs text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+            className="px-2 py-1 rounded-md text-xs text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
           >
             Cancel
           </button>
@@ -360,8 +360,8 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
 
       {/* Upload indicator */}
       {imageUploading && (
-        <div className="flex items-center gap-2 px-3 py-1.5 border-b border-border bg-violet-500/5 text-xs text-violet-300" role="status" aria-live="polite">
-          <div className="w-3 h-3 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" aria-hidden="true" />
+        <div className="flex items-center gap-2 px-3 py-1.5 border-b border-border bg-white/[0.02] text-xs text-white/70" role="status" aria-live="polite">
+          <div className="w-3 h-3 border-2 border-white/30 border-t-transparent rounded-full animate-spin" aria-hidden="true" />
           Uploading image...
         </div>
       )}

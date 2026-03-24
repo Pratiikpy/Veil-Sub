@@ -28,7 +28,7 @@ export default function ProtocolStats() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Quote card */}
             <div className="col-span-2 sm:row-span-2 relative rounded-3xl p-[1px] overflow-hidden">
-              <div className="absolute inset-[-100%] opacity-50 animate-[spin_8s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,rgba(139,92,246,0.9)_90deg,rgba(59,130,246,0.5)_180deg,rgba(16,185,129,0.4)_220deg,rgba(59,130,246,0.5)_270deg,rgba(139,92,246,0.9)_330deg,transparent_360deg)]" />
+              <div className="absolute inset-[-100%] opacity-50 animate-[spin_8s_linear_infinite] bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,rgba(255,255,255,0.5)_90deg,rgba(59,130,246,0.5)_180deg,rgba(16,185,129,0.4)_220deg,rgba(59,130,246,0.5)_270deg,rgba(255,255,255,0.5)_330deg,transparent_360deg)]" />
             <div className="relative h-full rounded-[23px] glass p-6 sm:p-8 flex flex-col justify-between transition-all duration-300">
               <div>
                 <Badge variant="accent">Protocol Stats</Badge>
@@ -36,14 +36,14 @@ export default function ProtocolStats() {
                   className="mt-6 text-2xl sm:text-3xl font-serif italic text-white leading-snug"
                   style={QUOTE_STYLE}
                 >
-                  <span className="text-violet-400">&ldquo;</span>No addresses stored on-chain — even the smart contract
-                  never learns who subscribes to whom.<span className="text-violet-400">&rdquo;</span>
+                  <span className="text-white/60">&ldquo;</span>No addresses stored on-chain — even the smart contract
+                  never learns who subscribes to whom.<span className="text-white/60">&rdquo;</span>
                 </p>
               </div>
               <div className="mt-8 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.12] flex items-center justify-center">
-                    <Shield className="w-5 h-5 text-violet-400/60" aria-hidden="true" />
+                  <div className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/[0.06] flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-white/40" aria-hidden="true" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-white">VeilSub Protocol</p>
@@ -66,7 +66,7 @@ export default function ProtocolStats() {
             {STATS.map((stat) => (
               <SpotlightCard
                 key={stat.label}
-                className="rounded-3xl glass p-6 sm:p-8 flex flex-col justify-between hover:border-violet-500/[0.15] transition-all duration-300"
+                className="rounded-3xl glass p-6 sm:p-8 flex flex-col justify-between hover:border-white/[0.08] transition-all duration-300"
                 tiltMax={6}
               >
                 <Odometer

@@ -12,7 +12,7 @@ const variantClasses: Record<Variant, string> = {
   default:
     'text-white/70 border-border',
   accent:
-    'text-violet-300 border-violet-500/[0.2] bg-violet-500/[0.06]',
+    'text-white/70 border-white/10 bg-white/[0.03]',
   success:
     'text-emerald-400 border-emerald-500/[0.2] bg-emerald-500/[0.06]',
 }

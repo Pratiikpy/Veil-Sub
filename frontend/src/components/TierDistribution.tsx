@@ -10,7 +10,7 @@ interface Props {
 const TIER_CONFIG: Record<string, { name: string; color: string; bg: string }> = {
   '1': { name: 'Supporter', color: 'bg-green-400', bg: 'bg-green-500/10' },
   '2': { name: 'Premium', color: 'bg-blue-400', bg: 'bg-blue-500/10' },
-  '3': { name: 'VIP', color: 'bg-violet-400', bg: 'bg-violet-500/10' },
+  '3': { name: 'VIP', color: 'bg-white/70', bg: 'bg-white/[0.04]' },
 }
 
 const DEFAULT_TIER_CONFIG = { name: 'Unknown', color: 'bg-gray-400', bg: 'bg-gray-500/10' }

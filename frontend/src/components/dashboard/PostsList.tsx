@@ -37,7 +37,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
   const TIER_COLORS = [
     'text-green-300 bg-green-500/10 border-green-500/20',
     'text-blue-300 bg-blue-500/10 border-blue-500/20',
-    'text-violet-300 bg-violet-500/10 border-violet-500/20',
+    'text-white/70 bg-white/[0.04] border-white/10',
     'text-pink-300 bg-pink-500/10 border-pink-500/20',
     'text-amber-300 bg-amber-500/10 border-amber-500/20',
   ]
@@ -51,7 +51,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
   }
 
   const getTagColor = (tag: string): string => {
-    return TAG_COLORS[tag] || 'text-violet-300 bg-violet-500/10 border-violet-500/20'
+    return TAG_COLORS[tag] || 'text-white/70 bg-white/[0.04] border-white/10'
   }
 
   const fetchAllPosts = useCallback(async () => {
@@ -229,7 +229,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
       className="p-6 rounded-xl bg-surface-1 border border-border"
     >
       <div className="flex items-center gap-2 mb-4">
-        <FileText className="w-5 h-5 text-violet-400" aria-hidden="true" />
+        <FileText className="w-5 h-5 text-white/60" aria-hidden="true" />
         <h2 className="text-lg font-semibold text-white">Your Posts</h2>
         <span className="text-xs text-white/60 ml-auto">
           {allPosts.length + drafts.length + scheduled.length} total
@@ -251,7 +251,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
             {tab.label}
             {tab.count > 0 && (
               <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] ${
-                activeTab === tab.key ? 'bg-violet-500/20 text-violet-300' : 'bg-white/[0.06] text-white/50'
+                activeTab === tab.key ? 'bg-white/[0.08] text-white/70' : 'bg-white/[0.06] text-white/50'
               }`}>
                 {tab.count}
               </span>
@@ -270,12 +270,12 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search posts..."
-            className="w-full pl-9 pr-8 py-2 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm"
+            className="w-full pl-9 pr-8 py-2 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all text-sm"
           />
           {searchQuery && (
             <button
               onClick={() => { setSearchQuery(''); searchInputRef.current?.focus() }}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded"
               aria-label="Clear search"
             >
               <X className="w-4 h-4" />
@@ -286,7 +286,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
           <select
             value={selectedTag || ''}
             onChange={(e) => setSelectedTag(e.target.value || null)}
-            className="px-3 py-2 rounded-xl bg-white/[0.05] border border-border text-white text-sm focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all [color-scheme:dark]"
+            className="px-3 py-2 rounded-xl bg-white/[0.05] border border-border text-white text-sm focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all [color-scheme:dark]"
           >
             <option value="">All tags</option>
             {allTags.map(tag => (
@@ -305,7 +305,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
               <p className="text-sm text-white/50">No posts match &ldquo;{searchQuery}&rdquo;</p>
               <button
                 onClick={() => { setSearchQuery(''); searchInputRef.current?.focus() }}
-                className="mt-2 text-xs text-violet-300 hover:text-violet-200 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded px-1"
+                className="mt-2 text-xs text-white/70 hover:text-white/80 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded px-1"
               >
                 Clear search
               </button>
@@ -407,7 +407,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
                   {(activeTab === 'drafts' || activeTab === 'scheduled') && onEditPost && (
                     <button
                       onClick={() => onEditPost(post)}
-                      className="p-2 rounded-lg hover:bg-violet-500/10 text-white/60 hover:text-violet-400 active:scale-[0.9] transition-all duration-300"
+                      className="p-2 rounded-lg hover:bg-white/[0.04] text-white/60 hover:text-white/60 active:scale-[0.9] transition-all duration-300"
                       aria-label="Edit post"
                     >
                       <Edit3 className="w-4 h-4" aria-hidden="true" />

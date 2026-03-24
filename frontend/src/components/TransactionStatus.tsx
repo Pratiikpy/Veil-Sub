@@ -136,7 +136,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
         aria-label="Transaction progress"
       >
         <m.div
-          className="h-full bg-gradient-to-r from-violet-500 to-violet-600 rounded-full"
+          className="h-full bg-gradient-to-r from-white/10 to-white/10 rounded-full"
           initial={{ width: '0%' }}
           animate={{
             width:
@@ -170,7 +170,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
             }}
             className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
               isActive
-                ? 'bg-violet-500/10 border border-violet-500/25 animate-pulse'
+                ? 'bg-white/[0.04] border border-white/12 animate-pulse'
                 : isDone
                 ? isConfirmedStep
                   ? 'bg-green-500/10 border border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.1)]'
@@ -181,14 +181,14 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
             <div
               className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
                 isActive
-                  ? 'bg-violet-500/20'
+                  ? 'bg-white/[0.08]'
                   : isDone
                   ? 'bg-green-500/15'
                   : 'bg-white/[0.05]'
               }`}
             >
               {isActive ? (
-                <Loader2 className="w-4 h-4 text-violet-400 animate-spin" aria-hidden="true" />
+                <Loader2 className="w-4 h-4 text-white/60 animate-spin" aria-hidden="true" />
               ) : isDone ? (
                 <Check className="w-4 h-4 text-green-400" aria-hidden="true" />
               ) : (
@@ -255,7 +255,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
                 href={`https://testnet.aleoscan.io/program?id=${PROGRAM_ID}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 mt-2 p-2.5 rounded-xl bg-violet-500/5 border border-violet-500/15 hover:border-violet-500/30 hover:bg-violet-500/10 transition-all group"
+                className="flex items-center gap-2 mt-2 p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] hover:border-white/15 hover:bg-white/[0.04] transition-all group"
               >
                 <span className="text-xs text-white/70 group-hover:text-white flex-1">
                   View program on Explorer
@@ -268,7 +268,7 @@ export default function TransactionStatus({ status, txId, errorMessage }: Props)
               href={`https://testnet.explorer.provable.com/transaction/${txId}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 p-4 rounded-xl bg-surface-1 border border-border hover:border-violet-500/30 hover:bg-violet-500/5 transition-all group"
+              className="flex items-center gap-2 p-4 rounded-xl bg-surface-1 border border-border hover:border-white/15 hover:bg-white/[0.02] transition-all group"
             >
               <span className="text-xs text-white/70 group-hover:text-white break-all flex-1 font-mono">
                 {txId}

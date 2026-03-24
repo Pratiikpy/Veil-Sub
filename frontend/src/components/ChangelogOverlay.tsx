@@ -14,8 +14,8 @@ const AUTO_DISMISS_MS = 5000 // Auto-dismiss after 5 seconds (reduced from 6s)
 const FEATURES = [
   {
     icon: Shield,
-    color: 'text-violet-400',
-    bgColor: 'bg-violet-500/10',
+    color: 'text-white/60',
+    bgColor: 'bg-white/[0.04]',
     title: 'Address-Free Storage',
     desc: 'All 30 on-chain mappings use one-way hashes — subscriber addresses never reach public storage',
   },
@@ -123,7 +123,7 @@ export default function ChangelogOverlay() {
               <button
                 onClick={() => dismiss(false)}
                 aria-label="Dismiss"
-                className="p-1 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                className="p-1 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
               >
                 <X className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
@@ -171,7 +171,7 @@ export default function ChangelogOverlay() {
               </Link>
               <button
                 onClick={() => dismiss(true)}
-                className="text-xs text-white/60 hover:text-white/80 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
+                className="text-xs text-white/60 hover:text-white/80 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded"
               >
                 Dismiss
               </button>

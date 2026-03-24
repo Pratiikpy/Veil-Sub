@@ -50,7 +50,7 @@ export default function ArticleReader({ title, body, creator, publishedAt, readi
     <div className="fixed inset-0 z-[9998] animate-lightbox-in" style={{ backgroundColor: '#0A0A0F' }}>
       {/* Progress bar */}
       <div className="fixed top-0 left-0 right-0 h-[2px] z-[9999] pointer-events-none">
-        <div className="h-full bg-violet-500 transition-[width] duration-100 ease-linear" style={{ width: `${progress}%` }} />
+        <div className="h-full bg-white transition-[width] duration-100 ease-linear" style={{ width: `${progress}%` }} />
       </div>
 
       <div ref={containerRef} className="h-full overflow-y-auto">

@@ -98,7 +98,7 @@ export default function MarketplacePage() {
             </p>
 
             <div className="flex items-center justify-center gap-3 flex-wrap">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-xs text-violet-400">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs text-white/60">
                 <Shield className="w-3 h-3" aria-hidden="true" />
                 Privacy-preserving ratings
               </div>
@@ -169,11 +169,11 @@ export default function MarketplacePage() {
 
           {/* Technical detail */}
           <ScrollReveal delay={0.3}>
-            <div className="max-w-3xl mx-auto mt-8 p-5 rounded-2xl bg-violet-500/[0.06] border border-violet-500/15">
+            <div className="max-w-3xl mx-auto mt-8 p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
               <div className="flex items-start gap-3">
-                <Hash className="w-5 h-5 text-violet-400 mt-0.5 shrink-0" aria-hidden="true" />
+                <Hash className="w-5 h-5 text-white/60 mt-0.5 shrink-0" aria-hidden="true" />
                 <div>
-                  <p className="text-sm font-semibold text-violet-300 mb-1">
+                  <p className="text-sm font-semibold text-white/70 mb-1">
                     Privacy-Preserving Ratings
                   </p>
                   <p className="text-sm text-white/80 leading-relaxed">

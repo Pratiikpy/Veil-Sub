@@ -242,7 +242,7 @@ export default function RenewModal({
                 disabled={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed'}
                 aria-label="Close renewal dialog"
                 title={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed' ? 'Transaction in progress - please wait' : 'Close dialog'}
-                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
               >
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
@@ -284,9 +284,9 @@ export default function RenewModal({
                         aria-checked={selectedTierId === tier.id}
                         tabIndex={selectedTierId === tier.id ? 0 : -1}
                         onClick={() => setSelectedTierId(tier.id)}
-                        className={`py-2.5 px-4 rounded-lg text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50 focus-visible:ring-offset-0 ${
+                        className={`py-2.5 px-4 rounded-lg text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-0 ${
                           selectedTierId === tier.id
-                            ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
+                            ? 'bg-white/[0.08] border border-white/20 text-white/70 shadow-accent-sm'
                             : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:border-white/15'
                         }`}
                       >
@@ -310,9 +310,9 @@ export default function RenewModal({
                           aria-checked={privacyMode === mode.key}
                           tabIndex={privacyMode === mode.key ? 0 : -1}
                           onClick={() => setPrivacyMode(mode.key)}
-                          className={`p-2 rounded-lg border text-center transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+                          className={`p-2 rounded-lg border text-center transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                             privacyMode === mode.key
-                              ? 'border-violet-500/40 bg-violet-500/[0.08] text-violet-300 shadow-accent-sm'
+                              ? 'border-white/20 bg-white/[0.04] text-white/70 shadow-accent-sm'
                               : 'border-border/75 bg-transparent text-white/60 hover:border-glass-hover hover:text-white/70'
                           }`}
                         >
@@ -322,7 +322,7 @@ export default function RenewModal({
                       ))}
                     </div>
                     {privacyMode === 'blind' && (
-                      <p className="text-[10px] text-violet-400/70 mt-2">
+                      <p className="text-[10px] text-white/40 mt-2">
                         Each renewal looks different to the creator—they cannot track you across renewals.
                       </p>
                     )}
@@ -434,7 +434,7 @@ export default function RenewModal({
                         <Link
                           href={`/creator/${pass.creator}`}
                           onClick={handleModalClose}
-                          className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-violet-500/15 border border-violet-500/25 text-sm font-medium text-violet-300 hover:bg-violet-500/25 transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                          className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white/[0.06] border border-white/12 text-sm font-medium text-white/70 hover:bg-white/12 transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                         >
                           <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                           View Creator&apos;s Content
@@ -442,7 +442,7 @@ export default function RenewModal({
                         <Link
                           href="/subscriptions"
                           onClick={handleModalClose}
-                          className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-border text-xs text-white/60 hover:bg-white/[0.08] hover:text-white/80 transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                          className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg bg-white/[0.04] border border-border text-xs text-white/60 hover:bg-white/[0.08] hover:text-white/80 transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                         >
                           <CreditCard className="w-3 h-3" aria-hidden="true" />
                           Manage Subscriptions
@@ -452,7 +452,7 @@ export default function RenewModal({
 
                     <button
                       onClick={handleModalClose}
-                      className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                      className="mt-3 px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                     >
                       Close
                     </button>

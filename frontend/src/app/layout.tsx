@@ -80,7 +80,7 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://api.explorer.provable.com" />
         <link rel="manifest" href="/manifest.webmanifest" />
-        <meta name="theme-color" content="#8B5CF6" />
+        <meta name="theme-color" content="#0A0A0F" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         {/* Theme initialization script - runs before paint to prevent FOUC */}
         <script
@@ -128,12 +128,12 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${instrumentSerif.variable} font-sans bg-[#050507] text-white min-h-screen antialiased`}
       >
-        <NextTopLoader color="#8B5CF6" height={2} showSpinner={false} shadow="0 0 10px rgba(139,92,246,0.3)" />
+        <NextTopLoader color="#ffffff" height={2} showSpinner={false} shadow="0 0 10px rgba(255,255,255,0.15)" />
         <ScrollProgress />
         <ClientProviders>
           <a
             href="#main-content"
-            className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-violet-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-white text-black focus:text-white focus:rounded-lg focus:text-sm focus:font-medium"
           >
             Skip to main content
           </a>

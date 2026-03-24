@@ -116,7 +116,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
           <div className="flex gap-3">
             <button
               onClick={this.handleRetry}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black hover:bg-white/90 text-white text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
             >
               <RefreshCw className="h-4 w-4" aria-hidden="true" />
               Try Again
@@ -124,7 +124,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 
             <button
               onClick={this.handleGoHome}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/[0.05] border border-border hover:bg-white/[0.08] text-white text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/[0.05] border border-border hover:bg-white/[0.08] text-white text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
             >
               <Home className="h-4 w-4" aria-hidden="true" />
               Home

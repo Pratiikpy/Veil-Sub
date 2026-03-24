@@ -74,12 +74,12 @@ export default function WelcomeOverlay() {
           transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
           className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:max-w-md z-50"
         >
-          <div className="rounded-xl bg-black/95 border border-violet-500/30 p-4 shadow-[0_8px_40px_rgba(139,92,246,0.15)] backdrop-blur-xl">
+          <div className="rounded-xl bg-black/95 border border-white/15 p-4 shadow-[0_8px_40px_rgba(255,255,255,0.07)] backdrop-blur-xl">
             {/* Header row */}
             <div className="flex items-start justify-between gap-4 mb-4">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center shrink-0">
-                  <Shield className="w-5 h-5 text-violet-400" aria-hidden="true" />
+                <div className="w-10 h-10 rounded-xl bg-white/[0.08] flex items-center justify-center shrink-0">
+                  <Shield className="w-5 h-5 text-white/60" aria-hidden="true" />
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-white">Zero-Footprint Subscriptions</h3>
@@ -89,7 +89,7 @@ export default function WelcomeOverlay() {
               <button
                 onClick={() => dismiss(false)}
                 aria-label="Dismiss"
-                className="p-1 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                className="p-1 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
               </button>
@@ -105,14 +105,14 @@ export default function WelcomeOverlay() {
               <Link
                 href="/docs"
                 onClick={() => dismiss(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-xs font-medium text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black hover:bg-white/90 text-xs font-medium text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
               >
                 Learn how it works
                 <ArrowRight className="w-3 h-3" aria-hidden="true" />
               </Link>
               <button
                 onClick={() => dismiss(true)}
-                className="text-xs text-white/50 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
+                className="text-xs text-white/50 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded"
               >
                 Don&apos;t show again
               </button>
@@ -120,7 +120,7 @@ export default function WelcomeOverlay() {
 
             {/* Auto-dismiss progress bar */}
             <m.div
-              className="absolute bottom-0 left-0 h-0.5 bg-violet-500/50 rounded-full"
+              className="absolute bottom-0 left-0 h-0.5 bg-white/[0.02]0 rounded-full"
               initial={{ width: '100%' }}
               animate={{ width: '0%' }}
               transition={{ duration: AUTO_DISMISS_MS / 1000, ease: 'linear' }}

@@ -7,7 +7,7 @@ interface ScrollProgressProps {
   height?: number
 }
 
-export default function ScrollProgress({ color = '#8B5CF6', height = 2 }: ScrollProgressProps) {
+export default function ScrollProgress({ color = '#ffffff', height = 2 }: ScrollProgressProps) {
   const [progress, setProgress] = useState(0)
   const [scrollable, setScrollable] = useState(false)
 

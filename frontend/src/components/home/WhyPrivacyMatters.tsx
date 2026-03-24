@@ -20,10 +20,10 @@ const USE_CASES = [
     title: 'Political Commentary',
     description:
       'Support voices you believe in without social consequences.',
-    color: 'text-violet-400',
-    bg: 'bg-violet-500/[0.06]',
-    border: 'border-violet-500/15',
-    iconBg: 'bg-violet-500/10',
+    color: 'text-white/60',
+    bg: 'bg-white/[0.03]',
+    border: 'border-white/[0.08]',
+    iconBg: 'bg-white/[0.04]',
   },
   {
     icon: Lock,

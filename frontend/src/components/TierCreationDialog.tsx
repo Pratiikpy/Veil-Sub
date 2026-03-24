@@ -151,12 +151,12 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
             {/* Header */}
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="rounded-lg bg-violet-500/20 p-2">
+                <div className="rounded-lg bg-white/[0.08] p-2">
                   <Layers className="h-5 w-5 text-white/70" aria-hidden="true" />
                 </div>
                 <h3 className="text-lg font-semibold text-white">Create Custom Tier</h3>
               </div>
-              <button onClick={handleClose} disabled={status === 'submitting'} aria-label="Close tier creation dialog" className="rounded-lg p-1 text-white/70 hover:bg-white/[0.1] hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+              <button onClick={handleClose} disabled={status === 'submitting'} aria-label="Close tier creation dialog" className="rounded-lg p-1 text-white/70 hover:bg-white/[0.1] hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
                 <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
@@ -168,7 +168,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
                   <p className="text-sm font-medium text-green-400">Tier #{tierId} created!</p>
                   {txId && <p className="mt-1 text-xs text-white/60 break-all">Tx: {txId.slice(0, 20)}...</p>}
                 </div>
-                <button onClick={handleClose} aria-label="Tier created successfully - close dialog" className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50">
+                <button onClick={handleClose} aria-label="Tier created successfully - close dialog" className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-white/30">
                   Done
                 </button>
               </div>
@@ -181,7 +181,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
                 </div>
                 <button
                   onClick={() => { setError(null); setTxStatus('idle') }}
-                  className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50"
+                  className="w-full rounded-lg bg-white/[0.05] border border-border py-2.5 text-sm font-medium text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-white/30"
                 >
                   Try Again
                 </button>
@@ -198,9 +198,9 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
                         onClick={() => setTierId(id)}
                         aria-label={`Select tier ${id}`}
                         aria-pressed={tierId === id}
-                        className={`rounded-lg py-2 text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50 ${
+                        className={`rounded-lg py-2 text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-white/30 ${
                           tierId === id
-                            ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
+                            ? 'bg-white/[0.08] border border-white/20 text-white/70 shadow-accent-sm'
                             : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:border-white/15'
                         }`}
                       >
@@ -219,7 +219,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
                     value={tierName}
                     onChange={(e) => setTierName(e.target.value)}
                     placeholder="e.g. Supporter, Premium, VIP"
-                    className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base"
+                    className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all text-base"
                     maxLength={32}
                     required
                     aria-required="true"
@@ -241,7 +241,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
                     max="1000000"
                     required
                     aria-required="true"
-                    className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base"
+                    className="w-full rounded-lg bg-white/[0.05] border border-border px-4 py-2.5 text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all text-base"
                   />
                   {priceAleo && (
                     <p className="mt-1 text-xs text-white/60">

@@ -35,7 +35,7 @@ export default function ErrorCard({
               {onRetry && (
                 <button
                   onClick={onRetry}
-                  className="px-3.5 py-1.5 rounded-lg bg-white/[0.08] border border-white/[0.1] text-xs font-medium text-white hover:bg-white/[0.12] transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                  className="px-3.5 py-1.5 rounded-lg bg-white/[0.08] border border-white/[0.1] text-xs font-medium text-white hover:bg-white/[0.12] transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                 >
                   Try again
                 </button>
@@ -43,7 +43,7 @@ export default function ErrorCard({
               {helpLink && (
                 <Link
                   href={helpLink}
-                  className="px-3.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs font-medium text-white/70 hover:text-white hover:bg-white/[0.06] transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                  className="px-3.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs font-medium text-white/70 hover:text-white hover:bg-white/[0.06] transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                 >
                   Get help
                 </Link>
@@ -51,7 +51,7 @@ export default function ErrorCard({
               {backLink && (
                 <Link
                   href={backLink}
-                  className="px-3.5 py-1.5 text-xs text-white/50 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded-lg"
+                  className="px-3.5 py-1.5 text-xs text-white/50 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded-lg"
                 >
                   Go back
                 </Link>

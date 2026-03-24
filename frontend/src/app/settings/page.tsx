@@ -158,8 +158,8 @@ function applyTheme(pref: ThemePreference) {
 function SectionHeader({ icon: Icon, title }: { icon: React.ComponentType<{ className?: string }>; title: string }) {
   return (
     <div className="flex items-center gap-3 mb-6">
-      <div className="p-2 rounded-lg bg-violet-500/10 border border-violet-500/20">
-        <Icon className="w-5 h-5 text-violet-400" />
+      <div className="p-2 rounded-lg bg-white/[0.04] border border-white/10">
+        <Icon className="w-5 h-5 text-white/60" />
       </div>
       <h2 className="text-lg font-medium text-white">{title}</h2>
     </div>
@@ -174,7 +174,7 @@ function SaveButton({ onClick, saving, saved, label = 'Save Changes' }: { onClic
       className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
         saved
           ? 'bg-emerald-500/20 border border-emerald-500/30 text-emerald-300'
-          : 'bg-violet-500/20 border border-violet-500/30 text-violet-300 hover:bg-violet-500/30'
+          : 'bg-white/[0.08] border border-white/15 text-white/70 hover:bg-white/12'
       }`}
     >
       {saving ? 'Saving...' : saved ? 'Saved!' : label}
@@ -193,8 +193,8 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
           onChange(!checked)
           sounds.toggle()
         }}
-        className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
-          checked ? 'bg-violet-500 border-violet-500' : 'bg-white/10 border-white/20'
+        className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
+          checked ? 'bg-white border-white' : 'bg-white/10 border-white/20'
         }`}
       >
         <span
@@ -215,7 +215,7 @@ function RadioGroup({ value, onChange, options }: { value: string; onChange: (v:
           key={opt.value}
           className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-200 ${
             value === opt.value
-              ? 'bg-violet-500/10 border-violet-500/30'
+              ? 'bg-white/[0.04] border-white/15'
               : 'bg-white/[0.02] border-border hover:bg-white/[0.04]'
           }`}
         >
@@ -225,7 +225,7 @@ function RadioGroup({ value, onChange, options }: { value: string; onChange: (v:
             value={opt.value}
             checked={value === opt.value}
             onChange={() => onChange(opt.value)}
-            className="mt-0.5 accent-violet-500"
+            className="mt-0.5 accent-white"
           />
           <div>
             <span className="text-sm font-medium text-white">{opt.label}</span>
@@ -274,8 +274,8 @@ function SubscriberProfileCard({ address }: { address: string }) {
   return (
     <GlassCard variant="accent" hover={false}>
       <div className="flex items-center gap-3 mb-5">
-        <div className="p-2.5 rounded-xl bg-violet-500/15 border border-violet-500/25">
-          <Shield className="w-6 h-6 text-violet-400" />
+        <div className="p-2.5 rounded-xl bg-white/[0.06] border border-white/12">
+          <Shield className="w-6 h-6 text-white/60" />
         </div>
         <div>
           <h2 className="text-lg font-medium text-white">Subscriber Profile</h2>
@@ -801,7 +801,7 @@ export default function SettingsPage() {
                         {subAvatarUrl ? (
                           <img src={subAvatarUrl} alt="Avatar" className="w-16 h-16 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }} />
                         ) : null}
-                        <div className={`w-16 h-16 rounded-full bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center text-lg font-bold text-white/50 ${subAvatarUrl ? 'hidden' : ''}`}>
+                        <div className={`w-16 h-16 rounded-full bg-gradient-to-br from-white/10 to-white/[0.06] flex items-center justify-center text-lg font-bold text-white/50 ${subAvatarUrl ? 'hidden' : ''}`}>
                           {subDisplayName?.[0]?.toUpperCase() || 'S'}
                         </div>
                         <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
@@ -830,13 +830,13 @@ export default function SettingsPage() {
                         onChange={(e) => setSubDisplayName(e.target.value)}
                         placeholder="Shown instead of &quot;Subscriber&quot;"
                         maxLength={30}
-                        className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-500/30 transition-all"
+                        className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/20 transition-all"
                       />
                     </div>
 
-                    <div className="p-3 rounded-lg bg-violet-500/[0.04] border border-violet-500/10">
+                    <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06]">
                       <div className="flex items-start gap-2">
-                        <Shield className="w-3.5 h-3.5 text-violet-400 mt-0.5 shrink-0" />
+                        <Shield className="w-3.5 h-3.5 text-white/60 mt-0.5 shrink-0" />
                         <p className="text-[10px] text-white/50">
                           Your display name is optional and only shown in post comments. Your wallet address is never exposed.
                         </p>
@@ -869,7 +869,7 @@ export default function SettingsPage() {
                     {coverUrl ? (
                       <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-violet-600/20 via-purple-500/15 to-indigo-600/20" />
+                      <div className="w-full h-full bg-gradient-to-br from-white/[0.08] via-white/[0.04] to-white/[0.08]" />
                     )}
                     <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
                       <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-black/60 text-white text-sm">
@@ -895,7 +895,7 @@ export default function SettingsPage() {
                       {imageUrl ? (
                         <img src={imageUrl} alt="Profile" className="w-20 h-20 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }} />
                       ) : null}
-                      <div className={`w-20 h-20 rounded-full bg-gradient-to-br from-violet-500/30 to-purple-600/30 flex items-center justify-center text-2xl font-bold text-white/60 ${imageUrl ? 'hidden' : ''}`}>
+                      <div className={`w-20 h-20 rounded-full bg-gradient-to-br from-white/10 to-white/[0.06] flex items-center justify-center text-2xl font-bold text-white/60 ${imageUrl ? 'hidden' : ''}`}>
                         {displayName?.[0]?.toUpperCase() || '?'}
                       </div>
                       <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
@@ -923,7 +923,7 @@ export default function SettingsPage() {
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="Your display name"
                       maxLength={50}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-500/30 transition-all"
+                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/20 transition-all"
                     />
                   </div>
                   <div>
@@ -937,7 +937,7 @@ export default function SettingsPage() {
                       placeholder="Tell subscribers about yourself"
                       rows={3}
                       maxLength={280}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-500/30 transition-all resize-none"
+                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/20 transition-all resize-none"
                     />
                   </div>
                   <div>
@@ -947,7 +947,7 @@ export default function SettingsPage() {
                         id="settings-category"
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
-                        className="w-full appearance-none px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-500/30 transition-all"
+                        className="w-full appearance-none px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/20 transition-all"
                       >
                         <option value="" className="bg-black text-white/50">Select a category</option>
                         {CATEGORY_OPTIONS.map((cat) => (
@@ -987,7 +987,7 @@ export default function SettingsPage() {
                 <div>
                   <button
                     onClick={() => setPrivacyExplainerOpen(!privacyExplainerOpen)}
-                    className="flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors"
+                    className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white/70 transition-colors"
                   >
                     <Info className="w-3.5 h-3.5" />
                     What&apos;s the difference?
@@ -1147,7 +1147,7 @@ export default function SettingsPage() {
                 {connected && publicKey && (
                   <div className="border-t border-border/50 pt-5 mt-5">
                     <div className="flex items-center gap-2 mb-3">
-                      <Mail className="w-4 h-4 text-violet-400" />
+                      <Mail className="w-4 h-4 text-white/60" />
                       <p className="text-sm font-medium text-white">Email notifications</p>
                     </div>
                     <p className="text-xs text-white/50 mb-3">
@@ -1171,7 +1171,7 @@ export default function SettingsPage() {
                             onChange={(e) => setNotifEmail(e.target.value)}
                             placeholder="you@example.com"
                             maxLength={320}
-                            className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-500/30 transition-all"
+                            className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/20 transition-all"
                           />
                         </div>
                         <div className="flex items-center gap-2">

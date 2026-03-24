@@ -7,11 +7,11 @@ export default function NotFound() {
       {/* Floating orbs — CSS only */}
       <div
         className="absolute top-1/3 left-1/4 w-72 h-72 rounded-full pointer-events-none animate-float opacity-30"
-        style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)' }}
       />
       <div
         className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full pointer-events-none animate-float-delayed opacity-20"
-        style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%)' }}
       />
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full pointer-events-none animate-float-slow opacity-25"
@@ -23,7 +23,7 @@ export default function NotFound() {
         <p
           className="text-[10rem] sm:text-[12rem] font-bold leading-none select-none mb-2"
           style={{
-            background: 'linear-gradient(180deg, rgba(139,92,246,0.25) 0%, rgba(139,92,246,0.03) 100%)',
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             letterSpacing: '-0.04em',
@@ -33,8 +33,8 @@ export default function NotFound() {
         </p>
 
         {/* Shield icon */}
-        <div className="w-12 h-12 mx-auto mb-6 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-          <Shield className="w-6 h-6 text-violet-400" aria-hidden="true" />
+        <div className="w-12 h-12 mx-auto mb-6 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center">
+          <Shield className="w-6 h-6 text-white/60" aria-hidden="true" />
         </div>
 
         <h1
@@ -51,7 +51,7 @@ export default function NotFound() {
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-violet-600 text-white font-medium text-sm hover:bg-violet-500 hover:shadow-[0_0_24px_rgba(139,92,246,0.3)] transition-all active:scale-[0.97] btn-shimmer"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-medium text-sm hover:bg-white/90 hover:shadow-[0_0_24px_rgba(255,255,255,0.15)] transition-all active:scale-[0.97] btn-shimmer"
           >
             Go Home
             <ArrowRight className="w-4 h-4" aria-hidden="true" />

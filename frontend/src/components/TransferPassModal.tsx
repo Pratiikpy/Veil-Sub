@@ -113,7 +113,7 @@ export default function TransferPassModal({
             onClick={handleModalClose}
             disabled={txStatus === 'signing' || txStatus === 'broadcasting'}
             aria-label="Close transfer modal"
-            className={`absolute top-5 right-5 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded ${
+            className={`absolute top-5 right-5 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded ${
               txStatus === 'signing' || txStatus === 'broadcasting'
                 ? 'text-white/30 cursor-not-allowed'
                 : 'text-white/60 hover:text-white'
@@ -124,8 +124,8 @@ export default function TransferPassModal({
 
           {/* Header */}
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-10 h-10 rounded-2xl bg-violet-500/[0.08] border border-violet-500/[0.12] flex items-center justify-center">
-              <ArrowLeftRight className="w-5 h-5 text-violet-400" aria-hidden="true" />
+            <div className="w-10 h-10 rounded-2xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center">
+              <ArrowLeftRight className="w-5 h-5 text-white/60" aria-hidden="true" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-white">Transfer Subscription</h3>
@@ -136,9 +136,9 @@ export default function TransferPassModal({
           {/* Privacy notice */}
           <div className="rounded-xl bg-surface-2 border border-border p-4 mb-6">
             <div className="flex gap-2">
-              <Shield className="w-4 h-4 text-violet-400/60 mt-0.5 shrink-0" aria-hidden="true" />
+              <Shield className="w-4 h-4 text-white/40 mt-0.5 shrink-0" aria-hidden="true" />
               <div>
-                <p className="text-xs text-violet-300/80 font-medium mb-1">Transfer Privacy</p>
+                <p className="text-xs text-white/50 font-medium mb-1">Transfer Privacy</p>
                 <p className="text-xs text-white/60 leading-relaxed">
                   Your subscription pass is transferred securely. The recipient receives a new pass with
                   cryptographic privacy protecting both identities.
@@ -164,7 +164,7 @@ export default function TransferPassModal({
               aria-required="true"
               aria-invalid={recipientAddress && !isValidAddress ? true : undefined}
               aria-describedby={recipientAddress && !isValidAddress ? 'transfer-address-error' : undefined}
-              className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all text-base font-mono"
+              className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all text-base font-mono"
             />
             {recipientAddress && !isValidAddress && (
               <p id="transfer-address-error" className="text-xs text-red-400 mt-2 flex items-center gap-1" role="alert" aria-live="polite">
@@ -209,14 +209,14 @@ export default function TransferPassModal({
             <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4 mb-4" role="status" aria-live="polite">
               <p className="text-sm text-emerald-300 font-medium mb-2">Transfer Complete</p>
               <p className="text-xs text-white/60 leading-relaxed">
-                Your AccessPass has been transferred to <span className="font-mono text-violet-300">{recipientAddress.slice(0, 12)}...{recipientAddress.slice(-6)}</span>.
+                Your AccessPass has been transferred to <span className="font-mono text-white/70">{recipientAddress.slice(0, 12)}...{recipientAddress.slice(-6)}</span>.
                 The recipient now owns this subscription.
               </p>
               <div className="mt-4 pt-3 border-t border-emerald-500/10">
                 <p className="text-xs text-white/50 mb-2">What's next?</p>
                 <Link
                   href="/subscriptions"
-                  className="inline-flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
+                  className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded"
                 >
                   View Your Subscriptions
                   <ExternalLink className="w-3 h-3" aria-hidden="true" />

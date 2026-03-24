@@ -461,7 +461,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
           <div className="flex items-center rounded-lg border border-border overflow-hidden ml-3 shrink-0">
             <button
               onClick={() => onViewModeChange('feed')}
-              className={`p-2 transition-colors ${viewMode === 'feed' ? 'bg-violet-500/15 text-violet-300' : 'text-white/50 hover:text-white/70 hover:bg-white/[0.04]'}`}
+              className={`p-2 transition-colors ${viewMode === 'feed' ? 'bg-white/[0.06] text-white/70' : 'text-white/50 hover:text-white/70 hover:bg-white/[0.04]'}`}
               aria-label="List view"
               title="List view"
             >
@@ -469,7 +469,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
             </button>
             <button
               onClick={() => onViewModeChange('grid')}
-              className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-violet-500/15 text-violet-300' : 'text-white/50 hover:text-white/70 hover:bg-white/[0.04]'}`}
+              className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-white/[0.06] text-white/70' : 'text-white/50 hover:text-white/70 hover:bg-white/[0.04]'}`}
               aria-label="Grid view"
               title="Grid view"
             >
@@ -517,7 +517,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
           <button
             onClick={fetchPosts}
             aria-label="Retry loading posts"
-            className="px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] transition-colors inline-flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-violet-400/50"
+            className="px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] transition-colors inline-flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-white/30"
           >
             <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
             Retry
@@ -832,7 +832,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       {displayBody.length > 500 && (
                         <button
                           onClick={() => setReaderPost(post)}
-                          className="mt-3 flex items-center gap-1.5 text-xs text-violet-400/70 hover:text-violet-300 transition-colors"
+                          className="mt-3 flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"
                         >
                           <FileText className="w-3.5 h-3.5" aria-hidden="true" />
                           Read in focus mode
@@ -841,7 +841,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     </div>
                   ) : isUnlocking ? (
                     <div className="flex items-center gap-2 py-4" role="status" aria-live="polite">
-                      <Loader2 className="w-4 h-4 text-violet-400 animate-spin" aria-hidden="true" />
+                      <Loader2 className="w-4 h-4 text-white/60 animate-spin" aria-hidden="true" />
                       <p className="text-sm text-white/70">Proving your access to unlock content...</p>
                     </div>
                   ) : isFailed && hasAccess ? (
@@ -850,7 +850,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       <button
                         onClick={() => retryUnlock(post)}
                         aria-label="Retry unlocking post content"
-                        className="px-4 py-2 rounded-lg text-xs font-medium bg-white/[0.08] border border-white/[0.1] text-white hover:bg-white/[0.12] active:scale-[0.98] transition-all inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-violet-400/50"
+                        className="px-4 py-2 rounded-lg text-xs font-medium bg-white/[0.08] border border-white/[0.1] text-white hover:bg-white/[0.12] active:scale-[0.98] transition-all inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-white/30"
                       >
                         <RefreshCw className="w-3 h-3" aria-hidden="true" />
                         Try again
@@ -938,7 +938,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                   {isFreePost && unlocked && (
                     <div className="mt-3 pt-2 border-t border-emerald-500/10">
                       <p className="text-xs text-white/40 text-center">
-                        Enjoying this free post? <span className="text-violet-400">Subscribe</span> to unlock exclusive content from this creator.
+                        Enjoying this free post? <span className="text-white/60">Subscribe</span> to unlock exclusive content from this creator.
                       </p>
                     </div>
                   )}
@@ -953,7 +953,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       {unlocked && post.contentId !== 'seed' && (
                         <button
                           onClick={() => setDisputePost({ contentId: post.contentId, title: post.title })}
-                          className="text-xs text-white/60 hover:text-red-400 transition-colors flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded px-1"
+                          className="text-xs text-white/60 hover:text-red-400 transition-colors flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded px-1"
                         >
                           <Flag className="w-3 h-3" aria-hidden="true" />
                           Dispute
@@ -973,7 +973,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
           })}
         </div>
       )}
-      <div className="mt-4 p-4 rounded-lg bg-violet-500/5 border border-violet-500/10">
+      <div className="mt-4 p-4 rounded-lg bg-white/[0.02] border border-white/[0.06]">
         <div className="flex items-center gap-2">
           <Shield className="w-3.5 h-3.5 text-white/70 shrink-0" aria-hidden="true" />
           <p className="text-xs text-white/60">

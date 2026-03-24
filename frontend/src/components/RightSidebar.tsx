@@ -9,7 +9,7 @@ function CreatorCard({ creator }: { creator: (typeof FEATURED_CREATORS)[number] 
     <div className="flex items-center gap-3 py-2">
       <Link
         href={`/creator/${creator.address}`}
-        className="flex items-center justify-center w-8 h-8 rounded-full bg-violet-500/10 border border-violet-500/15 text-violet-400 text-xs font-bold shrink-0 hover:bg-violet-500/20 transition-colors"
+        className="flex items-center justify-center w-8 h-8 rounded-full bg-white/[0.04] border border-white/[0.08] text-white/60 text-xs font-bold shrink-0 hover:bg-white/[0.08] transition-colors"
       >
         {creator.label.charAt(0).toUpperCase()}
       </Link>
@@ -24,7 +24,7 @@ function CreatorCard({ creator }: { creator: (typeof FEATURED_CREATORS)[number] 
       </div>
       <Link
         href={`/creator/${creator.address}`}
-        className="shrink-0 text-[11px] font-semibold text-violet-400 hover:text-violet-300 transition-colors px-2.5 py-1 rounded-lg bg-violet-500/[0.08] hover:bg-violet-500/[0.14] border border-violet-500/[0.12]"
+        className="shrink-0 text-[11px] font-semibold text-white/60 hover:text-white/70 transition-colors px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.14] border border-white/[0.06]"
       >
         View
       </Link>
@@ -51,7 +51,7 @@ export default function RightSidebar() {
         {/* Privacy info card */}
         <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] mb-6">
           <div className="flex items-center gap-2 mb-2">
-            <Shield size={14} className="text-violet-400/70" aria-hidden="true" />
+            <Shield size={14} className="text-white/40" aria-hidden="true" />
             <span className="text-[11px] font-semibold text-white/60">Privacy by Default</span>
           </div>
           <p className="text-[11px] text-white/35 leading-relaxed">

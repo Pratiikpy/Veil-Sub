@@ -660,7 +660,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
   }
 
   const getTagColor = (tag: string): string => {
-    return TAG_COLORS[tag] || 'text-violet-300 bg-violet-500/10 border-violet-500/20'
+    return TAG_COLORS[tag] || 'text-white/70 bg-white/[0.04] border-white/10'
   }
 
   // Build tier options from actual on-chain tiers (Free first, then paid tiers)
@@ -700,7 +700,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
             onClick={() => setPostMode('post')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all ${
               postMode === 'post'
-                ? 'bg-violet-500/15 border border-violet-500/30 text-violet-300'
+                ? 'bg-white/[0.06] border border-white/15 text-white/70'
                 : 'text-white/50 hover:text-white/70'
             }`}
           >
@@ -805,7 +805,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                 placeholder="Exclusive content title..."
                 required
                 aria-required="true"
-                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base"
+                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all text-base"
               />
             </div>
             <div>
@@ -831,7 +831,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                 placeholder="A short teaser to attract subscribers..."
                 rows={2}
                 maxLength={300}
-                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-base resize-none"
+                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all text-base resize-none"
               />
               <p className="text-[10px] text-white/60 mt-0.5">{preview.length}/300</p>
             </div>
@@ -860,9 +860,9 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                   tabIndex={0}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click() }}
                   aria-label="Upload image: click or drag and drop"
-                  className={`w-full py-6 px-4 rounded-xl border-2 border-dashed cursor-pointer transition-all text-center focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+                  className={`w-full py-6 px-4 rounded-xl border-2 border-dashed cursor-pointer transition-all text-center focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                     isDragging
-                      ? 'border-violet-500 bg-violet-500/10'
+                      ? 'border-white/30 bg-white/[0.04]'
                       : 'border-border bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]'
                   }`}
                 >
@@ -876,7 +876,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
 
               {imageUploading && (
                 <div className="w-full py-6 rounded-xl border border-border bg-white/[0.02] flex items-center justify-center gap-2">
-                  <Loader2 className="w-5 h-5 text-violet-400 animate-spin" aria-hidden="true" />
+                  <Loader2 className="w-5 h-5 text-white/60 animate-spin" aria-hidden="true" />
                   <span className="text-sm text-white/60">Uploading image...</span>
                 </div>
               )}
@@ -895,7 +895,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                   <button
                     type="button"
                     onClick={() => { setImageUrl(''); setImageError(false) }}
-                    className="absolute top-3 right-2 p-1.5 rounded-lg bg-black/60 text-white/80 hover:text-white hover:bg-black/80 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400/50"
+                    className="absolute top-3 right-2 p-1.5 rounded-lg bg-black/60 text-white/80 hover:text-white hover:bg-black/80 transition-colors focus-visible:ring-2 focus-visible:ring-white/30"
                     aria-label="Remove image"
                   >
                     <X className="w-4 h-4" aria-hidden="true" />
@@ -931,8 +931,8 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                       maxLength={2048}
                       aria-invalid={!!imageUrlError}
                       aria-describedby={imageUrlError ? 'image-url-error' : undefined}
-                      className={`w-full pl-9 pr-4 py-2 rounded-xl bg-white/[0.05] border text-white placeholder-subtle focus:outline-none focus:ring-2 focus:ring-violet-400/50 transition-all text-xs ${
-                        imageUrlError ? 'border-red-500/50 focus:border-red-500' : 'border-border focus:border-violet-500'
+                      className={`w-full pl-9 pr-4 py-2 rounded-xl bg-white/[0.05] border text-white placeholder-subtle focus:outline-none focus:ring-2 focus:ring-white/30 transition-all text-xs ${
+                        imageUrlError ? 'border-red-500/50 focus:border-red-500' : 'border-border focus:border-white/30'
                       }`}
                     />
                   </div>
@@ -968,8 +968,8 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                     maxLength={2048}
                     aria-invalid={!!videoUrlError}
                     aria-describedby={videoUrlError ? 'video-url-error' : undefined}
-                    className={`w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.05] border text-white placeholder-subtle focus:outline-none focus:ring-2 focus:ring-violet-400/50 transition-all text-sm ${
-                      videoUrlError ? 'border-red-500/50 focus:border-red-500' : 'border-border focus:border-violet-500'
+                    className={`w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.05] border text-white placeholder-subtle focus:outline-none focus:ring-2 focus:ring-white/30 transition-all text-sm ${
+                      videoUrlError ? 'border-red-500/50 focus:border-red-500' : 'border-border focus:border-white/30'
                     }`}
                   />
                 </div>
@@ -977,7 +977,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                   <button
                     type="button"
                     onClick={() => { setVideoUrl(''); setVideoUrlError(null) }}
-                    className="px-2.5 rounded-xl bg-white/[0.05] border border-border text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors focus-visible:ring-2 focus-visible:ring-violet-400/50 focus-visible:ring-offset-0"
+                    className="px-2.5 rounded-xl bg-white/[0.05] border border-border text-white/60 hover:text-white hover:bg-white/[0.08] transition-colors focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-0"
                     aria-label="Clear video"
                   >
                     <X className="w-4 h-4" aria-hidden="true" />
@@ -1003,11 +1003,11 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                     onClick={() => setMinTier(id)}
                     aria-label={`Set minimum tier to ${name}${description ? ` — ${description}` : ''}`}
                     aria-pressed={minTier === id}
-                    className={`py-2.5 px-4 rounded-lg text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50 focus-visible:ring-offset-0 ${
+                    className={`py-2.5 px-4 rounded-lg text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-0 ${
                       minTier === id
                         ? id === 0
                           ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 shadow-accent-sm'
-                          : 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
+                          : 'bg-white/[0.08] border border-white/20 text-white/70 shadow-accent-sm'
                         : 'bg-white/[0.05] border border-border text-white/70 hover:bg-white/[0.08] hover:border-white/15'
                     }`}
                   >
@@ -1111,7 +1111,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                   placeholder={tags.length >= API_LIMITS.MAX_TAGS_PER_POST ? 'Max tags reached' : 'Add a tag and press Enter...'}
                   disabled={tags.length >= API_LIMITS.MAX_TAGS_PER_POST}
                   maxLength={50}
-                  className="w-full px-4 py-2 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm disabled:opacity-50"
+                  className="w-full px-4 py-2 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all text-sm disabled:opacity-50"
                 />
                 {showTagSuggestions && filteredSuggestions.length > 0 && tags.length < API_LIMITS.MAX_TAGS_PER_POST && (
                   <div className="absolute z-10 top-full mt-1 w-full rounded-xl bg-[#1a1a2e] border border-border shadow-lg overflow-hidden">
@@ -1143,13 +1143,13 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                   value={scheduleDate}
                   onChange={(e) => setScheduleDate(e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
-                  className="flex-1 px-3 py-2 rounded-xl bg-white/[0.05] border border-border text-white focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm [color-scheme:dark]"
+                  className="flex-1 px-3 py-2 rounded-xl bg-white/[0.05] border border-border text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all text-sm [color-scheme:dark]"
                 />
                 <input
                   type="time"
                   value={scheduleTime}
                   onChange={(e) => setScheduleTime(e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-xl bg-white/[0.05] border border-border text-white focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm [color-scheme:dark]"
+                  className="flex-1 px-3 py-2 rounded-xl bg-white/[0.05] border border-border text-white focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all text-sm [color-scheme:dark]"
                 />
                 {(scheduleDate || scheduleTime) && (
                   <button
@@ -1227,7 +1227,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
               <div className="flex flex-col sm:flex-row gap-2 justify-center">
                 <Link
                   href={`/creator/${creatorAddress}#posts`}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-2 rounded-lg bg-violet-500/10 border border-violet-500/30 text-sm text-violet-300 hover:bg-violet-500/20 active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-2 rounded-lg bg-white/[0.04] border border-white/15 text-sm text-white/70 hover:bg-white/10 active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-white/30"
                 >
                   <ExternalLink className="w-4 h-4" aria-hidden="true" />
                   View Your Page
@@ -1235,7 +1235,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                 <button
                   onClick={handleReset}
                   aria-label="Create another post"
-                  className="px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-violet-400/50"
+                  className="px-6 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] active:scale-[0.98] transition-all focus-visible:ring-2 focus-visible:ring-white/30"
                 >
                   Create Another Post
                 </button>

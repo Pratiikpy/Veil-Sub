@@ -17,7 +17,7 @@ const TOKEN_LABELS: Record<Token, string> = {
 }
 
 const TOKEN_COLORS: Record<Token, string> = {
-  credits: 'text-violet-400',
+  credits: 'text-white/60',
   usdcx: 'text-blue-400',
   usad: 'text-emerald-400',
 }

@@ -239,7 +239,7 @@ function ActivePasses({
   const tierColorMap: Record<number, string> = {
     1: 'text-green-300 bg-green-500/10 border-green-500/20',
     2: 'text-blue-300 bg-blue-500/10 border-blue-500/20',
-    3: 'text-violet-300 bg-violet-500/10 border-violet-500/20',
+    3: 'text-white/70 bg-white/[0.04] border-white/10',
     4: 'text-amber-300 bg-amber-500/10 border-amber-500/20',
     5: 'text-pink-300 bg-pink-500/10 border-pink-500/20',
   }
@@ -295,7 +295,7 @@ function ActivePasses({
                             <button
                               onClick={() => onRenew(pass)}
                               title="Renew subscription"
-                              className="px-2 py-1 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/20 transition-all flex items-center gap-1"
+                              className="px-2 py-1 rounded-lg bg-white/[0.04] border border-white/10 text-xs text-white/70 hover:bg-white/10 transition-all flex items-center gap-1"
                             >
                               <RefreshCw className="w-3 h-3" aria-hidden="true" />
                               Renew
@@ -332,7 +332,7 @@ function ActivePasses({
                           onClick={() => onAuditToken(pass)}
                           title="Create audit token"
                           aria-label="Create audit token"
-                          className="px-2 py-1 rounded-lg bg-violet-500/[0.06] border border-violet-500/15 text-xs text-violet-300 hover:bg-violet-500/10 transition-all flex items-center gap-1"
+                          className="px-2 py-1 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs text-white/70 hover:bg-white/[0.06] transition-all flex items-center gap-1"
                         >
                           <FileKey className="w-3 h-3" aria-hidden="true" />
                         </button>
@@ -378,13 +378,13 @@ function TierCard({
       transition={{ delay: index * 0.08 }}
       className={`relative flex flex-col p-6 rounded-xl border transition-all duration-300 hover:-translate-y-0.5 ${
         isMostPopular
-          ? 'bg-surface-1 border-violet-500/[0.2] hover:border-violet-500/[0.3] shadow-[0_0_30px_rgba(139,92,246,0.08)]'
+          ? 'bg-surface-1 border-white/10 hover:border-white/15 shadow-[0_0_30px_rgba(255,255,255,0.04)]'
           : 'bg-surface-1 border-border hover:border-glass-hover'
       }`}
     >
       {isMostPopular && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-violet-500/[0.1] border border-violet-500/[0.2]">
-          <span className="text-[10px] font-semibold text-violet-300 uppercase tracking-wider">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10">
+          <span className="text-[10px] font-semibold text-white/70 uppercase tracking-wider">
             Most Popular
           </span>
         </div>
@@ -410,7 +410,7 @@ function TierCard({
       <ul className="space-y-2 mb-6 flex-1">
         {(tier.features?.length ? tier.features : ['Access to exclusive content']).map((f) => (
           <li key={f} className="flex items-start gap-2 text-xs text-white/70">
-            <Check className="w-3.5 h-3.5 text-violet-400 mt-0.5 shrink-0" />
+            <Check className="w-3.5 h-3.5 text-white/60 mt-0.5 shrink-0" />
             {f}
           </li>
         ))}
@@ -487,7 +487,7 @@ function AboutTab({
         </div>
       </div>
       <p className="text-[11px] text-white/40 mt-2 flex items-center gap-1">
-        <Shield className="w-3 h-3 text-violet-400/60" />
+        <Shield className="w-3 h-3 text-white/40" />
         Counts shown as threshold badges to protect creator privacy. Exact figures are never displayed.
       </p>
 
@@ -514,7 +514,7 @@ function AboutTab({
       {/* On-chain info (expandable) */}
       <details className="group rounded-xl bg-surface-1 border border-border overflow-hidden">
         <summary className="flex items-center gap-3 px-4 py-3 cursor-pointer text-sm text-white/60 hover:text-white/70 transition-colors">
-          <Shield className="w-4 h-4 text-violet-400" />
+          <Shield className="w-4 h-4 text-white/60" />
           <span className="flex-1 font-medium">On-chain Information</span>
           <ChevronDown className="w-4 h-4 transition-transform duration-200 group-open:rotate-180" />
         </summary>
@@ -531,7 +531,7 @@ function AboutTab({
             href={`https://testnet.explorer.provable.com/address/${address}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-violet-400/70 hover:text-violet-300 transition-colors"
+            className="inline-flex items-center gap-1 text-white/50 hover:text-white/70 transition-colors"
           >
             View on AleoScan
             <ExternalLink className="w-3 h-3" />
@@ -542,15 +542,15 @@ function AboutTab({
       {/* Privacy notice */}
       <div className="p-4 rounded-xl bg-surface-1 border border-border">
         <div className="flex items-start gap-3">
-          <Shield className="w-5 h-5 text-violet-400 mt-0.5 shrink-0" />
+          <Shield className="w-5 h-5 text-white/60 mt-0.5 shrink-0" />
           <div className="text-xs text-white/60 space-y-1">
             <p>
-              <strong className="text-violet-300">Privacy guarantee:</strong>{' '}
+              <strong className="text-white/70">Privacy guarantee:</strong>{' '}
               Your subscription creates a private pass visible only to you. The creator receives payment privately
               and sees only aggregate stats. Your identity is never linked on the blockchain.
             </p>
             <p className="pt-1">
-              <Link href="/privacy" className="text-violet-400/70 hover:text-violet-300 transition-colors inline-flex items-center gap-1">
+              <Link href="/privacy" className="text-white/50 hover:text-white/70 transition-colors inline-flex items-center gap-1">
                 See how your privacy is protected
                 <ArrowRight className="w-3 h-3" />
               </Link>
@@ -805,7 +805,7 @@ export default function CreatorPage({
       return (
         <button
           onClick={() => setRenewPass(userPasses[0])}
-          className="px-5 py-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-300 font-medium text-sm hover:bg-violet-500/20 transition-all duration-300 flex items-center gap-2 active:scale-[0.98]"
+          className="px-5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white/70 font-medium text-sm hover:bg-white/10 transition-all duration-300 flex items-center gap-2 active:scale-[0.98]"
         >
           <RefreshCw className="w-4 h-4" />
           Renew
@@ -926,7 +926,7 @@ export default function CreatorPage({
                     {creatorLabel}
                   </h1>
                   {creatorCategory && (
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-violet-500/10 border border-violet-500/20 text-violet-300">
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/[0.04] border border-white/10 text-white/70">
                       {creatorCategory}
                     </span>
                   )}

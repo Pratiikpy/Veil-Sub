@@ -63,20 +63,20 @@ export default function CreatorPoll({ pollId, question, options, isSubscribed }:
                 !isSubscribed
                   ? 'border-white/[0.06] text-white/30 cursor-not-allowed'
                   : hasVoted
-                    ? `border-white/[0.08] ${isMyChoice ? 'border-violet-500/30' : ''}`
-                    : 'border-white/[0.08] hover:border-violet-500/20 hover:bg-white/[0.04] cursor-pointer'
+                    ? `border-white/[0.08] ${isMyChoice ? 'border-white/15' : ''}`
+                    : 'border-white/[0.08] hover:border-white/10 hover:bg-white/[0.04] cursor-pointer'
               }`}
             >
               {hasVoted && (
                 <div
                   className={`absolute inset-y-0 left-0 rounded-lg transition-all duration-500 ease-out ${
-                    isWinner ? 'bg-violet-500/15' : 'bg-white/[0.04]'
+                    isWinner ? 'bg-white/[0.06]' : 'bg-white/[0.04]'
                   }`}
                   style={{ width: `${pct}%` }}
                 />
               )}
               <span className="relative flex items-center justify-between">
-                <span className={isWinner ? 'text-violet-300 font-medium' : 'text-white/70'}>{opt.text}</span>
+                <span className={isWinner ? 'text-white/70 font-medium' : 'text-white/70'}>{opt.text}</span>
                 {hasVoted && <span className="text-xs text-white/50 ml-2">{pct}%</span>}
               </span>
             </button>

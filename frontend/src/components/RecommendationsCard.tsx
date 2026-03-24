@@ -46,7 +46,7 @@ export default function RecommendationsCard({
       className={`rounded-xl border border-border ${compact ? 'p-4' : 'p-5'} bg-surface-2`}
     >
       <div className="flex items-center gap-2 mb-3">
-        <Users className="w-4 h-4 text-violet-400" aria-hidden="true" />
+        <Users className="w-4 h-4 text-white/60" aria-hidden="true" />
         <p className={`font-medium text-white ${compact ? 'text-xs' : 'text-sm'}`}>
           Discover more creators
         </p>
@@ -66,7 +66,7 @@ export default function RecommendationsCard({
             >
               <AddressAvatar address={creator.address} size={36} />
               <div className="flex-1 min-w-0">
-                <p className={`font-medium text-white group-hover:text-violet-300 transition-colors truncate ${compact ? 'text-xs' : 'text-sm'}`}>
+                <p className={`font-medium text-white group-hover:text-white/70 transition-colors truncate ${compact ? 'text-xs' : 'text-sm'}`}>
                   {creator.label}
                 </p>
                 {creator.bio && (
@@ -75,7 +75,7 @@ export default function RecommendationsCard({
                   </p>
                 )}
               </div>
-              <ArrowRight className="w-3.5 h-3.5 text-white/30 group-hover:text-violet-400 transition-colors shrink-0" aria-hidden="true" />
+              <ArrowRight className="w-3.5 h-3.5 text-white/30 group-hover:text-white/60 transition-colors shrink-0" aria-hidden="true" />
             </Link>
           </m.div>
         ))}
@@ -84,7 +84,7 @@ export default function RecommendationsCard({
       {FEATURED_CREATORS.filter((c) => c.address !== creatorAddress).length > maxItems && (
         <Link
           href="/explore"
-          className="mt-3 flex items-center justify-center gap-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors"
+          className="mt-3 flex items-center justify-center gap-1.5 text-xs text-white/60 hover:text-white/70 transition-colors"
         >
           Explore all creators
           <ArrowRight className="w-3 h-3" aria-hidden="true" />

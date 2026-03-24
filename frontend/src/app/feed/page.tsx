@@ -206,15 +206,15 @@ function FeedPostCard({
       <div className="p-6">
         {/* Creator attribution */}
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 rounded-full bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0">
-            <span className="text-sm font-medium text-violet-300">
+          <div className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center shrink-0">
+            <span className="text-sm font-medium text-white/70">
               {post.creatorLabel.charAt(0).toUpperCase()}
             </span>
           </div>
           <div className="flex-1 min-w-0">
             <Link
               href={`/creator/${post.creatorAddress}`}
-              className="text-sm font-medium text-white hover:text-violet-300 transition-colors truncate block"
+              className="text-sm font-medium text-white hover:text-white/70 transition-colors truncate block"
             >
               {post.creatorLabel}
             </Link>
@@ -305,7 +305,7 @@ function FeedPostCard({
             {post.body.length > 500 && (
               <button
                 onClick={() => setShowReader(true)}
-                className="mt-3 flex items-center gap-1.5 text-xs text-violet-400/70 hover:text-violet-300 transition-colors"
+                className="mt-3 flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"
               >
                 <FileText className="w-3.5 h-3.5" aria-hidden="true" />
                 Read in focus mode
@@ -841,7 +841,7 @@ export default function FeedPage() {
                   {storiesCreators.map(creator => (
                     <Link href={`/creator/${creator.address}`} key={creator.address}>
                       <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 p-[2px]">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-white/30 to-white/10 p-[2px]">
                           {creator.imageUrl ? (
                             <img
                               src={creator.imageUrl}
@@ -876,7 +876,7 @@ export default function FeedPage() {
                   value={feedSearchQuery}
                   onChange={(e) => setFeedSearchQuery(e.target.value)}
                   placeholder="Search your feed..."
-                  className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white placeholder-white/50 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all text-sm"
+                  className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white placeholder-white/50 focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all text-sm"
                 />
                 {feedSearchQuery && (
                   <button
@@ -897,7 +897,7 @@ export default function FeedPage() {
                     onClick={() => { setSelectedCreator(null); setShowSaved(false) }}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                       selectedCreator === null && !showSaved
-                        ? 'bg-violet-500/15 border-violet-500/30 text-violet-300'
+                        ? 'bg-white/[0.06] border-white/15 text-white/70'
                         : 'bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white/70 hover:bg-white/[0.06]'
                     }`}
                   >
@@ -920,7 +920,7 @@ export default function FeedPage() {
                       onClick={() => setSelectedCreator(selectedCreator === address ? null : address)}
                       className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all truncate max-w-[160px] ${
                         selectedCreator === address
-                          ? 'bg-violet-500/15 border-violet-500/30 text-violet-300'
+                          ? 'bg-white/[0.06] border-white/15 text-white/70'
                           : 'bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white/70 hover:bg-white/[0.06]'
                       }`}
                       title={label}
@@ -945,7 +945,7 @@ export default function FeedPage() {
                       <button
                         onClick={() => { setSortOrder('newest'); setShowSortMenu(false) }}
                         className={`block w-full text-left px-4 py-2.5 text-xs transition-colors ${
-                          sortOrder === 'newest' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:bg-white/[0.04]'
+                          sortOrder === 'newest' ? 'text-white/70 bg-white/[0.04]' : 'text-white/60 hover:bg-white/[0.04]'
                         }`}
                       >
                         Newest first
@@ -953,7 +953,7 @@ export default function FeedPage() {
                       <button
                         onClick={() => { setSortOrder('oldest'); setShowSortMenu(false) }}
                         className={`block w-full text-left px-4 py-2.5 text-xs transition-colors ${
-                          sortOrder === 'oldest' ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:bg-white/[0.04]'
+                          sortOrder === 'oldest' ? 'text-white/70 bg-white/[0.04]' : 'text-white/60 hover:bg-white/[0.04]'
                         }`}
                       >
                         Oldest first
@@ -1014,7 +1014,7 @@ export default function FeedPage() {
               )}
 
               {/* Privacy notice */}
-              <div className="mt-8 p-4 rounded-xl bg-violet-500/5 border border-violet-500/10">
+              <div className="mt-8 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
                 <div className="flex items-start gap-2">
                   <Lock className="w-3.5 h-3.5 text-white/50 shrink-0 mt-0.5" aria-hidden="true" />
                   <p className="text-xs text-white/40 leading-relaxed">

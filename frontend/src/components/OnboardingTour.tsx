@@ -114,7 +114,7 @@ export default function OnboardingTour() {
             key={step}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="absolute rounded-xl border-2 border-violet-400/50 pointer-events-none"
+            className="absolute rounded-xl border-2 border-white/20 pointer-events-none"
             style={{ left: rect.left - pad, top: rect.top - pad, width: rect.width + pad * 2, height: rect.height + pad * 2 }}
           />
         )}
@@ -127,12 +127,12 @@ export default function OnboardingTour() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             style={tooltipStyle}
-            className="w-[320px] p-5 rounded-2xl bg-[#121215] border border-violet-500/25 shadow-[0_8px_40px_-8px_rgba(139,92,246,0.25)]"
+            className="w-[320px] p-5 rounded-2xl bg-[#121215] border border-white/12 shadow-[0_8px_40px_-8px_rgba(255,255,255,0.12)]"
           >
             {isFinal && (
               <div className="flex justify-center mb-3 relative">
-                <div className="w-12 h-12 rounded-full bg-violet-500/20 flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-violet-400" />
+                <div className="w-12 h-12 rounded-full bg-white/[0.08] flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-white/60" />
                 </div>
                 <CelebrationBurst />
               </div>
@@ -145,19 +145,19 @@ export default function OnboardingTour() {
                 {STEPS.map((_, i) => (
                   <div
                     key={i}
-                    className={`w-1.5 h-1.5 rounded-full transition-colors ${i === step ? 'bg-violet-400' : i < step ? 'bg-violet-400/40' : 'bg-white/15'}`}
+                    className={`w-1.5 h-1.5 rounded-full transition-colors ${i === step ? 'bg-white/70' : i < step ? 'bg-white/30' : 'bg-white/15'}`}
                   />
                 ))}
               </div>
               <div className="flex items-center gap-3">
                 {!isFinal && (
-                  <button onClick={finish} className="text-[11px] text-white/40 hover:text-white/60 transition-colors rounded focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none px-1">
+                  <button onClick={finish} className="text-[11px] text-white/40 hover:text-white/60 transition-colors rounded focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none px-1">
                     Skip tour
                   </button>
                 )}
                 <button
                   onClick={isFinal ? finish : next}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-violet-500/20 border border-violet-500/30 text-xs font-medium text-violet-200 hover:bg-violet-500/30 transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white/[0.08] border border-white/15 text-xs font-medium text-white/80 hover:bg-white/30 transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                 >
                   {isFinal ? 'Get Started' : 'Next'}
                   {!isFinal && <ArrowRight className="w-3 h-3" aria-hidden="true" />}
@@ -172,7 +172,7 @@ export default function OnboardingTour() {
           <button
             onClick={finish}
             aria-label="Close tour"
-            className="absolute top-4 right-4 p-2 rounded-lg bg-white/[0.06] border border-border text-white/50 hover:text-white hover:bg-white/[0.1] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+            className="absolute top-4 right-4 p-2 rounded-lg bg-white/[0.06] border border-border text-white/50 hover:text-white hover:bg-white/[0.1] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
           >
             <X className="w-4 h-4" aria-hidden="true" />
           </button>

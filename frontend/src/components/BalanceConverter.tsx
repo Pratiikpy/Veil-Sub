@@ -89,7 +89,7 @@ export default function BalanceConverter({
           <button
             onClick={handleConvert}
             aria-label={`Convert ${(convertAmount / 1_000_000).toFixed(2)} ALEO credits from public to private`}
-            className="w-full py-2.5 rounded-xl bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 btn-shimmer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+            className="w-full py-2.5 rounded-xl bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 btn-shimmer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
           >
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
             Convert {(convertAmount / 1_000_000).toFixed(2)} ALEO to Private
@@ -102,13 +102,13 @@ export default function BalanceConverter({
           </p>
         </div>
       ) : status === 'converting' ? (
-        <div className="flex items-center gap-4 p-4 rounded-xl bg-violet-500/10 border border-violet-500/20 animate-pulse">
-          <Loader2 className="w-4 h-4 text-violet-400 animate-spin" aria-hidden="true" />
+        <div className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.04] border border-white/10 animate-pulse">
+          <Loader2 className="w-4 h-4 text-white/60 animate-spin" aria-hidden="true" />
           <span className="text-sm text-white/70">Approve conversion in wallet...</span>
         </div>
       ) : status === 'waiting' ? (
-        <div className="flex items-center gap-4 p-4 rounded-xl bg-violet-500/10 border border-violet-500/20 animate-pulse">
-          <Loader2 className="w-4 h-4 text-violet-400 animate-spin" aria-hidden="true" />
+        <div className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.04] border border-white/10 animate-pulse">
+          <Loader2 className="w-4 h-4 text-white/60 animate-spin" aria-hidden="true" />
           <div>
             <p className="text-sm text-white/70">Converting public → private...</p>
             <p className="text-[11px] text-white/60 mt-1">This takes ~30-60 seconds. Will auto-continue.</p>
@@ -129,7 +129,7 @@ export default function BalanceConverter({
         href="https://faucet.aleo.org"
         target="_blank"
         rel="noopener noreferrer"
-        className="block p-4 rounded-lg bg-surface-1 border border-border hover:bg-white/[0.05] transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+        className="block p-4 rounded-lg bg-surface-1 border border-border hover:bg-white/[0.05] transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
       >
         <div className="flex items-center justify-between mb-1">
           <span className="text-sm text-white font-medium">
@@ -142,7 +142,7 @@ export default function BalanceConverter({
         </p>
       </a>
 
-      <div className="p-2.5 rounded-lg bg-violet-500/5 border border-violet-500/10">
+      <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06]">
         <p className="text-xs text-white/70">
           <strong className="text-white/70">Why private credits?</strong>{' '}
           VeilSub uses transfer_private to keep your subscription anonymous.

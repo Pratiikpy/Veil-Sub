@@ -13,13 +13,13 @@ const TIERS = [
 const PERSPECTIVE_STYLE = { perspective: 1200, transformStyle: 'preserve-3d' as const }
 
 const AMBIENT_GLOW_STYLE = {
-  background: 'radial-gradient(ellipse at 50% 60%, rgba(139,92,246,0.18) 0%, transparent 60%)',
+  background: 'radial-gradient(ellipse at 50% 60%, rgba(255,255,255,0.08) 0%, transparent 60%)',
 } as const
 
 const CARD_STYLE = {
   background: 'linear-gradient(180deg, rgba(10,10,10,0.7) 0%, rgba(10,10,10,0.6) 100%)',
   backdropFilter: 'blur(24px)',
-  boxShadow: '0 25px 60px rgba(0,0,0,0.5), 0 0 50px rgba(139,92,246,0.12), inset 0 1px 1px rgba(255,255,255,0.06)',
+  boxShadow: '0 25px 60px rgba(0,0,0,0.5), 0 0 50px rgba(255,255,255,0.06), inset 0 1px 1px rgba(255,255,255,0.06)',
 } as const
 
 const BOTTOM_FADE_STYLE = {
@@ -82,7 +82,7 @@ export default function HeroMockup() {
           icon={Lock}
           label="ZK Proof"
           sub="identity never in finalize"
-          colorClass="bg-violet-500/[0.08] border-violet-500/[0.2] text-violet-300"
+          colorClass="bg-white/[0.04] border-white/10 text-white/70"
           animDelay="0s"
         />
       </m.div>
@@ -182,8 +182,8 @@ export default function HeroMockup() {
             transition={{ duration: 0.5, delay: 1.2 }}
             className="flex items-center gap-4 mb-6"
           >
-            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500/25 to-violet-600/10 border border-violet-500/20 flex items-center justify-center shrink-0">
-              <span className="text-sm font-semibold text-violet-300">A</span>
+            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-white/10/25 to-white/[0.03] border border-white/10 flex items-center justify-center shrink-0">
+              <span className="text-sm font-semibold text-white/70">A</span>
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
@@ -214,20 +214,20 @@ export default function HeroMockup() {
                 transition={{ duration: 0.4, delay: 1.4 + i * 0.08 }}
                 className={`relative p-4 rounded-xl border text-center transition-all ${
                   tier.selected
-                    ? 'bg-violet-500/[0.08] border-violet-500/30 shadow-[0_0_20px_rgba(139,92,246,0.08)]'
+                    ? 'bg-white/[0.04] border-white/15 shadow-[0_0_20px_rgba(255,255,255,0.04)]'
                     : 'bg-white/[0.02] border-white/[0.06]'
                 }`}
               >
                 {tier.selected && (
-                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-violet-500/20 border border-violet-500/30">
-                    <span className="text-[7px] font-medium text-violet-300 uppercase tracking-wider">Popular</span>
+                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-white/[0.08] border border-white/15">
+                    <span className="text-[7px] font-medium text-white/70 uppercase tracking-wider">Popular</span>
                   </div>
                 )}
                 <p className={`text-[10px] text-white/70 mb-1 uppercase tracking-wider ${tier.selected ? 'mt-3' : 'mt-1'}`}>{tier.name}</p>
-                <p className={`text-2xl sm:text-3xl font-bold leading-none ${tier.selected ? 'text-violet-200' : 'text-white'}`}>{tier.price}</p>
+                <p className={`text-2xl sm:text-3xl font-bold leading-none ${tier.selected ? 'text-white/80' : 'text-white'}`}>{tier.price}</p>
                 <p className="text-[10px] text-white/60 mt-1 font-medium">ALEO/mo</p>
                 {tier.selected && (
-                  <Check className="w-3.5 h-3.5 text-violet-400 mx-auto mt-2" aria-hidden="true" />
+                  <Check className="w-3.5 h-3.5 text-white/60 mx-auto mt-2" aria-hidden="true" />
                 )}
               </m.div>
             ))}
@@ -239,7 +239,7 @@ export default function HeroMockup() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 1.7 }}
           >
-            <div className="w-full py-4 rounded-xl bg-violet-500 hover:bg-violet-400 text-white text-sm font-semibold text-center transition-colors cursor-pointer">
+            <div className="w-full py-4 rounded-xl bg-white hover:bg-white/80 text-white text-sm font-semibold text-center transition-colors cursor-pointer">
               Subscribe Privately
             </div>
           </m.div>
@@ -251,7 +251,7 @@ export default function HeroMockup() {
             transition={{ duration: 0.4, delay: 1.9 }}
             className="flex items-center justify-center gap-2 mt-4"
           >
-            <Shield className="w-3 h-3 text-violet-400/70" aria-hidden="true" />
+            <Shield className="w-3 h-3 text-white/40" aria-hidden="true" />
             <span className="text-xs text-white/70">Your identity stays completely hidden</span>
           </m.div>
         </div>

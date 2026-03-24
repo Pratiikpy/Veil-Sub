@@ -18,7 +18,7 @@ const CARD_BG = {
 } as const
 
 const PATTERN_STYLE = {
-  backgroundImage: 'radial-gradient(rgba(139,92,246,0.03) 1px, transparent 1px)',
+  backgroundImage: 'radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px)',
   backgroundSize: '16px 16px',
 } as const
 
@@ -65,23 +65,23 @@ export default function VerificationReceipt({
       {/* Receipt card */}
       <div
         ref={cardRef}
-        className="relative w-full max-w-[400px] mx-auto rounded-2xl overflow-hidden border border-violet-500/20 shadow-[0_8px_40px_-8px_rgba(139,92,246,0.2)]"
+        className="relative w-full max-w-[400px] mx-auto rounded-2xl overflow-hidden border border-white/10 shadow-[0_8px_40px_-8px_rgba(255,255,255,0.1)]"
         style={CARD_BG}
       >
         {/* Dot pattern overlay */}
         <div className="absolute inset-0 pointer-events-none" style={PATTERN_STYLE} />
 
         {/* Top glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-violet-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-white/[0.04] blur-3xl pointer-events-none" />
 
         <div className="relative p-6" style={{ minHeight: 220 }}>
           {/* Header: Verified badge */}
           <div className="flex items-center gap-2 mb-5">
-            <div className="w-8 h-8 rounded-lg bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
-              <Shield className="w-4 h-4 text-violet-400" />
+            <div className="w-8 h-8 rounded-lg bg-white/[0.08] border border-white/15 flex items-center justify-center">
+              <Shield className="w-4 h-4 text-white/60" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-violet-300 tracking-wide uppercase">Verified Subscriber</p>
+              <p className="text-xs font-semibold text-white/70 tracking-wide uppercase">Verified Subscriber</p>
               <p className="text-[10px] text-white/30">Zero-knowledge proof</p>
             </div>
           </div>
@@ -91,7 +91,7 @@ export default function VerificationReceipt({
             <p className="text-lg font-semibold text-white mb-1.5" style={{ letterSpacing: '-0.02em' }}>
               {creatorName}
             </p>
-            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-violet-500/15 border border-violet-500/25 text-[11px] font-medium text-violet-300">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-white/[0.06] border border-white/12 text-[11px] font-medium text-white/70">
               {tier}
             </span>
           </div>
@@ -119,7 +119,7 @@ export default function VerificationReceipt({
         <button
           onClick={handleCopy}
           aria-label={copied ? 'Copied to clipboard' : 'Copy receipt to clipboard'}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/70 hover:text-white hover:bg-white/[0.08] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/70 hover:text-white hover:bg-white/[0.08] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
         >
           {copied ? <Check className="w-3.5 h-3.5 text-green-400" aria-hidden="true" /> : <Copy className="w-3.5 h-3.5" aria-hidden="true" />}
           {copied ? 'Copied!' : 'Share'}
@@ -127,7 +127,7 @@ export default function VerificationReceipt({
         <button
           onClick={handleDownload}
           aria-label="Download receipt"
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/70 hover:text-white hover:bg-white/[0.08] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white/70 hover:text-white hover:bg-white/[0.08] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
         >
           <Download className="w-3.5 h-3.5" aria-hidden="true" />
           Download

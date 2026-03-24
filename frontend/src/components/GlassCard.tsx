@@ -21,7 +21,7 @@ const variantClasses: Record<Variant, string> = {
   light:
     'bg-surface-1/60 backdrop-blur-lg border border-border/75 hover:border-glass-hover',
   accent:
-    'glass hover:border-violet-500/25 hover:shadow-accent-lg',
+    'glass hover:border-white/12 hover:shadow-accent-lg',
 }
 
 // Extracted static styles to prevent re-renders

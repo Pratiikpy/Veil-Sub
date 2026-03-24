@@ -111,7 +111,7 @@ export default function ContentVault({
         <div className="flex items-center rounded-lg border border-border overflow-hidden ml-3 shrink-0">
           <button
             onClick={() => onViewModeChange('feed')}
-            className={`p-2 transition-colors ${viewMode === 'feed' ? 'bg-violet-500/15 text-violet-300' : 'text-white/50 hover:text-white/70 hover:bg-white/[0.04]'}`}
+            className={`p-2 transition-colors ${viewMode === 'feed' ? 'bg-white/[0.06] text-white/70' : 'text-white/50 hover:text-white/70 hover:bg-white/[0.04]'}`}
             aria-label="List view"
             title="List view"
           >
@@ -119,7 +119,7 @@ export default function ContentVault({
           </button>
           <button
             onClick={() => onViewModeChange('grid')}
-            className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-violet-500/15 text-violet-300' : 'text-white/50 hover:text-white/70 hover:bg-white/[0.04]'}`}
+            className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-white/[0.06] text-white/70' : 'text-white/50 hover:text-white/70 hover:bg-white/[0.04]'}`}
             aria-label="Grid view"
             title="Grid view"
           >
@@ -146,7 +146,7 @@ export default function ContentVault({
               onClick={() => setShowFilters((p) => !p)}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-xs transition-colors ${
                 filterTag
-                  ? 'border-violet-500/30 bg-violet-500/10 text-violet-300'
+                  ? 'border-white/15 bg-white/[0.04] text-white/70'
                   : 'border-border text-white/60 hover:text-white/80 hover:bg-white/[0.04]'
               }`}
             >
@@ -164,7 +164,7 @@ export default function ContentVault({
                 >
                   <button
                     onClick={() => { setFilterTag(null); setShowFilters(false) }}
-                    className={`w-full text-left px-3 py-2 text-xs transition-colors ${!filterTag ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:bg-white/[0.04]'}`}
+                    className={`w-full text-left px-3 py-2 text-xs transition-colors ${!filterTag ? 'text-white/70 bg-white/[0.04]' : 'text-white/60 hover:bg-white/[0.04]'}`}
                   >
                     All posts
                   </button>
@@ -172,7 +172,7 @@ export default function ContentVault({
                     <button
                       key={tag}
                       onClick={() => { setFilterTag(tag); setShowFilters(false) }}
-                      className={`w-full text-left px-3 py-2 text-xs transition-colors ${filterTag === tag ? 'text-violet-300 bg-violet-500/10' : 'text-white/60 hover:bg-white/[0.04]'}`}
+                      className={`w-full text-left px-3 py-2 text-xs transition-colors ${filterTag === tag ? 'text-white/70 bg-white/[0.04]' : 'text-white/60 hover:bg-white/[0.04]'}`}
                     >
                       {tag}
                     </button>
@@ -187,7 +187,7 @@ export default function ContentVault({
       {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-6 h-6 text-violet-400 animate-spin" aria-label="Loading content" />
+          <Loader2 className="w-6 h-6 text-white/60 animate-spin" aria-label="Loading content" />
         </div>
       )}
 
@@ -223,7 +223,7 @@ export default function ContentVault({
               >
                 <Link
                   href={`/creator/${creatorAddress}`}
-                  className="relative aspect-square rounded-xl overflow-hidden border border-border group block hover:border-violet-500/30 transition-all"
+                  className="relative aspect-square rounded-xl overflow-hidden border border-border group block hover:border-white/15 transition-all"
                 >
                   {/* Thumbnail */}
                   {post.imageUrl ? (
@@ -263,7 +263,7 @@ export default function ContentVault({
 
                   {/* Tier badge */}
                   {post.gated && post.minTier && post.minTier > 1 && (
-                    <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-violet-500/80 text-[10px] font-medium text-white">
+                    <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-white/60 text-[10px] font-medium text-white">
                       Tier {post.minTier}+
                     </div>
                   )}

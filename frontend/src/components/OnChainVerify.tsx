@@ -92,7 +92,7 @@ export default function OnChainVerify({
       <button
         onClick={verify}
         aria-label={`Verify ${mappingName} on-chain`}
-        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-white/[0.05] border border-border text-white/70 hover:text-white hover:bg-white/[0.08] focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none transition-all"
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-white/[0.05] border border-border text-white/70 hover:text-white hover:bg-white/[0.08] focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none transition-all"
       >
         <ShieldCheck className="w-3 h-3" aria-hidden="true" />
         Verify
@@ -102,7 +102,7 @@ export default function OnChainVerify({
 
   if (state === 'verifying') {
     return (
-      <span role="status" aria-live="polite" className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-violet-500/10 border border-violet-500/20 text-white/70">
+      <span role="status" aria-live="polite" className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-white/[0.04] border border-white/10 text-white/70">
         <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" />
         Checking on-chain
       </span>

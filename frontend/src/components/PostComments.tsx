@@ -79,7 +79,7 @@ function timeAgo(dateStr: string): string {
 }
 
 function avatarColor(hash: string): string {
-  const colors = ['bg-violet-500/20', 'bg-blue-500/20', 'bg-emerald-500/20', 'bg-amber-500/20', 'bg-rose-500/20', 'bg-cyan-500/20']
+  const colors = ['bg-white/[0.08]', 'bg-blue-500/20', 'bg-emerald-500/20', 'bg-amber-500/20', 'bg-rose-500/20', 'bg-cyan-500/20']
   let n = 0
   for (let i = 0; i < hash.length; i++) n += hash.charCodeAt(i)
   return colors[n % colors.length]
@@ -362,7 +362,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
                   {c.likes_count > 0 && <span className="text-[10px]">{c.likes_count}</span>}
                 </button>
                 {isSubscribed && (
-                  <button onClick={() => setReplyTo(replyTo === c.id ? null : c.id)} className="text-[10px] text-white/40 hover:text-violet-400 transition-colors">
+                  <button onClick={() => setReplyTo(replyTo === c.id ? null : c.id)} className="text-[10px] text-white/40 hover:text-white/60 transition-colors">
                     Reply
                   </button>
                 )}
@@ -404,9 +404,9 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
                 onChange={e => setText(e.target.value.slice(0, MAX_CHARS))}
                 onKeyDown={e => e.key === 'Enter' && submit()}
                 placeholder="Write a reply..."
-                className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-1.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-violet-500/50"
+                className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-1.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-white/30"
               />
-              <button onClick={submit} disabled={!text.trim()} className="px-3 py-1.5 rounded-lg bg-violet-500/15 text-violet-300 text-xs font-medium hover:bg-violet-500/25 disabled:opacity-40 transition-colors">
+              <button onClick={submit} disabled={!text.trim()} className="px-3 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-xs font-medium hover:bg-white/12 disabled:opacity-40 transition-colors">
                 Reply
               </button>
             </div>
@@ -432,9 +432,9 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
             onChange={e => { setReplyTo(null); setText(e.target.value.slice(0, MAX_CHARS)) }}
             onKeyDown={e => e.key === 'Enter' && !replyTo && submit()}
             placeholder="Add a comment..."
-            className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-violet-500/50 transition-colors"
+            className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-colors"
           />
-          <button onClick={() => { setReplyTo(null); submit() }} disabled={!text.trim() || !!replyTo} className="px-4 py-2 rounded-lg bg-violet-500/15 text-violet-300 text-sm font-medium hover:bg-violet-500/25 disabled:opacity-40 transition-colors">
+          <button onClick={() => { setReplyTo(null); submit() }} disabled={!text.trim() || !!replyTo} className="px-4 py-2 rounded-lg bg-white/[0.06] text-white/70 text-sm font-medium hover:bg-white/12 disabled:opacity-40 transition-colors">
             Post
           </button>
         </div>

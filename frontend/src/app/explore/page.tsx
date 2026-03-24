@@ -30,7 +30,7 @@ import { cacheCreators } from '@/lib/creatorCache'
 const FEATURED_ADDRESSES = new Set(FEATURED_CREATORS.map(c => c.address))
 
 const GRADIENT_STYLE = {
-  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.08) 0%, transparent 70%)',
+  background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.04) 0%, transparent 70%)',
 } as const
 
 // Categories aligned with OnboardingWizard categories
@@ -94,7 +94,7 @@ function CategoryBadge({ category }: { category: string | null }) {
   if (!category) return null
 
   const colorMap: Record<string, string> = {
-    'Content Creator': 'bg-violet-500/15 text-violet-300 border-violet-500/25',
+    'Content Creator': 'bg-white/[0.06] text-white/70 border-white/12',
     'Writer': 'bg-blue-500/15 text-blue-300 border-blue-500/25',
     'Artist': 'bg-pink-500/15 text-pink-300 border-pink-500/25',
     'Developer': 'bg-emerald-500/15 text-emerald-300 border-emerald-500/25',
@@ -144,7 +144,7 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
     >
       <Link
         href={`/creator/${creator.address}`}
-        className="group block p-5 sm:p-6 rounded-2xl bg-surface-1/40 backdrop-blur-sm border border-border/75 hover:border-violet-500/25 hover:bg-surface-1/60 hover:shadow-[0_8px_32px_-8px_rgba(139,92,246,0.12)] hover:-translate-y-0.5 transition-all duration-300"
+        className="group block p-5 sm:p-6 rounded-2xl bg-surface-1/40 backdrop-blur-sm border border-border/75 hover:border-white/12 hover:bg-surface-1/60 hover:shadow-[0_8px_32px_-8px_rgba(255,255,255,0.06)] hover:-translate-y-0.5 transition-all duration-300"
       >
         {/* Header row */}
         <div className="flex items-start gap-3.5 mb-3.5">
@@ -152,20 +152,20 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
             <img
               src={creator.image_url}
               alt={creator.display_name || 'Creator'}
-              className="w-12 h-12 rounded-2xl object-cover ring-2 ring-white/[0.04] group-hover:ring-violet-500/20 transition-all shrink-0"
+              className="w-12 h-12 rounded-2xl object-cover ring-2 ring-white/[0.04] group-hover:ring-white/10 transition-all shrink-0"
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
             />
           ) : null}
-          <AddressAvatar address={creator.address} size={48} className={`ring-2 ring-white/[0.04] group-hover:ring-violet-500/20 transition-all ${creator.image_url ? 'hidden' : ''}`} />
+          <AddressAvatar address={creator.address} size={48} className={`ring-2 ring-white/[0.04] group-hover:ring-white/10 transition-all ${creator.image_url ? 'hidden' : ''}`} />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 mb-0.5">
               <p className="text-white font-semibold text-sm truncate">
                 {creator.display_name || 'Creator'}
               </p>
               {isFeatured && (
-                <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-violet-500/15 border border-violet-500/20">
-                  <Star className="w-2.5 h-2.5 text-violet-400" aria-hidden="true" />
-                  <span className="text-xs text-violet-400 font-semibold uppercase tracking-wider">Featured</span>
+                <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/10">
+                  <Star className="w-2.5 h-2.5 text-white/60" aria-hidden="true" />
+                  <span className="text-xs text-white/60 font-semibold uppercase tracking-wider">Featured</span>
                 </span>
               )}
             </div>
@@ -191,7 +191,7 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
           {stats && stats.tierPrice !== null ? (
             <>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-border/50 text-[11px] text-white/60" title="Privacy threshold badge">
-                <Users className="w-3 h-3 text-violet-400/80" aria-hidden="true" />
+                <Users className="w-3 h-3 text-white/50" aria-hidden="true" />
                 {stats.subscriberThreshold} subscribers
               </span>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-border/50 text-[11px] text-white/60">
@@ -247,7 +247,7 @@ function SortDropdown({ value, onChange }: { value: SortOption; onChange: (v: So
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-border/75 text-xs text-white/70 hover:text-white hover:bg-white/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-border/75 text-xs text-white/70 hover:text-white hover:bg-white/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
       >
         <SlidersHorizontal className="w-3 h-3" aria-hidden="true" />
         {current.label}
@@ -271,7 +271,7 @@ function SortDropdown({ value, onChange }: { value: SortOption; onChange: (v: So
                 onClick={() => { onChange(opt.id); setOpen(false) }}
                 className={`w-full text-left px-3.5 py-2.5 text-xs transition-colors ${
                   value === opt.id
-                    ? 'text-violet-300 bg-violet-500/10'
+                    ? 'text-white/70 bg-white/[0.04]'
                     : 'text-white/60 hover:text-white hover:bg-white/[0.04]'
                 }`}
               >
@@ -434,7 +434,7 @@ export default function ExplorePage() {
             className="max-w-2xl mx-auto mb-5"
           >
             <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-violet-400 transition-colors" aria-hidden="true" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-white/60 transition-colors" aria-hidden="true" />
               <input
                 type="text"
                 value={search}
@@ -442,13 +442,13 @@ export default function ExplorePage() {
                 aria-label="Search creators by name, bio, or paste an aleo1 address"
                 onKeyDown={handleSearchKeyDown}
                 placeholder="Search by name, bio, or paste aleo1... address"
-                className="w-full pl-12 pr-12 py-4 rounded-2xl bg-surface-1/60 backdrop-blur-sm border border-border/75 text-white placeholder:text-white/50 focus:outline-none focus:border-violet-500/30 focus:shadow-[0_0_0_3px_rgba(139,92,246,0.08)] transition-all duration-300 text-base"
+                className="w-full pl-12 pr-12 py-4 rounded-2xl bg-surface-1/60 backdrop-blur-sm border border-border/75 text-white placeholder:text-white/50 focus:outline-none focus:border-white/20 focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] transition-all duration-300 text-base"
               />
               {/* Clear button */}
               {search && (
                 <button
                   onClick={handleClearSearch}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-white/[0.06] text-white/40 hover:text-white/60 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-white/[0.06] text-white/40 hover:text-white/60 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                   aria-label="Clear search"
                 >
                   <X className="w-4 h-4" aria-hidden="true" />
@@ -457,7 +457,7 @@ export default function ExplorePage() {
               {/* Debounce spinner */}
               {search !== debouncedSearch && search.trim() !== '' && (
                 <div className="absolute right-12 top-1/2 -translate-y-1/2" role="status" aria-label="Searching">
-                  <div className="w-4 h-4 border-2 border-violet-400/30 border-t-violet-400 rounded-full animate-spin" aria-hidden="true" />
+                  <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" aria-hidden="true" />
                 </div>
               )}
             </div>
@@ -471,14 +471,14 @@ export default function ExplorePage() {
               >
                 <button
                   onClick={handleGoToCreator}
-                  className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-violet-500/[0.08] border border-violet-500/20 hover:bg-violet-500/[0.12] transition-all duration-200 group"
+                  className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/10 hover:bg-white/[0.06] transition-all duration-200 group"
                 >
                   <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                    <Shield className="w-4 h-4 text-white/60" aria-hidden="true" />
                     <span className="text-sm text-white">Go to creator page</span>
                     <span className="text-xs text-white/50 font-mono">{shortenAddress(search.trim())}</span>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-violet-400 group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight className="w-4 h-4 text-white/60 group-hover:translate-x-0.5 transition-transform" />
                 </button>
               </m.div>
             )}
@@ -498,9 +498,9 @@ export default function ExplorePage() {
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`shrink-0 px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
+                    className={`shrink-0 px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
                       isSelected
-                        ? 'bg-violet-500 text-white border border-violet-500 shadow-[0_0_12px_-2px_rgba(139,92,246,0.3)]'
+                        ? 'bg-white text-black border border-white shadow-[0_0_12px_-2px_rgba(255,255,255,0.15)]'
                         : 'bg-transparent text-white/60 border border-white/20 hover:bg-white/[0.06] hover:text-white/80'
                     }`}
                   >
@@ -559,7 +559,7 @@ export default function ExplorePage() {
               className="text-center py-20"
             >
               <div className="relative w-16 h-16 mx-auto mb-5">
-                <div className="absolute inset-0 rounded-2xl bg-violet-500/10 animate-pulse" />
+                <div className="absolute inset-0 rounded-2xl bg-white/[0.04] animate-pulse" />
                 <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-border flex items-center justify-center">
                   {search ? (
                     <Search className="w-7 h-7 text-white/40" aria-hidden="true" />

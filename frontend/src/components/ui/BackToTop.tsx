@@ -29,7 +29,7 @@ export default function BackToTop() {
         width: 40,
         height: 40,
         borderRadius: '50%',
-        border: '1px solid rgba(139,92,246,0.25)',
+        border: '1px solid rgba(255,255,255,0.12)',
         background: 'rgba(15,15,20,0.85)',
         color: 'rgba(255,255,255,0.6)',
         display: 'flex',
@@ -42,8 +42,8 @@ export default function BackToTop() {
         transition: 'opacity 300ms ease, transform 300ms ease, border-color 200ms ease, color 200ms ease',
         zIndex: 50,
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#8B5CF6'; e.currentTarget.style.color = '#fff' }}
-      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(139,92,246,0.25)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)' }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#ffffff'; e.currentTarget.style.color = '#fff' }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)' }}
     >
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M8 12V4M4 7l4-4 4 4" />

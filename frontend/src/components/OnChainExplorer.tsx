@@ -190,7 +190,7 @@ export default function OnChainExplorer() {
         <GlassCard hover={false} className="!h-auto">
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="w-5 h-5 text-violet-400" aria-hidden="true" />
+              <Users className="w-5 h-5 text-white/60" aria-hidden="true" />
               <h3 className="text-white font-semibold">Creator Lookup</h3>
             </div>
             <div>
@@ -201,12 +201,12 @@ export default function OnChainExplorer() {
                 placeholder="Poseidon2 field hash or aleo1..."
                 aria-label="Creator address or hash"
                 maxLength={100}
-                className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white text-base placeholder:text-white/60 focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
+                className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white text-base placeholder:text-white/60 focus:outline-none focus:border-white/30/[0.3] focus:shadow-accent-md transition-all duration-300"
               />
               <button
                 type="button"
                 onClick={() => setCreatorAddr(CREATOR_HASH)}
-                className="mt-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded"
+                className="mt-1.5 text-xs text-white/60 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded"
               >
                 Use platform creator hash
               </button>
@@ -214,7 +214,7 @@ export default function OnChainExplorer() {
             <button
               onClick={lookupCreator}
               disabled={creatorLoading || (!creatorAddr.startsWith('aleo1') && !creatorAddr.endsWith('field'))}
-              className="w-full py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-shimmer focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+              className="w-full py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-shimmer focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
             >
               {creatorLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-label="Loading" /> : <Search className="w-4 h-4" aria-hidden="true" />}
               Query On-Chain
@@ -272,7 +272,7 @@ export default function OnChainExplorer() {
           <GlassCard hover={false} className="!h-auto">
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-2">
-                <FileText className="w-5 h-5 text-violet-400" aria-hidden="true" />
+                <FileText className="w-5 h-5 text-white/60" aria-hidden="true" />
                 <h3 className="text-white font-semibold">Content Verification</h3>
               </div>
               <div>
@@ -283,13 +283,13 @@ export default function OnChainExplorer() {
                   placeholder="Content hash (field value)"
                   aria-label="Content hash to verify"
                   maxLength={100}
-                  className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white text-base placeholder:text-white/60 focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
+                  className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white text-base placeholder:text-white/60 focus:outline-none focus:border-white/30/[0.3] focus:shadow-accent-md transition-all duration-300"
                 />
               </div>
               <button
                 onClick={lookupContent}
                 disabled={contentLoading || !contentId}
-                className="w-full py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-shimmer focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                className="w-full py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-shimmer focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
               >
                 {contentLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-label="Loading" /> : <Search className="w-4 h-4" aria-hidden="true" />}
                 Verify Content
@@ -335,7 +335,7 @@ export default function OnChainExplorer() {
           <GlassCard hover={false} className="!h-auto">
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-2">
-                <Database className="w-5 h-5 text-violet-400" aria-hidden="true" />
+                <Database className="w-5 h-5 text-white/60" aria-hidden="true" />
                 <h3 className="text-white font-semibold">Program Deployment</h3>
               </div>
               <div className="flex items-center gap-2 text-sm text-white/70">
@@ -345,7 +345,7 @@ export default function OnChainExplorer() {
               <button
                 onClick={checkDeployment}
                 disabled={deployLoading}
-                className="w-full py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-shimmer focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                className="w-full py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-shimmer focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
               >
                 {deployLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-label="Loading" /> : <Search className="w-4 h-4" aria-hidden="true" />}
                 Check Deployment

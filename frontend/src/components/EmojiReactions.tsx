@@ -137,7 +137,7 @@ export default function EmojiReactions({ contentId }: EmojiReactionsProps) {
           key={key}
           onClick={() => toggle(key)}
           className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs transition-all ${
-            mine.has(key) ? 'bg-violet-500/20 border border-violet-500/30' : 'bg-white/[0.04] border border-transparent hover:bg-white/[0.08]'
+            mine.has(key) ? 'bg-white/[0.08] border border-white/15' : 'bg-white/[0.04] border border-transparent hover:bg-white/[0.08]'
           }`}
           style={{ animationDelay: `${i * 50}ms`, animation: 'fadeInScale 200ms ease-out both' }}
           aria-label={`React with ${emoji}`}

@@ -136,7 +136,7 @@ export default function DisputeContentModal({
             disabled={txStatus === 'signing' || txStatus === 'broadcasting'}
             aria-label="Close dispute modal"
             title={txStatus === 'signing' || txStatus === 'broadcasting' ? 'Transaction in progress - please wait' : 'Close dialog'}
-            className="absolute top-5 right-5 text-white/60 hover:text-white active:scale-[0.9] transition-all disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none rounded-lg p-1"
+            className="absolute top-5 right-5 text-white/60 hover:text-white active:scale-[0.9] transition-all disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded-lg p-1"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -155,7 +155,7 @@ export default function DisputeContentModal({
           {/* Sybil protection notice */}
           <div className="rounded-xl bg-surface-2 border border-border p-4 mb-6">
             <div className="flex gap-2">
-              <Shield className="w-4 h-4 text-violet-400/60 mt-0.5 shrink-0" aria-hidden="true" />
+              <Shield className="w-4 h-4 text-white/40 mt-0.5 shrink-0" aria-hidden="true" />
               <p className="text-xs text-white/60 leading-relaxed">
                 Sybil-protected via AccessPass ownership. The dispute_content transition verifies
                 your subscription on-chain (1 dispute per content per subscriber_hash). Your wallet
@@ -193,10 +193,10 @@ export default function DisputeContentModal({
                   aria-checked={selectedReason === reason.id}
                   tabIndex={selectedReason === reason.id || (selectedReason === null && index === 0) ? 0 : -1}
                   onClick={() => setSelectedReason(reason.id)}
-                  className={`w-full text-left px-4 py-3 rounded-lg border text-sm transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+                  className={`w-full text-left px-4 py-3 rounded-lg border text-sm transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                     selectedReason === reason.id
-                      ? 'bg-violet-500/[0.08] border-violet-500/[0.2] text-white'
-                      : 'bg-white/[0.05] border-border text-white/60 hover:border-violet-500/20 hover:text-white/70'
+                      ? 'bg-white/[0.04] border-white/10 text-white'
+                      : 'bg-white/[0.05] border-border text-white/60 hover:border-white/10 hover:text-white/70'
                   }`}
                 >
                   {reason.label}

@@ -28,7 +28,7 @@ export default function IridescentCard({ children, className = '', intensity = 0
       <div
         className="pointer-events-none absolute inset-0 rounded-[inherit] z-[1] transition-opacity duration-500"
         style={{
-          background: `conic-gradient(from ${angle}deg at 50% 50%, rgba(139,92,246,${opacity}) 0deg, rgba(59,130,246,${opacity}) 60deg, rgba(16,185,129,${opacity}) 120deg, rgba(234,179,8,${opacity * 0.6}) 180deg, rgba(236,72,153,${opacity}) 240deg, rgba(139,92,246,${opacity}) 300deg, rgba(59,130,246,${opacity}) 360deg)`,
+          background: `conic-gradient(from ${angle}deg at 50% 50%, rgba(255,255,255,${opacity}) 0deg, rgba(200,200,200,${opacity}) 60deg, rgba(180,180,180,${opacity}) 120deg, rgba(220,220,220,${opacity * 0.6}) 180deg, rgba(200,200,200,${opacity}) 240deg, rgba(255,255,255,${opacity}) 300deg, rgba(200,200,200,${opacity}) 360deg)`,
           mixBlendMode: 'screen',
         }}
       />

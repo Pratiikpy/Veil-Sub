@@ -36,13 +36,13 @@ export default function FloatingInput({
     ? 'border-red-500/60 focus-within:border-red-500'
     : success
       ? 'border-emerald-500/40 focus-within:border-emerald-500'
-      : 'border-border focus-within:border-violet-500'
+      : 'border-border focus-within:border-white/30'
 
   const glowRing = error
     ? 'focus-within:ring-red-400/30'
     : success
       ? 'focus-within:ring-emerald-400/20'
-      : 'focus-within:ring-violet-400/30'
+      : 'focus-within:ring-white/20'
 
   return (
     <div className={className}>

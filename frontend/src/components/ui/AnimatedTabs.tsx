@@ -55,7 +55,7 @@ export default function AnimatedTabs({ tabs, activeTab, onChange, className = ''
             <span
               className={`ml-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold ${
                 activeTab === tab.id
-                  ? 'bg-violet-500/20 text-violet-300'
+                  ? 'bg-white/[0.08] text-white/70'
                   : 'bg-white/[0.06] text-white/40'
               }`}
             >

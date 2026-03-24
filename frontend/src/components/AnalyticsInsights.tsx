@@ -34,9 +34,9 @@ const TYPE_CONFIG: Record<InsightType, { bg: string; border: string; text: strin
     icon: AlertTriangle,
   },
   milestone: {
-    bg: 'bg-violet-500/[0.06]',
-    border: 'border-violet-500/20',
-    text: 'text-violet-400',
+    bg: 'bg-white/[0.03]',
+    border: 'border-white/10',
+    text: 'text-white/60',
     icon: Award,
   },
   tip: {
@@ -162,7 +162,7 @@ export default function AnalyticsInsights(props: AnalyticsInsightsProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 mb-1">
-        <Target className="w-4 h-4 text-violet-400" aria-hidden="true" />
+        <Target className="w-4 h-4 text-white/60" aria-hidden="true" />
         <h3 className="text-sm font-medium text-white">Smart Insights</h3>
       </div>
       {insights.map((insight, i) => {

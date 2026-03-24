@@ -56,8 +56,8 @@ const USE_CASES = [
     title: 'Event Ticketing',
     description:
       'Private event access without identity exposure. Prove you hold a valid ticket at the door without revealing who purchased it or what else you attend.',
-    color: 'text-violet-400',
-    bg: 'bg-violet-500/10',
+    color: 'text-white/60',
+    bg: 'bg-white/[0.04]',
   },
   {
     icon: Code2,
@@ -82,9 +82,9 @@ export default function VisionPage() {
         <section className="relative overflow-hidden">
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 pb-8 sm:pb-16">
             <m.div {...fadeUp} transition={{ duration: 0.6 }} className="text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-6">
-                <Code2 className="w-4 h-4 text-violet-400" aria-hidden="true" />
-                <span className="text-sm text-violet-300/90">Beyond Subscriptions</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.08] mb-6">
+                <Code2 className="w-4 h-4 text-white/60" aria-hidden="true" />
+                <span className="text-sm text-white/60">Beyond Subscriptions</span>
               </div>
               <h1
                 className="text-3xl sm:text-4xl font-serif italic text-white mb-6"
@@ -202,13 +202,13 @@ export default function VisionPage() {
                   animate={{ opacity: 1, x: 0 }}
                   className={`flex items-start gap-4 p-8 rounded-xl border ${
                     item.status === 'current'
-                      ? 'bg-violet-500/[0.08] border-violet-500/30'
+                      ? 'bg-white/[0.04] border-white/15'
                       : 'bg-surface-1 border-border'
                   }`}
                 >
                   <div className={`shrink-0 mt-1 w-4 h-4 rounded-full ${
                     item.status === 'done' ? 'bg-green-400' :
-                    item.status === 'current' ? 'bg-violet-400 animate-pulse ring-4 ring-violet-400/20' :
+                    item.status === 'current' ? 'bg-white animate-pulse ring-4 ring-white/20' :
                     item.status === 'next' ? 'bg-white/30' : 'bg-white/15'
                   }`} />
                   <div className="flex-1">
@@ -216,7 +216,7 @@ export default function VisionPage() {
                       <p className="text-base font-semibold text-white">{item.phase}</p>
                       <span className={`text-xs px-2 py-1 rounded-full ${
                         item.status === 'done' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
-                        item.status === 'current' ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30' :
+                        item.status === 'current' ? 'bg-white/[0.08] text-white/70 border border-white/15' :
                         item.status === 'next' ? 'bg-white/[0.05] text-white/60 border border-border' :
                         'bg-white/[0.02] text-white/50 border border-border'
                       }`}>
@@ -225,7 +225,7 @@ export default function VisionPage() {
                       <span className="text-sm text-white/60">— {item.summary}</span>
                     </div>
                     {'highlight' in item && item.highlight && (
-                      <p className="text-xs font-mono text-violet-300 bg-violet-500/10 px-2 py-1 rounded mb-2 inline-block">
+                      <p className="text-xs font-mono text-white/70 bg-white/[0.04] px-2 py-1 rounded mb-2 inline-block">
                         {item.highlight}
                       </p>
                     )}
@@ -252,11 +252,11 @@ export default function VisionPage() {
               animate={{ opacity: 1, y: 0 }}
               className="relative rounded-3xl glass p-8 sm:p-12 text-center overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/[0.04] to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
               <div className="relative">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/[0.08] border border-violet-500/[0.15] mb-4">
-                  <Shield className="w-3.5 h-3.5 text-violet-400" aria-hidden="true" />
-                  <span className="text-xs text-violet-300/90">Privacy by Default</span>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.08] mb-4">
+                  <Shield className="w-3.5 h-3.5 text-white/60" aria-hidden="true" />
+                  <span className="text-xs text-white/60">Privacy by Default</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-4">
                   Ready to explore?

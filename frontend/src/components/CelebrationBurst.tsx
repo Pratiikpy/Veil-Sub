@@ -13,7 +13,7 @@ const SPARKLE_POSITIONS = [
   { x: 0, y: 80 },
 ]
 
-export default function CelebrationBurst({ color = 'bg-violet-400' }: { color?: string }) {
+export default function CelebrationBurst({ color = 'bg-white/70' }: { color?: string }) {
   return (
     <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
       {SPARKLE_POSITIONS.map((pos, i) => (

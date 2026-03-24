@@ -36,12 +36,12 @@ export default function HowItWorks() {
               >
                 <SpotlightCard className="group p-5 sm:p-8 rounded-3xl glass glass-accent transition-all duration-300 h-full relative">
                   <div className="absolute top-6 right-6">
-                    <span className="text-5xl font-black leading-none text-violet-500/50 select-none group-hover:text-violet-400 group-hover:scale-110 transition-all duration-300 inline-block">
+                    <span className="text-5xl font-black leading-none text-white/30 select-none group-hover:text-white/60 group-hover:scale-110 transition-all duration-300 inline-block">
                       0{i + 1}
                     </span>
                   </div>
-                  <div className="mb-4 w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-600/10 border border-violet-500/20 flex items-center justify-center group-hover:from-violet-500/30 group-hover:to-violet-600/20 group-hover:border-violet-500/30 transition-all shadow-lg shadow-violet-500/10">
-                    <Icon className="w-6 h-6 text-violet-400 group-hover:text-violet-300 transition-colors" aria-hidden="true" />
+                  <div className="mb-4 w-12 h-12 rounded-xl bg-gradient-to-br from-white/10 to-white/[0.03] border border-white/10 flex items-center justify-center group-hover:from-white/10 group-hover:to-white/[0.08] group-hover:border-white/15 transition-all shadow-lg shadow-white/[0.04]">
+                    <Icon className="w-6 h-6 text-white/60 group-hover:text-white/70 transition-colors" aria-hidden="true" />
                   </div>
                   <h3 className="text-white font-semibold mb-2">{step.title}</h3>
                   <p className="text-sm text-white/80 leading-relaxed">{step.desc}</p>

@@ -38,7 +38,7 @@ export default function RegistrationForm({
     >
       <div className="p-8 rounded-xl bg-surface-1 border border-border">
         <div className="flex items-center gap-2 mb-6">
-          <Settings className="w-5 h-5 text-violet-400" />
+          <Settings className="w-5 h-5 text-white/60" />
           <h2 className="text-lg font-semibold text-white">
             Register as Creator
           </h2>
@@ -66,7 +66,7 @@ export default function RegistrationForm({
                   aria-required="true"
                   aria-invalid={price ? (!Number.isFinite(parseFloat(price)) || parseFloat(price) <= 0) : undefined}
                   aria-describedby={price && (!Number.isFinite(parseFloat(price)) || parseFloat(price) <= 0) ? 'price-error' : undefined}
-                  className="w-full px-4 py-4 rounded-lg bg-surface-1 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
+                  className="w-full px-4 py-4 rounded-lg bg-surface-1 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-white/30/[0.3] focus:shadow-accent-md transition-all duration-300"
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/60">
                   ALEO
@@ -96,7 +96,7 @@ export default function RegistrationForm({
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Your creator name"
                 maxLength={50}
-                className="w-full px-4 py-4 rounded-lg bg-surface-1 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300"
+                className="w-full px-4 py-4 rounded-lg bg-surface-1 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-white/30/[0.3] focus:shadow-accent-md transition-all duration-300"
               />
             </div>
 
@@ -111,13 +111,13 @@ export default function RegistrationForm({
                 placeholder="What you publish (your subscriber list stays private on-chain)..."
                 maxLength={200}
                 rows={2}
-                className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-violet-500/[0.3] focus:shadow-accent-md transition-all duration-300 resize-none"
+                className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white text-base placeholder-subtle focus:outline-none focus:border-white/30/[0.3] focus:shadow-accent-md transition-all duration-300 resize-none"
               />
             </div>
 
-            <div className="p-4 rounded-lg bg-violet-500/5 border border-violet-500/10 mb-6">
+            <div className="p-4 rounded-lg bg-white/[0.02] border border-white/[0.06] mb-6">
               <div className="flex items-start gap-2">
-                <Info className="w-4 h-4 text-violet-400 mt-0.5 shrink-0" aria-hidden="true" />
+                <Info className="w-4 h-4 text-white/60 mt-0.5 shrink-0" aria-hidden="true" />
                 <p className="text-xs text-white/70">
                   You&apos;ll never see who subscribes—only aggregate
                   subscriber count and total revenue. Privacy is the core

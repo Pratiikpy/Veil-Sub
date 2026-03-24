@@ -454,9 +454,9 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
                       isDone
-                        ? 'bg-violet-500 border-violet-500 text-white'
+                        ? 'bg-white border-white text-black'
                         : isActive
-                          ? 'border-violet-500 text-violet-400 bg-violet-500/10'
+                          ? 'border-white/30 text-white/60 bg-white/[0.04]'
                           : 'border-border text-white/30 bg-surface-1/40'
                     }`}
                   >
@@ -468,7 +468,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                   </div>
                   <span
                     className={`text-[10px] mt-1.5 font-medium ${
-                      isActive ? 'text-violet-400' : isDone ? 'text-white/60' : 'text-white/30'
+                      isActive ? 'text-white/60' : isDone ? 'text-white/60' : 'text-white/30'
                     }`}
                   >
                     {s.label}
@@ -477,7 +477,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                 {i < STEPS.length - 1 && (
                   <div
                     className={`flex-1 h-0.5 mx-3 mt-[-14px] rounded-full transition-colors duration-300 ${
-                      i < currentStep ? 'bg-violet-500' : 'bg-border/50'
+                      i < currentStep ? 'bg-white' : 'bg-border/50'
                     }`}
                   />
                 )}
@@ -488,7 +488,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
         {/* Progress bar */}
         <div className="h-1 rounded-full bg-border/30 overflow-hidden">
           <m.div
-            className="h-full rounded-full bg-gradient-to-r from-violet-600 to-violet-400"
+            className="h-full rounded-full bg-white"
             initial={{ width: '0%' }}
             animate={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
@@ -513,9 +513,9 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ duration: 0.5, delay: 0.1 }}
-                  className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-violet-500/10 border border-violet-500/20 mb-6"
+                  className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white/[0.04] border border-white/10 mb-6"
                 >
-                  <Shield className="w-10 h-10 text-violet-400" aria-hidden="true" />
+                  <Shield className="w-10 h-10 text-white/60" aria-hidden="true" />
                 </m.div>
 
                 <h2 className="text-2xl sm:text-3xl font-serif italic text-white mb-3">
@@ -569,7 +569,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                         className="p-3 rounded-xl bg-white/[0.02] border border-border/50"
                       >
                         <Icon
-                          className="w-4 h-4 text-violet-400 mb-2"
+                          className="w-4 h-4 text-white/60 mb-2"
                           aria-hidden="true"
                         />
                         <p className="text-xs font-semibold text-white mb-0.5">
@@ -599,8 +599,8 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           {currentStep === 1 && (
             <GlassCard variant="heavy" className="!p-8">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-violet-500/10 border border-violet-500/20">
-                  <User className="w-5 h-5 text-violet-400" aria-hidden="true" />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/[0.04] border border-white/10">
+                  <User className="w-5 h-5 text-white/60" aria-hidden="true" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-white">Set Up Your Profile</h2>
@@ -623,7 +623,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                     maxLength={50}
                     required
                     aria-required="true"
-                    className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/30 focus:shadow-accent-md transition-all duration-300"
+                    className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:shadow-accent-md transition-all duration-300"
                   />
                 </div>
 
@@ -640,7 +640,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                     placeholder="What do you create? (your subscriber list stays private on-chain)"
                     rows={2}
                     maxLength={200}
-                    className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/30 focus:shadow-accent-md transition-all duration-300 resize-none"
+                    className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:shadow-accent-md transition-all duration-300 resize-none"
                   />
                 </div>
 
@@ -658,9 +658,9 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                         onClick={() => setCategory(cat)}
                         role="radio"
                         aria-checked={category === cat}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                           category === cat
-                            ? 'bg-violet-500/20 border border-violet-500/30 text-violet-300'
+                            ? 'bg-white/[0.08] border border-white/15 text-white/70'
                             : 'bg-white/[0.03] border border-border text-white/50 hover:text-white/70 hover:bg-white/[0.05]'
                         }`}
                       >
@@ -680,7 +680,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                       {imageUrl ? (
                         <img src={imageUrl} alt="Profile" className="w-16 h-16 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }} />
                       ) : null}
-                      <div className={`w-16 h-16 rounded-full bg-gradient-to-br from-violet-500/30 to-purple-600/30 flex items-center justify-center text-lg font-bold text-white/60 ${imageUrl ? 'hidden' : ''}`}>
+                      <div className={`w-16 h-16 rounded-full bg-gradient-to-br from-white/10 to-white/[0.06] flex items-center justify-center text-lg font-bold text-white/60 ${imageUrl ? 'hidden' : ''}`}>
                         {displayName?.[0]?.toUpperCase() || '?'}
                       </div>
                       <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
@@ -718,7 +718,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                       step="0.1"
                       required
                       aria-required="true"
-                      className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/30 focus:shadow-accent-md transition-all duration-300"
+                      className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:shadow-accent-md transition-all duration-300"
                     />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/40">
                       ALEO
@@ -731,9 +731,9 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                 </div>
 
                 {/* Privacy notice */}
-                <div className="p-4 rounded-lg bg-violet-500/[0.04] border border-violet-500/10">
+                <div className="p-4 rounded-lg bg-white/[0.02] border border-white/[0.06]">
                   <div className="flex items-start gap-2">
-                    <Info className="w-4 h-4 text-violet-400 mt-0.5 shrink-0" aria-hidden="true" />
+                    <Info className="w-4 h-4 text-white/60 mt-0.5 shrink-0" aria-hidden="true" />
                     <p className="text-xs text-white/60 leading-relaxed">
                       Profile info (name, bio) is stored off-chain. On the blockchain, only
                       an anonymous identifier and your tier price exist — no personal info ever
@@ -778,8 +778,8 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           {currentStep === 2 && (
             <GlassCard variant="heavy" className="!p-8">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-violet-500/10 border border-violet-500/20">
-                  <Layers className="w-5 h-5 text-violet-400" aria-hidden="true" />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/[0.04] border border-white/10">
+                  <Layers className="w-5 h-5 text-white/60" aria-hidden="true" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-white">Create Your First Tier</h2>
@@ -801,7 +801,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                       onChange={(e) => setTierName(e.target.value)}
                       placeholder="Supporter"
                       maxLength={30}
-                      className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/30 focus:shadow-accent-md transition-all duration-300"
+                      className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:shadow-accent-md transition-all duration-300"
                     />
                   </div>
 
@@ -820,7 +820,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                         min="0.000001"
                         max="1000000"
                         step="0.1"
-                        className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/30 focus:shadow-accent-md transition-all duration-300"
+                        className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:shadow-accent-md transition-all duration-300"
                       />
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/40">
                         ALEO
@@ -839,7 +839,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                           key={`${feat}-${i}`}
                           className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02] border border-border/50 text-sm text-white/70"
                         >
-                          <Check className="w-3.5 h-3.5 text-violet-400 shrink-0" aria-hidden="true" />
+                          <Check className="w-3.5 h-3.5 text-white/60 shrink-0" aria-hidden="true" />
                           <span className="flex-1 truncate">{feat}</span>
                           <button
                             onClick={() => removeFeature(i)}
@@ -862,12 +862,12 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                           onKeyDown={(e) => e.key === 'Enter' && addFeature()}
                           placeholder="Add a benefit..."
                           maxLength={60}
-                          className="flex-1 px-3 py-2 rounded-lg bg-surface-1 border border-border text-sm text-white placeholder-subtle focus:outline-none focus:border-violet-500/30 transition-all"
+                          className="flex-1 px-3 py-2 rounded-lg bg-surface-1 border border-border text-sm text-white placeholder-subtle focus:outline-none focus:border-white/30 transition-all"
                         />
                         <button
                           onClick={addFeature}
                           disabled={!newFeature.trim()}
-                          className="px-3 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-400 hover:bg-violet-500/20 transition-colors disabled:opacity-40"
+                          className="px-3 py-2 rounded-lg bg-white/[0.04] border border-white/10 text-xs text-white/60 hover:bg-white/10 transition-colors disabled:opacity-40"
                         >
                           Add
                         </button>
@@ -881,10 +881,10 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                   <p className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-3">
                     Preview
                   </p>
-                  <div className="p-5 rounded-2xl bg-gradient-to-b from-violet-500/[0.08] to-transparent border border-violet-500/15">
+                  <div className="p-5 rounded-2xl bg-gradient-to-b from-white/[0.04] to-transparent border border-white/[0.08]">
                     <div className="flex items-center gap-2 mb-3">
-                      <div className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center">
-                        <Layers className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                      <div className="w-8 h-8 rounded-full bg-white/[0.08] flex items-center justify-center">
+                        <Layers className="w-4 h-4 text-white/60" aria-hidden="true" />
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-white">
@@ -965,8 +965,8 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           {currentStep === 3 && (
             <GlassCard variant="heavy" className="!p-8">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-violet-500/10 border border-violet-500/20">
-                  <FileText className="w-5 h-5 text-violet-400" aria-hidden="true" />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/[0.04] border border-white/10">
+                  <FileText className="w-5 h-5 text-white/60" aria-hidden="true" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-white">Publish Your First Post</h2>
@@ -987,7 +987,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                     transition={{ duration: 0.6, delay: 0.2 }}
                   >
                     <Sparkles
-                      className="w-16 h-16 text-violet-400 mx-auto mb-6"
+                      className="w-16 h-16 text-white/60 mx-auto mb-6"
                       aria-hidden="true"
                     />
                   </m.div>
@@ -1019,7 +1019,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                         maxLength={200}
                         required
                         aria-required="true"
-                        className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/30 focus:shadow-accent-md transition-all duration-300"
+                        className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:shadow-accent-md transition-all duration-300"
                       />
                     </div>
 
@@ -1035,13 +1035,13 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                         placeholder="Share your first update with your subscribers..."
                         rows={4}
                         maxLength={500}
-                        className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/30 focus:shadow-accent-md transition-all duration-300 resize-none"
+                        className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:shadow-accent-md transition-all duration-300 resize-none"
                       />
                     </div>
 
                     {/* Tier badge */}
                     <div className="p-3 rounded-lg bg-white/[0.02] border border-border/50 flex items-center gap-3">
-                      <Layers className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                      <Layers className="w-4 h-4 text-white/60" aria-hidden="true" />
                       <div>
                         <p className="text-xs font-medium text-white">
                           Requires: {tierName || 'Tier 1'} ({tierPrice || '?'} ALEO)

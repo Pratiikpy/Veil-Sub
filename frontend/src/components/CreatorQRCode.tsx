@@ -104,7 +104,7 @@ export default function CreatorQRCode({ creatorAddress, delay = 0 }: Props) {
           <button
             onClick={handleDownload}
             aria-label="Download QR code as image"
-            className="flex-1 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white hover:bg-white/[0.08] transition-colors flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+            className="flex-1 px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-xs text-white hover:bg-white/[0.08] transition-colors flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
           >
             <Download className="w-3.5 h-3.5" aria-hidden="true" />
             Download
@@ -112,7 +112,7 @@ export default function CreatorQRCode({ creatorAddress, delay = 0 }: Props) {
           <button
             onClick={handleShare}
             aria-label="Share creator link"
-            className="flex-1 px-4 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-white/70 hover:bg-violet-500/20 transition-colors flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+            className="flex-1 px-4 py-2 rounded-lg bg-white/[0.04] border border-white/10 text-xs text-white/70 hover:bg-white/[0.08] transition-colors flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-green-400" aria-hidden="true" /> : <Share2 className="w-3.5 h-3.5" aria-hidden="true" />}
             {copied ? 'Copied' : 'Share'}
