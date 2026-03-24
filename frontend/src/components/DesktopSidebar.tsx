@@ -112,11 +112,11 @@ export default function DesktopSidebar() {
           </Link>
         )}
 
-        {/* Wallet status */}
-        <div className="mt-2 mx-1 px-3 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+        {/* Wallet */}
+        <div className="mt-2 mx-1">
           {connected ? (
-            <div className="flex items-center gap-2.5">
-              <span className="relative flex h-2 w-2">
+            <div className="px-3 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center gap-2.5">
+              <span className="relative flex h-2 w-2 flex-shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-50" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
               </span>
@@ -126,7 +126,9 @@ export default function DesktopSidebar() {
               </div>
             </div>
           ) : (
-            <WalletMultiButton />
+            <div className="wallet-sidebar-btn [&_button]:!w-full [&_button]:!rounded-xl [&_button]:!bg-violet-500 [&_button]:!text-white [&_button]:!text-sm [&_button]:!font-semibold [&_button]:!py-3 [&_button]:!border-0">
+              <WalletMultiButton />
+            </div>
           )}
         </div>
       </div>
