@@ -34,7 +34,8 @@ export default function DesktopSidebar() {
     ? `${address.slice(0, 8)}...${address.slice(-4)}`
     : null
 
-  const visibleNav = NAV_ITEMS.filter(item => !item.requiresWallet || connected)
+  // Show ALL nav items always — wallet-gated items appear dimmed when not connected
+  const visibleNav = NAV_ITEMS
 
   return (
     <aside className="hidden md:flex flex-col fixed top-0 left-0 bottom-0 w-[220px] bg-[#050507] border-r border-white/[0.06] z-40">
@@ -54,11 +55,31 @@ export default function DesktopSidebar() {
         </Link>
       </div>
 
-      {/* Main navigation */}
+      {/* Main navigation — all items always visible */}
       <nav aria-label="Main navigation" className="flex-1 px-3 py-2 space-y-0.5">
         {visibleNav.map((item) => {
           const Icon = item.icon
           const active = isActive(item.href)
+          const needsWallet = item.requiresWallet && !connected
+
+          if (needsWallet) {
+            // Show item but dim — clicking opens wallet connect
+            return (
+              <button
+                key={`${item.href}-${item.label}`}
+                onClick={() => {
+                  // Trigger the WalletMultiButton programmatically
+                  const btn = document.querySelector('.wallet-sidebar-btn button') as HTMLButtonElement
+                  btn?.click()
+                }}
+                className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold w-full text-left text-white/25 hover:text-white/40 hover:bg-white/[0.02] transition-all duration-150"
+              >
+                <Icon size={18} strokeWidth={2} aria-hidden="true" />
+                {item.label}
+              </button>
+            )
+          }
+
           return (
             <Link
               key={`${item.href}-${item.label}`}
@@ -97,8 +118,8 @@ export default function DesktopSidebar() {
           </kbd>
         </button>
 
-        {/* Settings */}
-        {connected && (
+        {/* Settings — always visible */}
+        {(
           <Link
             href="/settings"
             className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
