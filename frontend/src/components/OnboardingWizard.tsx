@@ -46,6 +46,7 @@ const CATEGORIES = [
   'Artist',
   'Developer',
   'Educator',
+  'Journalist',
   'Other',
 ] as const
 
