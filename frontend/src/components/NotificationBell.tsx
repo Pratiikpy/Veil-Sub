@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Bell, Check, CheckCheck, UserPlus, Coins, FileText, Clock, Gift, AlertTriangle, X } from 'lucide-react'
+import { Bell, Check, CheckCheck, UserPlus, Coins, FileText, Clock, Gift, AlertTriangle, X, Mail } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 import { AnimatePresence, m } from 'framer-motion'
 import type { Notification, NotificationType } from '@/lib/notifications'
@@ -13,6 +13,7 @@ const ICON_MAP: Record<NotificationType, typeof Bell> = {
   subscription_expiring: Clock,
   gift_received: Gift,
   dispute_filed: AlertTriangle,
+  welcome_message: Mail,
 }
 
 const ICON_COLOR_MAP: Record<NotificationType, string> = {
@@ -22,6 +23,7 @@ const ICON_COLOR_MAP: Record<NotificationType, string> = {
   subscription_expiring: 'text-orange-400',
   gift_received: 'text-pink-400',
   dispute_filed: 'text-red-400',
+  welcome_message: 'text-blue-400',
 }
 
 function timeAgo(dateStr: string): string {

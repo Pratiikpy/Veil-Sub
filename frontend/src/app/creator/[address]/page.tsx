@@ -40,7 +40,9 @@ const TransferPassModal = dynamic(() => import('@/components/TransferPassModal')
 const DisputeContentModal = dynamic(() => import('@/components/DisputeContentModal'), { ssr: false })
 const CreateAuditTokenModal = dynamic(() => import('@/components/CreateAuditTokenModal'), { ssr: false })
 const RedeemGiftModal = dynamic(() => import('@/components/RedeemGiftModal'), { ssr: false })
+const TipMenu = dynamic(() => import('@/components/TipMenu'), { ssr: false })
 import ContentFeed from '@/components/ContentFeed'
+const ContentVault = dynamic(() => import('@/components/ContentVault'), { ssr: false })
 import ReadingProgressBar from '@/components/ReadingProgressBar'
 import PageTransition from '@/components/PageTransition'
 import AnimatedTabs from '@/components/ui/AnimatedTabs'
@@ -592,6 +594,7 @@ export default function CreatorPage({
   const [auditTokenPass, setAuditTokenPass] = useState<AccessPass | null>(null)
   const [copied, setCopied] = useState(false)
   const [activeTab, setActiveTab] = useState('posts')
+  const [contentViewMode, setContentViewMode] = useState<'feed' | 'grid'>('feed')
 
   const copyAddress = useCallback(() => {
     navigator.clipboard.writeText(address)
@@ -815,6 +818,7 @@ export default function CreatorPage({
   const tabs = [
     { id: 'posts', label: 'Posts', count: stats?.contentCount },
     { id: 'tiers', label: 'Tiers', count: displayTiers.length },
+    { id: 'tip-menu', label: 'Tip Menu' },
     { id: 'about', label: 'About' },
   ]
 
@@ -981,13 +985,27 @@ export default function CreatorPage({
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <ContentFeed
-                      creatorAddress={address}
-                      userPasses={userPasses}
-                      connected={connected}
-                      walletAddress={publicKey}
-                      blockHeight={blockHeight}
-                    />
+                    {contentViewMode === 'feed' ? (
+                      <ContentFeed
+                        creatorAddress={address}
+                        userPasses={userPasses}
+                        connected={connected}
+                        walletAddress={publicKey}
+                        blockHeight={blockHeight}
+                        viewMode={contentViewMode}
+                        onViewModeChange={setContentViewMode}
+                      />
+                    ) : (
+                      <ContentVault
+                        creatorAddress={address}
+                        userPasses={userPasses}
+                        connected={connected}
+                        walletAddress={publicKey}
+                        blockHeight={blockHeight}
+                        viewMode={contentViewMode}
+                        onViewModeChange={setContentViewMode}
+                      />
+                    )}
                   </m.div>
                 )}
 
@@ -1025,6 +1043,24 @@ export default function CreatorPage({
                         />
                       ))}
                     </div>
+                  </m.div>
+                )}
+
+                {activeTab === 'tip-menu' && (
+                  <m.div
+                    key="tip-menu"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <TipMenu
+                      creatorAddress={address}
+                      creatorName={creatorLabel}
+                      isSubscribed={userPasses.length > 0}
+                      connected={connected}
+                      onTipRequest={() => setShowTip(true)}
+                    />
                   </m.div>
                 )}
 

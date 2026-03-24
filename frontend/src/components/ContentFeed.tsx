@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { m } from 'framer-motion'
-import { Lock, Unlock, Shield, RefreshCw, Loader2, FileText, ArrowRight, Flag, Image as ImageIcon, Video, ShieldCheck, Globe } from 'lucide-react'
+import { Lock, Unlock, Shield, RefreshCw, Loader2, FileText, ArrowRight, Flag, Image as ImageIcon, Video, ShieldCheck, Globe, DollarSign, StickyNote } from 'lucide-react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { isE2EEncrypted, decryptContent as e2eDecrypt } from '@/lib/e2eEncryption'
@@ -13,8 +13,9 @@ const VideoEmbed = dynamic(() => import('./VideoEmbed'), { ssr: false })
 const PostInteractions = dynamic(() => import('./PostInteractions'), { ssr: false })
 const ImageLightbox = dynamic(() => import('./ImageLightbox'), { ssr: false })
 const ArticleReader = dynamic(() => import('./ArticleReader'), { ssr: false })
-import { estimateReadingTime, shortenAddress } from '@/lib/utils'
+import { estimateReadingTime, shortenAddress, formatCredits, formatUsd } from '@/lib/utils'
 import { FEATURED_CREATORS } from '@/lib/config'
+import { toast } from 'sonner'
 import type { AccessPass, ContentPost } from '@/types'
 
 interface Props {
@@ -24,6 +25,8 @@ interface Props {
   walletAddress?: string | null
   refreshKey?: number
   blockHeight?: number | null
+  viewMode?: 'feed' | 'grid'
+  onViewModeChange?: (mode: 'feed' | 'grid') => void
 }
 
 import { tierConfig } from '@/lib/tierConfig'
@@ -68,7 +71,7 @@ function LoadingSkeleton() {
   )
 }
 
-export default function ContentFeed({ creatorAddress, userPasses, connected, walletAddress, refreshKey, blockHeight }: Props) {
+export default function ContentFeed({ creatorAddress, userPasses, connected, walletAddress, refreshKey, blockHeight, viewMode, onViewModeChange }: Props) {
   const { signMessage } = useWallet()
   const { getPostsForCreator, unlockPost, loading, error: feedError, clearError } = useContentFeed()
   const [posts, setPosts] = useState<ContentPost[]>([])
@@ -89,6 +92,24 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   const [lightboxImages, setLightboxImages] = useState<string[] | null>(null)
   const [lightboxIndex, setLightboxIndex] = useState(0)
   const [readerPost, setReaderPost] = useState<ContentPost | null>(null)
+  const [feedFilter, setFeedFilter] = useState<'all' | 'posts' | 'notes'>('all')
+
+  // PPV unlock tracking (localStorage-backed)
+  const [ppvUnlocked, setPpvUnlocked] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('veilsub_ppv_unlocked')
+      return stored ? new Set(JSON.parse(stored)) : new Set()
+    } catch { return new Set() }
+  })
+
+  const markPpvUnlocked = useCallback((postId: string) => {
+    setPpvUnlocked(prev => {
+      const next = new Set(prev)
+      next.add(postId)
+      try { localStorage.setItem('veilsub_ppv_unlocked', JSON.stringify([...next])) } catch { /* ignore */ }
+      return next
+    })
+  }, [])
 
   // Keep refs in sync without triggering effects
   signMessageRef.current = signMessage
@@ -308,14 +329,76 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
     }
   }, [walletAddress, creatorAddress, unlockPost])
 
+  // Filter posts by type
+  const filteredPosts = useMemo(() => {
+    if (feedFilter === 'all') return posts
+    if (feedFilter === 'notes') return posts.filter(p => p.postType === 'note')
+    return posts.filter(p => p.postType !== 'note')
+  }, [posts, feedFilter])
+
+  const noteCount = useMemo(() => posts.filter(p => p.postType === 'note').length, [posts])
+  const postCount = useMemo(() => posts.filter(p => p.postType !== 'note').length, [posts])
+
   return (
     <div>
       <h2 className="text-lg font-semibold text-white mb-2">
         Content
       </h2>
-      <p className="text-xs text-white/60 mb-4">
-        Free posts are visible to everyone. Gated content is end-to-end encrypted and decrypted in your browser after AccessPass verification.
-      </p>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs text-white/60">
+          Free posts are visible to everyone. Gated content is end-to-end encrypted and decrypted in your browser after AccessPass verification.
+        </p>
+        {onViewModeChange && (
+          <div className="flex items-center rounded-lg border border-border overflow-hidden ml-3 shrink-0">
+            <button
+              onClick={() => onViewModeChange('feed')}
+              className={`p-2 transition-colors ${viewMode === 'feed' ? 'bg-violet-500/15 text-violet-300' : 'text-white/50 hover:text-white/70 hover:bg-white/[0.04]'}`}
+              aria-label="List view"
+              title="List view"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </button>
+            <button
+              onClick={() => onViewModeChange('grid')}
+              className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-violet-500/15 text-violet-300' : 'text-white/50 hover:text-white/70 hover:bg-white/[0.04]'}`}
+              aria-label="Grid view"
+              title="Grid view"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Feed filter tabs */}
+      {posts.length > 0 && (
+        <div className="flex gap-1 p-1 rounded-lg bg-white/[0.02] border border-border mb-4" role="tablist" aria-label="Content filter">
+          {([
+            { id: 'all' as const, label: 'All', count: posts.length },
+            { id: 'posts' as const, label: 'Posts', count: postCount },
+            { id: 'notes' as const, label: 'Notes', count: noteCount },
+          ]).map(tab => (
+            <button
+              key={tab.id}
+              role="tab"
+              aria-selected={feedFilter === tab.id}
+              onClick={() => setFeedFilter(tab.id)}
+              className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
+                feedFilter === tab.id
+                  ? 'bg-white/[0.08] text-white'
+                  : 'text-white/40 hover:text-white/60'
+              }`}
+            >
+              {tab.label}
+              {tab.count > 0 && (
+                <span className={`ml-1 text-[10px] ${feedFilter === tab.id ? 'text-white/60' : 'text-white/30'}`}>
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
 
       {initialLoad && loading ? (
         <LoadingSkeleton />
@@ -333,16 +416,78 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         </div>
       ) : (
         <div className="space-y-4">
-          {posts.length === 0 && (
+          {filteredPosts.length === 0 && (
             <div className="p-4 sm:p-6 lg:p-8 rounded-xl bg-surface-1 border border-white/[0.05] text-center">
               <FileText className="w-10 h-10 text-white/60 mx-auto mb-4" aria-hidden="true" />
-              <h3 className="text-white font-medium mb-1">No Exclusive Content Yet</h3>
+              <h3 className="text-white font-medium mb-1">
+                {feedFilter === 'notes' ? 'No Notes Yet' : feedFilter === 'posts' ? 'No Posts Yet' : 'No Exclusive Content Yet'}
+              </h3>
               <p className="text-sm text-white/70">
-                This creator hasn&apos;t published any gated content. Once they do, your AccessPass verification will unlock it instantly—with zero on-chain footprint.
+                {feedFilter === 'notes'
+                  ? 'This creator hasn\'t shared any notes. Notes are short, free, public updates.'
+                  : 'This creator hasn\'t published any gated content. Once they do, your AccessPass verification will unlock it instantly\u2014with zero on-chain footprint.'}
               </p>
             </div>
           )}
-          {posts.map((post, i) => {
+          {filteredPosts.map((post, i) => {
+            const isNote = post.postType === 'note'
+            const isPPV = !!(post.ppvPrice && post.ppvPrice > 0)
+            const isPPVUnlocked = ppvUnlocked.has(post.id)
+
+            // --- Note rendering (compact, no title, always public) ---
+            if (isNote) {
+              const creatorInfo = FEATURED_CREATORS.find(c => c.address === creatorAddress)
+              return (
+                <m.div
+                  key={post.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                  className="rounded-xl border border-white/[0.06] bg-white/[0.015] p-4"
+                >
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                      <StickyNote className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-medium text-white/80">
+                          {creatorInfo?.label || shortenAddress(creatorAddress)}
+                        </span>
+                        <span className="text-[10px] text-white/30">{post.createdAt ? timeAgo(post.createdAt) : ''}</span>
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/15">
+                          Note
+                        </span>
+                      </div>
+                      <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap break-words">
+                        {post.body}
+                      </p>
+                      {post.imageUrl && (
+                        <div
+                          className="mt-2 rounded-lg overflow-hidden border border-white/[0.06] max-h-60 cursor-zoom-in"
+                          onClick={() => {
+                            setLightboxImages([post.imageUrl as string])
+                            setLightboxIndex(0)
+                          }}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={post.imageUrl}
+                            alt="Note image"
+                            className="w-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                      )}
+                      <div className="mt-2">
+                        <PostInteractions contentId={post.id} />
+                      </div>
+                    </div>
+                  </div>
+                </m.div>
+              )
+            }
+
             const isFreePost = post.minTier === 0
             const tier = tierConfig[post.minTier] || tierConfig[1]
             const hasAccess = isFreePost || highestTier >= post.minTier
@@ -407,6 +552,12 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       >
                         {tier.name}
                       </span>
+                      {isPPV && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 border border-amber-500/25 text-amber-300 shrink-0">
+                          <DollarSign className="w-3 h-3" aria-hidden="true" />
+                          PPV
+                        </span>
+                      )}
                     </div>
                     {postIsE2E && (
                       <span
@@ -483,7 +634,46 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     </div>
                   )}
 
-                  {unlocked && displayBody ? (
+                  {/* PPV paywall for free posts — body available but blurred until paid */}
+                  {isPPV && isFreePost && displayBody && !isPPVUnlocked ? (
+                    <div className="relative">
+                      <div className="relative overflow-hidden">
+                        <p className="text-sm text-white/70 leading-relaxed">
+                          {displayBody.replace(/<[^>]*>/g, '').slice(0, 120)}...
+                        </p>
+                        <div className="mt-2 space-y-2" aria-hidden="true">
+                          <div className="h-3.5 rounded bg-white/[0.06] w-full" style={{ filter: 'blur(5px)' }} />
+                          <div className="h-3.5 rounded bg-white/[0.05] w-[85%]" style={{ filter: 'blur(6px)' }} />
+                        </div>
+                        <div
+                          className="absolute inset-x-0 bottom-0 h-20 pointer-events-none"
+                          style={{ background: 'linear-gradient(to bottom, transparent 0%, var(--bg-base) 85%)' }}
+                        />
+                      </div>
+                      <div className="relative -mt-2 flex flex-col items-center gap-2.5 py-4">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-amber-500/10 border border-amber-500/25">
+                          <DollarSign className="w-5 h-5 text-amber-300" aria-hidden="true" />
+                        </div>
+                        <p className="text-sm text-white/80 font-medium">
+                          Unlock this post &mdash; {formatCredits(post.ppvPrice!)} ALEO
+                          <span className="text-white/40 ml-1 text-xs">({formatUsd(post.ppvPrice!)})</span>
+                        </p>
+                        <button
+                          onClick={() => {
+                            // PPV uses tip infrastructure — mark as unlocked optimistically
+                            // In production, this would verify an on-chain tip transaction
+                            markPpvUnlocked(post.id)
+                            toast.success('Post unlocked!')
+                          }}
+                          disabled={!connected}
+                          className="px-6 py-2 rounded-xl text-sm font-medium bg-amber-500/15 border border-amber-500/30 text-amber-200 hover:bg-amber-500/25 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          {connected ? 'Pay to Read' : 'Connect wallet'}
+                        </button>
+                        <p className="text-[10px] text-white/35">One-time payment via private Aleo tip</p>
+                      </div>
+                    </div>
+                  ) : unlocked && displayBody ? (
                     <div>
                       <RichContentRenderer html={displayBody} />
                       {displayBody.length > 500 && (

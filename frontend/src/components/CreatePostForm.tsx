@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react'
 import { m } from 'framer-motion'
-import { FileText, Send, Image as ImageIcon, X, Video, Upload, Loader2, Save, Clock, Tag, Plus, ExternalLink } from 'lucide-react'
+import { FileText, Send, Image as ImageIcon, X, Video, Upload, Loader2, Save, Clock, Tag, Plus, ExternalLink, DollarSign, StickyNote } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
@@ -10,11 +10,11 @@ import { useVeilSub } from '@/hooks/useVeilSub'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import Button from './ui/Button'
-import { generatePassId } from '@/lib/utils'
+import { generatePassId, ALEO_USD_ESTIMATE, creditsToMicrocredits } from '@/lib/utils'
 import { poseidon2HashField } from '@/lib/poseidon'
 import { saveContentHash, SUGGESTED_TAGS, TAG_COLORS, API_LIMITS, DRAFT_AUTOSAVE_INTERVAL_MS } from '@/lib/config'
 import TransactionStatus from './TransactionStatus'
-import type { TxStatus, PostStatus } from '@/types'
+import type { TxStatus, PostStatus, PostType } from '@/types'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
 
 const RichTextEditor = lazy(() => import('./RichTextEditor'))
@@ -148,6 +148,15 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
   // Tags state
   const [tags, setTags] = useState<string[]>(editingPost?.tags ?? [])
   const [tagInput, setTagInput] = useState('')
+
+  // Post type: 'post' (full editor) vs 'note' (short-form, 280 char, always free)
+  const [postMode, setPostMode] = useState<PostType>('post')
+  const [noteText, setNoteText] = useState('')
+  const [noteImageUrl, setNoteImageUrl] = useState('')
+
+  // Pay-Per-View state
+  const [ppvEnabled, setPpvEnabled] = useState(false)
+  const [ppvPrice, setPpvPrice] = useState('')  // ALEO credits as string input
   const [showTagSuggestions, setShowTagSuggestions] = useState(false)
 
   // Scheduling state
@@ -324,6 +333,10 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
     setTagInput('')
     setScheduleDate('')
     setScheduleTime('')
+    setPpvEnabled(false)
+    setPpvPrice('')
+    setNoteText('')
+    setNoteImageUrl('')
     clearLocalDraft()
   }, [clearLocalDraft])
 
@@ -479,11 +492,13 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
       try {
         const contentId = generatePassId()
         const wrappedSign = getWrappedSign()
+        const ppvMicrocredits = ppvEnabled && ppvPrice ? creditsToMicrocredits(parseFloat(ppvPrice)) : undefined
         const saved = await createPost(
           creatorAddress, title.trim(), body, 0, contentId,
           wrappedSign, imageUrl.trim() || undefined, undefined,
           preview.trim() || undefined, videoUrl.trim() || undefined,
-          'published', tags.length > 0 ? [...tags] : undefined
+          'published', tags.length > 0 ? [...tags] : undefined,
+          undefined, ppvMicrocredits
         )
         if (saved) {
           toast.success('Free post published!')
@@ -524,6 +539,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
         const postImageUrl = imageUrl.trim() || undefined
         const postVideoUrl = videoUrl.trim() || undefined
         const postTags = tags.length > 0 ? [...tags] : undefined
+        const postPpvPrice = ppvEnabled && ppvPrice ? creditsToMicrocredits(parseFloat(ppvPrice)) : undefined
 
         startPolling(id, async (result) => {
           if (result.status === 'confirmed') {
@@ -536,7 +552,8 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
             const saved = await createPost(
               creatorAddress, postTitle, postBody, postTier, contentId,
               wrappedSign, postImageUrl, hashedId ?? undefined, postPreview,
-              postVideoUrl, 'published', postTags
+              postVideoUrl, 'published', postTags,
+              undefined, postPpvPrice
             )
             if (!saved) {
               const msg = postError
@@ -569,6 +586,40 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
       toast.dismiss('post-optimistic')
       setTxStatus('failed')
       setError(err instanceof Error ? err.message : 'Post couldn\u2019t be published')
+    } finally {
+      submittingRef.current = false
+    }
+  }
+
+  // Publish a Note (short-form, always free, no on-chain tx)
+  const handlePublishNote = async () => {
+    if (submittingRef.current) return
+    if (!noteText.trim()) { setError('Note text is required.'); return }
+    if (noteText.length > 280) { setError('Notes are limited to 280 characters.'); return }
+
+    submittingRef.current = true
+    setError(null)
+    try {
+      const contentId = generatePassId()
+      const wrappedSign = getWrappedSign()
+      const saved = await createPost(
+        creatorAddress, '', noteText.trim(), 0, contentId,
+        wrappedSign, noteImageUrl.trim() || undefined, undefined,
+        undefined, undefined,
+        'published', undefined, undefined,
+        undefined, 'note'
+      )
+      if (saved) {
+        toast.success('Note shared!')
+        setNoteText('')
+        setNoteImageUrl('')
+        onPostCreated?.()
+      } else {
+        toast.error(postError?.message || 'Note could not be published')
+        if (postError) clearError()
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Note could not be published')
     } finally {
       submittingRef.current = false
     }
@@ -631,9 +682,41 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
       <div className="flex items-center gap-2 mb-4">
         <FileText className="w-5 h-5 text-white/70" aria-hidden="true" />
         <h2 className="text-lg font-semibold text-white">
-          {editingPost ? 'Edit Post' : 'Create Post'}
+          {editingPost ? 'Edit Post' : 'Create'}
         </h2>
       </div>
+
+      {/* Post / Note mode switcher */}
+      {!editingPost && (
+        <div className="flex gap-1 p-1 rounded-xl bg-white/[0.03] border border-border mb-4" role="tablist" aria-label="Content type">
+          <button
+            role="tab"
+            aria-selected={postMode === 'post'}
+            onClick={() => setPostMode('post')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all ${
+              postMode === 'post'
+                ? 'bg-violet-500/15 border border-violet-500/30 text-violet-300'
+                : 'text-white/50 hover:text-white/70'
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5" aria-hidden="true" />
+            Post
+          </button>
+          <button
+            role="tab"
+            aria-selected={postMode === 'note'}
+            onClick={() => setPostMode('note')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all ${
+              postMode === 'note'
+                ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-300'
+                : 'text-white/50 hover:text-white/70'
+            }`}
+          >
+            <StickyNote className="w-3.5 h-3.5" aria-hidden="true" />
+            Note
+          </button>
+        </div>
+      )}
 
       {/* Draft restoration banner */}
       {hasDraft && !draftDismissed && !editingPost && (
@@ -656,7 +739,54 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
         </div>
       )}
 
-      {txStatus === 'idle' || txStatus === 'failed' ? (
+      {/* ===== Note Mode ===== */}
+      {postMode === 'note' && !editingPost ? (
+        <div className="space-y-3">
+          <div>
+            <label htmlFor="note-text" className="sr-only">Note text</label>
+            <textarea
+              id="note-text"
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value.slice(0, 280))}
+              placeholder="Share a quick thought..."
+              rows={3}
+              maxLength={280}
+              className="w-full px-4 py-3 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/50 transition-all text-base resize-none"
+            />
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-[10px] text-white/50">Always free, always public</p>
+              <p className={`text-[10px] ${noteText.length > 260 ? 'text-amber-400' : 'text-white/50'}`}>
+                {noteText.length}/280
+              </p>
+            </div>
+          </div>
+          <div>
+            <label htmlFor="note-image" className="block text-xs text-white/50 mb-1">Image URL (optional)</label>
+            <input
+              id="note-image"
+              type="url"
+              value={noteImageUrl}
+              onChange={(e) => setNoteImageUrl(e.target.value)}
+              placeholder="https://..."
+              maxLength={2048}
+              className="w-full px-3 py-2 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/50 transition-all text-xs"
+            />
+          </div>
+          {error && (
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+              <p className="text-xs text-red-400">{error}</p>
+            </div>
+          )}
+          <button
+            onClick={handlePublishNote}
+            disabled={!noteText.trim() || submittingRef.current}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-sm font-medium hover:bg-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+          >
+            <Send className="w-4 h-4" aria-hidden="true" />
+            Share Note
+          </button>
+        </div>
+      ) : (txStatus === 'idle' || txStatus === 'failed') ? (
         <>
           <div className="space-y-4">
             <div>
@@ -884,6 +1014,58 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
               {minTier === 0 && (
                 <p className="text-xs text-emerald-400/70 mt-2">
                   Free posts are visible to everyone, even without a wallet. Great for attracting new subscribers.
+                </p>
+              )}
+            </div>
+
+            {/* Pay-Per-View toggle */}
+            <div>
+              <div className="flex items-center justify-between">
+                <label className="block text-sm text-white/70">
+                  <DollarSign className="w-3.5 h-3.5 inline mr-1" aria-hidden="true" />
+                  Pay-Per-View <span className="text-white/50">(one-time fee to unlock)</span>
+                </label>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={ppvEnabled}
+                  onClick={() => setPpvEnabled(p => !p)}
+                  className={`relative w-10 h-5 rounded-full transition-colors ${
+                    ppvEnabled ? 'bg-amber-500/40' : 'bg-white/[0.08]'
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
+                      ppvEnabled ? 'translate-x-5' : ''
+                    }`}
+                  />
+                </button>
+              </div>
+              {ppvEnabled && (
+                <div className="mt-2 flex items-center gap-3">
+                  <div className="relative flex-1">
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400/60 pointer-events-none" aria-hidden="true" />
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0.1"
+                      value={ppvPrice}
+                      onChange={(e) => setPpvPrice(e.target.value)}
+                      placeholder="2.0"
+                      className="w-full pl-9 pr-16 py-2 rounded-xl bg-white/[0.05] border border-amber-500/30 text-white placeholder-subtle focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-400/50 transition-all text-sm"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-white/50">ALEO</span>
+                  </div>
+                  {ppvPrice && parseFloat(ppvPrice) > 0 && (
+                    <span className="text-xs text-white/50 shrink-0">
+                      ~${(parseFloat(ppvPrice) * ALEO_USD_ESTIMATE).toFixed(2)}
+                    </span>
+                  )}
+                </div>
+              )}
+              {ppvEnabled && (
+                <p className="text-[10px] text-amber-400/60 mt-1.5">
+                  Readers pay this one-time fee to unlock this specific post. Payment uses the existing tip infrastructure.
                 </p>
               )}
             </div>

@@ -21,6 +21,8 @@ import TransactionProgress from './TransactionProgress'
 import type { ProgressStep } from './TransactionProgress'
 import BalanceConverter from './BalanceConverter'
 import Button from './ui/Button'
+import dynamic from 'next/dynamic'
+const RecommendationsCard = dynamic(() => import('./RecommendationsCard'), { ssr: false })
 import type { SubscriptionTier } from '@/types'
 
 interface Props {
@@ -157,6 +159,14 @@ export default function SubscribeModal({
             logSubscriptionEvent(creatorAddress, tier.id, totalPrice, result.resolvedTxId || id, wrappedSign)
             onSuccess?.() // Trigger cache invalidation in parent
             toast.success("You're subscribed!")
+            // Start welcome sequence (fire-and-forget)
+            if (publicKey) {
+              fetch('/api/welcome-sequence', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subscriber: publicKey, creator: creatorAddress }),
+              }).catch(() => { /* non-critical */ })
+            }
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             setError('Subscription couldn\u2019t be completed. Make sure you have enough public credits (~0.3 ALEO) for network fees and private credits for the tier price.')
@@ -419,6 +429,15 @@ export default function SubscribeModal({
                           Manage Subscriptions
                         </Link>
                       </div>
+                    </div>
+
+                    {/* Creator Recommendations Loop */}
+                    <div className="mt-4 text-left">
+                      <RecommendationsCard
+                        creatorAddress={creatorAddress}
+                        compact
+                        maxItems={3}
+                      />
                     </div>
 
                     <button

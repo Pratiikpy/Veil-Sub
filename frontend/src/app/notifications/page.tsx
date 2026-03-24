@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Bell, CheckCircle2, Gift, AlertTriangle, FileText, Users, Coins } from 'lucide-react'
+import { Bell, CheckCircle2, Gift, AlertTriangle, FileText, Users, Coins, Mail } from 'lucide-react'
 import PageTransition from '@/components/PageTransition'
 import { useNotifications } from '@/hooks/useNotifications'
 import type { NotificationType } from '@/lib/notifications'
@@ -28,6 +28,7 @@ const ICON_MAP: Record<NotificationType, typeof Bell> = {
   subscription_expiring: AlertTriangle,
   gift_received: Gift,
   dispute_filed: AlertTriangle,
+  welcome_message: Mail,
 }
 
 export default function NotificationsPage() {

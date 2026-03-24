@@ -153,7 +153,9 @@ export function useContentFeed() {
       videoUrl?: string,
       status?: PostStatus,
       tags?: string[],
-      scheduledAt?: string
+      scheduledAt?: string,
+      ppvPrice?: number,
+      postType?: 'post' | 'note'
     ): Promise<ContentPost | null> => {
       try {
         const timestamp = Date.now()
@@ -211,6 +213,8 @@ export function useContentFeed() {
             ...(status ? { status } : {}),
             ...(tags && tags.length > 0 ? { tags } : {}),
             ...(scheduledAt ? { scheduledAt } : {}),
+            ...(ppvPrice ? { ppvPrice } : {}),
+            ...(postType === 'note' ? { postType: 'note' } : {}),
             walletHash,
             timestamp,
             signature,

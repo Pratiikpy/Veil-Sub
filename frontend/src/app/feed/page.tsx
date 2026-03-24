@@ -35,6 +35,7 @@ const PostComments = dynamic(() => import('@/components/PostComments'), { ssr: f
 const SavedPosts = dynamic(() => import('@/components/SavedPosts'), { ssr: false })
 const ImageLightbox = dynamic(() => import('@/components/ImageLightbox'), { ssr: false })
 const ArticleReader = dynamic(() => import('@/components/ArticleReader'), { ssr: false })
+const RecommendationsCard = dynamic(() => import('@/components/RecommendationsCard'), { ssr: false })
 import PageTransition from '@/components/PageTransition'
 import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
@@ -550,6 +551,33 @@ export default function FeedPage() {
     }
   }, [connected, subscribedCreators.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Welcome sequence: check for pending welcome messages from subscribed creators
+  useEffect(() => {
+    if (!connected || !publicKey || subscribedCreators.length === 0) return
+    subscribedCreators.forEach((creator) => {
+      fetch(`/api/welcome-sequence?subscriber=${encodeURIComponent(publicKey)}&creator=${encodeURIComponent(creator)}`)
+        .then((res) => res.ok ? res.json() : null)
+        .then((data) => {
+          if (data?.messages?.length) {
+            data.messages.forEach((msg: { title: string; message: string }) => {
+              // Deliver as notification
+              fetch('/api/notifications', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  wallet: publicKey,
+                  type: 'welcome_message',
+                  title: msg.title,
+                  message: msg.message,
+                }),
+              }).catch(() => { /* non-critical */ })
+            })
+          }
+        })
+        .catch(() => { /* non-critical */ })
+    })
+  }, [connected, publicKey, subscribedCreators]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Auto-unlock gated posts for subscribed creators.
   // Uses refs to keep signMessage current and avoid re-triggering on every render.
   const signMessageRef = useRef(signMessage)
@@ -762,6 +790,14 @@ export default function FeedPage() {
                 <Compass className="w-4 h-4" aria-hidden="true" />
                 Explore Creators
               </Link>
+              {/* Recommendations for discovery */}
+              <div className="mt-8 max-w-md mx-auto text-left">
+                <RecommendationsCard
+                  creatorAddress=""
+                  creatorName="VeilSub"
+                  maxItems={3}
+                />
+              </div>
             </div>
           )}
 

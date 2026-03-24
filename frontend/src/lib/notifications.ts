@@ -5,6 +5,7 @@ export type NotificationType =
   | 'subscription_expiring'
   | 'gift_received'
   | 'dispute_filed'
+  | 'welcome_message'
 
 export interface Notification {
   id: string
@@ -24,6 +25,7 @@ export const NOTIFICATION_TITLES: Record<NotificationType, string> = {
   subscription_expiring: 'Subscription Expiring',
   gift_received: 'Gift Received',
   dispute_filed: 'Dispute Filed',
+  welcome_message: 'Welcome Message',
 }
 
 /** Icon identifiers for each notification type (mapped to Lucide icons in UI) */
@@ -34,4 +36,5 @@ export const NOTIFICATION_ICONS: Record<NotificationType, string> = {
   subscription_expiring: 'clock',
   gift_received: 'gift',
   dispute_filed: 'alert-triangle',
+  welcome_message: 'mail',
 }

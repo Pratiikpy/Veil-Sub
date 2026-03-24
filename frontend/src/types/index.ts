@@ -8,6 +8,7 @@ export interface AccessPass {
 }
 
 export type PostStatus = 'published' | 'draft' | 'scheduled'
+export type PostType = 'post' | 'note'
 
 export interface ContentPost {
   id: string
@@ -28,6 +29,11 @@ export interface ContentPost {
   tags?: string[]            // content tags (max 5 per post)
   scheduledAt?: string       // ISO 8601 timestamp for scheduled publish time
   hashedContentId?: string   // Poseidon2 hash for on-chain dispute tracking
+  // Pay-Per-View: individual posts that cost a one-time fee to unlock
+  ppvPrice?: number          // microcredits, 0 or undefined = not PPV
+  ppvUnlocked?: boolean      // client-side tracking (localStorage-backed)
+  // Notes: short-form public posts (always free, no title, max 280 chars)
+  postType?: PostType        // 'post' (default) or 'note'
 }
 
 export interface CustomTierInfo {

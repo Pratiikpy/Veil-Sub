@@ -96,6 +96,8 @@ export async function GET(req: NextRequest) {
             hasImage: !!decryptedImageUrl, hasVideo: !!decryptedVideoUrl,
             preview: previewValue,
             ...(post.e2e ? { e2e: true } : {}),
+            ...(post.ppvPrice ? { ppvPrice: post.ppvPrice } : {}),
+            ...(post.postType === 'note' ? { postType: 'note' } : {}),
           }]
         }
         // Free posts (minTier 0): decrypt body for public display
@@ -112,6 +114,8 @@ export async function GET(req: NextRequest) {
           tags: decryptedTags.length > 0 ? decryptedTags : undefined,
           imageUrl: decryptedImageUrl || undefined,
           videoUrl: decryptedVideoUrl || undefined,
+          ...(post.ppvPrice ? { ppvPrice: post.ppvPrice } : {}),
+          ...(post.postType === 'note' ? { postType: 'note' } : {}),
         }]
       } catch { return [] }
     })
@@ -216,10 +220,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { creator, title, body, preview, minTier, contentId, hashedContentId, imageUrl, videoUrl, walletHash, timestamp, signature, status, tags, scheduledAt } = payload
-    // Drafts only require title (body can be empty); published posts require both
+    const { creator, title, body, preview, minTier, contentId, hashedContentId, imageUrl, videoUrl, walletHash, timestamp, signature, status, tags, scheduledAt, ppvPrice, postType } = payload
+    // Notes require only body (no title); drafts require title; posts require both
     const isDraft = status === 'draft'
-    if (!creator || !title || (!isDraft && !body)) {
+    const isNote = postType === 'note'
+    if (!creator || (!isNote && !title) || (!isDraft && !isNote && !body)) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
     }
     if (!ALEO_ADDRESS_RE.test(creator)) {
@@ -309,6 +314,18 @@ export async function POST(req: NextRequest) {
       safeScheduledAt = scheduledAt
     }
 
+    // Validate PPV price (Pay-Per-View posts)
+    let safePpvPrice: number | undefined
+    if (ppvPrice !== undefined && ppvPrice !== null && ppvPrice !== 0) {
+      if (typeof ppvPrice !== 'number' || ppvPrice < 0 || ppvPrice > API_LIMITS.MAX_MICROCREDITS) {
+        return NextResponse.json({ error: 'Invalid PPV price' }, { status: 400 })
+      }
+      safePpvPrice = Math.floor(ppvPrice)
+    }
+
+    // Validate postType
+    const safePostType = (postType === 'note') ? 'note' : 'post'
+
     // Preview is an optional short teaser shown to non-subscribers
     const safePreview = typeof preview === 'string' ? preview.slice(0, API_LIMITS.MAX_PREVIEW_LENGTH) : ''
 
@@ -342,10 +359,10 @@ export async function POST(req: NextRequest) {
 
     const post = {
       id: `post-${crypto.randomUUID()}`,
-      title: encryptedTitle,
+      title: isNote ? '' : encryptedTitle,
       body: encryptedBody,
       preview: encryptedPreview,
-      minTier: typeof minTier === 'number' ? minTier : 1,
+      minTier: isNote ? 0 : (typeof minTier === 'number' ? minTier : 1),
       createdAt: new Date().toISOString(),
       contentId: typeof contentId === 'string' ? contentId.slice(0, API_LIMITS.MAX_CONTENT_ID_LENGTH) : '',
       status: postStatus,
@@ -355,6 +372,8 @@ export async function POST(req: NextRequest) {
       ...(typeof hashedContentId === 'string' && /^\d+field$/.test(hashedContentId) ? { hashedContentId } : {}),
       ...(encryptedImageUrl ? { imageUrl: encryptedImageUrl } : {}),
       ...(encryptedVideoUrl ? { videoUrl: encryptedVideoUrl } : {}),
+      ...(safePpvPrice ? { ppvPrice: safePpvPrice } : {}),
+      ...(safePostType === 'note' ? { postType: 'note' as const } : {}),
     }
 
     await redis.zadd(`veilsub:posts:${creator}`, {
@@ -366,10 +385,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       post: {
         ...post,
-        title,
+        title: isNote ? '' : title,
         ...(safeTags.length > 0 ? { tags: safeTags } : {}),
         ...(safeImageUrl ? { imageUrl: safeImageUrl } : {}),
         ...(safeVideoUrl ? { videoUrl: safeVideoUrl } : {}),
+        ...(safePpvPrice ? { ppvPrice: safePpvPrice } : {}),
+        ...(safePostType === 'note' ? { postType: 'note' as const } : {}),
       },
     })
   } catch {

@@ -27,6 +27,7 @@ import {
 import Link from 'next/link'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import GlassCard from '@/components/GlassCard'
+import AnalyticsInsights from '@/components/AnalyticsInsights'
 import PageTransition from '@/components/PageTransition'
 import { formatCredits, formatUsd } from '@/lib/utils'
 import { useAnalytics, type DateRange } from '@/hooks/useAnalytics'
@@ -654,6 +655,22 @@ export default function AnalyticsPage() {
                     )}
                   </div>
                 </div>
+              </GlassCard>
+            </section>
+          )}
+
+          {/* ── Smart Insights ──────────────────────────────── */}
+
+          {hasCreatorData && (
+            <section className="mb-10 sm:mb-16">
+              <GlassCard hover={false}>
+                <AnalyticsInsights
+                  subscriberCount={analytics.data!.summary.activeSubscribers}
+                  totalRevenue={analytics.data!.summary.totalRevenue}
+                  contentCount={analytics.data!.summary.contentPublished}
+                  recentPosts={analytics.data!.summary.contentPublished}
+                  churnRate={churnData?.churnRate}
+                />
               </GlassCard>
             </section>
           )}
