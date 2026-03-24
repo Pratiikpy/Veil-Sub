@@ -164,10 +164,12 @@ function FeedPostCard({
   post,
   hasAccess,
   index,
+  walletAddress,
 }: {
   post: FeedPost
   hasAccess: boolean
   index: number
+  walletAddress?: string | null
 }) {
   const tier = tierConfig[post.minTier] || tierConfig[1]
   const tierName = getTierName(post.creatorAddress, post.minTier)
@@ -359,13 +361,15 @@ function FeedPostCard({
             contentId={post.id}
             readingTime={readingTime || undefined}
             onCommentClick={() => setShowComments(!showComments)}
+            creatorAddress={post.creatorAddress}
+            postTitle={post.title || ''}
           />
           <EmojiReactions contentId={post.id} />
         </div>
 
         {/* Collapsible comments */}
         {showComments && (
-          <PostComments contentId={post.id} isSubscribed={hasAccess} />
+          <PostComments contentId={post.id} isSubscribed={hasAccess} walletAddress={walletAddress} />
         )}
         {!showComments && (
           <button
@@ -990,6 +994,7 @@ export default function FeedPage() {
                           post={post}
                           hasAccess={hasAccess}
                           index={i}
+                          walletAddress={publicKey}
                         />
                       )
                     })}

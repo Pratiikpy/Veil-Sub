@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { toast } from 'sonner'
 
 interface EmojiReactionsProps {
   contentId: string
@@ -82,12 +83,43 @@ export default function EmojiReactions({ contentId }: EmojiReactionsProps) {
     // Persist aggregate count change to server
     if (serverAvailable.current) {
       try {
-        await fetch('/api/social', {
+        const res = await fetch('/api/social', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ type: 'reaction', contentId, reactionType: key, delta }),
         })
-      } catch { /* server down, local state is fine */ }
+        if (!res.ok) {
+          // Rollback optimistic update on server error
+          setCounts(prev => {
+            const next = { ...prev, [key]: Math.max(0, (prev[key] || 0) - delta) }
+            if (next[key] === 0) delete next[key]
+            try { localStorage.setItem(STORAGE_KEY + contentId, JSON.stringify(next)) } catch { /* quota */ }
+            return next
+          })
+          setMine(prev => {
+            const next = new Set(prev)
+            if (isActive) next.add(key); else next.delete(key)
+            try { localStorage.setItem(STORAGE_KEY + contentId + '_my', JSON.stringify([...next])) } catch { /* quota */ }
+            return next
+          })
+          toast.error('Reaction not saved — please try again')
+        }
+      } catch {
+        // Network error — rollback optimistic update
+        setCounts(prev => {
+          const next = { ...prev, [key]: Math.max(0, (prev[key] || 0) - delta) }
+          if (next[key] === 0) delete next[key]
+          try { localStorage.setItem(STORAGE_KEY + contentId, JSON.stringify(next)) } catch { /* quota */ }
+          return next
+        })
+        setMine(prev => {
+          const next = new Set(prev)
+          if (isActive) next.add(key); else next.delete(key)
+          try { localStorage.setItem(STORAGE_KEY + contentId + '_my', JSON.stringify([...next])) } catch { /* quota */ }
+          return next
+        })
+        serverAvailable.current = false
+      }
     }
   }, [contentId, mine])
 

@@ -586,7 +586,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                         </div>
                       )}
                       <div className="mt-2">
-                        <PostInteractions contentId={post.id} />
+                        <PostInteractions contentId={post.id} creatorAddress={creatorAddress} postTitle="Note" />
                       </div>
                     </div>
                   </div>
@@ -925,6 +925,8 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       <PostInteractions
                         contentId={post.id}
                         readingTime={displayBody ? estimateReadingTime(displayBody) : undefined}
+                        creatorAddress={creatorAddress}
+                        postTitle={post.title || ''}
                       />
                     </div>
                   )}

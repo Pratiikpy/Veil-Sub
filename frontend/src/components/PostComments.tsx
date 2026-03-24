@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Heart, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react'
+import { toast } from 'sonner'
+import { computeWalletHash } from '@/lib/utils'
 
 interface Comment {
   id: string
@@ -30,6 +32,7 @@ interface LegacyComment {
 interface PostCommentsProps {
   contentId: string
   isSubscribed: boolean
+  walletAddress?: string | null
 }
 
 const MAX_CHARS = 280
@@ -104,7 +107,7 @@ function migrateLegacy(raw: string): Comment[] {
   }
 }
 
-export default function PostComments({ contentId, isSubscribed }: PostCommentsProps) {
+export default function PostComments({ contentId, isSubscribed, walletAddress }: PostCommentsProps) {
   const [comments, setComments] = useState<Comment[]>([])
   const [text, setText] = useState('')
   const [replyTo, setReplyTo] = useState<string | null>(null)
@@ -199,14 +202,25 @@ export default function PostComments({ contentId, isSubscribed }: PostCommentsPr
 
     // Persist to server with retry logic
     if (serverAvailable) {
+      // Build auth payload for wallet authentication
+      let authPayload: { walletAddress?: string; walletHash?: string; timestamp?: number } = {}
+      if (walletAddress) {
+        try {
+          const walletHash = await computeWalletHash(walletAddress)
+          authPayload = { walletAddress, walletHash, timestamp: Date.now() }
+        } catch { /* auth will be optional, server may still accept */ }
+      }
+
       const payload = JSON.stringify({
         type: 'comment',
         contentId,
         text: trimmed,
         subscriberHash: subHash,
         parentId: replyTo || undefined,
+        ...authPayload,
       })
       let retries = 3
+      let succeeded = false
       while (retries > 0) {
         try {
           const res = await fetch('/api/social', {
@@ -222,6 +236,7 @@ export default function PostComments({ contentId, isSubscribed }: PostCommentsPr
               saveLocal(updated)
               return updated
             })
+            succeeded = true
             break
           }
           retries--
@@ -229,19 +244,22 @@ export default function PostComments({ contentId, isSubscribed }: PostCommentsPr
           retries--
         }
       }
-      // After all retries exhausted, optimistic entry stays (localStorage only)
+      // After all retries exhausted, notify user that comment is local-only
+      if (!succeeded) {
+        toast.error('Comment saved locally only — server unavailable')
+      }
     }
-  }, [text, comments, replyTo, contentId, serverAvailable, saveLocal])
+  }, [text, comments, replyTo, contentId, serverAvailable, saveLocal, walletAddress])
 
   const toggleLike = useCallback(async (id: string) => {
     const likeKey = `veilsub_comment_like_${id}`
-    const liked = localStorage.getItem(likeKey)
-    const delta = liked ? -1 : 1
+    const wasLiked = !!localStorage.getItem(likeKey)
+    const delta = wasLiked ? -1 : 1
 
     // Optimistic update
     const next = comments.map(c => {
       if (c.id !== id) return c
-      if (liked) {
+      if (wasLiked) {
         localStorage.removeItem(likeKey)
         return { ...c, likes_count: Math.max(0, c.likes_count - 1) }
       }
@@ -254,12 +272,39 @@ export default function PostComments({ contentId, isSubscribed }: PostCommentsPr
     // Persist to server
     if (serverAvailable) {
       try {
-        await fetch('/api/social', {
+        const res = await fetch('/api/social', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ type: 'comment_like', contentId, commentId: id, delta }),
         })
-      } catch { /* server down, local state is fine */ }
+        if (!res.ok) {
+          // Rollback optimistic update on server error
+          const rollback = comments.map(c => {
+            if (c.id !== id) return c
+            if (wasLiked) {
+              localStorage.setItem(likeKey, '1')
+              return { ...c, likes_count: c.likes_count + 1 }
+            }
+            localStorage.removeItem(likeKey)
+            return { ...c, likes_count: Math.max(0, c.likes_count - 1) }
+          })
+          setComments(rollback)
+          saveLocal(rollback)
+        }
+      } catch {
+        // Network error — rollback optimistic update
+        const rollback = comments.map(c => {
+          if (c.id !== id) return c
+          if (wasLiked) {
+            localStorage.setItem(likeKey, '1')
+            return { ...c, likes_count: c.likes_count + 1 }
+          }
+          localStorage.removeItem(likeKey)
+          return { ...c, likes_count: Math.max(0, c.likes_count - 1) }
+        })
+        setComments(rollback)
+        saveLocal(rollback)
+      }
     }
   }, [comments, contentId, serverAvailable, saveLocal])
 

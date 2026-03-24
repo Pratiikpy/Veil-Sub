@@ -12,6 +12,8 @@ interface PostInteractionsProps {
   readingTime?: string
   commentCount?: number
   onCommentClick?: () => void
+  creatorAddress?: string
+  postTitle?: string
 }
 
 interface SavedEntry {
@@ -39,6 +41,8 @@ export default function PostInteractions({
   readingTime,
   commentCount = 0,
   onCommentClick,
+  creatorAddress = '',
+  postTitle = '',
 }: PostInteractionsProps) {
   const [likes, setLikes] = useState(() => {
     try { return Number(localStorage.getItem(LIKES_PREFIX + contentId)) || initialLikes } catch { return initialLikes }
@@ -89,7 +93,10 @@ export default function PostInteractions({
   }, [contentId])
 
   const triggerLike = useCallback(async () => {
-    if (liked) {
+    const wasLiked = liked
+    const prevLikes = likes
+
+    if (wasLiked) {
       // Unlike
       const next = Math.max(0, likes - 1)
       setLikes(next)
@@ -102,12 +109,30 @@ export default function PostInteractions({
       // Persist decrement to server
       if (serverAvailable.current) {
         try {
-          await fetch('/api/social', {
+          const res = await fetch('/api/social', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ type: 'reaction', contentId, reactionType: 'heart', delta: -1 }),
           })
-        } catch { /* server down */ }
+          if (!res.ok) {
+            // Rollback on server error
+            setLikes(prevLikes)
+            setLiked(true)
+            try {
+              localStorage.setItem(LIKES_PREFIX + contentId, String(prevLikes))
+              localStorage.setItem(LIKED_PREFIX + contentId, '1')
+            } catch { /* quota */ }
+          }
+        } catch {
+          // Rollback on network error
+          setLikes(prevLikes)
+          setLiked(true)
+          try {
+            localStorage.setItem(LIKES_PREFIX + contentId, String(prevLikes))
+            localStorage.setItem(LIKED_PREFIX + contentId, '1')
+          } catch { /* quota */ }
+          serverAvailable.current = false
+        }
       }
       return
     }
@@ -129,12 +154,31 @@ export default function PostInteractions({
     // Persist increment to server
     if (serverAvailable.current) {
       try {
-        await fetch('/api/social', {
+        const res = await fetch('/api/social', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ type: 'reaction', contentId, reactionType: 'heart', delta: 1 }),
         })
-      } catch { /* server down */ }
+        if (!res.ok) {
+          // Rollback on server error
+          setLikes(prevLikes)
+          setLiked(false)
+          try {
+            localStorage.setItem(LIKES_PREFIX + contentId, String(prevLikes))
+            localStorage.removeItem(LIKED_PREFIX + contentId)
+          } catch { /* quota */ }
+          toast.error('Like not saved — please try again')
+        }
+      } catch {
+        // Rollback on network error
+        setLikes(prevLikes)
+        setLiked(false)
+        try {
+          localStorage.setItem(LIKES_PREFIX + contentId, String(prevLikes))
+          localStorage.removeItem(LIKED_PREFIX + contentId)
+        } catch { /* quota */ }
+        serverAvailable.current = false
+      }
     }
   }, [liked, likes, contentId])
 
@@ -160,7 +204,7 @@ export default function PostInteractions({
       setSaved(false)
       toast.success('Removed from saved')
     } else {
-      const entry: SavedEntry = { contentId, creatorAddress: '', title: '', savedAt: Date.now() }
+      const entry: SavedEntry = { contentId, creatorAddress, title: postTitle, savedAt: Date.now() }
       const next = [entry, ...entries].slice(0, 200)
       localStorage.setItem(SAVED_KEY, JSON.stringify(next))
       setSaved(true)
