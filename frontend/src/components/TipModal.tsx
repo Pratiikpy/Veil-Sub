@@ -9,7 +9,7 @@ import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
-import { creditsToMicrocredits, formatCredits, generatePassId } from '@/lib/utils'
+import { creditsToMicrocredits, formatCredits, formatUsd, generatePassId, ALEO_USD_ESTIMATE } from '@/lib/utils'
 import { logSubscriptionEvent } from '@/lib/logEvent'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
@@ -497,13 +497,14 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                           aria-checked={selectedAmount === amount && !customAmount}
                           tabIndex={selectedAmount === amount && !customAmount ? 0 : -1}
                           onClick={() => { setSelectedAmount(amount); setCustomAmount('') }}
-                          className={`py-3 rounded-xl text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+                          className={`py-3 rounded-xl text-center transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
                             selectedAmount === amount && !customAmount
                               ? 'bg-violet-500/20 border border-violet-500/40 text-violet-300 shadow-accent-sm'
                               : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:border-white/15'
                           }`}
                         >
-                          {amount}
+                          <span className="text-sm font-medium block">{amount}</span>
+                          <span className="text-[10px] text-white/40 block">~${(amount * ALEO_USD_ESTIMATE).toFixed(2)}</span>
                         </button>
                       ))}
                     </div>
@@ -527,7 +528,9 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/60">ALEO</span>
                     </div>
                     <p className="text-center text-sm text-white/70 mb-4">
-                      {customAmount ? `${customAmount} ALEO credits` : `${selectedAmount} ALEO credits`}
+                      {customAmount
+                        ? `${customAmount} ALEO (~$${(parseFloat(customAmount) * ALEO_USD_ESTIMATE).toFixed(2)})`
+                        : `${selectedAmount} ALEO (~$${(selectedAmount * ALEO_USD_ESTIMATE).toFixed(2)})`}
                     </p>
                   </>
                 )}

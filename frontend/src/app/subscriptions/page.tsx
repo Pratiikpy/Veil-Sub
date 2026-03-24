@@ -20,7 +20,7 @@ import PageTransition from '@/components/PageTransition'
 import RenewModal from '@/components/RenewModal'
 import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
-import { parseAccessPass, shortenAddress, formatCredits } from '@/lib/utils'
+import { parseAccessPass, shortenAddress, formatCredits, formatExpiry } from '@/lib/utils'
 import { SECONDS_PER_BLOCK, FEATURED_CREATORS, CREATOR_CUSTOM_TIERS } from '@/lib/config'
 import type { AccessPass } from '@/types'
 
@@ -88,7 +88,7 @@ const STATUS_BADGE: Record<string, { bg: string; text: string; border: string; l
 // Threshold: 3 days worth of blocks to consider "expiring soon"
 const EXPIRING_SOON_BLOCKS = Math.floor((3 * 86400) / SECONDS_PER_BLOCK)
 
-function SubscriptionCard({ sub, onRenew }: { sub: ParsedSubscription; onRenew?: (sub: ParsedSubscription) => void }) {
+function SubscriptionCard({ sub, onRenew, blockHeight }: { sub: ParsedSubscription; onRenew?: (sub: ParsedSubscription) => void; blockHeight: number | null }) {
   const badge = STATUS_BADGE[sub.status]
 
   return (
@@ -121,9 +121,9 @@ function SubscriptionCard({ sub, onRenew }: { sub: ParsedSubscription; onRenew?:
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-white/50">Expires at block</span>
-          <span className="text-sm font-mono text-white/80">
-            #{sub.expiresAt.toLocaleString()}
+          <span className="text-xs text-white/50">Expiry</span>
+          <span className="text-sm text-white/80">
+            {formatExpiry(sub.expiresAt, blockHeight)}
           </span>
         </div>
         {sub.status !== 'expired' && (
@@ -179,8 +179,10 @@ function SubscriptionCard({ sub, onRenew }: { sub: ParsedSubscription; onRenew?:
 
 function SubscriptionHistory({
   subscriptions,
+  blockHeight,
 }: {
   subscriptions: ParsedSubscription[]
+  blockHeight: number | null
 }) {
   if (subscriptions.length === 0) return null
 
@@ -222,8 +224,8 @@ function SubscriptionHistory({
                     {badge.label}
                   </span>
                 </td>
-                <td className="py-3 px-4 text-right text-white/60 font-mono text-xs">
-                  #{sub.expiresAt.toLocaleString()}
+                <td className="py-3 px-4 text-right text-white/60 text-xs">
+                  {formatExpiry(sub.expiresAt, blockHeight)}
                 </td>
               </tr>
             )
@@ -453,7 +455,7 @@ export default function SubscriptionsPage() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                   >
-                    <SubscriptionCard sub={sub} onRenew={setRenewTarget} />
+                    <SubscriptionCard sub={sub} onRenew={setRenewTarget} blockHeight={blockHeight} />
                   </m.div>
                 ))}
               </div>
@@ -481,7 +483,7 @@ export default function SubscriptionsPage() {
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
                 >
                   {expiredPasses.map((sub) => (
-                    <SubscriptionCard key={sub.passId} sub={sub} />
+                    <SubscriptionCard key={sub.passId} sub={sub} blockHeight={blockHeight} />
                   ))}
                 </m.div>
               )}
@@ -523,7 +525,7 @@ export default function SubscriptionsPage() {
                 Subscription History
               </h2>
               <GlassCard hover={false}>
-                <SubscriptionHistory subscriptions={passes} />
+                <SubscriptionHistory subscriptions={passes} blockHeight={blockHeight} />
               </GlassCard>
             </section>
           )}

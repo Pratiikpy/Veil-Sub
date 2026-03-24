@@ -48,6 +48,7 @@ import AddressAvatar from '@/components/ui/AddressAvatar'
 import {
   shortenAddress,
   formatCredits,
+  formatUsd,
   parseAccessPass,
   subscriberThresholdLabel,
 } from '@/lib/utils'
@@ -367,7 +368,6 @@ function TierCard({
   subscriberCount?: number
 }) {
   const tierPrice = basePrice * tier.priceMultiplier
-  const usdEstimate = (tierPrice / 1_000_000 * 0.5).toFixed(2) // rough $0.50/ALEO estimate
 
   return (
     <m.div
@@ -398,7 +398,7 @@ function TierCard({
         <span className="text-sm font-normal text-white/60 ml-1">ALEO</span>
       </div>
       <p className="text-xs text-white/50 mb-4">
-        ~${usdEstimate} USD/mo
+        {formatUsd(tierPrice)}/mo
       </p>
 
       {tier.description && (
@@ -907,7 +907,7 @@ export default function CreatorPage({
                   </span>
                   <span className="flex items-center gap-1">
                     <Coins className="w-3 h-3" />
-                    From {formatCredits(basePrice)} ALEO/mo
+                    From {formatCredits(basePrice)} ALEO ({formatUsd(basePrice)})/mo
                   </span>
                   <button
                     onClick={copyAddress}

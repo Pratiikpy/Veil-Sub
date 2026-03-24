@@ -10,6 +10,7 @@ import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { MICROCREDITS_PER_CREDIT } from '@/lib/config'
+import { formatUsd } from '@/lib/utils'
 import TransactionStatus from './TransactionStatus'
 import Button from './ui/Button'
 import { getErrorMessage } from '@/lib/errorMessages'
@@ -182,7 +183,7 @@ export default function GiftSubscriptionFlow({
                   </div>
                   <div className="mt-2 flex justify-between text-sm">
                     <span className="text-white/70">Cost</span>
-                    <span className="text-white font-medium">{priceAleo} ALEO</span>
+                    <span className="text-white font-medium">{priceAleo} ALEO <span className="text-white/50 font-normal">({formatUsd(tierPrice)})</span></span>
                   </div>
                 </div>
 

@@ -28,7 +28,7 @@ import Link from 'next/link'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
-import { formatCredits } from '@/lib/utils'
+import { formatCredits, formatUsd } from '@/lib/utils'
 import { useAnalytics, type DateRange } from '@/hooks/useAnalytics'
 import {
   AreaChart,
@@ -512,7 +512,7 @@ export default function AnalyticsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10 sm:mb-16">
             {hasCreatorData ? (
               <>
-                <MetricCard icon={Coins} label="Revenue" value={`${formatCredits(analytics.data!.summary.totalRevenue)} ALEO`} trend={analytics.data!.summary.revenueTrend} sparkline={analytics.data!.summary.revenueSparkline} sparkColor="stroke-emerald-400" />
+                <MetricCard icon={Coins} label="Revenue" value={`${formatCredits(analytics.data!.summary.totalRevenue)} ALEO (${formatUsd(analytics.data!.summary.totalRevenue)})`} trend={analytics.data!.summary.revenueTrend} sparkline={analytics.data!.summary.revenueSparkline} sparkColor="stroke-emerald-400" />
                 <MetricCard icon={Users} label="Subscribers" value={analytics.data!.summary.activeSubscribers.toString()} trend={analytics.data!.summary.subscriberTrend} sparkline={analytics.data!.summary.subscriberSparkline} sparkColor="stroke-violet-400" />
                 <MetricCard icon={FileText} label="Content" value={analytics.data!.summary.contentPublished.toString()} trend={analytics.data!.summary.contentTrend} sparkline={analytics.data!.summary.contentSparkline} sparkColor="stroke-blue-400" />
                 <ChurnStatCard churn={churnData} loading={analytics.loading} />
@@ -521,7 +521,7 @@ export default function AnalyticsPage() {
               <>
                 <StatsCard icon={Users} label="Total Creators" value={globalStats.totalCreators.toString()} loading={globalLoading} delay={0} />
                 <StatsCard icon={CreditCard} label="Total Subscriptions" value={globalStats.totalSubscriptions.toString()} loading={globalLoading} delay={0.05} />
-                <StatsCard icon={Coins} label="Platform Revenue" value={`${formatCredits(globalStats.totalRevenue)} ALEO`} loading={globalLoading} delay={0.1} />
+                <StatsCard icon={Coins} label="Platform Revenue" value={`${formatCredits(globalStats.totalRevenue)} ALEO (${formatUsd(globalStats.totalRevenue)})`} loading={globalLoading} delay={0.1} />
                 <StatsCard icon={ShieldCheck} label="Privacy Level" value="Maximum" delay={0.15} />
               </>
             )}

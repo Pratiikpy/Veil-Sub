@@ -100,7 +100,7 @@ export default function HeroSection() {
               className="mt-6 sm:mt-8 text-base sm:text-lg text-white/80 max-w-[480px] mx-auto lg:mx-0 leading-relaxed"
               style={{ y: descY }}
             >
-              Private subscriptions for creators and fans.
+              The first subscription platform where your identity is mathematically impossible to expose. Support any creator. Stay invisible.
             </m.p>
 
             <m.div

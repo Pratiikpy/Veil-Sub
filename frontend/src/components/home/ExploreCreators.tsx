@@ -14,7 +14,7 @@ import StaggerContainer, { staggerItemVariants } from '@/components/StaggerConta
 import AddressAvatar from '@/components/ui/AddressAvatar'
 import { FEATURED_CREATORS } from '@/lib/config'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
-import { shortenAddress, formatCredits } from '@/lib/utils'
+import { shortenAddress, formatCredits, formatUsd } from '@/lib/utils'
 
 /* ─── Types ─── */
 interface CreatorListItem {
@@ -76,7 +76,7 @@ const HomepageCreatorCard = React.memo(function HomepageCreatorCard({
           </span>
           <span className="flex items-center gap-1">
             <Coins className="w-3 h-3" aria-hidden="true" />
-            {formatCredits(stats.tierPrice)} ALEO
+            {formatCredits(stats.tierPrice)} ALEO <span className="text-white/35">({formatUsd(stats.tierPrice)})</span>
           </span>
         </div>
       ) : (

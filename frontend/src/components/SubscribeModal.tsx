@@ -10,7 +10,7 @@ import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
-import { generatePassId, formatCredits } from '@/lib/utils'
+import { generatePassId, formatCredits, formatUsd } from '@/lib/utils'
 import { SUBSCRIPTION_DURATION_BLOCKS, TRIAL_DURATION_BLOCKS, TRIAL_PRICE_DIVISOR, PLATFORM_FEE_PCT, FEES } from '@/lib/config'
 import { getErrorMessage } from '@/lib/errorMessages'
 import { logSubscriptionEvent } from '@/lib/logEvent'
@@ -231,9 +231,10 @@ export default function SubscribeModal({
                       {tier.name}
                     </span>
                   </div>
-                  <p className="text-2xl font-bold text-white mb-2">
+                  <p className="text-2xl font-bold text-white mb-1">
                     {formatCredits(totalPrice)} <span className="text-sm font-medium text-white/70">ALEO</span>
                   </p>
+                  <p className="text-sm text-white/50 mb-2">{formatUsd(totalPrice)}</p>
                   <p className="text-sm text-white/70">{tier.description}</p>
                   <ul className="mt-4 space-y-1">
                     {tier.features.map((f) => (
@@ -253,11 +254,11 @@ export default function SubscribeModal({
                   <div className="text-xs text-white/60 space-y-1">
                     <div className="flex justify-between">
                       <span>Creator ({100 - PLATFORM_FEE_PCT}%)</span>
-                      <span className="text-white/70">{formatCredits(creatorCut)} ALEO</span>
+                      <span className="text-white/70">{formatCredits(creatorCut)} ALEO <span className="text-white/40">({formatUsd(creatorCut)})</span></span>
                     </div>
                     <div className="flex justify-between">
                       <span>Platform fee ({PLATFORM_FEE_PCT}%)</span>
-                      <span className="text-white/70">{formatCredits(platformCut)} ALEO</span>
+                      <span className="text-white/70">{formatCredits(platformCut)} ALEO <span className="text-white/40">({formatUsd(platformCut)})</span></span>
                     </div>
                     <div className="pt-1.5 mt-1.5 border-t border-white/5 flex justify-between text-white/70">
                       <span>Duration</span>

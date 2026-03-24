@@ -35,7 +35,7 @@ import AddressAvatar from '@/components/ui/AddressAvatar'
 import CreatePostForm from '@/components/CreatePostForm'
 import ProfileEditor from '@/components/dashboard/ProfileEditor'
 import PostsList from '@/components/dashboard/PostsList'
-import { formatCredits, shortenAddress } from '@/lib/utils'
+import { formatCredits, formatUsd, shortenAddress } from '@/lib/utils'
 import { PLATFORM_FEE_PCT, PLATFORM_ADDRESS, DEPLOYED_PROGRAM_ID, MICROCREDITS_PER_CREDIT, getCreatorHash } from '@/lib/config'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useCreatorTiers, invalidateCreatorTierCache } from '@/hooks/useCreatorTiers'
@@ -348,9 +348,9 @@ export default function RegisteredDashboard({
     }
   }
 
-  // USD estimate: rough $0.50/ALEO placeholder for display
+  // USD estimate using centralized ALEO_USD_ESTIMATE from utils
   const revenueAleo = (stats?.totalRevenue ?? 0) / MICROCREDITS_PER_CREDIT
-  const revenueUsd = (revenueAleo * 0.5).toFixed(2)
+  const revenueUsdStr = formatUsd(stats?.totalRevenue ?? 0)
 
   // Build tier display list
   const tierList = useMemo(() => {
@@ -430,7 +430,7 @@ export default function RegisteredDashboard({
               <span className="text-[11px] text-white/60 uppercase tracking-wider">Revenue</span>
             </div>
             <p className="text-xl font-bold text-white tabular-nums">
-              {revenueAleo > 0 ? `~$${revenueUsd}` : '\u2014'}
+              {revenueAleo > 0 ? revenueUsdStr : '\u2014'}
             </p>
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-white/50">
@@ -484,7 +484,7 @@ export default function RegisteredDashboard({
                 className="w-full px-4 py-2.5 rounded-xl bg-emerald-600/90 text-sm font-semibold text-white hover:bg-emerald-500 transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98]"
               >
                 <ArrowDownToLine className="w-4 h-4" aria-hidden="true" />
-                Withdraw {formatCredits(onChainRevenue ?? stats?.totalRevenue ?? 0)} ALEO
+                Withdraw {formatCredits(onChainRevenue ?? stats?.totalRevenue ?? 0)} ALEO ({formatUsd(onChainRevenue ?? stats?.totalRevenue ?? 0)})
               </button>
             ) : (
               <m.div
@@ -802,7 +802,8 @@ export default function RegisteredDashboard({
                 {formatCredits(tier.price)}{' '}
                 <span className="text-xs font-normal text-white/60">ALEO</span>
               </p>
-              <p className="text-[11px] text-white/50 mt-1">
+              <p className="text-[11px] text-white/50 mt-0.5">{formatUsd(tier.price)}/mo</p>
+              <p className="text-[10px] text-white/40 mt-0.5">
                 {tier.isCustom ? 'Custom price' : `Tier ${tier.id}`}
               </p>
 
@@ -870,7 +871,7 @@ export default function RegisteredDashboard({
               <div className="flex items-center gap-3 py-2 px-3 rounded-lg bg-white/[0.02]">
                 <div className="w-2 h-2 rounded-full bg-emerald-400" />
                 <span className="text-sm text-white/80 flex-1">
-                  Revenue accumulated: {formatCredits(stats?.totalRevenue ?? 0)} ALEO
+                  Revenue accumulated: {formatCredits(stats?.totalRevenue ?? 0)} ALEO ({formatUsd(stats?.totalRevenue ?? 0)})
                 </span>
                 <span className="text-[11px] text-white/40">total</span>
               </div>

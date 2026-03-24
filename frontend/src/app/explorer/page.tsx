@@ -22,7 +22,7 @@ import {
   Loader2,
 } from 'lucide-react'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
-import { formatCredits, isValidAleoAddress, shortenAddress } from '@/lib/utils'
+import { formatCredits, formatUsd, isValidAleoAddress, shortenAddress } from '@/lib/utils'
 import { useCyclingPlaceholder } from '@/hooks/useCyclingPlaceholder'
 import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
@@ -423,6 +423,9 @@ export default function ExplorerPage() {
                 <p className="text-3xl font-semibold text-white">
                   {formatCredits(globalStats.totalRevenue)} <span className="text-sm text-white/70">ALEO</span>
                 </p>
+                {globalStats.totalRevenue > 0 && (
+                  <p className="text-xs text-white/50 mt-1">{formatUsd(globalStats.totalRevenue)}</p>
+                )}
               </GlassCard>
               <GlassCard delay={0.15}>
                 <div className="flex items-center gap-2 mb-2">
@@ -580,6 +583,7 @@ export default function ExplorerPage() {
                       <p className="text-3xl font-semibold text-white">
                         {formatCredits(result.totalRevenue)} <span className="text-sm text-white/70">ALEO</span>
                       </p>
+                      <p className="text-xs text-white/50 mt-0.5">{formatUsd(result.totalRevenue)}</p>
                       <p className="text-xs text-white/60 mt-1">
                         Sum of all subscriptions and tips
                       </p>
@@ -600,6 +604,7 @@ export default function ExplorerPage() {
                       <p className="text-3xl font-semibold text-white">
                         {formatCredits(result.tierPrice ?? 0)} <span className="text-sm text-white/70">ALEO</span>
                       </p>
+                      <p className="text-xs text-white/50 mt-0.5">{formatUsd(result.tierPrice ?? 0)}/mo</p>
                       <p className="text-xs text-white/60 mt-1">
                         Premium = 2x, VIP = 5x this price
                       </p>

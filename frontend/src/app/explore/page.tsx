@@ -20,7 +20,7 @@ import { useRouter } from 'next/navigation'
 import PageTransition from '@/components/PageTransition'
 import { spring, cardHover, buttonTap } from '@/lib/motion'
 import AddressAvatar from '@/components/ui/AddressAvatar'
-import { shortenAddress, isValidAleoAddress, formatCredits } from '@/lib/utils'
+import { shortenAddress, isValidAleoAddress, formatCredits, formatUsd } from '@/lib/utils'
 import { FEATURED_CREATORS } from '@/lib/config'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { cacheCreators } from '@/lib/creatorCache'
@@ -187,6 +187,7 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-border/50 text-[11px] text-white/60">
                 <Coins className="w-3 h-3 text-amber-400/80" aria-hidden="true" />
                 from {formatCredits(stats.tierPrice)} ALEO
+                <span className="text-white/40">({formatUsd(stats.tierPrice)})</span>
               </span>
               {stats.contentCount !== undefined && stats.contentCount > 0 && (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-border/50 text-[11px] text-white/60">

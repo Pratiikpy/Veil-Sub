@@ -301,6 +301,53 @@ export function subscriberThresholdLabel(count: number): string {
   return 'New'
 }
 
+// ─── USD Price Estimates ──────────────────────────────────────────────────────
+
+/**
+ * Estimated ALEO/USD price. Updated manually — in production this would
+ * come from an oracle or price feed. Marked as approximate in all UI.
+ */
+export const ALEO_USD_ESTIMATE = 1.50
+
+/**
+ * Format microcredits as a USD estimate string.
+ * Always prefixed with ~ to indicate it's an estimate.
+ */
+export function formatUsd(microcredits: number): string {
+  if (!Number.isFinite(microcredits) || microcredits <= 0) return '~$0'
+  const aleo = microcredits / MICROCREDITS_PER_CREDIT
+  const usd = aleo * ALEO_USD_ESTIMATE
+  if (usd < 0.01) return '<$0.01'
+  if (usd < 1) return `~$${usd.toFixed(2)}`
+  if (usd < 100) return `~$${usd.toFixed(2)}`
+  return `~$${Math.round(usd)}`
+}
+
+/**
+ * Format microcredits as "X ALEO (~$Y)" for inline display.
+ */
+export function formatAleoWithUsd(microcredits: number): string {
+  const aleo = microcredits / MICROCREDITS_PER_CREDIT
+  const usd = formatUsd(microcredits)
+  if (aleo >= 1) {
+    return `${aleo === Math.floor(aleo) ? aleo.toString() : aleo.toFixed(2)} ALEO (${usd})`
+  }
+  return `${aleo.toFixed(2)} ALEO (${usd})`
+}
+
+/**
+ * Return both ALEO and USD formatted strings for structured display.
+ */
+export function formatPriceDisplay(microcredits: number): { aleo: string; usd: string } {
+  const aleo = microcredits / MICROCREDITS_PER_CREDIT
+  return {
+    aleo: `${aleo < 1 ? aleo.toFixed(2) : aleo === Math.floor(aleo) ? aleo.toString() : aleo.toFixed(2)} ALEO`,
+    usd: formatUsd(microcredits),
+  }
+}
+
+// ─── Privacy-Friendly Threshold Labels ───────────────────────────────────────
+
 /**
  * Convert a raw revenue amount (microcredits) into a privacy-friendly
  * threshold label. Avoids leaking exact revenue figures publicly.

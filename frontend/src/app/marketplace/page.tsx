@@ -31,7 +31,7 @@ import Badge from '@/components/ui/Badge'
 import Container from '@/components/ui/Container'
 import Button from '@/components/ui/Button'
 import AddressAvatar from '@/components/ui/AddressAvatar'
-import { shortenAddress, formatCredits } from '@/lib/utils'
+import { shortenAddress, formatCredits, formatUsd } from '@/lib/utils'
 import { FEATURED_CREATORS } from '@/lib/config'
 
 // ─── Static styles ──────────────────────────────────────────────────────────
@@ -374,7 +374,7 @@ function AuctionCard({
             <Users className="w-3 h-3" aria-hidden="true" />
             {auction.bidCount} bid{auction.bidCount !== 1 ? 's' : ''}
           </span>
-          <span>Floor: {formatCredits(auction.floorPrice)} ALEO</span>
+          <span>Floor: {formatCredits(auction.floorPrice)} ALEO ({formatUsd(auction.floorPrice)})</span>
         </div>
 
         {/* Time + Progress */}

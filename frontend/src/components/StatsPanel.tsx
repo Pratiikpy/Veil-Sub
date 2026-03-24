@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { m } from 'framer-motion'
 import { Users, Coins, Tag, RefreshCw } from 'lucide-react'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
-import { formatCredits } from '@/lib/utils'
+import { formatCredits, formatUsd } from '@/lib/utils'
 import type { CreatorProfile } from '@/types'
 
 interface Props {
@@ -90,7 +90,7 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
     {
       label: 'Base Price',
       value: stats.tierPrice !== undefined && stats.tierPrice !== null
-        ? `${formatCredits(stats.tierPrice)} ALEO`
+        ? `${formatCredits(stats.tierPrice)} ALEO (${formatUsd(stats.tierPrice)})`
         : 'Not set',
       icon: Tag,
       color: 'text-blue-400',

@@ -1,4 +1,4 @@
-import { formatCredits } from '@/lib/utils'
+import { formatCredits, formatUsd } from '@/lib/utils'
 
 type Token = 'credits' | 'usdcx' | 'usad'
 type Size = 'sm' | 'md' | 'lg'
@@ -28,14 +28,11 @@ const SIZE_CLASSES: Record<Size, { value: string; label: string }> = {
   lg: { value: 'text-xl sm:text-2xl font-bold', label: 'text-base' },
 }
 
-// Rough estimate: 1 ALEO ~ $0.50 (testnet placeholder)
-const ALEO_USD_ESTIMATE = 0.5
-
 export default function PriceDisplay({
   amount,
   token = 'credits',
   size = 'md',
-  showUsd = false,
+  showUsd = true,
 }: Props) {
   const formatted = formatCredits(amount)
   const label = TOKEN_LABELS[token]
@@ -43,8 +40,8 @@ export default function PriceDisplay({
   const sizeClasses = SIZE_CLASSES[size]
 
   const usdEstimate =
-    showUsd && token === 'credits'
-      ? (amount / 1_000_000) * ALEO_USD_ESTIMATE
+    showUsd && token === 'credits' && amount > 0
+      ? formatUsd(amount)
       : null
 
   return (
@@ -55,9 +52,9 @@ export default function PriceDisplay({
       <span className={`${sizeClasses.label} ${colorClass} font-medium`}>
         {label}
       </span>
-      {usdEstimate !== null && usdEstimate > 0 && (
+      {usdEstimate !== null && (
         <span className={`${sizeClasses.label} text-[var(--text-muted)]`}>
-          (~${usdEstimate < 0.01 ? '<0.01' : usdEstimate.toFixed(2)})
+          ({usdEstimate})
         </span>
       )}
     </span>
