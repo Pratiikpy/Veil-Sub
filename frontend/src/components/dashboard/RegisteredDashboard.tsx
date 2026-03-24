@@ -49,7 +49,7 @@ const TierCreationDialog = dynamic(() => import('@/components/TierCreationDialog
 const ProveThresholdModal = dynamic(() => import('@/components/ProveThresholdModal'), { ssr: false })
 
 // ── Tiny inline sparkline SVG (no dependency needed) ──
-function Sparkline({ data, color = '#8B5CF6', width = 80, height = 28 }: { data: number[]; color?: string; width?: number; height?: number }) {
+function Sparkline({ data, color = '#fafafa', width = 80, height = 28 }: { data: number[]; color?: string; width?: number; height?: number }) {
   if (data.length < 2) return null
   const max = Math.max(...data)
   const min = Math.min(...data)
@@ -145,7 +145,7 @@ function PerkEditor({ creatorAddress, tierId, onClose }: PerkEditorProps) {
               onChange={(e) => updatePerk(i, e.target.value)}
               placeholder={`Perk ${i + 1}...`}
               maxLength={80}
-              className="flex-1 px-3 py-1.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle text-xs focus:outline-none focus:border-violet-500 transition-all"
+              className="flex-1 px-3 py-1.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle text-xs focus:outline-none focus:border-white/30 transition-all"
             />
             <button
               onClick={() => removePerk(i)}
@@ -165,7 +165,7 @@ function PerkEditor({ creatorAddress, tierId, onClose }: PerkEditorProps) {
           </button>
           <button
             onClick={save}
-            className="px-3 py-1.5 rounded-lg bg-violet-500/15 border border-violet-500/25 text-xs text-violet-300 hover:bg-violet-500/25 transition-all"
+            className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/15 text-xs text-white/70 hover:bg-white/15 transition-all"
           >
             Save
           </button>
@@ -369,7 +369,7 @@ export default function RegisteredDashboard({
     const colorPalette = [
       { border: 'border-green-500/20', bg: 'bg-green-500/5', text: 'text-green-300', accent: 'bg-green-500/15' },
       { border: 'border-blue-500/20', bg: 'bg-blue-500/5', text: 'text-blue-300', accent: 'bg-blue-500/15' },
-      { border: 'border-violet-500/20', bg: 'bg-violet-500/5', text: 'text-violet-300', accent: 'bg-violet-500/15' },
+      { border: 'border-white/10', bg: 'bg-white/[0.03]', text: 'text-white/70', accent: 'bg-white/10' },
       { border: 'border-pink-500/20', bg: 'bg-pink-500/5', text: 'text-pink-300', accent: 'bg-pink-500/15' },
       { border: 'border-amber-500/20', bg: 'bg-amber-500/5', text: 'text-amber-300', accent: 'bg-amber-500/15' },
     ]
@@ -464,7 +464,7 @@ export default function RegisteredDashboard({
           {/* Posts */}
           <div className="space-y-1">
             <div className="flex items-center gap-1.5">
-              <FileText className="w-3.5 h-3.5 text-violet-400" aria-hidden="true" />
+              <FileText className="w-3.5 h-3.5 text-white/60" aria-hidden="true" />
               <span className="text-[11px] text-white/60 uppercase tracking-wider">Posts</span>
             </div>
             <p className="text-xl font-bold text-white tabular-nums">
@@ -474,7 +474,7 @@ export default function RegisteredDashboard({
               <span className="text-[10px] text-white/50">
                 {(stats?.contentCount ?? 0) > 0 ? 'published' : 'No posts yet'}
               </span>
-              <Sparkline data={postSpark} color="#a78bfa" width={60} height={20} />
+              <Sparkline data={postSpark} color="#fafafa" width={60} height={20} />
             </div>
           </div>
         </div>
@@ -566,7 +566,7 @@ export default function RegisteredDashboard({
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setComposeExpanded(true) }}
             role="button"
             tabIndex={0}
-            className="p-4 rounded-xl bg-surface-1 border border-border cursor-text hover:border-violet-500/30 transition-all group flex items-center gap-3 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+            className="p-4 rounded-xl bg-surface-1 border border-border cursor-text hover:border-white/20 transition-all group flex items-center gap-3 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
           >
             <AddressAvatar address={publicKey} size={36} className="shrink-0" />
             <p className="text-white/40 text-sm group-hover:text-white/60 transition-colors">
@@ -613,7 +613,7 @@ export default function RegisteredDashboard({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.08 }}
-          className="p-5 rounded-2xl bg-gradient-to-br from-violet-600/10 via-violet-500/5 to-transparent border border-violet-500/20 relative overflow-hidden"
+          className="p-5 rounded-2xl bg-gradient-to-br from-white/[0.03] via-white/[0.02] to-transparent border border-white/10 relative overflow-hidden"
         >
           {showConfetti && <CelebrationBurst color="bg-green-400" />}
 
@@ -626,7 +626,7 @@ export default function RegisteredDashboard({
                   {4 - completedSteps} step remaining
                 </span>
               </div>
-              <span className="text-xs text-violet-300">{completedSteps}/4</span>
+              <span className="text-xs text-white/70">{completedSteps}/4</span>
             </div>
           ) : (
             <>
@@ -639,7 +639,7 @@ export default function RegisteredDashboard({
                     {4 - completedSteps} step{4 - completedSteps !== 1 ? 's' : ''} remaining
                   </p>
                 </div>
-                <div className="text-sm font-bold text-violet-300">{completedSteps}/4</div>
+                <div className="text-sm font-bold text-white/70">{completedSteps}/4</div>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-3">
@@ -693,7 +693,7 @@ export default function RegisteredDashboard({
                     {!step.done && step.action && (
                       <button
                         onClick={step.action}
-                        className="px-3 py-1.5 rounded-lg bg-violet-500/15 border border-violet-500/20 text-[11px] text-violet-300 hover:bg-violet-500/25 transition-all shrink-0"
+                        className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/10 text-[11px] text-white/70 hover:bg-white/15 transition-all shrink-0"
                       >
                         {step.actionLabel}
                       </button>
@@ -718,12 +718,12 @@ export default function RegisteredDashboard({
           <div className="p-5 rounded-2xl bg-surface-1 border border-border">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-violet-400" aria-hidden="true" />
+                <FileText className="w-5 h-5 text-white/60" aria-hidden="true" />
                 <h2 className="text-base font-semibold text-white">Recent Posts</h2>
               </div>
               <button
                 onClick={() => setShowAllPosts(true)}
-                className="text-xs text-violet-300 hover:text-violet-200 transition-colors flex items-center gap-1"
+                className="text-xs text-white/70 hover:text-white transition-colors flex items-center gap-1"
               >
                 View all posts <ChevronRight className="w-3.5 h-3.5" />
               </button>
@@ -746,7 +746,7 @@ export default function RegisteredDashboard({
           <div className="p-5 rounded-2xl bg-surface-1 border border-border">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-violet-400" aria-hidden="true" />
+                <FileText className="w-5 h-5 text-white/60" aria-hidden="true" />
                 <h2 className="text-base font-semibold text-white">All Posts</h2>
               </div>
               <button
@@ -780,7 +780,7 @@ export default function RegisteredDashboard({
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Settings className="w-5 h-5 text-violet-400" aria-hidden="true" />
+            <Settings className="w-5 h-5 text-white/60" aria-hidden="true" />
             <h2 className="text-base font-semibold text-white">Your Tiers</h2>
             {creatorTierCount > 0 && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] text-green-400 font-medium">
@@ -836,9 +836,9 @@ export default function RegisteredDashboard({
           {/* + Create Tier card */}
           <button
             onClick={() => setShowTierDialog(true)}
-            className="shrink-0 w-40 sm:w-44 md:w-48 p-4 rounded-xl border-2 border-dashed border-border hover:border-violet-500/30 flex flex-col items-center justify-center gap-2 text-white/40 hover:text-violet-300 transition-all group"
+            className="shrink-0 w-40 sm:w-44 md:w-48 p-4 rounded-xl border-2 border-dashed border-border hover:border-white/20 flex flex-col items-center justify-center gap-2 text-white/40 hover:text-white/70 transition-all group"
           >
-            <div className="w-10 h-10 rounded-xl bg-white/[0.04] group-hover:bg-violet-500/10 flex items-center justify-center transition-all">
+            <div className="w-10 h-10 rounded-xl bg-white/[0.04] group-hover:bg-white/[0.06] flex items-center justify-center transition-all">
               <Plus className="w-5 h-5" />
             </div>
             <span className="text-xs font-medium">Create Tier</span>
@@ -856,7 +856,7 @@ export default function RegisteredDashboard({
         className="p-5 rounded-2xl bg-surface-1 border border-border"
       >
         <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-5 h-5 text-violet-400" aria-hidden="true" />
+          <TrendingUp className="w-5 h-5 text-white/60" aria-hidden="true" />
           <h2 className="text-base font-semibold text-white">Activity</h2>
         </div>
 
@@ -882,7 +882,7 @@ export default function RegisteredDashboard({
             )}
             {(stats?.contentCount ?? 0) > 0 && (
               <div className="flex items-center gap-3 py-2 px-3 rounded-lg bg-white/[0.02]">
-                <div className="w-2 h-2 rounded-full bg-violet-400" />
+                <div className="w-2 h-2 rounded-full bg-white/60" />
                 <span className="text-sm text-white/80 flex-1">
                   {stats?.contentCount} post{(stats?.contentCount ?? 0) !== 1 ? 's' : ''} published on-chain
                 </span>
@@ -914,7 +914,7 @@ export default function RegisteredDashboard({
         {/* Prove Reputation */}
         <div className="p-4 rounded-xl bg-surface-1 border border-border">
           <div className="flex items-center gap-2 mb-2">
-            <Award className="w-4 h-4 text-violet-400" aria-hidden="true" />
+            <Award className="w-4 h-4 text-white/60" aria-hidden="true" />
             <h3 className="text-sm font-semibold text-white">Prove Reputation</h3>
           </div>
           <p className="text-[11px] text-white/60 mb-3">
@@ -922,7 +922,7 @@ export default function RegisteredDashboard({
           </p>
           <button
             onClick={() => setShowProveThreshold(true)}
-            className="px-4 py-2 rounded-lg bg-violet-500/15 border border-violet-500/20 text-xs text-violet-300 hover:bg-violet-500/25 transition-all active:scale-[0.98]"
+            className="px-4 py-2 rounded-lg bg-white/10 border border-white/10 text-xs text-white/70 hover:bg-white/15 transition-all active:scale-[0.98]"
           >
             Generate Proof
           </button>
@@ -931,7 +931,7 @@ export default function RegisteredDashboard({
         {/* Profile Settings */}
         <div className="p-4 rounded-xl bg-surface-1 border border-border">
           <div className="flex items-center gap-2 mb-2">
-            <Settings className="w-4 h-4 text-violet-400" aria-hidden="true" />
+            <Settings className="w-4 h-4 text-white/60" aria-hidden="true" />
             <h3 className="text-sm font-semibold text-white">Profile Settings</h3>
           </div>
           <p className="text-[11px] text-white/60 mb-3">

@@ -63,7 +63,7 @@ export default function DesktopSidebar() {
             <Link
               key={`${item.href}-${item.label}`}
               href={item.href}
-              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                 active
                   ? 'text-white bg-white/[0.05]'
                   : 'text-white/50 hover:text-white/80 hover:bg-white/[0.03]'
@@ -88,7 +88,7 @@ export default function DesktopSidebar() {
         {/* Search trigger */}
         <button
           onClick={openCommandPalette}
-          className="group flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-[13px] font-semibold text-white/50 hover:text-white/80 hover:bg-white/[0.03] transition-all duration-150 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+          className="group flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-[13px] font-semibold text-white/50 hover:text-white/80 hover:bg-white/[0.03] transition-all duration-150 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
         >
           <Search size={18} strokeWidth={2} aria-hidden="true" />
           <span>Search</span>
@@ -101,7 +101,7 @@ export default function DesktopSidebar() {
         {connected && (
           <Link
             href="/settings"
-            className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+            className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
               isActive('/settings')
                 ? 'text-white bg-white/[0.05]'
                 : 'text-white/50 hover:text-white/80 hover:bg-white/[0.03]'
@@ -126,7 +126,7 @@ export default function DesktopSidebar() {
               </div>
             </div>
           ) : (
-            <div className="wallet-sidebar-btn [&_button]:!w-full [&_button]:!rounded-xl [&_button]:!bg-violet-500 [&_button]:!text-white [&_button]:!text-sm [&_button]:!font-semibold [&_button]:!py-3 [&_button]:!border-0">
+            <div className="wallet-sidebar-btn [&_button]:!w-full [&_button]:!rounded-xl [&_button]:!bg-white [&_button]:!text-black [&_button]:!text-sm [&_button]:!font-semibold [&_button]:!py-3 [&_button]:!border-0">
               <WalletMultiButton />
             </div>
           )}

@@ -37,7 +37,7 @@ export default function MobileBottomNav() {
               key={item.href}
               href={item.href}
               aria-label={item.label}
-              className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 rounded-lg transition-all duration-200 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+              className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 rounded-lg transition-all duration-200 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                 active
                   ? 'text-white'
                   : 'text-white/60 active:text-white/70 active:scale-95'
@@ -46,7 +46,7 @@ export default function MobileBottomNav() {
               <div className="relative">
                 <Icon className={`w-5 h-5 transition-transform duration-200 ${active ? 'scale-110' : ''}`} aria-hidden="true" />
                 {active && (
-                  <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-violet-400" />
+                  <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-white" />
                 )}
               </div>
               <span className="text-xs font-medium">{item.label}</span>

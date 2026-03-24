@@ -19,7 +19,7 @@ const FEED_ITEM = { href: '/feed', label: 'Feed' }
 const DASHBOARD_ITEM = { href: '/dashboard', label: 'Dashboard' }
 
 // Extracted static style to prevent re-renders
-const NAV_ACTIVE_GLOW_STYLE = { boxShadow: '0 0 12px rgba(139, 92, 246, 0.1)' } as const
+const NAV_ACTIVE_GLOW_STYLE = { boxShadow: '0 0 12px rgba(255, 255, 255, 0.06)' } as const
 
 export default function Header() {
   const { connected } = useWallet()
@@ -76,7 +76,7 @@ export default function Header() {
               className="group relative flex items-center gap-2 text-xl font-serif italic text-white transition-all duration-300"
             >
               <span className="relative z-10">VeilSub</span>
-              <span className="absolute -inset-2 rounded-lg bg-violet-500/0 group-hover:bg-violet-500/[0.06] transition-colors duration-300" />
+              <span className="absolute -inset-2 rounded-lg bg-white/0 group-hover:bg-white/[0.04] transition-colors duration-300" />
               <span className="relative z-10 text-[9px] font-sans not-italic font-medium text-white/20 ml-1.5 hidden">
                 testnet
               </span>
@@ -88,7 +88,7 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative px-4 py-1.5 text-sm font-medium transition-colors duration-200 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-1 focus-visible:ring-offset-black ${
+                  className={`relative px-4 py-1.5 text-sm font-medium transition-colors duration-200 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-1 focus-visible:ring-offset-black ${
                     isActive(item.href)
                       ? 'text-white'
                       : 'text-white/60 hover:text-white/70'
@@ -119,7 +119,7 @@ export default function Header() {
                 <Link
                   href="/settings"
                   aria-label="Settings"
-                  className={`p-2 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none ${
+                  className={`p-2 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                     pathname.startsWith('/settings')
                       ? 'bg-white/[0.08] text-white'
                       : 'hover:bg-white/5 text-white/50 hover:text-white/70'
@@ -133,7 +133,7 @@ export default function Header() {
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
                 aria-expanded={mobileOpen}
-                className="md:hidden p-2 rounded-lg hover:bg-white/[0.04] text-white/60 active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                className="md:hidden p-2 rounded-lg hover:bg-white/[0.04] text-white/60 active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
               >
                 {mobileOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
               </button>
@@ -156,9 +156,9 @@ export default function Header() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`block px-4 py-2.5 rounded-xl text-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${
+                  className={`block px-4 py-2.5 rounded-xl text-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
                     isActive(item.href)
-                      ? 'text-white bg-violet-500/[0.08] border border-violet-500/[0.12]'
+                      ? 'text-white bg-white/[0.06] border border-white/[0.10]'
                       : 'text-white/60 hover:text-white/70 hover:bg-white/[0.02]'
                   }`}
                 >
@@ -169,9 +169,9 @@ export default function Header() {
                 <Link
                   href="/settings"
                   onClick={() => setMobileOpen(false)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
                     isActive('/settings')
-                      ? 'text-white bg-violet-500/[0.08] border border-violet-500/[0.12]'
+                      ? 'text-white bg-white/[0.06] border border-white/[0.10]'
                       : 'text-white/60 hover:text-white/70 hover:bg-white/[0.02]'
                   }`}
                 >

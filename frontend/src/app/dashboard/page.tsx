@@ -148,7 +148,7 @@ export default function DashboardPage() {
             <button
               onClick={() => setRefreshKey((k) => k + 1)}
               aria-label="Retry loading creator stats"
-              className="px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] transition-all focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+              className="px-4 py-2 rounded-lg bg-white/[0.05] border border-border text-sm text-white hover:bg-white/[0.08] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
             >
               Retry
             </button>
@@ -191,7 +191,7 @@ export default function DashboardPage() {
               animate={{ rotate: [0, -10, 10, -10, 0] }}
               transition={{ ...spring.bouncy, delay: 0.2 }}
             >
-              <Shield className="w-16 h-16 text-violet-400 mb-6" aria-hidden="true" />
+              <Shield className="w-16 h-16 text-white/60 mb-6" aria-hidden="true" />
             </m.div>
             <h2 className="text-3xl font-bold text-white mb-4">
               You&apos;re Registered!
@@ -209,7 +209,7 @@ export default function DashboardPage() {
               <div className="flex items-center gap-4 flex-wrap justify-center">
                 <Link
                   href={`/creator/${publicKey}`}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-violet-300 hover:bg-violet-500/20 transition-all duration-300 active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-white/70 hover:bg-white/10 transition-all duration-300 active:scale-[0.98]"
                 >
                   <ExternalLink className="w-4 h-4" aria-hidden="true" />
                   View your page
@@ -217,7 +217,7 @@ export default function DashboardPage() {
                 <button
                   onClick={copyLink}
                   aria-label="Copy your creator profile link to clipboard"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-white/70 hover:bg-white/[0.08] transition-all duration-300 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-border text-sm text-white/70 hover:bg-white/[0.08] transition-all duration-300 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                 >
                   <Share2 className="w-4 h-4" aria-hidden="true" />
                   Share your link
