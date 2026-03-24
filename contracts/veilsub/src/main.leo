@@ -1,6 +1,8 @@
 import credits.aleo;
-// import test_usdcx_stablecoin.aleo;  // Disabled for v29 deploy — enabled in v30
-// import test_usad_stablecoin.aleo;  // Disabled for v29 deploy — enabled in v30
+// Stablecoin imports moved to veilsub_payments_v1.aleo companion program
+// due to Leo 3.4.0 MerkleProof type-checking bug (affects NullPay too)
+// import test_usdcx_stablecoin.aleo;
+// import test_usad_stablecoin.aleo;
 // =============================================================================
 // VeilSub v29 — Private Creator Subscriptions on Aleo
 //
@@ -269,7 +271,7 @@ program veilsub_v29.aleo {
 
     // v28: Stablecoin revenue tracking — Poseidon2(creator_hash, token_type_field) => accumulated u64
     // token_type: 0=credits (tracked in total_revenue), 1=USDCx, 2=USAD
-    // mapping stablecoin_revenue: field => u64;  // Disabled for v29 — enabled in v30
+    // mapping stablecoin_revenue: field => u64;  // In veilsub_payments_v1.aleo
 
     // v29: Homomorphic Pedersen commitment aggregates
     // commit(value, blinding) = value * G + blinding * H   where G = group::GEN, H = Poseidon2::hash_to_group(0field)
@@ -1573,11 +1575,10 @@ program veilsub_v29.aleo {
     // =========================================
     // TRANSITIONS — STABLECOIN SUBSCRIPTIONS (v28)
     // =========================================
-    // USDCx and USAD stablecoin support — DISABLED for v29 deployment.
-    // Requires real test_usdcx_stablecoin.aleo and test_usad_stablecoin.aleo on testnet.
-    // Will be enabled in v30 after verifying stablecoin program interfaces.
-    // The 4 transitions (subscribe_usdcx, tip_usdcx, subscribe_usad, tip_usad)
-    // and stablecoin_revenue mapping are commented out below.
+    // USDCx and USAD stablecoin transitions moved to veilsub_payments_v1.aleo
+    // companion program due to Leo 3.4.0 MerkleProof array type-checking bug.
+    // Same bug affects NullPay v20 — their stablecoin code also fails to build on Leo 3.4.
+    // See: https://github.com/ProvableHQ/leo/issues/XXXX
     // =========================================
     /*
     // MerkleProof array [MerkleProof; 2] required by stablecoin compliance layer.
