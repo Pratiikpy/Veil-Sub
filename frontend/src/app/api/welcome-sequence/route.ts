@@ -1,8 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRedis } from '@/lib/redis'
-import { ALEO_ADDRESS_RE } from '@/lib/config'
+import { ALEO_ADDRESS_RE, AUTH_CONFIG } from '@/lib/config'
 import { hashAddress } from '@/lib/encryption'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
+
+/**
+ * Verify wallet ownership via server-salted hash.
+ * Uses the same pattern as /api/posts for consistency.
+ */
+async function verifyWalletAuth(
+  subscriber: string,
+  walletHash: unknown,
+  timestamp: unknown
+): Promise<string | null> {
+  if (typeof walletHash !== 'string' || !/^[a-f0-9]{64}$/.test(walletHash)) {
+    return 'Invalid wallet hash'
+  }
+  if (typeof timestamp !== 'number' || !Number.isFinite(timestamp)) {
+    return 'Invalid timestamp'
+  }
+  // Allow 5-minute window for welcome sequence (more lenient than content routes)
+  if (Math.abs(Date.now() - timestamp) > 5 * 60 * 1000) {
+    return 'Request expired'
+  }
+  // Server-salted hash verification
+  const salt = process.env.WALLET_AUTH_SECRET || process.env.NEXT_PUBLIC_WALLET_AUTH_SALT || 'veilsub-auth-v1'
+  const encoder = new TextEncoder()
+  const hashBuf = await crypto.subtle.digest('SHA-256', encoder.encode(subscriber + salt))
+  const expectedHash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
+  if (walletHash !== expectedHash) {
+    return 'Wallet hash mismatch'
+  }
+  return null // valid
+}
 
 /**
  * Default welcome sequence -- used when a creator hasn't customized theirs.
@@ -41,8 +71,9 @@ interface WelcomeStep {
 }
 
 /**
- * GET /api/welcome-sequence?subscriber=aleo1...&creator=aleo1...
+ * GET /api/welcome-sequence?subscriber=aleo1...&creator=aleo1...&walletHash=...&timestamp=...
  * Returns pending welcome messages that are due for delivery.
+ * Requires wallet authentication to prove subscriber owns the address.
  */
 export async function GET(req: NextRequest) {
   const ip = getClientIp(req)
@@ -51,12 +82,21 @@ export async function GET(req: NextRequest) {
 
   const subscriber = req.nextUrl.searchParams.get('subscriber')
   const creator = req.nextUrl.searchParams.get('creator')
+  const walletHash = req.nextUrl.searchParams.get('walletHash')
+  const timestampStr = req.nextUrl.searchParams.get('timestamp')
 
   if (!subscriber || !ALEO_ADDRESS_RE.test(subscriber)) {
     return NextResponse.json({ error: 'Valid subscriber address required' }, { status: 400 })
   }
   if (!creator || !ALEO_ADDRESS_RE.test(creator)) {
     return NextResponse.json({ error: 'Valid creator address required' }, { status: 400 })
+  }
+
+  // Wallet authentication: verify the caller owns the subscriber wallet
+  const timestamp = timestampStr ? parseInt(timestampStr, 10) : null
+  const authError = await verifyWalletAuth(subscriber, walletHash, timestamp)
+  if (authError) {
+    return NextResponse.json({ error: authError }, { status: 403 })
   }
 
   const redis = getRedis()
@@ -102,7 +142,8 @@ export async function GET(req: NextRequest) {
 /**
  * POST /api/welcome-sequence
  * Start a welcome sequence for a subscriber+creator pair.
- * Body: { subscriber: string, creator: string }
+ * Body: { subscriber: string, creator: string, walletHash: string, timestamp: number }
+ * Requires wallet authentication to prove subscriber owns the address.
  */
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req)
@@ -116,13 +157,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const { subscriber, creator } = payload
+  const { subscriber, creator, walletHash, timestamp } = payload
 
   if (!subscriber || typeof subscriber !== 'string' || !ALEO_ADDRESS_RE.test(subscriber)) {
     return NextResponse.json({ error: 'Valid subscriber address required' }, { status: 400 })
   }
   if (!creator || typeof creator !== 'string' || !ALEO_ADDRESS_RE.test(creator)) {
     return NextResponse.json({ error: 'Valid creator address required' }, { status: 400 })
+  }
+
+  // Wallet authentication: verify the caller owns the subscriber wallet
+  const authError = await verifyWalletAuth(subscriber, walletHash, timestamp)
+  if (authError) {
+    return NextResponse.json({ error: authError }, { status: 403 })
   }
 
   const redis = getRedis()

@@ -247,6 +247,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Invalid tier (0-${API_LIMITS.MAX_TIER_ID})` }, { status: 400 })
     }
 
+    // Notes have strict 280 character limit (enforced client-side too, but validate server-side for defense-in-depth)
+    if (isNote && typeof body === 'string' && body.length > API_LIMITS.MAX_NOTE_BODY_LENGTH) {
+      return NextResponse.json({ error: `Note too long (max ${API_LIMITS.MAX_NOTE_BODY_LENGTH} characters)` }, { status: 400 })
+    }
+
     // Validate optional image URL (prevent XSS via javascript: or data: schemes)
     let safeImageUrl: string | undefined
     if (imageUrl != null && imageUrl !== '') {

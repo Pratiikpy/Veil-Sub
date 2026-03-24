@@ -10,7 +10,7 @@ import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
-import { generatePassId, formatCredits, formatUsd } from '@/lib/utils'
+import { generatePassId, formatCredits, formatUsd, computeWalletHash } from '@/lib/utils'
 import { SUBSCRIPTION_DURATION_BLOCKS, TRIAL_DURATION_BLOCKS, TRIAL_PRICE_DIVISOR, PLATFORM_FEE_PCT, FEES } from '@/lib/config'
 import { getErrorMessage } from '@/lib/errorMessages'
 import { logSubscriptionEvent } from '@/lib/logEvent'
@@ -161,11 +161,17 @@ export default function SubscribeModal({
             toast.success("You're subscribed!")
             // Start welcome sequence (fire-and-forget)
             if (publicKey) {
-              fetch('/api/welcome-sequence', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ subscriber: publicKey, creator: creatorAddress }),
-              }).catch(() => { /* non-critical */ })
+              (async () => {
+                try {
+                  const walletHash = await computeWalletHash(publicKey)
+                  const timestamp = Date.now()
+                  fetch('/api/welcome-sequence', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subscriber: publicKey, creator: creatorAddress, walletHash, timestamp }),
+                  }).catch(() => { /* non-critical */ })
+                } catch { /* non-critical */ }
+              })()
             }
           } else if (result.status === 'failed') {
             setTxStatus('failed')

@@ -40,7 +40,7 @@ import PageTransition from '@/components/PageTransition'
 import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useContentFeed } from '@/hooks/useContentFeed'
-import { parseAccessPass, shortenAddress, estimateReadingTime } from '@/lib/utils'
+import { parseAccessPass, shortenAddress, estimateReadingTime, computeWalletHash } from '@/lib/utils'
 import { FEATURED_CREATORS, CREATOR_CUSTOM_TIERS } from '@/lib/config'
 import type { AccessPass, ContentPost } from '@/types'
 
@@ -554,28 +554,34 @@ export default function FeedPage() {
   // Welcome sequence: check for pending welcome messages from subscribed creators
   useEffect(() => {
     if (!connected || !publicKey || subscribedCreators.length === 0) return
-    subscribedCreators.forEach((creator) => {
-      fetch(`/api/welcome-sequence?subscriber=${encodeURIComponent(publicKey)}&creator=${encodeURIComponent(creator)}`)
-        .then((res) => res.ok ? res.json() : null)
-        .then((data) => {
-          if (data?.messages?.length) {
-            data.messages.forEach((msg: { title: string; message: string }) => {
-              // Deliver as notification
-              fetch('/api/notifications', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  wallet: publicKey,
-                  type: 'welcome_message',
-                  title: msg.title,
-                  message: msg.message,
-                }),
-              }).catch(() => { /* non-critical */ })
+    ;(async () => {
+      try {
+        const walletHash = await computeWalletHash(publicKey)
+        const timestamp = Date.now()
+        subscribedCreators.forEach((creator) => {
+          fetch(`/api/welcome-sequence?subscriber=${encodeURIComponent(publicKey)}&creator=${encodeURIComponent(creator)}&walletHash=${encodeURIComponent(walletHash)}&timestamp=${timestamp}`)
+            .then((res) => res.ok ? res.json() : null)
+            .then((data) => {
+              if (data?.messages?.length) {
+                data.messages.forEach((msg: { title: string; message: string }) => {
+                  // Deliver as notification
+                  fetch('/api/notifications', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      wallet: publicKey,
+                      type: 'welcome_message',
+                      title: msg.title,
+                      message: msg.message,
+                    }),
+                  }).catch(() => { /* non-critical */ })
+                })
+              }
             })
-          }
+            .catch(() => { /* non-critical */ })
         })
-        .catch(() => { /* non-critical */ })
-    })
+      } catch { /* non-critical */ }
+    })()
   }, [connected, publicKey, subscribedCreators]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-unlock gated posts for subscribed creators.
