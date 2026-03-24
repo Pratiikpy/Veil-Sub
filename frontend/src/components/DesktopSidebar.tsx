@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
+import { WalletMultiButton } from '@provablehq/aleo-wallet-adaptor-react-ui'
 import { Home, Compass, PlusCircle, Bell, LayoutDashboard, Search, Settings } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 
@@ -126,10 +127,7 @@ export default function DesktopSidebar() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-2.5">
-              <span className="h-2 w-2 rounded-full bg-white/20" />
-              <p className="text-[11px] text-white/40">Not connected</p>
-            </div>
+            <WalletMultiButton />
           )}
         </div>
       </div>
