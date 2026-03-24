@@ -50,13 +50,18 @@ export default function PostInteractions({
     return getSaved().some(e => e.contentId === contentId)
   })
   const [showBurst, setShowBurst] = useState(false)
+  const [heartBounce, setHeartBounce] = useState(false)
   const burstTimer = useRef<ReturnType<typeof setTimeout>>(null)
+  const bounceTimer = useRef<ReturnType<typeof setTimeout>>(null)
   const lastTap = useRef(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const serverAvailable = useRef(true)
 
-  // Cleanup timer
-  useEffect(() => () => { if (burstTimer.current) clearTimeout(burstTimer.current) }, [])
+  // Cleanup timers
+  useEffect(() => () => {
+    if (burstTimer.current) clearTimeout(burstTimer.current)
+    if (bounceTimer.current) clearTimeout(bounceTimer.current)
+  }, [])
 
   // Fetch server-side heart count on mount
   useEffect(() => {
@@ -111,8 +116,11 @@ export default function PostInteractions({
     setLikes(next)
     setLiked(true)
     setShowBurst(true)
+    setHeartBounce(true)
     if (burstTimer.current) clearTimeout(burstTimer.current)
     burstTimer.current = setTimeout(() => setShowBurst(false), 800)
+    if (bounceTimer.current) clearTimeout(bounceTimer.current)
+    bounceTimer.current = setTimeout(() => setHeartBounce(false), 400)
     try {
       localStorage.setItem(LIKES_PREFIX + contentId, String(next))
       localStorage.setItem(LIKED_PREFIX + contentId, '1')
@@ -186,7 +194,14 @@ export default function PostInteractions({
           className={`flex items-center gap-1.5 transition-colors ${liked ? 'text-rose-400' : 'text-white/50 hover:text-rose-400'}`}
           aria-label={liked ? 'Unlike' : 'Like'}
         >
-          <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''} ${liked ? 'scale-110' : ''} transition-transform`} />
+          <Heart
+            className={`w-4 h-4 ${liked ? 'fill-current' : ''} transition-transform`}
+            style={{
+              transform: heartBounce ? 'scale(1.3)' : 'scale(1)',
+              transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              color: liked ? '#ef4444' : undefined,
+            }}
+          />
           {likes > 0 && <span className="text-xs">{likes}</span>}
         </button>
 

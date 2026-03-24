@@ -18,12 +18,13 @@ import {
   Loader2,
   ChevronRight,
   Info,
+  Camera,
 } from 'lucide-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useSupabase } from '@/hooks/useSupabase'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
-import { creditsToMicrocredits, formatCredits } from '@/lib/utils'
+import { creditsToMicrocredits, formatCredits, computeWalletHash } from '@/lib/utils'
 import { saveCreatorHash, PLATFORM_FEE_PCT, FEES } from '@/lib/config'
 import Button from '@/components/ui/Button'
 import GlassCard from '@/components/GlassCard'
@@ -84,6 +85,9 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   // Publish state (Step 4)
   const [postTitle, setPostTitle] = useState('')
   const [postBody, setPostBody] = useState('')
+
+  // Image upload state
+  const [imageUploading, setImageUploading] = useState(false)
 
   // Transaction state
   const [regTxStatus, setRegTxStatus] = useState<TxStatus>('idle')
@@ -314,6 +318,48 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   const handleSkipPublish = useCallback(() => {
     onComplete()
   }, [onComplete])
+
+  // ── Image upload ────────────────────────────────────────────────────────
+
+  const handleProfileImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (e.target) e.target.value = ''
+    if (!file || !publicKey) return
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp']
+    if (!validTypes.includes(file.type)) {
+      toast.error('Use JPG, PNG, or WebP.')
+      return
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image too large (max 2MB).')
+      return
+    }
+    setImageUploading(true)
+    try {
+      const walletHash = await computeWalletHash(publicKey)
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'x-wallet-address': publicKey,
+          'x-wallet-hash': walletHash,
+          'x-wallet-timestamp': String(Date.now()),
+        },
+        body: formData,
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error || 'Upload failed')
+        return
+      }
+      setImageUrl(data.url)
+    } catch {
+      toast.error('Upload failed. Check your connection.')
+    } finally {
+      setImageUploading(false)
+    }
+  }, [publicKey])
 
   // ── Feature list management ──────────────────────────────────────────────
 
@@ -570,20 +616,33 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                   </div>
                 </div>
 
-                {/* Profile image URL */}
+                {/* Profile image upload */}
                 <div>
-                  <label htmlFor="onb-image" className="block text-sm text-white/70 mb-2">
-                    Profile Image URL <span className="text-white/40 text-xs">(optional)</span>
+                  <label className="block text-sm text-white/70 mb-2">
+                    Profile Photo <span className="text-white/40 text-xs">(optional)</span>
                   </label>
-                  <input
-                    id="onb-image"
-                    type="url"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="https://example.com/avatar.png"
-                    maxLength={2048}
-                    className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-violet-500/30 focus:shadow-accent-md transition-all duration-300"
-                  />
+                  <div className="flex items-center gap-4">
+                    <div className="relative group">
+                      {imageUrl ? (
+                        <img src={imageUrl} alt="Profile" className="w-16 h-16 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }} />
+                      ) : null}
+                      <div className={`w-16 h-16 rounded-full bg-gradient-to-br from-violet-500/30 to-purple-600/30 flex items-center justify-center text-lg font-bold text-white/60 ${imageUrl ? 'hidden' : ''}`}>
+                        {displayName?.[0]?.toUpperCase() || '?'}
+                      </div>
+                      <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                        {imageUploading ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <Camera className="w-4 h-4 text-white" />}
+                        <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleProfileImageUpload} disabled={imageUploading} />
+                      </label>
+                    </div>
+                    <div>
+                      <p className="text-xs text-white/60">Click to upload. Max 2MB.</p>
+                      {imageUrl && (
+                        <button onClick={() => setImageUrl('')} className="text-xs text-red-400/70 hover:text-red-400 mt-0.5 transition-colors">
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Base price — required for registration */}

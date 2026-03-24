@@ -9,6 +9,7 @@ interface SupabaseCreatorProfile {
   bio: string | null
   category: string | null
   image_url: string | null
+  cover_url: string | null
   created_at: string
 }
 
@@ -54,6 +55,7 @@ export function useSupabase() {
       creatorHash?: string,
       category?: string,
       imageUrl?: string,
+      coverUrl?: string,
     ): Promise<SupabaseCreatorProfile | null> => {
       setError(null)
       try {
@@ -73,7 +75,7 @@ export function useSupabase() {
         const res = await fetch('/api/creators', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ address, display_name: displayName, bio, creator_hash: creatorHash, signature, timestamp, category, image_url: imageUrl }),
+          body: JSON.stringify({ address, display_name: displayName, bio, creator_hash: creatorHash, signature, timestamp, category, image_url: imageUrl, cover_url: coverUrl }),
         })
         if (!res.ok) {
           setError({ operation: 'upsertProfile', message: 'Failed to save profile', code: res.status })

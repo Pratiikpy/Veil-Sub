@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import { X, RefreshCw, ArrowRight, CreditCard } from 'lucide-react'
 import Link from 'next/link'
@@ -18,6 +18,7 @@ import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
 import { useBalanceCheck } from '@/hooks/useBalanceCheck'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
+import { useCreatorStats } from '@/hooks/useCreatorStats'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
 import Button from './ui/Button'
@@ -27,7 +28,7 @@ interface Props {
   isOpen: boolean
   onClose: () => void
   pass: AccessPass
-  basePrice: number // microcredits
+  basePrice?: number // microcredits — optional fallback, component fetches from on-chain if not provided
   onSuccess?: () => void
 }
 
@@ -50,10 +51,29 @@ export default function RenewModal({
   const focusTrapRef = useFocusTrap(isOpen, handleClose)
   const { checkBalance } = useBalanceCheck(getCreditsRecords)
   const { tiers: onChainTiers, loading: tiersLoading, error: tiersError } = useCreatorTiers(pass.creator)
+  const { fetchCreatorStats } = useCreatorStats()
+  const [fetchedBasePrice, setFetchedBasePrice] = useState<number | null>(null)
+
+  // Fetch base price from on-chain if not provided via prop
+  // This ensures correct pricing even when RenewModal is opened from subscriptions page
+  useEffect(() => {
+    if (isOpen && pass.creator) {
+      fetchCreatorStats(pass.creator).then((stats) => {
+        if (stats.tierPrice !== null) {
+          setFetchedBasePrice(stats.tierPrice)
+        }
+      }).catch(() => {
+        // Fallback to prop or 0 if fetch fails
+      })
+    }
+  }, [isOpen, pass.creator, fetchCreatorStats])
+
+  // Use fetched price, fall back to prop, then 0
+  const effectiveBasePrice = fetchedBasePrice ?? basePrice ?? 0
 
   // Build dynamic tier options from on-chain data (same pattern as CreatePostForm)
   const tierOptions: { id: number; name: string; price: number }[] = [
-    { id: 1, name: 'Supporter', price: basePrice },
+    { id: 1, name: 'Supporter', price: effectiveBasePrice },
     ...Object.entries(onChainTiers)
       .filter(([, t]) => t.price > 0)
       .map(([id, t]) => ({ id: Number(id), name: t.name, price: t.price }))
@@ -70,7 +90,7 @@ export default function RenewModal({
 
   // Derive selected option — fall back to absolute price estimate if not in options yet
   const selectedOption = tierOptions.find(t => t.id === selectedTierId)
-    ?? { id: selectedTierId, name: `Tier ${selectedTierId}`, price: basePrice * selectedTierId }
+    ?? { id: selectedTierId, name: `Tier ${selectedTierId}`, price: effectiveBasePrice * selectedTierId }
 
   const totalPrice = selectedOption.price
   const platformFeeDiv = 100 / PLATFORM_FEE_PCT

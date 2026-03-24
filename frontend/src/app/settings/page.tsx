@@ -20,6 +20,7 @@ import {
   Mail,
   Loader2,
   Trash2,
+  Camera,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
@@ -28,7 +29,7 @@ import PageTransition from '@/components/PageTransition'
 import { useSupabase } from '@/hooks/useSupabase'
 import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
-import { shortenAddress, formatCredits, parseAccessPass } from '@/lib/utils'
+import { shortenAddress, formatCredits, parseAccessPass, computeWalletHash } from '@/lib/utils'
 import { setSoundsEnabled, isSoundsEnabled } from '@/lib/sounds'
 import { sounds } from '@/lib/sounds'
 import { PROGRAM_ID, DEPLOYED_PROGRAM_ID, APP_NAME } from '@/lib/config'
@@ -320,9 +321,20 @@ export default function SettingsPage() {
   const [bio, setBio] = useState('')
   const [category, setCategory] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [coverUrl, setCoverUrl] = useState('')
   const [profileLoading, setProfileLoading] = useState(false)
   const [profileSaving, setProfileSaving] = useState(false)
   const [profileSaved, setProfileSaved] = useState(false)
+  const [imageUploading, setImageUploading] = useState(false)
+  const [coverUploading, setCoverUploading] = useState(false)
+
+  // Subscriber profile state (shown to all users)
+  const [subDisplayName, setSubDisplayName] = useState('')
+  const [subAvatarUrl, setSubAvatarUrl] = useState('')
+  const [subProfileLoading, setSubProfileLoading] = useState(false)
+  const [subProfileSaving, setSubProfileSaving] = useState(false)
+  const [subProfileSaved, setSubProfileSaved] = useState(false)
+  const [subAvatarUploading, setSubAvatarUploading] = useState(false)
 
   // Privacy state
   const [privacyMode, setPrivacyMode] = useState<PrivacyMode>('standard')
@@ -373,8 +385,10 @@ export default function SettingsPage() {
     // Load from localStorage first as fallback
     const storedCategory = localStorage.getItem('veilsub_profile_category') ?? ''
     const storedImage = localStorage.getItem('veilsub_profile_image') ?? ''
+    const storedCover = localStorage.getItem('veilsub_profile_cover') ?? ''
     setCategory(storedCategory)
     setImageUrl(storedImage)
+    setCoverUrl(storedCover)
     // Then fetch from Supabase and override if available
     getCreatorProfile(publicKey).then((profile) => {
       if (cancelled) return
@@ -384,6 +398,7 @@ export default function SettingsPage() {
         // Use Supabase values if available, fallback to localStorage
         if (profile.category) setCategory(profile.category)
         if (profile.image_url) setImageUrl(profile.image_url)
+        if (profile.cover_url) setCoverUrl(profile.cover_url)
       }
       setProfileLoading(false)
     }).catch(() => {
@@ -424,6 +439,32 @@ export default function SettingsPage() {
     return () => { cancelled = true }
   }, [publicKey, computeSubscriberHash])
 
+  // ─── Load subscriber profile ──────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!publicKey) return
+    let cancelled = false
+    setSubProfileLoading(true)
+    computeSubscriberHash(publicKey).then(async (hash) => {
+      if (cancelled) return
+      try {
+        const res = await fetch(`/api/subscriber-profile?subscriber_hash=${hash}`)
+        if (res.ok) {
+          const { profile } = await res.json()
+          if (!cancelled && profile) {
+            setSubDisplayName(profile.display_name || '')
+            setSubAvatarUrl(profile.avatar_url || '')
+          }
+        }
+      } catch {
+        // Subscriber profiles are optional
+      } finally {
+        if (!cancelled) setSubProfileLoading(false)
+      }
+    })
+    return () => { cancelled = true }
+  }, [publicKey, computeSubscriberHash])
+
   // ─── Handlers ──────────────────────────────────────────────────────────────
 
   const handleSaveProfile = useCallback(async () => {
@@ -431,7 +472,7 @@ export default function SettingsPage() {
     setProfileSaving(true)
     setProfileSaved(false)
     try {
-      // Pass all profile fields including category and imageUrl to Supabase
+      // Pass all profile fields including category, imageUrl, and coverUrl to Supabase
       const result = await upsertCreatorProfile(
         publicKey,
         displayName || undefined,
@@ -439,12 +480,14 @@ export default function SettingsPage() {
         signMessage,
         undefined, // creatorHash - not needed for settings
         category || undefined,
-        imageUrl || undefined
+        imageUrl || undefined,
+        coverUrl || undefined
       )
       // Also save locally as backup (ignore storage quota errors)
       try {
         localStorage.setItem('veilsub_profile_category', category)
         localStorage.setItem('veilsub_profile_image', imageUrl)
+        localStorage.setItem('veilsub_profile_cover', coverUrl)
       } catch { /* localStorage full or unavailable */ }
       if (result) {
         toast.success('Profile saved')
@@ -460,7 +503,105 @@ export default function SettingsPage() {
     } finally {
       setProfileSaving(false)
     }
-  }, [publicKey, displayName, bio, category, imageUrl, signMessage, upsertCreatorProfile])
+  }, [publicKey, displayName, bio, category, imageUrl, coverUrl, signMessage, upsertCreatorProfile])
+
+  // ─── Image Upload Handler ─────────────────────────────────────────────────
+
+  const uploadImage = useCallback(async (
+    file: File,
+    maxSize: number,
+    onSuccess: (url: string) => void,
+    setUploading: (v: boolean) => void
+  ) => {
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp']
+    if (!validTypes.includes(file.type)) {
+      toast.error('Unsupported format. Use JPG, PNG, or WebP.')
+      return
+    }
+    if (file.size > maxSize) {
+      toast.error(`Image too large (max ${Math.round(maxSize / 1024 / 1024)}MB).`)
+      return
+    }
+    if (!publicKey) {
+      toast.error('Connect your wallet first.')
+      return
+    }
+    setUploading(true)
+    try {
+      const walletHash = await computeWalletHash(publicKey)
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'x-wallet-address': publicKey,
+          'x-wallet-hash': walletHash,
+          'x-wallet-timestamp': String(Date.now()),
+        },
+        body: formData,
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error || 'Upload failed')
+        return
+      }
+      onSuccess(data.url)
+    } catch {
+      toast.error('Upload failed. Check your connection.')
+    } finally {
+      setUploading(false)
+    }
+  }, [publicKey])
+
+  const handleProfileImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) uploadImage(file, 2 * 1024 * 1024, setImageUrl, setImageUploading)
+    if (e.target) e.target.value = ''
+  }, [uploadImage])
+
+  const handleCoverUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) uploadImage(file, 5 * 1024 * 1024, setCoverUrl, setCoverUploading)
+    if (e.target) e.target.value = ''
+  }, [uploadImage])
+
+  const handleSubAvatarUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) uploadImage(file, 2 * 1024 * 1024, setSubAvatarUrl, setSubAvatarUploading)
+    if (e.target) e.target.value = ''
+  }, [uploadImage])
+
+  // ─── Save Subscriber Profile ──────────────────────────────────────────────
+
+  const handleSaveSubProfile = useCallback(async () => {
+    if (!publicKey) return
+    setSubProfileSaving(true)
+    setSubProfileSaved(false)
+    try {
+      const subscriberHash = await computeSubscriberHash(publicKey)
+      const res = await fetch('/api/subscriber-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subscriber_hash: subscriberHash,
+          display_name: subDisplayName.trim() || null,
+          avatar_url: subAvatarUrl || null,
+        }),
+      })
+      if (res.ok) {
+        toast.success('Subscriber profile saved')
+        sounds.success()
+        setSubProfileSaved(true)
+        setTimeout(() => setSubProfileSaved(false), 3000)
+      } else {
+        toast.error('Could not save subscriber profile.')
+      }
+    } catch {
+      toast.error('Could not save subscriber profile.')
+    } finally {
+      setSubProfileSaving(false)
+    }
+  }, [publicKey, subDisplayName, subAvatarUrl, computeSubscriberHash])
 
   const handleSavePrivacy = useCallback(() => {
     savePrivacyMode(privacyMode)
@@ -627,6 +768,77 @@ export default function SettingsPage() {
           )}
 
           <div className="space-y-6">
+            {/* ─── 0. Subscriber Profile (all users) ────────────────────── */}
+            {connected && publicKey && (
+              <GlassCard hover={false}>
+                <SectionHeader icon={User} title="Subscriber Profile" />
+                <p className="text-xs text-white/50 mb-4">
+                  Optional display name and avatar shown in comments. Your wallet address is never shared.
+                </p>
+                {subProfileLoading ? (
+                  <div className="space-y-4">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="h-10 bg-white/5 rounded-lg animate-pulse" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Subscriber Avatar */}
+                    <div className="flex items-center gap-4">
+                      <div className="relative group">
+                        {subAvatarUrl ? (
+                          <img src={subAvatarUrl} alt="Avatar" className="w-16 h-16 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }} />
+                        ) : null}
+                        <div className={`w-16 h-16 rounded-full bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center text-lg font-bold text-white/50 ${subAvatarUrl ? 'hidden' : ''}`}>
+                          {subDisplayName?.[0]?.toUpperCase() || 'S'}
+                        </div>
+                        <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                          {subAvatarUploading ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <Camera className="w-4 h-4 text-white" />}
+                          <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleSubAvatarUpload} disabled={subAvatarUploading} />
+                        </label>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-white">Your avatar</p>
+                        <p className="text-xs text-white/50">Shown next to your comments. Max 2MB.</p>
+                        {subAvatarUrl && (
+                          <button onClick={() => setSubAvatarUrl('')} className="text-xs text-red-400/70 hover:text-red-400 mt-0.5 transition-colors">
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Subscriber Display Name */}
+                    <div>
+                      <label htmlFor="sub-display-name" className="block text-xs text-white/50 mb-1.5">Display Name</label>
+                      <input
+                        id="sub-display-name"
+                        type="text"
+                        value={subDisplayName}
+                        onChange={(e) => setSubDisplayName(e.target.value)}
+                        placeholder="Shown instead of &quot;Subscriber&quot;"
+                        maxLength={30}
+                        className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-500/30 transition-all"
+                      />
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-violet-500/[0.04] border border-violet-500/10">
+                      <div className="flex items-start gap-2">
+                        <Shield className="w-3.5 h-3.5 text-violet-400 mt-0.5 shrink-0" />
+                        <p className="text-[10px] text-white/50">
+                          Your display name is optional and only shown in post comments. Your wallet address is never exposed.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <SaveButton onClick={handleSaveSubProfile} saving={subProfileSaving} saved={subProfileSaved} label="Save Subscriber Profile" />
+                    </div>
+                  </div>
+                )}
+              </GlassCard>
+            )}
+
             {/* ─── 1. Profile ───────────────────────────────────────────── */}
             <GlassCard hover={false}>
               <SectionHeader icon={User} title="Profile" />
@@ -640,6 +852,56 @@ export default function SettingsPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {/* Cover Image */}
+                  <div className="relative rounded-xl overflow-hidden h-32 mb-2 group">
+                    {coverUrl ? (
+                      <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-violet-600/20 via-purple-500/15 to-indigo-600/20" />
+                    )}
+                    <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                      <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-black/60 text-white text-sm">
+                        {coverUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+                        {coverUploading ? 'Uploading...' : 'Change cover'}
+                      </div>
+                      <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleCoverUpload} disabled={coverUploading} />
+                    </label>
+                    {coverUrl && (
+                      <button
+                        onClick={() => setCoverUrl('')}
+                        className="absolute top-2 right-2 p-1 rounded-md bg-black/60 text-white/70 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-white/30 -mt-1">Cover image. Max 5MB. JPG, PNG, or WebP.</p>
+
+                  {/* Profile Image */}
+                  <div className="flex items-center gap-4">
+                    <div className="relative group">
+                      {imageUrl ? (
+                        <img src={imageUrl} alt="Profile" className="w-20 h-20 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }} />
+                      ) : null}
+                      <div className={`w-20 h-20 rounded-full bg-gradient-to-br from-violet-500/30 to-purple-600/30 flex items-center justify-center text-2xl font-bold text-white/60 ${imageUrl ? 'hidden' : ''}`}>
+                        {displayName?.[0]?.toUpperCase() || '?'}
+                      </div>
+                      <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                        {imageUploading ? <Loader2 className="w-5 h-5 text-white animate-spin" /> : <Camera className="w-5 h-5 text-white" />}
+                        <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleProfileImageUpload} disabled={imageUploading} />
+                      </label>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-white">Profile photo</p>
+                      <p className="text-xs text-white/50">Click to upload. Max 2MB.</p>
+                      {imageUrl && (
+                        <button onClick={() => setImageUrl('')} className="text-xs text-red-400/70 hover:text-red-400 mt-0.5 transition-colors">
+                          Remove photo
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
                   <div>
                     <label htmlFor="settings-name" className="block text-xs text-white/50 mb-1.5">Display Name</label>
                     <input
@@ -682,18 +944,6 @@ export default function SettingsPage() {
                       </select>
                       <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
                     </div>
-                  </div>
-                  <div>
-                    <label htmlFor="settings-image" className="block text-xs text-white/50 mb-1.5">Profile Image URL</label>
-                    <input
-                      id="settings-image"
-                      type="url"
-                      value={imageUrl}
-                      onChange={(e) => setImageUrl(e.target.value)}
-                      placeholder="https://example.com/avatar.png"
-                      maxLength={2048}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.04] border border-border text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-500/30 transition-all"
-                    />
                   </div>
                   <div className="pt-2">
                     <SaveButton onClick={handleSaveProfile} saving={profileSaving} saved={profileSaved} />

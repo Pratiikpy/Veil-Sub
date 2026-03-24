@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
   try {
     const { data, error } = await supabase
       .from('creator_profiles')
-      .select('address_hash, creator_hash, display_name, bio, category, image_url, created_at')
+      .select('address_hash, creator_hash, display_name, bio, category, image_url, cover_url, created_at')
       .eq('address_hash', addressHash)
       .single()
 
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { address, display_name, bio, category, image_url, creator_hash, signature, timestamp } = payload
+    const { address, display_name, bio, category, image_url, cover_url, creator_hash, signature, timestamp } = payload
     if (!address || !ALEO_ADDRESS_RE.test(address)) {
       return NextResponse.json({ error: 'Valid Aleo address required' }, { status: 400 })
     }
@@ -90,6 +90,19 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Invalid image URL format' }, { status: 400 })
       }
     }
+    if (cover_url && (typeof cover_url !== 'string' || cover_url.length > 500)) {
+      return NextResponse.json({ error: 'Cover URL too long (max 500)' }, { status: 400 })
+    }
+    if (cover_url) {
+      try {
+        const parsed = new URL(cover_url)
+        if (parsed.protocol !== 'https:') {
+          return NextResponse.json({ error: 'Cover URL must use HTTPS' }, { status: 400 })
+        }
+      } catch {
+        return NextResponse.json({ error: 'Invalid cover URL format' }, { status: 400 })
+      }
+    }
 
     const addressHashValue = await hashAddress(address)
 
@@ -113,6 +126,7 @@ export async function POST(req: NextRequest) {
       bio: bio || null,
       ...(category ? { category } : {}),
       ...(image_url ? { image_url } : {}),
+      ...(cover_url ? { cover_url } : {}),
       ...(creator_hash ? { creator_hash } : {}),
     }
 

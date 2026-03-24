@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
   try {
     let query = supabase
       .from('creator_profiles')
-      .select('encrypted_address, display_name, bio, category, created_at, creator_hash', { count: 'exact' })
+      .select('encrypted_address, display_name, bio, category, image_url, cover_url, created_at, creator_hash', { count: 'exact' })
 
     // Search by name or bio
     if (q) {
@@ -112,6 +112,8 @@ interface RawCreatorRow {
   display_name: string | null
   bio: string | null
   category?: string | null
+  image_url?: string | null
+  cover_url?: string | null
   created_at: string
   creator_hash?: string | null
 }
@@ -126,6 +128,8 @@ async function decryptCreators(data: RawCreatorRow[]) {
           display_name: row.display_name,
           bio: row.bio,
           category: row.category ?? null,
+          image_url: row.image_url ?? null,
+          cover_url: row.cover_url ?? null,
           created_at: row.created_at,
           creator_hash: row.creator_hash ?? null,
         }

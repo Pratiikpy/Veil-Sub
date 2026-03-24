@@ -537,7 +537,6 @@ export default function SubscriptionsPage() {
             isOpen={!!renewTarget}
             onClose={() => setRenewTarget(null)}
             pass={renewAccessPass}
-            basePrice={100}
             onSuccess={fetchPasses}
           />
         )}

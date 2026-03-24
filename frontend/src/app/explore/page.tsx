@@ -60,6 +60,8 @@ interface Creator {
   display_name: string | null
   bio: string | null
   category: string | null
+  image_url?: string | null
+  cover_url?: string | null
   created_at: string
   creator_hash?: string | null
 }
@@ -146,7 +148,15 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
       >
         {/* Header row */}
         <div className="flex items-start gap-3.5 mb-3.5">
-          <AddressAvatar address={creator.address} size={48} className="ring-2 ring-white/[0.04] group-hover:ring-violet-500/20 transition-all" />
+          {creator.image_url ? (
+            <img
+              src={creator.image_url}
+              alt={creator.display_name || 'Creator'}
+              className="w-12 h-12 rounded-2xl object-cover ring-2 ring-white/[0.04] group-hover:ring-violet-500/20 transition-all shrink-0"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
+            />
+          ) : null}
+          <AddressAvatar address={creator.address} size={48} className={`ring-2 ring-white/[0.04] group-hover:ring-violet-500/20 transition-all ${creator.image_url ? 'hidden' : ''}`} />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 mb-0.5">
               <p className="text-white font-semibold text-sm truncate">
@@ -177,7 +187,7 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
         </div>
 
         {/* Stats row */}
-        <div className="flex flex-wrap items-center gap-2.5 mb-3.5">
+        <div className="flex flex-wrap items-center gap-2.5 mb-3">
           {stats && stats.tierPrice !== null ? (
             <>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-border/50 text-[11px] text-white/60" title="Privacy threshold badge">
@@ -198,6 +208,14 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
             </>
           ) : null}
         </div>
+
+        {/* Activity signal */}
+        {stats && stats.contentCount !== undefined && stats.contentCount > 0 && (
+          <span className="text-xs text-white/40 flex items-center gap-1.5 mb-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+            Active creator
+          </span>
+        )}
 
       </Link>
     </m.div>

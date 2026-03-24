@@ -8,9 +8,10 @@ import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
+import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
-import { MICROCREDITS_PER_CREDIT } from '@/lib/config'
-import { formatUsd } from '@/lib/utils'
+import { MICROCREDITS_PER_CREDIT, SUBSCRIPTION_DURATION_BLOCKS } from '@/lib/config'
+import { formatUsd, generatePassId } from '@/lib/utils'
 import TransactionStatus from './TransactionStatus'
 import Button from './ui/Button'
 import { getErrorMessage } from '@/lib/errorMessages'
@@ -31,6 +32,7 @@ export default function GiftSubscriptionFlow({
 }: GiftSubscriptionFlowProps) {
   const { giftSubscription, getCreditsRecords, connected } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
+  const { blockHeight, error: blockHeightError } = useBlockHeight()
   const {
     txStatus, setTxStatus, txId, setTxId,
     error, setError, handleClose: baseHandleClose, submittingRef,
@@ -50,6 +52,10 @@ export default function GiftSubscriptionFlow({
   const handleGift = useCallback(async () => {
     if (submittingRef.current) return // Prevent double-submission
     if (!connected || !isValidAleoAddress(recipientAddress)) return
+    if (blockHeight === null) {
+      setError(blockHeightError?.message ?? 'Could not sync with Aleo network. Check your connection and try again.')
+      return
+    }
     submittingRef.current = true
     setTxStatus('signing')
     setError(null)
@@ -63,9 +69,10 @@ export default function GiftSubscriptionFlow({
           ? (firstRecord as { plaintext: string }).plaintext
           : null
       if (!paymentRecord) throw new Error('Invalid record format. Please reconnect wallet.')
-      // Generate a collision-resistant gift ID using crypto.randomUUID (RFC 4122 v4, 2^122 unique space)
-      const giftId = crypto.randomUUID()
-      const expiresAt = 0 // Will be computed in finalize based on block.height + duration
+      // Generate a collision-resistant gift ID using 128-bit randomness constrained to field size
+      const giftId = generatePassId()
+      // Calculate expiry based on current block height + subscription duration
+      const expiresAt = blockHeight + SUBSCRIPTION_DURATION_BLOCKS
       const result = await giftSubscription(
         paymentRecord,
         creatorAddress,
@@ -101,7 +108,7 @@ export default function GiftSubscriptionFlow({
     } finally {
       submittingRef.current = false
     }
-  }, [connected, recipientAddress, creatorAddress, tierId, tierPrice, giftSubscription, getCreditsRecords, setTxStatus, setError, setTxId, startPolling, submittingRef])
+  }, [connected, recipientAddress, creatorAddress, tierId, tierPrice, blockHeight, blockHeightError, giftSubscription, getCreditsRecords, setTxStatus, setError, setTxId, startPolling, submittingRef])
 
   const handleClose = () => {
     setRecipientAddress('')

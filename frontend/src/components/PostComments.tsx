@@ -12,6 +12,11 @@ interface Comment {
   likes_count: number
 }
 
+interface SubscriberProfile {
+  display_name: string | null
+  avatar_url: string | null
+}
+
 /** Legacy shape stored in localStorage (pre-Supabase) */
 interface LegacyComment {
   id: string
@@ -107,11 +112,32 @@ export default function PostComments({ contentId, isSubscribed }: PostCommentsPr
   const [serverAvailable, setServerAvailable] = useState(true)
   const hashRef = useRef<string | null>(null)
   const storageKey = STORAGE_PREFIX + contentId
+  const [subProfiles, setSubProfiles] = useState<Record<string, SubscriberProfile>>({})
+  const fetchedHashesRef = useRef<Set<string>>(new Set())
 
   // Resolve subscriber hash once
   useEffect(() => {
     getSubscriberHash().then(h => { hashRef.current = h })
   }, [])
+
+  // Fetch subscriber profiles for commenters
+  useEffect(() => {
+    if (comments.length === 0) return
+    const uniqueHashes = [...new Set(comments.map(c => c.subscriber_hash))].filter(h => !fetchedHashesRef.current.has(h))
+    if (uniqueHashes.length === 0) return
+
+    uniqueHashes.forEach(hash => {
+      fetchedHashesRef.current.add(hash)
+      fetch(`/api/subscriber-profile?subscriber_hash=${hash}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data?.profile && (data.profile.display_name || data.profile.avatar_url)) {
+            setSubProfiles(prev => ({ ...prev, [hash]: data.profile }))
+          }
+        })
+        .catch(() => { /* optional, ignore failures */ })
+    })
+  }, [comments])
 
   // Fetch comments: server first, localStorage fallback
   useEffect(() => {
@@ -263,15 +289,25 @@ export default function PostComments({ contentId, isSubscribed }: PostCommentsPr
       </div>
 
       {/* Comments list */}
-      {visible.map(c => (
+      {visible.map(c => {
+        const sp = subProfiles[c.subscriber_hash]
+        return (
         <div key={c.id} className="mb-2.5">
           <div className="flex gap-2.5">
-            <div className={`w-7 h-7 rounded-full ${avatarColor(c.subscriber_hash)} flex items-center justify-center shrink-0`}>
-              <span className="text-[10px] font-bold text-white/70">S</span>
+            {sp?.avatar_url ? (
+              <img
+                src={sp.avatar_url}
+                alt={sp.display_name || 'Subscriber'}
+                className="w-7 h-7 rounded-full object-cover shrink-0"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
+              />
+            ) : null}
+            <div className={`w-7 h-7 rounded-full ${avatarColor(c.subscriber_hash)} flex items-center justify-center shrink-0 ${sp?.avatar_url ? 'hidden' : ''}`}>
+              <span className="text-[10px] font-bold text-white/70">{sp?.display_name?.[0]?.toUpperCase() || 'S'}</span>
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-white/70">Subscriber</span>
+                <span className="text-xs font-medium text-white/70">{sp?.display_name || 'Subscriber'}</span>
                 <span className="text-[10px] text-white/40">{timeAgo(c.created_at)}</span>
               </div>
               <p className="text-sm text-white/80 leading-relaxed mt-0.5 break-words">{c.text}</p>
@@ -289,20 +325,31 @@ export default function PostComments({ contentId, isSubscribed }: PostCommentsPr
             </div>
           </div>
           {/* Replies */}
-          {replies[c.id]?.map(r => (
+          {replies[c.id]?.map(r => {
+            const rp = subProfiles[r.subscriber_hash]
+            return (
             <div key={r.id} className="flex gap-2.5 ml-9 mt-2">
-              <div className={`w-6 h-6 rounded-full ${avatarColor(r.subscriber_hash)} flex items-center justify-center shrink-0`}>
-                <span className="text-[10px] font-bold text-white/60">S</span>
+              {rp?.avatar_url ? (
+                <img
+                  src={rp.avatar_url}
+                  alt={rp.display_name || 'Subscriber'}
+                  className="w-6 h-6 rounded-full object-cover shrink-0"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
+                />
+              ) : null}
+              <div className={`w-6 h-6 rounded-full ${avatarColor(r.subscriber_hash)} flex items-center justify-center shrink-0 ${rp?.avatar_url ? 'hidden' : ''}`}>
+                <span className="text-[10px] font-bold text-white/60">{rp?.display_name?.[0]?.toUpperCase() || 'S'}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-medium text-white/60">Subscriber</span>
+                  <span className="text-[10px] font-medium text-white/60">{rp?.display_name || 'Subscriber'}</span>
                   <span className="text-[10px] text-white/35">{timeAgo(r.created_at)}</span>
                 </div>
                 <p className="text-xs text-white/70 leading-relaxed mt-0.5 break-words">{r.text}</p>
               </div>
             </div>
-          ))}
+            )
+          })}
           {/* Inline reply input */}
           {replyTo === c.id && isSubscribed && (
             <div className="ml-9 mt-2 flex gap-2">
@@ -320,7 +367,8 @@ export default function PostComments({ contentId, isSubscribed }: PostCommentsPr
             </div>
           )}
         </div>
-      ))}
+        )
+      })}
 
       {/* Show more/less */}
       {topLevel.length > 3 && (

@@ -582,6 +582,8 @@ export default function CreatorPage({
   const [fetchError, setFetchError] = useState(false)
   const [displayName, setDisplayName] = useState<string | null>(null)
   const [bio, setBio] = useState<string | null>(null)
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null)
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null)
   const [selectedTier, setSelectedTier] = useState<SubscriptionTier | null>(null)
   const [showTip, setShowTip] = useState(false)
   const [userPasses, setUserPasses] = useState<AccessPass[]>([])
@@ -663,6 +665,8 @@ export default function CreatorPage({
       // Cache hit — no Supabase request needed, browsing interest stays private
       if (cached.display_name) setDisplayName(cached.display_name)
       if (cached.bio) setBio(cached.bio)
+      if (cached.image_url) setProfileImageUrl(cached.image_url)
+      if (cached.cover_url) setCoverImageUrl(cached.cover_url)
     } else {
       // Cache miss — fall back to individual Supabase fetch, then cache the result
       getCreatorProfile(address).then((profile) => {
@@ -670,11 +674,15 @@ export default function CreatorPage({
         if (profile) {
           setDisplayName(profile.display_name)
           setBio(profile.bio)
+          if (profile.image_url) setProfileImageUrl(profile.image_url)
+          if (profile.cover_url) setCoverImageUrl(profile.cover_url)
           // Cache for future navigation within this tab session
           cacheSingleCreator({
             address,
             display_name: profile.display_name,
             bio: profile.bio,
+            image_url: profile.image_url,
+            cover_url: profile.cover_url ?? null,
           })
         }
       }).catch(() => {
@@ -868,8 +876,20 @@ export default function CreatorPage({
           {/* ===== A. Cover Banner ===== */}
           <div
             className="w-full h-40 sm:h-60 relative"
-            style={{ background: generateCoverGradient(address) }}
+            style={coverImageUrl ? undefined : { background: generateCoverGradient(address) }}
           >
+            {coverImageUrl && (
+              <img
+                src={coverImageUrl}
+                alt="Cover"
+                className="w-full h-full object-cover absolute inset-0"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none'
+                  const parent = (e.target as HTMLImageElement).parentElement
+                  if (parent) parent.style.background = generateCoverGradient(address)
+                }}
+              />
+            )}
             {/* Subtle noise overlay for texture */}
             <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\' opacity=\'1\'/%3E%3C/svg%3E")' }} />
             {/* Bottom fade into page background */}
@@ -885,8 +905,18 @@ export default function CreatorPage({
               className="flex flex-col sm:flex-row items-start sm:items-end gap-4"
             >
               {/* Avatar */}
-              <div className="ring-4 ring-[var(--bg-base)] rounded-2xl">
-                <AddressAvatar address={address} size={72} />
+              <div className="ring-4 ring-[var(--bg-base)] rounded-2xl overflow-hidden">
+                {profileImageUrl ? (
+                  <img
+                    src={profileImageUrl}
+                    alt={creatorLabel}
+                    className="w-[72px] h-[72px] object-cover rounded-2xl"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
+                  />
+                ) : null}
+                <div className={profileImageUrl ? 'hidden' : ''}>
+                  <AddressAvatar address={address} size={72} />
+                </div>
               </div>
 
               {/* Name + meta */}

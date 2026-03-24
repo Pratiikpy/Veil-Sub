@@ -18,6 +18,8 @@ export interface CachedCreator {
   display_name?: string | null
   bio?: string | null
   category?: string | null
+  image_url?: string | null
+  cover_url?: string | null
   creator_hash?: string | null
   cached_at: number
 }
@@ -59,6 +61,8 @@ export function cacheCreators(
     display_name?: string | null
     bio?: string | null
     category?: string | null
+    image_url?: string | null
+    cover_url?: string | null
     creator_hash?: string | null
   }>
 ) {
@@ -89,6 +93,8 @@ export function cacheSingleCreator(creator: {
   display_name?: string | null
   bio?: string | null
   category?: string | null
+  image_url?: string | null
+  cover_url?: string | null
   creator_hash?: string | null
 }) {
   cacheCreators([creator])

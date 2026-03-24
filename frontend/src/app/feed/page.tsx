@@ -36,12 +36,14 @@ const SavedPosts = dynamic(() => import('@/components/SavedPosts'), { ssr: false
 const ImageLightbox = dynamic(() => import('@/components/ImageLightbox'), { ssr: false })
 const ArticleReader = dynamic(() => import('@/components/ArticleReader'), { ssr: false })
 const RecommendationsCard = dynamic(() => import('@/components/RecommendationsCard'), { ssr: false })
+const SubscriberWelcome = dynamic(() => import('@/components/SubscriberWelcome'), { ssr: false })
 import PageTransition from '@/components/PageTransition'
 import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { parseAccessPass, shortenAddress, estimateReadingTime, computeWalletHash } from '@/lib/utils'
 import { FEATURED_CREATORS, CREATOR_CUSTOM_TIERS } from '@/lib/config'
+import { getCachedCreator } from '@/lib/creatorCache'
 import type { AccessPass, ContentPost } from '@/types'
 
 // ─── Constants ───
@@ -478,12 +480,16 @@ export default function FeedPage() {
     return Array.from(set)
   }, [activePasses])
 
-  // Stories row data: subscribed creators with labels
+  // Stories row data: subscribed creators with labels + profile images
   const storiesCreators = useMemo(() => {
-    return subscribedCreators.map(address => ({
-      address,
-      name: getCreatorLabel(address),
-    }))
+    return subscribedCreators.map(address => {
+      const cached = getCachedCreator(address)
+      return {
+        address,
+        name: cached?.display_name || getCreatorLabel(address),
+        imageUrl: cached?.image_url || null,
+      }
+    })
   }, [subscribedCreators])
 
   // Build a lookup: creator address -> highest tier the user has
@@ -781,30 +787,33 @@ export default function FeedPage() {
 
           {/* Empty state: connected but no subscriptions */}
           {connected && !loading && subscribedCreators.length === 0 && !error && (
-            <div className="rounded-2xl border border-white/[0.06] bg-[#0A0A0F] p-12 text-center">
-              <Rss className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
-              <h2 className="text-lg font-medium text-white mb-2">
-                Your feed is empty
-              </h2>
-              <p className="text-sm text-white/50 max-w-md mx-auto mb-6">
-                Find creators worth supporting. Once you subscribe, their exclusive posts will show up here.
-              </p>
-              <Link
-                href="/explore"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all"
-              >
-                <Compass className="w-4 h-4" aria-hidden="true" />
-                Explore Creators
-              </Link>
-              {/* Recommendations for discovery */}
-              <div className="mt-8 max-w-md mx-auto text-left">
-                <RecommendationsCard
-                  creatorAddress=""
-                  creatorName="VeilSub"
-                  maxItems={3}
-                />
+            <>
+              <SubscriberWelcome />
+              <div className="rounded-2xl border border-white/[0.06] bg-[#0A0A0F] p-12 text-center">
+                <Rss className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
+                <h2 className="text-lg font-medium text-white mb-2">
+                  Your feed is empty
+                </h2>
+                <p className="text-sm text-white/50 max-w-md mx-auto mb-6">
+                  Find creators worth supporting. Once you subscribe, their exclusive posts will show up here.
+                </p>
+                <Link
+                  href="/explore"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all"
+                >
+                  <Compass className="w-4 h-4" aria-hidden="true" />
+                  Explore Creators
+                </Link>
+                {/* Recommendations for discovery */}
+                <div className="mt-8 max-w-md mx-auto text-left">
+                  <RecommendationsCard
+                    creatorAddress=""
+                    creatorName="VeilSub"
+                    maxItems={3}
+                  />
+                </div>
               </div>
-            </div>
+            </>
           )}
 
           {/* Empty state: subscribed but no posts */}
@@ -830,7 +839,19 @@ export default function FeedPage() {
                     <Link href={`/creator/${creator.address}`} key={creator.address}>
                       <div className="flex flex-col items-center gap-1 flex-shrink-0">
                         <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 p-[2px]">
-                          <div className="w-full h-full rounded-full bg-[var(--bg-base)] flex items-center justify-center text-sm font-bold text-white/80">
+                          {creator.imageUrl ? (
+                            <img
+                              src={creator.imageUrl}
+                              alt={creator.name || 'Creator'}
+                              className="w-full h-full rounded-full object-cover"
+                              onError={(e) => {
+                                const img = e.target as HTMLImageElement
+                                img.style.display = 'none'
+                                img.nextElementSibling?.classList.remove('hidden')
+                              }}
+                            />
+                          ) : null}
+                          <div className={`w-full h-full rounded-full bg-[var(--bg-base)] flex items-center justify-center text-sm font-bold text-white/80 ${creator.imageUrl ? 'hidden' : ''}`}>
                             {creator.name?.[0]?.toUpperCase() || '?'}
                           </div>
                         </div>
