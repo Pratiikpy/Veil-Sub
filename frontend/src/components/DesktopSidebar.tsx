@@ -4,13 +4,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { WalletMultiButton } from '@provablehq/aleo-wallet-adaptor-react-ui'
-import { Home, Compass, PlusCircle, Bell, LayoutDashboard, Search, Settings } from 'lucide-react'
+import { Home, Compass, Bell, LayoutDashboard, Search, Settings } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 
 const NAV_ITEMS = [
   { href: '/feed', label: 'Feed', icon: Home },
   { href: '/explore', label: 'Explore', icon: Compass },
-  { href: '/dashboard', label: 'Create', icon: PlusCircle, requiresWallet: true, noActive: true },
   { href: '/notifications', label: 'Notifications', icon: Bell, requiresWallet: true, showBadge: true },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, requiresWallet: true },
 ]
@@ -48,8 +47,8 @@ export default function DesktopSidebar() {
           <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-400 font-serif italic text-lg font-bold">
             V
           </span>
-          <span className="font-serif italic text-white text-lg">veil</span>
-          <span className="text-[9px] font-sans not-italic font-medium text-white/25 ml-0.5">
+          <span className="font-serif italic text-white text-lg">VeilSub</span>
+          <span className="hidden text-[9px] font-sans not-italic font-medium text-white/25 ml-0.5">
             testnet
           </span>
         </Link>
@@ -59,7 +58,7 @@ export default function DesktopSidebar() {
       <nav aria-label="Main navigation" className="flex-1 px-3 py-2 space-y-0.5">
         {visibleNav.map((item) => {
           const Icon = item.icon
-          const active = item.noActive ? false : isActive(item.href)
+          const active = isActive(item.href)
           return (
             <Link
               key={`${item.href}-${item.label}`}
