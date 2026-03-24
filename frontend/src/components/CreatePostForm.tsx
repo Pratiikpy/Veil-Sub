@@ -576,6 +576,11 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
             toast.dismiss('post-optimistic')
             setError('Post couldn\u2019t be published on-chain. Make sure your wallet is unlocked and has enough credits.')
             toast.error('Post couldn\u2019t be published')
+          } else if (result.status === 'timeout') {
+            setTxStatus('failed')
+            toast.dismiss('post-optimistic')
+            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
+            toast.warning('Transaction taking longer than expected')
           }
         })
       } else {

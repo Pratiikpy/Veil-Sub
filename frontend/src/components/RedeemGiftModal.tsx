@@ -145,6 +145,10 @@ export default function RedeemGiftModal({
             setTxStatus('failed')
             setError('Gift couldn\u2019t be redeemed. It may have already been used or expired.')
             toast.error('Gift couldn\u2019t be redeemed')
+          } else if (pollResult.status === 'timeout') {
+            setTxStatus('failed')
+            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
+            toast.warning('Transaction taking longer than expected')
           }
         })
       } else {

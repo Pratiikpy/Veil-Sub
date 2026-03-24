@@ -95,6 +95,10 @@ export default function GiftSubscriptionFlow({
             setTxStatus('failed')
             setError('Gift couldn\u2019t be sent. Make sure you have enough public credits (~0.3 ALEO) for network fees and private credits for the tier price.')
             toast.error('Gift couldn\u2019t be sent')
+          } else if (pollResult.status === 'timeout') {
+            setTxStatus('failed')
+            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
+            toast.warning('Transaction taking longer than expected')
           }
         })
       } else {

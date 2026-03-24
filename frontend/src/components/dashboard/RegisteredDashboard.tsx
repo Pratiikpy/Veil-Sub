@@ -335,6 +335,10 @@ export default function RegisteredDashboard({
             setWithdrawTxStatus('failed')
             setWithdrawError('Withdrawal could not be completed. Check your on-chain balance and try again.')
             stopPolling()
+          } else if (pollResult.status === 'timeout') {
+            setWithdrawTxStatus('failed')
+            setWithdrawError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
+            stopPolling()
           }
         })
       } else {

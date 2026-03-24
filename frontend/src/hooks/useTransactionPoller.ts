@@ -4,7 +4,7 @@ import { useCallback, useRef } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 
 type PollingStrategy = 'wallet' | 'fallback'
-type PollStatus = 'pending' | 'confirmed' | 'failed' | 'unknown'
+type PollStatus = 'pending' | 'confirmed' | 'failed' | 'timeout' | 'unknown'
 
 interface PollResult {
   status: PollStatus
@@ -74,10 +74,9 @@ export function useTransactionPoller() {
         if (aborted.current) return
 
         if (attempts >= maxAttempts) {
-          // After 120 polls (~6 minutes) with no failure signal, treat as confirmed.
-          // Aleo transactions that haven't explicitly failed are almost always confirmed.
-          const realId = await resolveRealTxId(txId)
-          onStatus({ status: 'confirmed', strategy: 'fallback', resolvedTxId: realId || undefined })
+          // After 120 polls (~6 minutes) with no definitive result, report timeout.
+          // Do NOT auto-confirm — the user should check their wallet or refresh.
+          onStatus({ status: 'timeout', strategy: 'fallback' })
           return
         }
 
@@ -91,29 +90,19 @@ export function useTransactionPoller() {
             return
           }
 
-          // Both Shield Wallet and Leo Wallet have quirks:
-          // - Shield: returns "accepted" but never "finalized"
-          // - Leo: returns "pending" forever but internally shows "Completed"
-          // After enough non-failure polls, treat as confirmed.
+          // Track non-failure polls for diagnostic purposes but do NOT auto-confirm.
+          // Wallet adapters (Shield, Leo) have quirks — they may report "accepted" or
+          // "pending" indefinitely without ever saying "confirmed". The timeout at
+          // maxAttempts handles this case safely without lying about confirmation.
           if (result.status === 'pending') {
             const rawResult = await transactionStatus?.(txId)
             if (aborted.current) return // Check after async operation
             const rawS = (typeof rawResult === 'string' ? rawResult : (rawResult as { status?: string } | null)?.status || '').toLowerCase()
 
-            // Count any non-failure response (pending, accepted, etc.)
             if (!rawS.includes('fail') && !rawS.includes('reject')) {
               nonFailureSince++
             } else {
               nonFailureSince = 0
-            }
-
-            // "accepted" = in mempool → confirm after 10 polls (~30s)
-            // "pending" with no failure → confirm after 20 polls (~60s)
-            const threshold = rawS.includes('accept') ? 10 : 20
-            if (nonFailureSince >= threshold) {
-              const realId = await resolveRealTxId(txId)
-              onStatus({ status: 'confirmed', strategy: 'wallet', resolvedTxId: realId || undefined })
-              return
             }
           }
 

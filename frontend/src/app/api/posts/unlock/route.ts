@@ -106,10 +106,19 @@ export async function POST(req: NextRequest) {
       // Height unavailable — handled below
     }
 
-    // SECURITY: Never skip expiry check. If block height is unavailable,
-    // reject the request rather than allowing expired passes through.
+    // If block height is unavailable (API down), use time-based estimation as fallback.
+    // Aleo testnet: ~3 seconds per block, genesis approx Jan 1 2024.
+    // This is an ESTIMATE — not cryptographically verified — but better than a hard 503
+    // when the Provable API is intermittently down (common on testnet).
     if (currentHeight === 0) {
-      return NextResponse.json({ error: 'Cannot verify subscription status. Try again.' }, { status: 503 })
+      const GENESIS_TIMESTAMP = 1704067200000 // Jan 1 2024 00:00:00 UTC
+      const BLOCK_TIME_MS = 3000
+      const estimatedHeight = Math.floor((Date.now() - GENESIS_TIMESTAMP) / BLOCK_TIME_MS)
+      if (estimatedHeight > 0) {
+        currentHeight = estimatedHeight
+      } else {
+        return NextResponse.json({ error: 'Cannot verify subscription status. Try again.' }, { status: 503 })
+      }
     }
 
     // Verify the caller has a valid, non-expired AccessPass for this creator

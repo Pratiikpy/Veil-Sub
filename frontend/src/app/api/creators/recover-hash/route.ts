@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { hashAddress } from '@/lib/encryption'
-import { ALEO_ADDRESS_RE, DEPLOYED_PROGRAM_ID } from '@/lib/config'
+import { ALEO_ADDRESS_RE } from '@/lib/config'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 
 const PROVABLE_BASE = 'https://api.explorer.provable.com/v1/testnet'
@@ -62,9 +62,9 @@ export async function GET(req: NextRequest) {
     const regTransition = transitions.find((t) => {
       if (typeof t !== 'object' || t === null) return false
       const obj = t as Record<string, unknown>
-      const program = obj.program_id ?? obj.program
+      const program = String(obj.program_id ?? obj.program ?? '')
       const fn = obj.function_name ?? obj.function
-      return program === DEPLOYED_PROGRAM_ID && fn === 'register_creator'
+      return program.startsWith('veilsub_v') && fn === 'register_creator'
     }) as Record<string, unknown> | undefined
 
     if (!regTransition) {
@@ -86,11 +86,30 @@ export async function GET(req: NextRequest) {
     // Step 4: Extract creator_hash from outputs[0].value (Leo future string)
     // Provable API v1 has no finalize[] array — hash is in outputs[0].value:
     // "{ program_id: ..., arguments: [\n  12345field,\n  3000000u64\n] }"
-    const outputValue = tx?.execution?.transitions?.[0]?.outputs?.[0]?.value
-    const hashMatch = typeof outputValue === 'string'
-      ? outputValue.match(/arguments:\s*\[\s*(\d+field)/)
-      : null
-    const hash = hashMatch?.[1]
+    // Find the register_creator transition (may not be the first if tx has multiple)
+    const regTx = (tx?.execution?.transitions ?? []).find(
+      (t: { program?: string; function?: string }) =>
+        String(t.program ?? '').startsWith('veilsub_v') && t.function === 'register_creator'
+    ) ?? tx?.execution?.transitions?.[0]
+    const outputValue = regTx?.outputs?.[0]?.value
+
+    // Try multiple patterns for different output formats across versions
+    let hash: string | undefined
+    if (typeof outputValue === 'string') {
+      const patterns = [
+        /arguments:\s*\[\s*(\d+field)/,           // v27 format
+        /finalize\s*\[\s*(\d+field)/,             // possible v29 format
+        /outputs[\s\S]*?(\d+field)/,                 // generic: any field in outputs
+        /"(\d{10,}field)"/,                        // quoted field value
+      ]
+      for (const pattern of patterns) {
+        const match = outputValue.match(pattern)
+        if (match?.[1]) {
+          hash = match[1]
+          break
+        }
+      }
+    }
 
     if (!hash || !hash.endsWith('field')) {
       return NextResponse.json({ error: 'Could not extract creator hash from transaction' }, { status: 404 })

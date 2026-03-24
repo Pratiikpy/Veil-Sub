@@ -183,6 +183,10 @@ export default function RenewModal({
             setTxStatus('failed')
             setError('Renewal couldn\u2019t be completed. Check that you have enough credits and your subscription pass is still valid.')
             toast.error('Renewal couldn\u2019t be completed')
+          } else if (result.status === 'timeout') {
+            setTxStatus('failed')
+            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
+            toast.warning('Transaction taking longer than expected')
           }
         })
       } else {

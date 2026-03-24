@@ -140,19 +140,33 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           setRegTxStatus('confirmed')
           const resolvedId = result.resolvedTxId ?? id
 
-          // Extract creator hash
+          // Extract creator hash — try multiple regex patterns for different output formats
           let creatorHash: string | undefined
           try {
             const r = await fetch(`/api/aleo/transaction/${encodeURIComponent(resolvedId)}`)
             const tx = await r.json()
-            const outputValue = tx?.execution?.transitions?.[0]?.outputs?.[0]?.value
-            const hash =
-              typeof outputValue === 'string'
-                ? (outputValue.match(/arguments:\s*\[\s*(\d+field)/) ?? [])[1]
-                : undefined
-            if (hash && hash.endsWith('field')) {
-              saveCreatorHash(publicKey, hash)
-              creatorHash = hash
+            // Find register_creator transition (may not be first if tx has multiple)
+            const regTx = (tx?.execution?.transitions ?? []).find(
+              (t: { program?: string; function?: string }) =>
+                String(t.program ?? '').startsWith('veilsub_v') && t.function === 'register_creator'
+            ) ?? tx?.execution?.transitions?.[0]
+            const outputValue = regTx?.outputs?.[0]?.value
+
+            if (typeof outputValue === 'string') {
+              const patterns = [
+                /arguments:\s*\[\s*(\d+field)/,           // v27 format
+                /finalize\s*\[\s*(\d+field)/,             // possible v29 format
+                /outputs[\s\S]*?(\d+field)/,                 // generic: any field in outputs
+                /"(\d{10,}field)"/,                        // quoted field value
+              ]
+              for (const pattern of patterns) {
+                const match = outputValue.match(pattern)
+                if (match?.[1] && match[1].endsWith('field')) {
+                  saveCreatorHash(publicKey, match[1])
+                  creatorHash = match[1]
+                  break
+                }
+              }
             }
           } catch {
             // Non-critical
@@ -189,6 +203,10 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           setRegTxStatus('failed')
           submittingRef.current = false
           toast.error('Registration couldn\u2019t be completed. Check your wallet and try again.')
+        } else if (result.status === 'timeout') {
+          setRegTxStatus('failed')
+          submittingRef.current = false
+          toast.warning('Transaction is still processing. Check your wallet or refresh the page.')
         }
       })
     } catch (err) {
@@ -235,6 +253,34 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
         if (result.status === 'confirmed') {
           setTierTxStatus('confirmed')
           toast.success('Subscription tier created!')
+
+          // Save tier data to localStorage and Supabase for cross-device persistence
+          if (publicKey) {
+            const tierData = {
+              tierId: 1,
+              name: tierName || 'Supporter',
+              price: creditsToMicrocredits(parseFloat(tierPrice)),
+            }
+            try {
+              const lsKey = `veilsub_creator_tiers_${publicKey}`
+              const existing = JSON.parse(localStorage.getItem(lsKey) || '{}')
+              existing[tierData.tierId] = { name: tierData.name, price: tierData.price }
+              localStorage.setItem(lsKey, JSON.stringify(existing))
+            } catch { /* non-critical */ }
+            try {
+              fetch('/api/tiers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  address: publicKey,
+                  tierId: 1,
+                  name: tierData.name,
+                  price: tierData.price,
+                }),
+              }).catch(() => { /* non-critical */ })
+            } catch { /* non-critical */ }
+          }
+
           setTierComplete(true)
           submittingRef.current = false
           goNext()
@@ -242,6 +288,10 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           setTierTxStatus('failed')
           submittingRef.current = false
           toast.error('Tier couldn\u2019t be created. Check your wallet and try again.')
+        } else if (result.status === 'timeout') {
+          setTierTxStatus('failed')
+          submittingRef.current = false
+          toast.warning('Transaction is still processing. Check your wallet or refresh the page.')
         }
       })
     } catch (err) {
@@ -249,7 +299,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
       submittingRef.current = false
       toast.error(err instanceof Error ? err.message : 'Tier couldn\u2019t be created')
     }
-  }, [tierPrice, createCustomTier, startPolling, goNext])
+  }, [tierPrice, tierName, publicKey, createCustomTier, startPolling, goNext])
 
   // ── Step 4: Publish first post ───────────────────────────────────────────
 
@@ -304,6 +354,10 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           setPublishTxStatus('failed')
           submittingRef.current = false
           toast.error('Post couldn\u2019t be published. Check your wallet and try again.')
+        } else if (result.status === 'timeout') {
+          setPublishTxStatus('failed')
+          submittingRef.current = false
+          toast.warning('Transaction is still processing. Check your wallet or refresh the page.')
         }
       })
     } catch (err) {

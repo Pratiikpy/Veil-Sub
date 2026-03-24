@@ -45,6 +45,10 @@ export default function RevokeAccessPanel({ onSuccess }: Props) {
           } else if (pollResult.status === 'failed') {
             setTxStatus('failed')
             stopPolling()
+          } else if (pollResult.status === 'timeout') {
+            setTxStatus('failed')
+            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
+            stopPolling()
           }
         })
       }

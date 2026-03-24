@@ -84,6 +84,10 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
             setTxStatus('failed')
             setError('Audit token couldn\u2019t be created. Check that your wallet is unlocked and has enough credits.')
             toast.error('Audit token couldn\u2019t be created')
+          } else if (result.status === 'timeout') {
+            setTxStatus('failed')
+            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
+            toast.warning('Transaction taking longer than expected')
           }
         })
       } else {

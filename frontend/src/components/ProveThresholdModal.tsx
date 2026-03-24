@@ -75,6 +75,10 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
             setTxStatus('failed')
             setError('Proof couldn\u2019t be verified. Your subscriber count may be below the threshold.')
             toast.error('Proof couldn\u2019t be verified')
+          } else if (result.status === 'timeout') {
+            setTxStatus('failed')
+            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
+            toast.warning('Transaction taking longer than expected')
           }
         })
       } else {

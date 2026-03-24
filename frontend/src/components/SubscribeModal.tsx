@@ -117,7 +117,10 @@ export default function SubscribeModal({
             return
           }
         }
-      } catch { /* non-critical — proceed if check fails */ }
+      } catch {
+        // If we can't check, warn but allow — better than blocking on API failure
+        toast.warning('Could not verify public balance. Transaction may fail if fees are insufficient.')
+      }
 
       const passId = generatePassId()
       const expiresAt = privacyMode === 'trial'
@@ -177,6 +180,10 @@ export default function SubscribeModal({
             setTxStatus('failed')
             setError('Subscription couldn\u2019t be completed. Make sure you have enough public credits (~0.3 ALEO) for network fees and private credits for the tier price.')
             toast.error('Subscription couldn\u2019t be completed')
+          } else if (result.status === 'timeout') {
+            setTxStatus('failed')
+            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
+            toast.warning('Transaction taking longer than expected')
           }
         })
       } else {

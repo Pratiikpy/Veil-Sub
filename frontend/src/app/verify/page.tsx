@@ -147,6 +147,10 @@ export default function VerifyPage() {
             setVerifyTxStatus('failed')
             setVerifyResult('failed')
             setVerifyError('Transaction failed on-chain. Your pass may be revoked or expired.')
+          } else if (result.status === 'timeout') {
+            setVerifyTxStatus('failed')
+            setVerifyResult('failed')
+            setVerifyError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
           }
         })
       } else {

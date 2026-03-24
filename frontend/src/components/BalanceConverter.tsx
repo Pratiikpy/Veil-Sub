@@ -56,6 +56,9 @@ export default function BalanceConverter({
         } else if (result.status === 'failed') {
           setStatus('failed')
           setError('Conversion couldn\u2019t be completed on-chain. Check your balance and try again.')
+        } else if (result.status === 'timeout') {
+          setStatus('failed')
+          setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
         }
       })
     } catch (err) {

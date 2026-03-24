@@ -313,12 +313,15 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
   // Reset unlock state when the user's highest tier changes (e.g., after subscribing).
   // This allows previously-failed or not-yet-attempted unlocks to be retried.
+  // Also handles the transition from tier 0 (not subscribed) to any tier (newly subscribed).
   const prevHighestTierRef = useRef(highestTier)
   useEffect(() => {
     if (highestTier > prevHighestTierRef.current) {
-      // Tier increased — clear failed unlocks so the auto-unlock loop retries them
+      // Tier increased — clear ALL unlock tracking so the auto-unlock loop retries everything
       failedUnlocksRef.current = new Set()
       setFailedUnlocks(new Set())
+      unlockingRef.current = new Set()
+      setUnlockingIds(new Set())
       unlockRunningRef.current = false
     }
     prevHighestTierRef.current = highestTier

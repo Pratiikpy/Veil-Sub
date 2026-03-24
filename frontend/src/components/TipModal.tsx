@@ -252,6 +252,10 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             setTxStatus('failed')
             setError('Commit-reveal tip failed on-chain. Verify credits balance.')
             toast.error('Tip couldn\u2019t be sent')
+          } else if (result.status === 'timeout') {
+            setTxStatus('failed')
+            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
+            toast.warning('Transaction taking longer than expected')
           }
         })
       } else {
@@ -310,6 +314,10 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             setTxStatus('failed')
             setError('Commit failed on-chain.')
             toast.error('Tip commit couldn\u2019t be completed')
+          } else if (result.status === 'timeout') {
+            setTxStatus('failed')
+            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
+            toast.warning('Transaction taking longer than expected')
           }
         })
       } else {
@@ -377,6 +385,10 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             setTxStatus('failed')
             setError('Reveal failed on-chain.')
             toast.error('Tip reveal couldn\u2019t be completed')
+          } else if (result.status === 'timeout') {
+            setTxStatus('failed')
+            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
+            toast.warning('Transaction taking longer than expected')
           }
         })
       } else {
