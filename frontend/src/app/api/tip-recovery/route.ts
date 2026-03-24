@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRedis } from '@/lib/redis'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
+import { verifyWalletAuth } from '@/lib/apiAuth'
+import { encryptContent, decryptContent } from '@/lib/contentEncryption'
 
 /**
  * Tip Recovery API — encrypted backup of commit-reveal tip salt data.
@@ -33,7 +35,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  const { subscriberHash, creatorAddress, salt, amount, commitTxId } = payload
+  const { subscriberHash, creatorAddress, salt, amount, commitTxId, walletAddress, walletHash, timestamp: authTimestamp, signature } = payload
+
+  // Wallet authentication
+  if (walletAddress && walletHash) {
+    const auth = await verifyWalletAuth(walletAddress, walletHash, authTimestamp, signature)
+    if (!auth.valid) {
+      return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+    }
+  } else {
+    return NextResponse.json({ error: 'Authentication required (walletAddress + walletHash + timestamp)' }, { status: 401 })
+  }
 
   if (!validateSubscriberHash(subscriberHash)) {
     return NextResponse.json({ error: 'Invalid subscriber hash' }, { status: 400 })
@@ -52,7 +64,7 @@ export async function POST(req: NextRequest) {
   }
 
   const key = `veilsub:tip-recovery:${subscriberHash}:${creatorAddress}`
-  const data = JSON.stringify({
+  const plainData = JSON.stringify({
     salt,
     amount,
     creatorAddress,
@@ -60,7 +72,10 @@ export async function POST(req: NextRequest) {
     timestamp: Date.now(),
   })
 
-  await redis.set(key, data, { ex: TTL_SECONDS })
+  // Encrypt tip recovery data at rest (AES-256-GCM, keyed by subscriberHash)
+  const encryptedData = encryptContent(plainData, subscriberHash)
+
+  await redis.set(key, encryptedData, { ex: TTL_SECONDS })
 
   return NextResponse.json({ saved: true })
 }
@@ -93,10 +108,19 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const data = typeof raw === 'string' ? JSON.parse(raw) : raw
+    // Decrypt data at rest (backward-compatible: decryptContent returns unencrypted data as-is)
+    const rawStr = typeof raw === 'string' ? raw : JSON.stringify(raw)
+    const decrypted = decryptContent(rawStr, subscriberHash as string)
+    const data = JSON.parse(decrypted)
     return NextResponse.json({ pending: data })
   } catch {
-    return NextResponse.json({ pending: null })
+    // Try legacy unencrypted format
+    try {
+      const data = typeof raw === 'string' ? JSON.parse(raw) : raw
+      return NextResponse.json({ pending: data })
+    } catch {
+      return NextResponse.json({ pending: null })
+    }
   }
 }
 
@@ -115,7 +139,17 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  const { subscriberHash, creatorAddress } = payload
+  const { subscriberHash, creatorAddress, walletAddress, walletHash, timestamp: authTimestamp, signature } = payload
+
+  // Wallet authentication
+  if (walletAddress && walletHash) {
+    const auth = await verifyWalletAuth(walletAddress, walletHash, authTimestamp, signature)
+    if (!auth.valid) {
+      return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+    }
+  } else {
+    return NextResponse.json({ error: 'Authentication required (walletAddress + walletHash + timestamp)' }, { status: 401 })
+  }
 
   if (!validateSubscriberHash(subscriberHash)) {
     return NextResponse.json({ error: 'Invalid subscriber hash' }, { status: 400 })

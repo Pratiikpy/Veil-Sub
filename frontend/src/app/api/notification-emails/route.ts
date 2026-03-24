@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
+import { verifyWalletAuth } from '@/lib/apiAuth'
 
 /**
  * Supabase table (run once in SQL editor):
@@ -87,7 +88,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  const { subscriberHash, email, creatorHashes } = body
+  const { subscriberHash, email, creatorHashes, walletAddress, walletHash, timestamp: authTimestamp, signature } = body as {
+    subscriberHash?: string; email?: string; creatorHashes?: string[]
+    walletAddress?: string; walletHash?: unknown; timestamp?: unknown; signature?: unknown
+  }
+
+  // Wallet authentication
+  if (walletAddress && walletHash) {
+    const auth = await verifyWalletAuth(walletAddress, walletHash, authTimestamp, signature)
+    if (!auth.valid) {
+      return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+    }
+  } else {
+    return NextResponse.json({ error: 'Authentication required (walletAddress + walletHash + timestamp)' }, { status: 401 })
+  }
 
   // Validate subscriber hash
   if (!subscriberHash || typeof subscriberHash !== 'string' || !/^[a-f0-9]{64}$/.test(subscriberHash)) {
@@ -143,14 +157,25 @@ export async function DELETE(req: NextRequest) {
   const { allowed } = rateLimit(`notif-email:del:${ip}`, 10, 60_000)
   if (!allowed) return getRateLimitResponse()
 
-  let body: { subscriberHash?: string }
+  let body: { subscriberHash?: string; walletAddress?: string; walletHash?: unknown; timestamp?: unknown; signature?: unknown }
   try {
     body = await req.json()
   } catch {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  const { subscriberHash } = body
+  const { subscriberHash, walletAddress: delWallet, walletHash: delHash, timestamp: delTimestamp, signature: delSig } = body
+
+  // Wallet authentication
+  if (delWallet && delHash) {
+    const auth = await verifyWalletAuth(delWallet, delHash, delTimestamp, delSig)
+    if (!auth.valid) {
+      return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+    }
+  } else {
+    return NextResponse.json({ error: 'Authentication required (walletAddress + walletHash + timestamp)' }, { status: 401 })
+  }
+
   if (!subscriberHash || typeof subscriberHash !== 'string' || !/^[a-f0-9]{64}$/.test(subscriberHash)) {
     return NextResponse.json({ error: 'Valid subscriber_hash required' }, { status: 400 })
   }

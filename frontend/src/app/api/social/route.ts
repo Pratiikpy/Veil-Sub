@@ -28,6 +28,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
+import { verifyWalletAuth } from '@/lib/apiAuth'
 
 const VALID_REACTION_TYPES = new Set(['heart', 'fire', 'clap', 'wow', 'idea', 'pray'])
 const MAX_COMMENT_LEN = 280
@@ -122,6 +123,20 @@ export async function POST(req: NextRequest) {
   const { type, contentId } = body as { type?: string; contentId?: string }
   if (!type || !contentId || typeof contentId !== 'string' || !CONTENT_ID_RE.test(contentId)) {
     return badRequest('type and valid contentId required')
+  }
+
+  // Wallet authentication for write operations
+  const { walletAddress, walletHash, timestamp, signature } = body as {
+    walletAddress?: string; walletHash?: unknown; timestamp?: unknown; signature?: unknown
+  }
+  if (walletHash && walletAddress) {
+    const auth = await verifyWalletAuth(walletAddress, walletHash, timestamp, signature)
+    if (!auth.valid) {
+      return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+    }
+  } else if (type === 'comment') {
+    // Comments require auth — reactions are anonymous aggregate counters
+    return NextResponse.json({ error: 'Authentication required (walletAddress + walletHash + timestamp)' }, { status: 401 })
   }
 
   try {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
+import { verifyWalletAuth } from '@/lib/apiAuth'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
@@ -28,6 +29,22 @@ export async function POST(req: NextRequest) {
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:upload`, 10)
   if (!allowed) return getRateLimitResponse()
+
+  // Wallet authentication via headers (works for both multipart and JSON)
+  const walletAddress = req.headers.get('x-wallet-address')
+  const walletHash = req.headers.get('x-wallet-hash')
+  const timestamp = req.headers.get('x-wallet-timestamp')
+  const signature = req.headers.get('x-wallet-signature')
+
+  if (walletAddress && walletHash) {
+    const ts = timestamp ? parseInt(timestamp, 10) : undefined
+    const auth = await verifyWalletAuth(walletAddress, walletHash, ts, signature || undefined)
+    if (!auth.valid) {
+      return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+    }
+  } else {
+    return NextResponse.json({ error: 'Authentication required (x-wallet-address + x-wallet-hash + x-wallet-timestamp headers)' }, { status: 401 })
+  }
 
   const contentType = req.headers.get('content-type') || ''
 

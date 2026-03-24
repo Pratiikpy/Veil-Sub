@@ -3,6 +3,7 @@ import { getServerSupabase } from '@/lib/supabase'
 import { hashAddress } from '@/lib/encryption'
 import { ALEO_ADDRESS_RE } from '@/lib/config'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
+import { verifyWalletAuth } from '@/lib/apiAuth'
 
 // GET /api/tiers?address=aleo1...
 // Returns all tiers for a creator — public, no auth required
@@ -56,10 +57,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  const { address, tier_id, name, price_microcredits } = payload
+  const { address, tier_id, name, price_microcredits, walletHash, timestamp, signature } = payload
 
   if (!address || !ALEO_ADDRESS_RE.test(address)) {
     return NextResponse.json({ error: 'Valid Aleo address required' }, { status: 400 })
+  }
+
+  // Wallet authentication
+  if (walletHash) {
+    const auth = await verifyWalletAuth(address, walletHash, timestamp, signature)
+    if (!auth.valid) {
+      return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+    }
+  } else {
+    return NextResponse.json({ error: 'Authentication required (walletHash + timestamp)' }, { status: 401 })
   }
   if (typeof tier_id !== 'number' || tier_id < 1 || tier_id > 20) {
     return NextResponse.json({ error: 'tier_id must be 1–20' }, { status: 400 })

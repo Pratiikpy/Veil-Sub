@@ -3,8 +3,11 @@
 import { useState, useCallback } from 'react'
 import { m } from 'framer-motion'
 import { toast } from 'sonner'
-import { formatCredits, formatUsd } from '@/lib/utils'
-import { Loader2 } from 'lucide-react'
+import { formatCredits, formatUsd, creditsToMicrocredits } from '@/lib/utils'
+import { Loader2, CheckCircle2 } from 'lucide-react'
+import { useVeilSub } from '@/hooks/useVeilSub'
+import { useTransactionPoller } from '@/hooks/useTransactionPoller'
+import { FEES } from '@/lib/config'
 
 export interface TipMenuItem {
   id: string
@@ -32,39 +35,88 @@ const DEFAULT_MENU: TipMenuItem[] = [
 
 export default function TipMenu({ creatorAddress, creatorName, items, isSubscribed, connected, onTipRequest }: TipMenuProps) {
   const [orderingId, setOrderingId] = useState<string | null>(null)
+  const [confirmingItem, setConfirmingItem] = useState<TipMenuItem | null>(null)
+  const [payingItem, setPayingItem] = useState<string | null>(null)
+  const { tip, getCreditsRecords } = useVeilSub()
+  const { startPolling } = useTransactionPoller()
 
   const menuItems = items ?? DEFAULT_MENU
+
+  // Execute the actual tip payment on-chain
+  const executePayment = useCallback(async (item: TipMenuItem) => {
+    setPayingItem(item.id)
+    setConfirmingItem(null)
+
+    try {
+      const records = await getCreditsRecords()
+      if (!records || records.length === 0) {
+        toast.error('No credits records found. You need ALEO credits in your wallet.')
+        setPayingItem(null)
+        return
+      }
+
+      // Find a record with enough balance
+      const needed = item.price + creditsToMicrocredits(FEES.TIP)
+      const paymentRecord = records.find((r: string) => {
+        try {
+          const match = r.match(/microcredits:\s*(\d+)u64/)
+          return match ? parseInt(match[1]) >= needed : false
+        } catch { return false }
+      })
+
+      if (!paymentRecord) {
+        toast.error(`Insufficient balance. Need at least ${formatCredits(needed)} ALEO.`)
+        setPayingItem(null)
+        return
+      }
+
+      toast.info(`Sending tip for "${item.name}"...`)
+
+      const txId = await tip(paymentRecord, creatorAddress, item.price)
+
+      if (txId) {
+        // Save order to localStorage for creator dashboard
+        try {
+          const key = `veilsub_tip_menu_orders_${creatorAddress}`
+          const existing = JSON.parse(localStorage.getItem(key) || '[]')
+          existing.push({
+            itemId: item.id,
+            itemName: item.name,
+            price: item.price,
+            txId,
+            timestamp: Date.now(),
+          })
+          localStorage.setItem(key, JSON.stringify(existing.slice(-50)))
+        } catch { /* localStorage unavailable */ }
+
+        toast.success(`"${item.name}" purchased! Tip of ${formatCredits(item.price)} ALEO sent to ${creatorName || 'creator'}.`, {
+          duration: 5000,
+        })
+
+        // Notify parent if handler exists (for cache invalidation etc.)
+        if (onTipRequest) {
+          onTipRequest(item.price / 1_000_000, item.name)
+        }
+      } else {
+        toast.error('Tip transaction failed or was cancelled.')
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Payment failed'
+      toast.error(msg)
+    } finally {
+      setPayingItem(null)
+    }
+  }, [getCreditsRecords, tip, creatorAddress, creatorName, onTipRequest])
 
   const handleOrder = useCallback((item: TipMenuItem) => {
     if (!connected) {
       toast.error('Connect your wallet to place an order')
       return
     }
-    setOrderingId(item.id)
-
-    // Save order to localStorage for creator dashboard
-    try {
-      const key = `veilsub_tip_menu_orders_${creatorAddress}`
-      const existing = JSON.parse(localStorage.getItem(key) || '[]')
-      existing.push({
-        itemId: item.id,
-        itemName: item.name,
-        price: item.price,
-        timestamp: Date.now(),
-      })
-      localStorage.setItem(key, JSON.stringify(existing.slice(-50)))
-    } catch { /* localStorage unavailable */ }
-
-    // If parent provided a tip handler, use it (opens TipModal with preset amount)
-    if (onTipRequest) {
-      onTipRequest(item.price / 1_000_000, item.name)
-    }
-
-    toast.success(`Order placed for "${item.name}"! Send a tip of ${formatCredits(item.price)} ALEO to complete your request.`, {
-      duration: 5000,
-    })
-    setOrderingId(null)
-  }, [connected, creatorAddress, onTipRequest])
+    if (payingItem) return // prevent double-click while paying
+    // Show confirmation step
+    setConfirmingItem(item)
+  }, [connected, payingItem])
 
   return (
     <div>
@@ -103,20 +155,54 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => handleOrder(item)}
-                disabled={!connected || isOrdering}
-                className="mt-3 w-full py-2 rounded-lg text-xs font-medium transition-all active:scale-[0.98] bg-amber-500/10 border border-amber-500/25 text-amber-300 hover:bg-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
-              >
-                {isOrdering ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
-                    Processing...
-                  </>
-                ) : (
-                  connected ? 'Order' : 'Connect wallet'
-                )}
-              </button>
+              {confirmingItem?.id === item.id ? (
+                <div className="mt-3 space-y-2">
+                  <p className="text-[10px] text-white/60 text-center">
+                    Pay {formatCredits(item.price)} ALEO (~{formatUsd(item.price)}) + network fee?
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => executePayment(item)}
+                      disabled={payingItem === item.id}
+                      className="flex-1 py-2 rounded-lg text-xs font-medium transition-all active:scale-[0.98] bg-amber-500/20 border border-amber-500/40 text-amber-200 hover:bg-amber-500/30 disabled:opacity-40 flex items-center justify-center gap-1.5"
+                    >
+                      {payingItem === item.id ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+                          Paying...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
+                          Confirm
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setConfirmingItem(null)}
+                      disabled={payingItem === item.id}
+                      className="px-3 py-2 rounded-lg text-xs font-medium transition-all bg-white/[0.05] border border-white/[0.1] text-white/50 hover:bg-white/[0.08] disabled:opacity-40"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => handleOrder(item)}
+                  disabled={!connected || payingItem === item.id}
+                  className="mt-3 w-full py-2 rounded-lg text-xs font-medium transition-all active:scale-[0.98] bg-amber-500/10 border border-amber-500/25 text-amber-300 hover:bg-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                >
+                  {payingItem === item.id ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+                      Processing...
+                    </>
+                  ) : (
+                    connected ? 'Order' : 'Connect wallet'
+                  )}
+                </button>
+              )}
             </m.div>
           )
         })}

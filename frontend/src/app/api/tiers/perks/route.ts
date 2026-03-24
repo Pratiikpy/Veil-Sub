@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { ALEO_ADDRESS_RE } from '@/lib/config'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
+import { verifyWalletAuth } from '@/lib/apiAuth'
 
 // GET /api/tiers/perks?creator=aleo1...
 // Returns all tier perks for a creator — public, no auth required
@@ -48,11 +49,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  const { creator_address, tier_id, perks, description } = payload
+  const { creator_address, tier_id, perks, description, walletHash, timestamp, signature } = payload
 
   // Validate creator_address
   if (!creator_address || typeof creator_address !== 'string' || !ALEO_ADDRESS_RE.test(creator_address)) {
     return NextResponse.json({ error: 'Valid Aleo address required' }, { status: 400 })
+  }
+
+  // Wallet authentication
+  if (walletHash) {
+    const auth = await verifyWalletAuth(creator_address, walletHash, timestamp, signature)
+    if (!auth.valid) {
+      return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+    }
+  } else {
+    return NextResponse.json({ error: 'Authentication required (walletHash + timestamp)' }, { status: 401 })
   }
 
   // Validate tier_id

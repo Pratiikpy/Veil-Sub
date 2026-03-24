@@ -5,6 +5,8 @@ import { m } from 'framer-motion'
 import { Lock, Unlock, Shield, RefreshCw, Loader2, FileText, ArrowRight, Flag, Image as ImageIcon, Video, ShieldCheck, Globe, DollarSign, StickyNote } from 'lucide-react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useContentFeed } from '@/hooks/useContentFeed'
+import { useVeilSub } from '@/hooks/useVeilSub'
+import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { isE2EEncrypted, decryptContent as e2eDecrypt } from '@/lib/e2eEncryption'
 import dynamic from 'next/dynamic'
 const DisputeContentModal = dynamic(() => import('./DisputeContentModal'), { ssr: false })
@@ -13,8 +15,8 @@ const VideoEmbed = dynamic(() => import('./VideoEmbed'), { ssr: false })
 const PostInteractions = dynamic(() => import('./PostInteractions'), { ssr: false })
 const ImageLightbox = dynamic(() => import('./ImageLightbox'), { ssr: false })
 const ArticleReader = dynamic(() => import('./ArticleReader'), { ssr: false })
-import { estimateReadingTime, shortenAddress, formatCredits, formatUsd } from '@/lib/utils'
-import { FEATURED_CREATORS } from '@/lib/config'
+import { estimateReadingTime, shortenAddress, formatCredits, formatUsd, creditsToMicrocredits } from '@/lib/utils'
+import { FEATURED_CREATORS, FEES } from '@/lib/config'
 import { toast } from 'sonner'
 import type { AccessPass, ContentPost } from '@/types'
 
@@ -94,6 +96,12 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   const [readerPost, setReaderPost] = useState<ContentPost | null>(null)
   const [feedFilter, setFeedFilter] = useState<'all' | 'posts' | 'notes'>('all')
 
+  // PPV payment state
+  const [ppvPayingId, setPpvPayingId] = useState<string | null>(null)
+  const [ppvConfirmId, setPpvConfirmId] = useState<string | null>(null)
+  const { tip, getCreditsRecords } = useVeilSub()
+  const { startPolling: startPpvPolling } = useTransactionPoller()
+
   // PPV unlock tracking (localStorage-backed)
   const [ppvUnlocked, setPpvUnlocked] = useState<Set<string>>(() => {
     try {
@@ -110,6 +118,62 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       return next
     })
   }, [])
+
+  // PPV payment: execute a real tip transaction, then unlock on confirmation
+  const handlePpvPayment = useCallback(async (postId: string, ppvPrice: number) => {
+    if (ppvPayingId) return // prevent double-click
+    setPpvPayingId(postId)
+    setPpvConfirmId(null)
+
+    try {
+      // Get a credits record for payment
+      const records = await getCreditsRecords()
+      if (!records || records.length === 0) {
+        toast.error('No credits records found. You need ALEO credits in your wallet.')
+        setPpvPayingId(null)
+        return
+      }
+
+      // Find a record with enough balance
+      const needed = ppvPrice + creditsToMicrocredits(FEES.TIP)
+      const paymentRecord = records.find((r: string) => {
+        try {
+          const match = r.match(/microcredits:\s*(\d+)u64/)
+          return match ? parseInt(match[1]) >= needed : false
+        } catch { return false }
+      })
+
+      if (!paymentRecord) {
+        toast.error(`Insufficient balance. Need at least ${formatCredits(needed)} ALEO.`)
+        setPpvPayingId(null)
+        return
+      }
+
+      toast.info('Submitting PPV payment transaction...')
+
+      const txId = await tip(paymentRecord, creatorAddress, ppvPrice)
+
+      if (txId) {
+        toast.success('PPV payment confirmed! Unlocking content...')
+        markPpvUnlocked(postId)
+        // Also notify the API about the unlock
+        try {
+          await fetch('/api/posts/ppv-unlock', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ postId, txId }),
+          }).catch(() => { /* optional tracking, don't block unlock */ })
+        } catch { /* ignore API tracking failures */ }
+      } else {
+        toast.error('PPV payment failed or was cancelled. Content not unlocked.')
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Payment failed'
+      toast.error(msg)
+    } finally {
+      setPpvPayingId(null)
+    }
+  }, [ppvPayingId, getCreditsRecords, tip, creatorAddress, markPpvUnlocked])
 
   // Keep refs in sync without triggering effects
   signMessageRef.current = signMessage
@@ -654,22 +718,64 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                         <div className="w-10 h-10 rounded-full flex items-center justify-center bg-amber-500/10 border border-amber-500/25">
                           <DollarSign className="w-5 h-5 text-amber-300" aria-hidden="true" />
                         </div>
-                        <p className="text-sm text-white/80 font-medium">
-                          Unlock this post &mdash; {formatCredits(post.ppvPrice!)} ALEO
-                          <span className="text-white/40 ml-1 text-xs">({formatUsd(post.ppvPrice!)})</span>
-                        </p>
-                        <button
-                          onClick={() => {
-                            // PPV uses tip infrastructure — mark as unlocked optimistically
-                            // In production, this would verify an on-chain tip transaction
-                            markPpvUnlocked(post.id)
-                            toast.success('Post unlocked!')
-                          }}
-                          disabled={!connected}
-                          className="px-6 py-2 rounded-xl text-sm font-medium bg-amber-500/15 border border-amber-500/30 text-amber-200 hover:bg-amber-500/25 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          {connected ? 'Pay to Read' : 'Connect wallet'}
-                        </button>
+                        {ppvConfirmId === post.id ? (
+                          <>
+                            <p className="text-sm text-white/80 font-medium text-center">
+                              Pay {formatCredits(post.ppvPrice!)} ALEO
+                              <span className="text-white/40 ml-1 text-xs">({formatUsd(post.ppvPrice!)})</span>
+                              {' '}to unlock?
+                            </p>
+                            <p className="text-[10px] text-white/50">
+                              + ~{FEES.TIP} ALEO network fee
+                            </p>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => {
+                                  setPpvConfirmId(null)
+                                  handlePpvPayment(post.id, post.ppvPrice!)
+                                }}
+                                disabled={ppvPayingId === post.id}
+                                className="px-5 py-2 rounded-xl text-sm font-medium bg-amber-500/20 border border-amber-500/40 text-amber-200 hover:bg-amber-500/30 active:scale-[0.98] transition-all disabled:opacity-40"
+                              >
+                                {ppvPayingId === post.id ? (
+                                  <span className="flex items-center gap-1.5">
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+                                    Processing...
+                                  </span>
+                                ) : 'Confirm Payment'}
+                              </button>
+                              <button
+                                onClick={() => setPpvConfirmId(null)}
+                                disabled={ppvPayingId === post.id}
+                                className="px-4 py-2 rounded-xl text-sm font-medium bg-white/[0.05] border border-white/[0.1] text-white/60 hover:bg-white/[0.08] transition-all disabled:opacity-40"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-sm text-white/80 font-medium">
+                              Unlock this post &mdash; {formatCredits(post.ppvPrice!)} ALEO
+                              <span className="text-white/40 ml-1 text-xs">({formatUsd(post.ppvPrice!)})</span>
+                            </p>
+                            <button
+                              onClick={() => {
+                                if (ppvPayingId) return
+                                setPpvConfirmId(post.id)
+                              }}
+                              disabled={!connected || ppvPayingId === post.id}
+                              className="px-6 py-2 rounded-xl text-sm font-medium bg-amber-500/15 border border-amber-500/30 text-amber-200 hover:bg-amber-500/25 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              {ppvPayingId === post.id ? (
+                                <span className="flex items-center gap-1.5">
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+                                  Processing payment...
+                                </span>
+                              ) : connected ? 'Pay to Read' : 'Connect wallet'}
+                            </button>
+                          </>
+                        )}
                         <p className="text-[10px] text-white/35">One-time payment via private Aleo tip</p>
                       </div>
                     </div>

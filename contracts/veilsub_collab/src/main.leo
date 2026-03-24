@@ -143,8 +143,8 @@ program veilsub_collab_v1.aleo {
         assert(agreement.active);
         assert(total_amount > 0u64);
 
-        // Calculate split
-        let my_amount: u64 = (total_amount * (agreement.split_pct as u64)) / 100u64;
+        // Calculate split (use u128 intermediate to prevent overflow on large amounts)
+        let my_amount: u64 = ((total_amount as u128) * (agreement.split_pct as u128) / 100u128) as u64;
         let partner_amount: u64 = total_amount - my_amount;
 
         // Transfer partner's share to partner

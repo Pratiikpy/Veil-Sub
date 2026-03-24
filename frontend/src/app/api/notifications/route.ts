@@ -5,6 +5,7 @@ import { ALEO_ADDRESS_RE } from '@/lib/config'
 import { hashAddress } from '@/lib/encryption'
 import { encryptContent, decryptContent } from '@/lib/contentEncryption'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
+import { verifyWalletAuth } from '@/lib/apiAuth'
 
 // Fixed key identifier for notification encryption (not creator-specific)
 const NOTIFICATION_KEY_ID = 'veilsub:notifications'
@@ -223,10 +224,21 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const { wallet, notificationId: nId, markAll } = payload
+  const { wallet, notificationId: nId, markAll, walletAddress: patchWalletAddr, walletHash: patchWalletHash, timestamp: patchTimestamp, signature: patchSig } = payload
 
   if (!wallet || typeof wallet !== 'string') {
     return NextResponse.json({ error: 'Missing wallet' }, { status: 400 })
+  }
+
+  // Wallet authentication for mark-read operations
+  const authAddr = patchWalletAddr || (ALEO_ADDRESS_RE.test(wallet) ? wallet : null)
+  if (authAddr && patchWalletHash) {
+    const auth = await verifyWalletAuth(authAddr, patchWalletHash, patchTimestamp, patchSig)
+    if (!auth.valid) {
+      return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+    }
+  } else {
+    return NextResponse.json({ error: 'Authentication required (walletAddress + walletHash + timestamp)' }, { status: 401 })
   }
 
   const walletHash = ALEO_ADDRESS_RE.test(wallet)
@@ -313,13 +325,24 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const { wallet, notificationId: nId } = payload
+  const { wallet, notificationId: nId, walletAddress: delWalletAddr, walletHash: delWalletHash, timestamp: delTimestamp, signature: delSig } = payload
 
   if (!wallet || typeof wallet !== 'string') {
     return NextResponse.json({ error: 'Missing wallet' }, { status: 400 })
   }
   if (!nId || typeof nId !== 'string') {
     return NextResponse.json({ error: 'Missing notificationId' }, { status: 400 })
+  }
+
+  // Wallet authentication for delete operations
+  const delAuthAddr = delWalletAddr || (ALEO_ADDRESS_RE.test(wallet) ? wallet : null)
+  if (delAuthAddr && delWalletHash) {
+    const auth = await verifyWalletAuth(delAuthAddr, delWalletHash, delTimestamp, delSig)
+    if (!auth.valid) {
+      return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+    }
+  } else {
+    return NextResponse.json({ error: 'Authentication required (walletAddress + walletHash + timestamp)' }, { status: 401 })
   }
 
   const walletHash = ALEO_ADDRESS_RE.test(wallet)
