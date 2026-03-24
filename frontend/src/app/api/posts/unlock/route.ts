@@ -130,11 +130,15 @@ export async function POST(req: NextRequest) {
     const isE2E = bodyRaw.startsWith('e2e:')
     const responseBody = isE2E ? bodyRaw : (bodyRaw ? decryptContent(bodyRaw, creatorAddress) : '')
 
+    // Decrypt media URLs (may be encrypted at rest or plaintext legacy)
+    const decryptedImageUrl = post.imageUrl ? decryptContent(post.imageUrl, creatorAddress) : null
+    const decryptedVideoUrl = post.videoUrl ? decryptContent(post.videoUrl, creatorAddress) : null
+
     return NextResponse.json({
       postId: post.id,
       body: responseBody,
-      imageUrl: post.imageUrl || null,
-      videoUrl: post.videoUrl || null,
+      imageUrl: decryptedImageUrl,
+      videoUrl: decryptedVideoUrl,
       e2e: isE2E || undefined,
     })
   } catch {

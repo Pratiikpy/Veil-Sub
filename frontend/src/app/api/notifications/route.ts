@@ -3,7 +3,11 @@ import { getServerSupabase } from '@/lib/supabase'
 import { getRedis } from '@/lib/redis'
 import { ALEO_ADDRESS_RE } from '@/lib/config'
 import { hashAddress } from '@/lib/encryption'
+import { encryptContent, decryptContent } from '@/lib/contentEncryption'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
+
+// Fixed key identifier for notification encryption (not creator-specific)
+const NOTIFICATION_KEY_ID = 'veilsub:notifications'
 
 const MAX_NOTIFICATIONS = 50
 const NOTIFICATION_TTL_SECONDS = 30 * 24 * 60 * 60 // 30 days
@@ -59,8 +63,8 @@ export async function GET(req: NextRequest) {
         const notifications = data.map((row) => ({
           id: row.id,
           type: row.type,
-          title: row.title,
-          message: row.message,
+          title: decryptContent(row.title, NOTIFICATION_KEY_ID),
+          message: decryptContent(row.message, NOTIFICATION_KEY_ID),
           createdAt: row.created_at,
           read: row.read ?? false,
           data: row.data ?? undefined,
@@ -81,7 +85,11 @@ export async function GET(req: NextRequest) {
       for (const item of raw) {
         try {
           const parsed = typeof item === 'string' ? JSON.parse(item) : item
-          notifications.push(parsed as StoredNotification)
+          notifications.push({
+            ...parsed,
+            title: decryptContent(parsed.title, NOTIFICATION_KEY_ID),
+            message: decryptContent(parsed.message, NOTIFICATION_KEY_ID),
+          } as StoredNotification)
         } catch {
           // Skip malformed entries
         }
@@ -133,13 +141,29 @@ export async function POST(req: NextRequest) {
     ? await hashAddress(wallet)
     : wallet
 
+  // Encrypt title and message at rest (AES-256-GCM, fixed notification key)
+  const encryptedTitle = encryptContent(title, NOTIFICATION_KEY_ID)
+  const encryptedMessage = encryptContent(message, NOTIFICATION_KEY_ID)
+
   const notificationId = crypto.randomUUID()
-  const notification: StoredNotification = {
+  // Stored version has encrypted title/message
+  const storedNotification: StoredNotification = {
+    id: notificationId,
+    type,
+    title: encryptedTitle,
+    message: encryptedMessage,
+    createdAt: new Date().toISOString(),
+    read: false,
+    data: data ?? undefined,
+  }
+
+  // Response version has plaintext title/message (caller just created it)
+  const responseNotification: StoredNotification = {
     id: notificationId,
     type,
     title,
     message,
-    createdAt: new Date().toISOString(),
+    createdAt: storedNotification.createdAt,
     read: false,
     data: data ?? undefined,
   }
@@ -149,16 +173,16 @@ export async function POST(req: NextRequest) {
   if (supabase) {
     try {
       const { error: insertError } = await supabase.from('notifications').insert({
-        id: notification.id,
+        id: storedNotification.id,
         wallet_hash: walletHash,
-        type: notification.type,
-        title: notification.title,
-        message: notification.message,
+        type: storedNotification.type,
+        title: storedNotification.title,
+        message: storedNotification.message,
         read: false,
-        data: notification.data ?? null,
+        data: storedNotification.data ?? null,
       })
       if (!insertError) {
-        return NextResponse.json({ notification })
+        return NextResponse.json({ notification: responseNotification })
       }
     } catch {
       // Fall through to Redis
@@ -170,10 +194,10 @@ export async function POST(req: NextRequest) {
   if (redis) {
     try {
       const key = redisKey(walletHash)
-      await redis.lpush(key, JSON.stringify(notification))
+      await redis.lpush(key, JSON.stringify(storedNotification))
       await redis.ltrim(key, 0, MAX_NOTIFICATIONS - 1)
       await redis.expire(key, NOTIFICATION_TTL_SECONDS)
-      return NextResponse.json({ notification })
+      return NextResponse.json({ notification: responseNotification })
     } catch {
       // Redis not available
     }

@@ -46,8 +46,31 @@ export async function GET(req: NextRequest) {
           if (effectiveStatus !== 'published') return []
         }
 
-        // Filter by tag if requested
-        if (tagFilter && (!post.tags || !post.tags.includes(tagFilter))) return []
+        // Decrypt metadata fields for display (backward-compatible: unencrypted data passes through)
+        const decryptedTitle = post.title ? decryptContent(post.title, creator) : ''
+        // Tags: stored as encrypted JSON string (new) or plaintext array (legacy)
+        let decryptedTags: string[] = []
+        if (post.tags) {
+          if (typeof post.tags === 'string') {
+            // New format: encrypted JSON string of tag array
+            try {
+              const tagsStr = decryptContent(post.tags, creator)
+              decryptedTags = JSON.parse(tagsStr)
+            } catch {
+              decryptedTags = []
+            }
+          } else if (Array.isArray(post.tags)) {
+            // Legacy format: plaintext array
+            decryptedTags = post.tags
+          }
+        }
+
+        // Filter by tag if requested (compare against decrypted tags)
+        if (tagFilter && !decryptedTags.includes(tagFilter)) return []
+
+        // Decrypt media URLs (may be encrypted or plaintext legacy)
+        const decryptedImageUrl = post.imageUrl ? decryptContent(post.imageUrl, creator) : undefined
+        const decryptedVideoUrl = post.videoUrl ? decryptContent(post.videoUrl, creator) : undefined
 
         // Server-side content gating: redact body + imageUrl + videoUrl for tier-gated posts, keep preview
         if (post.minTier && post.minTier > 0) {
@@ -58,8 +81,10 @@ export async function GET(req: NextRequest) {
             : ''
           return [{
             ...post,
+            title: decryptedTitle,
+            tags: decryptedTags.length > 0 ? decryptedTags : undefined,
             body: null, imageUrl: null, videoUrl: null, gated: true,
-            hasImage: !!post.imageUrl, hasVideo: !!post.videoUrl,
+            hasImage: !!decryptedImageUrl, hasVideo: !!decryptedVideoUrl,
             preview: previewValue,
             ...(post.e2e ? { e2e: true } : {}),
           }]
@@ -68,7 +93,15 @@ export async function GET(req: NextRequest) {
         // Note: free posts are never E2E-encrypted, so always server-decrypt
         const decryptedBody = post.body ? decryptContent(post.body, creator) : ''
         const decryptedPreview = post.preview ? decryptContent(post.preview, creator) : ''
-        return [{ ...post, body: decryptedBody, preview: decryptedPreview }]
+        return [{
+          ...post,
+          title: decryptedTitle,
+          body: decryptedBody,
+          preview: decryptedPreview,
+          tags: decryptedTags.length > 0 ? decryptedTags : undefined,
+          imageUrl: decryptedImageUrl || undefined,
+          videoUrl: decryptedVideoUrl || undefined,
+        }]
       } catch { return [] }
     })
 
@@ -281,9 +314,24 @@ export async function POST(req: NextRequest) {
       ? safePreview
       : (safePreview ? encryptContent(safePreview, creator) : '')
 
+    // Encrypt all sensitive metadata fields at rest (AES-256-GCM, per-creator key).
+    // Non-E2E title, tags, imageUrl, videoUrl are encrypted server-side.
+    // On read, these are decrypted before returning to clients.
+    // Backward compatibility: decryptContent() returns unencrypted data as-is.
+    const encryptedTitle = isE2E ? title : encryptContent(title, creator)
+    const encryptedTags = safeTags.length > 0
+      ? (isE2E ? safeTags : encryptContent(JSON.stringify(safeTags), creator))
+      : undefined
+    const encryptedImageUrl = safeImageUrl
+      ? (isE2E ? safeImageUrl : encryptContent(safeImageUrl, creator))
+      : undefined
+    const encryptedVideoUrl = safeVideoUrl
+      ? (isE2E ? safeVideoUrl : encryptContent(safeVideoUrl, creator))
+      : undefined
+
     const post = {
       id: `post-${crypto.randomUUID()}`,
-      title,
+      title: encryptedTitle,
       body: encryptedBody,
       preview: encryptedPreview,
       minTier: minTier ?? 1,
@@ -291,11 +339,11 @@ export async function POST(req: NextRequest) {
       contentId: typeof contentId === 'string' ? contentId.slice(0, API_LIMITS.MAX_CONTENT_ID_LENGTH) : '',
       status: postStatus,
       ...(isE2E ? { e2e: true } : {}),
-      ...(safeTags.length > 0 ? { tags: safeTags } : {}),
+      ...(encryptedTags ? { tags: encryptedTags } : {}),
       ...(safeScheduledAt ? { scheduledAt: safeScheduledAt } : {}),
       ...(typeof hashedContentId === 'string' && /^\d+field$/.test(hashedContentId) ? { hashedContentId } : {}),
-      ...(safeImageUrl ? { imageUrl: safeImageUrl } : {}),
-      ...(safeVideoUrl ? { videoUrl: safeVideoUrl } : {}),
+      ...(encryptedImageUrl ? { imageUrl: encryptedImageUrl } : {}),
+      ...(encryptedVideoUrl ? { videoUrl: encryptedVideoUrl } : {}),
     }
 
     await redis.zadd(`veilsub:posts:${creator}`, {
@@ -303,7 +351,16 @@ export async function POST(req: NextRequest) {
       member: JSON.stringify(post),
     })
 
-    return NextResponse.json({ post })
+    // Return decrypted fields to the caller (they just created this post)
+    return NextResponse.json({
+      post: {
+        ...post,
+        title,
+        ...(safeTags.length > 0 ? { tags: safeTags } : {}),
+        ...(safeImageUrl ? { imageUrl: safeImageUrl } : {}),
+        ...(safeVideoUrl ? { videoUrl: safeVideoUrl } : {}),
+      },
+    })
   } catch {
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
@@ -398,9 +455,9 @@ export async function PUT(req: NextRequest) {
         const updatedStatus = (typeof status === 'string' && validStatuses.includes(status)) ? status : undefined
 
         // Validate tags update
-        let updatedTags: string[] | undefined
+        let safeTags: string[] | undefined
         if (Array.isArray(tags)) {
-          updatedTags = tags
+          safeTags = tags
             .filter((t): t is string => typeof t === 'string' && t.trim().length > 0)
             .map(t => t.trim().slice(0, API_LIMITS.MAX_TAG_LENGTH))
             .slice(0, API_LIMITS.MAX_TAGS_PER_POST)
@@ -412,23 +469,42 @@ export async function PUT(req: NextRequest) {
           updatedScheduledAt = scheduledAt
         }
 
+        // Encrypt title, tags, imageUrl at rest (same per-creator key as body)
+        const encTitle = title !== undefined
+          ? (bodyIsE2E ? title : encryptContent(title, creator))
+          : undefined
+        const encTags = safeTags !== undefined
+          ? (bodyIsE2E ? safeTags : encryptContent(JSON.stringify(safeTags), creator))
+          : undefined
+        const encImageUrl = updatedImageUrl !== undefined
+          ? (updatedImageUrl ? (bodyIsE2E ? updatedImageUrl : encryptContent(updatedImageUrl, creator)) : undefined)
+          : undefined
+
         const updated = {
           ...post,
-          ...(title !== undefined && { title }),
+          ...(encTitle !== undefined && { title: encTitle }),
           ...(encBody !== undefined && { body: encBody }),
           ...(encPreview !== undefined && { preview: encPreview }),
           ...(minTier !== undefined && { minTier }),
           ...(bodyIsE2E ? { e2e: true } : {}),
-          ...(updatedImageUrl !== undefined && { imageUrl: updatedImageUrl || undefined }),
+          ...(encImageUrl !== undefined && { imageUrl: encImageUrl || undefined }),
           ...(updatedStatus !== undefined && { status: updatedStatus }),
-          ...(updatedTags !== undefined && { tags: updatedTags }),
+          ...(encTags !== undefined && { tags: encTags }),
           ...(updatedScheduledAt !== undefined && { scheduledAt: updatedScheduledAt }),
           updatedAt: new Date().toISOString(),
         }
         // Remove old entry and add updated one with same score (preserves order)
         await redis.zrem(`veilsub:posts:${creator}`, typeof entry === 'string' ? entry : JSON.stringify(entry))
         await redis.zadd(`veilsub:posts:${creator}`, { score, member: JSON.stringify(updated) })
-        return NextResponse.json({ post: updated })
+        // Return decrypted fields to the caller
+        return NextResponse.json({
+          post: {
+            ...updated,
+            ...(title !== undefined && { title }),
+            ...(safeTags !== undefined && { tags: safeTags }),
+            ...(updatedImageUrl !== undefined && { imageUrl: updatedImageUrl || undefined }),
+          },
+        })
       }
     }
 
