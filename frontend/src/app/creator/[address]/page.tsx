@@ -56,7 +56,7 @@ import {
 } from '@/lib/utils'
 import { TIERS } from '@/types'
 import type { CreatorProfile, SubscriptionTier, AccessPass } from '@/types'
-import { FEATURED_CREATORS } from '@/lib/config'
+import { FEATURED_CREATORS, DEPLOYED_PROGRAM_ID } from '@/lib/config'
 import { getCachedCreator, cacheSingleCreator } from '@/lib/creatorCache'
 
 import CreatorSkeleton from '@/components/CreatorSkeleton'
@@ -524,7 +524,7 @@ function AboutTab({
           </div>
           <div>
             <p className="text-white/40 mb-1">Program</p>
-            <p className="font-mono">veilsub_v29.aleo</p>
+            <p className="font-mono">{DEPLOYED_PROGRAM_ID}</p>
           </div>
           <a
             href={`https://testnet.explorer.provable.com/address/${address}`}

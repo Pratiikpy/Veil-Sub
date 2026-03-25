@@ -944,11 +944,6 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                   )}
 
                   <div className="flex items-center justify-between mt-2">
-                    {post.contentId !== 'seed' && (
-                      <p className="text-xs text-white/60">
-                        Published via veilsub_v29.aleo
-                      </p>
-                    )}
                     <div className="flex items-center gap-4 ml-auto">
                       {unlocked && post.contentId !== 'seed' && (
                         <button

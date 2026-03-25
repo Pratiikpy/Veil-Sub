@@ -423,6 +423,8 @@ export default function FeedPage() {
   const [showSortMenu, setShowSortMenu] = useState(false)
   const [feedSearchQuery, setFeedSearchQuery] = useState('')
   const [showSaved, setShowSaved] = useState(false)
+  const [discoveryPosts, setDiscoveryPosts] = useState<FeedPost[]>([])
+  const [discoveryLoading, setDiscoveryLoading] = useState(false)
   const sortRef = useRef<HTMLDivElement>(null)
   const feedSearchRef = useRef<HTMLInputElement>(null)
 
@@ -559,6 +561,41 @@ export default function FeedPage() {
     } else if (connected) {
       setLoading(false)
     }
+  }, [connected, subscribedCreators.length]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fetch public/free posts for discovery when user has no subscriptions
+  useEffect(() => {
+    if (!connected || subscribedCreators.length > 0) {
+      setDiscoveryPosts([])
+      return
+    }
+    let cancelled = false
+    setDiscoveryLoading(true)
+    const creators = FEATURED_CREATORS.map(c => c.address)
+    Promise.allSettled(
+      creators.map(async (creator) => {
+        const posts = await getPostsForCreator(creator)
+        return posts
+          .filter((p) => p.minTier === 0)
+          .map((post): FeedPost => ({
+            ...post,
+            creatorAddress: creator,
+            creatorLabel: getCreatorLabel(creator),
+            creatorCategory: getCreatorCategory(creator),
+          }))
+      })
+    ).then((results) => {
+      if (cancelled) return
+      const all: FeedPost[] = []
+      for (const r of results) {
+        if (r.status === 'fulfilled') all.push(...r.value)
+      }
+      all.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      setDiscoveryPosts(all.slice(0, 20))
+    }).catch(() => {}).finally(() => {
+      if (!cancelled) setDiscoveryLoading(false)
+    })
+    return () => { cancelled = true }
   }, [connected, subscribedCreators.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Welcome sequence: check for pending welcome messages from subscribed creators
@@ -793,29 +830,70 @@ export default function FeedPage() {
           {connected && !loading && subscribedCreators.length === 0 && !error && (
             <>
               <SubscriberWelcome />
-              <div className="rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-12 text-center">
-                <Rss className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
-                <h2 className="text-lg font-medium text-white mb-2">
-                  Your feed is empty
-                </h2>
-                <p className="text-sm text-white/50 max-w-md mx-auto mb-6">
-                  Find creators worth supporting. Once you subscribe, their exclusive posts will show up here.
-                </p>
-                <Link
-                  href="/explore"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all"
-                >
-                  <Compass className="w-4 h-4" aria-hidden="true" />
-                  Explore Creators
-                </Link>
-                {/* Recommendations for discovery */}
-                <div className="mt-8 max-w-md mx-auto text-left">
-                  <RecommendationsCard
-                    creatorAddress=""
-                    maxItems={3}
-                  />
+              {/* Discovery feed: public posts from all creators */}
+              {discoveryPosts.length > 0 ? (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Compass className="w-4 h-4 text-white/50" aria-hidden="true" />
+                      <h2 className="text-sm font-medium text-white/70">Public posts from creators</h2>
+                    </div>
+                    <Link
+                      href="/explore"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] border border-border text-xs font-medium text-white/70 hover:bg-white/[0.1] transition-all"
+                    >
+                      <Compass className="w-3.5 h-3.5" aria-hidden="true" />
+                      Explore All
+                    </Link>
+                  </div>
+                  <div className="space-y-6">
+                    {discoveryPosts.map((post, i) => (
+                      <FeedPostCard
+                        key={post.id}
+                        post={post}
+                        hasAccess={post.minTier === 0}
+                        index={i}
+                        walletAddress={publicKey}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-6 text-center">
+                    <Link
+                      href="/explore"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all"
+                    >
+                      <Compass className="w-4 h-4" aria-hidden="true" />
+                      Subscribe to unlock exclusive content
+                    </Link>
+                  </div>
                 </div>
-              </div>
+              ) : discoveryLoading ? (
+                <FeedSkeleton />
+              ) : (
+                <div className="rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-12 text-center">
+                  <Rss className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
+                  <h2 className="text-lg font-medium text-white mb-2">
+                    Your feed is empty
+                  </h2>
+                  <p className="text-sm text-white/50 max-w-md mx-auto mb-6">
+                    Find creators worth supporting. Once you subscribe, their exclusive posts will show up here.
+                  </p>
+                  <Link
+                    href="/explore"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all"
+                  >
+                    <Compass className="w-4 h-4" aria-hidden="true" />
+                    Explore Creators
+                  </Link>
+                  {/* Recommendations for discovery */}
+                  <div className="mt-8 max-w-md mx-auto text-left">
+                    <RecommendationsCard
+                      creatorAddress=""
+                      maxItems={3}
+                    />
+                  </div>
+                </div>
+              )}
             </>
           )}
 

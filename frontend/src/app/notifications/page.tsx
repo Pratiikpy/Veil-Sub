@@ -75,9 +75,34 @@ export default function NotificationsPage() {
             <div className="text-center py-16 rounded-2xl bg-surface-1 border border-border">
               <Bell className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
               <h2 className="text-lg font-medium text-white mb-2">No notifications yet</h2>
-              <p className="text-sm text-white/50 max-w-md mx-auto">
-                You&apos;ll see alerts for new content, expiring subscriptions, and tips here.
+              <p className="text-sm text-white/50 max-w-md mx-auto mb-6 leading-relaxed">
+                You&apos;ll see alerts here when:
               </p>
+              <ul className="text-sm text-white/50 max-w-sm mx-auto text-left space-y-2 mb-8">
+                <li className="flex items-start gap-2">
+                  <FileText className="w-4 h-4 text-white/30 shrink-0 mt-0.5" aria-hidden="true" />
+                  <span>A creator you follow publishes new content</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-white/30 shrink-0 mt-0.5" aria-hidden="true" />
+                  <span>Your subscription is expiring soon</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Coins className="w-4 h-4 text-white/30 shrink-0 mt-0.5" aria-hidden="true" />
+                  <span>Someone tips your content</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Gift className="w-4 h-4 text-white/30 shrink-0 mt-0.5" aria-hidden="true" />
+                  <span>You receive a gift subscription</span>
+                </li>
+              </ul>
+              <a
+                href="/explore"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all"
+              >
+                <Users className="w-4 h-4" aria-hidden="true" />
+                Browse Creators
+              </a>
             </div>
           )}
 

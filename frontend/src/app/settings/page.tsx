@@ -1210,16 +1210,19 @@ export default function SettingsPage() {
             <GlassCard hover={false}>
               <SectionHeader icon={Info} title="About" />
               <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="p-3 rounded-xl bg-white/[0.03] border border-border">
-                    <p className="text-xs text-white/50 mb-1">Version</p>
-                    <p className="text-sm font-medium text-white">{APP_NAME} v28</p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-white/[0.03] border border-border">
-                    <p className="text-xs text-white/50 mb-1">Program ID</p>
-                    <p className="text-sm font-mono text-white/80 break-all">{DEPLOYED_PROGRAM_ID}</p>
-                  </div>
+                <div className="p-3 rounded-xl bg-white/[0.03] border border-border">
+                  <p className="text-xs text-white/50 mb-1">Platform</p>
+                  <p className="text-sm font-medium text-white">{APP_NAME}</p>
                 </div>
+                <details className="group">
+                  <summary className="text-xs text-white/40 cursor-pointer hover:text-white/60 transition-colors mt-2 select-none">
+                    Advanced details
+                  </summary>
+                  <div className="mt-2 p-3 rounded-xl bg-white/[0.02] border border-border">
+                    <p className="text-xs text-white/40 mb-0.5">Program ID</p>
+                    <p className="text-xs font-mono text-white/50 break-all">{DEPLOYED_PROGRAM_ID}</p>
+                  </div>
+                </details>
                 <div className="flex items-center gap-3 flex-wrap">
                   <Link
                     href="/developers"

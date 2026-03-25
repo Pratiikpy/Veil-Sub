@@ -364,7 +364,7 @@ export default function RegisteredDashboard({
       .map(([id]) => Number(id))
       .sort((a, b) => a - b)
     const tierIds = confirmedIds.length > 0
-      ? [1, ...confirmedIds]
+      ? Array.from(new Set([1, ...confirmedIds]))
       : TIERS.map((t) => t.id)
     const colorPalette = [
       { border: 'border-green-500/20', bg: 'bg-green-500/5', text: 'text-green-300', accent: 'bg-green-500/15' },
