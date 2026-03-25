@@ -29,12 +29,15 @@ export interface SupabaseError {
 export function useSupabase() {
   const [error, setError] = useState<SupabaseError | null>(null)
   const getCreatorProfile = useCallback(async (address: string): Promise<SupabaseCreatorProfile | null> => {
-    setError(null)
+    // Don't set error for GET — 404 is normal for new creators
     try {
       const addressHashValue = await hashAddress(address)
       const res = await fetch(`/api/creators?address_hash=${addressHashValue}`)
       if (!res.ok) {
-        setError({ operation: 'getProfile', message: 'Failed to fetch profile', code: res.status })
+        // 404 = new creator, not an error. Only log 5xx as actual errors.
+        if (res.status >= 500) {
+          setError({ operation: 'getProfile', message: 'Server error loading profile', code: res.status })
+        }
         return null
       }
       const { profile } = await res.json()
@@ -75,7 +78,16 @@ export function useSupabase() {
         const res = await fetch('/api/creators', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ address, display_name: displayName, bio, creator_hash: creatorHash, signature, timestamp, category, image_url: imageUrl, cover_url: coverUrl }),
+          body: JSON.stringify({
+            address,
+            display_name: displayName || undefined,
+            bio: bio || undefined,
+            creator_hash: creatorHash || undefined,
+            signature, timestamp,
+            category: category || undefined,
+            image_url: imageUrl || undefined,  // Don't send empty strings
+            cover_url: coverUrl || undefined,  // Don't send empty strings
+          }),
         })
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}))

@@ -122,15 +122,12 @@ async function handleFileUpload(req: NextRequest): Promise<NextResponse> {
     }
   }
 
-  // Fallback: convert file to base64 data URL
-  try {
-    const buffer = Buffer.from(await file.arrayBuffer())
-    const base64 = buffer.toString('base64')
-    const dataUrl = `data:${file.type};base64,${base64}`
-    return NextResponse.json({ url: dataUrl })
-  } catch {
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
-  }
+  // Base64 fallback disabled — data URLs are too large for database storage.
+  // If Supabase Storage isn't configured, return a clear error.
+  return NextResponse.json({
+    error: 'Image storage not configured. Create a "content-images" bucket in Supabase Storage (public).',
+    hint: 'Go to Supabase Dashboard → Storage → New Bucket → Name: content-images → Public: Yes'
+  }, { status: 503 })
 }
 
 async function handleBase64Upload(req: NextRequest): Promise<NextResponse> {
@@ -206,9 +203,11 @@ async function handleBase64Upload(req: NextRequest): Promise<NextResponse> {
       }
     }
 
-    // Fallback: return data URL
-    const dataUrl = `data:${mimeType};base64,${base64Data}`
-    return NextResponse.json({ url: dataUrl })
+    // Base64 fallback disabled — data URLs too large for database storage
+    return NextResponse.json({
+      error: 'Image storage not configured. Create a "content-images" bucket in Supabase Storage (public).',
+      hint: 'Go to Supabase Dashboard → Storage → New Bucket → Name: content-images → Public: Yes'
+    }, { status: 503 })
   } catch {
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
   }
