@@ -546,9 +546,15 @@ export default function SettingsPage() {
       const data = await res.json()
       if (!res.ok) {
         toast.error(data.error || 'Upload failed')
+        if (data.hint) toast.info(data.hint, { duration: 10000 })
+        return
+      }
+      if (!data.url) {
+        toast.error('Upload returned no URL')
         return
       }
       onSuccess(data.url)
+      toast.success('Image uploaded')
     } catch {
       toast.error('Upload failed. Check your connection.')
     } finally {
