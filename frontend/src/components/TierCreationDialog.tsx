@@ -8,6 +8,7 @@ import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { MICROCREDITS_PER_CREDIT } from '@/lib/config'
+import { buildAuthPayload } from '@/lib/authenticatedFetch'
 import Button from './ui/Button'
 
 interface TierCreationDialogProps {
@@ -89,16 +90,20 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
         } catch { /* localStorage unavailable */ }
 
         // Sync to Supabase — background sync, warn user if it fails
-        fetch('/api/tiers', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            address: creatorAddress,
-            tier_id: tierId,
-            name: tierName.trim(),
-            price_microcredits: priceMicrocredits,
-          }),
-        })
+        buildAuthPayload(creatorAddress)
+          .then((authFields) =>
+            fetch('/api/tiers', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                address: creatorAddress,
+                tier_id: tierId,
+                name: tierName.trim(),
+                price_microcredits: priceMicrocredits,
+                ...authFields,
+              }),
+            })
+          )
           .then(async (res) => {
             if (!res.ok) {
               toast.error('Tier saved locally but cloud sync failed. It may not appear on other devices.')

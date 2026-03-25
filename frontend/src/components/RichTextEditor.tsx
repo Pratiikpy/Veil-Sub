@@ -23,11 +23,14 @@ import {
   Redo,
   Minus,
 } from 'lucide-react'
+import { authenticatedFetch } from '@/lib/authenticatedFetch'
 
 interface RichTextEditorProps {
   content: string
   onChange: (html: string) => void
   placeholder?: string
+  /** Wallet address for authenticated uploads. If not provided, uploads will fail with auth error. */
+  walletAddress?: string | null
 }
 
 interface UrlInputState {
@@ -74,7 +77,7 @@ function ToolbarDivider() {
   return <div className="w-px h-5 bg-white/[0.08] mx-0.5" />
 }
 
-export default function RichTextEditor({ content, onChange, placeholder }: RichTextEditorProps) {
+export default function RichTextEditor({ content, onChange, placeholder, walletAddress }: RichTextEditorProps) {
   const [urlInput, setUrlInput] = useState<UrlInputState>({ type: null, url: '' })
   const [imageUploading, setImageUploading] = useState(false)
   const inlineFileRef = useRef<HTMLInputElement>(null)
@@ -156,11 +159,20 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
     if (!validTypes.includes(file.type)) return
     if (file.size > maxSize) return
 
+    if (!walletAddress) {
+      // Cannot upload without wallet authentication
+      return
+    }
+
     setImageUploading(true)
     try {
       const formData = new FormData()
       formData.append('file', file)
-      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      const res = await authenticatedFetch('/api/upload', {
+        walletAddress,
+        method: 'POST',
+        body: formData,
+      })
       const data = await res.json()
 
       if (res.ok && data.url) {
@@ -172,7 +184,7 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
       setImageUploading(false)
       closeUrlInput()
     }
-  }, [editor, closeUrlInput])
+  }, [editor, closeUrlInput, walletAddress])
 
   const handleInlineFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

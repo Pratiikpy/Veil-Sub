@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { buildAuthPayload } from '@/lib/authenticatedFetch'
 
 const STORAGE_PREFIX = 'veilsub_tier_perks_'
 const MAX_TIER_ID = 20
@@ -141,18 +142,23 @@ export function useCreatorPerks(creatorAddress: string | undefined): CreatorPerk
       return next
     })
 
-    // 3. Fire-and-forget sync to API
+    // 3. Fire-and-forget sync to API (with wallet authentication)
     try {
-      await fetch('/api/tiers/perks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          creator_address: creatorAddress,
-          tier_id: tierId,
-          perks: clean,
-          description: cleanDesc || undefined,
-        }),
-      })
+      if (creatorAddress) {
+        const authFields = await buildAuthPayload(creatorAddress)
+        await fetch('/api/tiers/perks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            creator_address: creatorAddress,
+            tier_id: tierId,
+            perks: clean,
+            description: cleanDesc || undefined,
+            walletHash: authFields.walletHash,
+            timestamp: authFields.timestamp,
+          }),
+        })
+      }
     } catch {
       // Silent — localStorage is the source of truth
     }

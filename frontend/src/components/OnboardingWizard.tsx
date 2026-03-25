@@ -268,15 +268,19 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
               localStorage.setItem(lsKey, JSON.stringify(existing))
             } catch { /* non-critical */ }
             try {
-              fetch('/api/tiers', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  address: publicKey,
-                  tierId: 1,
-                  name: tierData.name,
-                  price: tierData.price,
-                }),
+              computeWalletHash(publicKey).then((tierWalletHash) => {
+                fetch('/api/tiers', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    address: publicKey,
+                    tier_id: 1,
+                    name: tierData.name,
+                    price_microcredits: tierData.price,
+                    walletHash: tierWalletHash,
+                    timestamp: Date.now(),
+                  }),
+                }).catch(() => { /* non-critical */ })
               }).catch(() => { /* non-critical */ })
             } catch { /* non-critical */ }
           }

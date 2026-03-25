@@ -10,7 +10,8 @@ import { useVeilSub } from '@/hooks/useVeilSub'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import Button from './ui/Button'
-import { generatePassId, ALEO_USD_ESTIMATE, creditsToMicrocredits } from '@/lib/utils'
+import { generatePassId, ALEO_USD_ESTIMATE, creditsToMicrocredits, computeWalletHash } from '@/lib/utils'
+import { authenticatedFetch } from '@/lib/authenticatedFetch'
 import { poseidon2HashField } from '@/lib/poseidon'
 import { saveContentHash, SUGGESTED_TAGS, TAG_COLORS, API_LIMITS, DRAFT_AUTOSAVE_INTERVAL_MS } from '@/lib/config'
 import TransactionStatus from './TransactionStatus'
@@ -269,12 +270,20 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
       toast.error('Image too large (max 5MB).')
       return
     }
+    if (!creatorAddress) {
+      toast.error('Connect your wallet first.')
+      return
+    }
     setImageUploading(true)
     setImageError(false)
     try {
       const formData = new FormData()
       formData.append('file', file)
-      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      const res = await authenticatedFetch('/api/upload', {
+        walletAddress: creatorAddress,
+        method: 'POST',
+        body: formData,
+      })
       const data = await res.json()
       if (!res.ok) {
         toast.error(data.error || 'Image couldn\u2019t be uploaded')
@@ -286,7 +295,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
     } finally {
       setImageUploading(false)
     }
-  }, [])
+  }, [creatorAddress])
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -991,6 +1000,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                 <RichTextEditor
                   content={body}
                   onChange={setBody}
+                  walletAddress={creatorAddress}
                   placeholder={
                     contentMode === 'article' ? 'Write your article...' :
                     contentMode === 'image' ? 'Add a caption for your photo...' :
@@ -1185,6 +1195,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
               <div className="flex flex-wrap gap-2" role="group" aria-label="Minimum tier selection">
                 {tierOptions.map(({ id, name, description }) => (
                   <button
+                    type="button"
                     key={id}
                     onClick={() => setMinTier(id)}
                     aria-label={`Set minimum tier to ${name}${description ? ` — ${description}` : ''}`}
