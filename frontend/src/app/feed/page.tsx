@@ -866,7 +866,7 @@ export default function FeedPage() {
                       <FeedPostCard
                         key={post.id}
                         post={post}
-                        hasAccess={post.minTier === 0}
+                        hasAccess={post.minTier === 0 || !!publicKey}
                         index={i}
                         walletAddress={publicKey}
                       />
