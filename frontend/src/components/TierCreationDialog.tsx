@@ -25,7 +25,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
     txStatus, txId,
     error, setError, handleClose: baseHandleClose,
     setTxStatus, setTxId, submittingRef,
-  } = useTransactionFlow({ isOpen, onClose })
+  } = useTransactionFlow({ isOpen, onClose, connected })
   const focusTrapRef = useFocusTrap(isOpen, baseHandleClose)
 
   const [tierId, setTierId] = useState<number>(0)

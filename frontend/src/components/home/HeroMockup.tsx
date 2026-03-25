@@ -239,7 +239,7 @@ export default function HeroMockup() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 1.7 }}
           >
-            <div className="w-full py-4 rounded-xl bg-white hover:bg-white/80 text-white text-sm font-semibold text-center transition-colors cursor-pointer">
+            <div className="w-full py-4 rounded-xl bg-white hover:bg-white/90 text-black text-sm font-semibold text-center transition-colors" aria-hidden="true">
               Subscribe Privately
             </div>
           </m.div>

@@ -814,18 +814,23 @@ export default function ExplorerPage() {
                               </>
                             )}
                           </div>
-                          <a
-                            href={event.tx_id ? explorerUrl : '#'}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`px-2 py-1 rounded-md text-xs font-medium transition-all ${
-                              event.tx_id
-                                ? 'bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20'
-                                : 'bg-white/5 border border-white/10 text-white/60 cursor-default'
-                            }`}
-                          >
-                            Verify
-                          </a>
+                          {event.tx_id ? (
+                            <a
+                              href={explorerUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-2 py-1 rounded-md text-xs font-medium transition-all bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20"
+                            >
+                              Verify
+                            </a>
+                          ) : (
+                            <span
+                              className="px-2 py-1 rounded-md text-xs font-medium bg-white/5 border border-white/10 text-white/60 cursor-default"
+                              title="Transaction ID not available"
+                            >
+                              Verify
+                            </span>
+                          )}
                         </div>
                         {/* Mobile card */}
                         <div className="sm:hidden p-4 border-b border-white/[0.04]">

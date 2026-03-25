@@ -19,11 +19,15 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
 
   useEffect(() => {
     if (creatorAddress) {
+      let cancelled = false
       setFetchError(null)
       clearError()
-      fetchCreatorStats(creatorAddress).then(setStats).catch((err) => {
-        setFetchError(err instanceof Error ? err.message : 'Failed to load stats')
+      fetchCreatorStats(creatorAddress).then((s) => {
+        if (!cancelled) setStats(s)
+      }).catch((err) => {
+        if (!cancelled) setFetchError(err instanceof Error ? err.message : 'Failed to load stats')
       })
+      return () => { cancelled = true }
     }
   }, [creatorAddress, fetchCreatorStats, refreshKey, clearError])
 
