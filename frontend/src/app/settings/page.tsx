@@ -496,9 +496,7 @@ export default function SettingsPage() {
         setProfileSaved(true)
         setTimeout(() => setProfileSaved(false), 3000)
       } else {
-        // Show the actual error from the API/hook
-        const errMsg = supabaseError?.message || 'Unknown error'
-        toast.error(`Profile save failed: ${errMsg}`, { duration: 8000 })
+        toast.error('Profile save failed. Run the Supabase migration if you haven\'t already.', { duration: 10000 })
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Network error'
