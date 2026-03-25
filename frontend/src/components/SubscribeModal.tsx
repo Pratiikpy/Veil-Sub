@@ -204,12 +204,16 @@ export default function SubscribeModal({
         })
       } else {
         setTxStatus('failed')
-        setError('Wallet didn\u2019t approve the transaction. Try again when ready.')
+        setError('Wallet rejected or failed. Make sure you approved the transaction in your wallet.')
       }
     } catch (err) {
       toast.dismiss('subscribe-optimistic')
       setTxStatus('failed')
-      setError(getErrorMessage(err instanceof Error ? err.message : 'Subscription couldn\u2019t be completed. Check your wallet and try again.'))
+      const rawMsg = err instanceof Error ? err.message : String(err)
+      console.error('[SubscribeModal] Transaction error:', rawMsg)
+      // Show the ACTUAL error, not a generic message
+      const friendlyMsg = getErrorMessage(rawMsg)
+      setError(friendlyMsg !== rawMsg ? friendlyMsg : `Transaction failed: ${rawMsg.slice(0, 200)}`)
     } finally {
       submittingRef.current = false
     }
