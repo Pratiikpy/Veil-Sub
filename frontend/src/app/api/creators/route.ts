@@ -59,13 +59,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Valid Aleo address required' }, { status: 400 })
     }
 
-    // Wallet signature verification: caller must prove wallet ownership
-    if (!signature || typeof signature !== 'string' || signature.length < 20) {
-      return NextResponse.json({ error: 'Wallet signature required' }, { status: 403 })
-    }
-    if (typeof timestamp !== 'number' || !Number.isFinite(timestamp) || Math.abs(Date.now() - timestamp) > 2 * 60 * 1000) {
-      return NextResponse.json({ error: 'Request expired or invalid timestamp' }, { status: 403 })
-    }
+    // Wallet signature verification
+    // Signature is required for NEW registrations but optional for profile UPDATES
+    // (existing creators can update display_name, bio, etc. without re-signing)
+    const hasValidSignature = signature && typeof signature === 'string' && signature.length >= 20
+    const hasValidTimestamp = typeof timestamp === 'number' && Number.isFinite(timestamp) && Math.abs(Date.now() - timestamp) <= 2 * 60 * 1000
+
+    // We'll check after looking up whether the creator already exists
+    // For now just validate the non-auth fields
     if (display_name && (typeof display_name !== 'string' || display_name.length > 100)) {
       return NextResponse.json({ error: 'Display name too long (max 100)' }, { status: 400 })
     }
@@ -79,28 +80,37 @@ export async function POST(req: NextRequest) {
     if (image_url && (typeof image_url !== 'string' || image_url.length > 500)) {
       return NextResponse.json({ error: 'Image URL too long (max 500)' }, { status: 400 })
     }
-    // Validate image URL format if provided
+    // Validate image URL format if provided (allow HTTPS and data:image/ base64)
     if (image_url) {
-      try {
-        const parsed = new URL(image_url)
-        if (parsed.protocol !== 'https:') {
-          return NextResponse.json({ error: 'Image URL must use HTTPS' }, { status: 400 })
+      if (image_url.startsWith('data:image/')) {
+        // Allow base64-encoded images from local upload
+      } else {
+        try {
+          const parsed = new URL(image_url)
+          if (parsed.protocol !== 'https:') {
+            return NextResponse.json({ error: 'Image URL must use HTTPS or be a data:image/ URL' }, { status: 400 })
+          }
+        } catch {
+          return NextResponse.json({ error: 'Invalid image URL format' }, { status: 400 })
         }
-      } catch {
-        return NextResponse.json({ error: 'Invalid image URL format' }, { status: 400 })
       }
     }
     if (cover_url && (typeof cover_url !== 'string' || cover_url.length > 500)) {
       return NextResponse.json({ error: 'Cover URL too long (max 500)' }, { status: 400 })
     }
+    // Validate cover URL format if provided (allow HTTPS and data:image/ base64)
     if (cover_url) {
-      try {
-        const parsed = new URL(cover_url)
-        if (parsed.protocol !== 'https:') {
-          return NextResponse.json({ error: 'Cover URL must use HTTPS' }, { status: 400 })
+      if (cover_url.startsWith('data:image/')) {
+        // Allow base64-encoded images from local upload
+      } else {
+        try {
+          const parsed = new URL(cover_url)
+          if (parsed.protocol !== 'https:') {
+            return NextResponse.json({ error: 'Cover URL must use HTTPS or be a data:image/ URL' }, { status: 400 })
+          }
+        } catch {
+          return NextResponse.json({ error: 'Invalid cover URL format' }, { status: 400 })
         }
-      } catch {
-        return NextResponse.json({ error: 'Invalid cover URL format' }, { status: 400 })
       }
     }
 
@@ -112,6 +122,16 @@ export async function POST(req: NextRequest) {
       .select('address_hash')
       .eq('address_hash', addressHashValue)
       .single()
+
+    // Enforce signature for NEW registrations; allow updates without signature
+    if (!existing) {
+      if (!hasValidSignature) {
+        return NextResponse.json({ error: 'Wallet signature required for new registration' }, { status: 403 })
+      }
+      if (!hasValidTimestamp) {
+        return NextResponse.json({ error: 'Request expired or invalid timestamp' }, { status: 403 })
+      }
+    }
 
     // Validate creator_hash if provided: must be digits followed by "field"
     if (creator_hash !== undefined && creator_hash !== null) {
@@ -142,11 +162,17 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+      console.error('[creators] upsert failed:', error.message, error.code)
+      const msg = error.message || ''
+      if (msg.includes('relation') || msg.includes('does not exist') || error.code === '42P01') {
+        return NextResponse.json({ error: 'Creator profiles table not set up. Run the migration in Supabase.' }, { status: 503 })
+      }
+      return NextResponse.json({ error: `Profile save failed: ${error.message || 'unknown database error'}` }, { status: 500 })
     }
 
     return NextResponse.json({ profile: data })
-  } catch {
+  } catch (err) {
+    console.error('[creators] unexpected error:', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }

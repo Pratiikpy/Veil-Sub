@@ -594,10 +594,15 @@ export default function SettingsPage() {
         setSubProfileSaved(true)
         setTimeout(() => setSubProfileSaved(false), 3000)
       } else {
-        toast.error('Could not save subscriber profile.')
+        const errData = await res.json().catch(() => ({}))
+        if (errData.hint) {
+          toast.error(errData.error, { duration: 10000 })
+        } else {
+          toast.error(`Could not save subscriber profile: ${errData.error || 'Unknown error'}`)
+        }
       }
     } catch {
-      toast.error('Could not save subscriber profile.')
+      toast.error('Could not save subscriber profile. Check your connection.')
     } finally {
       setSubProfileSaving(false)
     }

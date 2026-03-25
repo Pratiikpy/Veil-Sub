@@ -39,6 +39,13 @@ export async function GET(req: NextRequest) {
       .eq('subscriber_hash', subscriberHash)
       .single()
 
+    if (error) {
+      const msg = error.message || ''
+      if (msg.includes('relation') || msg.includes('does not exist') || error.code === '42P01') {
+        // Table not created yet — return null profile gracefully
+        return NextResponse.json({ profile: null })
+      }
+    }
     if (error || !data) {
       return NextResponse.json({ profile: null })
     }
@@ -109,6 +116,15 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error) {
+      const msg = error.message || ''
+      // Detect missing table (not yet created in Supabase)
+      if (msg.includes('relation') || msg.includes('does not exist') || error.code === '42P01') {
+        return NextResponse.json({
+          error: 'Subscriber profiles table not set up yet. Run the migration in Supabase SQL editor.',
+          hint: 'CREATE TABLE IF NOT EXISTS subscriber_profiles (subscriber_hash TEXT PRIMARY KEY, display_name TEXT, avatar_url TEXT, created_at TIMESTAMPTZ DEFAULT now());',
+        }, { status: 503 })
+      }
+      console.error('[subscriber-profile] upsert failed:', error.message, error.code)
       return NextResponse.json({ error: 'Failed to save subscriber profile' }, { status: 500 })
     }
 
