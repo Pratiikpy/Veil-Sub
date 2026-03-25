@@ -33,7 +33,7 @@ import { SECONDS_PER_BLOCK, FEATURED_CREATORS } from '@/lib/config'
 
 // Extracted style constants to prevent re-renders
 const HERO_GLOW_STYLE = {
-  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.06) 0%, transparent 70%)',
+  background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.03) 0%, transparent 70%)',
 } as const
 
 const LETTER_SPACING_STYLE = { letterSpacing: '-0.03em' } as const

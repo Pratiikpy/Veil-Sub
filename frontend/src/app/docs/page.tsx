@@ -52,7 +52,7 @@ interface TransitionGroupData {
 
 // ─── Constants ───────────────────────────────────────────
 const HERO_GLOW_STYLE = {
-  background: 'radial-gradient(ellipse at center, rgba(139,92,246,0.08) 0%, transparent 70%)',
+  background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.04) 0%, transparent 70%)',
 } as const
 
 const TABS: { id: TabId; label: string; icon: typeof BookOpen }[] = [
@@ -894,12 +894,12 @@ export default function DocsPage() {
             className="mb-8"
           >
             <div className="flex items-center gap-3 mb-3">
-              <h1 className="text-3xl sm:text-4xl font-serif italic bg-gradient-to-r from-white via-violet-200 to-white bg-clip-text text-transparent"
+              <h1 className="text-3xl sm:text-4xl font-serif italic bg-gradient-to-r from-white via-white/80 to-white/60 bg-clip-text text-transparent"
                 style={{ letterSpacing: '-0.03em' }}
               >
                 Documentation
               </h1>
-              <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-violet-500/15 text-violet-300 border border-violet-500/25">
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/[0.06] text-white/60 border border-white/10">
                 v27
               </span>
             </div>

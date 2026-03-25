@@ -11,7 +11,7 @@ export default function OGImage() {
         style={{
           width: '100%',
           height: '100%',
-          background: '#0a0a0f',
+          background: '#000000',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -28,7 +28,7 @@ export default function OGImage() {
             right: 0,
             bottom: 0,
             background:
-              'radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.15), transparent 70%)',
+              'radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.06), transparent 70%)',
           }}
         />
 
@@ -38,7 +38,7 @@ export default function OGImage() {
             width: 80,
             height: 80,
             borderRadius: 20,
-            background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+            background: 'linear-gradient(135deg, #333333, #1a1a1a)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -64,7 +64,7 @@ export default function OGImage() {
           style={{
             fontSize: 64,
             fontWeight: 700,
-            background: 'linear-gradient(90deg, #fff, #c4b5fd)',
+            background: 'linear-gradient(90deg, #fff, #a0a0a0)',
             backgroundClip: 'text',
             color: 'transparent',
             marginBottom: 16,
@@ -100,7 +100,7 @@ export default function OGImage() {
             { value: 'v27', label: 'Deployed' },
           ].map((stat) => (
             <div key={stat.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: '#c4b5fd' }}>{stat.value}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#fafafa' }}>{stat.value}</div>
               <div style={{ fontSize: 13, color: '#64748b' }}>{stat.label}</div>
             </div>
           ))}
@@ -114,14 +114,14 @@ export default function OGImage() {
             gap: 8,
             padding: '8px 20px',
             borderRadius: 20,
-            background: 'rgba(139, 92, 246, 0.1)',
-            border: '1px solid rgba(139, 92, 246, 0.2)',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
           }}
         >
           <div
             style={{
               fontSize: 16,
-              color: '#c4b5fd',
+              color: '#a0a0a0',
             }}
           >
             Zero-Knowledge Privacy · Zero Addresses in Finalize · v27 Deployed

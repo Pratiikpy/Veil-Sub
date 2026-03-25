@@ -1114,7 +1114,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                   className="w-full px-4 py-2 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all text-sm disabled:opacity-50"
                 />
                 {showTagSuggestions && filteredSuggestions.length > 0 && tags.length < API_LIMITS.MAX_TAGS_PER_POST && (
-                  <div className="absolute z-10 top-full mt-1 w-full rounded-xl bg-[#1a1a2e] border border-border shadow-lg overflow-hidden">
+                  <div className="absolute z-10 top-full mt-1 w-full rounded-xl bg-[#1a1a1a] border border-border shadow-lg overflow-hidden">
                     {filteredSuggestions.map(suggestion => (
                       <button
                         key={suggestion}

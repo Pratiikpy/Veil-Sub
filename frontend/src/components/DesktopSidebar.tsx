@@ -38,14 +38,14 @@ export default function DesktopSidebar() {
   const visibleNav = NAV_ITEMS
 
   return (
-    <aside className="hidden md:flex flex-col fixed top-0 left-0 bottom-0 w-[220px] bg-[#050507] border-r border-white/[0.06] z-40">
+    <aside className="hidden md:flex flex-col fixed top-0 left-0 bottom-0 w-[220px] bg-black border-r border-white/[0.06] z-40">
       {/* Logo */}
       <div className="px-5 pt-6 pb-4">
         <Link
           href="/"
           className="group flex items-center gap-2 transition-opacity duration-200 hover:opacity-80"
         >
-          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-400 font-serif italic text-lg font-bold">
+          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/[0.06] border border-white/10 text-white/70 font-serif italic text-lg font-bold">
             V
           </span>
           <span className="font-serif italic text-white text-lg">VeilSub</span>

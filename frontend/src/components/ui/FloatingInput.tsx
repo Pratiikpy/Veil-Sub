@@ -47,7 +47,7 @@ export default function FloatingInput({
   return (
     <div className={className}>
       <div
-        className={`floating-input-wrapper relative rounded-xl bg-[#0A0A0F] border transition-all duration-200 focus-within:ring-2 ${borderColor} ${glowRing} ${error ? 'error-shake' : ''}`}
+        className={`floating-input-wrapper relative rounded-xl bg-[#0a0a0a] border transition-all duration-200 focus-within:ring-2 ${borderColor} ${glowRing} ${error ? 'error-shake' : ''}`}
       >
         <label
           htmlFor={id}

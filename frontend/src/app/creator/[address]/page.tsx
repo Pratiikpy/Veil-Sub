@@ -67,11 +67,10 @@ import { spring } from '@/lib/motion'
 /** Deterministic gradient from an Aleo address — used for the cover banner */
 function generateCoverGradient(address: string): string {
   const hash = address.split('').reduce((a, c) => ((a << 5) - a + c.charCodeAt(0)) | 0, 0)
-  const hue1 = 220 + Math.abs(hash % 80)
-  const hue2 = (hue1 + 40 + Math.abs((hash >> 8) % 60)) % 360
-  const sat1 = 45 + Math.abs((hash >> 16) % 25)
-  const sat2 = 35 + Math.abs((hash >> 24) % 30)
-  return `linear-gradient(135deg, hsl(${hue1}, ${sat1}%, 12%) 0%, hsl(${hue2}, ${sat2}%, 8%) 50%, hsl(${hue1 + 20}, ${sat1}%, 15%) 100%)`
+  const light1 = 8 + Math.abs(hash % 6)          // 8-13%
+  const light2 = 5 + Math.abs((hash >> 8) % 5)    // 5-9%
+  const light3 = 10 + Math.abs((hash >> 16) % 6)  // 10-15%
+  return `linear-gradient(135deg, hsl(0, 0%, ${light1}%) 0%, hsl(0, 0%, ${light2}%) 50%, hsl(0, 0%, ${light3}%) 100%)`
 }
 
 /** Get display info for a creator from FEATURED_CREATORS or null */
@@ -138,7 +137,7 @@ function OverflowMenu({
             transition={{ duration: 0.15 }}
             role="menu"
             aria-label="Creator actions"
-            className="absolute right-0 top-full mt-2 z-30 min-w-[200px] py-1.5 rounded-xl bg-[#1a1a24] border border-border shadow-2xl"
+            className="absolute right-0 top-full mt-2 z-30 min-w-[200px] py-1.5 rounded-xl bg-[#1a1a1a] border border-border shadow-2xl"
           >
             <button
               role="menuitem"
@@ -691,6 +690,16 @@ export default function CreatorPage({
     }
     return () => { cancelled = true }
   }, [address, fetchCreatorStats, getCreatorProfile])
+
+  // Safety timeout: if loading takes > 5s, show the page anyway with placeholders
+  // instead of blocking on skeleton forever (e.g., API timeout, slow network)
+  useEffect(() => {
+    if (!loading) return
+    const timeout = setTimeout(() => {
+      if (loading) setLoading(false)
+    }, 5000)
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   // Fetch user's access passes for this creator
   useEffect(() => {

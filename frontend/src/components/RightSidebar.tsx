@@ -34,7 +34,7 @@ function CreatorCard({ creator }: { creator: (typeof FEATURED_CREATORS)[number] 
 
 export default function RightSidebar() {
   return (
-    <aside className="hidden lg:flex flex-col fixed top-0 right-0 bottom-0 w-[260px] bg-[#050507] border-l border-white/[0.06] z-40 overflow-y-auto">
+    <aside className="hidden lg:flex flex-col fixed top-0 right-0 bottom-0 w-[260px] bg-black border-l border-white/[0.06] z-40 overflow-y-auto">
       <div className="px-5 pt-8 pb-4 flex-1">
         {/* Suggested creators */}
         <div className="mb-6">

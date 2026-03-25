@@ -190,7 +190,7 @@ body.light {
 .light .bg-black\/20 {
   background: rgba(255, 255, 255, 0.40) !important;
 }
-.light .bg-\[\#050507\] {
+.light .bg-black {
   background: var(--bg-base) !important;
 }
 .light .border-border\/75 {

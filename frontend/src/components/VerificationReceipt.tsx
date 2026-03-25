@@ -47,7 +47,7 @@ export default function VerificationReceipt({
     const card = cardRef.current
     if (!card) return
     // Open a new window with just the receipt for easy screenshotting
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>VeilSub Verification Receipt</title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#050507;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}</style></head><body>${card.outerHTML}</body></html>`
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>VeilSub Verification Receipt</title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#000000;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}</style></head><body>${card.outerHTML}</body></html>`
     const blob = new Blob([html], { type: 'text/html' })
     const url = URL.createObjectURL(blob)
     const win = window.open(url, '_blank', 'width=460,height=320')

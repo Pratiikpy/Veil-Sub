@@ -32,7 +32,7 @@ const instrumentSerif = Instrument_Serif({
 })
 
 export const viewport: Viewport = {
-  themeColor: '#050507',
+  themeColor: '#000000',
   colorScheme: 'dark',
   width: 'device-width',
   initialScale: 1,
@@ -80,7 +80,7 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://api.explorer.provable.com" />
         <link rel="manifest" href="/manifest.webmanifest" />
-        <meta name="theme-color" content="#0A0A0F" />
+        <meta name="theme-color" content="#000000" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         {/* Theme initialization script - runs before paint to prevent FOUC */}
         <script
@@ -126,7 +126,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${instrumentSerif.variable} font-sans bg-[#050507] text-white min-h-screen antialiased`}
+        className={`${inter.variable} ${instrumentSerif.variable} font-sans bg-black text-white min-h-screen antialiased`}
       >
         <NextTopLoader color="#ffffff" height={2} showSpinner={false} shadow="0 0 10px rgba(255,255,255,0.15)" />
         <ScrollProgress />

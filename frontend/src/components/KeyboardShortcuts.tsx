@@ -40,7 +40,7 @@ export default function KeyboardShortcuts() {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center" role="dialog" aria-label="Keyboard shortcuts">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
-      <div className="relative w-full max-w-md mx-4 rounded-2xl border border-white/[0.08] bg-[#0A0A0F] p-6 shadow-2xl">
+      <div className="relative w-full max-w-md mx-4 rounded-2xl border border-white/[0.08] bg-[#0a0a0a] p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-semibold text-white tracking-tight">Keyboard Shortcuts</h2>
           <button onClick={() => setOpen(false)} className="text-white/40 hover:text-white/60 transition-colors text-sm" aria-label="Close">

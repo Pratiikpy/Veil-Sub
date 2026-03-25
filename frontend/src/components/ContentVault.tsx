@@ -160,7 +160,7 @@ export default function ContentVault({
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
-                  className="absolute right-0 top-full mt-1 z-20 min-w-[140px] py-1 rounded-xl bg-[#1a1a24] border border-border shadow-2xl"
+                  className="absolute right-0 top-full mt-1 z-20 min-w-[140px] py-1 rounded-xl bg-[#1a1a1a] border border-border shadow-2xl"
                 >
                   <button
                     onClick={() => { setFilterTag(null); setShowFilters(false) }}

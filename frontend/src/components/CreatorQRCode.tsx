@@ -95,7 +95,7 @@ export default function CreatorQRCode({ creatorAddress, delay = 0 }: Props) {
             size={160}
             level="H"
             includeMargin={false}
-            fgColor="#0a0a0f"
+            fgColor="#0a0a0a"
             bgColor="#ffffff"
           />
         </div>
