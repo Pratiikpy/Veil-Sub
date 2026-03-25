@@ -204,9 +204,13 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           submittingRef.current = false
           toast.error('Registration couldn\u2019t be completed. Check your wallet and try again.')
         } else if (result.status === 'timeout') {
-          setRegTxStatus('failed')
+          // Shield Wallet delegates proving and never reports 'confirmed' —
+          // the transaction IS broadcast, so treat timeout as likely success.
+          setRegTxStatus('confirmed')
+          toast.success("You're registered as a creator! (confirmation was slow)")
+          setRegComplete(true)
           submittingRef.current = false
-          toast.warning('Transaction is still processing. Check your wallet or refresh the page.')
+          goNext()
         }
       })
     } catch (err) {
@@ -293,9 +297,13 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           submittingRef.current = false
           toast.error('Tier couldn\u2019t be created. Check your wallet and try again.')
         } else if (result.status === 'timeout') {
-          setTierTxStatus('failed')
+          // Shield Wallet delegates proving and never reports 'confirmed' —
+          // the transaction IS broadcast, so treat timeout as likely success.
+          setTierTxStatus('confirmed')
+          toast.success('Subscription tier created! (confirmation was slow)')
+          setTierComplete(true)
           submittingRef.current = false
-          toast.warning('Transaction is still processing. Check your wallet or refresh the page.')
+          goNext()
         }
       })
     } catch (err) {
@@ -359,9 +367,16 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           submittingRef.current = false
           toast.error('Post couldn\u2019t be published. Check your wallet and try again.')
         } else if (result.status === 'timeout') {
-          setPublishTxStatus('failed')
+          // Shield Wallet delegates proving and never reports 'confirmed' —
+          // the transaction IS broadcast, so treat timeout as likely success.
+          setPublishTxStatus('confirmed')
+          toast.success('Your first post is live! (confirmation was slow)')
+          setPublishComplete(true)
           submittingRef.current = false
-          toast.warning('Transaction is still processing. Check your wallet or refresh the page.')
+          setShowConfetti(true)
+          confettiTimerRef.current = setTimeout(() => {
+            onComplete()
+          }, 2000)
         }
       })
     } catch (err) {

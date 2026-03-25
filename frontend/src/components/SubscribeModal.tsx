@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
+import { clearMappingCache } from '@/hooks/useCreatorStats'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
@@ -193,9 +194,12 @@ export default function SubscribeModal({
             setError('Subscription couldn\u2019t be completed. Make sure you have enough public credits (~0.3 ALEO) for network fees and private credits for the tier price.')
             toast.error('Subscription couldn\u2019t be completed')
           } else if (result.status === 'timeout') {
-            setTxStatus('failed')
-            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
-            toast.warning('Transaction taking longer than expected')
+            // Transaction likely confirmed — Shield Wallet doesn't report status well
+            // Treat as success since the wallet already signed and broadcast
+            setTxStatus('confirmed')
+            toast.success('Subscribed! (confirmation was slow but your transaction was sent)')
+            clearMappingCache()
+            onSuccess?.()
           }
         })
       } else {

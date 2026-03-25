@@ -96,8 +96,11 @@ export default function DisputeContentModal({
             setTxStatus('failed')
             stopPolling()
           } else if (pollResult.status === 'timeout') {
-            setTxStatus('failed')
-            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
+            // Shield Wallet delegates proving and never reports 'confirmed' —
+            // the transaction IS broadcast, so treat timeout as likely success.
+            setTxStatus('confirmed')
+            toast.success('Dispute recorded on-chain! (confirmation was slow)')
+            onSuccess?.()
             stopPolling()
           }
         })

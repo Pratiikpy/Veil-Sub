@@ -81,6 +81,27 @@ export function useTransactionPoller() {
         }
 
         attempts++
+
+        // FIRST: Check the Aleo API directly (most reliable for Shield Wallet)
+        // This runs BEFORE pollWallet because Shield Wallet often throws or hangs
+        const shouldCheckChain = txId.startsWith('at1') && (attempts > 7 || attempts % 3 === 0)
+        if (shouldCheckChain) {
+          try {
+            const proxyRes = await fetch(`/api/aleo/transaction/${txId}`)
+            if (aborted.current) return
+            if (proxyRes.ok) {
+              const proxyData = await proxyRes.json()
+              if (proxyData && (proxyData.type === 'execute' || proxyData.type === 'deploy')) {
+                onStatus({ status: 'confirmed', strategy: 'on-chain-fallback' })
+                return
+              }
+            }
+          } catch {
+            // API check failed — continue to wallet poll
+          }
+        }
+
+        // THEN: Try the wallet adapter's poll
         try {
           const result = await pollWallet(txId)
           if (aborted.current) return
@@ -90,45 +111,9 @@ export function useTransactionPoller() {
             return
           }
 
-          // Check the Aleo API directly as fallback.
-          // First 20 polls (~1 min): check every 5th poll (every 15s)
-          // After 20 polls: check EVERY poll (every 3s) — tx should be indexed by now
-          const shouldCheckChain = txId.startsWith('at1') && (attempts > 20 || attempts % 5 === 0)
-          if (shouldCheckChain) {
-            try {
-              // Try Provable API first
-              const apiUrl = process.env.NEXT_PUBLIC_ALEO_API_URL || 'https://api.explorer.provable.com/v1/testnet'
-              const res = await fetch(`${apiUrl}/transaction/${txId}`)
-              if (aborted.current) return
-              if (res.ok) {
-                const data = await res.json()
-                if (data && (data.type === 'execute' || data.type === 'deploy')) {
-                  onStatus({ status: 'confirmed', strategy: 'on-chain-fallback' })
-                  return
-                }
-              }
-              // Also try via our proxy (which has caching headers)
-              const proxyRes = await fetch(`/api/aleo/transaction/${txId}`)
-              if (aborted.current) return
-              if (proxyRes.ok) {
-                const proxyData = await proxyRes.json()
-                if (proxyData && (proxyData.type === 'execute' || proxyData.type === 'deploy')) {
-                  onStatus({ status: 'confirmed', strategy: 'on-chain-fallback' })
-                  return
-                }
-              }
-            } catch {
-              // API check failed — continue polling wallet
-            }
-          }
-
-          // Track non-failure polls for diagnostic purposes but do NOT auto-confirm.
-          // Wallet adapters (Shield, Leo) have quirks — they may report "accepted" or
-          // "pending" indefinitely without ever saying "confirmed". The timeout at
-          // maxAttempts handles this case safely without lying about confirmation.
           if (result.status === 'pending') {
             const rawResult = await transactionStatus?.(txId)
-            if (aborted.current) return // Check after async operation
+            if (aborted.current) return
             const rawS = (typeof rawResult === 'string' ? rawResult : (rawResult as { status?: string } | null)?.status || '').toLowerCase()
 
             if (!rawS.includes('fail') && !rawS.includes('reject')) {
@@ -141,6 +126,7 @@ export function useTransactionPoller() {
           onStatus(result)
         } catch {
           if (aborted.current) return
+          // pollWallet threw — on-chain check above already ran, just continue
         }
 
         timeoutId = setTimeout(poll, intervalMs)

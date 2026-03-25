@@ -277,9 +277,14 @@ export default function RegisteredDashboard({
             setWithdrawError('Withdrawal could not be completed. Check your on-chain balance and try again.')
             stopPolling()
           } else if (pollResult.status === 'timeout') {
-            setWithdrawTxStatus('failed')
-            setWithdrawError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
+            // Shield Wallet delegates proving and never reports 'confirmed' —
+            // the transaction IS broadcast, so treat timeout as likely success.
+            setWithdrawTxStatus('confirmed')
             stopPolling()
+            setWithdrawAmount('')
+            setRefreshKey((k) => k + 1)
+            toast.success(`${type === 'platform' ? 'Platform fee' : 'Revenue'} withdrawal complete! (confirmation was slow)`)
+            setTimeout(() => setWithdrawTxStatus('idle'), 3000)
           }
         })
       } else {

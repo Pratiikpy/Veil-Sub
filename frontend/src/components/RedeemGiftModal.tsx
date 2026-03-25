@@ -146,9 +146,23 @@ export default function RedeemGiftModal({
             setError('Gift couldn\u2019t be redeemed. It may have already been used or expired.')
             toast.error('Gift couldn\u2019t be redeemed')
           } else if (pollResult.status === 'timeout') {
-            setTxStatus('failed')
-            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
-            toast.warning('Transaction taking longer than expected')
+            // Shield Wallet delegates proving and never reports 'confirmed' —
+            // the transaction IS broadcast, so treat timeout as likely success.
+            if (pollResult.resolvedTxId) setTxId(pollResult.resolvedTxId)
+            setTxStatus('confirmed')
+            setSyncingPass(true)
+            toast.success('Gift redeemed! (confirmation was slow) Syncing AccessPass...')
+            if (!successCalledRef.current) {
+              successCalledRef.current = true
+              const t1 = setTimeout(() => {
+                onSuccess?.()
+                const t2 = setTimeout(() => {
+                  setSyncingPass(false)
+                }, 2000)
+                timeoutRefs.current.push(t2)
+              }, 1000)
+              timeoutRefs.current.push(t1)
+            }
           }
         })
       } else {

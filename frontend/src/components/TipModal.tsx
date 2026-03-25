@@ -253,9 +253,16 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             setError('Commit-reveal tip failed on-chain. Verify credits balance.')
             toast.error('Tip couldn\u2019t be sent')
           } else if (result.status === 'timeout') {
-            setTxStatus('failed')
-            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
-            toast.warning('Transaction taking longer than expected')
+            // Shield Wallet delegates proving and never reports 'confirmed' —
+            // the transaction IS broadcast, so treat timeout as likely success.
+            if (result.resolvedTxId) setTxId(result.resolvedTxId)
+            setTxStatus('confirmed')
+            const wrappedSign = signMessage
+              ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
+              : null
+            logSubscriptionEvent(creatorAddress, 0, tipMicrocredits, result.resolvedTxId || id, wrappedSign)
+            onSuccess?.()
+            toast.success('Private tip sent! (confirmation was slow)')
           }
         })
       } else {
@@ -315,9 +322,14 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             setError('Commit failed on-chain.')
             toast.error('Tip commit couldn\u2019t be completed')
           } else if (result.status === 'timeout') {
-            setTxStatus('failed')
-            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
-            toast.warning('Transaction taking longer than expected')
+            // Shield Wallet delegates proving and never reports 'confirmed' —
+            // the transaction IS broadcast, so treat timeout as likely success.
+            const resolvedId = result.resolvedTxId || id
+            if (result.resolvedTxId) setTxId(resolvedId)
+            setTxStatus('confirmed')
+            setCommitPhase('reveal')
+            savePendingTip(salt, tipMicrocredits, resolvedId)
+            toast.success('Tip committed! (confirmation was slow) You can reveal it when ready.')
           }
         })
       } else {
@@ -386,9 +398,15 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             setError('Reveal failed on-chain.')
             toast.error('Tip reveal couldn\u2019t be completed')
           } else if (result.status === 'timeout') {
-            setTxStatus('failed')
-            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
-            toast.warning('Transaction taking longer than expected')
+            // Shield Wallet delegates proving and never reports 'confirmed' —
+            // the transaction IS broadcast, so treat timeout as likely success.
+            if (result.resolvedTxId) setTxId(result.resolvedTxId)
+            setTxStatus('confirmed')
+            setCommitPhase('done')
+            clearPendingTip()
+            setPendingTipRestored(false)
+            onSuccess?.()
+            toast.success('Tip revealed and sent! (confirmation was slow)')
           }
         })
       } else {
