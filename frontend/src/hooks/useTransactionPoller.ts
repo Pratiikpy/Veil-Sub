@@ -55,7 +55,7 @@ export function useTransactionPoller() {
       txId: string,
       onStatus: (result: PollResult) => void,
       intervalMs = 3000,
-      maxAttempts = 120
+      maxAttempts = 60
     ) => {
       const aborted = { current: false }
       let attempts = 0
@@ -90,17 +90,27 @@ export function useTransactionPoller() {
             return
           }
 
-          // Every 10 polls (~30s), check the Aleo API directly as fallback.
+          // Every 5 polls (~15s), check the Aleo API directly as fallback.
           // Shield Wallet may never report 'confirmed' even after tx is in a block.
-          if (attempts % 10 === 0 && txId.startsWith('at1')) {
+          if (attempts % 5 === 0 && txId.startsWith('at1')) {
             try {
+              // Try Provable API first
               const apiUrl = process.env.NEXT_PUBLIC_ALEO_API_URL || 'https://api.explorer.provable.com/v1/testnet'
               const res = await fetch(`${apiUrl}/transaction/${txId}`)
               if (aborted.current) return
               if (res.ok) {
                 const data = await res.json()
                 if (data && (data.type === 'execute' || data.type === 'deploy')) {
-                  // Transaction found on-chain — it's confirmed!
+                  onStatus({ status: 'confirmed', strategy: 'on-chain-fallback' })
+                  return
+                }
+              }
+              // Also try via our proxy (which has caching headers)
+              const proxyRes = await fetch(`/api/aleo/transaction/${txId}`)
+              if (aborted.current) return
+              if (proxyRes.ok) {
+                const proxyData = await proxyRes.json()
+                if (proxyData && (proxyData.type === 'execute' || proxyData.type === 'deploy')) {
                   onStatus({ status: 'confirmed', strategy: 'on-chain-fallback' })
                   return
                 }
