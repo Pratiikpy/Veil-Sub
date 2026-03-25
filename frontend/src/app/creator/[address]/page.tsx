@@ -803,10 +803,22 @@ export default function CreatorPage({
       )
     }
     if (isSubscribed && !hasExpiringPass) {
+      const highestTier = Math.max(...userPasses.map(p => p.tier))
+      const hasHigherTiers = displayTiers.some(t => t.id > highestTier)
       return (
-        <div className="px-5 py-2.5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 font-medium text-sm flex items-center gap-2">
-          <Check className="w-4 h-4" />
-          Subscribed
+        <div className="flex items-center gap-2">
+          <div className="px-4 py-2.5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 font-medium text-sm flex items-center gap-2">
+            <Check className="w-4 h-4" />
+            Subscribed
+          </div>
+          {hasHigherTiers && (
+            <button
+              onClick={() => setSelectedTier(displayTiers.find(t => t.id > highestTier) ?? null)}
+              className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white/70 font-medium text-sm hover:bg-white/10 transition-all duration-300 active:scale-[0.98]"
+            >
+              Upgrade
+            </button>
+          )}
         </div>
       )
     }
