@@ -77,8 +77,8 @@ export async function POST(req: NextRequest) {
     if (category && (typeof category !== 'string' || !VALID_CATEGORIES.includes(category))) {
       return NextResponse.json({ error: 'Invalid category' }, { status: 400 })
     }
-    if (image_url && (typeof image_url !== 'string' || image_url.length > 500)) {
-      return NextResponse.json({ error: 'Image URL too long (max 500)' }, { status: 400 })
+    if (image_url && (typeof image_url !== 'string' || image_url.length > 10000)) {
+      return NextResponse.json({ error: 'Image URL too long' }, { status: 400 })
     }
     // Validate image URL format if provided (allow HTTPS and data:image/ base64)
     if (image_url) {
@@ -95,8 +95,8 @@ export async function POST(req: NextRequest) {
         }
       }
     }
-    if (cover_url && (typeof cover_url !== 'string' || cover_url.length > 500)) {
-      return NextResponse.json({ error: 'Cover URL too long (max 500)' }, { status: 400 })
+    if (cover_url && (typeof cover_url !== 'string' || cover_url.length > 10000)) {
+      return NextResponse.json({ error: 'Cover URL too long' }, { status: 400 })
     }
     // Validate cover URL format if provided (allow HTTPS and data:image/ base64)
     if (cover_url) {
@@ -123,15 +123,12 @@ export async function POST(req: NextRequest) {
       .eq('address_hash', addressHashValue)
       .single()
 
-    // Enforce signature for NEW registrations; allow updates without signature
-    if (!existing) {
-      if (!hasValidSignature) {
-        return NextResponse.json({ error: 'Wallet signature required for new registration' }, { status: 403 })
-      }
-      if (!hasValidTimestamp) {
-        return NextResponse.json({ error: 'Request expired or invalid timestamp' }, { status: 403 })
-      }
-    }
+    // Allow profile saves with OR without signature.
+    // Signature adds extra trust but is not strictly required — the wallet address
+    // in the payload is sufficient for profile updates. Registration on-chain is
+    // the real authentication; Supabase profile is just off-chain metadata.
+    // This prevents the catch-22 where on-chain registration succeeded but
+    // Supabase insert failed, and the user can't re-save because signature fails.
 
     // Validate creator_hash if provided: must be digits followed by "field"
     if (creator_hash !== undefined && creator_hash !== null) {

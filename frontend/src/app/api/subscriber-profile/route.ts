@@ -89,18 +89,22 @@ export async function POST(req: NextRequest) {
     }
 
     if (avatar_url !== null && avatar_url !== undefined) {
-      if (typeof avatar_url !== 'string' || avatar_url.length > 500) {
-        return NextResponse.json({ error: 'Avatar URL too long (max 500)' }, { status: 400 })
+      if (typeof avatar_url !== 'string' || avatar_url.length > 10000) {
+        return NextResponse.json({ error: 'Avatar URL too long (max 10KB)' }, { status: 400 })
       }
       // Validate URL format
       if (avatar_url) {
-        try {
-          const parsed = new URL(avatar_url)
-          if (parsed.protocol !== 'https:' && !avatar_url.startsWith('data:')) {
-            return NextResponse.json({ error: 'Avatar URL must use HTTPS' }, { status: 400 })
+        if (avatar_url.startsWith('data:image/')) {
+          // Allow base64-encoded images
+        } else {
+          try {
+            const parsed = new URL(avatar_url)
+            if (parsed.protocol !== 'https:') {
+              return NextResponse.json({ error: 'Avatar URL must use HTTPS or be a data:image/ URL' }, { status: 400 })
+            }
+          } catch {
+            return NextResponse.json({ error: 'Invalid avatar URL format' }, { status: 400 })
           }
-        } catch {
-          return NextResponse.json({ error: 'Invalid avatar URL format' }, { status: 400 })
         }
       }
     }
