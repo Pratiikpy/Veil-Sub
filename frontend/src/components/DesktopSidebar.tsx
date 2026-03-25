@@ -133,24 +133,15 @@ export default function DesktopSidebar() {
           </Link>
         )}
 
-        {/* Wallet */}
+        {/* Wallet — always shows WalletMultiButton (has connect + disconnect) */}
         <div className="mt-2 mx-1">
-          {connected ? (
-            <div className="px-3 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center gap-2.5">
-              <span className="relative flex h-2 w-2 flex-shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-50" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium text-white/70">Connected</p>
-                <p className="text-[10px] font-mono text-white/35 truncate">{truncatedAddress}</p>
-              </div>
-            </div>
-          ) : (
-            <div className="wallet-sidebar-btn [&_button]:!w-full [&_button]:!rounded-xl [&_button]:!bg-white [&_button]:!text-black [&_button]:!text-sm [&_button]:!font-semibold [&_button]:!py-3 [&_button]:!border-0">
-              <WalletMultiButton />
-            </div>
-          )}
+          <div className={`wallet-sidebar-btn [&_button]:!w-full [&_button]:!rounded-xl [&_button]:!text-sm [&_button]:!font-semibold [&_button]:!py-3 [&_button]:!border-0 ${
+            connected
+              ? '[&_button]:!bg-white/[0.04] [&_button]:!text-white/70'
+              : '[&_button]:!bg-white [&_button]:!text-black'
+          }`}>
+            <WalletMultiButton />
+          </div>
         </div>
       </div>
     </aside>
