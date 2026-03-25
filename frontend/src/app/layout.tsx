@@ -15,6 +15,7 @@ import CommandPalette from '@/components/CommandPalette'
 import OnboardingTour from '@/components/OnboardingTour'
 import PWAInstallPrompt from '@/components/PWAInstallPrompt'
 import KeyboardShortcuts from '@/components/KeyboardShortcuts'
+import FloatingComposeButton from '@/components/FloatingComposeButton'
 import { Toaster } from 'sonner'
 import NextTopLoader from 'nextjs-toploader'
 import { APP_NAME, APP_DESCRIPTION } from '@/lib/config'
@@ -155,6 +156,7 @@ export default function RootLayout({
           <OnboardingTour />
           <PWAInstallPrompt />
           <KeyboardShortcuts />
+          <FloatingComposeButton />
           <Toaster
             theme="dark"
             position="bottom-right"
