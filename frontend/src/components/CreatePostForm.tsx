@@ -680,14 +680,18 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
     return TAG_COLORS[tag] || 'text-white/70 bg-white/[0.04] border-white/10'
   }
 
-  // Build tier options from actual on-chain tiers (Free first, then paid tiers)
+  // Build tier options from actual on-chain tiers (Free first, then paid tiers, deduplicated)
+  const paidTiers = Object.entries(onChainTiers)
+    .filter(([, t]) => t.price > 0)
+    .map(([id, t]) => ({ id: Number(id), name: t.name }))
+    .sort((a, b) => a.id - b.id)
+
   const tierOptions: { id: number; name: string; description?: string }[] = [
     { id: 0, name: 'Free', description: 'Visible to everyone' },
-    { id: 1, name: 'Supporter' },
-    ...Object.entries(onChainTiers)
-      .filter(([, t]) => t.price > 0)
-      .map(([id, t]) => ({ id: Number(id), name: t.name }))
-      .sort((a, b) => a.id - b.id),
+    ...(paidTiers.length > 0
+      ? paidTiers
+      : [{ id: 1, name: 'Supporter' }]  // Fallback only if no on-chain tiers
+    ),
   ]
 
   const filteredSuggestions = SUGGESTED_TAGS.filter(
