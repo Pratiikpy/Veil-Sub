@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { WalletMultiButton } from '@provablehq/aleo-wallet-adaptor-react-ui'
-import { Home, Compass, Bell, LayoutDashboard, Search, Settings } from 'lucide-react'
+import { Home, Compass, Bell, LayoutDashboard, Search, Settings, LogOut } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 
 const NAV_ITEMS = [
@@ -21,7 +21,7 @@ function openCommandPalette() {
 }
 
 export default function DesktopSidebar() {
-  const { connected, address } = useWallet()
+  const { connected, address, disconnect } = useWallet()
   const pathname = usePathname()
   const { unreadCount } = useNotifications()
 
@@ -133,15 +133,28 @@ export default function DesktopSidebar() {
           </Link>
         )}
 
-        {/* Wallet — always shows WalletMultiButton (has connect + disconnect) */}
+        {/* Wallet */}
         <div className="mt-2 mx-1">
-          <div className={`wallet-sidebar-btn [&_button]:!w-full [&_button]:!rounded-xl [&_button]:!text-sm [&_button]:!font-semibold [&_button]:!py-3 [&_button]:!border-0 ${
-            connected
-              ? '[&_button]:!bg-white/[0.04] [&_button]:!text-white/70'
-              : '[&_button]:!bg-white [&_button]:!text-black'
-          }`}>
-            <WalletMultiButton />
-          </div>
+          {connected ? (
+            <button
+              onClick={() => disconnect()}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.05] hover:border-white/[0.12] transition-all text-left group"
+            >
+              <span className="relative flex h-2 w-2 flex-shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-50" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-medium text-white/70">Connected</p>
+                <p className="text-[10px] font-mono text-white/35 truncate">{truncatedAddress}</p>
+              </div>
+              <LogOut size={14} className="text-white/20 group-hover:text-white/50 transition-colors flex-shrink-0" />
+            </button>
+          ) : (
+            <div className="wallet-sidebar-btn [&_button]:!w-full [&_button]:!rounded-xl [&_button]:!bg-white [&_button]:!text-black [&_button]:!text-sm [&_button]:!font-semibold [&_button]:!py-3 [&_button]:!border-0">
+              <WalletMultiButton />
+            </div>
+          )}
         </div>
       </div>
     </aside>
