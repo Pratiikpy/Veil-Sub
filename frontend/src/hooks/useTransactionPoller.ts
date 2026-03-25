@@ -90,9 +90,11 @@ export function useTransactionPoller() {
             return
           }
 
-          // Every 5 polls (~15s), check the Aleo API directly as fallback.
-          // Shield Wallet may never report 'confirmed' even after tx is in a block.
-          if (attempts % 5 === 0 && txId.startsWith('at1')) {
+          // Check the Aleo API directly as fallback.
+          // First 20 polls (~1 min): check every 5th poll (every 15s)
+          // After 20 polls: check EVERY poll (every 3s) — tx should be indexed by now
+          const shouldCheckChain = txId.startsWith('at1') && (attempts > 20 || attempts % 5 === 0)
+          if (shouldCheckChain) {
             try {
               // Try Provable API first
               const apiUrl = process.env.NEXT_PUBLIC_ALEO_API_URL || 'https://api.explorer.provable.com/v1/testnet'

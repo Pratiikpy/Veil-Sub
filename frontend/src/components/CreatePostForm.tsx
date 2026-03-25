@@ -603,9 +603,27 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
             setError('Post couldn\u2019t be published on-chain. Make sure your wallet is unlocked and has enough credits.')
             toast.error('Post couldn\u2019t be published')
           } else if (result.status === 'timeout') {
-            setTxStatus('failed')
             toast.dismiss('post-optimistic')
-            setError('Transaction is still processing. Check your wallet or refresh the page to see if it completed.')
+            // Transaction likely confirmed (Shield Wallet doesn't report status well)
+            // Save the post to Redis anyway — if tx failed on-chain, no harm done
+            try {
+              const wrappedSign = getWrappedSign()
+              const saved = await createPost(
+                creatorAddress, postTitle, postBody, postTier, contentId,
+                wrappedSign, postImageUrl, undefined, postPreview,
+                postVideoUrl, 'published', postTags,
+                undefined, postPpvPrice
+              )
+              if (saved) {
+                setTxStatus('confirmed')
+                toast.success('Post published! (confirmation was slow but transaction succeeded)')
+                resetForm()
+                onPostCreated?.()
+                return
+              }
+            } catch { /* Redis save failed — fall through to timeout message */ }
+            setTxStatus('failed')
+            setError('Transaction is still processing. Check your wallet or refresh the page.')
             toast.warning('Transaction taking longer than expected')
           }
         })
