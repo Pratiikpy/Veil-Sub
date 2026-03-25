@@ -78,11 +78,14 @@ export function useSupabase() {
           body: JSON.stringify({ address, display_name: displayName, bio, creator_hash: creatorHash, signature, timestamp, category, image_url: imageUrl, cover_url: coverUrl }),
         })
         if (!res.ok) {
-          setError({ operation: 'upsertProfile', message: 'Failed to save profile', code: res.status })
+          const errData = await res.json().catch(() => ({}))
+          const errMsg = errData.error || `Server returned ${res.status}`
+          console.error('[useSupabase] upsertProfile failed:', res.status, errMsg)
+          setError({ operation: 'upsertProfile', message: errMsg, code: res.status })
           return null
         }
-        const { profile } = await res.json()
-        return profile ?? null
+        const data = await res.json()
+        return data.profile ?? null
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Network error saving profile'
         setError({ operation: 'upsertProfile', message: msg })

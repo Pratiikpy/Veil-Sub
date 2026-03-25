@@ -314,7 +314,7 @@ function SubscriberProfileCard({ address }: { address: string }) {
 
 export default function SettingsPage() {
   const { address: publicKey, connected, disconnect, signMessage } = useWallet()
-  const { getCreatorProfile, upsertCreatorProfile } = useSupabase()
+  const { getCreatorProfile, upsertCreatorProfile, error: supabaseError } = useSupabase()
 
   // Profile state
   const [displayName, setDisplayName] = useState('')
@@ -492,14 +492,17 @@ export default function SettingsPage() {
       if (result) {
         toast.success('Profile saved')
         sounds.success()
-        clearCreatorCache() // Invalidate cache so other pages see fresh profile
+        clearCreatorCache()
         setProfileSaved(true)
         setTimeout(() => setProfileSaved(false), 3000)
       } else {
-        toast.error('Profile couldn\u2019t be saved. Check your wallet and try again.')
+        // Show the actual error from the API/hook
+        const errMsg = supabaseError?.message || 'Unknown error'
+        toast.error(`Profile save failed: ${errMsg}`, { duration: 8000 })
       }
-    } catch {
-      toast.error('Profile couldn\u2019t be saved. Check your wallet and try again.')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Network error'
+      toast.error(`Profile save failed: ${msg}`, { duration: 8000 })
     } finally {
       setProfileSaving(false)
     }
