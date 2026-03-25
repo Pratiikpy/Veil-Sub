@@ -179,8 +179,8 @@ export default function VisionPage() {
                 {
                   phase: 'Wave 3',
                   status: 'current',
-                  summary: 'v27 deployed on testnet',
-                  highlight: '27 actions • 25 on-chain records • 6 private data types • 866 lines of logic',
+                  summary: 'Deployed on testnet',
+                  highlight: 'Maximum privacy • Zero identity leaks • Anonymous subscriptions • Blind renewals',
                   items: ['Scoped verification tokens (selective sharing)', 'Trial passes with rate-limiting', 'ZERO wallet addresses stored publicly', 'All data indexed by one-way hashes', 'Sealed commit-reveal tipping', 'Blind renewal + subscription transfer']
                 },
                 {

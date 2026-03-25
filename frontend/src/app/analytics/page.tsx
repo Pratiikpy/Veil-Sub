@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { m } from 'framer-motion'
 import {
   Users,
@@ -9,11 +9,7 @@ import {
   ShieldCheck,
   EyeOff,
   Lock,
-  GitBranch,
   Activity,
-  Layers,
-  Database,
-  Code,
   ArrowRight,
   Search,
   RefreshCw,
@@ -55,7 +51,6 @@ interface GlobalStats {
   totalCreators: number
   totalSubscriptions: number
   totalRevenue: number
-  activePrograms: number
 }
 
 // Zero-value fallback when API is unavailable — no fake numbers
@@ -63,22 +58,8 @@ const EMPTY_STATS: GlobalStats = {
   totalCreators: 0,
   totalSubscriptions: 0,
   totalRevenue: 0,
-  activePrograms: 0,
 }
 
-const CONTRACT_VERSIONS = [
-  { version: 'v4-v8', description: 'Core subscriptions, subscription passes, payment receipts, verification tokens, content publishing' },
-  { version: 'v9-v10', description: 'Dynamic tiers, content management, gifting, escrow, fee withdrawal' },
-  { version: 'v11-v12', description: 'Blind renewal (novel privacy), encrypted content, disputes, revocation' },
-  { version: 'v13-v14', description: 'Safety fixes, sealed commit-reveal tipping' },
-  { version: 'v15-v16', description: 'Security hardening, subscription transfer, on-chain referral system' },
-  { version: 'v17-v21', description: 'Private counters, traceless verification, hash optimization, analytics, error codes' },
-  { version: 'v23', description: 'Privacy overhaul: ZERO wallet addresses stored publicly, all data indexed by hashes.' },
-  { version: 'v24', description: 'Content auth fix, on-chain expiry enforcement. 25 actions, 22 on-chain records', deployed: true },
-  { version: 'v25', description: 'Subscriber threshold proofs, platform-wide counters. 26 actions, 24 on-chain records', deployed: true },
-  { version: 'v26', description: 'Trial passes for short-term access. 27 actions, 24 on-chain records', deployed: true },
-  { version: 'v27', description: 'Scoped verification tokens, trial rate-limiting, gift fix. 27 actions, 25 on-chain records', deployed: true },
-]
 
 const DATE_RANGE_OPTIONS: { value: DateRange; label: string }[] = [
   { value: '7d', label: '7 days' },
@@ -425,46 +406,6 @@ function getTimeAgo(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
-// ── Contract Versions Section ─────────────────────────────────────
-
-function ContractVersionsSection() {
-  const [showAll, setShowAll] = useState(false)
-  const displayed = useMemo(() => showAll ? CONTRACT_VERSIONS : CONTRACT_VERSIONS.filter(v => 'deployed' in v && v.deployed), [showAll])
-  const hiddenCount = CONTRACT_VERSIONS.length - displayed.length
-
-  return (
-    <section className="mb-10 sm:mb-16">
-      <div className="flex items-center justify-between mb-6 sm:mb-8">
-        <h2 className="text-lg font-medium text-white">Contract Versions</h2>
-        {hiddenCount > 0 && !showAll && (
-          <button onClick={() => setShowAll(true)} className="text-xs text-white/70 hover:text-white transition-colors">Show all {CONTRACT_VERSIONS.length} versions</button>
-        )}
-        {showAll && (
-          <button onClick={() => setShowAll(false)} className="text-xs text-white/50 hover:text-white/70 transition-colors">Show deployed only</button>
-        )}
-      </div>
-      <GlassCard hover={false}>
-        <div className="space-y-0">
-          {displayed.map((item, i) => (
-            <m.div key={item.version} initial={{ opacity: 1, x: 0 }} animate={{ opacity: 1, x: 0 }} className={`flex items-start gap-4 py-4 ${i < displayed.length - 1 ? 'border-b border-border' : ''}`}>
-              <div className="flex items-center gap-4 shrink-0">
-                <GitBranch className={`w-4 h-4 ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-white/60'}`} aria-hidden="true" />
-                <span className={`text-sm font-mono font-medium ${'deployed' in item && item.deployed ? 'text-emerald-400' : 'text-white/70'}`}>{item.version}</span>
-                {'deployed' in item && item.deployed && <span className="text-[10px] px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">deployed</span>}
-              </div>
-              <p className="text-sm text-white/70 leading-relaxed">{item.description}</p>
-            </m.div>
-          ))}
-        </div>
-        {!showAll && hiddenCount > 0 && (
-          <div className="pt-4 border-t border-border mt-4 text-center">
-            <button onClick={() => setShowAll(true)} className="text-xs text-white/50 hover:text-white/70 transition-colors">+ {hiddenCount} earlier versions (v4-v21)</button>
-          </div>
-        )}
-      </GlassCard>
-    </section>
-  )
-}
 
 // ── Main Page ─────────────────────────────────────────────────────
 
@@ -675,17 +616,6 @@ export default function AnalyticsPage() {
             </section>
           )}
 
-          {/* ── Protocol Stats ─────────────────────────────────── */}
-
-          <section className="mb-10 sm:mb-16">
-            <h2 className="text-lg font-medium text-white mb-6 sm:mb-8">Protocol Stats</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <ProtocolStat icon={Activity} value="27" label="Actions" delay={0} />
-              <ProtocolStat icon={Layers} value="6" label="Private Data Types" delay={0.05} />
-              <ProtocolStat icon={Database} value="25" label="On-Chain Records" delay={0.1} />
-              <ProtocolStat icon={Code} value="866" label="Lines of Logic" delay={0.15} />
-            </div>
-          </section>
 
           {/* ── Privacy Guarantees ─────────────────────────────── */}
 
@@ -705,13 +635,10 @@ export default function AnalyticsPage() {
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
               <GlassCard delay={0}><div className="flex items-center gap-2 mb-4"><ShieldCheck className="w-4 h-4 text-green-400" aria-hidden="true" /><span className="text-sm font-medium text-white">Standard</span></div><p className="text-sm text-white/70 leading-relaxed mb-4">Each payment is completely private. Your wallet is never connected to a creator or linked to your subscription history.</p><div className="text-xs text-white/70">Subscribe / Renew</div></GlassCard>
               <GlassCard delay={0.05} variant="accent"><div className="flex items-center gap-2 mb-4"><EyeOff className="w-4 h-4 text-white/60" aria-hidden="true" /><span className="text-sm font-medium text-white">Blind</span></div><p className="text-sm text-white/70 leading-relaxed mb-4">Each renewal looks like a different subscriber. Even the creator can&apos;t track renewals from the same person.</p><div className="text-xs text-white/70">Blind Subscribe / Blind Renew</div></GlassCard>
-              <GlassCard delay={0.1}><div className="flex items-center gap-2 mb-4"><Lock className="w-4 h-4 text-white/60" aria-hidden="true" /><span className="text-sm font-medium text-white">Maximum (v27)</span></div><p className="text-sm text-white/70 leading-relaxed mb-4">All creator metrics are anonymized. No way to connect data points to individual addresses -- privacy enforced at the protocol level.</p><div className="text-xs text-white/70">All actions / Hash-indexed privacy</div></GlassCard>
+              <GlassCard delay={0.1}><div className="flex items-center gap-2 mb-4"><Lock className="w-4 h-4 text-white/60" aria-hidden="true" /><span className="text-sm font-medium text-white">Maximum</span></div><p className="text-sm text-white/70 leading-relaxed mb-4">All creator metrics are anonymized. No way to connect data points to individual addresses -- privacy enforced at the protocol level.</p><div className="text-xs text-white/70">All actions / Hash-indexed privacy</div></GlassCard>
             </div>
           </section>
 
-          {/* ── Contract Versions ──────────────────────────────── */}
-
-          <ContractVersionsSection />
 
           {/* ── CTA: Explorer ──────────────────────────────────── */}
 
@@ -719,7 +646,7 @@ export default function AnalyticsPage() {
             <m.div initial={{ opacity: 1, y: 0 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl glass p-8 text-center">
               <Search className="w-8 h-8 text-white/60 mx-auto mb-4" aria-hidden="true" />
               <h3 className="text-xl font-semibold text-white mb-2">Query the chain yourself</h3>
-              <p className="text-sm text-white/60 max-w-md mx-auto mb-4">Look up any creator&apos;s public stats, query on-chain mappings directly, and verify data with no wallet required.</p>
+              <p className="text-sm text-white/60 max-w-md mx-auto mb-4">Look up any creator&apos;s public stats and verify data with no wallet required.</p>
               <Link href="/explorer" className="inline-flex items-center gap-2 px-8 py-4 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all btn-shimmer">Open On-Chain Explorer<ArrowRight className="w-4 h-4" aria-hidden="true" /></Link>
             </m.div>
           </section>
@@ -773,6 +700,3 @@ function ChurnStatCard({ churn, loading }: { churn: { churnRate: number; previou
   )
 }
 
-function ProtocolStat({ icon: Icon, value, label, delay }: { icon: typeof Activity; value: string; label: string; delay: number }) {
-  return (<GlassCard delay={delay}><div className="text-center"><Icon className="w-5 h-5 text-white/60 mx-auto mb-4" aria-hidden="true" /><p className="text-2xl font-semibold text-white mb-1">{value}</p><p className="text-sm text-white/60">{label}</p></div></GlassCard>)
-}
