@@ -137,19 +137,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Always encrypt the address for upsert (needed for INSERT if row doesn't exist)
+    const encryptedAddress = await encrypt(address)
+
     const upsertData: Record<string, unknown> = {
       address_hash: addressHashValue,
+      encrypted_address: encryptedAddress,
       display_name: display_name || null,
       bio: bio || null,
       ...(category ? { category } : {}),
       ...(image_url ? { image_url } : {}),
       ...(cover_url ? { cover_url } : {}),
       ...(creator_hash ? { creator_hash } : {}),
-    }
-
-    // Only encrypt and store the address on first registration
-    if (!existing) {
-      upsertData.encrypted_address = await encrypt(address)
     }
 
     const { data, error } = await supabase

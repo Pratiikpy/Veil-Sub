@@ -565,19 +565,44 @@ export default function SettingsPage() {
 
   const handleProfileImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) uploadImage(file, 2 * 1024 * 1024, setImageUrl, setImageUploading)
+    if (file) {
+      // Show instant preview from local blob URL (like Twitter)
+      const blobUrl = URL.createObjectURL(file)
+      setImageUrl(blobUrl)
+      // Then upload to server and replace with permanent URL
+      uploadImage(file, 2 * 1024 * 1024, (url) => {
+        URL.revokeObjectURL(blobUrl)
+        setImageUrl(url)
+      }, setImageUploading)
+    }
     if (e.target) e.target.value = ''
   }, [uploadImage])
 
   const handleCoverUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) uploadImage(file, 5 * 1024 * 1024, setCoverUrl, setCoverUploading)
+    if (file) {
+      // Show instant preview from local blob URL
+      const blobUrl = URL.createObjectURL(file)
+      setCoverUrl(blobUrl)
+      // Then upload to server
+      uploadImage(file, 5 * 1024 * 1024, (url) => {
+        URL.revokeObjectURL(blobUrl)
+        setCoverUrl(url)
+      }, setCoverUploading)
+    }
     if (e.target) e.target.value = ''
   }, [uploadImage])
 
   const handleSubAvatarUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) uploadImage(file, 2 * 1024 * 1024, setSubAvatarUrl, setSubAvatarUploading)
+    if (file) {
+      const blobUrl = URL.createObjectURL(file)
+      setSubAvatarUrl(blobUrl)
+      uploadImage(file, 2 * 1024 * 1024, (url) => {
+        URL.revokeObjectURL(blobUrl)
+        setSubAvatarUrl(url)
+      }, setSubAvatarUploading)
+    }
     if (e.target) e.target.value = ''
   }, [uploadImage])
 
