@@ -406,6 +406,7 @@ function FeedPostCard({
 // ─── Main Feed Page ───
 
 type SortOrder = 'newest' | 'oldest'
+type ContentTypeFilter = 'all' | 'posts' | 'images' | 'articles'
 
 export default function FeedPage() {
   const { connected, address: publicKey, signMessage } = useWallet()
@@ -423,6 +424,7 @@ export default function FeedPage() {
   const [showSortMenu, setShowSortMenu] = useState(false)
   const [feedSearchQuery, setFeedSearchQuery] = useState('')
   const [showSaved, setShowSaved] = useState(false)
+  const [contentTypeFilter, setContentTypeFilter] = useState<ContentTypeFilter>('all')
   const [discoveryPosts, setDiscoveryPosts] = useState<FeedPost[]>([])
   const [discoveryLoading, setDiscoveryLoading] = useState(false)
   const sortRef = useRef<HTMLDivElement>(null)
@@ -721,6 +723,19 @@ export default function FeedPage() {
       result = result.filter(p => p.creatorAddress === selectedCreator)
     }
 
+    // Filter by content type
+    if (contentTypeFilter !== 'all') {
+      result = result.filter(p => {
+        if (contentTypeFilter === 'images') return !!p.imageUrl
+        if (contentTypeFilter === 'articles') {
+          const bodyLen = p.body ? stripHtmlTags(p.body).length : 0
+          return bodyLen > 300
+        }
+        // 'posts' = short text posts without images
+        return !p.imageUrl && (p.body ? stripHtmlTags(p.body).length <= 300 : true)
+      })
+    }
+
     // Sort
     const sorted = [...result].sort((a, b) => {
       const timeA = new Date(a.createdAt).getTime()
@@ -729,7 +744,7 @@ export default function FeedPage() {
     })
 
     return sorted
-  }, [feedPosts, feedFuse, feedSearchQuery, selectedCreator, sortOrder])
+  }, [feedPosts, feedFuse, feedSearchQuery, selectedCreator, contentTypeFilter, sortOrder])
 
   const visiblePosts = filteredPosts.slice(0, visibleCount)
   const hasMore = visibleCount < filteredPosts.length
@@ -965,6 +980,29 @@ export default function FeedPage() {
                     <X className="w-4 h-4" />
                   </button>
                 )}
+              </div>
+
+              {/* Content type tabs */}
+              <div className="mb-3 flex items-center gap-1 border-b border-white/[0.06] pb-2">
+                {([
+                  { key: 'all' as ContentTypeFilter, label: 'All', icon: Rss },
+                  { key: 'posts' as ContentTypeFilter, label: 'Posts', icon: FileText },
+                  { key: 'images' as ContentTypeFilter, label: 'Images', icon: ImageIcon },
+                  { key: 'articles' as ContentTypeFilter, label: 'Articles', icon: BookOpen },
+                ]).map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => { setContentTypeFilter(tab.key); setShowSaved(false) }}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                      contentTypeFilter === tab.key && !showSaved
+                        ? 'bg-white/[0.08] text-white/80'
+                        : 'text-white/50 hover:text-white/70 hover:bg-white/[0.04]'
+                    }`}
+                  >
+                    <tab.icon className="w-3.5 h-3.5" aria-hidden="true" />
+                    {tab.label}
+                  </button>
+                ))}
               </div>
 
               {/* Filter bar */}

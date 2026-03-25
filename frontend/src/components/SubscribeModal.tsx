@@ -32,16 +32,28 @@ interface Props {
   creatorAddress: string
   basePrice: number // microcredits
   onSuccess?: () => void // Called after successful subscription for cache invalidation
+  availableTiers?: SubscriptionTier[] // All tiers for this creator (enables tier switching)
 }
 
 export default function SubscribeModal({
   isOpen,
   onClose,
-  tier,
+  tier: initialTier,
   creatorAddress,
   basePrice,
   onSuccess,
+  availableTiers,
 }: Props) {
+  const [activeTier, setActiveTier] = useState<SubscriptionTier>(initialTier)
+  const [showTierPicker, setShowTierPicker] = useState(false)
+  // Keep activeTier in sync when parent changes the tier prop
+  const prevTierRef = useRef(initialTier)
+  if (prevTierRef.current !== initialTier) {
+    prevTierRef.current = initialTier
+    setActiveTier(initialTier)
+    setShowTierPicker(false)
+  }
+  const tier = activeTier
   const { subscribe, subscribeBlind, subscribeTrial, getCreditsRecords, connected, publicKey } = useVeilSub()
   const { signMessage } = useWallet()
   const { blockHeight, error: blockHeightError } = useBlockHeight()
@@ -202,6 +214,7 @@ export default function SubscribeModal({
   const handleModalClose = () => {
     setInsufficientBalance(false)
     setPrivacyMode('standard') // Reset privacy mode for next open
+    setShowTierPicker(false)
     handleClose()
   }
 
@@ -247,30 +260,74 @@ export default function SubscribeModal({
 
             {txStatus === 'idle' ? (
               <>
-                {/* Tier Info */}
-                <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-white/60 uppercase tracking-wider font-medium">
-                      {tier.name}
-                    </span>
+                {/* Tier Picker (shown when user clicks "Change tier") */}
+                {showTierPicker && availableTiers && availableTiers.length > 1 ? (
+                  <div className="mb-4">
+                    <p className="text-xs text-white/60 uppercase tracking-wider font-medium mb-2">Choose a tier</p>
+                    <div className="space-y-2">
+                      {availableTiers.map((t) => {
+                        const tPrice = basePrice * t.priceMultiplier
+                        const isSelected = t.id === tier.id
+                        return (
+                          <button
+                            key={t.id}
+                            onClick={() => { setActiveTier(t); setShowTierPicker(false) }}
+                            className={`w-full text-left p-3 rounded-xl border transition-all ${
+                              isSelected
+                                ? 'border-white/20 bg-white/[0.06]'
+                                : 'border-border bg-surface-2 hover:border-white/15 hover:bg-white/[0.04]'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-0.5">
+                              <span className="text-sm font-medium text-white">{t.name}</span>
+                              <span className="text-sm font-bold text-white">
+                                {formatCredits(tPrice)} <span className="text-xs font-normal text-white/60">ALEO</span>
+                              </span>
+                            </div>
+                            {t.description && (
+                              <p className="text-xs text-white/50">{t.description}</p>
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
-                  <p className="text-2xl font-bold text-white mb-1">
-                    {formatCredits(totalPrice)} <span className="text-sm font-medium text-white/70">ALEO</span>
-                  </p>
-                  <p className="text-sm text-white/50 mb-2">{formatUsd(totalPrice)}</p>
-                  <p className="text-sm text-white/70">{tier.description}</p>
-                  <ul className="mt-4 space-y-1">
-                    {tier.features.map((f) => (
-                      <li
-                        key={f}
-                        className="text-xs text-white/70 flex items-center gap-2"
-                      >
-                        <Sparkles className="w-3 h-3 text-white/70" aria-hidden="true" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                ) : (
+                  <>
+                    {/* Tier Info */}
+                    <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-white/60 uppercase tracking-wider font-medium">
+                          {tier.name}
+                        </span>
+                        {availableTiers && availableTiers.length > 1 && (
+                          <button
+                            onClick={() => setShowTierPicker(true)}
+                            className="text-xs text-white/50 hover:text-white/80 transition-colors underline underline-offset-2"
+                          >
+                            Change tier
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-2xl font-bold text-white mb-1">
+                        {formatCredits(totalPrice)} <span className="text-sm font-medium text-white/70">ALEO</span>
+                      </p>
+                      <p className="text-sm text-white/50 mb-2">{formatUsd(totalPrice)}</p>
+                      <p className="text-sm text-white/70">{tier.description}</p>
+                      <ul className="mt-4 space-y-1">
+                        {tier.features.map((f) => (
+                          <li
+                            key={f}
+                            className="text-xs text-white/70 flex items-center gap-2"
+                          >
+                            <Sparkles className="w-3 h-3 text-white/70" aria-hidden="true" />
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </>
+                )}
 
                 {/* Fee Breakdown */}
                 <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">

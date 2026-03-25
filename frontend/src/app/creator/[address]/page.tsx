@@ -67,9 +67,9 @@ import { spring } from '@/lib/motion'
 /** Deterministic gradient from an Aleo address — used for the cover banner */
 function generateCoverGradient(address: string): string {
   const hash = address.split('').reduce((a, c) => ((a << 5) - a + c.charCodeAt(0)) | 0, 0)
-  const light1 = 8 + Math.abs(hash % 6)          // 8-13%
-  const light2 = 5 + Math.abs((hash >> 8) % 5)    // 5-9%
-  const light3 = 10 + Math.abs((hash >> 16) % 6)  // 10-15%
+  const light1 = 16 + Math.abs(hash % 8)          // 16-23%
+  const light2 = 12 + Math.abs((hash >> 8) % 6)   // 12-17%
+  const light3 = 20 + Math.abs((hash >> 16) % 8)  // 20-27%
   return `linear-gradient(135deg, hsl(0, 0%, ${light1}%) 0%, hsl(0, 0%, ${light2}%) 50%, hsl(0, 0%, ${light3}%) 100%)`
 }
 
@@ -1141,6 +1141,7 @@ export default function CreatorPage({
           creatorAddress={address}
           basePrice={basePrice}
           onSuccess={() => { loadPasses(); refreshStats() }}
+          availableTiers={displayTiers}
         />
       )}
       <TipModal
