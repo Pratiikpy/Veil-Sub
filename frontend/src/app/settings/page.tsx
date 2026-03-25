@@ -496,7 +496,10 @@ export default function SettingsPage() {
         setProfileSaved(true)
         setTimeout(() => setProfileSaved(false), 3000)
       } else {
-        toast.error('Profile save failed. Run the Supabase migration if you haven\'t already.', { duration: 10000 })
+        // Wait a tick for the error state to propagate from the hook
+        await new Promise(r => setTimeout(r, 50))
+        const msg = supabaseError?.message || 'Check browser console (F12) for details'
+        toast.error(`Profile save failed: ${msg}`, { duration: 10000 })
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Network error'

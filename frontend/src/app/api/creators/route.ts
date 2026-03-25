@@ -159,12 +159,12 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error) {
-      console.error('[creators] upsert failed:', error.message, error.code)
-      const msg = error.message || ''
-      if (msg.includes('relation') || msg.includes('does not exist') || error.code === '42P01') {
-        return NextResponse.json({ error: 'Creator profiles table not set up. Run the migration in Supabase.' }, { status: 503 })
-      }
-      return NextResponse.json({ error: `Profile save failed: ${error.message || 'unknown database error'}` }, { status: 500 })
+      console.error('[creators] upsert failed:', error.message, error.code, error.details)
+      return NextResponse.json({
+        error: `Database error: ${error.message}`,
+        code: error.code,
+        details: error.details
+      }, { status: 500 })
     }
 
     return NextResponse.json({ profile: data })
