@@ -82,13 +82,17 @@ export default function DashboardPage() {
         setLoading(false)
       })
     }
+    // Always fetch Supabase profile for display (name + image) regardless of hash status
+    getCreatorProfile(publicKey).then((profile) => {
+      if (cancelled) return
+      if (profile?.display_name) setProfileName(profile.display_name)
+      if (profile?.image_url) setProfileImageUrl(profile.image_url)
+    }).catch(() => { /* non-critical for display */ })
+
     if (!hashKnown) {
-      // Try Supabase first (fast), then fall back to on-chain recovery (slow, one-time)
+      // Try Supabase for hash recovery (reuses cached profile internally)
       getCreatorProfile(publicKey).then(async (profile) => {
         if (cancelled) return
-        // Store profile display data for dashboard UI
-        if (profile?.display_name) setProfileName(profile.display_name)
-        if (profile?.image_url) setProfileImageUrl(profile.image_url)
         if (profile?.creator_hash) {
           saveCreatorHash(publicKey, profile.creator_hash)
           doFetch()
