@@ -41,9 +41,10 @@ import PageTransition from '@/components/PageTransition'
 import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useContentFeed } from '@/hooks/useContentFeed'
+import { useSupabase } from '@/hooks/useSupabase'
 import { parseAccessPass, shortenAddress, estimateReadingTime, computeWalletHash } from '@/lib/utils'
 import { FEATURED_CREATORS, CREATOR_CUSTOM_TIERS } from '@/lib/config'
-import { getCachedCreator } from '@/lib/creatorCache'
+import { getCachedCreator, cacheSingleCreator } from '@/lib/creatorCache'
 import type { AccessPass, ContentPost } from '@/types'
 
 // ─── Constants ───
@@ -424,6 +425,7 @@ export default function FeedPage() {
   const { getAccessPasses } = useWalletRecords()
   const { blockHeight } = useBlockHeight()
   const { getPostsForCreator, unlockPost } = useContentFeed()
+  const { getCreatorProfile } = useSupabase()
 
   const [passes, setPasses] = useState<AccessPass[]>([])
   const [feedPosts, setFeedPosts] = useState<FeedPost[]>([])
@@ -438,6 +440,7 @@ export default function FeedPage() {
   const [contentTypeFilter, setContentTypeFilter] = useState<ContentTypeFilter>('all')
   const [discoveryPosts, setDiscoveryPosts] = useState<FeedPost[]>([])
   const [discoveryLoading, setDiscoveryLoading] = useState(false)
+  const [creatorProfiles, setCreatorProfiles] = useState<Record<string, { name?: string; imageUrl?: string | null }>>({})
   const sortRef = useRef<HTMLDivElement>(null)
   const feedSearchRef = useRef<HTMLInputElement>(null)
 
@@ -499,17 +502,53 @@ export default function FeedPage() {
     return Array.from(set)
   }, [activePasses])
 
+  // Fetch creator profiles from Supabase for subscribed creators (populates cache + local state)
+  useEffect(() => {
+    if (subscribedCreators.length === 0) return
+    let cancelled = false
+    ;(async () => {
+      const profiles: Record<string, { name?: string; imageUrl?: string | null }> = {}
+      await Promise.allSettled(
+        subscribedCreators.map(async (address) => {
+          // Check cache first
+          const cached = getCachedCreator(address)
+          if (cached?.image_url || cached?.display_name) {
+            profiles[address] = { name: cached.display_name || undefined, imageUrl: cached.image_url }
+            return
+          }
+          // Fetch from Supabase
+          const profile = await getCreatorProfile(address)
+          if (profile && !cancelled) {
+            cacheSingleCreator({
+              address,
+              display_name: profile.display_name,
+              bio: profile.bio,
+              category: profile.category,
+              image_url: profile.image_url,
+              cover_url: profile.cover_url,
+              creator_hash: profile.creator_hash,
+            })
+            profiles[address] = { name: profile.display_name || undefined, imageUrl: profile.image_url }
+          }
+        })
+      )
+      if (!cancelled) setCreatorProfiles(profiles)
+    })()
+    return () => { cancelled = true }
+  }, [subscribedCreators, getCreatorProfile])
+
   // Stories row data: subscribed creators with labels + profile images
   const storiesCreators = useMemo(() => {
     return subscribedCreators.map(address => {
+      const profile = creatorProfiles[address]
       const cached = getCachedCreator(address)
       return {
         address,
-        name: cached?.display_name || getCreatorLabel(address),
-        imageUrl: cached?.image_url || null,
+        name: profile?.name || cached?.display_name || getCreatorLabel(address),
+        imageUrl: profile?.imageUrl || cached?.image_url || null,
       }
     })
-  }, [subscribedCreators])
+  }, [subscribedCreators, creatorProfiles])
 
   // Build a lookup: creator address -> highest tier the user has
   const creatorTierMap = useMemo(() => {
@@ -541,13 +580,14 @@ export default function FeedPage() {
       const results = await Promise.allSettled(
         subscribedCreators.map(async (creator) => {
           const posts = await getPostsForCreator(creator)
+          const profile = creatorProfiles[creator]
           const cached = getCachedCreator(creator)
           return posts.map((post): FeedPost => ({
             ...post,
             creatorAddress: creator,
-            creatorLabel: cached?.display_name || getCreatorLabel(creator),
+            creatorLabel: profile?.name || cached?.display_name || getCreatorLabel(creator),
             creatorCategory: getCreatorCategory(creator),
-            creatorImageUrl: cached?.image_url || null,
+            creatorImageUrl: profile?.imageUrl || cached?.image_url || null,
           }))
         })
       )
@@ -564,7 +604,7 @@ export default function FeedPage() {
     } finally {
       setLoading(false)
     }
-  }, [subscribedCreators, getPostsForCreator])
+  }, [subscribedCreators, getPostsForCreator, creatorProfiles])
 
   useEffect(() => {
     if (connected && subscribedCreators.length > 0) {
