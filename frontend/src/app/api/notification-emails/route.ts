@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 import { verifyWalletAuth } from '@/lib/apiAuth'
+import { validateOrigin } from '@/lib/csrf'
 
 /**
  * Supabase table (run once in SQL editor):
@@ -73,6 +74,10 @@ export async function GET(req: NextRequest) {
  * }
  */
 export async function POST(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`notif-email:post:${ip}`, 10, 60_000)
   if (!allowed) return getRateLimitResponse()
@@ -153,6 +158,10 @@ export async function POST(req: NextRequest) {
  * Body: { subscriberHash: string }
  */
 export async function DELETE(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`notif-email:del:${ip}`, 10, 60_000)
   if (!allowed) return getRateLimitResponse()

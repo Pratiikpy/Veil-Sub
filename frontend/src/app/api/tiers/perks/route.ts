@@ -3,6 +3,7 @@ import { getServerSupabase } from '@/lib/supabase'
 import { ALEO_ADDRESS_RE } from '@/lib/config'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 import { verifyWalletAuth } from '@/lib/apiAuth'
+import { validateOrigin } from '@/lib/csrf'
 
 // GET /api/tiers/perks?creator=aleo1...
 // Returns all tier perks for a creator — public, no auth required
@@ -40,6 +41,10 @@ export async function GET(req: NextRequest) {
 // POST /api/tiers/perks
 // Upserts perks for a specific tier — called by creator from dashboard
 export async function POST(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:tiers:perks:post`, 30)
   if (!allowed) return getRateLimitResponse()

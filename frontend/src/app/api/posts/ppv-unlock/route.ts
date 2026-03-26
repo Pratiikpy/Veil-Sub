@@ -3,6 +3,7 @@ import { getRedis } from '@/lib/redis'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 import { verifyWalletAuth } from '@/lib/apiAuth'
 import { ALEO_ADDRESS_RE } from '@/lib/config'
+import { validateOrigin } from '@/lib/csrf'
 
 /**
  * PPV (Pay-Per-View) Unlock API — tracks which subscribers have paid for PPV content.
@@ -29,6 +30,10 @@ function validateWalletHash(hash: unknown): hash is string {
 }
 
 export async function POST(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:ppv-unlock:post`, 30)
   if (!allowed) return getRateLimitResponse()

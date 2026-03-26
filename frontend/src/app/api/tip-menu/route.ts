@@ -3,6 +3,7 @@ import { getRedis } from '@/lib/redis'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 import { verifyWalletAuth } from '@/lib/apiAuth'
 import { ALEO_ADDRESS_RE } from '@/lib/config'
+import { validateOrigin } from '@/lib/csrf'
 
 /**
  * Tip Menu Orders API — tracks tip menu item purchases.
@@ -29,6 +30,10 @@ function validateTxId(id: unknown): id is string {
 }
 
 export async function POST(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:tip-menu:post`, 20)
   if (!allowed) return getRateLimitResponse()
@@ -142,6 +147,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:tip-menu:patch`, 20)
   if (!allowed) return getRateLimitResponse()
