@@ -90,9 +90,11 @@ export default function RenewModal({
   useRovingTabIndex(tierGroupRef)
   useRovingTabIndex(privacyGroupRef)
 
-  // Derive selected option — fall back to absolute price estimate if not in options yet
+  // Derive selected option — fall back to legacy on-chain price formula if not in tier options.
+  // Contract formula: base × (tier==3 ? 5 : tier==2 ? 2 : 1)
+  const legacyMultiplier = (tid: number) => tid === 3 ? 5 : tid === 2 ? 2 : 1
   const selectedOption = tierOptions.find(t => t.id === selectedTierId)
-    ?? { id: selectedTierId, name: `Tier ${selectedTierId}`, price: effectiveBasePrice * selectedTierId }
+    ?? { id: selectedTierId, name: `Tier ${selectedTierId}`, price: effectiveBasePrice * legacyMultiplier(selectedTierId) }
 
   const totalPrice = selectedOption.price
   const platformFeeDiv = 100 / PLATFORM_FEE_PCT

@@ -242,10 +242,11 @@ export function saveContentHash(contentId: string, hash: string): void {
 // Poseidon2 hash to CREATOR_HASH_MAP and their tier data here.
 export const CREATOR_CUSTOM_TIERS: Record<string, Record<number, { price: number; name: string }>> = {
   // Each creator sets their own tier names and prices via create_custom_tier
-  'aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk': {
-    2: { price: 10_000_000, name: 'Premium' },     // 10 ALEO — confirmed on-chain
-    4: { price: 30_000_000, name: 'Elite' },       // 30 ALEO — confirmed on-chain
-  },
+  // NOTE: aleo1hp9m08... has NO custom tiers on-chain (tier_count=null).
+  // Contract uses legacy pricing: base(10900001) × multiplier(1x/2x/5x).
+  // Prices are computed from basePrice × priceMultiplier in TIERS constant.
+  // To set custom prices, use Dashboard → Create Tier (calls create_custom_tier).
+  // 'aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk': {},
   'aleo1yr9ls3d48sh0gkk8y4re9assy7rkfhp4g8x2jmd5vqxl0phdvyqq4qmhef': {
     1: { price: 2_000_000, name: 'Basic' },    // 2 ALEO
     2: { price: 5_000_000, name: 'Pro' },      // 5 ALEO
