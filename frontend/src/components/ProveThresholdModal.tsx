@@ -115,7 +115,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
             role="dialog"
             aria-modal="true"
             aria-label="Prove subscriber threshold"
-            className="w-full max-w-md rounded-xl bg-surface-1 border border-border shadow-2xl p-8 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-md rounded-2xl bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">

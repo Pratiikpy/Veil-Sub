@@ -109,7 +109,7 @@ export default function TransferPassModal({
           role="dialog"
           aria-modal="true"
           aria-label="Transfer subscription pass"
-          className="relative w-full max-w-md rounded-xl bg-surface-1 border border-border p-8 shadow-2xl"
+          className="relative w-full max-w-md rounded-2xl bg-surface-1 border border-border p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
         >
           {/* Close */}
           <button
