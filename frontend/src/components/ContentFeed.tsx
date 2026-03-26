@@ -773,7 +773,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                               {' '}to unlock?
                             </p>
                             <p className="text-[10px] text-white/50">
-                              + ~{FEES.TIP} ALEO network fee
+                              + ~{formatCredits(FEES.TIP)} ALEO network fee
                             </p>
                             <div className="flex gap-2">
                               <button

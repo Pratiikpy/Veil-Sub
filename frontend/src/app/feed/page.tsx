@@ -704,7 +704,7 @@ export default function FeedPage() {
     for (const post of feedPosts) {
       if (post.body !== null || post.minTier === 0) continue
       try {
-        const cached = sessionStorage.getItem(`veilsub:feed-unlock:${post.id}`)
+        const cached = sessionStorage.getItem(`veilsub:feed-unlock:${publicKey}:${post.id}`)
         if (cached) {
           const data = JSON.parse(cached)
           unlockedIdsRef.current.add(post.id)
@@ -756,7 +756,7 @@ export default function FeedPage() {
           if (result) {
             // Cache in sessionStorage so navigation doesn't require re-signing
             try {
-              sessionStorage.setItem(`veilsub:feed-unlock:${post.id}`, JSON.stringify({
+              sessionStorage.setItem(`veilsub:feed-unlock:${publicKey}:${post.id}`, JSON.stringify({
                 body: result.body,
                 imageUrl: result.imageUrl,
                 videoUrl: result.videoUrl,

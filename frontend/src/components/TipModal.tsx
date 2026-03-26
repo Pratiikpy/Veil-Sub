@@ -18,6 +18,7 @@ import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
 import { FEES } from '@/lib/config'
 import { getErrorMessage } from '@/lib/errorMessages'
+import { clearMappingCache } from '@/hooks/useCreatorStats'
 import Button from './ui/Button'
 
 interface Props {
@@ -246,7 +247,8 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
               ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
               : null
             logSubscriptionEvent(creatorAddress, 0, tipMicrocredits, result.resolvedTxId || id, wrappedSign)
-            onSuccess?.() // Trigger cache invalidation in parent
+            clearMappingCache()
+            onSuccess?.()
             toast.success('Private tip sent—you remain anonymous')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
@@ -261,6 +263,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
               ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
               : null
             logSubscriptionEvent(creatorAddress, 0, tipMicrocredits, result.resolvedTxId || id, wrappedSign)
+            clearMappingCache()
             onSuccess?.()
             toast.success('Private tip sent! (confirmation was slow)')
           }
@@ -391,7 +394,8 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             setCommitPhase('done')
             clearPendingTip()
             setPendingTipRestored(false)
-            onSuccess?.() // Trigger cache invalidation after reveal
+            clearMappingCache()
+            onSuccess?.()
             toast.success('Tip revealed and sent!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
@@ -405,6 +409,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             setCommitPhase('done')
             clearPendingTip()
             setPendingTipRestored(false)
+            clearMappingCache()
             onSuccess?.()
             toast.success('Tip revealed and sent! (confirmation was slow)')
           }

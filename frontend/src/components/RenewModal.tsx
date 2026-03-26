@@ -18,7 +18,7 @@ import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
 import { useBalanceCheck } from '@/hooks/useBalanceCheck'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
-import { useCreatorStats } from '@/hooks/useCreatorStats'
+import { useCreatorStats, clearMappingCache } from '@/hooks/useCreatorStats'
 import { TIERS } from '@/types'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
@@ -196,6 +196,7 @@ export default function RenewModal({
               : null
             logSubscriptionEvent(pass.creator, selectedTierId, totalPrice, result.resolvedTxId || id, wrappedSign)
             toast.success('Subscription renewed!')
+            clearMappingCache()
             onSuccess?.()
           } else if (result.status === 'failed') {
             setTxStatus('failed')
@@ -213,6 +214,7 @@ export default function RenewModal({
               : null
             logSubscriptionEvent(pass.creator, selectedTierId, totalPrice, result.resolvedTxId || id, wrappedSign)
             toast.success('Subscription renewed! (confirmation was slow)')
+            clearMappingCache()
             onSuccess?.()
           }
         })
