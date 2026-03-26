@@ -587,6 +587,7 @@ export default function CreatorPage({
   const [showTip, setShowTip] = useState(false)
   const [userPasses, setUserPasses] = useState<AccessPass[]>([])
   const [renewPass, setRenewPass] = useState<AccessPass | null>(null)
+  const [upgradeTierId, setUpgradeTierId] = useState<number | undefined>(undefined)
   const [showGift, setShowGift] = useState(false)
   const [giftTier, setGiftTier] = useState<{ id: number; name: string; price: number } | null>(null)
   const [showRedeemGift, setShowRedeemGift] = useState(false)
@@ -813,7 +814,11 @@ export default function CreatorPage({
           </div>
           {hasHigherTiers && (
             <button
-              onClick={() => setSelectedTier(displayTiers.find(t => t.id > highestTier) ?? null)}
+              onClick={() => {
+                const nextTier = displayTiers.find(t => t.id > highestTier)
+                if (nextTier) setUpgradeTierId(nextTier.id)
+                setRenewPass(userPasses.find(p => p.tier === highestTier) ?? userPasses[0])
+              }}
               className="px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white/70 font-medium text-sm hover:bg-white/10 transition-all duration-300 active:scale-[0.98]"
             >
               Upgrade
@@ -1165,9 +1170,10 @@ export default function CreatorPage({
       {renewPass && (
         <RenewModal
           isOpen={!!renewPass}
-          onClose={() => setRenewPass(null)}
+          onClose={() => { setRenewPass(null); setUpgradeTierId(undefined) }}
           pass={renewPass}
           basePrice={basePrice}
+          initialTierId={upgradeTierId}
           onSuccess={() => { loadPasses(); refreshStats() }}
         />
       )}

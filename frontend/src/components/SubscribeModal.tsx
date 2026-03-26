@@ -191,8 +191,10 @@ export default function SubscribeModal({
             }
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            setError('Subscription couldn\u2019t be completed. Make sure you have enough public credits (~0.3 ALEO) for network fees and private credits for the tier price.')
-            toast.error('Subscription couldn\u2019t be completed')
+            const walletDetail = result.walletMessage ? ` (Wallet: ${result.walletMessage.slice(0, 150)})` : ''
+            console.error('[SubscribeModal] Transaction failed on-chain:', walletDetail)
+            setError(`Subscription failed.${walletDetail} Make sure you have enough public credits (~0.3 ALEO) for fees and private credits for the tier price.`)
+            toast.error('Subscription failed')
           } else if (result.status === 'timeout') {
             // Transaction likely confirmed — Shield Wallet doesn't report status well
             // Treat as success since the wallet already signed and broadcast

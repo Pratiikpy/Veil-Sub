@@ -29,6 +29,7 @@ interface Props {
   onClose: () => void
   pass: AccessPass
   basePrice?: number // microcredits — optional fallback, component fetches from on-chain if not provided
+  initialTierId?: number // Pre-select a tier (used for upgrades)
   onSuccess?: () => void
 }
 
@@ -37,6 +38,7 @@ export default function RenewModal({
   onClose,
   pass,
   basePrice,
+  initialTierId,
   onSuccess,
 }: Props) {
   const { renew, renewBlind, getCreditsRecords, connected } = useVeilSub()
@@ -80,7 +82,7 @@ export default function RenewModal({
       .sort((a, b) => a.id - b.id),
   ]
 
-  const [selectedTierId, setSelectedTierId] = useState<number>(pass.tier)
+  const [selectedTierId, setSelectedTierId] = useState<number>(initialTierId ?? pass.tier)
   const [privacyMode, setPrivacyMode] = useState<'standard' | 'blind'>('standard')
   const [insufficientBalance, setInsufficientBalance] = useState(false)
   const tierGroupRef = useRef<HTMLDivElement>(null)
@@ -181,8 +183,10 @@ export default function RenewModal({
             onSuccess?.()
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            setError('Renewal couldn\u2019t be completed. Check that you have enough credits and your subscription pass is still valid.')
-            toast.error('Renewal couldn\u2019t be completed')
+            const walletDetail = result.walletMessage ? ` (Wallet: ${result.walletMessage.slice(0, 150)})` : ''
+            console.error('[RenewModal] Transaction failed:', walletDetail)
+            setError(`Renewal failed.${walletDetail} Check that you have enough credits and your subscription pass is still valid.`)
+            toast.error('Renewal failed')
           } else if (result.status === 'timeout') {
             // Shield Wallet delegates proving and never reports 'confirmed' —
             // the transaction IS broadcast, so treat timeout as likely success.
@@ -210,7 +214,7 @@ export default function RenewModal({
 
   const handleModalClose = () => {
     setInsufficientBalance(false)
-    setSelectedTierId(pass.tier) // Reset to original tier
+    setSelectedTierId(initialTierId ?? pass.tier) // Reset to upgrade tier or original
     setPrivacyMode('standard') // Reset privacy mode
     handleClose()
   }
@@ -241,7 +245,7 @@ export default function RenewModal({
               <div className="flex items-center gap-2">
                 <RefreshCw className="w-5 h-5 text-white/70" aria-hidden="true" />
                 <h3 className="text-lg font-semibold text-white">
-                  Renew Subscription
+                  {initialTierId && initialTierId > pass.tier ? 'Upgrade Subscription' : 'Renew Subscription'}
                 </h3>
               </div>
               <button
@@ -402,7 +406,7 @@ export default function RenewModal({
                   }
                   className="w-full"
                 >
-                  Renew Privately
+                  {initialTierId && initialTierId > pass.tier ? 'Upgrade Privately' : 'Renew Privately'}
                 </Button>
               </>
             ) : (

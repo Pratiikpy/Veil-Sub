@@ -10,6 +10,7 @@ interface PollResult {
   status: PollStatus
   strategy: PollingStrategy
   resolvedTxId?: string
+  walletMessage?: string // Raw wallet status for debugging
 }
 
 // Best-effort attempt to find the real at1... transaction ID.
@@ -39,13 +40,14 @@ export function useTransactionPoller() {
       if (!transactionStatus) throw new Error('No wallet transactionStatus')
       const result = await transactionStatus(txId)
       const s = (typeof result === 'string' ? result : result?.status || '').toLowerCase()
+      const rawMsg = typeof result === 'string' ? result : JSON.stringify(result)
       if (s.includes('finalize') || s.includes('confirm') || s.includes('complete')) {
-        return { status: 'confirmed', strategy: 'wallet' }
+        return { status: 'confirmed', strategy: 'wallet', walletMessage: rawMsg }
       }
       if (s.includes('fail') || s.includes('reject')) {
-        return { status: 'failed', strategy: 'wallet' }
+        return { status: 'failed', strategy: 'wallet', walletMessage: rawMsg }
       }
-      return { status: 'pending', strategy: 'wallet' }
+      return { status: 'pending', strategy: 'wallet', walletMessage: rawMsg }
     },
     [transactionStatus]
   )
@@ -106,7 +108,30 @@ export function useTransactionPoller() {
           const result = await pollWallet(txId)
           if (aborted.current) return
 
-          if (result.status === 'confirmed' || result.status === 'failed') {
+          if (result.status === 'confirmed') {
+            onStatus(result)
+            return
+          }
+
+          if (result.status === 'failed') {
+            console.warn('[Poller] Wallet reports failed:', result.walletMessage)
+            // Don't trust wallet "failed" blindly — do on-chain verification first
+            // Shield Wallet often reports "failed" for transactions that actually succeed
+            if (txId.startsWith('at1')) {
+              try {
+                const verifyRes = await fetch(`/api/aleo/transaction/${txId}`)
+                if (aborted.current) return
+                if (verifyRes.ok) {
+                  const verifyData = await verifyRes.json()
+                  if (verifyData && (verifyData.type === 'execute' || verifyData.type === 'deploy')) {
+                    console.info('[Poller] Wallet said failed but tx confirmed on-chain!')
+                    onStatus({ status: 'confirmed', strategy: 'on-chain-fallback', resolvedTxId: txId })
+                    return
+                  }
+                }
+              } catch { /* on-chain check failed, trust wallet */ }
+            }
+            // Wallet says failed AND on-chain doesn't find it — genuinely failed
             onStatus(result)
             return
           }
