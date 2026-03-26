@@ -1,6 +1,7 @@
 import dynamic from 'next/dynamic'
 import PageTransition from '@/components/PageTransition'
 import BackgroundOrbs from '@/components/home/BackgroundOrbs'
+import FlashlightEffect from '@/components/home/FlashlightEffect'
 import HeroSection from '@/components/home/HeroSection'
 import HomeRedirectGuard from '@/components/home/HomeRedirectGuard'
 
@@ -14,6 +15,7 @@ export default function HomePage() {
   return (
     <HomeRedirectGuard>
       <PageTransition className="min-h-screen">
+        <FlashlightEffect />
         <BackgroundOrbs />
         <HeroSection />
         <WhyPrivacyMatters />

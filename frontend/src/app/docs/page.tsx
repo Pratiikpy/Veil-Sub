@@ -28,12 +28,17 @@ import {
   ShieldCheck,
   EyeOff,
   Blocks,
+  Terminal,
+  Globe,
+  Bell,
+  Send,
+  CheckCircle2,
 } from 'lucide-react'
 import PageTransition from '@/components/PageTransition'
 import { DEPLOYED_PROGRAM_ID } from '@/lib/config'
 
 // ─── Types ───────────────────────────────────────────────
-type TabId = 'overview' | 'contract' | 'privacy' | 'api' | 'faq'
+type TabId = 'overview' | 'contract' | 'privacy' | 'api' | 'developer' | 'faq'
 
 interface TransitionItem {
   name: string
@@ -60,6 +65,7 @@ const TABS: { id: TabId; label: string; icon: typeof BookOpen }[] = [
   { id: 'contract', label: 'Smart Contract', icon: Code },
   { id: 'privacy', label: 'Privacy Model', icon: Shield },
   { id: 'api', label: 'API / Integration', icon: Cpu },
+  { id: 'developer', label: 'Developer', icon: Terminal },
   { id: 'faq', label: 'FAQ', icon: HelpCircle },
 ]
 
@@ -822,6 +828,150 @@ const txId = result?.transactionId`}
   )
 }
 
+// ─── Tab: Developer ──────────────────────────────────────
+
+function DeveloperTab() {
+  return (
+    <div className="space-y-10">
+      {/* Quick Start */}
+      <div>
+        <h3 className="text-xl font-semibold text-white mb-2 flex items-center gap-2">
+          <Zap className="w-5 h-5 text-violet-400" aria-hidden="true" />
+          Quick Start
+        </h3>
+        <p className="text-sm text-white/60 mb-4">
+          Interact with the VeilSub contract from Node.js using the Provable SDK.
+        </p>
+        <CodeBlock
+          lang="typescript"
+          code={`// Install
+npm install @provablehq/sdk
+
+// Subscribe to a creator
+const tx = await programManager.execute(
+  '${DEPLOYED_PROGRAM_ID}',
+  'subscribe',
+  [paymentRecord, creatorAddress, '1u8', '10900001u64', passId, expiresAt],
+  300_000 // fee in microcredits
+)`}
+        />
+      </div>
+
+      {/* API Reference */}
+      <div>
+        <h3 className="text-xl font-semibold text-white mb-2 flex items-center gap-2">
+          <Globe className="w-5 h-5 text-blue-400" aria-hidden="true" />
+          API Reference
+        </h3>
+        <p className="text-sm text-white/60 mb-4">
+          REST endpoints for querying creators, content, and analytics.
+        </p>
+        <div className="space-y-2">
+          {[
+            { method: 'GET', path: '/api/creators/list', desc: 'List all creators' },
+            { method: 'GET', path: '/api/posts?creator=aleo1...', desc: "Get creator's posts" },
+            { method: 'POST', path: '/api/posts/unlock', desc: 'Unlock gated content' },
+            { method: 'GET', path: '/api/tiers?address=aleo1...', desc: "Get creator's tiers" },
+            { method: 'GET', path: '/api/analytics/summary?address=aleo1...', desc: 'Creator analytics' },
+          ].map((endpoint) => (
+            <div
+              key={endpoint.path}
+              className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-border/50 hover:border-border transition-colors"
+            >
+              <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-semibold shrink-0 ${
+                endpoint.method === 'GET'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                  : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+              }`}>
+                {endpoint.method}
+              </span>
+              <code className="text-xs text-white/70 font-mono truncate">{endpoint.path}</code>
+              <span className="ml-auto text-xs text-white/50 shrink-0 hidden sm:block">{endpoint.desc}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Webhook Events */}
+      <div>
+        <h3 className="text-xl font-semibold text-white mb-2 flex items-center gap-2">
+          <Bell className="w-5 h-5 text-pink-400" aria-hidden="true" />
+          Webhook Events
+        </h3>
+        <p className="text-sm text-white/60 mb-4">
+          Subscribe to real-time notifications for platform activity.
+        </p>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {[
+            { event: 'new_subscriber', desc: 'When someone subscribes to a creator', icon: Users, color: 'text-violet-400', bg: 'bg-violet-500/10' },
+            { event: 'new_tip', desc: 'When someone tips a creator', icon: Coins, color: 'text-pink-400', bg: 'bg-pink-500/10' },
+            { event: 'content_published', desc: 'When a creator publishes new content', icon: Send, color: 'text-blue-400', bg: 'bg-blue-500/10' },
+            { event: 'subscription_expiring', desc: 'Before a subscription expires', icon: Bell, color: 'text-amber-400', bg: 'bg-amber-500/10' },
+          ].map((hook) => {
+            const Icon = hook.icon
+            return (
+              <div key={hook.event} className="p-4 rounded-xl bg-white/[0.02] border border-border/50 hover:border-border transition-colors">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={`w-7 h-7 rounded-lg ${hook.bg} flex items-center justify-center`}>
+                    <Icon className={`w-3.5 h-3.5 ${hook.color}`} aria-hidden="true" />
+                  </div>
+                  <code className="text-xs text-white/80 font-mono">{hook.event}</code>
+                </div>
+                <p className="text-xs text-white/60 leading-relaxed">{hook.desc}</p>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Contract Transitions */}
+      <div>
+        <h3 className="text-xl font-semibold text-white mb-2 flex items-center gap-2">
+          <Code className="w-5 h-5 text-emerald-400" aria-hidden="true" />
+          Contract Transitions
+        </h3>
+        <p className="text-sm text-white/60 mb-4">
+          Key transitions with their parameters for direct contract interaction.
+        </p>
+        <div className="space-y-3">
+          {[
+            {
+              name: 'subscribe',
+              params: 'payment, creator, tier, amount, pass_id, expires_at',
+              desc: 'Subscribe to a creator. Payment is private credits, tier is a u8 ID, pass_id is a unique field.',
+            },
+            {
+              name: 'tip',
+              params: 'payment, creator, amount',
+              desc: 'Send a private tip. Only aggregate revenue is updated publicly.',
+            },
+            {
+              name: 'publish_content',
+              params: 'content_id, min_tier, content_hash',
+              desc: 'Publish content gated by minimum tier. Hash stored on-chain for integrity.',
+            },
+            {
+              name: 'verify_access',
+              params: 'pass, creator',
+              desc: 'Prove subscription ownership. Finalize only checks revocation via pass_id.',
+            },
+          ].map((transition) => (
+            <div key={transition.name} className="rounded-xl bg-white/[0.04] border border-border/50 overflow-hidden">
+              <div className="px-4 py-3 bg-white/[0.03] border-b border-border/50 flex items-center gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
+                <code className="text-sm text-white/90 font-mono">
+                  {transition.name}(<span className="text-white/50">{transition.params}</span>)
+                </code>
+              </div>
+              <p className="px-4 py-3 text-xs text-white/60 leading-relaxed">{transition.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Tab: FAQ ────────────────────────────────────────────
 
 function FaqTab() {
@@ -854,6 +1004,7 @@ const TAB_COMPONENTS: Record<TabId, React.FC> = {
   contract: ContractTab,
   privacy: PrivacyModelTab,
   api: ApiTab,
+  developer: DeveloperTab,
   faq: FaqTab,
 }
 

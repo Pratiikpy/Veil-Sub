@@ -186,7 +186,7 @@ export default function HeroSection() {
             return (
               <div
                 key={feat.title}
-                className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.12] transition-colors duration-300"
+                className="animated-border p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.12] transition-colors duration-300"
               >
                 <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center mb-4">
                   <Icon className="w-5 h-5 text-white/60" aria-hidden="true" />
