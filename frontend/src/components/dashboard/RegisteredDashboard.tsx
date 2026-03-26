@@ -24,13 +24,15 @@ import dynamic from 'next/dynamic'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 
 const CelebrationBurst = dynamic(() => import('@/components/CelebrationBurst'), { ssr: false })
+const NoteComposer = dynamic(() => import('@/components/composers/NoteComposer'), { ssr: false })
 import AddressAvatar from '@/components/ui/AddressAvatar'
 import CreatePostForm from '@/components/CreatePostForm'
 import ProfileEditor from '@/components/dashboard/ProfileEditor'
 import PostsList from '@/components/dashboard/PostsList'
-import { formatCredits, formatUsd, shortenAddress } from '@/lib/utils'
+import { formatCredits, formatUsd, shortenAddress, generatePassId } from '@/lib/utils'
 import { PLATFORM_FEE_PCT, PLATFORM_ADDRESS, DEPLOYED_PROGRAM_ID, MICROCREDITS_PER_CREDIT, getCreatorHash } from '@/lib/config'
 import { useVeilSub } from '@/hooks/useVeilSub'
+import { useContentFeed } from '@/hooks/useContentFeed'
 import { useCreatorTiers, invalidateCreatorTierCache } from '@/hooks/useCreatorTiers'
 import { useCreatorPerks } from '@/hooks/useCreatorPerks'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
@@ -40,6 +42,16 @@ import type { CreatorProfile, TxStatus, CustomTierInfo, ContentPost } from '@/ty
 
 const TierCreationDialog = dynamic(() => import('@/components/TierCreationDialog'), { ssr: false })
 const ProveThresholdModal = dynamic(() => import('@/components/ProveThresholdModal'), { ssr: false })
+
+type ComposeMode = 'note' | 'post' | 'article' | 'photo' | 'video'
+
+const COMPOSE_MODES: { mode: ComposeMode; icon: string; label: string }[] = [
+  { mode: 'note', icon: '\u270F\uFE0F', label: 'Note' },
+  { mode: 'post', icon: '\uD83D\uDCDD', label: 'Post' },
+  { mode: 'article', icon: '\uD83D\uDCC4', label: 'Article' },
+  { mode: 'photo', icon: '\uD83D\uDCF7', label: 'Photo' },
+  { mode: 'video', icon: '\uD83C\uDFAC', label: 'Video' },
+]
 
 // ── Perk Editor (syncs to Supabase via useCreatorPerks) ──
 interface PerkEditorProps {
@@ -165,6 +177,8 @@ export default function RegisteredDashboard({
   const [hasShownConfetti, setHasShownConfetti] = useState(false)
   const [editingPost, setEditingPost] = useState<ContentPost | null>(null)
   const [composeExpanded, setComposeExpanded] = useState(false)
+  const [composeMode, setComposeMode] = useState<ComposeMode>('note')
+  const [noteSubmitting, setNoteSubmitting] = useState(false)
   const [editingTierId, setEditingTierId] = useState<number | null>(null)
   const [showAllPosts, setShowAllPosts] = useState(false)
   const [showWithdrawPanel, setShowWithdrawPanel] = useState(false)
@@ -175,6 +189,7 @@ export default function RegisteredDashboard({
 
   const { withdrawCreatorRevenue, withdrawPlatformFees } = useVeilSub()
   const { connected } = useWallet()
+  const { createPost } = useContentFeed()
   const { tiers: creatorTiers, tierCount: creatorTierCount, refetch: refetchTiers, error: tiersError } = useCreatorTiers(publicKey)
   const { startPolling, stopPolling } = useTransactionPoller()
   const composeRef = useRef<HTMLDivElement>(null)
@@ -523,33 +538,85 @@ export default function RegisteredDashboard({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
+        className="space-y-3"
       >
-        {!composeExpanded && !editingPost ? (
-          <div
-            onClick={() => setComposeExpanded(true)}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setComposeExpanded(true) }}
-            role="button"
-            tabIndex={0}
-            className="p-4 rounded-xl bg-surface-1 border border-white/[0.06] cursor-text hover:border-white/[0.12] transition-all group flex items-center gap-3 focus-visible:ring-1 focus-visible:ring-white/30 focus-visible:outline-none"
-          >
-            {profileImageUrl ? (
-              <img src={profileImageUrl} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
-            ) : (
-              <AddressAvatar address={publicKey} size={40} className="shrink-0 rounded-full" />
-            )}
-            <span className="text-white/50 text-sm group-hover:text-white/50 transition-colors flex-1">
-              What&apos;s on your mind, {profileName?.split(' ')[0] || 'creator'}?
-            </span>
-            <span className="text-xs text-white/20 shrink-0">Publish</span>
+        {/* Content type selector row */}
+        {!editingPost && (
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
+            {COMPOSE_MODES.map(({ mode, icon, label }) => (
+              <button
+                key={mode}
+                onClick={() => {
+                  setComposeMode(mode)
+                  if (mode === 'note') {
+                    setComposeExpanded(false)
+                  } else {
+                    setComposeExpanded(true)
+                  }
+                }}
+                className={`
+                  flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all shrink-0
+                  ${composeMode === mode
+                    ? 'bg-white/[0.1] text-white border border-white/[0.12]'
+                    : 'bg-white/[0.03] text-white/50 border border-white/[0.06] hover:text-white/70 hover:bg-white/[0.05]'
+                  }
+                `}
+              >
+                <span className="text-sm">{icon}</span>
+                {label}
+              </button>
+            ))}
           </div>
-        ) : (
+        )}
+
+        {/* Note mode: inline NoteComposer */}
+        {composeMode === 'note' && !composeExpanded && !editingPost && (
+          <NoteComposer
+            profileImageUrl={profileImageUrl}
+            profileName={profileName}
+            walletAddress={publicKey}
+            submitting={noteSubmitting}
+            onSubmit={async (noteText: string) => {
+              setNoteSubmitting(true)
+              try {
+                const contentId = generatePassId()
+                await createPost(
+                  publicKey,
+                  '',
+                  noteText,
+                  0,
+                  contentId,
+                  null,
+                  undefined,
+                  undefined,
+                  undefined,
+                  undefined,
+                  'published',
+                  undefined,
+                  undefined,
+                  undefined,
+                  'note'
+                )
+                toast.success('Note posted!')
+                setRefreshKey((k) => k + 1)
+              } catch {
+                toast.error('Failed to post note. Please try again.')
+              } finally {
+                setNoteSubmitting(false)
+              }
+            }}
+          />
+        )}
+
+        {/* Expanded mode: full CreatePostForm (for post/article/photo/video or editing) */}
+        {(composeExpanded || editingPost) && (
           <div className="rounded-xl bg-surface-1 border border-white/[0.06] overflow-hidden">
             <div className="flex items-center justify-between px-4 pt-3 pb-0">
               <span className="text-xs text-white/50 font-medium">
-                {editingPost ? 'Edit Post' : 'New Post'}
+                {editingPost ? 'Edit Post' : `New ${composeMode.charAt(0).toUpperCase() + composeMode.slice(1)}`}
               </span>
               <button
-                onClick={() => { setComposeExpanded(false); setEditingPost(null) }}
+                onClick={() => { setComposeExpanded(false); setEditingPost(null); setComposeMode('note') }}
                 className="p-1 rounded-lg text-white/50 hover:text-white/70 hover:bg-white/[0.05] transition-all"
                 aria-label="Collapse editor"
               >
@@ -561,12 +628,14 @@ export default function RegisteredDashboard({
               onPostCreated={() => {
                 setEditingPost(null)
                 setComposeExpanded(false)
+                setComposeMode('note')
                 setRefreshKey((k) => k + 1)
               }}
               editingPost={editingPost}
               onEditComplete={() => {
                 setEditingPost(null)
                 setComposeExpanded(false)
+                setComposeMode('note')
                 setRefreshKey((k) => k + 1)
               }}
             />
