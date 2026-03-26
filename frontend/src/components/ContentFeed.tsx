@@ -96,6 +96,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   const [readerPost, setReaderPost] = useState<ContentPost | null>(null)
   const [feedFilter, setFeedFilter] = useState<'all' | 'posts' | 'notes'>('all')
 
+  // Track IDs that were just unlocked in this session (for blur-reveal animation)
+  const [justUnlockedIds, setJustUnlockedIds] = useState<Set<string>>(new Set())
+
   // PPV payment state
   const [ppvPayingId, setPpvPayingId] = useState<string | null>(null)
   const [ppvConfirmId, setPpvConfirmId] = useState<string | null>(null)
@@ -187,6 +190,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       if (txId) {
         toast.success('PPV payment confirmed! Unlocking content...')
         markPpvUnlocked(postId)
+        setJustUnlockedIds((prev) => new Set(prev).add(postId))
         // Persist unlock to server with proper authentication
         if (walletAddress) {
           try {
@@ -370,6 +374,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
         if (result) {
           setUnlockedBodies((prev) => ({ ...prev, [post.id]: result.body }))
+          setJustUnlockedIds((prev) => new Set(prev).add(post.id))
           const imgUrl = result.imageUrl
           if (imgUrl) {
             setUnlockedImages((prev) => ({ ...prev, [post.id]: imgUrl }))
@@ -424,6 +429,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
     if (result) {
       setUnlockedBodies((prev) => ({ ...prev, [post.id]: result.body }))
+      setJustUnlockedIds((prev) => new Set(prev).add(post.id))
       const imgUrl = result.imageUrl
       if (imgUrl) {
         setUnlockedImages((prev) => ({ ...prev, [post.id]: imgUrl }))
@@ -707,7 +713,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                   {/* Unlocked image — click to open lightbox */}
                   {unlocked && displayImage && (
                     <div
-                      className="mb-4 rounded-lg overflow-hidden border border-white/[0.06] aspect-video bg-white/[0.02] cursor-zoom-in"
+                      className={`mb-4 rounded-lg overflow-hidden border border-white/[0.06] aspect-video bg-white/[0.02] cursor-zoom-in${justUnlockedIds.has(post.id) ? ' content-unlock-reveal' : ''}`}
                       onClick={() => {
                         const imgs = displayImage.includes(',')
                           ? displayImage.split(',').map((s: string) => s.trim()).filter(Boolean)
@@ -740,7 +746,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
                   {/* Unlocked video */}
                   {unlocked && displayVideo && (
-                    <div className="mb-4">
+                    <div className={`mb-4${justUnlockedIds.has(post.id) ? ' content-unlock-reveal' : ''}`}>
                       <VideoEmbed url={displayVideo} title={post.title} />
                     </div>
                   )}
@@ -827,7 +833,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       </div>
                     </div>
                   ) : unlocked && displayBody ? (
-                    <div>
+                    <div className={justUnlockedIds.has(post.id) ? 'content-unlock-reveal' : undefined}>
                       <RichContentRenderer html={displayBody} />
                       {displayBody.length > 500 && (
                         <button

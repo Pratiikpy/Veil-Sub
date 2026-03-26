@@ -25,6 +25,8 @@ import BalanceConverter from './BalanceConverter'
 import Button from './ui/Button'
 import dynamic from 'next/dynamic'
 const RecommendationsCard = dynamic(() => import('./RecommendationsCard'), { ssr: false })
+import ZKReceipt from './ZKReceipt'
+import { playSubscribeSuccess } from '@/lib/sounds'
 import type { SubscriptionTier } from '@/types'
 
 interface Props {
@@ -71,6 +73,8 @@ export default function SubscribeModal({
   const [insufficientBalance, setInsufficientBalance] = useState(false)
   const [largestRecord, setLargestRecord] = useState(0)
   const [privacyMode, setPrivacyMode] = useState<'standard' | 'blind' | 'trial'>('standard')
+  const [receiptPassId, setReceiptPassId] = useState('')
+  const [receiptExpiry, setReceiptExpiry] = useState(0)
   const privacyGroupRef = useRef<HTMLDivElement>(null)
   useRovingTabIndex(privacyGroupRef)
 
@@ -148,6 +152,8 @@ export default function SubscribeModal({
         ? blockHeight + TRIAL_DURATION_BLOCKS
         : blockHeight + SUBSCRIPTION_DURATION_BLOCKS
 
+      setReceiptPassId(passId)
+      setReceiptExpiry(expiresAt)
       setTxStatus('proving')
       toast.dismiss('subscribe-optimistic')
 
@@ -177,6 +183,7 @@ export default function SubscribeModal({
           if (result.status === 'confirmed') {
             if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
+            playSubscribeSuccess()
             const wrappedSign = signMessage
               ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
               : null
@@ -209,6 +216,7 @@ export default function SubscribeModal({
             // Transaction likely confirmed — Shield Wallet doesn't report status well
             // Treat as success since the wallet already signed and broadcast
             setTxStatus('confirmed')
+            playSubscribeSuccess()
             toast.success('Subscribed! (confirmation was slow but your transaction was sent)')
             clearMappingCache()
             onSuccess?.()
@@ -492,9 +500,13 @@ export default function SubscribeModal({
                       Your subscription pass is now in your wallet. {privacyMode === 'trial' ? `Trial access for ~${trialMinutes} minutes.` : 'Access for ~30 days.'}
                     </p>
                     {txId && (
-                      <p className="text-[11px] text-white/60 mt-2 font-mono break-all">
-                        TX: {txId.slice(0, 16)}...{txId.slice(-8)}
-                      </p>
+                      <ZKReceipt
+                        creatorHash={creatorAddress}
+                        tier={`Tier ${tier.id}`}
+                        expiresAt={receiptExpiry}
+                        txId={txId}
+                        passId={receiptPassId}
+                      />
                     )}
 
                     {/* What's Next guidance */}

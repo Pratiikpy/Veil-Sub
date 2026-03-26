@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Bell, Check, CheckCheck, UserPlus, Coins, FileText, Clock, Gift, AlertTriangle, X, Mail } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 import { AnimatePresence, m } from 'framer-motion'
+import { playNotificationPing } from '@/lib/sounds'
 import type { Notification, NotificationType } from '@/lib/notifications'
 
 const ICON_MAP: Record<NotificationType, typeof Bell> = {
@@ -114,6 +115,15 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const prevUnreadRef = useRef(unreadCount)
+
+  // Play notification sound when new unread notifications arrive
+  useEffect(() => {
+    if (unreadCount > prevUnreadRef.current) {
+      playNotificationPing()
+    }
+    prevUnreadRef.current = unreadCount
+  }, [unreadCount])
 
   // Close on outside click
   useEffect(() => {

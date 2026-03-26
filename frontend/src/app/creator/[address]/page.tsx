@@ -41,6 +41,7 @@ const DisputeContentModal = dynamic(() => import('@/components/DisputeContentMod
 const CreateAuditTokenModal = dynamic(() => import('@/components/CreateAuditTokenModal'), { ssr: false })
 const RedeemGiftModal = dynamic(() => import('@/components/RedeemGiftModal'), { ssr: false })
 const TipMenu = dynamic(() => import('@/components/TipMenu'), { ssr: false })
+import BlockchainView from '@/components/BlockchainView'
 import PrivacyScore from '@/components/PrivacyScore'
 import ContentFeed from '@/components/ContentFeed'
 const ContentVault = dynamic(() => import('@/components/ContentVault'), { ssr: false })
@@ -57,7 +58,7 @@ import {
 } from '@/lib/utils'
 import { TIERS } from '@/types'
 import type { CreatorProfile, SubscriptionTier, AccessPass } from '@/types'
-import { FEATURED_CREATORS, DEPLOYED_PROGRAM_ID } from '@/lib/config'
+import { FEATURED_CREATORS, DEPLOYED_PROGRAM_ID, getCreatorHash } from '@/lib/config'
 import { getCachedCreator, cacheSingleCreator } from '@/lib/creatorCache'
 
 import CreatorSkeleton from '@/components/CreatorSkeleton'
@@ -453,6 +454,9 @@ function AboutTab({
   stats,
   copied,
   onCopyAddress,
+  creatorHash,
+  tierName,
+  tierPrice,
 }: {
   address: string
   bio: string | null
@@ -460,9 +464,24 @@ function AboutTab({
   stats: CreatorProfile | null
   copied: boolean
   onCopyAddress: () => void
+  creatorHash: string
+  tierName: string
+  tierPrice: string
 }) {
   return (
     <div className="space-y-6">
+      {/* Blockchain View toggle — the #1 wow factor */}
+      <BlockchainView
+        creatorName={displayName || 'Anonymous Creator'}
+        creatorAddress={address}
+        subscriberCount={stats?.subscriberThreshold ?? 'New'}
+        revenue={stats?.revenueThreshold ?? 'New'}
+        tierName={tierName}
+        tierPrice={tierPrice}
+        creatorHash={creatorHash}
+        contentCount={stats?.contentCount ?? 0}
+      />
+
       {/* Full bio */}
       <div className="p-6 rounded-xl bg-surface-1 border border-border">
         <h3 className="text-white font-semibold mb-3">About</h3>
@@ -1177,6 +1196,9 @@ export default function CreatorPage({
                         setTimeout(() => setCopied(false), 2000)
                         toast.success('Link copied to clipboard')
                       }}
+                      creatorHash={getCreatorHash(address) ?? ''}
+                      tierName={displayTiers[0]?.name ?? 'Tier 1'}
+                      tierPrice={`${formatCredits(basePrice)} ALEO`}
                     />
                   </m.div>
                 )}

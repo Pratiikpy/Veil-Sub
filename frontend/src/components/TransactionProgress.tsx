@@ -3,6 +3,8 @@
 import { useEffect, useState, useMemo } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import { Check, AlertCircle, Loader2 } from 'lucide-react'
+import ProofAnimation from './ProofAnimation'
+import type { ProofAnimationState } from './ProofAnimation'
 
 export type ProgressStep =
   | 'idle'
@@ -107,6 +109,14 @@ export default function TransactionProgress({ currentStep, error }: Props) {
     }
     return `~${remaining}s remaining`
   }, [currentStepDef, elapsed])
+
+  // Map transaction step to proof animation state
+  const proofAnimState: ProofAnimationState = useMemo(() => {
+    if (currentStep === 'proving') return 'proving'
+    if (currentStep === 'success') return 'confirmed'
+    if (currentStep === 'error' && activeIdx === 1) return 'failed'
+    return 'idle'
+  }, [currentStep, activeIdx])
 
   if (currentStep === 'idle') return null
 
@@ -305,6 +315,13 @@ export default function TransactionProgress({ currentStep, error }: Props) {
           })}
         </div>
       </div>
+
+      {/* ── ZK Proof particle animation (proving / confirmed / failed) ── */}
+      {proofAnimState !== 'idle' && (
+        <div className="mt-4">
+          <ProofAnimation state={proofAnimState} />
+        </div>
+      )}
 
       {/* ── Status message area ── */}
       <AnimatePresence mode="wait">

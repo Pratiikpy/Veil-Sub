@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import { Heart, MessageCircle, Share2, Bookmark, BookOpen, Coins } from 'lucide-react'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
+import { playClickPop } from '@/lib/sounds'
 
 interface PostInteractionsProps {
   contentId: string
@@ -146,6 +147,7 @@ export default function PostInteractions({
     setLiked(true)
     setShowBurst(true)
     setHeartBounce(true)
+    playClickPop()
     if (burstTimer.current) clearTimeout(burstTimer.current)
     burstTimer.current = setTimeout(() => setShowBurst(false), 800)
     if (bounceTimer.current) clearTimeout(bounceTimer.current)
