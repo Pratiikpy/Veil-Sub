@@ -13,6 +13,7 @@ import ScrollReveal from '@/components/ScrollReveal'
 import StaggerContainer, { staggerItemVariants } from '@/components/StaggerContainer'
 import AddressAvatar from '@/components/ui/AddressAvatar'
 import { FEATURED_CREATORS } from '@/lib/config'
+import { getCachedCreator } from '@/lib/creatorCache'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { shortenAddress, formatCredits, formatUsd } from '@/lib/utils'
 
@@ -53,7 +54,14 @@ const HomepageCreatorCard = React.memo(function HomepageCreatorCard({
       className="group block p-6 rounded-3xl glass glass-accent transition-all duration-300"
     >
       <div className="flex items-center gap-4 mb-3">
-        <AddressAvatar address={creator.address} />
+        {(() => {
+          const cached = getCachedCreator(creator.address)
+          return cached?.image_url ? (
+            <img src={cached.image_url} alt="" className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0" />
+          ) : (
+            <AddressAvatar address={creator.address} />
+          )
+        })()}
         <div className="min-w-0 flex-1">
           <p className="text-white font-medium text-sm truncate">
             {creator.display_name || shortenAddress(creator.address)}

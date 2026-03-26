@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
       if (error?.message?.includes('category')) {
         const fallbackQuery = supabase
           .from('creator_profiles')
-          .select('encrypted_address, display_name, bio, created_at, creator_hash', { count: 'exact' })
+          .select('encrypted_address, display_name, bio, image_url, cover_url, created_at, creator_hash', { count: 'exact' })
           .order('created_at', { ascending: sort === 'oldest' })
           .range(offset, offset + limit - 1)
 

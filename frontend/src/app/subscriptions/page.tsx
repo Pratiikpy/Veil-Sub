@@ -22,6 +22,7 @@ import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { parseAccessPass, shortenAddress, formatCredits, formatExpiry } from '@/lib/utils'
 import { SECONDS_PER_BLOCK, FEATURED_CREATORS, CREATOR_CUSTOM_TIERS } from '@/lib/config'
+import { getCachedCreator } from '@/lib/creatorCache'
 import type { AccessPass } from '@/types'
 
 import { HERO_GLOW_STYLE_SUBTLE as HERO_GLOW_STYLE, TITLE_STYLE as LETTER_SPACING_STYLE } from '@/lib/styles'
@@ -95,9 +96,16 @@ function SubscriptionCard({ sub, onRenew, blockHeight }: { sub: ParsedSubscripti
     <GlassCard hover>
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-white/[0.04] border border-white/10">
-            <Shield className="w-5 h-5 text-white/60" aria-hidden="true" />
-          </div>
+          {(() => {
+            const cached = getCachedCreator(sub.creator)
+            return cached?.image_url ? (
+              <img src={cached.image_url} alt="" className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0" />
+            ) : (
+              <div className="p-2 rounded-lg bg-white/[0.04] border border-white/10">
+                <Shield className="w-5 h-5 text-white/60" aria-hidden="true" />
+              </div>
+            )
+          })()}
           <div>
             <p className="text-sm font-medium text-white">{sub.creatorLabel}</p>
             <p className="text-xs text-white/50 font-mono mt-0.5">

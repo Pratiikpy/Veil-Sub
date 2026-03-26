@@ -23,7 +23,7 @@ import AddressAvatar from '@/components/ui/AddressAvatar'
 import { shortenAddress, isValidAleoAddress, formatCredits, formatUsd } from '@/lib/utils'
 import { FEATURED_CREATORS } from '@/lib/config'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
-import { cacheCreators } from '@/lib/creatorCache'
+import { cacheCreators, getCachedCreator } from '@/lib/creatorCache'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -379,13 +379,18 @@ export default function ExplorePage() {
         // Fallback: show featured creators when API returns empty (demo mode)
         if (apiCreators.length === 0 && !debouncedSearch.trim()) {
           const now = new Date()
-          const featured = FEATURED_CREATORS.map((fc, i) => ({
-            address: fc.address,
-            display_name: fc.label,
-            bio: fc.bio ?? null,
-            category: fc.category ?? null,
-            created_at: new Date(now.getTime() - (30 - i * 5) * 24 * 60 * 60 * 1000).toISOString(),
-          }))
+          const featured = FEATURED_CREATORS.map((fc, i) => {
+            const cached = getCachedCreator(fc.address)
+            return {
+              address: fc.address,
+              display_name: cached?.display_name || fc.label,
+              bio: cached?.bio || fc.bio || null,
+              category: cached?.category || fc.category || null,
+              image_url: cached?.image_url || null,
+              cover_url: cached?.cover_url || null,
+              created_at: new Date(now.getTime() - (30 - i * 5) * 24 * 60 * 60 * 1000).toISOString(),
+            }
+          })
           setCreators(featured)
           // Cache featured creators so /creator/[address] can use them without individual fetches
           cacheCreators(featured)

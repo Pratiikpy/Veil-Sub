@@ -6,6 +6,7 @@ import { m } from 'framer-motion'
 import { Users, ArrowRight } from 'lucide-react'
 import AddressAvatar from '@/components/ui/AddressAvatar'
 import { FEATURED_CREATORS } from '@/lib/config'
+import { getCachedCreator } from '@/lib/creatorCache'
 
 interface RecommendationsCardProps {
   creatorAddress: string
@@ -64,7 +65,14 @@ export default function RecommendationsCard({
               href={`/creator/${creator.address}`}
               className="flex items-center gap-3 group rounded-lg p-2 -mx-2 hover:bg-white/[0.04] transition-colors"
             >
-              <AddressAvatar address={creator.address} size={36} />
+              {(() => {
+                const cached = getCachedCreator(creator.address)
+                return cached?.image_url ? (
+                  <img src={cached.image_url} alt="" className="w-9 h-9 rounded-full object-cover border border-white/10 shrink-0" />
+                ) : (
+                  <AddressAvatar address={creator.address} size={36} />
+                )
+              })()}
               <div className="flex-1 min-w-0">
                 <p className={`font-medium text-white group-hover:text-white/70 transition-colors truncate ${compact ? 'text-xs' : 'text-sm'}`}>
                   {creator.label}
