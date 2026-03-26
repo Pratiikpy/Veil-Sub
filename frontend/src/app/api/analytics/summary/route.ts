@@ -74,12 +74,19 @@ export async function GET(req: NextRequest) {
     for (const event of events) {
       const date = new Date(event.created_at).toISOString().split('T')[0]
       const existing = dailyMap.get(date) || { subscriptions: 0, revenue: 0, tips: 0 }
-      existing.subscriptions += 1
+      // Tips are logged with tier=0, subscriptions have tier >= 1
+      if (event.tier === 0) {
+        existing.tips += 1
+      } else {
+        existing.subscriptions += 1
+      }
       existing.revenue += event.amount_microcredits || 0
       dailyMap.set(date, existing)
 
-      const tierCount = tierMap.get(event.tier) || 0
-      tierMap.set(event.tier, tierCount + 1)
+      if (event.tier > 0) {
+        const tierCount = tierMap.get(event.tier) || 0
+        tierMap.set(event.tier, tierCount + 1)
+      }
     }
 
     // Generate last 30 days

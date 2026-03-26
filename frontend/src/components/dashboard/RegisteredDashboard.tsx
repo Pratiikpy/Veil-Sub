@@ -175,13 +175,15 @@ export default function RegisteredDashboard({
   const { startPolling, stopPolling } = useTransactionPoller()
   const composeRef = useRef<HTMLDivElement>(null)
 
-  // Fetch on-chain creator_revenue mapping to get actual withdrawable balance
+  // Fetch on-chain total_revenue mapping — this is the lifetime cumulative revenue.
+  // Note: The contract decrements total_revenue on withdrawal, so this IS the
+  // current withdrawable balance (not a separate creator_revenue mapping).
   useEffect(() => {
     const fetchOnChainRevenue = async () => {
       const creatorHash = getCreatorHash(publicKey)
       if (!creatorHash) return
       try {
-        const res = await fetch(`/api/aleo/program/${DEPLOYED_PROGRAM_ID}/mapping/creator_revenue/${creatorHash}`)
+        const res = await fetch(`/api/aleo/program/${DEPLOYED_PROGRAM_ID}/mapping/total_revenue/${creatorHash}`)
         if (res.ok) {
           const text = await res.text()
           const cleaned = text.replace(/['"u64\s]/g, '')
@@ -191,7 +193,7 @@ export default function RegisteredDashboard({
           }
         }
       } catch {
-        // Fall back to stats.totalRevenue (lifetime)
+        // Fall back to stats.totalRevenue from useCreatorStats
       }
     }
     fetchOnChainRevenue()
