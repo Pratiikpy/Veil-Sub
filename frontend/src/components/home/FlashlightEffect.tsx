@@ -38,7 +38,7 @@ export default function FlashlightEffect() {
   return (
     <div
       ref={containerRef}
-      className="pointer-events-none fixed inset-0 z-0 opacity-0 transition-opacity duration-500"
+      className="pointer-events-none fixed inset-0 z-10 opacity-0 transition-opacity duration-500"
       style={{
         background:
           'radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(139, 92, 246, 0.04), transparent 40%)',

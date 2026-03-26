@@ -41,6 +41,7 @@ const DisputeContentModal = dynamic(() => import('@/components/DisputeContentMod
 const CreateAuditTokenModal = dynamic(() => import('@/components/CreateAuditTokenModal'), { ssr: false })
 const RedeemGiftModal = dynamic(() => import('@/components/RedeemGiftModal'), { ssr: false })
 const TipMenu = dynamic(() => import('@/components/TipMenu'), { ssr: false })
+import PrivacyScore from '@/components/PrivacyScore'
 import ContentFeed from '@/components/ContentFeed'
 const ContentVault = dynamic(() => import('@/components/ContentVault'), { ssr: false })
 import ReadingProgressBar from '@/components/ReadingProgressBar'
@@ -489,6 +490,15 @@ function AboutTab({
         <Shield className="w-3 h-3 text-white/50" />
         Counts shown as threshold badges to protect creator privacy. Exact figures are never displayed.
       </p>
+
+      {/* Privacy Score */}
+      <PrivacyScore
+        usesBlindSub={false}
+        usesCommitRevealTip={false}
+        hasScopedAuditToken={false}
+        usesTrialPass={false}
+        hasE2EContent={true}
+      />
 
       {/* Share */}
       <div className="p-4 rounded-xl bg-surface-1 border border-border">

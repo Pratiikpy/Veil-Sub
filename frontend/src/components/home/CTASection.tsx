@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { ArrowRight, Github } from 'lucide-react'
 import Container from '@/components/ui/Container'
-import Button from '@/components/ui/Button'
 import ScrollReveal from '@/components/ScrollReveal'
 
 // Extracted style constants to prevent re-renders
@@ -36,21 +35,22 @@ export default function CTASection() {
                 No subscriber data to protect because none is ever collected.
               </p>
               <div className="flex items-center justify-center gap-4 flex-wrap mt-10">
-                <Link href="/dashboard">
-                  <Button variant="accent" size="lg" className="rounded-full px-10 shadow-accent-lg">
+                <Link href="/dashboard" className="btn-shimmer group relative inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-300 bg-violet-600 text-white hover:bg-violet-500 hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 hover:shadow-accent-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-black px-10 py-3 text-base shadow-accent-lg">
+                  <span className="relative z-10 flex items-center gap-2">
                     Become a Creator
                     <ArrowRight className="w-5 h-5" aria-hidden="true" />
-                  </Button>
+                  </span>
                 </Link>
                 <a
                   href="https://github.com/Pratiikpy/Veil-Sub"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="btn-shimmer group relative inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-300 bg-transparent text-white border border-border hover:border-border-hover hover:bg-white/[0.03] active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-black px-8 py-3 text-base hover:scale-105"
                 >
-                  <Button variant="secondary" size="lg" className="rounded-full hover:scale-105 transition-transform">
+                  <span className="relative z-10 flex items-center gap-2">
                     <Github className="w-4 h-4" aria-hidden="true" />
                     View on GitHub
-                  </Button>
+                  </span>
                 </a>
               </div>
             </div>

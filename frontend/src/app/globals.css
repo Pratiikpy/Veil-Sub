@@ -1134,10 +1134,10 @@ a:focus:not(:focus-visible) {
   padding: 1px;
   background: linear-gradient(
     var(--border-angle, 0deg),
-    rgba(139, 92, 246, 0.3),
+    rgba(139, 92, 246, 0.5),
     transparent 40%,
     transparent 60%,
-    rgba(139, 92, 246, 0.15)
+    rgba(139, 92, 246, 0.3)
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
