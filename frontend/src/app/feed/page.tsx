@@ -118,6 +118,7 @@ interface FeedPost extends ContentPost {
   creatorAddress: string
   creatorLabel: string
   creatorCategory?: string
+  creatorImageUrl?: string | null
 }
 
 // ─── Skeleton ───
@@ -206,11 +207,21 @@ function FeedPostCard({
       <div className="p-6">
         {/* Creator attribution */}
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center shrink-0">
-            <span className="text-sm font-medium text-white/70">
-              {post.creatorLabel.charAt(0).toUpperCase()}
-            </span>
-          </div>
+          <Link href={`/creator/${post.creatorAddress}`} className="shrink-0">
+            {post.creatorImageUrl ? (
+              <img
+                src={post.creatorImageUrl}
+                alt=""
+                className="w-9 h-9 rounded-full object-cover border border-white/10"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center">
+                <span className="text-sm font-medium text-white/70">
+                  {post.creatorLabel.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
+          </Link>
           <div className="flex-1 min-w-0">
             <Link
               href={`/creator/${post.creatorAddress}`}
@@ -530,11 +541,13 @@ export default function FeedPage() {
       const results = await Promise.allSettled(
         subscribedCreators.map(async (creator) => {
           const posts = await getPostsForCreator(creator)
+          const cached = getCachedCreator(creator)
           return posts.map((post): FeedPost => ({
             ...post,
             creatorAddress: creator,
-            creatorLabel: getCreatorLabel(creator),
+            creatorLabel: cached?.display_name || getCreatorLabel(creator),
             creatorCategory: getCreatorCategory(creator),
+            creatorImageUrl: cached?.image_url || null,
           }))
         })
       )
@@ -577,13 +590,15 @@ export default function FeedPage() {
     Promise.allSettled(
       creators.map(async (creator) => {
         const posts = await getPostsForCreator(creator)
+        const cached = getCachedCreator(creator)
         return posts
           .filter((p) => p.minTier === 0)
           .map((post): FeedPost => ({
             ...post,
             creatorAddress: creator,
-            creatorLabel: getCreatorLabel(creator),
+            creatorLabel: cached?.display_name || getCreatorLabel(creator),
             creatorCategory: getCreatorCategory(creator),
+            creatorImageUrl: cached?.image_url || null,
           }))
       })
     ).then((results) => {
@@ -644,6 +659,28 @@ export default function FeedPage() {
     if (!publicKey || feedPosts.length === 0 || activePasses.length === 0) return
     if (unlockRunningRef.current) return
 
+    // Restore previously unlocked content from sessionStorage (avoids re-signing)
+    let restoredAny = false
+    for (const post of feedPosts) {
+      if (post.body !== null || post.minTier === 0) continue
+      try {
+        const cached = sessionStorage.getItem(`veilsub:feed-unlock:${post.id}`)
+        if (cached) {
+          const data = JSON.parse(cached)
+          unlockedIdsRef.current.add(post.id)
+          setFeedPosts((prev) =>
+            prev.map((p) =>
+              p.id === post.id
+                ? { ...p, body: data.body, imageUrl: data.imageUrl || p.imageUrl, videoUrl: data.videoUrl || p.videoUrl }
+                : p
+            )
+          )
+          restoredAny = true
+        }
+      } catch { /* ignore corrupt cache */ }
+    }
+    if (restoredAny) return // Let restored state settle, next render will handle remaining
+
     // Find gated posts that the user has access to but haven't been unlocked yet
     const gatedPosts = feedPosts.filter((post) => {
       if (post.body !== null) return false // already has body
@@ -677,6 +714,14 @@ export default function FeedPage() {
         try {
           const result = await unlockPost(post.id, post.creatorAddress, publicKey, creatorPasses, wrappedSign)
           if (result) {
+            // Cache in sessionStorage so navigation doesn't require re-signing
+            try {
+              sessionStorage.setItem(`veilsub:feed-unlock:${post.id}`, JSON.stringify({
+                body: result.body,
+                imageUrl: result.imageUrl,
+                videoUrl: result.videoUrl,
+              }))
+            } catch { /* storage full — non-critical */ }
             setFeedPosts((prev) =>
               prev.map((p) =>
                 p.id === post.id
