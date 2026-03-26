@@ -130,7 +130,7 @@ function FeedSkeleton() {
       {[1, 2, 3].map((i) => (
         <div
           key={i}
-          className="rounded-2xl border border-white/[0.05] bg-[#0a0a0a] p-6 animate-pulse"
+          className="rounded-2xl border border-white/[0.05] bg-surface-1 p-6 animate-pulse"
         >
           {/* Creator row */}
           <div className="flex items-center gap-3 mb-5">
@@ -203,7 +203,7 @@ function FeedPostCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...spring.gentle, delay: Math.min(index * 0.05, 0.3) }}
-      className="post-card-mobile rounded-2xl border border-white/[0.06] bg-[#0a0a0a] overflow-hidden hover:border-white/[0.1] transition-colors duration-200"
+      className="post-card-mobile rounded-2xl border border-white/[0.06] bg-surface-1 overflow-hidden hover:border-white/[0.1] transition-colors duration-200"
     >
       <div className="p-6">
         {/* Creator attribution */}
@@ -888,7 +888,7 @@ export default function FeedPage() {
 
           {/* Not connected */}
           {!connected && (
-            <div className="rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-12 text-center">
+            <div className="rounded-2xl border border-white/[0.06] bg-surface-1 p-12 text-center">
               <Wallet className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
               <h2 className="text-lg font-medium text-white mb-2">
                 Connect your wallet to see your personal feed
@@ -970,7 +970,7 @@ export default function FeedPage() {
               ) : discoveryLoading ? (
                 <FeedSkeleton />
               ) : (
-                <div className="rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-12 text-center">
+                <div className="rounded-2xl border border-white/[0.06] bg-surface-1 p-12 text-center">
                   <Rss className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
                   <h2 className="text-lg font-medium text-white mb-2">
                     Your feed is empty
@@ -999,7 +999,7 @@ export default function FeedPage() {
 
           {/* Empty state: subscribed but no posts */}
           {connected && !loading && subscribedCreators.length > 0 && feedPosts.length === 0 && !error && (
-            <div className="rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-12 text-center">
+            <div className="rounded-2xl border border-white/[0.06] bg-surface-1 p-12 text-center">
               <BookOpen className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
               <h2 className="text-lg font-medium text-white mb-2">
                 Your creators haven&apos;t posted yet
@@ -1171,7 +1171,7 @@ export default function FeedPage() {
                 <>
                   {/* Post count / no results */}
                   {filteredPosts.length === 0 && feedSearchQuery.trim() ? (
-                    <div className="rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-8 text-center mb-6">
+                    <div className="rounded-2xl border border-white/[0.06] bg-surface-1 p-8 text-center mb-6">
                       <Search className="w-8 h-8 text-white/20 mx-auto mb-3" aria-hidden="true" />
                       <p className="text-sm text-white/50">No results for &ldquo;{feedSearchQuery}&rdquo;</p>
                     </div>

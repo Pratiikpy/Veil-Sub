@@ -45,7 +45,7 @@ export default function SubscriberWelcome({ onDismiss }: { onDismiss?: () => voi
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={spring.gentle}
-          className="w-full max-w-md rounded-2xl bg-[#0a0a0a] border border-white/10 shadow-2xl overflow-hidden"
+          className="w-full max-w-md rounded-2xl bg-surface-1 border border-white/10 shadow-2xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close button */}

@@ -345,7 +345,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
                     <p className="text-sm text-white truncate">{post.title}</p>
                     {/* Status badge */}
                     {activeTab === 'drafts' && (
-                      <span className="shrink-0 px-2 py-0.5 rounded-full text-[11px] font-medium text-blue-300 bg-blue-500/10 border border-blue-500/20">
+                      <span className="shrink-0 px-2 py-0.5 rounded-full text-[11px] font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20">
                         Draft
                       </span>
                     )}

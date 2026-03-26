@@ -53,7 +53,7 @@ export default function SavedPosts() {
 
   if (entries.length === 0) {
     return (
-      <div className="rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-10 text-center">
+      <div className="rounded-2xl border border-white/[0.06] bg-surface-1 p-10 text-center">
         <Bookmark className="w-10 h-10 text-white/20 mx-auto mb-3" aria-hidden="true" />
         <h3 className="text-sm font-medium text-white/70 mb-1">No saved posts</h3>
         <p className="text-xs text-white/50">Bookmark posts from your feed and they will appear here.</p>

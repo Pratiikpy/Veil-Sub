@@ -375,7 +375,7 @@ export default function RegisteredDashboard({
         className="grid grid-cols-3 gap-4"
       >
         {/* Revenue Card */}
-        <div className="p-5 rounded-xl bg-[#0a0a0a] border border-white/[0.06]">
+        <div className="p-5 rounded-xl bg-surface-1 border border-white/[0.06]">
           <div className="flex items-center gap-1.5 mb-3">
             <Coins className="w-4 h-4 text-white/50" aria-hidden="true" />
             <span className="text-xs text-white/50 font-medium">Revenue</span>
@@ -389,7 +389,7 @@ export default function RegisteredDashboard({
         </div>
 
         {/* Subscribers Card */}
-        <div className="p-5 rounded-xl bg-[#0a0a0a] border border-white/[0.06]">
+        <div className="p-5 rounded-xl bg-surface-1 border border-white/[0.06]">
           <div className="flex items-center gap-1.5 mb-3">
             <Users className="w-4 h-4 text-white/50" aria-hidden="true" />
             <span className="text-xs text-white/50 font-medium">Subscribers</span>
@@ -403,7 +403,7 @@ export default function RegisteredDashboard({
         </div>
 
         {/* Posts Card */}
-        <div className="p-5 rounded-xl bg-[#0a0a0a] border border-white/[0.06]">
+        <div className="p-5 rounded-xl bg-surface-1 border border-white/[0.06]">
           <div className="flex items-center gap-1.5 mb-3">
             <FileText className="w-4 h-4 text-white/50" aria-hidden="true" />
             <span className="text-xs text-white/50 font-medium">Posts</span>
@@ -423,7 +423,7 @@ export default function RegisteredDashboard({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="p-4 rounded-xl bg-[#0a0a0a] border border-white/[0.06]"
+          className="p-4 rounded-xl bg-surface-1 border border-white/[0.06]"
         >
           {!showWithdrawPanel ? (
             <div className="flex items-center justify-between">
@@ -520,7 +520,7 @@ export default function RegisteredDashboard({
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setComposeExpanded(true) }}
             role="button"
             tabIndex={0}
-            className="p-4 rounded-xl bg-[#0a0a0a] border border-white/[0.06] cursor-text hover:border-white/[0.12] transition-all group flex items-center gap-3 focus-visible:ring-1 focus-visible:ring-white/30 focus-visible:outline-none"
+            className="p-4 rounded-xl bg-surface-1 border border-white/[0.06] cursor-text hover:border-white/[0.12] transition-all group flex items-center gap-3 focus-visible:ring-1 focus-visible:ring-white/30 focus-visible:outline-none"
           >
             <AddressAvatar address={publicKey} size={40} className="shrink-0 rounded-full" />
             <span className="text-white/50 text-sm group-hover:text-white/50 transition-colors flex-1">
@@ -529,7 +529,7 @@ export default function RegisteredDashboard({
             <span className="text-xs text-white/20 shrink-0">Publish</span>
           </div>
         ) : (
-          <div className="rounded-xl bg-[#0a0a0a] border border-white/[0.06] overflow-hidden">
+          <div className="rounded-xl bg-surface-1 border border-white/[0.06] overflow-hidden">
             <div className="flex items-center justify-between px-4 pt-3 pb-0">
               <span className="text-xs text-white/50 font-medium">
                 {editingPost ? 'Edit Post' : 'New Post'}
@@ -568,7 +568,7 @@ export default function RegisteredDashboard({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.08 }}
-          className="p-4 rounded-xl bg-[#0a0a0a] border border-white/[0.06] relative overflow-hidden"
+          className="p-4 rounded-xl bg-surface-1 border border-white/[0.06] relative overflow-hidden"
         >
           {showConfetti && <CelebrationBurst color="bg-green-400" />}
           <div className="flex items-center justify-between mb-3">
@@ -610,7 +610,7 @@ export default function RegisteredDashboard({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="p-5 rounded-xl bg-[#0a0a0a] border border-white/[0.06]">
+        <div className="p-5 rounded-xl bg-surface-1 border border-white/[0.06]">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-white">
               {showAllPosts ? 'All Posts' : 'Recent Posts'}
@@ -641,7 +641,7 @@ export default function RegisteredDashboard({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
-        className="p-5 rounded-xl bg-[#0a0a0a] border border-white/[0.06]"
+        className="p-5 rounded-xl bg-surface-1 border border-white/[0.06]"
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-semibold text-white">
@@ -711,14 +711,14 @@ export default function RegisteredDashboard({
       >
         <button
           onClick={() => setShowProfileEditor(!showProfileEditor)}
-          className="px-4 py-2.5 rounded-xl bg-[#0a0a0a] border border-white/[0.06] text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-all flex items-center gap-2"
+          className="px-4 py-2.5 rounded-xl bg-surface-1 border border-white/[0.06] text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-all flex items-center gap-2"
         >
           <Settings className="w-4 h-4 text-white/50" />
           {showProfileEditor ? 'Close Editor' : 'Edit Profile'}
         </button>
         <button
           onClick={() => setShowProveThreshold(true)}
-          className="px-4 py-2.5 rounded-xl bg-[#0a0a0a] border border-white/[0.06] text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-all flex items-center gap-2"
+          className="px-4 py-2.5 rounded-xl bg-surface-1 border border-white/[0.06] text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-all flex items-center gap-2"
         >
           <Shield className="w-4 h-4 text-white/50" />
           Prove Reputation
@@ -727,7 +727,7 @@ export default function RegisteredDashboard({
           href={`https://testnet.explorer.provable.com/program/${DEPLOYED_PROGRAM_ID}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="px-4 py-2.5 rounded-xl bg-[#0a0a0a] border border-white/[0.06] text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-all flex items-center gap-2"
+          className="px-4 py-2.5 rounded-xl bg-surface-1 border border-white/[0.06] text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-all flex items-center gap-2"
         >
           <ExternalLink className="w-4 h-4 text-white/50" />
           Explorer
