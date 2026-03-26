@@ -9,17 +9,33 @@ type ConvertStatus = 'idle' | 'converting' | 'waiting' | 'done' | 'failed'
 
 interface Props {
   requiredAmount: number
+  largestRecord?: number // microcredits of the largest existing private record
   onConverted?: () => void
 }
 
 export default function BalanceConverter({
   requiredAmount,
+  largestRecord = 0,
   onConverted,
 }: Props) {
-  const { convertPublicToPrivate, connected } = useVeilSub()
+  const { convertPublicToPrivate, connected, publicKey } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
   const [status, setStatus] = useState<ConvertStatus>('idle')
   const [error, setError] = useState<string | null>(null)
+  const [publicBalance, setPublicBalance] = useState<number | null>(null)
+
+  // Fetch public balance to check if conversion is possible
+  useEffect(() => {
+    if (!publicKey) return
+    fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(publicKey)}`)
+      .then(res => res.ok ? res.text() : null)
+      .then(text => {
+        if (!text) return
+        const bal = parseInt(text.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+        if (!isNaN(bal)) setPublicBalance(bal)
+      })
+      .catch(() => {}) // non-critical
+  }, [publicKey])
 
   // Cleanup poller on unmount (e.g. if modal closes during conversion)
   useEffect(() => {
@@ -29,8 +45,10 @@ export default function BalanceConverter({
   const requiredDisplay = Number.isFinite(requiredAmount) && requiredAmount > 0
     ? (requiredAmount / 1_000_000).toFixed(2)
     : '0.00'
+  const largestDisplay = largestRecord > 0 ? (largestRecord / 1_000_000).toFixed(2) : '0'
   // Add 0.5 ALEO buffer to cover fees and ensure the record is large enough
   const convertAmount = requiredAmount + 500_000
+  const publicBalanceInsufficient = publicBalance !== null && publicBalance < convertAmount
 
   const handleConvert = async () => {
     if (!connected || status === 'converting' || status === 'waiting') return
@@ -77,13 +95,21 @@ export default function BalanceConverter({
         <AlertTriangle className="w-5 h-5 text-yellow-400 shrink-0 mt-1" aria-hidden="true" />
         <div>
           <h4 className="text-yellow-300 font-medium text-sm mb-1">
-            Insufficient Private Balance
+            Private Record Too Small
           </h4>
           <p className="text-xs text-white/70">
-            You need at least{' '}
-            <strong className="text-white">{requiredDisplay} ALEO</strong> in
-            a single private credit record to complete this transaction.
+            {largestRecord > 0 ? (
+              <>Your largest private record is <strong className="text-white">{largestDisplay} ALEO</strong>, but this costs <strong className="text-white">{requiredDisplay} ALEO</strong>. Aleo requires payment from a single record.</>
+            ) : (
+              <>You need <strong className="text-white">{requiredDisplay} ALEO</strong> in a single private record.</>
+            )}
           </p>
+          {publicBalance !== null && (
+            <p className="text-xs text-white/60 mt-1">
+              Public balance: {(publicBalance / 1_000_000).toFixed(2)} ALEO
+              {publicBalanceInsufficient && <span className="text-red-400"> (not enough to convert)</span>}
+            </p>
+          )}
         </div>
       </div>
 
@@ -92,12 +118,18 @@ export default function BalanceConverter({
         <div className="space-y-2">
           <button
             onClick={handleConvert}
+            disabled={publicBalanceInsufficient}
             aria-label={`Convert ${(convertAmount / 1_000_000).toFixed(2)} ALEO credits from public to private`}
-            className="w-full py-2.5 rounded-xl bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 btn-shimmer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            className="w-full py-2.5 rounded-xl bg-white text-black text-sm font-medium hover:bg-white/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 btn-shimmer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white"
           >
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
-            Convert {(convertAmount / 1_000_000).toFixed(2)} ALEO to Private
+            Convert {(convertAmount / 1_000_000).toFixed(2)} ALEO Public → Private
           </button>
+          {publicBalanceInsufficient && (
+            <p className="text-xs text-red-400 text-center">
+              Need {(convertAmount / 1_000_000).toFixed(2)} ALEO public but you only have {publicBalance !== null ? (publicBalance / 1_000_000).toFixed(2) : '?'} ALEO. Get credits from the faucet first.
+            </p>
+          )}
           {error && (
             <p className="text-xs text-red-400 text-center" role="alert">{error}</p>
           )}

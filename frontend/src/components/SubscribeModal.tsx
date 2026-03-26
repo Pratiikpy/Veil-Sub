@@ -68,6 +68,7 @@ export default function SubscribeModal({
   const { checkBalance } = useBalanceCheck(getCreditsRecords)
 
   const [insufficientBalance, setInsufficientBalance] = useState(false)
+  const [largestRecord, setLargestRecord] = useState(0)
   const [privacyMode, setPrivacyMode] = useState<'standard' | 'blind' | 'trial'>('standard')
   const privacyGroupRef = useRef<HTMLDivElement>(null)
   useRovingTabIndex(privacyGroupRef)
@@ -105,6 +106,7 @@ export default function SubscribeModal({
 
     try {
       const balanceResult = await checkBalance(totalPrice)
+      if (balanceResult.largestRecord) setLargestRecord(balanceResult.largestRecord)
       if (balanceResult.error || !balanceResult.records?.length) {
         toast.dismiss('subscribe-optimistic')
         if (balanceResult.insufficientBalance) setInsufficientBalance(true)
@@ -435,6 +437,7 @@ export default function SubscribeModal({
                   <div className="mb-4">
                     <BalanceConverter
                       requiredAmount={totalPrice}
+                      largestRecord={largestRecord}
                       onConverted={() => {
                         setInsufficientBalance(false)
                         setError(null)

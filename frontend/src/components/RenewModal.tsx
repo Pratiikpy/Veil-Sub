@@ -19,6 +19,7 @@ import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
 import { useBalanceCheck } from '@/hooks/useBalanceCheck'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
+import { TIERS } from '@/types'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
 import Button from './ui/Button'
@@ -73,28 +74,40 @@ export default function RenewModal({
   // Use fetched price, fall back to prop, then 0
   const effectiveBasePrice = fetchedBasePrice ?? basePrice ?? 0
 
-  // Build dynamic tier options from on-chain data (same pattern as CreatePostForm)
-  const tierOptions: { id: number; name: string; price: number }[] = [
-    { id: 1, name: 'Supporter', price: effectiveBasePrice },
-    ...Object.entries(onChainTiers)
-      .filter(([, t]) => t.price > 0)
-      .map(([id, t]) => ({ id: Number(id), name: t.name, price: t.price }))
-      .sort((a, b) => a.id - b.id),
-  ]
+  // Build tier options. When custom tiers exist on-chain, use those prices.
+  // Otherwise use default TIERS with legacy pricing formula (base × multiplier).
+  const legacyMultiplierFn = (tid: number) => tid === 3 ? 5 : tid === 2 ? 2 : 1
+  const hasCustomTiers = Object.values(onChainTiers).some(t => t.price > 0)
+  const tierOptions: { id: number; name: string; price: number }[] = hasCustomTiers
+    ? [
+        { id: 1, name: 'Supporter', price: effectiveBasePrice },
+        ...Object.entries(onChainTiers)
+          .filter(([, t]) => t.price > 0)
+          .map(([id, t]) => ({ id: Number(id), name: t.name, price: t.price }))
+          .sort((a, b) => a.id - b.id),
+      ]
+    : TIERS.map(t => ({
+        id: t.id,
+        name: t.name,
+        price: effectiveBasePrice * legacyMultiplierFn(t.id),
+      }))
 
   const [selectedTierId, setSelectedTierId] = useState<number>(initialTierId ?? pass.tier)
   const [privacyMode, setPrivacyMode] = useState<'standard' | 'blind'>('standard')
   const [insufficientBalance, setInsufficientBalance] = useState(false)
+  const [largestRecord, setLargestRecord] = useState(0)
   const tierGroupRef = useRef<HTMLDivElement>(null)
   const privacyGroupRef = useRef<HTMLDivElement>(null)
   useRovingTabIndex(tierGroupRef)
   useRovingTabIndex(privacyGroupRef)
 
   // Derive selected option — fall back to legacy on-chain price formula if not in tier options.
-  // Contract formula: base × (tier==3 ? 5 : tier==2 ? 2 : 1)
-  const legacyMultiplier = (tid: number) => tid === 3 ? 5 : tid === 2 ? 2 : 1
   const selectedOption = tierOptions.find(t => t.id === selectedTierId)
-    ?? { id: selectedTierId, name: `Tier ${selectedTierId}`, price: effectiveBasePrice * legacyMultiplier(selectedTierId) }
+    ?? {
+      id: selectedTierId,
+      name: TIERS.find(t => t.id === selectedTierId)?.name ?? `Tier ${selectedTierId}`,
+      price: effectiveBasePrice * legacyMultiplierFn(selectedTierId),
+    }
 
   const totalPrice = selectedOption.price
   const platformFeeDiv = 100 / PLATFORM_FEE_PCT
@@ -126,6 +139,7 @@ export default function RenewModal({
 
     try {
       const balanceResult = await checkBalance(totalPrice)
+      if (balanceResult.largestRecord) setLargestRecord(balanceResult.largestRecord)
       if (balanceResult.error) {
         if (balanceResult.insufficientBalance) setInsufficientBalance(true)
         setError(balanceResult.error)
@@ -388,6 +402,7 @@ export default function RenewModal({
                   <div className="mb-4">
                     <BalanceConverter
                       requiredAmount={totalPrice}
+                      largestRecord={largestRecord}
                       onConverted={() => {
                         setInsufficientBalance(false)
                         setError(null)
