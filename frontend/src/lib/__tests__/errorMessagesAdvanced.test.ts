@@ -135,11 +135,11 @@ describe('error message content quality', () => {
     }
   })
 
-  it('blind subscription errors mention nonce where relevant', () => {
-    expect(ERROR_MESSAGES['ERR_062'].toLowerCase()).toContain('nonce')
-    expect(ERROR_MESSAGES['ERR_067'].toLowerCase()).toContain('nonce')
-    expect(ERROR_MESSAGES['ERR_069'].toLowerCase()).toContain('nonce')
-    expect(ERROR_MESSAGES['ERR_074'].toLowerCase()).toContain('nonce')
+  it('blind subscription errors mention privacy where relevant', () => {
+    expect(ERROR_MESSAGES['ERR_062'].toLowerCase()).toContain('privacy')
+    expect(ERROR_MESSAGES['ERR_067'].toLowerCase()).toContain('privacy')
+    expect(ERROR_MESSAGES['ERR_069'].toLowerCase()).toContain('privacy')
+    expect(ERROR_MESSAGES['ERR_074'].toLowerCase()).toContain('privacy')
   })
 
   it('trial subscription errors are descriptive', () => {

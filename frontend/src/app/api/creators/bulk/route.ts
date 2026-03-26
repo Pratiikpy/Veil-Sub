@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
   try {
     const { data, error } = await supabase
       .from('creator_profiles')
-      .select('encrypted_address, display_name, bio, category, creator_hash')
+      .select('encrypted_address, display_name, bio, category, creator_hash, image_url, cover_url')
       .limit(200)
 
     if (error || !data) {
@@ -48,6 +48,8 @@ export async function GET(req: NextRequest) {
               bio: row.bio ?? null,
               category: row.category ?? null,
               creator_hash: row.creator_hash ?? null,
+              image_url: row.image_url ?? null,
+              cover_url: row.cover_url ?? null,
             }
           } catch {
             return null

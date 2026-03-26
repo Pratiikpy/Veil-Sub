@@ -206,6 +206,7 @@ export function useSubscription() {
       expiresAt: number,
       merkleProofs: string
     ) => {
+      throw new Error('Stablecoin subscriptions are not yet available. Please use standard ALEO credits.')
       return execute(
         'subscribe_usdcx',
         [
@@ -236,6 +237,7 @@ export function useSubscription() {
       expiresAt: number,
       merkleProofs: string
     ) => {
+      throw new Error('Stablecoin subscriptions are not yet available. Please use standard ALEO credits.')
       return execute(
         'subscribe_usad',
         [

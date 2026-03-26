@@ -22,7 +22,8 @@ import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { parseAccessPass, shortenAddress, formatCredits, formatExpiry } from '@/lib/utils'
 import { SECONDS_PER_BLOCK, FEATURED_CREATORS, CREATOR_CUSTOM_TIERS } from '@/lib/config'
-import { getCachedCreator } from '@/lib/creatorCache'
+import { getCachedCreator, cacheSingleCreator } from '@/lib/creatorCache'
+import { useSupabase } from '@/hooks/useSupabase'
 import type { AccessPass } from '@/types'
 
 import { HERO_GLOW_STYLE_SUBTLE as HERO_GLOW_STYLE, TITLE_STYLE as LETTER_SPACING_STYLE } from '@/lib/styles'
@@ -89,25 +90,25 @@ const STATUS_BADGE: Record<string, { bg: string; text: string; border: string; l
 // Threshold: 3 days worth of blocks to consider "expiring soon"
 const EXPIRING_SOON_BLOCKS = Math.floor((3 * 86400) / SECONDS_PER_BLOCK)
 
-function SubscriptionCard({ sub, onRenew, blockHeight }: { sub: ParsedSubscription; onRenew?: (sub: ParsedSubscription) => void; blockHeight: number | null }) {
+function SubscriptionCard({ sub, onRenew, blockHeight, profile }: { sub: ParsedSubscription; onRenew?: (sub: ParsedSubscription) => void; blockHeight: number | null; profile?: { name?: string; imageUrl?: string | null } }) {
   const badge = STATUS_BADGE[sub.status]
+  const cached = getCachedCreator(sub.creator)
+  const imageUrl = profile?.imageUrl || cached?.image_url || null
+  const displayName = profile?.name || cached?.display_name || sub.creatorLabel
 
   return (
     <GlassCard hover>
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          {(() => {
-            const cached = getCachedCreator(sub.creator)
-            return cached?.image_url ? (
-              <img src={cached.image_url} alt="" className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0" />
-            ) : (
-              <div className="p-2 rounded-lg bg-white/[0.04] border border-white/10">
-                <Shield className="w-5 h-5 text-white/60" aria-hidden="true" />
-              </div>
-            )
-          })()}
+          {imageUrl ? (
+            <img src={imageUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0" />
+          ) : (
+            <div className="p-2 rounded-lg bg-white/[0.04] border border-white/10">
+              <Shield className="w-5 h-5 text-white/60" aria-hidden="true" />
+            </div>
+          )}
           <div>
-            <p className="text-sm font-medium text-white">{sub.creatorLabel}</p>
+            <p className="text-sm font-medium text-white">{displayName}</p>
             <p className="text-xs text-white/50 font-mono mt-0.5">
               {shortenAddress(sub.creator, 4)}
             </p>
@@ -248,11 +249,53 @@ export default function SubscriptionsPage() {
   const { connected } = useWallet()
   const { getAccessPasses } = useWalletRecords()
   const { blockHeight, loading: blockLoading } = useBlockHeight()
+  const { getCreatorProfile } = useSupabase()
   const [passes, setPasses] = useState<ParsedSubscription[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showExpired, setShowExpired] = useState(false)
   const [renewTarget, setRenewTarget] = useState<ParsedSubscription | null>(null)
+  const [creatorProfiles, setCreatorProfiles] = useState<Record<string, { name?: string; imageUrl?: string | null }>>({})
+
+  // Unique creator addresses from parsed passes
+  const uniqueCreators = useMemo(() => {
+    const set = new Set<string>()
+    for (const p of passes) set.add(p.creator)
+    return Array.from(set)
+  }, [passes])
+
+  // Fetch creator profiles from Supabase (mirrors feed/page.tsx pattern)
+  useEffect(() => {
+    if (uniqueCreators.length === 0) return
+    let cancelled = false
+    ;(async () => {
+      const profiles: Record<string, { name?: string; imageUrl?: string | null }> = {}
+      await Promise.allSettled(
+        uniqueCreators.map(async (address) => {
+          const cached = getCachedCreator(address)
+          if (cached?.image_url || cached?.display_name) {
+            profiles[address] = { name: cached.display_name || undefined, imageUrl: cached.image_url }
+            return
+          }
+          const profile = await getCreatorProfile(address)
+          if (profile && !cancelled) {
+            cacheSingleCreator({
+              address,
+              display_name: profile.display_name,
+              bio: profile.bio,
+              category: profile.category,
+              image_url: profile.image_url,
+              cover_url: profile.cover_url,
+              creator_hash: profile.creator_hash,
+            })
+            profiles[address] = { name: profile.display_name || undefined, imageUrl: profile.image_url }
+          }
+        })
+      )
+      if (!cancelled) setCreatorProfiles(profiles)
+    })()
+    return () => { cancelled = true }
+  }, [uniqueCreators, getCreatorProfile])
 
   // Build an AccessPass from a ParsedSubscription for the RenewModal
   const renewAccessPass: AccessPass | null = renewTarget
@@ -463,7 +506,7 @@ export default function SubscriptionsPage() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                   >
-                    <SubscriptionCard sub={sub} onRenew={setRenewTarget} blockHeight={blockHeight} />
+                    <SubscriptionCard sub={sub} onRenew={setRenewTarget} blockHeight={blockHeight} profile={creatorProfiles[sub.creator]} />
                   </m.div>
                 ))}
               </div>
@@ -491,7 +534,7 @@ export default function SubscriptionsPage() {
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
                 >
                   {expiredPasses.map((sub) => (
-                    <SubscriptionCard key={sub.passId} sub={sub} blockHeight={blockHeight} />
+                    <SubscriptionCard key={sub.passId} sub={sub} blockHeight={blockHeight} profile={creatorProfiles[sub.creator]} />
                   ))}
                 </m.div>
               )}

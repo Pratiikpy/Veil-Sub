@@ -73,6 +73,7 @@ export default function RenewModal({
 
   // Use fetched price, fall back to prop, then 0
   const effectiveBasePrice = fetchedBasePrice ?? basePrice ?? 0
+  const priceUnavailable = effectiveBasePrice === 0 && !tiersLoading
 
   // Build tier options. When custom tiers exist on-chain, use those prices.
   // Otherwise use default TIERS with legacy pricing formula (base × multiplier).
@@ -400,6 +401,12 @@ export default function RenewModal({
                   </div>
                 )}
 
+                {priceUnavailable && (
+                  <div role="alert" className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/15 mb-4">
+                    <p className="text-xs text-yellow-400">Unable to determine tier price. Please try again later or check the creator&apos;s profile.</p>
+                  </div>
+                )}
+
                 {insufficientBalance && (
                   <div className="mb-4">
                     <BalanceConverter
@@ -417,7 +424,7 @@ export default function RenewModal({
                 <Button
                   variant="accent"
                   onClick={handleRenew}
-                  disabled={txStatus !== 'idle' || !connected}
+                  disabled={txStatus !== 'idle' || !connected || priceUnavailable}
                   title={
                     !connected ? 'Connect your wallet to renew subscription' :
                     txStatus !== 'idle' ? 'Transaction in progress...' :

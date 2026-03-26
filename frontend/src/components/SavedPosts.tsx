@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Bookmark, Trash2, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 
 interface SavedEntry {
   contentId: string
@@ -11,7 +12,7 @@ interface SavedEntry {
   savedAt: number
 }
 
-const SAVED_KEY = 'veilsub_saved_posts'
+const SAVED_KEY_PREFIX = 'veilsub_saved_posts'
 
 function timeAgo(ts: number): string {
   const diff = Date.now() - ts
@@ -25,25 +26,30 @@ function timeAgo(ts: number): string {
 }
 
 export default function SavedPosts() {
+  const { address } = useWallet()
   const [entries, setEntries] = useState<SavedEntry[]>([])
 
+  const savedKey = useMemo(() => address ? `${SAVED_KEY_PREFIX}_${address}` : null, [address])
+
   useEffect(() => {
+    if (!savedKey) { setEntries([]); return }
     try {
-      const raw = localStorage.getItem(SAVED_KEY)
+      const raw = localStorage.getItem(savedKey)
       if (raw) setEntries(JSON.parse(raw))
-    } catch { /* empty */ }
-  }, [])
+      else setEntries([])
+    } catch { setEntries([]) }
+  }, [savedKey])
 
   const remove = useCallback((contentId: string) => {
     const next = entries.filter(e => e.contentId !== contentId)
     setEntries(next)
-    try { localStorage.setItem(SAVED_KEY, JSON.stringify(next)) } catch { /* quota */ }
-  }, [entries])
+    try { if (savedKey) localStorage.setItem(savedKey, JSON.stringify(next)) } catch { /* quota */ }
+  }, [entries, savedKey])
 
   const clearAll = useCallback(() => {
     setEntries([])
-    try { localStorage.removeItem(SAVED_KEY) } catch { /* empty */ }
-  }, [])
+    try { if (savedKey) localStorage.removeItem(savedKey) } catch { /* empty */ }
+  }, [savedKey])
 
   if (entries.length === 0) {
     return (

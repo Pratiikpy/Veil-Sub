@@ -8,7 +8,7 @@
 
 export const ERROR_MESSAGES: Record<string, string> = {
   // === Creator Registration & Tier Management ===
-  'ERR_001': 'Subscription price is below the minimum allowed (100 microcredits).',
+  'ERR_001': 'Subscription price is below the minimum allowed (0.0001 ALEO).',
   'ERR_002': 'Tier ID must be at least 1.',
   'ERR_003': 'Tier ID exceeds the maximum allowed value.',
   'ERR_004': 'Creator is not registered on VeilSub.',
@@ -18,7 +18,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   'ERR_008': 'This tier has been deprecated and can no longer be used.',
   'ERR_009': 'The specified tier does not exist.',
   'ERR_010': 'Minimum tier level must be at least 1.',
-  'ERR_011': 'Content hash cannot be empty.',
+  'ERR_011': 'Content reference cannot be empty.',
 
   // === Content Management ===
   'ERR_012': 'Only the content creator can update this content.',
@@ -52,7 +52,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
 
   // === Content Publishing ===
   'ERR_034': 'Minimum tier for content must be at least 1.',
-  'ERR_035': 'Content hash cannot be empty.',
+  'ERR_035': 'Content reference cannot be empty.',
   'ERR_036': 'You must register as a creator before publishing content.',
   'ERR_037': 'Content with this ID has already been published.',
   'ERR_038': 'You have reached the maximum number of published content items.',
@@ -78,29 +78,29 @@ export const ERROR_MESSAGES: Record<string, string> = {
 
   // === Blind Subscribe ===
   'ERR_061': 'Subscription tier must be at least 1.',
-  'ERR_062': 'Privacy nonce cannot be zero.',
+  'ERR_062': 'Privacy identifier cannot be zero. Please try again.',
   'ERR_063': 'Payment amount is insufficient for this blind subscription.',
   'ERR_064': 'This tier has been deprecated. Please choose a different tier.',
   'ERR_065': 'Subscription expiry must be set in the future.',
   'ERR_066': 'Subscription expiry is set too far into the future.',
-  'ERR_067': 'This privacy nonce has already been used. Please retry with a new nonce.',
+  'ERR_067': 'This privacy session has already been used. Please retry to generate a new one.',
 
   // === Blind Renewal ===
   'ERR_068': 'Renewal tier must be at least 1.',
-  'ERR_069': 'Privacy nonce cannot be zero.',
+  'ERR_069': 'Privacy identifier cannot be zero. Please try again.',
   'ERR_070': 'Payment amount is insufficient for this blind renewal.',
   'ERR_071': 'This tier has been deprecated. Please choose a different tier.',
   'ERR_072': 'Renewal expiry must be set in the future.',
   'ERR_073': 'Renewal expiry is set too far into the future.',
-  'ERR_074': 'This privacy nonce has already been used. Please retry with a new nonce.',
+  'ERR_074': 'This privacy session has already been used. Please retry to generate a new one.',
 
   // === Access Verification ===
   'ERR_075': 'Your subscription pass does not belong to this creator.',
   'ERR_076': 'Your subscription tier is not high enough to access this content.',
   'ERR_077': 'Your access has been revoked by the creator.',
   'ERR_078': 'Minimum tier for content must be at least 1.',
-  'ERR_079': 'Content hash cannot be empty.',
-  'ERR_080': 'Encryption commitment is required for encrypted content.',
+  'ERR_079': 'Content reference cannot be empty.',
+  'ERR_080': 'An encryption key is required for encrypted content.',
 
   // === Encrypted Content Publishing ===
   'ERR_081': 'You must register as a creator before publishing encrypted content.',
@@ -120,10 +120,10 @@ export const ERROR_MESSAGES: Record<string, string> = {
 
   // === Commit-Reveal Tipping ===
   'ERR_099': 'Tip amount must be greater than zero.',
-  'ERR_100': 'A tip commitment with this ID already exists.',
+  'ERR_100': 'A pending tip with this ID already exists.',
   'ERR_101': 'Reveal amount must be greater than zero.',
-  'ERR_102': 'No tip commitment found for this ID. Submit a commitment first.',
-  'ERR_103': 'This tip has already been revealed.',
+  'ERR_102': 'No pending tip found for this ID. Please submit the tip first.',
+  'ERR_103': 'This tip has already been completed.',
 
   // === Expiry Checks ===
   'ERR_104': 'Your subscription has expired. Please renew to continue access.',
@@ -146,7 +146,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   'ERR_117': 'Creator has reached the maximum subscriber limit.',
 
   // === Scoped Audit Tokens (v27) ===
-  'ERR_118': 'Audit token scope must include at least one field.',
+  'ERR_118': 'Audit report must include at least one data category.',
 
   // === Trial Rate Limiting (v27) ===
   'ERR_119': 'You have already used a trial subscription for this creator.',
@@ -171,9 +171,9 @@ export const ERROR_MESSAGES: Record<string, string> = {
 
   // === Stablecoin General Errors (v29) ===
   'ERR_134': 'Stablecoin transfer failed.',
-  'ERR_135': 'Stablecoin compliance check failed.',
-  'ERR_136': 'Stablecoin amount overflow.',
-  'ERR_137': 'Stablecoin transfer — recipient mismatch.',
+  'ERR_135': 'Stablecoin transfer could not be verified. Please try again.',
+  'ERR_136': 'Stablecoin amount exceeds the maximum allowed.',
+  'ERR_137': 'Stablecoin transfer failed — the recipient address does not match.',
 }
 
 /**

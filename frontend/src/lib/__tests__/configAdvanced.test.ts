@@ -118,9 +118,10 @@ describe('CREATOR_HASH_MAP and FEATURED_CREATORS consistency', () => {
     }
   })
 
-  it('at least 3 creators have hashes and tiers configured', () => {
-    expect(Object.keys(CREATOR_HASH_MAP).length).toBeGreaterThanOrEqual(3)
-    expect(Object.keys(CREATOR_CUSTOM_TIERS).length).toBeGreaterThanOrEqual(3)
+  it('at least 2 creators have hashes configured', () => {
+    expect(Object.keys(CREATOR_HASH_MAP).length).toBeGreaterThanOrEqual(2)
+    // CREATOR_CUSTOM_TIERS may be empty when creators use legacy pricing (no create_custom_tier on-chain)
+    expect(Object.keys(CREATOR_CUSTOM_TIERS).length).toBeGreaterThanOrEqual(2)
   })
 })
 

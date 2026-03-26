@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import { Heart, MessageCircle, Share2, Bookmark, BookOpen, Coins } from 'lucide-react'
 import { toast } from 'sonner'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 
 interface PostInteractionsProps {
   contentId: string
@@ -25,11 +26,12 @@ interface SavedEntry {
 
 const LIKES_PREFIX = 'veilsub_likes_'
 const LIKED_PREFIX = 'veilsub_liked_'
-const SAVED_KEY = 'veilsub_saved_posts'
+const SAVED_KEY_PREFIX = 'veilsub_saved_posts'
 
-function getSaved(): SavedEntry[] {
+function getSaved(walletAddr?: string | null): SavedEntry[] {
+  if (!walletAddr) return []
   try {
-    return JSON.parse(localStorage.getItem(SAVED_KEY) || '[]')
+    return JSON.parse(localStorage.getItem(`${SAVED_KEY_PREFIX}_${walletAddr}`) || '[]')
   } catch { return [] }
 }
 
@@ -44,6 +46,8 @@ export default function PostInteractions({
   creatorAddress = '',
   postTitle = '',
 }: PostInteractionsProps) {
+  const { address: walletAddr } = useWallet()
+  const savedKey = useMemo(() => walletAddr ? `${SAVED_KEY_PREFIX}_${walletAddr}` : null, [walletAddr])
   const [likes, setLikes] = useState(() => {
     try { return Number(localStorage.getItem(LIKES_PREFIX + contentId)) || initialLikes } catch { return initialLikes }
   })
@@ -51,7 +55,7 @@ export default function PostInteractions({
     try { return localStorage.getItem(LIKED_PREFIX + contentId) === '1' } catch { return false }
   })
   const [saved, setSaved] = useState(() => {
-    return getSaved().some(e => e.contentId === contentId)
+    return getSaved(walletAddr).some(e => e.contentId === contentId)
   })
   const [showBurst, setShowBurst] = useState(false)
   const [heartBounce, setHeartBounce] = useState(false)
@@ -197,20 +201,21 @@ export default function PostInteractions({
   }, [liked, triggerLike])
 
   const toggleSave = useCallback(() => {
-    const entries = getSaved()
+    if (!savedKey) return
+    const entries = getSaved(walletAddr)
     if (saved) {
       const next = entries.filter(e => e.contentId !== contentId)
-      localStorage.setItem(SAVED_KEY, JSON.stringify(next))
+      try { localStorage.setItem(savedKey, JSON.stringify(next)) } catch { /* quota */ }
       setSaved(false)
       toast.success('Removed from saved')
     } else {
       const entry: SavedEntry = { contentId, creatorAddress, title: postTitle, savedAt: Date.now() }
       const next = [entry, ...entries].slice(0, 200)
-      localStorage.setItem(SAVED_KEY, JSON.stringify(next))
+      try { localStorage.setItem(savedKey, JSON.stringify(next)) } catch { /* quota */ }
       setSaved(true)
       toast.success('Saved to bookmarks')
     }
-  }, [saved, contentId])
+  }, [saved, contentId, savedKey, walletAddr])
 
   const handleShare = useCallback(() => {
     const url = window.location.href

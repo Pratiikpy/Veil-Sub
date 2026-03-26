@@ -9,6 +9,7 @@ import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { MICROCREDITS_PER_CREDIT } from '@/lib/config'
 import { buildAuthPayload } from '@/lib/authenticatedFetch'
+import { invalidateCreatorTierCache } from '@/hooks/useCreatorTiers'
 import Button from './ui/Button'
 
 interface TierCreationDialogProps {
@@ -113,6 +114,7 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
             toast.error('Tier saved locally but cloud sync failed. It may not appear on other devices.')
           })
       }
+      if (creatorAddress) invalidateCreatorTierCache(creatorAddress)
       onSuccess?.(tierId)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to create tier')

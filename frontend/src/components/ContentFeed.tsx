@@ -120,13 +120,13 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
           if (data.unlockedPosts && Array.isArray(data.unlockedPosts)) {
             setPpvUnlocked(new Set(data.unlockedPosts))
             // Update localStorage cache
-            try { localStorage.setItem('veilsub_ppv_unlocked', JSON.stringify(data.unlockedPosts)) } catch { /* ignore */ }
+            try { if (walletAddress) localStorage.setItem(`veilsub_ppv_unlocked_${walletAddress}`, JSON.stringify(data.unlockedPosts)) } catch { /* ignore */ }
           }
         }
       } catch {
         // Fall back to localStorage if server is unavailable
         try {
-          const stored = localStorage.getItem('veilsub_ppv_unlocked')
+          const stored = walletAddress ? localStorage.getItem(`veilsub_ppv_unlocked_${walletAddress}`) : null
           if (stored) setPpvUnlocked(new Set(JSON.parse(stored)))
         } catch { /* ignore */ }
       }
@@ -145,10 +145,10 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
     setPpvUnlocked(prev => {
       const next = new Set(prev)
       next.add(postId)
-      try { localStorage.setItem('veilsub_ppv_unlocked', JSON.stringify([...next])) } catch { /* ignore */ }
+      try { if (walletAddress) localStorage.setItem(`veilsub_ppv_unlocked_${walletAddress}`, JSON.stringify([...next])) } catch { /* ignore */ }
       return next
     })
-  }, [])
+  }, [walletAddress])
 
   // PPV payment: execute a real tip transaction, then unlock on confirmation
   const handlePpvPayment = useCallback(async (postId: string, ppvPrice: number) => {

@@ -25,8 +25,8 @@ describe('ERROR_MESSAGES', () => {
   })
 
   it('covers blind subscription codes', () => {
-    expect(ERROR_MESSAGES['ERR_062']).toContain('nonce')
-    expect(ERROR_MESSAGES['ERR_067']).toContain('nonce')
+    expect(ERROR_MESSAGES['ERR_062'].toLowerCase()).toContain('privacy')
+    expect(ERROR_MESSAGES['ERR_067'].toLowerCase()).toContain('privacy')
   })
 
   it('covers privacy proof codes (v27)', () => {
