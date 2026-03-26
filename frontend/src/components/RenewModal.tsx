@@ -421,10 +421,16 @@ export default function RenewModal({
                   </div>
                 )}
 
+                {isExpired && (
+                  <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/15 mb-4">
+                    <p className="text-xs text-red-400">This pass has expired. Please subscribe again from the creator's page instead of renewing.</p>
+                  </div>
+                )}
+
                 <Button
                   variant="accent"
                   onClick={handleRenew}
-                  disabled={txStatus !== 'idle' || !connected || priceUnavailable}
+                  disabled={txStatus !== 'idle' || !connected || priceUnavailable || isExpired}
                   title={
                     !connected ? 'Connect your wallet to renew subscription' :
                     txStatus !== 'idle' ? 'Transaction in progress...' :

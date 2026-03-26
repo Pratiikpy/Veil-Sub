@@ -27,6 +27,9 @@ export async function GET(req: NextRequest) {
   }
 
   const q = req.nextUrl.searchParams.get('q')?.trim().toLowerCase() || ''
+  if (q && q.length > 200) {
+    return NextResponse.json({ error: 'Search query too long' }, { status: 400 })
+  }
   const category = req.nextUrl.searchParams.get('category')?.trim() || ''
   const sort = req.nextUrl.searchParams.get('sort')?.trim() || 'newest'
   const limitParam = parseInt(req.nextUrl.searchParams.get('limit') || '50', 10)

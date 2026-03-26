@@ -168,11 +168,7 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error('[creators] upsert failed:', error.message, error.code, error.details)
-      return NextResponse.json({
-        error: `Database error: ${error.message}`,
-        code: error.code,
-        details: error.details
-      }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to save profile' }, { status: 500 })
     }
 
     return NextResponse.json({ profile: data })

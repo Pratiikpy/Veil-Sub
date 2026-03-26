@@ -83,6 +83,7 @@ export default function SubscribeModal({
       : txStatus === 'failed' ? 'error'
       : 'idle'
 
+  const trialMinutes = Math.round((TRIAL_DURATION_BLOCKS * 3) / 60) // 3 sec per block
   const fullPrice = basePrice * tier.priceMultiplier
   const totalPrice = privacyMode === 'trial' ? Math.floor(fullPrice / TRIAL_PRICE_DIVISOR) : fullPrice
   const platformCut = Math.floor(totalPrice * PLATFORM_FEE_PCT / 100)
@@ -92,6 +93,10 @@ export default function SubscribeModal({
     if (submittingRef.current) return
     if (!connected) {
       setError('Connect wallet to subscribe privately.')
+      return
+    }
+    if (publicKey && creatorAddress.toLowerCase() === publicKey.toLowerCase()) {
+      setError('You cannot subscribe to your own channel.')
       return
     }
     if (blockHeight === null) {
@@ -356,7 +361,7 @@ export default function SubscribeModal({
                       <span>Duration</span>
                       <span>
                         {privacyMode === 'trial'
-                          ? '~50 minutes'
+                          ? `~${trialMinutes} minutes`
                           : '~30 days'}
                       </span>
                     </div>
@@ -378,7 +383,7 @@ export default function SubscribeModal({
                       {([
                         { key: 'standard' as const, label: 'Standard', desc: '30 days' },
                         { key: 'blind' as const, label: 'Blind', desc: 'Identity masked' },
-                        { key: 'trial' as const, label: 'Trial', desc: '~50 min / 20%' },
+                        { key: 'trial' as const, label: 'Trial', desc: `~${trialMinutes} min / 20%` },
                       ]).map((mode) => (
                         <button
                           key={mode.key}
@@ -409,7 +414,7 @@ export default function SubscribeModal({
                     )}
                     {privacyMode === 'trial' && (
                       <p className="text-[11px] text-white/50 mt-2">
-                        Short-term pass (~50 minutes) at 20% of tier price.
+                        Short-term pass (~{trialMinutes} minutes) at 20% of tier price.
                       </p>
                     )}
                 </div>
@@ -421,7 +426,7 @@ export default function SubscribeModal({
                     <li>Your address is never published on-chain</li>
                     {privacyMode === 'standard' && <li>Creator sees total count, not individuals</li>}
                     {privacyMode === 'blind' && <li>Identity masked—renewals are unlinkable</li>}
-                    {privacyMode === 'trial' && <li>Short-lived pass—20% cost, ~50 minute access</li>}
+                    {privacyMode === 'trial' && <li>Short-lived pass—20% cost, ~{trialMinutes} minute access</li>}
                     <li>Subscription pass stored privately in your wallet</li>
                     <li>Payment sent privately to creator</li>
                   </ul>
@@ -480,7 +485,7 @@ export default function SubscribeModal({
                       Subscribed successfully!
                     </p>
                     <p className="text-xs text-white/70">
-                      Your subscription pass is now in your wallet. {privacyMode === 'trial' ? 'Trial access for ~50 minutes.' : 'Access for ~30 days.'}
+                      Your subscription pass is now in your wallet. {privacyMode === 'trial' ? `Trial access for ~${trialMinutes} minutes.` : 'Access for ~30 days.'}
                     </p>
                     {txId && (
                       <p className="text-[11px] text-white/60 mt-2 font-mono break-all">

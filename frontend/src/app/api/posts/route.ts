@@ -138,7 +138,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ posts }, {
       headers: { 'Cache-Control': CACHE_HEADERS.POSTS },
     })
-  } catch {
+  } catch (err) {
+    console.error('[posts] unexpected error:', err)
     return NextResponse.json({ posts: [], error: 'Failed to fetch posts' }, { status: 500 })
   }
 }
@@ -406,7 +407,8 @@ export async function POST(req: NextRequest) {
         ...(safePostType === 'note' ? { postType: 'note' as const } : {}),
       },
     })
-  } catch {
+  } catch (err) {
+    console.error('[posts] unexpected error:', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }
@@ -558,7 +560,8 @@ export async function PUT(req: NextRequest) {
     }
 
     return NextResponse.json({ error: 'Post not found' }, { status: 404 })
-  } catch {
+  } catch (err) {
+    console.error('[posts] unexpected error:', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }
@@ -619,7 +622,8 @@ export async function DELETE(req: NextRequest) {
     }
 
     return NextResponse.json({ error: 'Post not found' }, { status: 404 })
-  } catch {
+  } catch (err) {
+    console.error('[posts] unexpected error:', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }
