@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef, use, useCallback } from 'react'
+import { useEffect, useState, useRef, use, useCallback, useMemo } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import {
@@ -595,8 +595,35 @@ export default function CreatorPage({
   const [disputeContentId, setDisputeContentId] = useState<string | null>(null)
   const [auditTokenPass, setAuditTokenPass] = useState<AccessPass | null>(null)
   const [copied, setCopied] = useState(false)
-  const [activeTab, setActiveTab] = useState('posts')
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.slice(1)
+      if (hash && ['posts', 'tiers', 'tip-menu', 'about'].includes(hash)) {
+        return hash
+      }
+    }
+    return 'posts'
+  })
   const [contentViewMode, setContentViewMode] = useState<'feed' | 'grid'>('feed')
+
+  // Sync hash on popstate (browser back/forward)
+  useEffect(() => {
+    const onHashChange = () => {
+      const hash = window.location.hash.slice(1)
+      if (hash && ['posts', 'tiers', 'tip-menu', 'about'].includes(hash)) {
+        setActiveTab(hash)
+      }
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
+
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab)
+    window.history.replaceState(null, '', `#${tab}`)
+  }, [])
+
+  const coverGradient = useMemo(() => generateCoverGradient(address), [address])
 
   const copyAddress = useCallback(() => {
     navigator.clipboard.writeText(address)
@@ -902,7 +929,7 @@ export default function CreatorPage({
           {/* ===== A. Cover Banner ===== */}
           <div
             className="w-full h-40 sm:h-60 relative"
-            style={coverImageUrl ? undefined : { background: generateCoverGradient(address) }}
+            style={coverImageUrl ? undefined : { background: coverGradient }}
           >
             {coverImageUrl && (
               <img
@@ -912,7 +939,7 @@ export default function CreatorPage({
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none'
                   const parent = (e.target as HTMLImageElement).parentElement
-                  if (parent) parent.style.background = generateCoverGradient(address)
+                  if (parent) parent.style.background = coverGradient
                 }}
               />
             )}
@@ -1026,7 +1053,7 @@ export default function CreatorPage({
               <AnimatedTabs
                 tabs={tabs}
                 activeTab={activeTab}
-                onChange={setActiveTab}
+                onChange={handleTabChange}
               />
             </div>
 

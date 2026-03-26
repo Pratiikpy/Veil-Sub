@@ -97,7 +97,8 @@ export async function GET(req: NextRequest) {
     }
 
     return badRequest('type must be "comments" or "reactions"')
-  } catch {
+  } catch (err) {
+    console.error('[social] GET error:', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }
@@ -258,7 +259,8 @@ export async function POST(req: NextRequest) {
     }
 
     return badRequest('type must be "comment", "reaction", or "comment_like"')
-  } catch {
+  } catch (err) {
+    console.error('[social] POST error:', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }

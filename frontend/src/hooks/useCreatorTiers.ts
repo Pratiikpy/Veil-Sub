@@ -122,6 +122,11 @@ export function useCreatorTiers(creatorAddress: string): CreatorTierResult {
       try {
         const creatorHash = getCreatorHash(creatorAddress)
 
+        // Fire on-chain tier_count fetch early so it runs in parallel with Supabase
+        const tierCountPromise = creatorHash
+          ? fetchMappingRaw('tier_count', creatorHash, controller.signal)
+          : Promise.resolve(null)
+
         // Load tiers from localStorage (written on create — instant, no latency)
         let localTiers: Record<number, CustomTierInfo> = {}
         try {
@@ -129,7 +134,7 @@ export function useCreatorTiers(creatorAddress: string): CreatorTierResult {
           if (stored) localTiers = JSON.parse(stored)
         } catch { /* ignore */ }
 
-        // Fetch from Supabase — cross-browser, persists for all users
+        // Fetch from Supabase in parallel with the on-chain fetch above
         let dbTiers: Record<number, CustomTierInfo> = {}
         try {
           const res = await fetch(`/api/tiers?address=${encodeURIComponent(creatorAddress)}`, {
@@ -171,8 +176,8 @@ export function useCreatorTiers(creatorAddress: string): CreatorTierResult {
           return
         }
 
-        // Query on-chain tier_count for this creator
-        const tierCountRaw = await fetchMappingRaw('tier_count', creatorHash, controller.signal)
+        // Await the on-chain tier_count that was fired in parallel with Supabase
+        const tierCountRaw = await tierCountPromise
         if (cancelled) return
 
         const onChainTierCount = parseOnChainNumber(tierCountRaw) ?? 0

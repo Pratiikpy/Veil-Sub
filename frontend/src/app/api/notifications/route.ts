@@ -80,7 +80,8 @@ export async function GET(req: NextRequest) {
         }))
         return NextResponse.json({ notifications })
       }
-    } catch {
+    } catch (err) {
+      console.error('[notifications] GET supabase error:', err)
       // Fall through to Redis
     }
   }
@@ -104,7 +105,8 @@ export async function GET(req: NextRequest) {
         }
       }
       return NextResponse.json({ notifications })
-    } catch {
+    } catch (err) {
+      console.error('[notifications] GET redis error:', err)
       // Redis not available
     }
   }
@@ -193,7 +195,8 @@ export async function POST(req: NextRequest) {
       if (!insertError) {
         return NextResponse.json({ notification: responseNotification })
       }
-    } catch {
+    } catch (err) {
+      console.error('[notifications] POST supabase error:', err)
       // Fall through to Redis
     }
   }
@@ -207,7 +210,8 @@ export async function POST(req: NextRequest) {
       await redis.ltrim(key, 0, MAX_NOTIFICATIONS - 1)
       await redis.expire(key, NOTIFICATION_TTL_SECONDS)
       return NextResponse.json({ notification: responseNotification })
-    } catch {
+    } catch (err) {
+      console.error('[notifications] POST redis error:', err)
       // Redis not available
     }
   }
@@ -275,7 +279,8 @@ export async function PATCH(req: NextRequest) {
           .eq('wallet_hash', walletHash)
       }
       return NextResponse.json({ success: true })
-    } catch {
+    } catch (err) {
+      console.error('[notifications] PATCH supabase error:', err)
       // Fall through to Redis
     }
   }
@@ -312,7 +317,8 @@ export async function PATCH(req: NextRequest) {
       await pipeline.exec()
 
       return NextResponse.json({ success: true })
-    } catch {
+    } catch (err) {
+      console.error('[notifications] PATCH redis error:', err)
       // Redis not available
     }
   }
@@ -375,7 +381,8 @@ export async function DELETE(req: NextRequest) {
         .eq('id', nId)
         .eq('wallet_hash', walletHash)
       return NextResponse.json({ success: true })
-    } catch {
+    } catch (err) {
+      console.error('[notifications] DELETE supabase error:', err)
       // Fall through to Redis
     }
   }
@@ -411,7 +418,8 @@ export async function DELETE(req: NextRequest) {
       await pipeline.exec()
 
       return NextResponse.json({ success: true })
-    } catch {
+    } catch (err) {
+      console.error('[notifications] DELETE redis error:', err)
       // Redis unavailable for DELETE
     }
   }

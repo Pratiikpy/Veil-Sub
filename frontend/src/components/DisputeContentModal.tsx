@@ -11,6 +11,7 @@ import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
 import TransactionStatus from './TransactionStatus'
 import Button from './ui/Button'
+import { clearMappingCache } from '@/hooks/useCreatorStats'
 
 interface Props {
   isOpen: boolean
@@ -89,6 +90,7 @@ export default function DisputeContentModal({
         startPolling(result, (pollResult) => {
           if (pollResult.status === 'confirmed') {
             setTxStatus('confirmed')
+            clearMappingCache()
             toast.success('Dispute recorded on-chain')
             onSuccess?.()
             stopPolling()
@@ -99,6 +101,7 @@ export default function DisputeContentModal({
             // Shield Wallet delegates proving and never reports 'confirmed' —
             // the transaction IS broadcast, so treat timeout as likely success.
             setTxStatus('confirmed')
+            clearMappingCache()
             toast.success('Dispute recorded on-chain! (confirmation was slow)')
             onSuccess?.()
             stopPolling()

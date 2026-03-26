@@ -13,6 +13,7 @@ import TransactionStatus from './TransactionStatus'
 import Button from './ui/Button'
 import { isValidAleoAddress, formatCredits } from '@/lib/utils'
 import { FEES } from '@/lib/config'
+import { clearMappingCache } from '@/hooks/useCreatorStats'
 
 interface Props {
   isOpen: boolean
@@ -56,6 +57,7 @@ export default function TransferPassModal({
     submittingRef.current = true
     setTxStatus('signing')
     setError(null)
+    toast.loading('Preparing transfer...', { id: 'transfer-optimistic', duration: 60000 })
 
     try {
       // Check public balance covers the network fee (paid separately from private record)
@@ -66,6 +68,7 @@ export default function TransferPassModal({
           const pubText = await pubRes.text()
           const pubBal = parseInt((pubText ?? '').replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
           if (!isNaN(pubBal) && pubBal < feeNeeded) {
+            toast.dismiss('transfer-optimistic')
             setError(`Insufficient public balance for network fee. You need ~${formatCredits(feeNeeded)} ALEO public credits. Get testnet credits from the Aleo faucet.`)
             setTxStatus('idle')
             submittingRef.current = false
@@ -85,16 +88,21 @@ export default function TransferPassModal({
         startPolling(result, (pollResult) => {
           if (pollResult.status === 'confirmed') {
             setTxStatus('confirmed')
+            clearMappingCache()
+            toast.dismiss('transfer-optimistic')
             toast.success('Pass transferred to the new owner!')
             onSuccess?.()
             stopPolling()
           } else if (pollResult.status === 'failed') {
             setTxStatus('failed')
+            toast.dismiss('transfer-optimistic')
             stopPolling()
           } else if (pollResult.status === 'timeout') {
             // Shield Wallet delegates proving and never reports 'confirmed' —
             // the transaction IS broadcast, so treat timeout as likely success.
             setTxStatus('confirmed')
+            clearMappingCache()
+            toast.dismiss('transfer-optimistic')
             toast.success('Pass transferred! (confirmation was slow)')
             onSuccess?.()
             stopPolling()
@@ -102,6 +110,7 @@ export default function TransferPassModal({
         })
       }
     } catch (err: unknown) {
+      toast.dismiss('transfer-optimistic')
       setTxStatus('failed')
       setError(err instanceof Error ? err.message : 'Transfer couldn\u2019t be completed. Check your wallet and try again.')
       toast.error('Transfer couldn\u2019t be completed')

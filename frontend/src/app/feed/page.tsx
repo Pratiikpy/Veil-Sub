@@ -580,14 +580,13 @@ export default function FeedPage() {
       const results = await Promise.allSettled(
         subscribedCreators.map(async (creator) => {
           const posts = await getPostsForCreator(creator)
-          const profile = creatorProfiles[creator]
           const cached = getCachedCreator(creator)
           return posts.map((post): FeedPost => ({
             ...post,
             creatorAddress: creator,
-            creatorLabel: profile?.name || cached?.display_name || getCreatorLabel(creator),
+            creatorLabel: cached?.display_name || getCreatorLabel(creator),
             creatorCategory: getCreatorCategory(creator),
-            creatorImageUrl: profile?.imageUrl || cached?.image_url || null,
+            creatorImageUrl: cached?.image_url || null,
           }))
         })
       )
@@ -604,7 +603,7 @@ export default function FeedPage() {
     } finally {
       setLoading(false)
     }
-  }, [subscribedCreators, getPostsForCreator, creatorProfiles])
+  }, [subscribedCreators, getPostsForCreator])
 
   useEffect(() => {
     if (connected && subscribedCreators.length > 0) {

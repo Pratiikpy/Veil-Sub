@@ -86,6 +86,9 @@ export async function POST(req: NextRequest) {
   if (typeof price_microcredits !== 'number' || price_microcredits <= 0) {
     return NextResponse.json({ error: 'price_microcredits must be positive' }, { status: 400 })
   }
+  if (price_microcredits > 1_000_000_000_000) {
+    return NextResponse.json({ error: 'Price exceeds maximum (1T microcredits)' }, { status: 400 })
+  }
 
   const addressHash = await hashAddress(address)
 

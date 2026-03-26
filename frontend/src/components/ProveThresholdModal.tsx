@@ -13,6 +13,7 @@ import { FEES } from '@/lib/config'
 import { formatCredits } from '@/lib/utils'
 import TransactionStatus from './TransactionStatus'
 import Button from './ui/Button'
+import { clearMappingCache } from '@/hooks/useCreatorStats'
 
 interface Props {
   isOpen: boolean
@@ -70,6 +71,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
           if (result.status === 'confirmed') {
             if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
+            clearMappingCache()
             toast.success('Reputation proof verified on-chain!')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
@@ -80,6 +82,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
             // the transaction IS broadcast, so treat timeout as likely success.
             if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
+            clearMappingCache()
             toast.success('Reputation proof verified! (confirmation was slow)')
           }
         })

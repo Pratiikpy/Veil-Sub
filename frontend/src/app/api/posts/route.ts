@@ -249,8 +249,17 @@ export async function POST(req: NextRequest) {
     if (typeof title !== 'string' || title.length > API_LIMITS.MAX_POST_TITLE_LENGTH) {
       return NextResponse.json({ error: `Title too long (max ${API_LIMITS.MAX_POST_TITLE_LENGTH})` }, { status: 400 })
     }
+    if (!isDraft && !isNote && typeof title === 'string' && title.trim().length === 0) {
+      return NextResponse.json({ error: 'Title cannot be empty' }, { status: 400 })
+    }
     if (typeof body !== 'string' || body.length > API_LIMITS.MAX_POST_BODY_LENGTH) {
       return NextResponse.json({ error: `Body too long (max ${API_LIMITS.MAX_POST_BODY_LENGTH})` }, { status: 400 })
+    }
+    if (!isDraft && !isNote && body) {
+      const textContent = body.replace(/<[^>]*>/g, '').trim()
+      if (textContent.length === 0) {
+        return NextResponse.json({ error: 'Post body cannot be empty' }, { status: 400 })
+      }
     }
     if (typeof minTier === 'number' && (minTier < 0 || minTier > API_LIMITS.MAX_TIER_ID)) {
       return NextResponse.json({ error: `Invalid tier (0-${API_LIMITS.MAX_TIER_ID})` }, { status: 400 })
