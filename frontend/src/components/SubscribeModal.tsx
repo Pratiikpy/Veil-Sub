@@ -181,7 +181,8 @@ export default function SubscribeModal({
               ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
               : null
             logSubscriptionEvent(creatorAddress, tier.id, totalPrice, result.resolvedTxId || id, wrappedSign)
-            onSuccess?.() // Trigger cache invalidation in parent
+            clearMappingCache()
+            onSuccess?.()
             notifyNewSubscriber(creatorAddress, tier.id, result.resolvedTxId || id)
             toast.success("You're subscribed!")
             // Start welcome sequence (fire-and-forget)

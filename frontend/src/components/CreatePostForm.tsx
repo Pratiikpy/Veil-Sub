@@ -12,6 +12,7 @@ import { useContentFeed } from '@/hooks/useContentFeed'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import Button from './ui/Button'
 import { generatePassId, ALEO_USD_ESTIMATE, creditsToMicrocredits, computeWalletHash } from '@/lib/utils'
+import { clearMappingCache } from '@/hooks/useCreatorStats'
 import { authenticatedFetch } from '@/lib/authenticatedFetch'
 import { poseidon2HashField } from '@/lib/poseidon'
 import { saveContentHash, SUGGESTED_TAGS, TAG_COLORS, API_LIMITS, DRAFT_AUTOSAVE_INTERVAL_MS } from '@/lib/config'
@@ -548,6 +549,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
         )
         if (saved) {
           toast.success('Free post published!')
+          clearMappingCache()
           // Trigger subscriber email notification (best-effort, non-blocking)
           triggerSubscriberNotification(creatorAddress, title.trim(), body, saved.id)
           notifyContentPublished(creatorAddress, title.trim())
@@ -613,6 +615,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
               setError('Content confirmed on-chain but save to server failed. Your content is preserved—try publishing again.')
             } else {
               toast.success('Post published!')
+              clearMappingCache()
               // Trigger subscriber email notification (best-effort, non-blocking)
               triggerSubscriberNotification(creatorAddress, postTitle, postBody, saved.id)
               notifyContentPublished(creatorAddress, postTitle)
@@ -639,6 +642,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
               if (saved) {
                 setTxStatus('confirmed')
                 toast.success('Post published! (confirmation was slow but transaction succeeded)')
+                clearMappingCache()
                 notifyContentPublished(creatorAddress, postTitle)
                 resetForm()
                 onPostCreated?.()
