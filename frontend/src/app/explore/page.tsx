@@ -197,7 +197,7 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-border/50 text-[11px] text-white/60">
                 <Coins className="w-3 h-3 text-amber-400/80" aria-hidden="true" />
                 from {formatCredits(stats.tierPrice)} ALEO
-                <span className="text-white/40">({formatUsd(stats.tierPrice)})</span>
+                <span className="text-white/50">({formatUsd(stats.tierPrice)})</span>
               </span>
               {stats.contentCount !== undefined && stats.contentCount > 0 && (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-border/50 text-[11px] text-white/60">
@@ -211,7 +211,7 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
 
         {/* Activity signal */}
         {stats && stats.contentCount !== undefined && stats.contentCount > 0 && (
-          <span className="text-xs text-white/40 flex items-center gap-1.5 mb-1">
+          <span className="text-xs text-white/50 flex items-center gap-1.5 mb-1">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
             Active creator
           </span>
@@ -439,7 +439,7 @@ export default function ExplorePage() {
             className="max-w-2xl mx-auto mb-5"
           >
             <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-white/60 transition-colors" aria-hidden="true" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50 group-focus-within:text-white/60 transition-colors" aria-hidden="true" />
               <input
                 type="text"
                 value={search}
@@ -453,7 +453,7 @@ export default function ExplorePage() {
               {search && (
                 <button
                   onClick={handleClearSearch}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-white/[0.06] text-white/40 hover:text-white/60 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-white/[0.06] text-white/50 hover:text-white/60 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                   aria-label="Clear search"
                 >
                   <X className="w-4 h-4" aria-hidden="true" />
@@ -567,9 +567,9 @@ export default function ExplorePage() {
                 <div className="absolute inset-0 rounded-2xl bg-white/[0.04] animate-pulse" />
                 <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-border flex items-center justify-center">
                   {search ? (
-                    <Search className="w-7 h-7 text-white/40" aria-hidden="true" />
+                    <Search className="w-7 h-7 text-white/50" aria-hidden="true" />
                   ) : (
-                    <Users className="w-7 h-7 text-white/40" aria-hidden="true" />
+                    <Users className="w-7 h-7 text-white/50" aria-hidden="true" />
                   )}
                 </div>
               </div>

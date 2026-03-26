@@ -71,7 +71,7 @@ function NotificationItem({
         <p className="text-xs text-white/60 line-clamp-2 leading-relaxed mt-0.5">
           {notification.message}
         </p>
-        <p className="text-[10px] text-white/40 mt-1">
+        <p className="text-[11px] text-white/50 mt-1">
           {timeAgo(notification.createdAt)}
         </p>
       </div>
@@ -83,7 +83,7 @@ function NotificationItem({
               onRead(notification.id)
             }}
             aria-label="Mark as read"
-            className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
+            className="p-1 rounded hover:bg-white/10 text-white/50 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
           >
             <Check className="w-3 h-3" aria-hidden="true" />
           </button>
@@ -94,7 +94,7 @@ function NotificationItem({
             onDismiss(notification.id)
           }}
           aria-label="Dismiss notification"
-          className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
+          className="p-1 rounded hover:bg-white/10 text-white/50 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
         >
           <X className="w-3 h-3" aria-hidden="true" />
         </button>
@@ -151,7 +151,7 @@ export default function NotificationBell() {
         <Bell className="w-5 h-5" aria-hidden="true" />
         {unreadCount > 0 && (
           <span
-            className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-red-500 rounded-full ring-2 ring-black"
+            className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[11px] font-bold text-white bg-red-500 rounded-full ring-2 ring-black"
             aria-hidden="true"
           >
             {unreadCount > 99 ? '99+' : unreadCount}
@@ -188,8 +188,8 @@ export default function NotificationBell() {
               {notifications.length === 0 ? (
                 <div className="py-12 text-center">
                   <Bell className="w-8 h-8 text-white/20 mx-auto mb-3" aria-hidden="true" />
-                  <p className="text-sm text-white/40">No notifications yet</p>
-                  <p className="text-xs text-white/30 mt-1">
+                  <p className="text-sm text-white/50">No notifications yet</p>
+                  <p className="text-xs text-white/50 mt-1">
                     Activity from subscribers and tips will appear here
                   </p>
                 </div>

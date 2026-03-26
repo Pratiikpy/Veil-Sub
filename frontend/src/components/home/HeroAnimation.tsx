@@ -98,7 +98,7 @@ function StaticDiagram() {
         <div className="w-10 h-10 rounded-xl border border-white/15 bg-white/[0.04] flex items-center justify-center">
           <Shield className="w-5 h-5 text-white/60" />
         </div>
-        <span className="text-[10px] text-white/50">ZK Privacy Proof</span>
+        <span className="text-[11px] text-white/50">ZK Privacy Proof</span>
       </div>
 
       <div className="flex flex-col items-center gap-2">
@@ -361,7 +361,7 @@ export default function HeroAnimation() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="text-xs sm:text-sm text-white/40 font-medium tracking-wide"
+              className="text-xs sm:text-sm text-white/50 font-medium tracking-wide"
             >
               Observer sees nothing
             </m.span>
@@ -392,7 +392,7 @@ export default function HeroAnimation() {
               className="relative"
             >
               <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-white/10 bg-white/[0.03] backdrop-blur-sm flex items-center justify-center">
-                <Search className="w-5 h-5 sm:w-6 sm:h-6 text-white/40" />
+                <Search className="w-5 h-5 sm:w-6 sm:h-6 text-white/50" />
               </div>
 
               {/* Question mark above */}
@@ -405,7 +405,7 @@ export default function HeroAnimation() {
                 }}
                 transition={{ duration: 3, times: [0, 0.5, 0.6, 1] }}
               >
-                <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white/30" />
+                <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white/50" />
               </m.div>
             </m.div>
           </m.div>

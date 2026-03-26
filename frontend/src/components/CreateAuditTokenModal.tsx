@@ -200,11 +200,11 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                         }`}
                       >
                         <span className="text-xs font-medium block">{label}</span>
-                        <span className="text-[10px] opacity-60">{desc}</span>
+                        <span className="text-[11px] opacity-60">{desc}</span>
                       </button>
                     ))}
                   </div>
-                  <p className="text-[10px] text-white/60 mt-1.5">
+                  <p className="text-[11px] text-white/60 mt-1.5">
                     Only selected fields will be visible to the verifier. Fewer fields = more privacy.
                   </p>
                 </div>
@@ -224,7 +224,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                     pattern="^aleo1[a-z0-9]{56}$"
                     className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all text-sm font-mono"
                   />
-                  <p className="text-[10px] text-white/60 mt-1">
+                  <p className="text-[11px] text-white/60 mt-1">
                     The Aleo address that will receive and hold the audit token.
                   </p>
                 </div>
@@ -266,7 +266,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
                     </p>
                     <div className="mt-4 pt-3 border-t border-green-500/10 text-left">
                       <p className="text-xs text-white/50 mb-2">What's next?</p>
-                      <p className="text-xs text-white/40 mb-3">
+                      <p className="text-xs text-white/50 mb-3">
                         Share the verifier's address with them so they can check your subscription status.
                       </p>
                       <Link

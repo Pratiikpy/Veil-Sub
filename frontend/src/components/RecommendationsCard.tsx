@@ -83,7 +83,7 @@ export default function RecommendationsCard({
                   </p>
                 )}
               </div>
-              <ArrowRight className="w-3.5 h-3.5 text-white/30 group-hover:text-white/60 transition-colors shrink-0" aria-hidden="true" />
+              <ArrowRight className="w-3.5 h-3.5 text-white/50 group-hover:text-white/60 transition-colors shrink-0" aria-hidden="true" />
             </Link>
           </m.div>
         ))}

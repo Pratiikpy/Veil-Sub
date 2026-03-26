@@ -136,13 +136,13 @@ export default function ActivityChart({ creatorAddress }: Props) {
 
       {/* X-axis labels */}
       <div className="flex justify-between mt-2">
-        <span className="text-[10px] text-white/60">
+        <span className="text-[11px] text-white/60">
           {data[0]?.date.slice(5) || ''}
         </span>
-        <span className="text-[10px] text-white/60">
+        <span className="text-[11px] text-white/60">
           {data[Math.floor(data.length / 2)]?.date.slice(5) || ''}
         </span>
-        <span className="text-[10px] text-white/60">
+        <span className="text-[11px] text-white/60">
           {data[data.length - 1]?.date.slice(5) || ''}
         </span>
       </div>

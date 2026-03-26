@@ -43,7 +43,7 @@ export default function KeyboardShortcuts() {
       <div className="relative w-full max-w-md mx-4 rounded-2xl border border-white/[0.08] bg-[#0a0a0a] p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-semibold text-white tracking-tight">Keyboard Shortcuts</h2>
-          <button onClick={() => setOpen(false)} className="text-white/40 hover:text-white/60 transition-colors text-sm" aria-label="Close">
+          <button onClick={() => setOpen(false)} className="text-white/50 hover:text-white/60 transition-colors text-sm" aria-label="Close">
             Esc
           </button>
         </div>

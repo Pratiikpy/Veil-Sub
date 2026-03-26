@@ -43,7 +43,7 @@ export default function AnimatedAccordion({ items, allowMultiple = false, classN
             >
               <span>{item.title}</span>
               <ChevronDown
-                className={`w-4 h-4 shrink-0 text-white/40 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                className={`w-4 h-4 shrink-0 text-white/50 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                   isOpen ? 'rotate-180' : ''
                 }`}
                 aria-hidden="true"

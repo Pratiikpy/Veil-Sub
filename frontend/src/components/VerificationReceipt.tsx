@@ -82,7 +82,7 @@ export default function VerificationReceipt({
             </div>
             <div>
               <p className="text-xs font-semibold text-white/70 tracking-wide uppercase">Verified Subscriber</p>
-              <p className="text-[10px] text-white/30">Zero-knowledge proof</p>
+              <p className="text-[11px] text-white/50">Zero-knowledge proof</p>
             </div>
           </div>
 
@@ -104,12 +104,12 @@ export default function VerificationReceipt({
           {/* Footer: verified date + logo */}
           <div className="flex items-end justify-between mt-4 pt-3 border-t border-white/[0.06]">
             <div>
-              <p className="text-[10px] text-white/30 mb-0.5">Verified on {verifiedAt}</p>
+              <p className="text-[11px] text-white/50 mb-0.5">Verified on {verifiedAt}</p>
               {passId && (
-                <p className="text-[10px] text-white/20 font-mono">{passId.length > 16 ? passId.slice(0, 16) + '...' : passId}</p>
+                <p className="text-[11px] text-white/20 font-mono">{passId.length > 16 ? passId.slice(0, 16) + '...' : passId}</p>
               )}
             </div>
-            <p className="text-sm font-serif italic text-white/40">VeilSub</p>
+            <p className="text-sm font-serif italic text-white/50">VeilSub</p>
           </div>
         </div>
       </div>

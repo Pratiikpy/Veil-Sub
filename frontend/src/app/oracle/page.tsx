@@ -287,7 +287,7 @@ export default function OraclePage() {
                   </span>
                 </div>
               ) : (
-                <p className="text-white/40 text-lg">
+                <p className="text-white/50 text-lg">
                   {priceError || 'Unable to fetch price data'}
                 </p>
               )}
@@ -317,7 +317,7 @@ export default function OraclePage() {
                     ? Math.round(price.usd * MICRO_USD_SCALE).toLocaleString()
                     : '---'}
                 </p>
-                <p className="text-xs text-white/40 mt-1">
+                <p className="text-xs text-white/50 mt-1">
                   6 decimal precision
                 </p>
               </GlassCard>
@@ -335,7 +335,7 @@ export default function OraclePage() {
                 <p className="text-sm font-medium text-white mb-1">
                   SGX Attested
                 </p>
-                <p className="text-xs text-white/40">
+                <p className="text-xs text-white/50">
                   official_oracle_v2.aleo
                 </p>
               </GlassCard>
@@ -446,10 +446,10 @@ export default function OraclePage() {
                       className="w-8 h-8 text-white/20 mx-auto mb-2"
                       aria-hidden="true"
                     />
-                    <p className="text-sm text-white/40">
+                    <p className="text-sm text-white/50">
                       Price history unavailable
                     </p>
-                    <p className="text-xs text-white/30 mt-1">
+                    <p className="text-xs text-white/50 mt-1">
                       CoinGecko API may be rate-limited
                     </p>
                   </div>
@@ -484,7 +484,7 @@ export default function OraclePage() {
                       Subscription Price (USD)
                     </label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 text-lg">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-lg">
                         $
                       </span>
                       <input
@@ -521,7 +521,7 @@ export default function OraclePage() {
                           : '---'}
                       </p>
                       {aleoResult !== null && (
-                        <p className="text-xs text-white/40 mt-1 tabular-nums">
+                        <p className="text-xs text-white/50 mt-1 tabular-nums">
                           {Math.round(
                             aleoResult * MICRO_USD_SCALE
                           ).toLocaleString()}{' '}
@@ -563,7 +563,7 @@ export default function OraclePage() {
                           <p className="text-sm font-medium text-white">
                             {tier.name}
                           </p>
-                          <p className="text-xs text-white/40">
+                          <p className="text-xs text-white/50">
                             ${tier.usd.toFixed(2)} / month
                           </p>
                         </div>
@@ -574,7 +574,7 @@ export default function OraclePage() {
                               : '---'}
                           </p>
                           {aleoAmount !== null && (
-                            <p className="text-xs text-white/30 tabular-nums">
+                            <p className="text-xs text-white/50 tabular-nums">
                               {Math.round(
                                 aleoAmount * MICRO_USD_SCALE
                               ).toLocaleString()}{' '}

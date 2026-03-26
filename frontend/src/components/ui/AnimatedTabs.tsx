@@ -53,10 +53,10 @@ export default function AnimatedTabs({ tabs, activeTab, onChange, className = ''
           {tab.label}
           {tab.count !== undefined && (
             <span
-              className={`ml-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold ${
+              className={`ml-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[11px] font-semibold ${
                 activeTab === tab.id
                   ? 'bg-white/[0.08] text-white/70'
-                  : 'bg-white/[0.06] text-white/40'
+                  : 'bg-white/[0.06] text-white/50'
               }`}
             >
               {tab.count}

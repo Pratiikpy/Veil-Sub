@@ -495,12 +495,12 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
               className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
                 feedFilter === tab.id
                   ? 'bg-white/[0.08] text-white'
-                  : 'text-white/40 hover:text-white/60'
+                  : 'text-white/50 hover:text-white/60'
               }`}
             >
               {tab.label}
               {tab.count > 0 && (
-                <span className={`ml-1 text-[10px] ${feedFilter === tab.id ? 'text-white/60' : 'text-white/30'}`}>
+                <span className={`ml-1 text-[11px] ${feedFilter === tab.id ? 'text-white/60' : 'text-white/50'}`}>
                   {tab.count}
                 </span>
               )}
@@ -563,8 +563,8 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                         <span className="text-xs font-medium text-white/80">
                           {creatorInfo?.label || shortenAddress(creatorAddress)}
                         </span>
-                        <span className="text-[10px] text-white/30">{post.createdAt ? timeAgo(post.createdAt) : ''}</span>
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/15">
+                        <span className="text-[11px] text-white/50">{post.createdAt ? timeAgo(post.createdAt) : ''}</span>
+                        <span className="px-1.5 py-0.5 rounded text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/15">
                           Note
                         </span>
                       </div>
@@ -664,7 +664,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                         {tier.name}
                       </span>
                       {isPPV && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 border border-amber-500/25 text-amber-300 shrink-0">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 border border-amber-500/25 text-amber-300 shrink-0">
                           <DollarSign className="w-3 h-3" aria-hidden="true" />
                           PPV
                         </span>
@@ -672,7 +672,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     </div>
                     {postIsE2E && (
                       <span
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0"
                         title="End-to-end encrypted — only subscribers can read this"
                       >
                         <ShieldCheck className="w-3 h-3" aria-hidden="true" />
@@ -769,10 +769,10 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                           <>
                             <p className="text-sm text-white/80 font-medium text-center">
                               Pay {formatCredits(post.ppvPrice!)} ALEO
-                              <span className="text-white/40 ml-1 text-xs">({formatUsd(post.ppvPrice!)})</span>
+                              <span className="text-white/50 ml-1 text-xs">({formatUsd(post.ppvPrice!)})</span>
                               {' '}to unlock?
                             </p>
-                            <p className="text-[10px] text-white/50">
+                            <p className="text-[11px] text-white/50">
                               + ~{formatCredits(FEES.TIP)} ALEO network fee
                             </p>
                             <div className="flex gap-2">
@@ -804,7 +804,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                           <>
                             <p className="text-sm text-white/80 font-medium">
                               Unlock this post &mdash; {formatCredits(post.ppvPrice!)} ALEO
-                              <span className="text-white/40 ml-1 text-xs">({formatUsd(post.ppvPrice!)})</span>
+                              <span className="text-white/50 ml-1 text-xs">({formatUsd(post.ppvPrice!)})</span>
                             </p>
                             <button
                               onClick={() => {
@@ -823,7 +823,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                             </button>
                           </>
                         )}
-                        <p className="text-[10px] text-white/35">One-time payment via private Aleo tip</p>
+                        <p className="text-[11px] text-white/50">One-time payment via private Aleo tip</p>
                       </div>
                     </div>
                   ) : unlocked && displayBody ? (
@@ -832,7 +832,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       {displayBody.length > 500 && (
                         <button
                           onClick={() => setReaderPost(post)}
-                          className="mt-3 flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"
+                          className="mt-3 flex items-center gap-1.5 text-xs text-white/50 hover:text-white/70 transition-colors"
                         >
                           <FileText className="w-3.5 h-3.5" aria-hidden="true" />
                           Read in focus mode
@@ -913,7 +913,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                             : 'Connect wallet'}
                           <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
-                        <p className="text-[11px] text-white/40">
+                        <p className="text-[11px] text-white/50">
                           {postIsE2E
                             ? 'End-to-end encrypted — the server cannot read this content'
                             : 'Content is server-protected and never exposed in network requests'}
@@ -937,7 +937,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                   {/* Free post CTA — subtle nudge to subscribe for more */}
                   {isFreePost && unlocked && (
                     <div className="mt-3 pt-2 border-t border-emerald-500/10">
-                      <p className="text-xs text-white/40 text-center">
+                      <p className="text-xs text-white/50 text-center">
                         Enjoying this free post? <span className="text-white/60">Subscribe</span> to unlock exclusive content from this creator.
                       </p>
                     </div>

@@ -30,6 +30,7 @@ import AddressAvatar from '@/components/ui/AddressAvatar'
 import OnChainVerify from '@/components/OnChainVerify'
 import AnimatedCounter from '@/components/AnimatedCounter'
 import ActivityChart from '@/components/ActivityChart'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { DEPLOYED_PROGRAM_ID, PLATFORM_ADDRESS, CREATOR_HASH_MAP } from '@/lib/config'
 import type { CreatorProfile } from '@/types'
 
@@ -212,7 +213,7 @@ function QuickMappingQueries() {
                   {loadingMap[q.mapping] ? <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" /> : 'Query'}
                 </button>
               </div>
-              <code className="text-[9px] text-violet-300/60 font-mono block mb-1">{q.mapping}</code>
+              <code className="text-[11px] text-violet-300/60 font-mono block mb-1">{q.mapping}</code>
               <p className="text-xs text-white/60 mb-2">{q.desc}</p>
               {hasResult && (
                 <div className="pt-2 border-t border-border/75">
@@ -239,9 +240,17 @@ function QuickMappingQueries() {
 
 export default function ExplorerPage() {
   const { fetchCreatorStats, loading } = useCreatorStats()
-  const [address, setAddress] = useState(PLATFORM_ADDRESS)
+  const { address: walletAddress, connected } = useWallet()
+  const [address, setAddress] = useState('')
   const [result, setResult] = useState<CreatorProfile | null>(null)
   const [searched, setSearched] = useState(false)
+
+  // Default to connected wallet address when wallet connects (if user hasn't typed anything)
+  useEffect(() => {
+    if (connected && walletAddress && !address && !searched) {
+      setAddress(walletAddress)
+    }
+  }, [connected, walletAddress]) // eslint-disable-line react-hooks/exhaustive-deps
   const [error, setError] = useState<string | null>(null)
   const [sparkData, setSparkData] = useState<number[]>([])
   const { placeholder, isAnimating } = useCyclingPlaceholder(SEARCH_PLACEHOLDERS)
@@ -659,8 +668,8 @@ export default function ExplorerPage() {
             </m.div>
           )}
 
-          {/* Info (no search) */}
-          {!searched && !globalStats && (
+          {/* Empty state prompt — shown when no search has been performed */}
+          {!searched && !address.trim() && (
             <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -668,12 +677,17 @@ export default function ExplorerPage() {
               className="text-center py-12"
             >
               <Search className="w-10 h-10 text-white/60 mx-auto mb-4" aria-hidden="true" />
-              <p className="text-white/60 text-sm">
-                Enter a creator&apos;s Aleo address to view their public on-chain stats.
+              <p className="text-white/70 text-sm font-medium mb-1">
+                Enter a creator address to view on-chain stats
               </p>
-              <p className="text-white/60 text-xs mt-2">
+              <p className="text-white/50 text-xs">
                 Only aggregate data (subscriber count, total revenue, tier price) is publicly visible.
               </p>
+              {!connected && (
+                <p className="text-white/50 text-xs mt-3">
+                  Connect your wallet to auto-fill your address.
+                </p>
+              )}
             </m.div>
           )}
 

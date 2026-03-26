@@ -171,7 +171,7 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
                     <span className="text-sm font-bold text-amber-300">
                       {formatCredits(item.price)} ALEO
                     </span>
-                    <span className="text-[10px] text-white/40">
+                    <span className="text-[11px] text-white/50">
                       {formatUsd(item.price)}
                     </span>
                   </div>
@@ -179,7 +179,7 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
               </div>
               {confirmingItem?.id === item.id ? (
                 <div className="mt-3 space-y-2">
-                  <p className="text-[10px] text-white/60 text-center">
+                  <p className="text-[11px] text-white/60 text-center">
                     Pay {formatCredits(item.price)} ALEO (~{formatUsd(item.price)}) + network fee?
                   </p>
                   <div className="flex gap-2">
@@ -231,7 +231,7 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
       </div>
 
       <div className="mt-4 p-3 rounded-lg bg-white/[0.02] border border-white/[0.06]">
-        <p className="text-[11px] text-white/40 text-center">
+        <p className="text-[11px] text-white/50 text-center">
           Tips are sent as private Aleo transactions. The creator sees the request but not your identity.
         </p>
       </div>

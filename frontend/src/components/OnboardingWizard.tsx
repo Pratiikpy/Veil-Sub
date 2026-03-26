@@ -476,7 +476,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                         ? 'bg-white border-white text-black'
                         : isActive
                           ? 'border-white/30 text-white/60 bg-white/[0.04]'
-                          : 'border-border text-white/30 bg-surface-1/40'
+                          : 'border-border text-white/50 bg-surface-1/40'
                     }`}
                   >
                     {isDone ? (
@@ -486,8 +486,8 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                     )}
                   </div>
                   <span
-                    className={`text-[10px] mt-1.5 font-medium ${
-                      isActive ? 'text-white/60' : isDone ? 'text-white/60' : 'text-white/30'
+                    className={`text-[11px] mt-1.5 font-medium ${
+                      isActive ? 'text-white/60' : isDone ? 'text-white/60' : 'text-white/50'
                     }`}
                   >
                     {s.label}
@@ -594,7 +594,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                         <p className="text-xs font-semibold text-white mb-0.5">
                           {card.title}
                         </p>
-                        <p className="text-[10px] text-white/40">{card.desc}</p>
+                        <p className="text-[11px] text-white/50">{card.desc}</p>
                       </div>
                     )
                   })}
@@ -623,7 +623,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-white">Set Up Your Profile</h2>
-                  <p className="text-xs text-white/40">Step 2 of 4 — your public creator identity</p>
+                  <p className="text-xs text-white/50">Step 2 of 4 — your public creator identity</p>
                 </div>
               </div>
 
@@ -650,7 +650,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                 <div>
                   <label htmlFor="onb-bio" className="block text-sm text-white/70 mb-2">
                     Bio
-                    <span className="text-white/40 ml-2 text-xs">({bio.length}/200)</span>
+                    <span className="text-white/50 ml-2 text-xs">({bio.length}/200)</span>
                   </label>
                   <textarea
                     id="onb-bio"
@@ -692,7 +692,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                 {/* Profile image upload */}
                 <div>
                   <label className="block text-sm text-white/70 mb-2">
-                    Profile Photo <span className="text-white/40 text-xs">(optional)</span>
+                    Profile Photo <span className="text-white/50 text-xs">(optional)</span>
                   </label>
                   <div className="flex items-center gap-4">
                     <div className="relative group">
@@ -739,11 +739,11 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                       aria-required="true"
                       className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:shadow-accent-md transition-all duration-300"
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/40">
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/50">
                       ALEO
                     </span>
                   </div>
-                  <p className="text-xs text-white/40 mt-1.5">
+                  <p className="text-xs text-white/50 mt-1.5">
                     {PLATFORM_FEE_PCT}% platform fee. This price registers your creator profile
                     on-chain.
                   </p>
@@ -802,7 +802,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-white">Create Your First Tier</h2>
-                  <p className="text-xs text-white/40">Step 3 of 4 — define subscriber access level</p>
+                  <p className="text-xs text-white/50">Step 3 of 4 — define subscriber access level</p>
                 </div>
               </div>
 
@@ -841,7 +841,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                         step="0.1"
                         className="w-full px-4 py-3 rounded-lg bg-surface-1 border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:shadow-accent-md transition-all duration-300"
                       />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/40">
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/50">
                         ALEO
                       </span>
                     </div>
@@ -862,7 +862,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                           <span className="flex-1 truncate">{feat}</span>
                           <button
                             onClick={() => removeFeature(i)}
-                            className="text-white/30 hover:text-red-400 transition-colors text-xs"
+                            className="text-white/50 hover:text-red-400 transition-colors text-xs"
                             aria-label={`Remove feature: ${feat}`}
                           >
                             x
@@ -897,7 +897,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
 
                 {/* Preview card */}
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-3">
                     Preview
                   </p>
                   <div className="p-5 rounded-2xl bg-gradient-to-b from-white/[0.04] to-transparent border border-white/[0.08]">
@@ -909,7 +909,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                         <p className="text-sm font-semibold text-white">
                           {tierName || 'Tier Name'}
                         </p>
-                        <p className="text-xs text-white/40">by {displayName || 'Creator'}</p>
+                        <p className="text-xs text-white/50">by {displayName || 'Creator'}</p>
                       </div>
                     </div>
 
@@ -917,7 +917,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                       <span className="text-2xl font-bold text-white">
                         {tierPrice ? parseFloat(tierPrice).toFixed(1) : '0.0'}
                       </span>
-                      <span className="text-sm text-white/40 ml-1">ALEO / month</span>
+                      <span className="text-sm text-white/50 ml-1">ALEO / month</span>
                     </div>
 
                     {tierFeatures.length > 0 && (
@@ -935,7 +935,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                     )}
 
                     <div className="p-2.5 rounded-lg bg-emerald-500/[0.06] border border-emerald-500/10 text-center">
-                      <span className="text-[10px] text-emerald-400 font-medium">
+                      <span className="text-[11px] text-emerald-400 font-medium">
                         Private Subscription
                       </span>
                     </div>
@@ -989,7 +989,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-white">Publish Your First Post</h2>
-                  <p className="text-xs text-white/40">
+                  <p className="text-xs text-white/50">
                     Step 4 of 4 — your subscribers see this first
                   </p>
                 </div>
@@ -1045,7 +1045,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                     <div>
                       <label htmlFor="onb-post-body" className="block text-sm text-white/70 mb-2">
                         Content
-                        <span className="text-white/40 ml-2 text-xs">({postBody.length}/500)</span>
+                        <span className="text-white/50 ml-2 text-xs">({postBody.length}/500)</span>
                       </label>
                       <textarea
                         id="onb-post-body"
@@ -1065,7 +1065,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                         <p className="text-xs font-medium text-white">
                           Requires: {tierName || 'Tier 1'} ({tierPrice || '?'} ALEO)
                         </p>
-                        <p className="text-[10px] text-white/40">
+                        <p className="text-[11px] text-white/50">
                           Only subscribers at this tier or above can view
                         </p>
                       </div>

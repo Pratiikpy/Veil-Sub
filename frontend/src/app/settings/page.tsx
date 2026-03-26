@@ -877,7 +877,7 @@ export default function SettingsPage() {
                     <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06]">
                       <div className="flex items-start gap-2">
                         <Shield className="w-3.5 h-3.5 text-white/60 mt-0.5 shrink-0" />
-                        <p className="text-[10px] text-white/50">
+                        <p className="text-[11px] text-white/50">
                           Your display name is optional and only shown in post comments. Your wallet address is never exposed.
                         </p>
                       </div>
@@ -927,7 +927,7 @@ export default function SettingsPage() {
                       </button>
                     )}
                   </div>
-                  <p className="text-[10px] text-white/30 -mt-1">Cover image. Max 5MB. JPG, PNG, or WebP.</p>
+                  <p className="text-[11px] text-white/50 -mt-1">Cover image. Max 5MB. JPG, PNG, or WebP.</p>
 
                   {/* Profile Image */}
                   <div className="flex items-center gap-4">
@@ -968,7 +968,7 @@ export default function SettingsPage() {
                   </div>
                   <div>
                     <label htmlFor="settings-bio" className="block text-xs text-white/50 mb-1.5">
-                      Bio <span className="text-white/30">({bio.length}/280)</span>
+                      Bio <span className="text-white/50">({bio.length}/280)</span>
                     </label>
                     <textarea
                       id="settings-bio"
@@ -994,7 +994,7 @@ export default function SettingsPage() {
                           <option key={cat} value={cat} className="bg-black text-white">{cat}</option>
                         ))}
                       </select>
-                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
+                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
                     </div>
                   </div>
                   <div className="pt-2">
@@ -1107,7 +1107,7 @@ export default function SettingsPage() {
                         onClick={() => setShowAddress(!showAddress)}
                         title={showAddress ? 'Hide full address' : 'Show full address'}
                         aria-label={showAddress ? 'Hide full address' : 'Show full address'}
-                        className="p-2 rounded-lg hover:bg-white/[0.06] text-white/40 hover:text-white/70 transition-all"
+                        className="p-2 rounded-lg hover:bg-white/[0.06] text-white/50 hover:text-white/70 transition-all"
                       >
                         {showAddress ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
                       </button>
@@ -1115,7 +1115,7 @@ export default function SettingsPage() {
                         onClick={handleCopyAddress}
                         title="Copy address"
                         aria-label="Copy address"
-                        className="p-2 rounded-lg hover:bg-white/[0.06] text-white/40 hover:text-white/70 transition-all"
+                        className="p-2 rounded-lg hover:bg-white/[0.06] text-white/50 hover:text-white/70 transition-all"
                       >
                         {copied ? (
                           <Check className="w-4 h-4 text-emerald-400" aria-hidden="true" />
@@ -1195,8 +1195,8 @@ export default function SettingsPage() {
                     </p>
                     {notifEmailLoading ? (
                       <div className="flex items-center gap-2 py-2">
-                        <Loader2 className="w-4 h-4 text-white/40 animate-spin" />
-                        <span className="text-xs text-white/40">Loading preferences...</span>
+                        <Loader2 className="w-4 h-4 text-white/50 animate-spin" />
+                        <span className="text-xs text-white/50">Loading preferences...</span>
                       </div>
                     ) : (
                       <div className="space-y-3">
@@ -1236,7 +1236,7 @@ export default function SettingsPage() {
                             </button>
                           )}
                         </div>
-                        <p className="text-[10px] text-white/30">
+                        <p className="text-[11px] text-white/50">
                           Your email is never shared. Notifications are sent via Resend. You can disable them at any time.
                         </p>
                       </div>
@@ -1255,11 +1255,11 @@ export default function SettingsPage() {
                   <p className="text-sm font-medium text-white">{APP_NAME}</p>
                 </div>
                 <details className="group">
-                  <summary className="text-xs text-white/40 cursor-pointer hover:text-white/60 transition-colors mt-2 select-none">
+                  <summary className="text-xs text-white/50 cursor-pointer hover:text-white/60 transition-colors mt-2 select-none">
                     Advanced details
                   </summary>
                   <div className="mt-2 p-3 rounded-xl bg-white/[0.02] border border-border">
-                    <p className="text-xs text-white/40 mb-0.5">Program ID</p>
+                    <p className="text-xs text-white/50 mb-0.5">Program ID</p>
                     <p className="text-xs font-mono text-white/50 break-all">{DEPLOYED_PROGRAM_ID}</p>
                   </div>
                 </details>
@@ -1281,7 +1281,7 @@ export default function SettingsPage() {
                     GitHub
                   </a>
                 </div>
-                <p className="text-xs text-white/40 pt-2">
+                <p className="text-xs text-white/50 pt-2">
                   Built with zero-knowledge proofs on Aleo. Your subscriptions, payments, and identity remain private by default.
                 </p>
               </div>

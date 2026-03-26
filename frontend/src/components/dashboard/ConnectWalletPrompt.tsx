@@ -90,7 +90,7 @@ export default function ConnectWalletPrompt() {
               <div key={item.title} className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04] text-center">
                 <item.icon className="w-4 h-4 text-white/60 mx-auto mb-2" aria-hidden="true" />
                 <p className="text-xs font-medium text-white mb-0.5">{item.title}</p>
-                <p className="text-[10px] text-white/50 leading-tight">{item.desc}</p>
+                <p className="text-[11px] text-white/50 leading-tight">{item.desc}</p>
               </div>
             ))}
           </m.div>

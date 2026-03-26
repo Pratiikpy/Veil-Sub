@@ -44,7 +44,7 @@ export default function PWAInstallPrompt() {
           <button onClick={install} className="px-3 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 text-white text-xs font-medium transition-colors">
             Install
           </button>
-          <button onClick={dismiss} className="px-3 py-1.5 rounded-lg text-white/40 hover:text-white/60 text-xs transition-colors">
+          <button onClick={dismiss} className="px-3 py-1.5 rounded-lg text-white/50 hover:text-white/60 text-xs transition-colors">
             Dismiss
           </button>
         </div>

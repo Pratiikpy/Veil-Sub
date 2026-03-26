@@ -234,7 +234,7 @@ export default function RedeemGiftModal({
                 aria-label="Close redeem gift modal"
                 className={`rounded-lg p-1 transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                   status === 'submitting'
-                    ? 'text-white/30 cursor-not-allowed'
+                    ? 'text-white/50 cursor-not-allowed'
                     : 'text-white/70 hover:bg-white/[0.1] hover:text-white active:scale-[0.9]'
                 }`}
               >
@@ -304,7 +304,7 @@ export default function RedeemGiftModal({
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-sm font-medium text-white">Tier {token.tier}</span>
                               {selectedToken?.giftId === token.giftId && (
-                                <span className="text-[10px] font-medium text-white/70 bg-white/[0.04] px-2 py-0.5 rounded-full">
+                                <span className="text-[11px] font-medium text-white/70 bg-white/[0.04] px-2 py-0.5 rounded-full">
                                   Selected
                                 </span>
                               )}
@@ -334,7 +334,7 @@ export default function RedeemGiftModal({
                 ) : !manualEntry && giftTokens.length === 0 ? (
                   <div className="space-y-2">
                     <div className="rounded-xl bg-surface-2 border border-border p-4 text-center">
-                      <Package className="mx-auto mb-2 h-6 w-6 text-white/40" aria-hidden="true" />
+                      <Package className="mx-auto mb-2 h-6 w-6 text-white/50" aria-hidden="true" />
                       <p className="text-sm text-white/60">No gift tokens found for this creator</p>
                       <p className="text-xs text-white/50 mt-1">If you received a gift, paste the token below</p>
                     </div>

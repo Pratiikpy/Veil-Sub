@@ -109,7 +109,7 @@ export default function PrivacyMarquee() {
               >
                 <p className="text-2xl font-bold text-white tracking-tight">{stat.value}</p>
                 <p className="text-xs font-medium text-white/80 mt-0.5">{stat.label}</p>
-                <p className="text-[10px] text-white/40 mt-0.5">{stat.source}</p>
+                <p className="text-[11px] text-white/50 mt-0.5">{stat.source}</p>
               </div>
             ))}
           </div>
@@ -136,7 +136,7 @@ export default function PrivacyMarquee() {
                   <span className={`text-[11px] font-semibold ${PLATFORM_COLORS[post.platform] ?? 'text-white/60'}`}>
                     {post.platform}
                   </span>
-                  <span className="text-[11px] text-white/40 ml-2">{post.sub}</span>
+                  <span className="text-[11px] text-white/50 ml-2">{post.sub}</span>
                 </div>
                 {post.url && (
                   <a

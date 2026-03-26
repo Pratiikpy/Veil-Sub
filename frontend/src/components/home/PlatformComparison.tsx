@@ -138,7 +138,7 @@ export default function PlatformComparison() {
         <div className="mt-16 space-y-4">
           <ScrollReveal delay={0.2}>
             <div className="flex items-center gap-4 mb-6">
-              <Shield className="w-5 h-5 text-white/40" aria-hidden="true" />
+              <Shield className="w-5 h-5 text-white/50" aria-hidden="true" />
               <h3 className="text-lg font-semibold text-white">Privacy-First Features</h3>
               <div className="flex-1 h-px bg-gradient-to-r from-white/10 to-transparent" />
             </div>
@@ -157,7 +157,7 @@ export default function PlatformComparison() {
                     ].map((col) => (
                       <div key={col.label} className="flex flex-col items-center gap-1.5">
                         <CellValue val={col.val} accent={col.accent} />
-                        <span className={`text-[10px] ${col.accent ? 'text-white/50 font-medium' : 'text-white/50'}`}>
+                        <span className={`text-[11px] ${col.accent ? 'text-white/50 font-medium' : 'text-white/50'}`}>
                           {col.label}
                         </span>
                       </div>
@@ -192,7 +192,7 @@ export default function PlatformComparison() {
                     ].map((col) => (
                       <div key={col.label} className="flex flex-col items-center gap-1.5">
                         <CellValue val={col.val} accent={col.accent} />
-                        <span className={`text-[10px] ${col.accent ? 'text-white/50 font-medium' : 'text-white/50'}`}>
+                        <span className={`text-[11px] ${col.accent ? 'text-white/50 font-medium' : 'text-white/50'}`}>
                           {col.label}
                         </span>
                       </div>

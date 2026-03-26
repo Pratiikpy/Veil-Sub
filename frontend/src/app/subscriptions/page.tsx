@@ -15,6 +15,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 import Link from 'next/link'
+import { toast } from 'sonner'
 import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
 import RenewModal from '@/components/RenewModal'
@@ -354,11 +355,14 @@ export default function SubscriptionsPage() {
   // Clear state when wallet disconnects to prevent stale data across wallet switches
   useEffect(() => {
     if (!connected) {
+      if (passes.length > 0) {
+        toast.info('Wallet disconnected')
+      }
       setPasses([])
       setRenewTarget(null)
       setError(null)
     }
-  }, [connected])
+  }, [connected]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const activePasses = useMemo(
     () => passes.filter((p) => p.status !== 'expired'),
@@ -423,8 +427,11 @@ export default function SubscriptionsPage() {
                 <h2 className="text-lg font-medium text-white mb-2">
                   Connect your wallet to manage subscriptions
                 </h2>
-                <p className="text-sm text-white/60 max-w-md mx-auto">
+                <p className="text-sm text-white/60 max-w-md mx-auto mb-3">
                   Your subscription passes live privately in your wallet. Connect to view, renew, or manage them.
+                </p>
+                <p className="text-xs text-white/50">
+                  Use the wallet button in the top right to connect.
                 </p>
               </div>
             </GlassCard>

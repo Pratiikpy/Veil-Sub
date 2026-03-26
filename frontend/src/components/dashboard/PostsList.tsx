@@ -250,7 +250,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
           >
             {tab.label}
             {tab.count > 0 && (
-              <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] ${
+              <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[11px] ${
                 activeTab === tab.key ? 'bg-white/[0.08] text-white/70' : 'bg-white/[0.06] text-white/50'
               }`}>
                 {tab.count}
@@ -263,7 +263,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
       {/* Search and tag filter */}
       <div className="flex flex-col sm:flex-row gap-2 mb-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" aria-hidden="true" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" aria-hidden="true" />
           <input
             ref={searchInputRef}
             type="text"
@@ -275,7 +275,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
           {searchQuery && (
             <button
               onClick={() => { setSearchQuery(''); searchInputRef.current?.focus() }}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded"
               aria-label="Clear search"
             >
               <X className="w-4 h-4" />
@@ -314,19 +314,19 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
             <>
               <Edit3 className="w-6 h-6 text-white/20 mx-auto mb-2" aria-hidden="true" />
               <p className="text-sm text-white/50 mb-1">No drafts saved</p>
-              <p className="text-xs text-white/40">Start writing and save as draft to pick up where you left off.</p>
+              <p className="text-xs text-white/50">Start writing and save as draft to pick up where you left off.</p>
             </>
           ) : activeTab === 'scheduled' ? (
             <>
               <CalendarClock className="w-6 h-6 text-white/20 mx-auto mb-2" aria-hidden="true" />
               <p className="text-sm text-white/50 mb-1">No scheduled posts</p>
-              <p className="text-xs text-white/40">Use the schedule feature when creating a post to queue it for later.</p>
+              <p className="text-xs text-white/50">Use the schedule feature when creating a post to queue it for later.</p>
             </>
           ) : (
             <>
               <FileText className="w-6 h-6 text-white/20 mx-auto mb-2" aria-hidden="true" />
               <p className="text-sm text-white/50 mb-1">Your audience is waiting</p>
-              <p className="text-xs text-white/40">Write your first exclusive post. Subscribers verify access without revealing their identity.</p>
+              <p className="text-xs text-white/50">Write your first exclusive post. Subscribers verify access without revealing their identity.</p>
             </>
           )}
         </div>
@@ -345,12 +345,12 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
                     <p className="text-sm text-white truncate">{post.title}</p>
                     {/* Status badge */}
                     {activeTab === 'drafts' && (
-                      <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-medium text-blue-300 bg-blue-500/10 border border-blue-500/20">
+                      <span className="shrink-0 px-2 py-0.5 rounded-full text-[11px] font-medium text-blue-300 bg-blue-500/10 border border-blue-500/20">
                         Draft
                       </span>
                     )}
                     {activeTab === 'scheduled' && (
-                      <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20">
+                      <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20">
                         <CalendarClock className="w-3 h-3" aria-hidden="true" />
                         Scheduled
                       </span>
@@ -391,7 +391,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
                       {post.tags.map(tag => (
                         <span
                           key={tag}
-                          className={`px-2 py-0.5 rounded-full text-[10px] border ${getTagColor(tag)} cursor-pointer hover:opacity-80 transition-opacity`}
+                          className={`px-2 py-0.5 rounded-full text-[11px] border ${getTagColor(tag)} cursor-pointer hover:opacity-80 transition-opacity`}
                           onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
                         >
                           {tag}

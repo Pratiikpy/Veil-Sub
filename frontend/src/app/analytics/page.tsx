@@ -134,8 +134,8 @@ function SubscriberGrowthChart({ data, loading }: { data: { date: string; subscr
       <div className="flex items-center justify-center h-[280px]">
         <div className="text-center">
           <TrendingUp className="w-8 h-8 text-white/20 mx-auto mb-2" aria-hidden="true" />
-          <p className="text-sm text-white/40">No subscriber data yet</p>
-          <p className="text-xs text-white/30 mt-1">Tracking starts from your first subscription</p>
+          <p className="text-sm text-white/50">No subscriber data yet</p>
+          <p className="text-xs text-white/50 mt-1">Tracking starts from your first subscription</p>
         </div>
       </div>
     )
@@ -204,7 +204,7 @@ function RevenuePieChart({
       <div className="flex items-center justify-center h-[260px]">
         <div className="text-center">
           <BarChart3 className="w-8 h-8 text-white/20 mx-auto mb-2" aria-hidden="true" />
-          <p className="text-sm text-white/40">No revenue data yet</p>
+          <p className="text-sm text-white/50">No revenue data yet</p>
         </div>
       </div>
     )
@@ -289,7 +289,7 @@ function ChurnCard({
     return (
       <div className="text-center py-6">
         <AlertTriangle className="w-6 h-6 text-white/20 mx-auto mb-2" aria-hidden="true" />
-        <p className="text-sm text-white/40">Connect wallet to see churn data</p>
+        <p className="text-sm text-white/50">Connect wallet to see churn data</p>
       </div>
     )
   }
@@ -362,7 +362,7 @@ function RecentActivityList({ events, loading }: { events: { tier: number; amoun
       <div className="flex items-center justify-center h-[200px]">
         <div className="text-center">
           <Activity className="w-6 h-6 text-white/20 mx-auto mb-2" aria-hidden="true" />
-          <p className="text-sm text-white/40">No recent activity</p>
+          <p className="text-sm text-white/50">No recent activity</p>
         </div>
       </div>
     )
@@ -382,7 +382,7 @@ function RecentActivityList({ events, loading }: { events: { tier: number; amoun
               <p className="text-sm text-white truncate">
                 New <span className="text-white/70 font-medium">{tierName}</span> subscription
               </p>
-              <p className="text-xs text-white/40">{timeAgo}</p>
+              <p className="text-xs text-white/50">{timeAgo}</p>
             </div>
             <span className="text-sm font-medium text-emerald-400 shrink-0">
               +{formatCredits(event.amount_microcredits)}
@@ -591,7 +591,7 @@ export default function AnalyticsPage() {
                       </div>
                     ) : (
                       <div className="flex items-center justify-center h-[100px]">
-                        <p className="text-sm text-white/40">No tier data yet</p>
+                        <p className="text-sm text-white/50">No tier data yet</p>
                       </div>
                     )}
                   </div>
@@ -665,7 +665,7 @@ function StatsCard({ icon: Icon, label, value, loading, delay }: { icon: typeof 
 function MetricCard({ icon: Icon, label, value, trend, sparkline, sparkColor }: { icon: typeof Users; label: string; value: string; trend: number; sparkline: number[]; sparkColor: string }) {
   const TrendIcon = trend >= 0 ? TrendingUp : TrendingDown
   const trendColor = trend > 0 ? 'text-emerald-400' : trend < 0 ? 'text-red-400' : 'text-white/50'
-  return (<GlassCard><div className="flex items-center justify-between mb-3"><div className="flex items-center gap-2"><Icon className="w-4 h-4 text-white/60" aria-hidden="true" /><span className="text-xs text-white/60 uppercase tracking-wider">{label}</span></div><Sparkline data={sparkline} color={sparkColor} /></div><p className="text-2xl font-semibold text-white mb-1">{value}</p>{trend !== 0 && (<div className={`flex items-center gap-1 ${trendColor}`}><TrendIcon className="w-3 h-3" aria-hidden="true" /><span className="text-xs font-medium">{trend > 0 ? '+' : ''}{trend}%</span><span className="text-xs text-white/40 ml-1">vs prev period</span></div>)}</GlassCard>)
+  return (<GlassCard><div className="flex items-center justify-between mb-3"><div className="flex items-center gap-2"><Icon className="w-4 h-4 text-white/60" aria-hidden="true" /><span className="text-xs text-white/60 uppercase tracking-wider">{label}</span></div><Sparkline data={sparkline} color={sparkColor} /></div><p className="text-2xl font-semibold text-white mb-1">{value}</p>{trend !== 0 && (<div className={`flex items-center gap-1 ${trendColor}`}><TrendIcon className="w-3 h-3" aria-hidden="true" /><span className="text-xs font-medium">{trend > 0 ? '+' : ''}{trend}%</span><span className="text-xs text-white/50 ml-1">vs prev period</span></div>)}</GlassCard>)
 }
 
 function ChurnStatCard({ churn, loading }: { churn: { churnRate: number; previousChurnRate: number } | null; loading: boolean }) {

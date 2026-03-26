@@ -151,7 +151,7 @@ export default function OnboardingTour() {
               </div>
               <div className="flex items-center gap-3">
                 {!isFinal && (
-                  <button onClick={finish} className="text-[11px] text-white/40 hover:text-white/60 transition-colors rounded focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none px-1">
+                  <button onClick={finish} className="text-[11px] text-white/50 hover:text-white/60 transition-colors rounded focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none px-1">
                     Skip tour
                   </button>
                 )}

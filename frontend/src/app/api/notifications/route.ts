@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { getRedis } from '@/lib/redis'
-import { ALEO_ADDRESS_RE } from '@/lib/config'
+import { ALEO_ADDRESS_RE, AUTH_CONFIG } from '@/lib/config'
 import { hashAddress } from '@/lib/encryption'
 import { encryptContent, decryptContent } from '@/lib/contentEncryption'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
@@ -37,6 +37,13 @@ export async function GET(req: NextRequest) {
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:notifications:get`, 30)
   if (!allowed) return getRateLimitResponse()
+
+  // Require timestamp parameter to prevent enumeration of arbitrary wallet hashes
+  const timestampParam = req.nextUrl.searchParams.get('timestamp')
+  const timestamp = timestampParam ? parseInt(timestampParam, 10) : NaN
+  if (!Number.isFinite(timestamp) || Math.abs(Date.now() - timestamp) > AUTH_CONFIG.TIMESTAMP_WINDOW_MS) {
+    return NextResponse.json({ error: 'Valid timestamp required', notifications: [] }, { status: 401 })
+  }
 
   const wallet = req.nextUrl.searchParams.get('wallet')
   if (!wallet || !ALEO_ADDRESS_RE.test(wallet)) {

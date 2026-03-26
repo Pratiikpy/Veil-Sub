@@ -51,7 +51,7 @@ export default function SubscriberWelcome({ onDismiss }: { onDismiss?: () => voi
           {/* Close button */}
           <button
             onClick={dismiss}
-            className="absolute top-4 right-4 p-1.5 rounded-lg text-white/40 hover:text-white/70 hover:bg-white/[0.06] transition-colors"
+            className="absolute top-4 right-4 p-1.5 rounded-lg text-white/50 hover:text-white/70 hover:bg-white/[0.06] transition-colors"
             aria-label="Close"
           >
             <X className="w-4 h-4" />

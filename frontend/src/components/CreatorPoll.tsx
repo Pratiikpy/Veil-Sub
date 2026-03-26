@@ -61,7 +61,7 @@ export default function CreatorPoll({ pollId, question, options, isSubscribed }:
               disabled={hasVoted || !isSubscribed}
               className={`relative w-full text-left rounded-lg px-3 py-2 text-sm transition-all overflow-hidden border ${
                 !isSubscribed
-                  ? 'border-white/[0.06] text-white/30 cursor-not-allowed'
+                  ? 'border-white/[0.06] text-white/50 cursor-not-allowed'
                   : hasVoted
                     ? `border-white/[0.08] ${isMyChoice ? 'border-white/15' : ''}`
                     : 'border-white/[0.08] hover:border-white/10 hover:bg-white/[0.04] cursor-pointer'
@@ -83,7 +83,7 @@ export default function CreatorPoll({ pollId, question, options, isSubscribed }:
           )
         })}
       </div>
-      <div className="mt-2 text-xs text-white/40">
+      <div className="mt-2 text-xs text-white/50">
         {!isSubscribed ? 'Subscribe to vote' : hasVoted ? `${totalVotes} vote${totalVotes !== 1 ? 's' : ''}` : 'Tap to vote'}
       </div>
     </div>

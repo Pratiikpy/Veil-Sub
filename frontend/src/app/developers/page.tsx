@@ -228,7 +228,7 @@ function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="absolute top-3 right-3 p-1.5 rounded-lg bg-white/[0.06] border border-border/50 text-white/40 hover:text-white/70 hover:bg-white/[0.1] transition-all"
+      className="absolute top-3 right-3 p-1.5 rounded-lg bg-white/[0.06] border border-border/50 text-white/50 hover:text-white/70 hover:bg-white/[0.1] transition-all"
       title="Copy to clipboard"
       aria-label="Copy to clipboard"
     >
@@ -333,8 +333,8 @@ export default function DevelopersPage() {
             <ScrollReveal delay={0.05}>
               <div className="relative">
                 <div className="flex items-center gap-2 px-4 py-3 rounded-t-xl bg-white/[0.03] border border-border/50 border-b-0">
-                  <Terminal className="w-3.5 h-3.5 text-white/40" aria-hidden="true" />
-                  <span className="text-xs text-white/40 font-medium">Terminal</span>
+                  <Terminal className="w-3.5 h-3.5 text-white/50" aria-hidden="true" />
+                  <span className="text-xs text-white/50 font-medium">Terminal</span>
                 </div>
                 <CodeBlock code={INSTALL_SNIPPET} className="!rounded-t-none [&>pre]:!rounded-t-none" />
               </div>
@@ -344,8 +344,8 @@ export default function DevelopersPage() {
             <ScrollReveal delay={0.1}>
               <div className="relative">
                 <div className="flex items-center gap-2 px-4 py-3 rounded-t-xl bg-white/[0.03] border border-border/50 border-b-0">
-                  <Code className="w-3.5 h-3.5 text-white/40" aria-hidden="true" />
-                  <span className="text-xs text-white/40 font-medium">app.ts</span>
+                  <Code className="w-3.5 h-3.5 text-white/50" aria-hidden="true" />
+                  <span className="text-xs text-white/50 font-medium">app.ts</span>
                 </div>
                 <CodeBlock code={QUICKSTART_SNIPPET} className="!rounded-t-none [&>pre]:!rounded-t-none" />
               </div>
@@ -387,7 +387,7 @@ export default function DevelopersPage() {
                         <p className="text-xs text-white/55 leading-relaxed mb-2">
                           {feature.description}
                         </p>
-                        <code className="px-2 py-0.5 rounded bg-white/[0.04] text-xs text-white/40 font-mono">
+                        <code className="px-2 py-0.5 rounded bg-white/[0.04] text-xs text-white/50 font-mono">
                           {feature.tag}
                         </code>
                       </div>
@@ -422,7 +422,7 @@ export default function DevelopersPage() {
             <div className="max-w-4xl mx-auto">
               <GlassCard hover={false} className="!p-0 overflow-hidden">
                 {/* Table header */}
-                <div className="hidden sm:grid grid-cols-12 gap-4 px-5 py-3 border-b border-border/50 text-xs font-semibold uppercase tracking-wider text-white/40">
+                <div className="hidden sm:grid grid-cols-12 gap-4 px-5 py-3 border-b border-border/50 text-xs font-semibold uppercase tracking-wider text-white/50">
                   <div className="col-span-4">Program</div>
                   <div className="col-span-1 text-center">Tx</div>
                   <div className="col-span-1 text-center">Maps</div>
@@ -458,7 +458,7 @@ export default function DevelopersPage() {
                       <span className="text-xs text-white/60 font-mono sm:inline hidden">
                         {program.transitions}
                       </span>
-                      <span className="text-xs text-white/40 sm:hidden">
+                      <span className="text-xs text-white/50 sm:hidden">
                         {program.transitions} transitions, {program.mappings} mappings
                       </span>
                     </div>
@@ -487,7 +487,7 @@ export default function DevelopersPage() {
 
                 {/* Summary row */}
                 <div className="px-5 py-3 bg-white/[0.02] border-t border-border/50 flex items-center justify-between">
-                  <span className="text-xs text-white/40">
+                  <span className="text-xs text-white/50">
                     Total: {PROGRAMS.reduce((s, p) => s + p.transitions, 0)} transitions,{' '}
                     {PROGRAMS.reduce((s, p) => s + p.mappings, 0)} mappings across{' '}
                     {PROGRAMS.length} programs
@@ -613,7 +613,7 @@ docker run -d veilsub/monitor:latest \\
   --program ${DEPLOYED_PROGRAM_ID} \\
   --alert-webhook $WEBHOOK_URL`}
                 />
-                <div className="mt-4 flex items-center gap-3 text-xs text-white/40">
+                <div className="mt-4 flex items-center gap-3 text-xs text-white/50">
                   <span className="flex items-center gap-1">
                     <Activity className="w-3 h-3 text-emerald-400" aria-hidden="true" />
                     Real-time monitoring

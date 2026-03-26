@@ -286,7 +286,7 @@ function FeedPostCard({
         {/* Gated image placeholder */}
         {!unlocked && post.hasImage && (
           <div className="mb-4 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-24">
-            <div className="flex items-center gap-2 text-white/40">
+            <div className="flex items-center gap-2 text-white/50">
               <ImageIcon className="w-4 h-4" aria-hidden="true" />
               <span className="text-xs">Image -- AccessPass required</span>
             </div>
@@ -303,7 +303,7 @@ function FeedPostCard({
         {/* Gated video placeholder */}
         {!unlocked && post.hasVideo && (
           <div className="mb-4 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-24">
-            <div className="flex items-center gap-2 text-white/40">
+            <div className="flex items-center gap-2 text-white/50">
               <Video className="w-4 h-4" aria-hidden="true" />
               <span className="text-xs">Video -- AccessPass required</span>
             </div>
@@ -317,7 +317,7 @@ function FeedPostCard({
             {post.body.length > 500 && (
               <button
                 onClick={() => setShowReader(true)}
-                className="mt-3 flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"
+                className="mt-3 flex items-center gap-1.5 text-xs text-white/50 hover:text-white/70 transition-colors"
               >
                 <FileText className="w-3.5 h-3.5" aria-hidden="true" />
                 Read in focus mode
@@ -386,7 +386,7 @@ function FeedPostCard({
         {!showComments && (
           <button
             onClick={() => setShowComments(true)}
-            className="flex items-center gap-1.5 mt-2 text-xs text-white/40 hover:text-white/60 transition-colors"
+            className="flex items-center gap-1.5 mt-2 text-xs text-white/50 hover:text-white/60 transition-colors"
           >
             <MessageCircle className="w-3 h-3" aria-hidden="true" />
             View comments
@@ -1036,7 +1036,7 @@ export default function FeedPage() {
                             {creator.name?.[0]?.toUpperCase() || '?'}
                           </div>
                         </div>
-                        <span className="text-[10px] text-white/50 max-w-[56px] truncate">
+                        <span className="text-[11px] text-white/50 max-w-[56px] truncate">
                           {creator.name || 'Creator'}
                         </span>
                       </div>
@@ -1047,7 +1047,7 @@ export default function FeedPage() {
 
               {/* Search bar */}
               <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" aria-hidden="true" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" aria-hidden="true" />
                 <input
                   ref={feedSearchRef}
                   type="text"
@@ -1059,7 +1059,7 @@ export default function FeedPage() {
                 {feedSearchQuery && (
                   <button
                     onClick={() => { setFeedSearchQuery(''); feedSearchRef.current?.focus() }}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/70 transition-colors"
                     aria-label="Clear search"
                   >
                     <X className="w-4 h-4" />
@@ -1218,7 +1218,7 @@ export default function FeedPage() {
               <div className="mt-8 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
                 <div className="flex items-start gap-2">
                   <Lock className="w-3.5 h-3.5 text-white/50 shrink-0 mt-0.5" aria-hidden="true" />
-                  <p className="text-xs text-white/40 leading-relaxed">
+                  <p className="text-xs text-white/50 leading-relaxed">
                     Gated content is server-protected. Post bodies are only delivered after AccessPass verification. Your subscription data never leaves your wallet.
                   </p>
                 </div>

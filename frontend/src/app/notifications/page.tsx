@@ -80,19 +80,19 @@ export default function NotificationsPage() {
               </p>
               <ul className="text-sm text-white/50 max-w-sm mx-auto text-left space-y-2 mb-8">
                 <li className="flex items-start gap-2">
-                  <FileText className="w-4 h-4 text-white/30 shrink-0 mt-0.5" aria-hidden="true" />
+                  <FileText className="w-4 h-4 text-white/50 shrink-0 mt-0.5" aria-hidden="true" />
                   <span>A creator you follow publishes new content</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <AlertTriangle className="w-4 h-4 text-white/30 shrink-0 mt-0.5" aria-hidden="true" />
+                  <AlertTriangle className="w-4 h-4 text-white/50 shrink-0 mt-0.5" aria-hidden="true" />
                   <span>Your subscription is expiring soon</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Coins className="w-4 h-4 text-white/30 shrink-0 mt-0.5" aria-hidden="true" />
+                  <Coins className="w-4 h-4 text-white/50 shrink-0 mt-0.5" aria-hidden="true" />
                   <span>Someone tips your content</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Gift className="w-4 h-4 text-white/30 shrink-0 mt-0.5" aria-hidden="true" />
+                  <Gift className="w-4 h-4 text-white/50 shrink-0 mt-0.5" aria-hidden="true" />
                   <span>You receive a gift subscription</span>
                 </li>
               </ul>
@@ -126,7 +126,7 @@ export default function NotificationsPage() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-white">{n.title}</p>
                         <p className="text-xs text-white/60 mt-0.5 leading-relaxed">{n.message}</p>
-                        <p className="text-xs text-white/40 mt-1.5">{timeAgo(n.createdAt)}</p>
+                        <p className="text-xs text-white/50 mt-1.5">{timeAgo(n.createdAt)}</p>
                       </div>
                       {!n.read && (
                         <span className="w-2 h-2 rounded-full bg-white/70 shrink-0 mt-2" />

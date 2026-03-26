@@ -57,7 +57,7 @@ export function useNotifications() {
     try {
       setLoading(true)
       const res = await fetch(
-        `/api/notifications?wallet=${encodeURIComponent(walletAddress)}&limit=${MAX_NOTIFICATIONS}`,
+        `/api/notifications?wallet=${encodeURIComponent(walletAddress)}&limit=${MAX_NOTIFICATIONS}&timestamp=${Date.now()}`,
         signal ? { signal } : undefined
       )
       if (!res.ok) return

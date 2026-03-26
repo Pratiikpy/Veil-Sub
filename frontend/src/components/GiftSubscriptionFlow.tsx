@@ -157,7 +157,7 @@ export default function GiftSubscriptionFlow({
                 aria-label="Close gift modal"
                 className={`rounded-lg p-1 transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                   status === 'submitting'
-                    ? 'text-white/30 cursor-not-allowed'
+                    ? 'text-white/50 cursor-not-allowed'
                     : 'text-white/70 hover:bg-white/[0.1] hover:text-white active:scale-[0.9]'
                 }`}
               >

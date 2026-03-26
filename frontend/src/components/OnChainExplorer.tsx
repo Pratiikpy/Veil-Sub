@@ -249,7 +249,7 @@ export default function OnChainExplorer() {
                         {creatorStats.totalRevenue !== null ? `${(creatorStats.totalRevenue / 1_000_000).toFixed(2)} ALEO` : '—'}
                       </span>
                     </div>
-                    <p className="text-[10px] text-amber-400/70 mt-2 italic leading-relaxed">
+                    <p className="text-[11px] text-amber-400/70 mt-2 italic leading-relaxed">
                       Note: Raw counts above are from the subscriber_count / total_revenue mappings (backward compat).
                       The contract also stores Pedersen commitments (subscriber_commit, revenue_commit) which provide
                       cryptographic privacy. In v30, raw counts will be removed. Public-facing pages already show

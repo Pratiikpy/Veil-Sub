@@ -256,14 +256,14 @@ export default function ContentVault({
                     <p className="text-[11px] font-medium text-white truncate">
                       {post.title ?? 'Untitled'}
                     </p>
-                    <p className="text-[10px] text-white/50">
+                    <p className="text-[11px] text-white/50">
                       {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </p>
                   </div>
 
                   {/* Tier badge */}
                   {post.gated && post.minTier && post.minTier > 1 && (
-                    <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-white/60 text-[10px] font-medium text-white">
+                    <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-white/60 text-[11px] font-medium text-white">
                       Tier {post.minTier}+
                     </div>
                   )}
@@ -278,8 +278,8 @@ export default function ContentVault({
       {!loading && !error && displayPosts.length === 0 && (
         <div className="text-center py-12">
           <FileText className="w-10 h-10 text-white/20 mx-auto mb-3" aria-hidden="true" />
-          <p className="text-sm text-white/40">
-            {filterTag ? `No posts with tag "${filterTag}"` : 'No content yet'}
+          <p className="text-sm text-white/50">
+            {filterTag ? `No posts with tag "${filterTag}"` : 'No exclusive content yet. Check back soon!'}
           </p>
         </div>
       )}

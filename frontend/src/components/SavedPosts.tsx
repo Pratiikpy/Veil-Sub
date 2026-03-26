@@ -56,8 +56,8 @@ export default function SavedPosts() {
       <div className="rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-10 text-center">
         <Bookmark className="w-10 h-10 text-white/20 mx-auto mb-3" aria-hidden="true" />
         <h3 className="text-sm font-medium text-white/70 mb-1">No saved posts</h3>
-        <p className="text-xs text-white/40">Bookmark posts from your feed and they will appear here.</p>
-        <p className="text-[10px] text-white/30 mt-2">Bookmarks are stored on this device for your privacy.</p>
+        <p className="text-xs text-white/50">Bookmark posts from your feed and they will appear here.</p>
+        <p className="text-[11px] text-white/50 mt-2">Bookmarks are stored on this device for your privacy.</p>
       </div>
     )
   }
@@ -66,7 +66,7 @@ export default function SavedPosts() {
     <div>
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs text-white/50">{entries.length} saved</span>
-        <button onClick={clearAll} className="text-[10px] text-white/40 hover:text-red-400 transition-colors">
+        <button onClick={clearAll} className="text-[11px] text-white/50 hover:text-red-400 transition-colors">
           Clear all
         </button>
       </div>
@@ -79,12 +79,12 @@ export default function SavedPosts() {
             <Bookmark className="w-4 h-4 text-amber-400/60 fill-amber-400/60 shrink-0" aria-hidden="true" />
             <div className="flex-1 min-w-0">
               <p className="text-sm text-white/80 truncate">{entry.title || `Post ${entry.contentId.slice(0, 8)}`}</p>
-              <p className="text-[10px] text-white/40">{timeAgo(entry.savedAt)}</p>
+              <p className="text-[11px] text-white/50">{timeAgo(entry.savedAt)}</p>
             </div>
             {entry.creatorAddress && (
               <Link
                 href={`/creator/${entry.creatorAddress}`}
-                className="text-white/30 hover:text-white/60 transition-colors shrink-0"
+                className="text-white/50 hover:text-white/60 transition-colors shrink-0"
                 aria-label="View creator"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -92,7 +92,7 @@ export default function SavedPosts() {
             )}
             <button
               onClick={() => remove(entry.contentId)}
-              className="text-white/30 hover:text-red-400 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
+              className="text-white/50 hover:text-red-400 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
               aria-label="Remove from saved"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -100,7 +100,7 @@ export default function SavedPosts() {
           </div>
         ))}
       </div>
-      <p className="text-[10px] text-white/30 text-center mt-3">Bookmarks are stored on this device for your privacy.</p>
+      <p className="text-[11px] text-white/50 text-center mt-3">Bookmarks are stored on this device for your privacy.</p>
     </div>
   )
 }

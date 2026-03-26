@@ -12,7 +12,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <span className="font-serif italic text-white text-lg">VeilSub</span>
-              <span className="px-2 py-1 text-[10px] font-medium text-white/40 bg-white/[0.04] border border-white/[0.06] rounded">
+              <span className="px-2 py-1 text-[11px] font-medium text-white/50 bg-white/[0.04] border border-white/[0.06] rounded">
                 v29
               </span>
             </div>
@@ -48,7 +48,7 @@ export default function Footer() {
         <div className="pt-5 border-t border-border/75 flex items-center justify-between text-xs text-white/60">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <Shield className="w-3 h-3 text-white/30" aria-hidden="true" />
+              <Shield className="w-3 h-3 text-white/50" aria-hidden="true" />
               <span>Blind renewals • Address-free on-chain storage • Complete privacy</span>
             </div>
             <span className="text-white/60">© 2026 VeilSub</span>
@@ -70,7 +70,7 @@ export default function Footer() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <span className="font-serif italic text-white text-sm">VeilSub</span>
-            <span className="px-2 py-1 text-[9px] font-medium text-white/40 bg-white/[0.04] border border-white/[0.06] rounded">
+            <span className="px-2 py-1 text-[11px] font-medium text-white/50 bg-white/[0.04] border border-white/[0.06] rounded">
               v29
             </span>
           </div>
@@ -86,7 +86,7 @@ export default function Footer() {
         </div>
         <div className="pt-3 border-t border-border/75 flex items-center justify-between text-xs text-white/60">
           <div className="flex items-center gap-2">
-            <Shield className="w-3 h-3 text-white/30 shrink-0" aria-hidden="true" />
+            <Shield className="w-3 h-3 text-white/50 shrink-0" aria-hidden="true" />
             <span>Your address is never stored</span>
           </div>
           <span className="text-white/60">© 2026 VeilSub</span>

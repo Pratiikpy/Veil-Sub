@@ -224,7 +224,7 @@ function TransitionGroup({ group, defaultOpen = false }: { group: TransitionGrou
         <span className={`px-2 py-0.5 rounded-full text-xs ${group.bgColor} ${group.color}`}>
           {group.transitions.length}
         </span>
-        <ChevronDown className={`w-4 h-4 text-white/40 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
+        <ChevronDown className={`w-4 h-4 text-white/50 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
       </button>
       <AnimatePresence initial={false}>
         {open && (
@@ -240,7 +240,7 @@ function TransitionGroup({ group, defaultOpen = false }: { group: TransitionGrou
                 <div key={t.name} className="p-3 rounded-lg bg-white/[0.02] border border-border/50 hover:border-border transition-colors">
                   <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                     <code className="text-xs text-white/80 font-mono">{t.name}</code>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                    <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${
                       t.type === 'async'
                         ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
                         : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
@@ -320,7 +320,7 @@ function OverviewTab() {
                 rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                 className="group/link flex items-center gap-2 px-3 py-2.5 rounded-lg bg-white/[0.03] border border-border/50 text-xs text-white/70 hover:text-white hover:border-violet-500/30 hover:bg-violet-500/[0.04] transition-all"
               >
-                <ExternalLink className="w-3 h-3 shrink-0 text-white/40 group-hover/link:text-violet-400 transition-colors" aria-hidden="true" />
+                <ExternalLink className="w-3 h-3 shrink-0 text-white/50 group-hover/link:text-violet-400 transition-colors" aria-hidden="true" />
                 {link.label}
               </a>
             ))}
@@ -367,7 +367,7 @@ function OverviewTab() {
               <h4 className="text-sm font-semibold text-white mb-2">VeilSub Contract</h4>
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {['31 transitions', '30 mappings', '6 records'].map((s) => (
-                  <span key={s} className="px-2 py-0.5 rounded-full text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20">{s}</span>
+                  <span key={s} className="px-2 py-0.5 rounded-full text-[11px] bg-blue-500/10 text-blue-400 border border-blue-500/20">{s}</span>
                 ))}
               </div>
               <p className="text-xs text-white/60">ZK proofs generated locally. Identity never leaves your device.</p>
@@ -384,11 +384,11 @@ function OverviewTab() {
               <h4 className="text-sm font-semibold text-white mb-2">On-Chain State</h4>
               <div className="space-y-2">
                 <div>
-                  <span className="text-[10px] font-medium text-emerald-400">PRIVATE (records)</span>
+                  <span className="text-[11px] font-medium text-emerald-400">PRIVATE (records)</span>
                   <p className="text-xs text-white/60">AccessPass, payments, subscriber ID</p>
                 </div>
                 <div>
-                  <span className="text-[10px] font-medium text-amber-400">PUBLIC (mappings)</span>
+                  <span className="text-[11px] font-medium text-amber-400">PUBLIC (mappings)</span>
                   <p className="text-xs text-white/60">Counts, revenue, tier prices — all field-keyed</p>
                 </div>
               </div>
@@ -436,9 +436,9 @@ function OverviewTab() {
                 key={item.label}
                 className="p-3 rounded-lg bg-white/[0.02] border border-border/50 hover:border-border transition-colors flex items-center gap-3"
               >
-                <Icon className="w-4 h-4 text-white/40 shrink-0" aria-hidden="true" />
+                <Icon className="w-4 h-4 text-white/50 shrink-0" aria-hidden="true" />
                 <div>
-                  <span className="text-[10px] text-white/50 uppercase tracking-wider">{item.label}</span>
+                  <span className="text-[11px] text-white/50 uppercase tracking-wider">{item.label}</span>
                   <p className="text-xs text-white/80">{item.value}</p>
                 </div>
               </div>
@@ -461,7 +461,7 @@ function ContractTab() {
         <div className="relative p-5 bg-surface-1">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <span className="text-[10px] text-white/50 uppercase tracking-wider">Deployed on testnet</span>
+              <span className="text-[11px] text-white/50 uppercase tracking-wider">Deployed on testnet</span>
               <code className="block text-white/80 text-sm font-mono mt-1">{DEPLOYED_PROGRAM_ID}</code>
             </div>
             <div className="flex items-center gap-3">
@@ -899,7 +899,7 @@ export default function DocsPage() {
               >
                 Documentation
               </h1>
-              <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/[0.06] text-white/60 border border-white/10">
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/[0.06] text-white/60 border border-white/10">
                 v27
               </span>
             </div>
@@ -917,7 +917,7 @@ export default function DocsPage() {
                   className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-border/50"
                 >
                   <span className={`text-sm font-semibold font-mono ${stat.color}`}>{stat.value}</span>
-                  <span className="text-[10px] text-white/50 uppercase tracking-wider">{stat.label}</span>
+                  <span className="text-[11px] text-white/50 uppercase tracking-wider">{stat.label}</span>
                 </div>
               ))}
             </div>

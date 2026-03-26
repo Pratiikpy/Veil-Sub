@@ -76,7 +76,7 @@ export default function VerificationResult({
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-white/60">Creator</span>
-              <span className="text-white/70 font-mono text-[10px]">
+              <span className="text-white/70 font-mono text-[11px]">
                 {passCreator}
               </span>
             </div>

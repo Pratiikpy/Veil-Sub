@@ -223,7 +223,7 @@ export default function CommandPalette() {
           >
             {/* Search input */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.06]">
-              <Search className="w-5 h-5 text-white/30 shrink-0" />
+              <Search className="w-5 h-5 text-white/50 shrink-0" />
               <input
                 ref={inputRef}
                 type="text"
@@ -241,7 +241,7 @@ export default function CommandPalette() {
               <span id="command-palette-hint" className="sr-only">
                 Press Escape to close, arrow keys to navigate, Enter to select
               </span>
-              <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[10px] text-white/30 font-mono">
+              <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[11px] text-white/50 font-mono">
                 ESC
               </kbd>
             </div>
@@ -249,13 +249,13 @@ export default function CommandPalette() {
             {/* Results */}
             <div ref={listRef} className="max-h-[320px] overflow-y-auto py-2 scroll-smooth">
               {filtered.length === 0 ? (
-                <div className="px-4 py-8 text-center text-sm text-white/30">
+                <div className="px-4 py-8 text-center text-sm text-white/50">
                   No results for &ldquo;{query}&rdquo;
                 </div>
               ) : (
                 grouped.map((group) => (
                   <div key={group.category}>
-                    <div className="px-4 pt-2 pb-1 text-[10px] uppercase tracking-wider font-semibold text-white/30">
+                    <div className="px-4 pt-2 pb-1 text-[11px] uppercase tracking-wider font-semibold text-white/50">
                       {!query.trim() && getRecentIds().length > 0
                         ? 'Recent'
                         : CATEGORY_LABELS[group.category] ?? group.category}
@@ -280,7 +280,7 @@ export default function CommandPalette() {
                         >
                           <span
                             className={`shrink-0 transition-colors duration-75 ${
-                              isSelected ? 'text-white/60' : 'text-white/40'
+                              isSelected ? 'text-white/60' : 'text-white/50'
                             }`}
                           >
                             {item.icon}
@@ -288,11 +288,11 @@ export default function CommandPalette() {
                           <span className="flex-1 text-sm text-white/90 truncate">
                             {item.label}
                           </span>
-                          <span className="shrink-0 text-[10px] uppercase tracking-wide text-white/20 font-medium">
+                          <span className="shrink-0 text-[11px] uppercase tracking-wide text-white/20 font-medium">
                             {item.category}
                           </span>
                           {item.shortcut && (
-                            <kbd className="shrink-0 px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[10px] text-white/30 font-mono">
+                            <kbd className="shrink-0 px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[11px] text-white/50 font-mono">
                               {item.shortcut}
                             </kbd>
                           )}
@@ -305,7 +305,7 @@ export default function CommandPalette() {
             </div>
 
             {/* Footer hint */}
-            <div className="flex items-center gap-4 px-4 py-2 border-t border-white/[0.06] text-[10px] text-white/20">
+            <div className="flex items-center gap-4 px-4 py-2 border-t border-white/[0.06] text-[11px] text-white/20">
               <span className="flex items-center gap-1">
                 <kbd className="px-1 rounded bg-white/[0.06] font-mono">&uarr;</kbd>
                 <kbd className="px-1 rounded bg-white/[0.06] font-mono">&darr;</kbd>
@@ -343,10 +343,10 @@ export function CommandPaletteTrigger() {
         )
       }}
       aria-label="Open command palette"
-      className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs text-white/40 hover:text-white/60 hover:bg-white/[0.06] transition-all duration-200 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
+      className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs text-white/50 hover:text-white/60 hover:bg-white/[0.06] transition-all duration-200 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
     >
       <Search className="w-3 h-3" />
-      <span className="font-mono text-[10px]">{isMac ? '\u2318K' : 'Ctrl+K'}</span>
+      <span className="font-mono text-[11px]">{isMac ? '\u2318K' : 'Ctrl+K'}</span>
     </button>
   )
 }

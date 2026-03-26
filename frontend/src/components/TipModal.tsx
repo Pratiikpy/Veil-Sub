@@ -527,7 +527,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                     >
                       <Eye className="w-4 h-4 mx-auto mb-1" aria-hidden="true" />
                       <span className="text-[11px] font-medium block">Direct Tip</span>
-                      <span className="text-[9px] text-white/60 block">Private transfer</span>
+                      <span className="text-[11px] text-white/60 block">Private transfer</span>
                     </button>
                     <button
                       role="radio"
@@ -542,7 +542,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                     >
                       <EyeOff className="w-4 h-4 mx-auto mb-1" aria-hidden="true" />
                       <span className="text-[11px] font-medium block">Private Tip</span>
-                      <span className="text-[9px] text-white/60 block">BHP256 commit-reveal</span>
+                      <span className="text-[11px] text-white/60 block">BHP256 commit-reveal</span>
                     </button>
                   </div>
                 )}
@@ -569,7 +569,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                       <p className="text-[11px] text-white/70 mb-2">
                         Clearing browser cache before reveal will permanently lose your committed tip. Save this code securely outside your browser.
                       </p>
-                      <code className="block p-2 bg-black/40 rounded-lg text-[10px] text-amber-400 font-mono break-all select-all">
+                      <code className="block p-2 bg-black/40 rounded-lg text-[11px] text-amber-400 font-mono break-all select-all">
                         Amount: {formatCredits(savedAmount)} ALEO | Salt: {savedSalt}
                       </code>
                     </div>
@@ -601,7 +601,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                           }`}
                         >
                           <span className="text-sm font-medium block">{amount}</span>
-                          <span className="text-[10px] text-white/40 block">~${(amount * ALEO_USD_ESTIMATE).toFixed(2)}</span>
+                          <span className="text-[11px] text-white/50 block">~${(amount * ALEO_USD_ESTIMATE).toFixed(2)}</span>
                         </button>
                       ))}
                     </div>

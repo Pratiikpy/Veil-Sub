@@ -93,7 +93,7 @@ export default function DesktopSidebar() {
               <div className="relative">
                 <Icon size={18} strokeWidth={active ? 2.5 : 2} aria-hidden="true" />
                 {item.showBadge && unreadCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[9px] font-bold text-white bg-red-500 rounded-full">
+                  <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[11px] font-bold text-white bg-red-500 rounded-full">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
@@ -113,7 +113,7 @@ export default function DesktopSidebar() {
         >
           <Search size={18} strokeWidth={2} aria-hidden="true" />
           <span>Search</span>
-          <kbd className="ml-auto text-[10px] font-mono text-white/25 bg-white/[0.04] border border-white/[0.08] rounded px-1.5 py-0.5">
+          <kbd className="ml-auto text-[11px] font-mono text-white/25 bg-white/[0.04] border border-white/[0.08] rounded px-1.5 py-0.5">
             /K
           </kbd>
         </button>
@@ -146,7 +146,7 @@ export default function DesktopSidebar() {
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-[11px] font-medium text-white/70">Connected</p>
-                <p className="text-[10px] font-mono text-white/35 truncate">{truncatedAddress}</p>
+                <p className="text-[11px] font-mono text-white/50 truncate">{truncatedAddress}</p>
               </div>
               <LogOut size={14} className="text-white/20 group-hover:text-white/50 transition-colors flex-shrink-0" />
             </button>

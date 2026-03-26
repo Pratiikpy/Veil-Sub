@@ -347,12 +347,12 @@ export default function RenewModal({
                           }`}
                         >
                           <span className="text-[11px] font-medium block">{mode.label}</span>
-                          <span className="text-[9px] text-white/60 block">{mode.desc}</span>
+                          <span className="text-[11px] text-white/60 block">{mode.desc}</span>
                         </button>
                       ))}
                     </div>
                     {privacyMode === 'blind' && (
-                      <p className="text-[10px] text-white/40 mt-2">
+                      <p className="text-[11px] text-white/50 mt-2">
                         Each renewal looks different to the creator—they cannot track you across renewals.
                       </p>
                     )}
@@ -370,11 +370,11 @@ export default function RenewModal({
                   <div className="text-xs text-white/60 space-y-1">
                     <div className="flex justify-between">
                       <span>Creator ({100 - PLATFORM_FEE_PCT}%)</span>
-                      <span>{formatCredits(creatorCut)} ALEO <span className="text-white/40">({formatUsd(creatorCut)})</span></span>
+                      <span>{formatCredits(creatorCut)} ALEO <span className="text-white/50">({formatUsd(creatorCut)})</span></span>
                     </div>
                     <div className="flex justify-between">
                       <span>Platform fee ({PLATFORM_FEE_PCT}%)</span>
-                      <span>{formatCredits(platformCut)} ALEO <span className="text-white/40">({formatUsd(platformCut)})</span></span>
+                      <span>{formatCredits(platformCut)} ALEO <span className="text-white/50">({formatUsd(platformCut)})</span></span>
                     </div>
                   </div>
                   <div className="mt-2 pt-2 border-t border-white/5 text-xs text-white/70 space-y-1">

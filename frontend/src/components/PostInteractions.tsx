@@ -295,7 +295,7 @@ export default function PostInteractions({
 
         {/* Reading time */}
         {readingTime && (
-          <span className="flex items-center gap-1 text-xs text-white/40 ml-auto">
+          <span className="flex items-center gap-1 text-xs text-white/50 ml-auto">
             <BookOpen className="w-3 h-3" aria-hidden="true" />
             {readingTime}
           </span>

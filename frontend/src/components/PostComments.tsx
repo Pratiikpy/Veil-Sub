@@ -329,7 +329,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
         <MessageCircle className="w-3.5 h-3.5 text-white/50" aria-hidden="true" />
         <span className="text-xs text-white/50">{comments.length} comment{comments.length !== 1 ? 's' : ''}</span>
         {!serverAvailable && (
-          <span className="text-[9px] text-amber-400/60 ml-1" title="Comments stored on this device only">(local)</span>
+          <span className="text-[11px] text-amber-400/60 ml-1" title="Comments stored on this device only">(local)</span>
         )}
       </div>
 
@@ -348,21 +348,21 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
               />
             ) : null}
             <div className={`w-7 h-7 rounded-full ${avatarColor(c.subscriber_hash)} flex items-center justify-center shrink-0 ${sp?.avatar_url ? 'hidden' : ''}`}>
-              <span className="text-[10px] font-bold text-white/70">{sp?.display_name?.[0]?.toUpperCase() || 'S'}</span>
+              <span className="text-[11px] font-bold text-white/70">{sp?.display_name?.[0]?.toUpperCase() || 'S'}</span>
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-white/70">{sp?.display_name || 'Subscriber'}</span>
-                <span className="text-[10px] text-white/40">{timeAgo(c.created_at)}</span>
+                <span className="text-[11px] text-white/50">{timeAgo(c.created_at)}</span>
               </div>
               <p className="text-sm text-white/80 leading-relaxed mt-0.5 break-words">{c.text}</p>
               <div className="flex items-center gap-3 mt-1">
-                <button onClick={() => toggleLike(c.id)} className="flex items-center gap-1 text-white/40 hover:text-rose-400 transition-colors">
+                <button onClick={() => toggleLike(c.id)} className="flex items-center gap-1 text-white/50 hover:text-rose-400 transition-colors">
                   <Heart className={`w-3 h-3 ${localStorage.getItem(`veilsub_comment_like_${c.id}`) ? 'fill-rose-400 text-rose-400' : ''}`} />
-                  {c.likes_count > 0 && <span className="text-[10px]">{c.likes_count}</span>}
+                  {c.likes_count > 0 && <span className="text-[11px]">{c.likes_count}</span>}
                 </button>
                 {isSubscribed && (
-                  <button onClick={() => setReplyTo(replyTo === c.id ? null : c.id)} className="text-[10px] text-white/40 hover:text-white/60 transition-colors">
+                  <button onClick={() => setReplyTo(replyTo === c.id ? null : c.id)} className="text-[11px] text-white/50 hover:text-white/60 transition-colors">
                     Reply
                   </button>
                 )}
@@ -383,12 +383,12 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
                 />
               ) : null}
               <div className={`w-6 h-6 rounded-full ${avatarColor(r.subscriber_hash)} flex items-center justify-center shrink-0 ${rp?.avatar_url ? 'hidden' : ''}`}>
-                <span className="text-[10px] font-bold text-white/60">{rp?.display_name?.[0]?.toUpperCase() || 'S'}</span>
+                <span className="text-[11px] font-bold text-white/60">{rp?.display_name?.[0]?.toUpperCase() || 'S'}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-medium text-white/60">{rp?.display_name || 'Subscriber'}</span>
-                  <span className="text-[10px] text-white/35">{timeAgo(r.created_at)}</span>
+                  <span className="text-[11px] font-medium text-white/60">{rp?.display_name || 'Subscriber'}</span>
+                  <span className="text-[11px] text-white/50">{timeAgo(r.created_at)}</span>
                 </div>
                 <p className="text-xs text-white/70 leading-relaxed mt-0.5 break-words">{r.text}</p>
               </div>
@@ -417,7 +417,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
 
       {/* Show more/less */}
       {topLevel.length > 3 && (
-        <button onClick={() => setExpanded(!expanded)} className="flex items-center gap-1 text-[10px] text-white/40 hover:text-white/60 transition-colors mb-3">
+        <button onClick={() => setExpanded(!expanded)} className="flex items-center gap-1 text-[11px] text-white/50 hover:text-white/60 transition-colors mb-3">
           {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
           {expanded ? 'Show less' : `View all ${topLevel.length} comments`}
         </button>
@@ -439,7 +439,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
           </button>
         </div>
       ) : (
-        <p className="text-xs text-white/40 text-center py-2">Subscribe to join the conversation</p>
+        <p className="text-xs text-white/50 text-center py-2">Subscribe to join the conversation</p>
       )}
     </div>
   )

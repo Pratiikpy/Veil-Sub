@@ -102,7 +102,7 @@ function PerkEditor({ creatorAddress, tierId, onClose }: PerkEditorProps) {
             />
             <button
               onClick={() => removePerk(i)}
-              className="p-1.5 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              className="p-1.5 rounded-lg text-white/50 hover:text-red-400 hover:bg-red-500/10 transition-colors"
               aria-label="Remove perk"
             >
               <X className="w-3.5 h-3.5" />
@@ -377,13 +377,13 @@ export default function RegisteredDashboard({
         {/* Revenue Card */}
         <div className="p-5 rounded-xl bg-[#0a0a0a] border border-white/[0.06]">
           <div className="flex items-center gap-1.5 mb-3">
-            <Coins className="w-4 h-4 text-white/40" aria-hidden="true" />
+            <Coins className="w-4 h-4 text-white/50" aria-hidden="true" />
             <span className="text-xs text-white/50 font-medium">Revenue</span>
           </div>
           <p className="text-2xl font-bold text-white tabular-nums tracking-tight">
             {revenueAleo > 0 ? revenueUsdStr : '$0.00'}
           </p>
-          <p className="text-xs text-white/40 mt-1">
+          <p className="text-xs text-white/50 mt-1">
             {revenueAleo > 0 ? `${formatCredits(stats?.totalRevenue ?? 0)} ALEO` : 'No revenue yet'}
           </p>
         </div>
@@ -391,13 +391,13 @@ export default function RegisteredDashboard({
         {/* Subscribers Card */}
         <div className="p-5 rounded-xl bg-[#0a0a0a] border border-white/[0.06]">
           <div className="flex items-center gap-1.5 mb-3">
-            <Users className="w-4 h-4 text-white/40" aria-hidden="true" />
+            <Users className="w-4 h-4 text-white/50" aria-hidden="true" />
             <span className="text-xs text-white/50 font-medium">Subscribers</span>
           </div>
           <p className="text-2xl font-bold text-white tabular-nums tracking-tight">
             {stats?.subscriberCount ?? 0}
           </p>
-          <p className="text-xs text-white/40 mt-1">
+          <p className="text-xs text-white/50 mt-1">
             Shown as &ldquo;{stats?.subscriberThreshold ?? 'New'}&rdquo; publicly
           </p>
         </div>
@@ -405,13 +405,13 @@ export default function RegisteredDashboard({
         {/* Posts Card */}
         <div className="p-5 rounded-xl bg-[#0a0a0a] border border-white/[0.06]">
           <div className="flex items-center gap-1.5 mb-3">
-            <FileText className="w-4 h-4 text-white/40" aria-hidden="true" />
+            <FileText className="w-4 h-4 text-white/50" aria-hidden="true" />
             <span className="text-xs text-white/50 font-medium">Posts</span>
           </div>
           <p className="text-2xl font-bold text-white tabular-nums tracking-tight">
             {stats?.contentCount ?? 0}
           </p>
-          <p className="text-xs text-white/40 mt-1">
+          <p className="text-xs text-white/50 mt-1">
             {(stats?.contentCount ?? 0) > 0 ? 'Published on-chain' : 'No posts yet'}
           </p>
         </div>
@@ -431,7 +431,7 @@ export default function RegisteredDashboard({
                 <p className="text-xs text-white/50 mb-0.5">Available to withdraw</p>
                 <p className="text-lg font-bold text-white tabular-nums">
                   {formatCredits(onChainRevenue ?? stats?.totalRevenue ?? 0)} ALEO
-                  <span className="text-sm font-normal text-white/40 ml-2">{formatUsd(onChainRevenue ?? stats?.totalRevenue ?? 0)}</span>
+                  <span className="text-sm font-normal text-white/50 ml-2">{formatUsd(onChainRevenue ?? stats?.totalRevenue ?? 0)}</span>
                 </p>
               </div>
               <button
@@ -467,7 +467,7 @@ export default function RegisteredDashboard({
                   <button
                     type="button"
                     onClick={() => setWithdrawAmount(((onChainRevenue ?? stats?.totalRevenue ?? 0) / MICROCREDITS_PER_CREDIT).toString())}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider text-white/50 bg-white/[0.06] hover:bg-white/[0.1] transition-colors"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-wider text-white/50 bg-white/[0.06] hover:bg-white/[0.1] transition-colors"
                     aria-label="Fill maximum amount"
                   >
                     Max
@@ -496,7 +496,7 @@ export default function RegisteredDashboard({
               )}
               <button
                 onClick={() => setShowWithdrawPanel(false)}
-                className="text-xs text-white/40 hover:text-white/70 transition-colors"
+                className="text-xs text-white/50 hover:text-white/70 transition-colors"
               >
                 Cancel
               </button>
@@ -523,7 +523,7 @@ export default function RegisteredDashboard({
             className="p-4 rounded-xl bg-[#0a0a0a] border border-white/[0.06] cursor-text hover:border-white/[0.12] transition-all group flex items-center gap-3 focus-visible:ring-1 focus-visible:ring-white/30 focus-visible:outline-none"
           >
             <AddressAvatar address={publicKey} size={40} className="shrink-0 rounded-full" />
-            <span className="text-white/30 text-sm group-hover:text-white/50 transition-colors flex-1">
+            <span className="text-white/50 text-sm group-hover:text-white/50 transition-colors flex-1">
               What&apos;s on your mind?
             </span>
             <span className="text-xs text-white/20 shrink-0">Publish</span>
@@ -536,7 +536,7 @@ export default function RegisteredDashboard({
               </span>
               <button
                 onClick={() => { setComposeExpanded(false); setEditingPost(null) }}
-                className="p-1 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-all"
+                className="p-1 rounded-lg text-white/50 hover:text-white/70 hover:bg-white/[0.05] transition-all"
                 aria-label="Collapse editor"
               >
                 <X className="w-4 h-4" />
@@ -647,7 +647,7 @@ export default function RegisteredDashboard({
           <h2 className="text-sm font-semibold text-white">
             Tiers
             {creatorTierCount > 0 && (
-              <span className="ml-2 text-xs font-normal text-white/40">
+              <span className="ml-2 text-xs font-normal text-white/50">
                 {creatorTierCount} on-chain
               </span>
             )}
@@ -662,7 +662,7 @@ export default function RegisteredDashboard({
         </div>
 
         {tiersError && (
-          <p className="text-xs text-white/40 mb-3">Could not load custom tiers. Showing default tier only.</p>
+          <p className="text-xs text-white/50 mb-3">Could not load custom tiers. Showing default tier only.</p>
         )}
 
         <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
@@ -674,13 +674,13 @@ export default function RegisteredDashboard({
               <p className="text-sm font-medium text-white/80 mb-1">{tier.name}</p>
               <p className="text-lg font-bold text-white tabular-nums">
                 {formatCredits(tier.price)}{' '}
-                <span className="text-xs font-normal text-white/40">ALEO</span>
+                <span className="text-xs font-normal text-white/50">ALEO</span>
               </p>
-              <p className="text-[11px] text-white/40 mt-0.5">{formatUsd(tier.price)}/mo</p>
+              <p className="text-[11px] text-white/50 mt-0.5">{formatUsd(tier.price)}/mo</p>
 
               <button
                 onClick={() => setEditingTierId(editingTierId === tier.id ? null : tier.id)}
-                className="absolute top-2 right-2 p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.06] opacity-0 group-hover:opacity-100 transition-all"
+                className="absolute top-2 right-2 p-1.5 rounded-lg text-white/50 hover:text-white/70 hover:bg-white/[0.06] opacity-0 group-hover:opacity-100 transition-all"
                 aria-label={`Edit ${tier.name} perks`}
               >
                 <Pencil className="w-3.5 h-3.5" />
@@ -713,14 +713,14 @@ export default function RegisteredDashboard({
           onClick={() => setShowProfileEditor(!showProfileEditor)}
           className="px-4 py-2.5 rounded-xl bg-[#0a0a0a] border border-white/[0.06] text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-all flex items-center gap-2"
         >
-          <Settings className="w-4 h-4 text-white/40" />
+          <Settings className="w-4 h-4 text-white/50" />
           {showProfileEditor ? 'Close Editor' : 'Edit Profile'}
         </button>
         <button
           onClick={() => setShowProveThreshold(true)}
           className="px-4 py-2.5 rounded-xl bg-[#0a0a0a] border border-white/[0.06] text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-all flex items-center gap-2"
         >
-          <Shield className="w-4 h-4 text-white/40" />
+          <Shield className="w-4 h-4 text-white/50" />
           Prove Reputation
         </button>
         <a
@@ -729,7 +729,7 @@ export default function RegisteredDashboard({
           rel="noopener noreferrer"
           className="px-4 py-2.5 rounded-xl bg-[#0a0a0a] border border-white/[0.06] text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-all flex items-center gap-2"
         >
-          <ExternalLink className="w-4 h-4 text-white/40" />
+          <ExternalLink className="w-4 h-4 text-white/50" />
           Explorer
         </a>
       </m.div>
@@ -749,7 +749,7 @@ export default function RegisteredDashboard({
       </AnimatePresence>
 
       {/* Footer note */}
-      <p className="text-center text-[11px] text-white/30 py-1">
+      <p className="text-center text-[11px] text-white/50 py-1">
         {PLATFORM_FEE_PCT}% platform fee &middot; {100 - PLATFORM_FEE_PCT}% to you via private transfer &middot; Subscriber identities never revealed
       </p>
 

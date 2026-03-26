@@ -58,7 +58,7 @@ export default function ProblemSolution() {
                     <div className="flex items-start gap-4 p-6">
                       <XIcon className="w-4 h-4 text-red-400/50 mt-0.5 shrink-0" aria-hidden="true" />
                       <div>
-                        <span className="text-[10px] uppercase tracking-wider text-red-400 font-medium">
+                        <span className="text-[11px] uppercase tracking-wider text-red-400 font-medium">
                           Traditional
                         </span>
                         <p className="text-sm text-white/60 mt-0.5">{row.traditional}</p>
@@ -67,7 +67,7 @@ export default function ProblemSolution() {
                     <div className="flex items-start gap-4 p-6">
                       <Check className="w-4 h-4 text-emerald-400/50 mt-0.5 shrink-0" aria-hidden="true" />
                       <div>
-                        <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-medium">
+                        <span className="text-[11px] uppercase tracking-wider text-emerald-400 font-medium">
                           VeilSub
                         </span>
                         <p className="text-sm text-white mt-0.5">{row.veilsub}</p>

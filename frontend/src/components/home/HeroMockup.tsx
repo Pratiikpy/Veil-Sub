@@ -48,7 +48,7 @@ function FloatingLabel({
       <Icon className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
       <div>
         <p className="text-[11px] font-semibold leading-none mb-0.5">{label}</p>
-        <p className="text-[10px] opacity-70 leading-none">{sub}</p>
+        <p className="text-[11px] opacity-70 leading-none">{sub}</p>
       </div>
     </div>
   )
@@ -188,7 +188,7 @@ export default function HeroMockup() {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-white">Alice Privacy</span>
-                <span className="px-2 py-1 text-[9px] font-medium text-emerald-400 bg-emerald-500/[0.08] border border-emerald-500/[0.15] rounded">
+                <span className="px-2 py-1 text-[11px] font-medium text-emerald-400 bg-emerald-500/[0.08] border border-emerald-500/[0.15] rounded">
                   Verified
                 </span>
               </div>
@@ -223,9 +223,9 @@ export default function HeroMockup() {
                     <span className="text-[7px] font-medium text-white/70 uppercase tracking-wider">Popular</span>
                   </div>
                 )}
-                <p className={`text-[10px] text-white/70 mb-1 uppercase tracking-wider ${tier.selected ? 'mt-3' : 'mt-1'}`}>{tier.name}</p>
+                <p className={`text-[11px] text-white/70 mb-1 uppercase tracking-wider ${tier.selected ? 'mt-3' : 'mt-1'}`}>{tier.name}</p>
                 <p className={`text-2xl sm:text-3xl font-bold leading-none ${tier.selected ? 'text-white/80' : 'text-white'}`}>{tier.price}</p>
-                <p className="text-[10px] text-white/60 mt-1 font-medium">ALEO/mo</p>
+                <p className="text-[11px] text-white/60 mt-1 font-medium">ALEO/mo</p>
                 {tier.selected && (
                   <Check className="w-3.5 h-3.5 text-white/60 mx-auto mt-2" aria-hidden="true" />
                 )}
@@ -251,7 +251,7 @@ export default function HeroMockup() {
             transition={{ duration: 0.4, delay: 1.9 }}
             className="flex items-center justify-center gap-2 mt-4"
           >
-            <Shield className="w-3 h-3 text-white/40" aria-hidden="true" />
+            <Shield className="w-3 h-3 text-white/50" aria-hidden="true" />
             <span className="text-xs text-white/70">Your identity stays completely hidden</span>
           </m.div>
         </div>

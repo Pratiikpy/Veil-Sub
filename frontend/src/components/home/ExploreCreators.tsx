@@ -84,19 +84,19 @@ const HomepageCreatorCard = React.memo(function HomepageCreatorCard({
           </span>
           <span className="flex items-center gap-1">
             <Coins className="w-3 h-3" aria-hidden="true" />
-            {formatCredits(stats.tierPrice)} ALEO <span className="text-white/35">({formatUsd(stats.tierPrice)})</span>
+            {formatCredits(stats.tierPrice)} ALEO <span className="text-white/50">({formatUsd(stats.tierPrice)})</span>
           </span>
         </div>
       ) : (
         <div className="flex items-center gap-1.5 mb-3">
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/[0.08] border border-emerald-500/20 text-[10px] text-emerald-300/80">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/[0.08] border border-emerald-500/20 text-[11px] text-emerald-300/80">
             <Sparkles className="w-2.5 h-2.5" aria-hidden="true" />
             New Creator
           </span>
         </div>
       )}
       <div className="flex items-center justify-between">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/[0.05] border border-emerald-500/15 text-[10px] font-medium text-emerald-300/70">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/[0.05] border border-emerald-500/15 text-[11px] font-medium text-emerald-300/70">
           <Shield className="w-2.5 h-2.5" aria-hidden="true" />
           Private
         </span>

@@ -127,7 +127,7 @@ export default function EmojiReactions({ contentId }: EmojiReactionsProps) {
     <div className="flex items-center gap-1.5 mt-1">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="text-xs text-white/40 hover:text-white/60 transition-colors px-1.5 py-0.5 rounded hover:bg-white/[0.04]"
+        className="text-xs text-white/50 hover:text-white/60 transition-colors px-1.5 py-0.5 rounded hover:bg-white/[0.04]"
         aria-label={expanded ? 'Hide reactions' : 'Show reactions'}
       >
         {expanded ? '\u2715' : '\u263A React'}

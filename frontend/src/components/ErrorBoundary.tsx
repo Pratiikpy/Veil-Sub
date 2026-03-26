@@ -104,7 +104,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 
           {process.env.NODE_ENV === 'development' && this.state.error && (
             <details className="mb-4 w-full max-w-md text-left">
-              <summary className="text-xs text-white/40 cursor-pointer hover:text-white/60">
+              <summary className="text-xs text-white/50 cursor-pointer hover:text-white/60">
                 Error details (dev only)
               </summary>
               <pre className="mt-2 p-2 text-xs bg-black/30 rounded overflow-auto max-h-32 text-red-400">

@@ -158,7 +158,7 @@ export default function DisputeContentModal({
           {/* Sybil protection notice */}
           <div className="rounded-xl bg-surface-2 border border-border p-4 mb-6">
             <div className="flex gap-2">
-              <Shield className="w-4 h-4 text-white/40 mt-0.5 shrink-0" aria-hidden="true" />
+              <Shield className="w-4 h-4 text-white/50 mt-0.5 shrink-0" aria-hidden="true" />
               <p className="text-xs text-white/60 leading-relaxed">
                 Sybil-protected via AccessPass ownership. The dispute_content transition verifies
                 your subscription on-chain (1 dispute per content per subscriber_hash). Your wallet
@@ -229,7 +229,7 @@ export default function DisputeContentModal({
               </p>
               <div className="mt-4 pt-3 border-t border-emerald-500/10">
                 <p className="text-xs text-white/50 mb-2">What happens next?</p>
-                <p className="text-xs text-white/40">
+                <p className="text-xs text-white/50">
                   Disputes are reviewed by the platform. You'll be notified if action is taken.
                   Continue browsing other content in the meantime.
                 </p>

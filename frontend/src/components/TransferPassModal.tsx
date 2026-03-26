@@ -118,7 +118,7 @@ export default function TransferPassModal({
             aria-label="Close transfer modal"
             className={`absolute top-5 right-5 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded ${
               txStatus === 'signing' || txStatus === 'broadcasting'
-                ? 'text-white/30 cursor-not-allowed'
+                ? 'text-white/50 cursor-not-allowed'
                 : 'text-white/60 hover:text-white'
             }`}
           >
@@ -139,7 +139,7 @@ export default function TransferPassModal({
           {/* Privacy notice */}
           <div className="rounded-xl bg-surface-2 border border-border p-4 mb-6">
             <div className="flex gap-2">
-              <Shield className="w-4 h-4 text-white/40 mt-0.5 shrink-0" aria-hidden="true" />
+              <Shield className="w-4 h-4 text-white/50 mt-0.5 shrink-0" aria-hidden="true" />
               <div>
                 <p className="text-xs text-white/50 font-medium mb-1">Transfer Privacy</p>
                 <p className="text-xs text-white/60 leading-relaxed">

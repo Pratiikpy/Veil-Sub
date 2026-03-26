@@ -181,7 +181,7 @@ export default function ProveThresholdModal({ isOpen, onClose, currentSubscriber
                     aria-required="true"
                     className="w-full px-4 py-2.5 rounded-lg bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all text-base"
                   />
-                  <p className="text-[10px] text-white/60 mt-1">
+                  <p className="text-[11px] text-white/60 mt-1">
                     The proof will confirm you have at least this many subscribers.
                   </p>
                 </div>

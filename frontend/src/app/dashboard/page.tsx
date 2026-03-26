@@ -232,7 +232,7 @@ export default function DashboardPage() {
               setRefreshKey((k) => k + 1)
               setShowCelebration(true)
               if (celebrationTimerRef.current) clearTimeout(celebrationTimerRef.current)
-              celebrationTimerRef.current = setTimeout(() => setShowCelebration(false), 2000)
+              celebrationTimerRef.current = setTimeout(() => setShowCelebration(false), 5000)
             }}
           />
         ) : (
