@@ -24,7 +24,7 @@ import { useVeilSub } from '@/hooks/useVeilSub'
 import { useSupabase } from '@/hooks/useSupabase'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
-import { creditsToMicrocredits, formatCredits, computeWalletHash } from '@/lib/utils'
+import { creditsToMicrocredits, formatCredits, computeWalletHash, safeRandomUUID } from '@/lib/utils'
 import { saveCreatorHash, PLATFORM_FEE_PCT, FEES } from '@/lib/config'
 import Button from '@/components/ui/Button'
 import GlassCard from '@/components/GlassCard'
@@ -321,8 +321,8 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
     submittingRef.current = true
     setPublishTxStatus('signing')
     try {
-      // Generate cryptographically secure content ID using crypto.randomUUID()
-      const contentId = crypto.randomUUID().replace(/-/g, '').slice(0, 16)
+      // Generate cryptographically secure content ID using safeRandomUUID()
+      const contentId = safeRandomUUID().replace(/-/g, '').slice(0, 16)
       const id = await publishContent(contentId, 1) // tier 1 minimum
       if (!id) {
         setPublishTxStatus('failed')

@@ -15,6 +15,7 @@ import { formatUsd, generatePassId } from '@/lib/utils'
 import TransactionStatus from './TransactionStatus'
 import Button from './ui/Button'
 import { getErrorMessage } from '@/lib/errorMessages'
+import { notifyGiftReceived } from '@/lib/notificationTrigger'
 import { isValidAleoAddress } from '@/lib/utils'
 
 interface GiftSubscriptionFlowProps {
@@ -91,6 +92,7 @@ export default function GiftSubscriptionFlow({
             setTxStatus('confirmed')
             onSuccess?.()
             toast.success('Gift sent! The recipient can redeem it anytime.')
+            notifyGiftReceived(recipientAddress, tierId)
           } else if (pollResult.status === 'failed') {
             setTxStatus('failed')
             setError('Gift couldn\u2019t be sent. Make sure you have enough public credits (~0.3 ALEO) for network fees and private credits for the tier price.')
@@ -102,6 +104,7 @@ export default function GiftSubscriptionFlow({
             setTxStatus('confirmed')
             onSuccess?.()
             toast.success('Gift sent! (confirmation was slow)')
+            notifyGiftReceived(recipientAddress, tierId)
           }
         })
       } else {

@@ -15,6 +15,7 @@ import { generatePassId, formatCredits, formatUsd, computeWalletHash } from '@/l
 import { SUBSCRIPTION_DURATION_BLOCKS, TRIAL_DURATION_BLOCKS, TRIAL_PRICE_DIVISOR, PLATFORM_FEE_PCT, FEES } from '@/lib/config'
 import { getErrorMessage } from '@/lib/errorMessages'
 import { logSubscriptionEvent } from '@/lib/logEvent'
+import { notifyNewSubscriber } from '@/lib/notificationTrigger'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
 import { useBalanceCheck } from '@/hooks/useBalanceCheck'
@@ -181,6 +182,7 @@ export default function SubscribeModal({
               : null
             logSubscriptionEvent(creatorAddress, tier.id, totalPrice, result.resolvedTxId || id, wrappedSign)
             onSuccess?.() // Trigger cache invalidation in parent
+            notifyNewSubscriber(creatorAddress, tier.id, result.resolvedTxId || id)
             toast.success("You're subscribed!")
             // Start welcome sequence (fire-and-forget)
             if (publicKey) {
@@ -209,6 +211,7 @@ export default function SubscribeModal({
             toast.success('Subscribed! (confirmation was slow but your transaction was sent)')
             clearMappingCache()
             onSuccess?.()
+            notifyNewSubscriber(creatorAddress, tier.id, result.resolvedTxId || id)
           }
         })
       } else {

@@ -11,6 +11,7 @@ import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { creditsToMicrocredits, formatCredits, formatUsd, generatePassId, ALEO_USD_ESTIMATE, computeWalletHash } from '@/lib/utils'
 import { logSubscriptionEvent } from '@/lib/logEvent'
+import { notifyNewTip } from '@/lib/notificationTrigger'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
 import { useBalanceCheck } from '@/hooks/useBalanceCheck'
@@ -250,6 +251,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             clearMappingCache()
             onSuccess?.()
             toast.success('Private tip sent—you remain anonymous')
+            notifyNewTip(creatorAddress, String(tipMicrocredits), result.resolvedTxId || id)
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             setError('Commit-reveal tip failed on-chain. Verify credits balance.')
@@ -266,6 +268,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             clearMappingCache()
             onSuccess?.()
             toast.success('Private tip sent! (confirmation was slow)')
+            notifyNewTip(creatorAddress, String(tipMicrocredits), result.resolvedTxId || id)
           }
         })
       } else {
@@ -397,6 +400,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             clearMappingCache()
             onSuccess?.()
             toast.success('Tip revealed and sent!')
+            notifyNewTip(creatorAddress, String(savedAmount), result.resolvedTxId || id)
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             setError('Reveal failed on-chain.')
@@ -412,6 +416,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             clearMappingCache()
             onSuccess?.()
             toast.success('Tip revealed and sent! (confirmation was slow)')
+            notifyNewTip(creatorAddress, String(savedAmount), result.resolvedTxId || id)
           }
         })
       } else {

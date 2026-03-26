@@ -14,6 +14,7 @@ import { generatePassId, formatCredits, formatUsd } from '@/lib/utils'
 import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT, FEES, SECONDS_PER_BLOCK, SECONDS_PER_DAY } from '@/lib/config'
 import { getErrorMessage } from '@/lib/errorMessages'
 import { logSubscriptionEvent } from '@/lib/logEvent'
+import { notifyNewSubscriber } from '@/lib/notificationTrigger'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
 import { useBalanceCheck } from '@/hooks/useBalanceCheck'
@@ -199,6 +200,7 @@ export default function RenewModal({
             toast.success('Subscription renewed!')
             clearMappingCache()
             onSuccess?.()
+            notifyNewSubscriber(pass.creator, selectedTierId, result.resolvedTxId || id)
           } else if (result.status === 'failed') {
             setTxStatus('failed')
             const walletDetail = result.walletMessage ? ` (Wallet: ${result.walletMessage.slice(0, 150)})` : ''
@@ -217,6 +219,7 @@ export default function RenewModal({
             toast.success('Subscription renewed! (confirmation was slow)')
             clearMappingCache()
             onSuccess?.()
+            notifyNewSubscriber(pass.creator, selectedTierId, result.resolvedTxId || id)
           }
         })
       } else {

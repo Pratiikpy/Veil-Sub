@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Heart, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import { toast } from 'sonner'
-import { computeWalletHash } from '@/lib/utils'
+import { computeWalletHash, safeRandomUUID } from '@/lib/utils'
 
 interface Comment {
   id: string
@@ -61,7 +61,7 @@ async function getSubscriberHash(): Promise<string> {
   const key = 'veilsub_session_hash'
   let hash = sessionStorage.getItem(key)
   if (!hash) {
-    hash = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '')
+    hash = safeRandomUUID().replace(/-/g, '') + safeRandomUUID().replace(/-/g, '')
     sessionStorage.setItem(key, hash)
   }
   return hash
@@ -183,11 +183,11 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
     const trimmed = text.trim()
     if (!trimmed || trimmed.length > MAX_CHARS) return
 
-    const subHash = hashRef.current || crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '')
+    const subHash = hashRef.current || safeRandomUUID().replace(/-/g, '') + safeRandomUUID().replace(/-/g, '')
 
     // Optimistic local-only comment (shown immediately)
     const optimistic: Comment = {
-      id: crypto.randomUUID(),
+      id: safeRandomUUID(),
       text: trimmed,
       created_at: new Date().toISOString(),
       subscriber_hash: subHash,

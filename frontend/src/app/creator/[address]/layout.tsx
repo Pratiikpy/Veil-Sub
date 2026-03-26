@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: CreatorLayoutProps): Promise<
     openGraph: {
       title,
       description,
-      url: `https://veilsub.com/creator/${address}`,
+      url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://veil-sub.vercel.app'}/creator/${address}`,
       type: 'profile',
     },
     twitter: {

@@ -17,6 +17,7 @@ import { saveContentHash, SUGGESTED_TAGS, TAG_COLORS, API_LIMITS, DRAFT_AUTOSAVE
 import TransactionStatus from './TransactionStatus'
 import type { TxStatus, PostStatus, PostType } from '@/types'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
+import { notifyContentPublished } from '@/lib/notificationTrigger'
 
 const RichTextEditor = lazy(() => import('./RichTextEditor'))
 
@@ -500,7 +501,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
           },
           wrappedSign
         )
-        if (updated) { toast.success('Post published!'); onEditComplete?.() }
+        if (updated) { toast.success('Post published!'); notifyContentPublished(creatorAddress, title.trim()); onEditComplete?.() }
         else { toast.error(postError?.message || 'Post couldn\u2019t be published'); if (postError) clearError() }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Post couldn\u2019t be published')
@@ -530,6 +531,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
           toast.success('Free post published!')
           // Trigger subscriber email notification (best-effort, non-blocking)
           triggerSubscriberNotification(creatorAddress, title.trim(), body, saved.id)
+          notifyContentPublished(creatorAddress, title.trim())
           resetForm()
           onPostCreated?.()
         } else {
@@ -594,6 +596,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
               toast.success('Post published!')
               // Trigger subscriber email notification (best-effort, non-blocking)
               triggerSubscriberNotification(creatorAddress, postTitle, postBody, saved.id)
+              notifyContentPublished(creatorAddress, postTitle)
               resetForm()
               onPostCreated?.()
             }
@@ -617,6 +620,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
               if (saved) {
                 setTxStatus('confirmed')
                 toast.success('Post published! (confirmation was slow but transaction succeeded)')
+                notifyContentPublished(creatorAddress, postTitle)
                 resetForm()
                 onPostCreated?.()
                 return
