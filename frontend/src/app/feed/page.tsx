@@ -441,6 +441,8 @@ export default function FeedPage() {
   const [discoveryPosts, setDiscoveryPosts] = useState<FeedPost[]>([])
   const [discoveryLoading, setDiscoveryLoading] = useState(false)
   const [creatorProfiles, setCreatorProfiles] = useState<Record<string, { name?: string; imageUrl?: string | null }>>({})
+  const creatorProfilesRef = useRef<Record<string, { name?: string; imageUrl?: string | null }>>({})
+  creatorProfilesRef.current = creatorProfiles
   const sortRef = useRef<HTMLDivElement>(null)
   const feedSearchRef = useRef<HTMLInputElement>(null)
 
@@ -581,12 +583,13 @@ export default function FeedPage() {
         subscribedCreators.map(async (creator) => {
           const posts = await getPostsForCreator(creator)
           const cached = getCachedCreator(creator)
+          const profile = creatorProfilesRef.current[creator]
           return posts.map((post): FeedPost => ({
             ...post,
             creatorAddress: creator,
-            creatorLabel: cached?.display_name || getCreatorLabel(creator),
+            creatorLabel: profile?.name || cached?.display_name || getCreatorLabel(creator),
             creatorCategory: getCreatorCategory(creator),
-            creatorImageUrl: cached?.image_url || null,
+            creatorImageUrl: profile?.imageUrl || cached?.image_url || null,
           }))
         })
       )

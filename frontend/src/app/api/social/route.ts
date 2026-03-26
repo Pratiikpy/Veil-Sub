@@ -131,16 +131,19 @@ export async function POST(req: NextRequest) {
     return badRequest('type and valid contentId required')
   }
 
-  // Wallet authentication for write operations
+  // Wallet authentication — required for comments (create persistent data),
+  // optional for reactions/likes (lightweight, CSRF-protected by validateOrigin above)
   const { walletAddress, walletHash, timestamp, signature } = body as {
     walletAddress?: string; walletHash?: unknown; timestamp?: unknown; signature?: unknown
   }
-  if (!walletAddress || !walletHash || timestamp === undefined) {
-    return NextResponse.json({ error: 'Authentication required (walletAddress + walletHash + timestamp)' }, { status: 401 })
-  }
-  const auth = await verifyWalletAuth(walletAddress, walletHash, timestamp, signature)
-  if (!auth.valid) {
-    return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+  if (type === 'comment') {
+    if (!walletAddress || !walletHash || timestamp === undefined) {
+      return NextResponse.json({ error: 'Authentication required (walletAddress + walletHash + timestamp)' }, { status: 401 })
+    }
+    const auth = await verifyWalletAuth(walletAddress, walletHash, timestamp, signature)
+    if (!auth.valid) {
+      return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+    }
   }
 
   try {
