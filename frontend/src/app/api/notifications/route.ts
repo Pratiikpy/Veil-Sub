@@ -6,6 +6,7 @@ import { hashAddress } from '@/lib/encryption'
 import { encryptContent, decryptContent } from '@/lib/contentEncryption'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 import { verifyWalletAuth } from '@/lib/apiAuth'
+import { validateOrigin } from '@/lib/csrf'
 
 // Fixed key identifier for notification encryption (not creator-specific)
 const NOTIFICATION_KEY_ID = 'veilsub:notifications'
@@ -213,6 +214,10 @@ export async function POST(req: NextRequest) {
  * Body: { wallet, notificationId } or { wallet, markAll: true }
  */
 export async function PATCH(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:notifications:patch`, 30)
   if (!allowed) return getRateLimitResponse()
@@ -314,6 +319,10 @@ export async function PATCH(req: NextRequest) {
  * Body: { wallet, notificationId }
  */
 export async function DELETE(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:notifications:delete`, 30)
   if (!allowed) return getRateLimitResponse()

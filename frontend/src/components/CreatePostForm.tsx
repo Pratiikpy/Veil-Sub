@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react'
 import { m } from 'framer-motion'
-import { FileText, Send, Image as ImageIcon, X, Video, Upload, Loader2, Save, Clock, Tag, Plus, ExternalLink, DollarSign, StickyNote, BookOpen, Camera, Film, MessageSquare } from 'lucide-react'
+import { FileText, Send, Image as ImageIcon, X, Video, Upload, Loader2, Save, Clock, Tag, Plus, ExternalLink, DollarSign, BookOpen, Camera, Film, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'

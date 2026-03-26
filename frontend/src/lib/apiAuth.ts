@@ -11,6 +11,7 @@
  */
 
 import { AUTH_CONFIG } from '@/lib/config'
+import { timingSafeEqual } from 'crypto'
 
 export interface WalletAuthResult {
   valid: boolean
@@ -55,7 +56,9 @@ export async function verifyWalletAuth(
     .map(b => b.toString(16).padStart(2, '0'))
     .join('')
 
-  if (walletHash !== expectedHash) {
+  const hashBuffer1 = Buffer.from(walletHash, 'hex')
+  const hashBuffer2 = Buffer.from(expectedHash, 'hex')
+  if (hashBuffer1.length !== hashBuffer2.length || !timingSafeEqual(hashBuffer1, hashBuffer2)) {
     return { valid: false, error: 'Wallet hash mismatch' }
   }
 

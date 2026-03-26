@@ -21,7 +21,7 @@ export default function FloatingComposeButton() {
       {/* Floating action button */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed bottom-20 md:bottom-8 right-6 md:right-[270px] z-50 w-14 h-14 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform"
+        className="fixed bottom-20 md:bottom-8 right-6 md:right-[270px] z-50 w-14 h-14 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
         aria-label={open ? 'Close compose' : 'Create post'}
       >
         {open ? <X size={24} /> : <Plus size={24} />}

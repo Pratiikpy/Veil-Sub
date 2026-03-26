@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 import { verifyWalletAuth } from '@/lib/apiAuth'
+import { validateOrigin } from '@/lib/csrf'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
@@ -25,6 +26,10 @@ const MIME_TO_EXT: Record<string, string> = {
  * Otherwise, falls back to base64 data URLs.
  */
 export async function POST(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   // Rate limit: 10 uploads per minute per IP
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:upload`, 10)

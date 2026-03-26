@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { sendEmail } from '@/lib/email'
 import { resolveTemplate, type EmailTemplateType, type EmailTemplateData } from '@/lib/emailTemplates'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
+import { timingSafeEqual } from 'crypto'
 
 const VALID_TYPES: EmailTemplateType[] = ['new_subscriber', 'content_published', 'expiring', 'tip']
 
@@ -13,7 +14,13 @@ function isAuthorized(req: NextRequest): boolean {
     // DENY when not configured — prevents open relay in production
     return false
   }
-  return req.headers.get('x-internal-secret') === secret
+  const headerValue = req.headers.get('x-internal-secret')
+  if (!headerValue) return false
+  // Use timing-safe comparison to prevent timing attacks on the secret
+  const buf1 = Buffer.from(headerValue)
+  const buf2 = Buffer.from(secret)
+  if (buf1.length !== buf2.length) return false
+  return timingSafeEqual(buf1, buf2)
 }
 
 /**

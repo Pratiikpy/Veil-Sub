@@ -4,6 +4,7 @@ import { hashAddress } from '@/lib/encryption'
 import { ALEO_ADDRESS_RE } from '@/lib/config'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 import { verifyWalletAuth } from '@/lib/apiAuth'
+import { validateOrigin } from '@/lib/csrf'
 
 // GET /api/tiers?address=aleo1...
 // Returns all tiers for a creator — public, no auth required
@@ -43,6 +44,10 @@ export async function GET(req: NextRequest) {
 // POST /api/tiers
 // Upserts a tier for a creator — called after create_custom_tier on-chain succeeds
 export async function POST(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip2 = getClientIp(req)
   const { allowed: allowed2 } = rateLimit(`${ip2}:tiers:post`, 30)
   if (!allowed2) return getRateLimitResponse()

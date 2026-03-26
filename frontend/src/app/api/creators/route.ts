@@ -3,6 +3,7 @@ import { getServerSupabase } from '@/lib/supabase'
 import { encrypt, hashAddress } from '@/lib/encryption'
 import { ALEO_ADDRESS_RE } from '@/lib/config'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
+import { validateOrigin } from '@/lib/csrf'
 
 export async function GET(req: NextRequest) {
   const ip = getClientIp(req)
@@ -39,6 +40,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:creators:post`, 60)
   if (!allowed) return getRateLimitResponse()
@@ -80,10 +85,12 @@ export async function POST(req: NextRequest) {
     if (image_url && (typeof image_url !== 'string' || image_url.length > 10000)) {
       return NextResponse.json({ error: 'Image URL too long' }, { status: 400 })
     }
-    // Validate image URL format if provided (allow HTTPS and data:image/ base64)
+    // Validate image URL format if provided (allow HTTPS and data:image/ base64, but block SVG)
     if (image_url) {
-      if (image_url.startsWith('data:image/')) {
-        // Allow base64-encoded images from local upload
+      if (image_url.startsWith('data:image/svg')) {
+        return NextResponse.json({ error: 'SVG data URLs not allowed for security reasons' }, { status: 400 })
+      } else if (image_url.startsWith('data:image/')) {
+        // Allow base64-encoded images from local upload (non-SVG)
       } else {
         try {
           const parsed = new URL(image_url)
@@ -98,10 +105,12 @@ export async function POST(req: NextRequest) {
     if (cover_url && (typeof cover_url !== 'string' || cover_url.length > 10000)) {
       return NextResponse.json({ error: 'Cover URL too long' }, { status: 400 })
     }
-    // Validate cover URL format if provided (allow HTTPS and data:image/ base64)
+    // Validate cover URL format if provided (allow HTTPS and data:image/ base64, but block SVG)
     if (cover_url) {
-      if (cover_url.startsWith('data:image/')) {
-        // Allow base64-encoded images from local upload
+      if (cover_url.startsWith('data:image/svg')) {
+        return NextResponse.json({ error: 'SVG data URLs not allowed for security reasons' }, { status: 400 })
+      } else if (cover_url.startsWith('data:image/')) {
+        // Allow base64-encoded images from local upload (non-SVG)
       } else {
         try {
           const parsed = new URL(cover_url)

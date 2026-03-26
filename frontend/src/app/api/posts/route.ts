@@ -3,6 +3,8 @@ import { getRedis } from '@/lib/redis'
 import { AUTH_CONFIG, RATE_LIMITS, CACHE_HEADERS, API_LIMITS, ALEO_ADDRESS_RE } from '@/lib/config'
 import { encryptContent, decryptContent } from '@/lib/contentEncryption'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
+import { validateOrigin } from '@/lib/csrf'
+import { timingSafeEqual } from 'crypto'
 
 export async function GET(req: NextRequest) {
   const ip = getClientIp(req)
@@ -183,7 +185,9 @@ async function verifyWalletAuth(
   const encoder = new TextEncoder()
   const hashBuf = await crypto.subtle.digest('SHA-256', encoder.encode(creator + salt))
   const expectedHash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
-  if (walletHash !== expectedHash) {
+  const hashBuffer1 = Buffer.from(walletHash, 'hex')
+  const hashBuffer2 = Buffer.from(expectedHash, 'hex')
+  if (hashBuffer1.length !== hashBuffer2.length || !timingSafeEqual(hashBuffer1, hashBuffer2)) {
     return 'Wallet hash mismatch'
   }
   // Wallet signature is optional — walletHash + timestamp already provides
@@ -205,6 +209,10 @@ async function verifyWalletAuth(
 }
 
 export async function POST(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ipPost = getClientIp(req)
   const { allowed: allowedPost } = rateLimit(`${ipPost}:posts:post`, 30)
   if (!allowedPost) return getRateLimitResponse()
@@ -404,6 +412,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ipPut = getClientIp(req)
   const { allowed: allowedPut } = rateLimit(`${ipPut}:posts:put`, 30)
   if (!allowedPut) return getRateLimitResponse()
@@ -552,6 +564,10 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ipDel = getClientIp(req)
   const { allowed: allowedDel } = rateLimit(`${ipDel}:posts:delete`, 30)
   if (!allowedDel) return getRateLimitResponse()

@@ -92,10 +92,12 @@ export async function POST(req: NextRequest) {
       if (typeof avatar_url !== 'string' || avatar_url.length > 10000) {
         return NextResponse.json({ error: 'Avatar URL too long (max 10KB)' }, { status: 400 })
       }
-      // Validate URL format
+      // Validate URL format (block SVG data URLs -- SVG can contain JavaScript)
       if (avatar_url) {
-        if (avatar_url.startsWith('data:image/')) {
-          // Allow base64-encoded images
+        if (avatar_url.startsWith('data:image/svg')) {
+          return NextResponse.json({ error: 'SVG data URLs not allowed for security reasons' }, { status: 400 })
+        } else if (avatar_url.startsWith('data:image/')) {
+          // Allow base64-encoded images (non-SVG)
         } else {
           try {
             const parsed = new URL(avatar_url)
