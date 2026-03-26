@@ -37,6 +37,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [statsError, setStatsError] = useState(false)
   const [creatorLink, setCreatorLink] = useState('')
+  const [profileName, setProfileName] = useState<string | null>(null)
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null)
   const [showCelebration, setShowCelebration] = useState(false)
   const celebrationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -84,6 +86,9 @@ export default function DashboardPage() {
       // Try Supabase first (fast), then fall back to on-chain recovery (slow, one-time)
       getCreatorProfile(publicKey).then(async (profile) => {
         if (cancelled) return
+        // Store profile display data for dashboard UI
+        if (profile?.display_name) setProfileName(profile.display_name)
+        if (profile?.image_url) setProfileImageUrl(profile.image_url)
         if (profile?.creator_hash) {
           saveCreatorHash(publicKey, profile.creator_hash)
           doFetch()
@@ -242,6 +247,8 @@ export default function DashboardPage() {
             refreshKey={refreshKey}
             setRefreshKey={setRefreshKey}
             creatorLink={creatorLink}
+            profileName={profileName}
+            profileImageUrl={profileImageUrl}
           />
         )}
       </div>

@@ -141,12 +141,16 @@ interface RegisteredDashboardProps {
   refreshKey: number
   setRefreshKey: (fn: (k: number) => number) => void
   creatorLink: string
+  profileName?: string | null
+  profileImageUrl?: string | null
 }
 
 export default function RegisteredDashboard({
   publicKey,
   stats,
   refreshKey,
+  profileName,
+  profileImageUrl,
   setRefreshKey,
   creatorLink,
 }: RegisteredDashboardProps) {
@@ -342,13 +346,17 @@ export default function RegisteredDashboard({
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center gap-4"
       >
-        <AddressAvatar address={publicKey} size={48} className="shrink-0 rounded-full ring-2 ring-white/[0.06]" />
+        {profileImageUrl ? (
+          <img src={profileImageUrl} alt="" className="w-12 h-12 rounded-full object-cover shrink-0 ring-2 ring-white/[0.06]" />
+        ) : (
+          <AddressAvatar address={publicKey} size={48} className="shrink-0 rounded-full ring-2 ring-white/[0.06]" />
+        )}
         <div className="flex-1 min-w-0">
           <h1 className="text-lg font-semibold text-white truncate">
-            {shortenAddress(publicKey)}
+            {profileName || shortenAddress(publicKey)}
           </h1>
           <p className="text-sm text-white/50">
-            Creator{(stats?.subscriberCount ?? 0) > 0 ? ` \u00B7 ${stats?.subscriberThreshold ?? '0'} subscribers` : ''}
+            {shortenAddress(publicKey)} · Creator{(stats?.subscriberCount ?? 0) > 0 ? ` · ${stats?.subscriberThreshold ?? '0'} subscribers` : ' · New subscribers'}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -524,9 +532,13 @@ export default function RegisteredDashboard({
             tabIndex={0}
             className="p-4 rounded-xl bg-surface-1 border border-white/[0.06] cursor-text hover:border-white/[0.12] transition-all group flex items-center gap-3 focus-visible:ring-1 focus-visible:ring-white/30 focus-visible:outline-none"
           >
-            <AddressAvatar address={publicKey} size={40} className="shrink-0 rounded-full" />
+            {profileImageUrl ? (
+              <img src={profileImageUrl} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
+            ) : (
+              <AddressAvatar address={publicKey} size={40} className="shrink-0 rounded-full" />
+            )}
             <span className="text-white/50 text-sm group-hover:text-white/50 transition-colors flex-1">
-              What&apos;s on your mind?
+              What&apos;s on your mind, {profileName?.split(' ')[0] || 'creator'}?
             </span>
             <span className="text-xs text-white/20 shrink-0">Publish</span>
           </div>
