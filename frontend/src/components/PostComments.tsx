@@ -117,6 +117,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
   const storageKey = STORAGE_PREFIX + contentId
   const [subProfiles, setSubProfiles] = useState<Record<string, SubscriberProfile>>({})
   const fetchedHashesRef = useRef<Set<string>>(new Set())
+  const submittingRef = useRef(false)
 
   // Resolve subscriber hash once
   useEffect(() => {
@@ -180,6 +181,10 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
   }, [storageKey])
 
   const submit = useCallback(async () => {
+    if (submittingRef.current) return
+    submittingRef.current = true
+
+    try {
     const trimmed = text.trim()
     if (!trimmed || trimmed.length > MAX_CHARS) return
 
@@ -248,6 +253,9 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
       if (!succeeded) {
         toast.error('Comment saved locally only — server unavailable')
       }
+    }
+    } finally {
+      submittingRef.current = false
     }
   }, [text, comments, replyTo, contentId, serverAvailable, saveLocal, walletAddress])
 

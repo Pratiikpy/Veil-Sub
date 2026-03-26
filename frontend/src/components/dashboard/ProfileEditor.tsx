@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { m } from 'framer-motion'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { Settings, Loader2, AlertTriangle, RefreshCw } from 'lucide-react'
@@ -20,6 +20,7 @@ export default function ProfileEditor({ address, onProfileUpdated }: ProfileEdit
   const [bio, setBio] = useState('')
   const [saved, setSaved] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const savingRef = useRef(false)
   const [profileLoaded, setProfileLoaded] = useState(false)
   const [loadError, setLoadError] = useState(false)
 
@@ -44,7 +45,8 @@ export default function ProfileEditor({ address, onProfileUpdated }: ProfileEdit
   }, [address])
 
   const handleSave = async () => {
-    if (isSaving) return // Prevent double-submit
+    if (savingRef.current) return // Prevent double-submit (ref-based guard)
+    savingRef.current = true
     setIsSaving(true)
     try {
       const wrappedSign = signMessage
@@ -65,6 +67,7 @@ export default function ProfileEditor({ address, onProfileUpdated }: ProfileEdit
         toast.error('Profile couldn\u2019t be saved. Approve the signature request in your wallet to continue.')
       }
     } finally {
+      savingRef.current = false
       setIsSaving(false)
     }
   }

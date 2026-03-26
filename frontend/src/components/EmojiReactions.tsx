@@ -35,6 +35,7 @@ export default function EmojiReactions({ contentId }: EmojiReactionsProps) {
   const [counts, setCounts] = useState<Record<string, number>>(() => loadLocalCounts(contentId))
   const [mine, setMine] = useState(() => loadMyReactions(contentId))
   const serverAvailable = useRef(true)
+  const pendingRef = useRef(false)
 
   // Fetch aggregate counts from server on mount
   useEffect(() => {
@@ -62,6 +63,10 @@ export default function EmojiReactions({ contentId }: EmojiReactionsProps) {
   }, [contentId])
 
   const toggle = useCallback(async (key: string) => {
+    if (pendingRef.current) return
+    pendingRef.current = true
+
+    try {
     const isActive = mine.has(key)
     const delta = isActive ? -1 : 1
 
@@ -120,6 +125,9 @@ export default function EmojiReactions({ contentId }: EmojiReactionsProps) {
         })
         serverAvailable.current = false
       }
+    }
+    } finally {
+      pendingRef.current = false
     }
   }, [contentId, mine])
 
