@@ -31,7 +31,8 @@ const nextConfig: NextConfig = {
             value: 'camera=(), microphone=(), geolocation=(), browsing-topics=(), interest-cohort=()',
           },
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
-          { key: 'Cross-Origin-Embedder-Policy', value: 'credentialless' },
+          // COEP removed — 'credentialless' blocks YouTube/Vimeo embeds that
+          // don't send Cross-Origin-Resource-Policy headers.
         ],
       },
       // Cache Aleo API proxy responses to reduce upstream rate-limit pressure

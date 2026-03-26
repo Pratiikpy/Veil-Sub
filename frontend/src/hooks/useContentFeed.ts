@@ -105,24 +105,25 @@ export function useContentFeed() {
               (p) => p.creator === creatorAddress
             )
             if (matchingPass) {
-              try {
-                body = await e2eDecrypt(body, creatorAddress, matchingPass.tier)
-              } catch {
-                // Decryption failed — try lower tiers (content may be encrypted
-                // at a lower tier than the subscriber's current tier)
-                let decrypted = false
-                for (let t = matchingPass.tier - 1; t >= 1; t--) {
-                  try {
-                    body = await e2eDecrypt(body, creatorAddress, t)
-                    decrypted = true
-                    break
-                  } catch {
-                    // Try next tier down
-                  }
+              // Try all reasonable tiers: subscriber's tier first, then every tier
+              // from 1 to 5 (content may have been encrypted at any tier level).
+              // This handles tier upgrades, downgrades, and custom tier IDs.
+              const tiersToTry = [
+                matchingPass.tier,
+                ...Array.from({ length: 5 }, (_, i) => i + 1).filter(t => t !== matchingPass.tier),
+              ]
+              let decrypted = false
+              for (const t of tiersToTry) {
+                try {
+                  body = await e2eDecrypt(body, creatorAddress, t)
+                  decrypted = true
+                  break
+                } catch {
+                  // Try next tier
                 }
-                if (!decrypted) {
-                  body = '[Unable to decrypt content — tier key mismatch]'
-                }
+              }
+              if (!decrypted) {
+                body = '[Unable to decrypt content — tier key mismatch]'
               }
             }
           }
