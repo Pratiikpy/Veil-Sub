@@ -166,7 +166,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       }
 
       // Find a record with enough balance
-      const needed = ppvPrice + creditsToMicrocredits(FEES.TIP)
+      const needed = ppvPrice + FEES.TIP // FEES.TIP is already in microcredits
       const paymentRecord = records.find((r: string) => {
         try {
           const match = r.match(/microcredits:\s*(\d+)u64/)

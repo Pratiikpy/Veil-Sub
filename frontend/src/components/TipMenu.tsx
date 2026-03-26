@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react'
 import { m } from 'framer-motion'
 import { toast } from 'sonner'
-import { formatCredits, formatUsd, creditsToMicrocredits, computeWalletHash } from '@/lib/utils'
+import { formatCredits, formatUsd, computeWalletHash } from '@/lib/utils'
 import { Loader2, CheckCircle2 } from 'lucide-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
@@ -27,10 +27,10 @@ interface TipMenuProps {
 }
 
 const DEFAULT_MENU: TipMenuItem[] = [
-  { id: '1', name: 'Shoutout', price: 5_000_000, description: 'Personal shoutout in next post', emoji: '\u{1F4E2}' },
-  { id: '2', name: 'Custom Photo', price: 15_000_000, description: 'Custom photo based on your request', emoji: '\u{1F4F8}' },
-  { id: '3', name: 'Q&A Response', price: 10_000_000, description: 'Detailed answer to your question', emoji: '\u{1F4AC}' },
-  { id: '4', name: 'Early Access', price: 3_000_000, description: 'Preview of upcoming content', emoji: '\u{1F52E}' },
+  { id: '1', name: 'Small Tip', price: 1_000_000, description: 'Show your appreciation', emoji: '\u2615' },
+  { id: '2', name: 'Tip', price: 5_000_000, description: 'Support their work', emoji: '\u2B50' },
+  { id: '3', name: 'Big Tip', price: 10_000_000, description: 'Make their day', emoji: '\u{1F389}' },
+  { id: '4', name: 'Super Tip', price: 25_000_000, description: 'Outstanding support', emoji: '\u{1F48E}' },
 ]
 
 export default function TipMenu({ creatorAddress, creatorName, items, isSubscribed, connected, onTipRequest }: TipMenuProps) {
@@ -55,8 +55,8 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
         return
       }
 
-      // Find a record with enough balance
-      const needed = item.price + creditsToMicrocredits(FEES.TIP)
+      // Find a record with enough balance (FEES.TIP is already in microcredits)
+      const needed = item.price + FEES.TIP
       const paymentRecord = records.find((r: string) => {
         try {
           const match = r.match(/microcredits:\s*(\d+)u64/)
@@ -145,7 +145,7 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-white">Tip Menu</h3>
         <p className="text-xs text-white/60 mt-1">
-          Support {creatorName || 'this creator'} with a direct tip for a specific request. All tips are sent privately via Aleo.
+          Send a private tip to {creatorName || 'this creator'}. All tips are anonymous via Aleo zero-knowledge proofs.
         </p>
       </div>
 
