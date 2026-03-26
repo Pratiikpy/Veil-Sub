@@ -177,8 +177,11 @@ export function useCreatorTiers(creatorAddress: string): CreatorTierResult {
 
         const onChainTierCount = parseOnChainNumber(tierCountRaw) ?? 0
 
-        if (onChainTierCount === 0 && Object.keys(fallbackTiers).length === 0) {
-          // No tiers on-chain and no fallback
+        if (onChainTierCount === 0) {
+          // No custom tiers created on-chain (create_custom_tier never called).
+          // Ignore Supabase/localStorage/config data — it may have wrong prices.
+          // Contract uses legacy pricing: base × (tier==3?5 : tier==2?2 : 1).
+          // Callers (SubscribeModal, RenewModal) will use TIERS multipliers instead.
           setTiers({})
           setTierCount(0)
           setLoading(false)
