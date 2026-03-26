@@ -97,7 +97,7 @@ export default function NoteComposer({
             rows={2}
             maxLength={MAX_CHARS + 20} // allow slight overflow so ring turns red
             disabled={submitting}
-            className="w-full bg-transparent text-white text-[15px] leading-relaxed placeholder-white/50 resize-none focus:outline-none disabled:opacity-50"
+            className="w-full bg-transparent text-white text-[15px] leading-relaxed placeholder-white/50 resize-none focus:outline-none focus-visible:ring-1 focus-visible:ring-white/30 focus-visible:rounded-lg disabled:opacity-50"
             initial={{ height: 52 }}
             animate={{ height: 'auto' }}
             transition={{ duration: 0.15, ease: 'easeOut' }}

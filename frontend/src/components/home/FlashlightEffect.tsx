@@ -11,8 +11,8 @@ export default function FlashlightEffect() {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // Skip on mobile/touch devices or SSR
-    if (typeof window === 'undefined' || window.matchMedia('(pointer: coarse)').matches) return
+    // Skip on mobile/touch devices, SSR, or reduced motion preference
+    if (typeof window === 'undefined' || window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     const container = containerRef.current
     if (!container) return
