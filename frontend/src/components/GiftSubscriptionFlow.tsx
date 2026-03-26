@@ -10,12 +10,13 @@ import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
-import { MICROCREDITS_PER_CREDIT, SUBSCRIPTION_DURATION_BLOCKS } from '@/lib/config'
-import { formatUsd, generatePassId } from '@/lib/utils'
+import { MICROCREDITS_PER_CREDIT, SUBSCRIPTION_DURATION_BLOCKS, FEES } from '@/lib/config'
+import { formatUsd, formatCredits, generatePassId } from '@/lib/utils'
 import TransactionStatus from './TransactionStatus'
 import Button from './ui/Button'
 import { getErrorMessage } from '@/lib/errorMessages'
 import { notifyGiftReceived } from '@/lib/notificationTrigger'
+import { clearMappingCache } from '@/hooks/useCreatorStats'
 import { isValidAleoAddress } from '@/lib/utils'
 
 interface GiftSubscriptionFlowProps {
@@ -31,7 +32,7 @@ interface GiftSubscriptionFlowProps {
 export default function GiftSubscriptionFlow({
   isOpen, onClose, creatorAddress, tierPrice, tierId, tierName, onSuccess,
 }: GiftSubscriptionFlowProps) {
-  const { giftSubscription, getCreditsRecords, connected } = useVeilSub()
+  const { giftSubscription, getCreditsRecords, connected, publicKey } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
   const { blockHeight, error: blockHeightError } = useBlockHeight()
   const {
@@ -70,6 +71,25 @@ export default function GiftSubscriptionFlow({
           ? (firstRecord as { plaintext: string }).plaintext
           : null
       if (!paymentRecord) throw new Error('Invalid record format. Please reconnect wallet.')
+
+      // Check public balance covers the network fee (paid separately from private record)
+      try {
+        const feeNeeded = FEES.GIFT_SUBSCRIPTION
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(publicKey ?? '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt((pubText ?? '').replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < feeNeeded) {
+            setError(`Insufficient public balance for network fee. You need ~${formatCredits(feeNeeded)} ALEO public credits. Get testnet credits from the Aleo faucet.`)
+            setTxStatus('idle')
+            submittingRef.current = false
+            return
+          }
+        }
+      } catch {
+        toast.warning('Could not verify public balance. Transaction may fail if fees are insufficient.')
+      }
+
       // Generate a collision-resistant gift ID using 128-bit randomness constrained to field size
       const giftId = generatePassId()
       // Calculate expiry based on current block height + subscription duration
@@ -90,6 +110,7 @@ export default function GiftSubscriptionFlow({
           if (pollResult.status === 'confirmed') {
             if (pollResult.resolvedTxId) setTxId(pollResult.resolvedTxId)
             setTxStatus('confirmed')
+            clearMappingCache()
             onSuccess?.()
             toast.success('Gift sent! The recipient can redeem it anytime.')
             notifyGiftReceived(recipientAddress, tierId)
@@ -102,6 +123,7 @@ export default function GiftSubscriptionFlow({
             // the transaction IS broadcast, so treat timeout as likely success.
             if (pollResult.resolvedTxId) setTxId(pollResult.resolvedTxId)
             setTxStatus('confirmed')
+            clearMappingCache()
             onSuccess?.()
             toast.success('Gift sent! (confirmation was slow)')
             notifyGiftReceived(recipientAddress, tierId)
@@ -118,7 +140,7 @@ export default function GiftSubscriptionFlow({
     } finally {
       submittingRef.current = false
     }
-  }, [connected, recipientAddress, creatorAddress, tierId, tierPrice, blockHeight, blockHeightError, giftSubscription, getCreditsRecords, setTxStatus, setError, setTxId, startPolling, submittingRef])
+  }, [connected, recipientAddress, creatorAddress, tierId, tierPrice, blockHeight, blockHeightError, giftSubscription, getCreditsRecords, setTxStatus, setError, setTxId, startPolling, submittingRef, publicKey])
 
   const handleClose = () => {
     setRecipientAddress('')

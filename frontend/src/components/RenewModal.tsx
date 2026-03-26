@@ -43,7 +43,7 @@ export default function RenewModal({
   initialTierId,
   onSuccess,
 }: Props) {
-  const { renew, renewBlind, getCreditsRecords, connected } = useVeilSub()
+  const { renew, renewBlind, getCreditsRecords, connected, publicKey } = useVeilSub()
   const { signMessage } = useWallet()
   const { blockHeight, error: blockHeightError } = useBlockHeight()
   const { startPolling, stopPolling } = useTransactionPoller()
@@ -138,11 +138,13 @@ export default function RenewModal({
     submittingRef.current = true
     setError(null)
     setTxStatus('signing')
+    toast.loading('Preparing renewal...', { id: 'renew-optimistic', duration: 60000 })
 
     try {
       const balanceResult = await checkBalance(totalPrice)
       if (balanceResult.largestRecord) setLargestRecord(balanceResult.largestRecord)
       if (balanceResult.error) {
+        toast.dismiss('renew-optimistic')
         if (balanceResult.insufficientBalance) setInsufficientBalance(true)
         setError(balanceResult.error)
         setTxStatus('idle')
@@ -151,6 +153,7 @@ export default function RenewModal({
       }
       const records = balanceResult.records
       if (!records || records.length === 0) {
+        toast.dismiss('renew-optimistic')
         setError('No private credits available. Convert public credits first.')
         setTxStatus('idle')
         submittingRef.current = false
@@ -158,10 +161,31 @@ export default function RenewModal({
       }
 
       const paymentRecord = records[0]
+
+      // Check public balance covers the network fee (paid separately from private record)
+      try {
+        const feeNeeded = privacyMode === 'blind' ? FEES.RENEW_BLIND : FEES.RENEW
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(publicKey ?? '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt((pubText ?? '').replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < feeNeeded) {
+            toast.dismiss('renew-optimistic')
+            setError(`Insufficient public balance for network fee. You need ~${formatCredits(feeNeeded)} ALEO public credits. Get testnet credits from the Aleo faucet.`)
+            setTxStatus('idle')
+            submittingRef.current = false
+            return
+          }
+        }
+      } catch {
+        toast.warning('Could not verify public balance. Transaction may fail if fees are insufficient.')
+      }
+
       const newPassId = generatePassId()
       const newExpiresAt = blockHeight + SUBSCRIPTION_DURATION_BLOCKS
 
       setTxStatus('proving')
+      toast.dismiss('renew-optimistic')
 
       let id: string | null
       if (privacyMode === 'blind') {
@@ -227,6 +251,7 @@ export default function RenewModal({
         setError('Wallet didn\u2019t approve the transaction. Try again when ready.')
       }
     } catch (err) {
+      toast.dismiss('renew-optimistic')
       setTxStatus('failed')
       setError(getErrorMessage(err instanceof Error ? err.message : 'Renewal failed'))
     } finally {

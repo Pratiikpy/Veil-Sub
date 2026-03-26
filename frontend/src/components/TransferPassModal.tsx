@@ -11,7 +11,8 @@ import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import TransactionStatus from './TransactionStatus'
 import Button from './ui/Button'
-import { isValidAleoAddress } from '@/lib/utils'
+import { isValidAleoAddress, formatCredits } from '@/lib/utils'
+import { FEES } from '@/lib/config'
 
 interface Props {
   isOpen: boolean
@@ -28,7 +29,7 @@ export default function TransferPassModal({
   creatorAddress,
   onSuccess,
 }: Props) {
-  const { connected, transferPass: executeTransfer } = useVeilSub()
+  const { connected, transferPass: executeTransfer, publicKey } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
   const {
     txStatus, setTxStatus, txId, setTxId,
@@ -57,6 +58,24 @@ export default function TransferPassModal({
     setError(null)
 
     try {
+      // Check public balance covers the network fee (paid separately from private record)
+      try {
+        const feeNeeded = FEES.TRANSFER_PASS
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(publicKey ?? '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt((pubText ?? '').replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < feeNeeded) {
+            setError(`Insufficient public balance for network fee. You need ~${formatCredits(feeNeeded)} ALEO public credits. Get testnet credits from the Aleo faucet.`)
+            setTxStatus('idle')
+            submittingRef.current = false
+            return
+          }
+        }
+      } catch {
+        toast.warning('Could not verify public balance. Transaction may fail if fees are insufficient.')
+      }
+
       const result = await executeTransfer(accessPassPlaintext, recipientAddress)
 
       if (result) {

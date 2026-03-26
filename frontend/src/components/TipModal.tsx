@@ -233,6 +233,25 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
       }
       const paymentRecord = records[0]
 
+      // Check public balance covers the network fee (paid separately from private record)
+      try {
+        const feeNeeded = FEES.TIP
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(walletAddress ?? '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt((pubText ?? '').replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < feeNeeded) {
+            toast.dismiss('tip-optimistic')
+            setError(`Insufficient public balance for network fee. You need ~${formatCredits(feeNeeded)} ALEO public credits. Get testnet credits from the Aleo faucet.`)
+            setTxStatus('idle')
+            submittingRef.current = false
+            return
+          }
+        }
+      } catch {
+        toast.warning('Could not verify public balance. Transaction may fail if fees are insufficient.')
+      }
+
       setTxStatus('proving')
       toast.dismiss('tip-optimistic')
       const id = await tip(paymentRecord, creatorAddress, tipMicrocredits)
@@ -305,6 +324,25 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
     try {
       const tipMicrocredits = creditsToMicrocredits(tipAmount)
       const salt = generatePassId()
+
+      // Check public balance covers the network fee (paid separately from private record)
+      try {
+        const feeNeeded = FEES.COMMIT_TIP
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(walletAddress ?? '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt((pubText ?? '').replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < feeNeeded) {
+            toast.dismiss('commit-tip')
+            setError(`Insufficient public balance for network fee. You need ~${formatCredits(feeNeeded)} ALEO public credits. Get testnet credits from the Aleo faucet.`)
+            setTxStatus('idle')
+            submittingRef.current = false
+            return
+          }
+        }
+      } catch {
+        toast.warning('Could not verify public balance. Transaction may fail if fees are insufficient.')
+      }
 
       setTxStatus('proving')
       toast.dismiss('commit-tip')
@@ -382,6 +420,25 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
         return
       }
       const paymentRecord = records[0]
+
+      // Check public balance covers the network fee (paid separately from private record)
+      try {
+        const feeNeeded = FEES.REVEAL_TIP
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(walletAddress ?? '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt((pubText ?? '').replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < feeNeeded) {
+            toast.dismiss('reveal-tip')
+            setError(`Insufficient public balance for network fee. You need ~${formatCredits(feeNeeded)} ALEO public credits. Get testnet credits from the Aleo faucet.`)
+            setTxStatus('idle')
+            submittingRef.current = false
+            return
+          }
+        }
+      } catch {
+        toast.warning('Could not verify public balance. Transaction may fail if fees are insufficient.')
+      }
 
       setTxStatus('proving')
       toast.dismiss('reveal-tip')

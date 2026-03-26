@@ -7,7 +7,8 @@ import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
-import { MICROCREDITS_PER_CREDIT } from '@/lib/config'
+import { MICROCREDITS_PER_CREDIT, FEES } from '@/lib/config'
+import { formatCredits } from '@/lib/utils'
 import { buildAuthPayload } from '@/lib/authenticatedFetch'
 import { invalidateCreatorTierCache } from '@/hooks/useCreatorTiers'
 import Button from './ui/Button'
@@ -21,7 +22,7 @@ interface TierCreationDialogProps {
 }
 
 export default function TierCreationDialog({ isOpen, onClose, creatorAddress, onSuccess, existingTierIds = [] }: TierCreationDialogProps) {
-  const { createCustomTier, connected } = useVeilSub()
+  const { createCustomTier, connected, publicKey } = useVeilSub()
   const {
     txStatus, txId,
     error, setError, handleClose: baseHandleClose,
@@ -73,6 +74,24 @@ export default function TierCreationDialog({ isOpen, onClose, creatorAddress, on
     setTxStatus('signing')
     setError(null)
     try {
+      // Check public balance covers the network fee (paid separately from private record)
+      try {
+        const feeNeeded = FEES.CREATE_TIER
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(publicKey ?? '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt((pubText ?? '').replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < feeNeeded) {
+            setError(`Insufficient public balance for network fee. You need ~${formatCredits(feeNeeded)} ALEO public credits. Get testnet credits from the Aleo faucet.`)
+            setTxStatus('idle')
+            submittingRef.current = false
+            return
+          }
+        }
+      } catch {
+        toast.warning('Could not verify public balance. Transaction may fail if fees are insufficient.')
+      }
+
       const parsedPrice = parseFloat(priceAleo)
       if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) throw new Error('Price must be greater than 0')
       const priceMicrocredits = Math.round(parsedPrice * MICROCREDITS_PER_CREDIT)
