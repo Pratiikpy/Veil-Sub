@@ -365,6 +365,22 @@ export default function SettingsPage() {
   // Mounted flag for hydration safety
   const [mounted, setMounted] = useState(false)
 
+  // ─── Clear profile fields on wallet disconnect ───────────────────────────
+
+  useEffect(() => {
+    if (!connected) {
+      setDisplayName('')
+      setBio('')
+      setCategory('')
+      setImageUrl('')
+      setCoverUrl('')
+      setSubDisplayName('')
+      setSubAvatarUrl('')
+      setNotifEmail('')
+      setNotifEmailExists(false)
+    }
+  }, [connected])
+
   // ─── Init from localStorage ────────────────────────────────────────────────
 
   useEffect(() => {

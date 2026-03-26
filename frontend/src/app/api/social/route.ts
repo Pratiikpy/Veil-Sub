@@ -29,6 +29,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 import { verifyWalletAuth } from '@/lib/apiAuth'
+import { validateOrigin } from '@/lib/csrf'
 
 const VALID_REACTION_TYPES = new Set(['heart', 'fire', 'clap', 'wow', 'idea', 'pray'])
 const MAX_COMMENT_LEN = 280
@@ -104,6 +105,10 @@ export async function GET(req: NextRequest) {
 // ---------- POST ----------
 
 export async function POST(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:social:post`, 30)
   if (!allowed) return getRateLimitResponse()
@@ -129,14 +134,12 @@ export async function POST(req: NextRequest) {
   const { walletAddress, walletHash, timestamp, signature } = body as {
     walletAddress?: string; walletHash?: unknown; timestamp?: unknown; signature?: unknown
   }
-  if (walletHash && walletAddress) {
-    const auth = await verifyWalletAuth(walletAddress, walletHash, timestamp, signature)
-    if (!auth.valid) {
-      return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
-    }
-  } else if (type === 'comment') {
-    // Comments require auth — reactions are anonymous aggregate counters
+  if (!walletAddress || !walletHash || timestamp === undefined) {
     return NextResponse.json({ error: 'Authentication required (walletAddress + walletHash + timestamp)' }, { status: 401 })
+  }
+  const auth = await verifyWalletAuth(walletAddress, walletHash, timestamp, signature)
+  if (!auth.valid) {
+    return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
   }
 
   try {

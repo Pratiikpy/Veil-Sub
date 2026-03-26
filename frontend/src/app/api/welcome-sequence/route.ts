@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { timingSafeEqual } from 'crypto'
 import { getRedis } from '@/lib/redis'
 import { ALEO_ADDRESS_RE, AUTH_CONFIG } from '@/lib/config'
 import { hashAddress } from '@/lib/encryption'
@@ -28,7 +29,9 @@ async function verifyWalletAuth(
   const encoder = new TextEncoder()
   const hashBuf = await crypto.subtle.digest('SHA-256', encoder.encode(subscriber + salt))
   const expectedHash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
-  if (walletHash !== expectedHash) {
+  const buf1 = Buffer.from(walletHash, 'hex')
+  const buf2 = Buffer.from(expectedHash, 'hex')
+  if (buf1.length !== buf2.length || !timingSafeEqual(buf1, buf2)) {
     return 'Wallet hash mismatch'
   }
   return null // valid
