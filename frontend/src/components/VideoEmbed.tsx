@@ -68,6 +68,7 @@ export default function VideoEmbed({ url, title }: VideoEmbedProps) {
           title={title ? `Video: ${title}` : 'Embedded video'}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
+          referrerPolicy="no-referrer"
           className="w-full h-full border-none"
           loading="lazy"
         />

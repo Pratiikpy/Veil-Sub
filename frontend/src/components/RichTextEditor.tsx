@@ -105,6 +105,7 @@ export default function RichTextEditor({ content, onChange, placeholder, walletA
       }),
       Youtube.configure({
         HTMLAttributes: { class: 'rich-youtube' },
+        nocookie: true,
         width: 640,
         height: 360,
       }),
