@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react'
 import { m } from 'framer-motion'
 import { FileText, Send, Image as ImageIcon, X, Video, Upload, Loader2, Save, Clock, Tag, Plus, ExternalLink, DollarSign, BookOpen, Camera, Film, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
@@ -20,6 +21,7 @@ import { useCreatorTiers } from '@/hooks/useCreatorTiers'
 import { notifyContentPublished } from '@/lib/notificationTrigger'
 
 const RichTextEditor = lazy(() => import('./RichTextEditor'))
+const VideoEmbed = dynamic(() => import('./VideoEmbed'), { ssr: false })
 
 /** Best-effort subscriber email notification after publishing. Never blocks or errors. */
 function triggerSubscriberNotification(
@@ -381,7 +383,11 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
   // Save as draft to Redis (server-side)
   const handleSaveDraft = async () => {
     if (submittingRef.current) return
-    if (!title.trim()) {
+    if (contentMode === 'image') {
+      if (!imageUrl.trim() && !title.trim()) { setError('Draft requires a photo or title.'); return }
+    } else if (contentMode === 'video') {
+      if (!videoUrl.trim() && !title.trim()) { setError('Draft requires a video URL or title.'); return }
+    } else if (!title.trim()) {
       setError('Draft requires at least a title.')
       return
     }
@@ -429,7 +435,13 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
   // Schedule post
   const handleSchedule = async () => {
     if (submittingRef.current) return
-    if (!title.trim() || !hasBodyContent) { setError('Title and body are required to schedule.'); return }
+    if (contentMode === 'image') {
+      if (!imageUrl.trim()) { setError('A photo is required to schedule.'); return }
+    } else if (contentMode === 'video') {
+      if (!videoUrl.trim()) { setError('A video URL is required to schedule.'); return }
+    } else {
+      if (!title.trim() || !hasBodyContent) { setError('Title and body are required to schedule.'); return }
+    }
     if (!scheduleDate || !scheduleTime) { setError('Select a date and time for scheduling.'); return }
     const scheduledAt = new Date(`${scheduleDate}T${scheduleTime}`).toISOString()
     if (new Date(scheduledAt) <= new Date()) { setError('Scheduled time must be in the future.'); return }
@@ -479,7 +491,14 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
 
   const handlePublish = async () => {
     if (submittingRef.current) return
-    if (!title.trim() || !hasBodyContent) { setError('Title and body are required.'); return }
+    // Mode-specific validation
+    if (contentMode === 'image') {
+      if (!imageUrl.trim()) { setError('A photo is required.'); return }
+    } else if (contentMode === 'video') {
+      if (!videoUrl.trim()) { setError('A video URL is required.'); return }
+    } else {
+      if (!title.trim() || !hasBodyContent) { setError('Title and body are required.'); return }
+    }
     // Validate URLs before submission
     const videoCheck = isValidVideoUrl(videoUrl)
     if (!videoCheck.valid) { setError(videoCheck.error || 'Invalid video URL'); return }
@@ -797,29 +816,21 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
               id="note-text"
               value={noteText}
               onChange={(e) => setNoteText(e.target.value.slice(0, 280))}
-              placeholder="Share a quick thought..."
-              rows={3}
+              placeholder="What's on your mind?"
+              rows={4}
               maxLength={280}
               className="w-full px-4 py-3 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/50 transition-all text-base resize-none"
             />
             <div className="flex items-center justify-between mt-1">
               <p className="text-[11px] text-white/50">Always free, always public</p>
-              <p className={`text-[11px] ${noteText.length > 260 ? 'text-amber-400' : 'text-white/50'}`}>
-                {noteText.length}/280
+              <p className={`text-[11px] ${
+                noteText.length > 270 ? 'text-red-400' :
+                noteText.length > 250 ? 'text-amber-400' :
+                'text-white/50'
+              }`}>
+                {280 - noteText.length} characters left
               </p>
             </div>
-          </div>
-          <div>
-            <label htmlFor="note-image" className="block text-xs text-white/50 mb-1">Image URL (optional)</label>
-            <input
-              id="note-image"
-              type="url"
-              value={noteImageUrl}
-              onChange={(e) => setNoteImageUrl(e.target.value)}
-              placeholder="https://..."
-              maxLength={2048}
-              className="w-full px-3 py-2 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/50 transition-all text-xs"
-            />
           </div>
           {error && (
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
@@ -838,41 +849,10 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
       ) : (txStatus === 'idle' || txStatus === 'failed') ? (
         <>
           <div className="space-y-4">
-            {/* Title — prominent for articles, optional for photos */}
-            <div>
-              <label htmlFor="post-title" className="block text-sm text-white/70 mb-1.5">
-                {contentMode === 'image' ? 'Title' : 'Title'}{' '}
-                {contentMode !== 'image' && <span className="text-red-400" aria-hidden="true">*</span>}
-                {contentMode === 'image' && <span className="text-white/50">(optional)</span>}
-              </label>
-              <input
-                id="post-title"
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                maxLength={200}
-                placeholder={
-                  contentMode === 'article' ? 'Your article headline...' :
-                  contentMode === 'image' ? 'Caption title (optional)...' :
-                  contentMode === 'video' ? 'Video title...' :
-                  'Exclusive content title...'
-                }
-                required={contentMode !== 'image'}
-                aria-required={contentMode !== 'image'}
-                className={`w-full px-4 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all ${
-                  contentMode === 'article'
-                    ? 'py-3.5 text-lg font-semibold'
-                    : 'py-2.5 text-base'
-                }`}
-              />
-            </div>
 
-            {/* Image section — shown FIRST for photo mode */}
+            {/* ===== PHOTO MODE: Image upload area FIRST ===== */}
             {contentMode === 'image' && (
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-                <label className="block text-sm text-white/70 mb-2">
-                  Photo <span className="text-red-400" aria-hidden="true">*</span>
-                </label>
+              <div>
                 {/* Hidden file input */}
                 <input
                   ref={fileInputRef}
@@ -892,40 +872,41 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                     tabIndex={0}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click() }}
                     aria-label="Upload photo: click or drag and drop"
-                    className={`w-full py-10 px-4 rounded-xl border-2 border-dashed cursor-pointer transition-all text-center focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
+                    className={`w-full min-h-[200px] px-4 rounded-2xl border-2 border-dashed cursor-pointer transition-all text-center flex flex-col items-center justify-center focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                       isDragging
                         ? 'border-white/30 bg-white/[0.04]'
-                        : 'border-border bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]'
+                        : 'border-white/20 bg-white/[0.02] hover:border-white/30 hover:bg-white/[0.04]'
                     }`}
                   >
-                    <Camera className="w-8 h-8 mx-auto mb-2 text-white/50" aria-hidden="true" />
-                    <p className="text-sm text-white/60">
-                      {isDragging ? 'Drop photo here' : 'Drag & drop your photo, or click to browse'}
+                    <Camera className="w-10 h-10 mb-3 text-white/40" aria-hidden="true" />
+                    <p className="text-base font-medium text-white/60">
+                      {isDragging ? 'Drop photo here' : 'Upload Photo'}
                     </p>
-                    <p className="text-xs text-white/50 mt-1">JPG, PNG, GIF, WebP (max 5MB)</p>
+                    <p className="text-xs text-white/40 mt-1">Drag & drop or click to browse</p>
+                    <p className="text-[11px] text-white/30 mt-1">JPG, PNG, GIF, WebP (max 5MB)</p>
                   </div>
                 )}
                 {imageUploading && (
-                  <div className="w-full py-10 rounded-xl border border-border bg-white/[0.02] flex items-center justify-center gap-2">
-                    <Loader2 className="w-5 h-5 text-white/60 animate-spin" aria-hidden="true" />
+                  <div className="w-full min-h-[200px] rounded-2xl border-2 border-dashed border-white/20 bg-white/[0.02] flex items-center justify-center gap-2">
+                    <Loader2 className="w-6 h-6 text-white/50 animate-spin" aria-hidden="true" />
                     <span className="text-sm text-white/60">Uploading photo...</span>
                   </div>
                 )}
                 {imageUrl && !imageUploading && (
                   <div className="relative">
-                    <div className="relative rounded-lg overflow-hidden border border-border bg-white/[0.02] aspect-video max-h-64">
+                    <div className="relative rounded-2xl overflow-hidden border border-border bg-white/[0.02]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={imageUrl}
                         alt={title ? `Preview image for ${title}` : 'Photo preview'}
-                        className="w-full h-full object-cover"
+                        className="w-full max-h-[400px] object-contain"
                         onError={() => setImageError(true)}
                       />
                     </div>
                     <button
                       type="button"
                       onClick={() => { setImageUrl(''); setImageError(false) }}
-                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 text-white/80 hover:text-white hover:bg-black/80 transition-colors focus-visible:ring-2 focus-visible:ring-white/30"
+                      className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/60 text-white/80 hover:text-white hover:bg-black/80 transition-colors focus-visible:ring-2 focus-visible:ring-white/30"
                       aria-label="Remove photo"
                     >
                       <X className="w-4 h-4" aria-hidden="true" />
@@ -963,9 +944,9 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
               </div>
             )}
 
-            {/* Video section — shown FIRST for video mode */}
+            {/* ===== VIDEO MODE: Video URL + inline preview FIRST ===== */}
             {contentMode === 'video' && (
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <div>
                 <label htmlFor="video-mode-url" className="block text-sm text-white/70 mb-2">
                   Video URL <span className="text-red-400" aria-hidden="true">*</span>
                 </label>
@@ -985,9 +966,9 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                           setVideoUrlError(null)
                         }
                       }}
-                      placeholder="https://www.youtube.com/watch?v=..."
+                      placeholder="Paste a YouTube link..."
                       maxLength={2048}
-                      className={`w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.05] border text-white placeholder-subtle focus:outline-none focus:ring-2 focus:ring-white/30 transition-all text-sm ${
+                      className={`w-full pl-9 pr-4 py-3 rounded-xl bg-white/[0.05] border text-white placeholder-subtle focus:outline-none focus:ring-2 focus:ring-white/30 transition-all text-base ${
                         videoUrlError ? 'border-red-500/50 focus:border-red-500' : 'border-border focus:border-white/30'
                       }`}
                     />
@@ -1005,50 +986,169 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                 </div>
                 {videoUrlError && <p className="text-xs text-red-400 mt-1">{videoUrlError}</p>}
                 <p className="text-[11px] text-white/50 mt-1.5">YouTube, Vimeo, or direct video files (.mp4, .webm)</p>
+                {/* Inline video preview */}
+                {videoUrl && !videoUrlError && isValidVideoUrl(videoUrl).valid && videoUrl.trim() && (
+                  <div className="mt-3 rounded-xl overflow-hidden border border-border bg-white/[0.02]">
+                    <VideoEmbed url={videoUrl} />
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Content editor */}
-            <div>
-              <label className="block text-sm text-white/70 mb-1.5">
-                {contentMode === 'article' ? 'Article body' :
-                 contentMode === 'image' ? 'Caption' :
-                 contentMode === 'video' ? 'Description' :
-                 'Content'}
-              </label>
-              <Suspense fallback={
-                <div className={`w-full rounded-xl bg-white/[0.05] border border-border animate-pulse ${contentMode === 'article' ? 'h-60' : 'h-40'}`} />
-              }>
-                <RichTextEditor
-                  content={body}
-                  onChange={setBody}
-                  walletAddress={creatorAddress}
+            {/* Title — hidden for note (handled above), prominent for article, optional for photo/video */}
+            {contentMode !== 'image' && contentMode !== 'video' && (
+              <div>
+                <label htmlFor="post-title" className="block text-sm text-white/70 mb-1.5">
+                  Title <span className="text-red-400" aria-hidden="true">*</span>
+                </label>
+                <input
+                  id="post-title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  maxLength={200}
                   placeholder={
-                    contentMode === 'article' ? 'Write your article...' :
-                    contentMode === 'image' ? 'Add a caption for your photo...' :
-                    contentMode === 'video' ? 'Describe this video...' :
-                    'Write your exclusive content — use the toolbar for rich formatting, images, and video embeds...'
+                    contentMode === 'article' ? 'Your article title...' :
+                    'Exclusive content title...'
                   }
+                  required
+                  aria-required="true"
+                  className={`w-full px-4 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all ${
+                    contentMode === 'article'
+                      ? 'py-4 text-2xl font-bold tracking-tight'
+                      : 'py-2.5 text-base'
+                  }`}
                 />
-              </Suspense>
-            </div>
-            <div>
-              <label htmlFor="post-preview" className="block text-sm text-white/70 mb-1.5">
-                Preview <span className="text-white/60">(optional -- shown to non-subscribers)</span>
-              </label>
-              <textarea
-                id="post-preview"
-                value={preview}
-                onChange={(e) => setPreview(e.target.value.slice(0, 300))}
-                placeholder="A short teaser to attract subscribers..."
-                rows={2}
-                maxLength={300}
-                className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all text-base resize-none"
-              />
-              <p className="text-[11px] text-white/60 mt-0.5">{preview.length}/300</p>
-            </div>
-            {/* Image section — hidden when photo mode already shows it above */}
-            {contentMode !== 'image' && (
+                {/* Article word count + reading time */}
+                {contentMode === 'article' && (() => {
+                  const wordCount = body.replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(Boolean).length
+                  return wordCount > 0 ? (
+                    <p className="text-[11px] text-white/50 mt-1.5">
+                      {wordCount} words &middot; {Math.ceil(wordCount / 200)} min read
+                    </p>
+                  ) : null
+                })()}
+              </div>
+            )}
+
+            {/* Title for photo/video — optional, below media */}
+            {(contentMode === 'image' || contentMode === 'video') && (
+              <div>
+                <label htmlFor="post-title" className="block text-sm text-white/70 mb-1.5">
+                  Title <span className="text-white/50">(optional)</span>
+                </label>
+                <input
+                  id="post-title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  maxLength={200}
+                  placeholder={contentMode === 'image' ? 'Add a caption title...' : 'Video title...'}
+                  className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all text-base"
+                />
+              </div>
+            )}
+
+            {/* ===== Content editor — varies by mode ===== */}
+
+            {/* POST mode: full rich text editor */}
+            {contentMode === 'post' && (
+              <div>
+                <label className="block text-sm text-white/70 mb-1.5">Content</label>
+                <Suspense fallback={
+                  <div className="w-full h-40 rounded-xl bg-white/[0.05] border border-border animate-pulse" />
+                }>
+                  <RichTextEditor
+                    content={body}
+                    onChange={setBody}
+                    walletAddress={creatorAddress}
+                    placeholder="Write your exclusive content — use the toolbar for rich formatting, images, and video embeds..."
+                  />
+                </Suspense>
+              </div>
+            )}
+
+            {/* ARTICLE mode: full rich text editor with more height */}
+            {contentMode === 'article' && (
+              <div>
+                <label className="block text-sm text-white/70 mb-1.5">Article body</label>
+                <Suspense fallback={
+                  <div className="w-full h-60 rounded-xl bg-white/[0.05] border border-border animate-pulse" />
+                }>
+                  <div className="min-h-[300px] [&_.ProseMirror]:min-h-[280px]">
+                    <RichTextEditor
+                      content={body}
+                      onChange={setBody}
+                      walletAddress={creatorAddress}
+                      placeholder="Write your article..."
+                    />
+                  </div>
+                </Suspense>
+                {/* Word count + reading time below editor */}
+                {(() => {
+                  const wordCount = body.replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(Boolean).length
+                  return (
+                    <p className="text-[11px] text-white/50 mt-1.5">
+                      {wordCount} words &middot; {Math.ceil(wordCount / 200)} min read
+                    </p>
+                  )
+                })()}
+              </div>
+            )}
+
+            {/* PHOTO mode: simple caption textarea */}
+            {contentMode === 'image' && (
+              <div>
+                <label htmlFor="photo-caption" className="block text-sm text-white/70 mb-1.5">Caption</label>
+                <textarea
+                  id="photo-caption"
+                  value={body}
+                  onChange={(e) => setBody(e.target.value.slice(0, 500))}
+                  placeholder="Add a caption for your photo..."
+                  rows={3}
+                  maxLength={500}
+                  className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all text-base resize-none"
+                />
+                <p className="text-[11px] text-white/50 mt-0.5">{body.length}/500</p>
+              </div>
+            )}
+
+            {/* VIDEO mode: simple description textarea */}
+            {contentMode === 'video' && (
+              <div>
+                <label htmlFor="video-caption" className="block text-sm text-white/70 mb-1.5">Description</label>
+                <textarea
+                  id="video-caption"
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  placeholder="Describe this video..."
+                  rows={3}
+                  className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all text-base resize-none"
+                />
+              </div>
+            )}
+
+            {/* Preview field — shown for post and article modes */}
+            {(contentMode === 'post' || contentMode === 'article') && (
+              <div>
+                <label htmlFor="post-preview" className="block text-sm text-white/70 mb-1.5">
+                  Preview <span className="text-white/60">(optional -- shown to non-subscribers)</span>
+                </label>
+                <textarea
+                  id="post-preview"
+                  value={preview}
+                  onChange={(e) => setPreview(e.target.value.slice(0, 300))}
+                  placeholder="A short teaser to attract subscribers..."
+                  rows={2}
+                  maxLength={300}
+                  className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white placeholder-subtle focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/30 transition-all text-base resize-none"
+                />
+                <p className="text-[11px] text-white/60 mt-0.5">{preview.length}/300</p>
+              </div>
+            )}
+
+            {/* Image upload — only for Post mode (article uses inline editor; photo has it above; video doesn't need it) */}
+            {contentMode === 'post' && (
             <div>
               <label className="block text-sm text-white/70 mb-1.5">
                 Image <span className="text-white/60">(optional -- drag & drop, upload, or paste URL)</span>
@@ -1157,8 +1257,9 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
               )}
             </div>
             )}
-            {/* Video section — hidden when video mode already shows it above */}
-            {contentMode !== 'video' && (
+
+            {/* Video URL — only for Post mode (video mode has it above; article/photo don't show it) */}
+            {contentMode === 'post' && (
             <div>
               <label htmlFor="post-video-url" className="block text-sm text-white/70 mb-1.5">
                 Video <span className="text-white/60">(optional -- YouTube or direct video URL)</span>
@@ -1398,7 +1499,13 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
           <div className="mt-4 flex flex-col sm:flex-row gap-2">
             <button
               onClick={handleSaveDraft}
-              disabled={!title.trim() || submittingRef.current}
+              disabled={
+                submittingRef.current || (
+                  contentMode === 'image' ? (!imageUrl.trim() && !title.trim()) :
+                  contentMode === 'video' ? (!videoUrl.trim() && !title.trim()) :
+                  !title.trim()
+                )
+              }
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.05] border border-amber-500/30 text-amber-300 text-sm font-medium hover:bg-amber-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
             >
               {savingDraft ? (
@@ -1411,7 +1518,13 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
             {(scheduleDate && scheduleTime) && (
               <button
                 onClick={handleSchedule}
-                disabled={!title.trim() || !hasBodyContent || submittingRef.current}
+                disabled={
+                  submittingRef.current || (
+                    contentMode === 'image' ? !imageUrl.trim() :
+                    contentMode === 'video' ? !videoUrl.trim() :
+                    (!title.trim() || !hasBodyContent)
+                  )
+                }
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.05] border border-amber-500/30 text-amber-300 text-sm font-medium hover:bg-amber-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
               >
                 {scheduling ? (
@@ -1424,7 +1537,13 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
             )}
             <Button
               onClick={handlePublish}
-              disabled={!title.trim() || !hasBodyContent || (txStatus !== 'idle' && txStatus !== 'failed')}
+              disabled={
+                (txStatus !== 'idle' && txStatus !== 'failed') || (
+                  contentMode === 'image' ? !imageUrl.trim() :
+                  contentMode === 'video' ? !videoUrl.trim() :
+                  (!title.trim() || !hasBodyContent)
+                )
+              }
               className="flex-1"
             >
               <Send className="w-4 h-4" aria-hidden="true" />
