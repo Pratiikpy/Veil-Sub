@@ -23,17 +23,17 @@ export default function VideoEmbed({ url, title }: VideoEmbedProps) {
       if (parsed.hostname === 'www.youtube.com' || parsed.hostname === 'youtube.com') {
         const videoId = parsed.searchParams.get('v')
         if (videoId) {
-          return { type: 'youtube' as const, embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}` }
+          return { type: 'youtube' as const, embedUrl: `https://www.youtube.com/embed/${videoId}` }
         }
         // YouTube Shorts
         const shortsMatch = parsed.pathname.match(/\/shorts\/([^/?]+)/)
         if (shortsMatch) {
-          return { type: 'youtube' as const, embedUrl: `https://www.youtube-nocookie.com/embed/${shortsMatch[1]}` }
+          return { type: 'youtube' as const, embedUrl: `https://www.youtube.com/embed/${shortsMatch[1]}` }
         }
         // YouTube embed URLs (already embed format)
         const embedMatch = parsed.pathname.match(/\/embed\/([^/?]+)/)
         if (embedMatch) {
-          return { type: 'youtube' as const, embedUrl: `https://www.youtube-nocookie.com/embed/${embedMatch[1]}` }
+          return { type: 'youtube' as const, embedUrl: `https://www.youtube.com/embed/${embedMatch[1]}` }
         }
       }
 
@@ -41,7 +41,7 @@ export default function VideoEmbed({ url, title }: VideoEmbedProps) {
       if (parsed.hostname === 'youtu.be') {
         const videoId = parsed.pathname.slice(1)
         if (videoId) {
-          return { type: 'youtube' as const, embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}` }
+          return { type: 'youtube' as const, embedUrl: `https://www.youtube.com/embed/${videoId}` }
         }
       }
 
