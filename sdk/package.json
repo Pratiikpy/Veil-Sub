@@ -1,7 +1,7 @@
 {
   "name": "@veilsub/sdk",
   "version": "0.1.0",
-  "description": "TypeScript SDK for VeilSub — privacy-first creator subscriptions on Aleo",
+  "description": "TypeScript SDK for VeilSub — private creator subscriptions on Aleo",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -12,42 +12,23 @@
       "require": "./dist/index.js"
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist", "README.md"],
   "scripts": {
-    "build": "tsc",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "tsc --noEmit",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
     "prepublishOnly": "npm run build"
   },
-  "keywords": [
-    "aleo",
-    "privacy",
-    "subscriptions",
-    "zk",
-    "zero-knowledge",
-    "creator-economy",
-    "veilsub",
-    "web3",
-    "blockchain"
-  ],
-  "author": "VeilSub Team",
+  "keywords": ["aleo", "zk", "privacy", "subscription", "creator", "zero-knowledge"],
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/Pratiikpy/Veil-Sub"
   },
-  "homepage": "https://veil-sub.vercel.app",
-  "bugs": {
-    "url": "https://github.com/Pratiikpy/Veil-Sub/issues"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "typescript": "^5.6.0",
-    "vitest": "^2.0.0"
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "@provablehq/sdk": ">=0.9.0"
   }
 }

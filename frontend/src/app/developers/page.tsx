@@ -40,38 +40,45 @@ import { HERO_GLOW_STYLE, TITLE_STYLE as LETTER_SPACING_STYLE } from '@/lib/styl
 
 // ─── Code snippets ──────────────────────────────────────────────────────────
 
-const INSTALL_SNIPPET = 'npm install @veilsub/sdk'
+const INSTALL_SNIPPET = 'npm install @provablehq/sdk'
 
-const QUICKSTART_SNIPPET = `import { VeilSubClient } from '@veilsub/sdk'
+const QUICKSTART_SNIPPET = `import { ProgramManager, AleoKeyProvider } from '@provablehq/sdk'
 
-const client = new VeilSubClient({
-  network: 'testnet',
-  programId: '${DEPLOYED_PROGRAM_ID}',
-})
+const programManager = new ProgramManager(
+  'https://api.explorer.provable.com/v1',
+  new AleoKeyProvider(),
+)
 
-// Query creator stats (no wallet needed)
-const stats = await client.getCreatorStats(creatorHash)
-// stats.subscriberCount, stats.tierPrice available
+// Execute a subscribe transaction
+const tx = await programManager.execute(
+  '${DEPLOYED_PROGRAM_ID}',
+  'subscribe',
+  [paymentRecord, creatorAddress, '1u8', '10900001u64', passId, expiresAt],
+  300_000 // fee in microcredits
+)
 
-// Verify subscriber access (zero-finalize)
-const hasAccess = await client.verifyAccess(accessPass)
-// ^ Leaves ZERO on-chain footprint`
+// Query on-chain mapping (no wallet needed)
+const stats = await fetch(
+  'https://api.explorer.provable.com/v1/testnet/program/${DEPLOYED_PROGRAM_ID}/mapping/subscriber_count/' + creatorHash
+)`
 
 const INTEGRATION_STEPS = [
   {
     step: 1,
     title: 'Install SDK',
-    code: 'npm install @veilsub/sdk',
-    description: 'Add the VeilSub SDK to your project. Works with any Aleo-compatible frontend.',
+    code: 'npm install @provablehq/sdk',
+    description: 'Add the Aleo SDK to your project. Works with any Aleo-compatible frontend.',
   },
   {
     step: 2,
-    title: 'Import VeilSub Access',
-    code: `import { VeilSubClient } from '@veilsub/sdk'
-import { verifyAccess } from '@veilsub/sdk/access'
+    title: 'Initialize Program Manager',
+    code: `import { ProgramManager, AleoKeyProvider } from '@provablehq/sdk'
 
-const client = new VeilSubClient({ network: 'testnet' })`,
-    description: 'Initialize the client and import the access verification module.',
+const pm = new ProgramManager(
+  'https://api.explorer.provable.com/v1',
+  new AleoKeyProvider()
+)`,
+    description: 'Initialize the Aleo program manager to interact with VeilSub contract.',
   },
   {
     step: 3,
