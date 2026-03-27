@@ -1,7 +1,7 @@
 {
-  "program": "veilsub_v29.aleo",
-  "version": "0.15.0",
-  "description": "VeilSub v29 - Homomorphic Pedersen commitments for subscriber counts + revenue, 5 Structs, 6 Records, 31 Transitions, 30 Mappings on Aleo",
+  "program": "veilsub_v30.aleo",
+  "version": "0.16.0",
+  "description": "VeilSub v30 - Full stablecoin support (USDCx + USAD), Pedersen commitments, BSP, 31 Transitions, 30 Mappings on Aleo",
   "license": "MIT",
   "leo": "3.4.0",
   "dependencies": [

@@ -82,7 +82,7 @@ import credits.aleo;
 //
 // =============================================================================
 
-program veilsub_v29.aleo {
+program veilsub_v30.aleo {
 
     @noupgrade
     async constructor() {}

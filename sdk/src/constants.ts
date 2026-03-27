@@ -1,4 +1,4 @@
-export const PROGRAM_ID = 'veilsub_v29.aleo'
+export const PROGRAM_ID = 'veilsub_v30.aleo'
 export const API_URL = 'https://api.explorer.provable.com/v1/testnet'
 
 export const FEES = {
