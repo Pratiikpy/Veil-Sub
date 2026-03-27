@@ -207,7 +207,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                 timestamp,
                 creatorAddress,
               }),
-            }).catch(() => { /* server backup is best-effort */ })
+            }).catch(() => {
+              toast.warning('Unlock saved locally but server backup failed. Your access is preserved on this device.')
+            })
           } catch { /* ignore API tracking failures */ }
         }
       } else {
@@ -461,7 +463,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       </h2>
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs text-white/60">
-          Free posts are visible to everyone. Gated content is end-to-end encrypted and decrypted in your browser after AccessPass verification.
+          Free posts are visible to everyone. Gated content is end-to-end encrypted and decrypted in your browser after subscription verification.
         </p>
         {onViewModeChange && (
           <div className="flex items-center rounded-lg border border-border overflow-hidden ml-3 shrink-0">
@@ -519,7 +521,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         <LoadingSkeleton />
       ) : error ? (
         <div className="p-4 sm:p-6 lg:p-8 rounded-xl border border-red-500/20 bg-red-500/5 text-center">
-          <p className="text-sm text-red-400 mb-4">Could not load exclusive content. Your AccessPass is safe—check your connection and retry.</p>
+          <p className="text-sm text-red-400 mb-4">Could not load exclusive content. Your subscription pass is safe—check your connection and retry.</p>
           <button
             onClick={fetchPosts}
             aria-label="Retry loading posts"
@@ -540,7 +542,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
               <p className="text-sm text-white/70">
                 {feedFilter === 'notes'
                   ? 'This creator hasn\'t shared any notes. Notes are short, free, public updates.'
-                  : 'This creator hasn\'t published any gated content. Once they do, your AccessPass verification will unlock it instantly\u2014with zero on-chain footprint.'}
+                  : 'This creator hasn\'t published any gated content. Once they do, your subscription verification will unlock it instantly\u2014with zero on-chain footprint.'}
               </p>
             </div>
           )}
@@ -695,7 +697,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     <div className="mb-4 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-20 sm:h-24 lg:h-28">
                       <div className="flex items-center gap-2 text-white/60">
                         <ImageIcon className="w-5 h-5" aria-hidden="true" />
-                        <span className="text-xs">Image content -- AccessPass required</span>
+                        <span className="text-xs">Image content -- subscription required</span>
                       </div>
                     </div>
                   )}
@@ -705,7 +707,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     <div className="mb-4 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-20 sm:h-24 lg:h-28">
                       <div className="flex items-center gap-2 text-white/60">
                         <Video className="w-5 h-5" aria-hidden="true" />
-                        <span className="text-xs">Video content -- AccessPass required</span>
+                        <span className="text-xs">Video content -- subscription required</span>
                       </div>
                     </div>
                   )}
@@ -859,7 +861,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                         className="px-4 py-2 rounded-lg text-xs font-medium bg-white/[0.08] border border-white/[0.1] text-white hover:bg-white/[0.12] active:scale-[0.98] transition-all inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-white/30"
                       >
                         <RefreshCw className="w-3 h-3" aria-hidden="true" />
-                        Try again
+                        Retry unlock
                       </button>
                     </div>
                   ) : (
@@ -978,7 +980,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         <div className="flex items-center gap-2">
           <Shield className="w-3.5 h-3.5 text-white/70 shrink-0" aria-hidden="true" />
           <p className="text-xs text-white/60">
-            Gated content is end-to-end encrypted. The server stores only ciphertext it cannot read. Decryption happens in your browser using keys derived from your AccessPass.
+            Gated content is end-to-end encrypted. The server stores only ciphertext it cannot read. Decryption happens in your browser using keys derived from your subscription pass.
           </p>
         </div>
       </div>

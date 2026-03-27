@@ -147,7 +147,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
   }, [signMessage])
 
   const handleDelete = async (postId: string) => {
-    if (!window.confirm('Delete this post? This action cannot be undone.')) return
+    if (!window.confirm('Permanently delete this post?\n\nThis removes the post from VeilSub. The on-chain record remains. This action cannot be undone.')) return
     const wrappedSign = getWrappedSign()
     const ok = await deletePost(address, postId, wrappedSign)
     if (ok) {

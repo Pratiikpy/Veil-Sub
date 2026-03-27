@@ -128,7 +128,7 @@ export default function HeroMockup() {
       >
         <FloatingLabel
           icon={KeyRound}
-          label="AccessPass"
+          label="Subscription Pass"
           sub="encrypted record on-chain"
           colorClass="bg-amber-500/[0.08] border-amber-500/[0.2] text-amber-300"
           animDelay="2.4s"

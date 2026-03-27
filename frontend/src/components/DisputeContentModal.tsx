@@ -110,7 +110,7 @@ export default function DisputeContentModal({
       }
     } catch (err: unknown) {
       setTxStatus('failed')
-      setError(err instanceof Error ? err.message : 'Dispute couldn\u2019t be submitted. Make sure your AccessPass is still active.')
+      setError(err instanceof Error ? err.message : 'Dispute couldn\u2019t be submitted. Make sure your subscription is still active.')
       toast.error('Dispute couldn\u2019t be submitted')
     } finally {
       submittingRef.current = false
@@ -163,7 +163,7 @@ export default function DisputeContentModal({
             <div className="flex gap-2">
               <Shield className="w-4 h-4 text-white/50 mt-0.5 shrink-0" aria-hidden="true" />
               <p className="text-xs text-white/60 leading-relaxed">
-                Sybil-protected via AccessPass ownership. The dispute_content transition verifies
+                Sybil-protected via subscription pass ownership. The dispute_content transition verifies
                 your subscription on-chain (1 dispute per content per subscriber_hash). Your wallet
                 address is never published.
               </p>
@@ -255,7 +255,7 @@ export default function DisputeContentModal({
                   onClick={handleDispute}
                   className="flex-1 bg-red-500/80 text-white hover:bg-red-500/90 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]"
                 >
-                  Try Again
+                  Retry dispute
                 </Button>
               </>
             ) : (

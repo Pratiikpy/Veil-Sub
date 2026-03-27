@@ -4,14 +4,16 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { WalletMultiButton } from '@provablehq/aleo-wallet-adaptor-react-ui'
-import { Home, Compass, Bell, LayoutDashboard, Search, Settings, LogOut } from 'lucide-react'
+import { Home, Compass, Bell, LayoutDashboard, CreditCard, BarChart3, Search, Settings, LogOut } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 
 const NAV_ITEMS = [
   { href: '/feed', label: 'Feed', icon: Home },
   { href: '/explore', label: 'Explore', icon: Compass },
   { href: '/notifications', label: 'Notifications', icon: Bell, requiresWallet: true, showBadge: true },
+  { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard, requiresWallet: true },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, requiresWallet: true },
+  { href: '/analytics', label: 'Analytics', icon: BarChart3, requiresWallet: true },
 ]
 
 function openCommandPalette() {
@@ -49,7 +51,7 @@ export default function DesktopSidebar() {
             V
           </span>
           <span className="font-serif italic text-white text-lg">VeilSub</span>
-          <span className="hidden text-[9px] font-sans not-italic font-medium text-white/25 ml-0.5">
+          <span className="text-[9px] text-amber-400 font-bold uppercase tracking-wider bg-amber-400/10 px-1.5 py-0.5 rounded font-sans not-italic ml-0.5">
             testnet
           </span>
         </Link>

@@ -379,6 +379,11 @@ export default function TransactionProgress({ currentStep, error }: Props) {
                 Elapsed: {elapsed >= 60 ? `${Math.floor(elapsed / 60)}m ${elapsed % 60}s` : `${elapsed}s`}
               </p>
             )}
+            {elapsed > 15 && currentStepDef?.key === 'proving' && (
+              <p className="text-[11px] text-white/50 mt-2 text-center">
+                This is normal — zero-knowledge proofs protect your privacy but take time to generate.
+              </p>
+            )}
           </m.div>
         )}
       </AnimatePresence>

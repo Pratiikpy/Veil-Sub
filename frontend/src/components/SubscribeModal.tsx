@@ -266,7 +266,7 @@ export default function SubscribeModal({
             role="dialog"
             aria-modal="true"
             aria-label="Subscribe to creator"
-            className="w-full max-w-md rounded-2xl bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+            className="w-[calc(100vw-2rem)] max-w-md rounded-2xl bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
@@ -341,10 +341,13 @@ export default function SubscribeModal({
                       <p className="text-2xl font-bold text-white mb-1">
                         {formatCredits(totalPrice)} <span className="text-sm font-medium text-white/70">ALEO</span>
                       </p>
-                      <p className="text-sm text-white/50 mb-2">{formatUsd(totalPrice)}</p>
-                      <p className="text-sm text-white/70">{tier.description}</p>
+                      <p className="text-sm text-white/50 mb-1">{formatUsd(totalPrice)}</p>
+                      <p className="text-[11px] text-white/50">
+                        {100 - PLATFORM_FEE_PCT}% to creator · {PLATFORM_FEE_PCT}% platform fee
+                      </p>
+                      <p className="text-sm text-white/70 mt-2">{tier.description}</p>
                       <ul className="mt-4 space-y-1">
-                        {tier.features.map((f) => (
+                        {(tier.features.length > 0 ? tier.features : ['Access to all tier-gated content']).map((f) => (
                           <li
                             key={f}
                             className="text-xs text-white/70 flex items-center gap-2"
@@ -359,6 +362,9 @@ export default function SubscribeModal({
                 )}
 
                 {/* Fee Breakdown */}
+                <p className="text-[11px] text-white/60 mb-2">
+                  Includes {PLATFORM_FEE_PCT}% platform fee &middot; {formatCredits(creatorCut)} ALEO goes to creator
+                </p>
                 <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
                   <div className="text-xs text-white/60 space-y-1">
                     <div className="flex justify-between">
@@ -369,13 +375,16 @@ export default function SubscribeModal({
                       <span>Platform fee ({PLATFORM_FEE_PCT}%)</span>
                       <span className="text-white/70">{formatCredits(platformCut)} ALEO <span className="text-white/50">({formatUsd(platformCut)})</span></span>
                     </div>
-                    <div className="pt-1.5 mt-1.5 border-t border-white/5 flex justify-between text-white/70">
-                      <span>Duration</span>
-                      <span>
-                        {privacyMode === 'trial'
-                          ? `~${trialMinutes} minutes`
-                          : '~30 days'}
-                      </span>
+                    <div className="pt-1.5 mt-1.5 border-t border-white/5">
+                      <div className="flex justify-between text-white/70">
+                        <span>Duration</span>
+                        <span>
+                          {privacyMode === 'trial'
+                            ? `~${trialMinutes} minutes`
+                            : '~30 days'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-white/50 mt-0.5">No auto-renewal. You&apos;ll be notified before expiry.</p>
                     </div>
                     <div className="flex justify-between">
                       <span>Est. network fee</span>
@@ -394,8 +403,8 @@ export default function SubscribeModal({
                     <div ref={privacyGroupRef} className="grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="Privacy level">
                       {([
                         { key: 'standard' as const, label: 'Standard', desc: '30 days' },
-                        { key: 'blind' as const, label: 'Blind', desc: 'Identity masked' },
-                        { key: 'trial' as const, label: 'Trial', desc: `~${trialMinutes} min / 20%` },
+                        { key: 'blind' as const, label: 'Enhanced', desc: 'Maximum privacy \u2014 unlinkable renewals' },
+                        { key: 'trial' as const, label: 'Trial', desc: `${trialMinutes} min \u00b7 20% price` },
                       ]).map((mode) => (
                         <button
                           key={mode.key}
@@ -426,7 +435,7 @@ export default function SubscribeModal({
                     )}
                     {privacyMode === 'trial' && (
                       <p className="text-[11px] text-white/50 mt-2">
-                        Short-term pass (~{trialMinutes} minutes) at 20% of tier price.
+                        Try before committing — short-term access at reduced cost.
                       </p>
                     )}
                 </div>

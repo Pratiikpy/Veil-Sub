@@ -803,7 +803,7 @@ export default function CreatorPage({
               className="px-6 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 inline-flex items-center gap-2"
             >
               <RefreshCw className="w-4 h-4" aria-hidden="true" />
-              Retry
+              Reload creator
             </button>
           </div>
         </div>

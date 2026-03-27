@@ -82,7 +82,7 @@ export default function ActivityChart({ creatorAddress }: Props) {
           onClick={() => { setFetchError(false); setLoading(true) }}
           className="text-xs text-white/60 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded px-2 py-1"
         >
-          Try again
+          Reload activity
         </button>
       </div>
     )

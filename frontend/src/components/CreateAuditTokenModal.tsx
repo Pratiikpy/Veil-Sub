@@ -150,7 +150,7 @@ export default function CreateAuditTokenModal({ isOpen, onClose, pass }: Props) 
               <>
                 {/* Pass Details */}
                 <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
-                  <p className="text-xs text-white/60 uppercase tracking-wider font-medium mb-2">Source AccessPass</p>
+                  <p className="text-xs text-white/60 uppercase tracking-wider font-medium mb-2">Source Subscription</p>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span className="text-white/60">Tier</span>

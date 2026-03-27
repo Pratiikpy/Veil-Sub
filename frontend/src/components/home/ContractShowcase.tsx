@@ -68,7 +68,7 @@ const FEATURE_GROUPS: FeatureGroup[] = [
       { icon: Users, title: 'Encrypted Content Delivery', desc: 'On-chain encryption commitments for gated content', version: 'v12' },
       { icon: RefreshCw, title: 'Blind Renewal', desc: 'Unlinkable identity rotation per renewal', version: 'v11' },
       { icon: ArrowLeftRight, title: 'Pass Transfer', desc: 'Transfer subscriptions on-chain', version: 'v15' },
-      { icon: Gift, title: 'Subscription Gifting', desc: 'Gift an AccessPass to any Aleo address', version: 'v10' },
+      { icon: Gift, title: 'Subscription Gifting', desc: 'Gift a subscription to any Aleo address', version: 'v10' },
       { icon: Clock, title: 'Trial Passes', desc: 'Ephemeral access at 20% of tier price, ~50 min expiry', version: 'v26' },
     ],
   },

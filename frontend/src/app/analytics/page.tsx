@@ -487,7 +487,7 @@ export default function AnalyticsPage() {
                 <p className="text-sm text-red-300">{analytics.error}</p>
               </div>
               <button onClick={analytics.refresh} disabled={analytics.loading} className="px-3 py-1.5 rounded-lg bg-red-500/20 text-xs font-medium text-red-300 hover:bg-red-500/30 transition-all disabled:opacity-50">
-                Try again
+                Reload analytics
               </button>
             </div>
           )}

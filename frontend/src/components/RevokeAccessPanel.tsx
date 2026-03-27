@@ -20,6 +20,7 @@ export default function RevokeAccessPanel({ onSuccess }: Props) {
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
   const [txId, setTxId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [showConfirm, setShowConfirm] = useState(false)
   const submittingRef = useRef(false)
 
   const handleRevoke = async () => {
@@ -73,14 +74,14 @@ export default function RevokeAccessPanel({ onSuccess }: Props) {
         </div>
         <div>
           <h3 className="text-sm font-semibold text-white">Revoke Subscription</h3>
-          <p className="text-xs text-white/60">Permanently invalidate an AccessPass on-chain</p>
+          <p className="text-xs text-white/60">Permanently invalidate a subscription on-chain</p>
         </div>
       </div>
 
       <div className="rounded-xl bg-red-500/[0.04] border border-red-500/[0.08] p-4 mb-4">
         <p className="text-xs text-red-300 flex items-center gap-1.5">
           <AlertTriangle className="w-3 h-3 shrink-0" aria-hidden="true" />
-          Irreversible on-chain revocation. The pass_id is added to revoked_passes mapping; content gating checks will reject this AccessPass.
+          Irreversible on-chain revocation. The pass_id is added to revoked_passes mapping; content gating checks will reject this subscription.
         </p>
       </div>
 
@@ -88,20 +89,45 @@ export default function RevokeAccessPanel({ onSuccess }: Props) {
         <input
           type="text"
           value={passId}
-          onChange={(e) => setPassId(e.target.value)}
-          placeholder="Enter AccessPass pass_id (field)"
+          onChange={(e) => { setPassId(e.target.value); setShowConfirm(false) }}
+          placeholder="Enter subscription pass_id (field)"
           aria-label="Pass ID to revoke (required)"
           aria-required="true"
           className="flex-1 px-4 py-2.5 rounded-xl bg-black/40 border border-border text-white text-base font-mono placeholder-subtle focus:outline-none focus:border-red-500/[0.3] focus:ring-2 focus:ring-red-400/50 focus:shadow-[0_0_20px_rgba(239,68,68,0.08)] transition-all"
         />
-        <Button
-          onClick={handleRevoke}
-          disabled={!passId.trim() || txStatus === 'signing' || txStatus === 'broadcasting'}
-          className="bg-red-500/20 text-red-300 border border-red-500/20 hover:bg-red-500/30 hover:border-red-500/30"
-        >
-          Revoke
-        </Button>
+        {!showConfirm ? (
+          <Button
+            onClick={() => setShowConfirm(true)}
+            disabled={!passId.trim() || txStatus === 'signing' || txStatus === 'broadcasting'}
+            className="bg-red-500/20 text-red-300 border border-red-500/20 hover:bg-red-500/30 hover:border-red-500/30"
+          >
+            Revoke
+          </Button>
+        ) : null}
       </div>
+
+      {showConfirm && (
+        <div className="p-4 rounded-xl bg-red-500/[0.06] border border-red-500/[0.12] mb-4">
+          <p className="text-xs text-red-300 mb-3">
+            Are you sure? This is irreversible. The subscriber will permanently lose access.
+          </p>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleRevoke}
+              disabled={txStatus === 'signing' || txStatus === 'broadcasting'}
+              className="bg-red-500/20 text-red-300 border border-red-500/20 hover:bg-red-500/30 hover:border-red-500/30"
+            >
+              Yes, Revoke Access
+            </Button>
+            <Button
+              onClick={() => setShowConfirm(false)}
+              className="bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white/80"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
 
       {txStatus !== 'idle' && (
         <TransactionStatus status={txStatus} txId={txId} errorMessage={error} />

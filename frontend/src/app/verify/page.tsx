@@ -395,7 +395,7 @@ export default function VerifyPage() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold text-white">
-                    Your Access Passes
+                    Your Subscriptions
                   </h2>
                   <button
                     onClick={loadPasses}

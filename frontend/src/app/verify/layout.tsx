@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Verify Access — VeilSub',
-  description: 'Prove you hold a valid AccessPass using a zero-knowledge proof. Zero-footprint verification — your identity stays completely private on-chain.',
+  description: 'Prove you hold a valid subscription using a zero-knowledge proof. Zero-footprint verification — your identity stays completely private on-chain.',
   alternates: {
     canonical: '/verify',
   },

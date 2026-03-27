@@ -141,7 +141,7 @@ export default function RegistrationForm({
               title={!price ? 'Enter subscription price' : 'Price must be greater than zero'}
               className="w-full"
             >
-              {txStatus === 'failed' ? 'Retry' : 'Register as Creator'}
+              {txStatus === 'failed' ? 'Retry registration' : 'Register as Creator'}
             </Button>
           </>
         ) : (

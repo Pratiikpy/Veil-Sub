@@ -469,7 +469,7 @@ export default function SubscriptionsPage() {
                     onClick={() => { setError(null); fetchPasses() }}
                     className="mt-3 px-3.5 py-1.5 rounded-lg bg-white/[0.08] border border-white/[0.1] text-xs font-medium text-white hover:bg-white/[0.12] transition-colors"
                   >
-                    Try again
+                    Reload subscriptions
                   </button>
                 </div>
               </div>

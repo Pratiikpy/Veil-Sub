@@ -283,7 +283,7 @@ export default function GiftSubscriptionFlow({
                   <div className="flex items-start gap-2">
                     <Shield className="mt-1 h-4 w-4 flex-shrink-0 text-green-400" aria-hidden="true" />
                     <p className="text-xs text-green-400/80">
-                      Gift is private—only the recipient can see and redeem the GiftToken. Your identity is hashed.
+                      Gift is private—only the recipient can see and redeem the GiftToken. Your identity is hidden from the recipient.
                     </p>
                   </div>
                 </div>
@@ -314,7 +314,7 @@ export default function GiftSubscriptionFlow({
                         }}
                         className="flex-1"
                       >
-                        Try Again
+                        Retry gift
                       </Button>
                     </div>
                   </>

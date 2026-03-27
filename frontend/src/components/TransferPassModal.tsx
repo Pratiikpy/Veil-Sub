@@ -160,7 +160,7 @@ export default function TransferPassModal({
             </div>
             <div>
               <h3 className="text-lg font-semibold text-white">Transfer Subscription</h3>
-              <p className="text-xs text-white/60">Transfer your AccessPass to another wallet</p>
+              <p className="text-xs text-white/60">Transfer your subscription pass to another wallet</p>
             </div>
           </div>
 
@@ -209,7 +209,7 @@ export default function TransferPassModal({
           <div className="rounded-xl bg-red-500/10 border border-red-500/15 p-4 mb-6">
             <p className="text-xs text-red-300 flex items-center gap-2 mb-4">
               <AlertTriangle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-              Irreversible on-chain operation. Your AccessPass record will be consumed; the recipient receives a new one.
+              Irreversible on-chain operation. Your subscription pass will be consumed; the recipient receives a new one.
             </p>
             <label className="flex items-start gap-4 cursor-pointer group">
               <input
@@ -219,7 +219,7 @@ export default function TransferPassModal({
                 className="mt-0.5 w-4 h-4 rounded border-red-500/30 bg-red-500/10 text-red-400 focus:ring-red-500/30 focus:ring-offset-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-red-400/50"
               />
               <span className="text-xs text-red-200/80 leading-relaxed group-hover:text-red-200 transition-colors">
-                I understand this transfer is irreversible and my AccessPass will be permanently moved to the recipient
+                I understand this transfer is irreversible and my subscription pass will be permanently moved to the recipient
               </span>
             </label>
           </div>
@@ -240,7 +240,7 @@ export default function TransferPassModal({
             <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4 mb-4" role="status" aria-live="polite">
               <p className="text-sm text-emerald-300 font-medium mb-2">Transfer Complete</p>
               <p className="text-xs text-white/60 leading-relaxed">
-                Your AccessPass has been transferred to <span className="font-mono text-white/70">{recipientAddress.slice(0, 12)}...{recipientAddress.slice(-6)}</span>.
+                Your subscription pass has been transferred to <span className="font-mono text-white/70">{recipientAddress.slice(0, 12)}...{recipientAddress.slice(-6)}</span>.
                 The recipient now owns this subscription.
               </p>
               <div className="mt-4 pt-3 border-t border-emerald-500/10">

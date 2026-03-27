@@ -967,7 +967,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                         {tierTxStatus === 'signing' ? 'Signing...' : 'Confirming...'}
                       </>
                     ) : tierTxStatus === 'failed' ? (
-                      'Retry'
+                      'Retry tier creation'
                     ) : (
                       <>
                         Create Tier
@@ -1079,8 +1079,8 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                       Back
                     </Button>
                     <div className="flex items-center gap-3">
-                      <Button onClick={handleSkipPublish} variant="ghost" size="sm">
-                        Skip & Finish
+                      <Button onClick={handleSkipPublish} variant="accent" size="md" className="rounded-full px-8">
+                        Skip — I&apos;ll publish later
                         <ChevronRight className="w-4 h-4" aria-hidden="true" />
                       </Button>
                       <Button

@@ -288,7 +288,7 @@ function FeedPostCard({
           <div className="mb-4 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-24">
             <div className="flex items-center gap-2 text-white/50">
               <ImageIcon className="w-4 h-4" aria-hidden="true" />
-              <span className="text-xs">Image -- AccessPass required</span>
+              <span className="text-xs">Image -- subscription required</span>
             </div>
           </div>
         )}
@@ -305,7 +305,7 @@ function FeedPostCard({
           <div className="mb-4 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-24">
             <div className="flex items-center gap-2 text-white/50">
               <Video className="w-4 h-4" aria-hidden="true" />
-              <span className="text-xs">Video -- AccessPass required</span>
+              <span className="text-xs">Video -- subscription required</span>
             </div>
           </div>
         )}
@@ -921,7 +921,7 @@ export default function FeedPage() {
                     onClick={() => { setError(null); fetchFeed() }}
                     className="mt-3 px-3.5 py-1.5 rounded-lg bg-white/[0.08] border border-white/[0.1] text-xs font-medium text-white hover:bg-white/[0.12] transition-colors"
                   >
-                    Try again
+                    Reload posts
                   </button>
                 </div>
               </div>
@@ -1221,7 +1221,7 @@ export default function FeedPage() {
                 <div className="flex items-start gap-2">
                   <Lock className="w-3.5 h-3.5 text-white/50 shrink-0 mt-0.5" aria-hidden="true" />
                   <p className="text-xs text-white/50 leading-relaxed">
-                    Gated content is server-protected. Post bodies are only delivered after AccessPass verification. Your subscription data never leaves your wallet.
+                    Gated content is server-protected. Post bodies are only delivered after subscription verification. Your subscription data never leaves your wallet.
                   </p>
                 </div>
               </div>

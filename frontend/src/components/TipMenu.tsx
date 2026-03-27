@@ -221,7 +221,7 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
                       Processing...
                     </>
                   ) : (
-                    connected ? 'Order' : 'Connect wallet'
+                    connected ? `Tip ${formatCredits(item.price)} ALEO` : 'Connect wallet'
                   )}
                 </button>
               )}

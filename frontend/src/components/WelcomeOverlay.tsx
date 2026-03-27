@@ -97,7 +97,7 @@ export default function WelcomeOverlay() {
 
             {/* Key value prop */}
             <p className="text-xs text-white/70 mb-4 leading-relaxed">
-              Subscribe to creators with zero on-chain identity exposure. Your AccessPass proves access without revealing who you are.
+              Subscribe to creators with zero on-chain identity exposure. Your subscription pass proves access without revealing who you are.
             </p>
 
             {/* Actions */}

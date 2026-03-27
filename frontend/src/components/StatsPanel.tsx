@@ -70,7 +70,7 @@ export default function StatsPanel({ creatorAddress, refreshKey }: Props) {
           className="mx-auto flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-300 hover:bg-red-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-red-400/50"
         >
           <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} aria-hidden="true" />
-          {loading ? 'Retrying...' : 'Retry'}
+          {loading ? 'Reloading...' : 'Reload stats'}
         </button>
       </div>
     )

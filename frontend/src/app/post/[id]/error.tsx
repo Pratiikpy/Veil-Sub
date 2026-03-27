@@ -17,7 +17,7 @@ export default function PostError({ error, reset }: { error: Error; reset: () =>
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button onClick={reset} className="px-5 py-2.5 rounded-xl bg-white text-black text-sm font-medium hover:bg-white/90 transition-all active:scale-[0.98]">
-            Try Again
+            Reload post
           </button>
           <Link href="/explore" className="px-5 py-2.5 rounded-xl bg-white/[0.06] border border-white/10 text-white/80 text-sm font-medium hover:bg-white/10 transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
             <Compass className="w-4 h-4" /> Browse Creators

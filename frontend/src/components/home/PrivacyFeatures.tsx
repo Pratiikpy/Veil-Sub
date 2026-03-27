@@ -26,7 +26,7 @@ const FEATURES_SMALL = [
   { icon: Layers, title: 'Custom Creator Tiers', desc: 'Creators set their own pricing tiers—flexible monetization with full privacy for subscribers' },
   { icon: Gift, title: 'Anonymous Gifting', desc: 'Gift subscriptions to friends without revealing yourself—they receive access, you stay hidden' },
   { icon: Coins, title: 'Private Tips', desc: 'Tip creators with hidden amounts. The tip stays secret until you choose to reveal it' },
-  { icon: Lock, title: 'Six Private Records', desc: 'AccessPass, AuditToken, GiftToken and more—each encrypted independently for maximum privacy' },
+  { icon: Lock, title: 'Six Private Records', desc: 'Subscription pass, audit token, gift token and more—each encrypted independently for maximum privacy' },
   { icon: Globe, title: 'Zero-Knowledge Verification', desc: 'Prove you have access without revealing your identity. The proof confirms subscription, not who you are' },
 ]
 

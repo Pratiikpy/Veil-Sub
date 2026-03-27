@@ -96,6 +96,19 @@ export default function PrivacyPage() {
           </div>
         </nav>
 
+        {/* Privacy in Plain English */}
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8 pt-8 sm:pt-12">
+          <div className="p-5 rounded-xl bg-emerald-500/5 border border-emerald-500/15 mb-8">
+            <h3 className="text-sm font-semibold text-emerald-400 mb-2">Privacy in Plain English</h3>
+            <ul className="text-sm text-white/70 space-y-1.5">
+              <li>Your name is never linked to which creator you support.</li>
+              <li>No payment history connects you to creators.</li>
+              <li>Even we (the VeilSub team) cannot see who subscribed to whom.</li>
+              <li>Your subscription pass is stored only in your wallet — nowhere else.</li>
+            </ul>
+          </div>
+        </div>
+
         {/* Blind Subscription Protocol (BSP) */}
         <section id="bsp" className="py-8 sm:py-16 scroll-mt-28">
           <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8">

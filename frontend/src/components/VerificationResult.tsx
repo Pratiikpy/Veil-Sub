@@ -62,7 +62,7 @@ export default function VerificationResult({
           <p className="text-xs text-white/60">
             {success
               ? 'Zero-knowledge proof successful'
-              : 'AccessPass verification failed. This pass may be revoked or expired.'}
+              : 'Subscription verification failed. This pass may be revoked or expired.'}
           </p>
         </div>
       </div>
@@ -92,7 +92,7 @@ export default function VerificationResult({
             <p className="text-xs text-green-300/90 font-medium mb-2">What was proven:</p>
             <div className="space-y-2">
               {[
-                { icon: CheckCircle2, text: 'Valid AccessPass ownership' },
+                { icon: CheckCircle2, text: 'Valid subscription pass ownership' },
                 { icon: Lock, text: 'Pass not revoked (on-chain check)' },
                 { icon: EyeOff, text: 'Your address never reached finalize' },
               ].map((item, i) => {

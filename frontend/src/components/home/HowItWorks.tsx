@@ -11,7 +11,7 @@ import SpotlightCard from '@/components/ui/SpotlightCard'
 const STEPS = [
   { icon: Wallet, title: 'Connect Wallet', desc: 'Connect your Aleo wallet. Your address stays on your device—the blockchain never sees who you are.' },
   { icon: UserCheck, title: 'Find a Creator', desc: 'Browse creators by tier pricing and subscriber counts. All stats are anonymized—no individual addresses visible.' },
-  { icon: Lock, title: 'Subscribe Privately', desc: 'Payment happens privately. You receive an encrypted AccessPass that only your wallet can decrypt.' },
+  { icon: Lock, title: 'Subscribe Privately', desc: 'Payment happens privately. You receive an encrypted subscription pass that only your wallet can decrypt.' },
   { icon: Zap, title: 'Prove Access', desc: 'Verify your subscription without revealing identity. The proof confirms access, not who you are.' },
 ]
 

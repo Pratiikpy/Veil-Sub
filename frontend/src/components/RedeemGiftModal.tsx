@@ -127,7 +127,7 @@ export default function RedeemGiftModal({
             if (pollResult.resolvedTxId) setTxId(pollResult.resolvedTxId)
             setTxStatus('confirmed')
             setSyncingPass(true)
-            toast.success('Gift redeemed! Syncing AccessPass to your wallet...')
+            toast.success('Gift redeemed! Syncing subscription pass to your wallet...')
             // Delay onSuccess slightly to allow wallet record sync.
             // Use ref guard to prevent double-fire.
             if (!successCalledRef.current) {
@@ -151,7 +151,7 @@ export default function RedeemGiftModal({
             if (pollResult.resolvedTxId) setTxId(pollResult.resolvedTxId)
             setTxStatus('confirmed')
             setSyncingPass(true)
-            toast.success('Gift redeemed! (confirmation was slow) Syncing AccessPass...')
+            toast.success('Gift redeemed! (confirmation was slow) Syncing subscription pass...')
             if (!successCalledRef.current) {
               successCalledRef.current = true
               const t1 = setTimeout(() => {
@@ -250,10 +250,10 @@ export default function RedeemGiftModal({
                   {syncingPass ? (
                     <div className="mt-2 flex items-center justify-center gap-2">
                       <Loader2 className="h-4 w-4 text-white/60 animate-spin" aria-hidden="true" />
-                      <p className="text-xs text-white/60">Syncing AccessPass to wallet...</p>
+                      <p className="text-xs text-white/60">Syncing subscription pass to wallet...</p>
                     </div>
                   ) : (
-                    <p className="mt-1 text-xs text-white/60">Your AccessPass is now in your wallet</p>
+                    <p className="mt-1 text-xs text-white/60">Your subscription pass is now in your wallet</p>
                   )}
                   {txId && <p className="mt-1 text-xs text-white/50 break-all font-mono">Tx: {txId.slice(0, 20)}...</p>}
                 </div>
@@ -411,7 +411,7 @@ export default function RedeemGiftModal({
                   <div className="flex items-start gap-2">
                     <Shield className="mt-1 h-4 w-4 flex-shrink-0 text-green-400" aria-hidden="true" />
                     <p className="text-xs text-green-400/80">
-                      Redeeming converts your GiftToken into a private AccessPass. The gifter&apos;s identity stays hidden via Poseidon2 hash.
+                      Redeeming converts your gift token into a private subscription pass. The gifter&apos;s identity stays hidden via Poseidon2 hash.
                     </p>
                   </div>
                 </div>

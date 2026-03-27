@@ -115,7 +115,7 @@ export default function ProfileEditor({ address, onProfileUpdated }: ProfileEdit
           className="px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300 hover:bg-amber-500/20 transition-all inline-flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-0"
         >
           <RefreshCw className="w-4 h-4" aria-hidden="true" />
-          Retry Load
+          Reload profile
         </button>
       </m.div>
     )

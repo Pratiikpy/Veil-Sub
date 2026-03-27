@@ -22,7 +22,7 @@ export default function Error({
         <p className="text-white/60 mb-2">
           An error occurred while executing a VeilSub operation. This could be a wallet
           connection issue, an on-chain transaction failure, or a temporary network problem.
-          Your AccessPass records remain safe in your wallet.
+          Your subscription records remain safe in your wallet.
         </p>
         {error.digest && (
           <p className="text-xs text-white/60 font-mono mb-6">

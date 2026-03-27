@@ -285,7 +285,7 @@ export default function RenewModal({
             role="dialog"
             aria-modal="true"
             aria-label="Renew subscription"
-            className="w-full max-w-md rounded-2xl bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+            className="w-[calc(100vw-2rem)] max-w-md rounded-2xl bg-surface-1 border border-border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
@@ -360,7 +360,7 @@ export default function RenewModal({
                     <div ref={privacyGroupRef} className="grid grid-cols-2 gap-1.5" role="radiogroup" aria-label="Privacy level">
                       {([
                         { key: 'standard' as const, label: 'Standard', desc: 'Secure renewal' },
-                        { key: 'blind' as const, label: 'Blind', desc: 'Identity masked' },
+                        { key: 'blind' as const, label: 'Enhanced', desc: 'Maximum privacy \u2014 unlinkable renewals' },
                       ]).map((mode) => (
                         <button
                           key={mode.key}
