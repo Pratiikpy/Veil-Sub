@@ -18,7 +18,14 @@ export default function CharacterRing({ current, max, size = 28 }: CharacterRing
     : 'stroke-red-500'
 
   return (
-    <div className="relative flex items-center gap-2">
+    <div
+      className="relative flex items-center gap-2"
+      role="progressbar"
+      aria-valuenow={current}
+      aria-valuemin={0}
+      aria-valuemax={max}
+      aria-label="Character count"
+    >
       <svg width={size} height={size} className="transform -rotate-90">
         <circle cx={size/2} cy={size/2} r={radius} fill="none" className="stroke-white/10" strokeWidth={2.5} />
         <circle cx={size/2} cy={size/2} r={radius} fill="none" className={color} strokeWidth={2.5}
@@ -27,7 +34,10 @@ export default function CharacterRing({ current, max, size = 28 }: CharacterRing
         />
       </svg>
       {remaining <= 20 && (
-        <span className={`text-[11px] font-mono ${remaining < 0 ? 'text-red-500' : remaining < 10 ? 'text-red-400' : 'text-yellow-500'}`}>
+        <span
+          aria-live="polite"
+          className={`text-[11px] font-mono ${remaining < 0 ? 'text-red-500' : remaining < 10 ? 'text-red-400' : 'text-yellow-500'}`}
+        >
           {remaining}
         </span>
       )}

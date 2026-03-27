@@ -99,9 +99,11 @@ export default function ProofAnimation({ state }: Props) {
           <div className="w-16 h-16 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center proof-flash">
             <Check className="w-8 h-8 text-green-400" aria-hidden="true" />
           </div>
-          <span className="text-xs font-medium text-green-400 proof-text-enter">
-            Proof verified
-          </span>
+          <div role="status" aria-live="assertive">
+            <span className="text-xs font-medium text-green-400 proof-text-enter">
+              Proof verified
+            </span>
+          </div>
         </div>
       )}
 
@@ -111,9 +113,11 @@ export default function ProofAnimation({ state }: Props) {
           <div className="w-16 h-16 rounded-full bg-red-500/15 border border-red-500/30 flex items-center justify-center proof-flash">
             <X className="w-8 h-8 text-red-400" aria-hidden="true" />
           </div>
-          <span className="text-xs font-medium text-red-400 proof-text-enter">
-            Proof failed
-          </span>
+          <div role="status" aria-live="assertive">
+            <span className="text-xs font-medium text-red-400 proof-text-enter">
+              Proof failed
+            </span>
+          </div>
         </div>
       )}
     </div>

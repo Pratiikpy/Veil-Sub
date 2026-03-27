@@ -36,6 +36,11 @@ function useTextScramble(target: string, active: boolean, duration = 600): strin
       return
     }
 
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplay(target)
+      return
+    }
+
     const chars = '0123456789abcdef...:'
     const startTime = performance.now()
 
@@ -233,7 +238,7 @@ export default function BlockchainView({
         </div>
 
         {/* Data grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5" aria-live="polite">
           <DataRow
             label="Creator Identity"
             normalValue={creatorName}

@@ -84,6 +84,7 @@ describe('type shape validation: AccessPass', () => {
       tier: 2,
       passId: '12345',
       expiresAt: 999999,
+      privacyLevel: 0,
       rawPlaintext: '{ ... }',
     }
     expect(pass.owner).toContain('aleo1')
@@ -102,6 +103,7 @@ describe('type shape validation: AccessPass', () => {
       tier: 1,
       passId: '1',
       expiresAt: 864000,
+      privacyLevel: 0,
       rawPlaintext: '',
     }
     expect(Number.isInteger(pass.expiresAt)).toBe(true)

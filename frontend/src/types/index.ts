@@ -4,6 +4,7 @@ export interface AccessPass {
   tier: number
   passId: string
   expiresAt: number    // block height when pass expires
+  privacyLevel: number // 0=standard, 1=blind, 2=trial
   rawPlaintext: string
 }
 

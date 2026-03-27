@@ -457,6 +457,7 @@ function AboutTab({
   creatorHash,
   tierName,
   tierPrice,
+  userPasses,
 }: {
   address: string
   bio: string | null
@@ -467,6 +468,7 @@ function AboutTab({
   creatorHash: string
   tierName: string
   tierPrice: string
+  userPasses: AccessPass[]
 }) {
   return (
     <div className="space-y-6">
@@ -511,13 +513,18 @@ function AboutTab({
       </p>
 
       {/* Privacy Score */}
-      <PrivacyScore
-        usesBlindSub={false}
-        usesCommitRevealTip={false}
-        hasScopedAuditToken={false}
-        usesTrialPass={false}
-        hasE2EContent={true}
-      />
+      {(() => {
+        const userPassForCreator = userPasses.find(p => p.creator === address)
+        return (
+          <PrivacyScore
+            usesBlindSub={userPassForCreator?.privacyLevel === 1}
+            usesCommitRevealTip={false}
+            hasScopedAuditToken={false}
+            usesTrialPass={userPassForCreator?.privacyLevel === 2}
+            hasE2EContent={true}
+          />
+        )
+      })()}
 
       {/* Share */}
       <div className="p-4 rounded-xl bg-surface-1 border border-border">
@@ -1199,6 +1206,7 @@ export default function CreatorPage({
                       creatorHash={getCreatorHash(address) ?? ''}
                       tierName={displayTiers[0]?.name ?? 'Tier 1'}
                       tierPrice={`${formatCredits(basePrice)} ALEO`}
+                      userPasses={userPasses}
                     />
                   </m.div>
                 )}

@@ -300,7 +300,7 @@ export default function SubscriptionsPage() {
 
   // Build an AccessPass from a ParsedSubscription for the RenewModal
   const renewAccessPass: AccessPass | null = renewTarget
-    ? { owner: renewTarget.owner, creator: renewTarget.creator, tier: renewTarget.tier, passId: renewTarget.passId, expiresAt: renewTarget.expiresAt, rawPlaintext: renewTarget.rawPlaintext }
+    ? { owner: renewTarget.owner, creator: renewTarget.creator, tier: renewTarget.tier, passId: renewTarget.passId, expiresAt: renewTarget.expiresAt, privacyLevel: 0, rawPlaintext: renewTarget.rawPlaintext }
     : null
 
   const fetchPasses = useCallback(async () => {

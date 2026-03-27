@@ -47,7 +47,15 @@ export default function PrivacyScore(props: PrivacyScoreProps) {
 
       {/* Ring + Score */}
       <div className="flex items-center gap-5 mb-5">
-        <div className="relative shrink-0" style={{ width: size, height: size }}>
+        <div
+          className="relative shrink-0"
+          style={{ width: size, height: size }}
+          role="meter"
+          aria-valuenow={score}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Privacy score: ${score} out of 100`}
+        >
           <svg width={size} height={size} className="transform -rotate-90">
             <circle
               cx={size / 2}
@@ -87,7 +95,11 @@ export default function PrivacyScore(props: PrivacyScoreProps) {
         {FEATURES.map((feature) => {
           const active = props[feature.key]
           return (
-            <li key={feature.key} className="flex items-center gap-2.5">
+            <li
+              key={feature.key}
+              className="flex items-center gap-2.5"
+              aria-label={`${feature.label}: ${active ? 'enabled' : 'disabled'}, ${feature.points} points`}
+            >
               {active ? (
                 <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
               ) : (

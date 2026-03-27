@@ -6,6 +6,7 @@ import HeroSection from '@/components/home/HeroSection'
 import HomeRedirectGuard from '@/components/home/HomeRedirectGuard'
 
 // Below-fold sections: code-split via dynamic() to reduce initial JS bundle size.
+const ZKProofDemo = dynamic(() => import('@/components/home/ZKProofDemo'))
 const WhyPrivacyMatters = dynamic(() => import('@/components/home/WhyPrivacyMatters'))
 const ExploreCreators = dynamic(() => import('@/components/home/ExploreCreators'))
 const ProblemSolution = dynamic(() => import('@/components/home/ProblemSolution'))
@@ -18,6 +19,7 @@ export default function HomePage() {
         <FlashlightEffect />
         <BackgroundOrbs />
         <HeroSection />
+        <ZKProofDemo />
         <WhyPrivacyMatters />
         <ExploreCreators />
         <ProblemSolution />

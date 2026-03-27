@@ -38,6 +38,7 @@ export default function FlashlightEffect() {
   return (
     <div
       ref={containerRef}
+      aria-hidden="true"
       className="pointer-events-none fixed inset-0 z-10 opacity-0 transition-opacity duration-500"
       style={{
         background:

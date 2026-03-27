@@ -106,19 +106,21 @@ export function parseRecordPlaintext(
  */
 export function parseAccessPass(
   plaintext: string
-): { owner: string; creator: string; tier: number; passId: string; expiresAt: number; rawPlaintext: string } | null {
+): { owner: string; creator: string; tier: number; passId: string; expiresAt: number; privacyLevel: number; rawPlaintext: string } | null {
   const parsed = parseRecordPlaintext(plaintext)
   const tier = parseInt(parsed.tier ?? '', 10)
   const expiresAt = parseInt(parsed.expires_at ?? '', 10)
   if (!parsed.owner || !parsed.creator || isNaN(tier) || tier < 1 || tier > 20 || isNaN(expiresAt)) {
     return null
   }
+  const privacyLevel = parseInt(parsed.privacy_level ?? '0', 10)
   return {
     owner: parsed.owner,
     creator: parsed.creator,
     tier,
     passId: parsed.pass_id ?? '',
     expiresAt,
+    privacyLevel: isNaN(privacyLevel) ? 0 : privacyLevel,
     rawPlaintext: plaintext,
   }
 }

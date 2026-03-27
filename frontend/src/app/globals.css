@@ -1115,6 +1115,8 @@ a:focus:not(:focus-visible) {
 }
 
 /* ─── Animated gradient border for feature cards ─── */
+/* Note: @property not supported in Safari < 15.4.
+   Fallback: border stays as static diagonal gradient (acceptable). */
 @property --border-angle {
   syntax: '<angle>';
   initial-value: 0deg;

@@ -94,6 +94,8 @@ export default function NoteComposer({
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="What's on your mind?"
+            aria-label="Compose a note"
+            aria-describedby="note-shortcut-hint"
             rows={2}
             maxLength={MAX_CHARS + 20} // allow slight overflow so ring turns red
             disabled={submitting}
@@ -107,7 +109,7 @@ export default function NoteComposer({
           <div className="border-t border-white/[0.06] pt-3 mt-2 flex items-center justify-between">
             {/* Left side — reserved for future toolbar icons */}
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-white/30">
+              <span id="note-shortcut-hint" className="text-[11px] text-white/30">
                 {text.length > 0 ? `Ctrl+Enter to post` : ''}
               </span>
             </div>

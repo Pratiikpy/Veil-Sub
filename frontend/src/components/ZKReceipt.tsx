@@ -73,9 +73,9 @@ export default function ZKReceipt({
         {/* Header */}
         <div className="flex items-center gap-2 mb-4">
           <Shield className="w-4 h-4 text-green-400" aria-hidden="true" />
-          <span className="text-xs font-bold text-green-400 uppercase tracking-widest">
+          <h4 className="text-xs font-bold text-green-400 uppercase tracking-widest">
             Zero-Knowledge Receipt
-          </span>
+          </h4>
         </div>
 
         {/* Divider */}
@@ -85,7 +85,7 @@ export default function ZKReceipt({
         <div className="space-y-3">
           <div>
             <p className="text-white/50 text-[10px] uppercase tracking-wider font-medium mb-0.5">Creator</p>
-            <p className="font-mono text-green-400 text-sm">{truncateHash(creatorHash, 12, 8)}</p>
+            <code className="font-mono text-green-400 text-sm">{truncateHash(creatorHash, 12, 8)}</code>
           </div>
           <div>
             <p className="text-white/50 text-[10px] uppercase tracking-wider font-medium mb-0.5">Access</p>
@@ -97,7 +97,7 @@ export default function ZKReceipt({
           </div>
           <div>
             <p className="text-white/50 text-[10px] uppercase tracking-wider font-medium mb-0.5">Proof</p>
-            <p className="font-mono text-green-400 text-sm break-all">{truncateHash(txId, 12, 8)}</p>
+            <code className="font-mono text-green-400 text-sm break-all">{truncateHash(txId, 12, 8)}</code>
           </div>
         </div>
 
@@ -113,6 +113,7 @@ export default function ZKReceipt({
         <div className="flex gap-2">
           <button
             onClick={handleCopy}
+            aria-label="Copy receipt to clipboard"
             className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white/[0.06] border border-white/10 text-xs font-medium text-white/70 hover:bg-white/[0.1] hover:text-white transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
           >
             {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
@@ -120,6 +121,7 @@ export default function ZKReceipt({
           </button>
           <button
             onClick={handleShare}
+            aria-label="Share receipt"
             className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white/[0.06] border border-white/10 text-xs font-medium text-white/70 hover:bg-white/[0.1] hover:text-white transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
           >
             <Share2 className="w-3 h-3" />
