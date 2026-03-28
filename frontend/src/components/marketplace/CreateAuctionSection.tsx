@@ -25,10 +25,12 @@ import {
   saveAuctionToStorage,
   updateAuctionStorageWithId,
   saveSharedAuction,
+  getSharedAuctions,
   updateSharedAuctionId,
   pollForAuctionId,
   fetchBlockHeight,
   scanBlocksForAuctionId,
+  resolveAuctionId,
 } from './helpers'
 import { computeWalletHash } from '@/lib/utils'
 import TransactionProgress from './TransactionProgress'
@@ -344,8 +346,20 @@ export default function CreateAuctionSection({ onCreated }: CreateAuctionSection
             { duration: 15000 }
           )
 
-          // Run block scan asynchronously
-          scanBlocksForAuctionId(preSubmitHeight).then((result) => {
+          // Collect known auction IDs to exclude from scan (prevents false match with old auctions)
+          const knownIds = new Set<string>()
+          try {
+            const existingAuctions = getSharedAuctions()
+            for (const a of existingAuctions) {
+              if (a.auctionId) knownIds.add(a.auctionId)
+            }
+          } catch { /* ignore */ }
+          // Also add from KNOWN_AUCTION_IDS map
+          const resolved = resolveAuctionId(slotIdFormatted)
+          if (resolved) knownIds.add(resolved)
+
+          // Run block scan asynchronously, skipping known auction IDs
+          scanBlocksForAuctionId(preSubmitHeight, knownIds).then((result) => {
             if (result) {
               // Found the real TX ID and auction ID from block scanning
               setLastTxId(result.txId)

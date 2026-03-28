@@ -372,21 +372,26 @@ export async function fetchBlockHeight(): Promise<number> {
  */
 export async function scanBlocksForAuctionId(
   fromHeight: number,
+  knownAuctionIds?: Set<string>,
   maxBlocks = 20,
   maxRetries = 40,
   intervalMs = 3000
 ): Promise<{ txId: string; auctionId: string } | null> {
+  // Track auction IDs we've already seen so we don't return old ones
+  const seen = knownAuctionIds || new Set<string>()
+
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     await new Promise(r => setTimeout(r, intervalMs))
     try {
-      // Get latest block height
       const latestHeight = await fetchBlockHeight()
       if (!latestHeight || latestHeight <= fromHeight) continue
 
-      // Scan blocks from submission height to latest (newest first for speed)
-      const start = Math.max(fromHeight + 1, latestHeight - maxBlocks + 1)
+      // ONLY scan blocks STRICTLY AFTER the submission height
+      // This prevents finding old auctions from before the TX was submitted
+      for (let h = latestHeight; h > fromHeight; h--) {
+        // Don't scan too many blocks per attempt
+        if (latestHeight - h >= maxBlocks) break
 
-      for (let h = latestHeight; h >= start; h--) {
         try {
           const blockRes = await fetch(`/api/aleo/block/${h}/transactions`)
           if (!blockRes.ok) continue
@@ -407,7 +412,8 @@ export async function scanBlocksForAuctionId(
                 const auctionId = extractFieldFromOutputs(outputs)
                   || extractFieldFromFinalize(confirmed.finalize)
 
-                if (txId && auctionId) {
+                // Skip auction IDs we already know about (prevents false match with old auctions)
+                if (txId && auctionId && !seen.has(auctionId)) {
                   return { txId, auctionId }
                 }
               }
