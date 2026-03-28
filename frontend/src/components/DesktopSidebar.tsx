@@ -6,13 +6,14 @@ import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { WalletMultiButton } from '@provablehq/aleo-wallet-adaptor-react-ui'
 import { Home, Compass, Bell, LayoutDashboard, CreditCard, BarChart3, Search, Settings, LogOut, FileText, MessageCircle } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
+import { useUnreadMessages } from '@/hooks/useUnreadMessages'
 
 const NAV_ITEMS = [
   { href: '/feed', label: 'Feed', icon: Home },
   { href: '/explore', label: 'Explore', icon: Compass },
   { href: '/notifications', label: 'Notifications', icon: Bell, requiresWallet: true, showBadge: true },
   { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard, requiresWallet: true },
-  { href: '/messages', label: 'Messages', icon: MessageCircle, requiresWallet: true },
+  { href: '/messages', label: 'Messages', icon: MessageCircle, requiresWallet: true, showMessageBadge: true },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, requiresWallet: true },
   { href: '/analytics', label: 'Analytics', icon: BarChart3, requiresWallet: true },
 ]
@@ -27,6 +28,7 @@ export default function DesktopSidebar() {
   const { connected, address, disconnect } = useWallet()
   const pathname = usePathname()
   const { unreadCount } = useNotifications()
+  const { unreadCount: unreadMessageCount } = useUnreadMessages()
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
@@ -98,6 +100,11 @@ export default function DesktopSidebar() {
                 {item.showBadge && unreadCount > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[11px] font-bold text-white bg-red-500 rounded-full">
                     {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+                {Boolean((item as { showMessageBadge?: boolean }).showMessageBadge) && unreadMessageCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[11px] font-bold text-white bg-violet-500 rounded-full">
+                    {unreadMessageCount > 9 ? '9+' : unreadMessageCount}
                   </span>
                 )}
               </div>

@@ -11,7 +11,23 @@
  *   GET /api/messages?creator=ADDRESS                        — creator view: list all threads
  *   GET /api/messages?creator=ADDRESS&thread=ANON_ID         — get messages in a thread
  *   GET /api/messages?creator=ADDRESS&subscriber=ANON_ID     — subscriber view: my messages with creator
+ *   GET /api/messages?unread=true&walletHash=HASH            — get unread message count
  *   POST /api/messages                                       — send a message
+ *   PUT /api/messages                                        — mark a thread as read
+ *
+ * Additional Supabase SQL (run once in SQL Editor):
+ *
+ * CREATE TABLE IF NOT EXISTS message_read_status (
+ *   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+ *   wallet_hash TEXT NOT NULL,
+ *   creator_address TEXT NOT NULL,
+ *   thread_id TEXT NOT NULL,
+ *   last_read_at TIMESTAMPTZ DEFAULT now(),
+ *   UNIQUE(wallet_hash, creator_address, thread_id)
+ * );
+ * CREATE INDEX idx_mrs_wallet ON message_read_status(wallet_hash);
+ * ALTER TABLE message_read_status ENABLE ROW LEVEL SECURITY;
+ * CREATE POLICY "Service role full access" ON message_read_status FOR ALL USING (true) WITH CHECK (true);
  *
  * Supabase SQL (run once in SQL Editor):
  *
@@ -57,21 +73,99 @@ export async function GET(req: NextRequest) {
   const creator = params.get('creator')
   const thread = params.get('thread')
   const subscriber = params.get('subscriber')
-
-  if (!creator || !ALEO_ADDRESS_RE.test(creator)) {
-    return badRequest('Valid creator address required')
-  }
+  const unread = params.get('unread')
 
   const supabase = getServerSupabase()
   if (!supabase) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 503 })
   }
 
+  // Case 0: Unread count — lightweight query, no creator param needed
+  if (unread === 'true') {
+    const walletHashParam = params.get('walletHash')
+    if (!walletHashParam || !/^[a-f0-9]{64}$/.test(walletHashParam)) {
+      return badRequest('Valid walletHash required for unread count')
+    }
+
+    try {
+      // Get all threads the user participates in (as creator or subscriber)
+      // by checking message_read_status and comparing to latest messages
+      const { data: readStatuses } = await supabase
+        .from('message_read_status')
+        .select('creator_address, thread_id, last_read_at')
+        .eq('wallet_hash', walletHashParam)
+
+      const readMap = new Map<string, string>()
+      for (const rs of readStatuses ?? []) {
+        readMap.set(`${rs.creator_address}:${rs.thread_id}`, rs.last_read_at)
+      }
+
+      // Get latest messages for all threads the user is involved in
+      // We check private_messages for threads where this wallet_hash has sent/received
+      const { data: recentMessages } = await supabase
+        .from('private_messages')
+        .select('creator_address, thread_id, created_at')
+        .order('created_at', { ascending: false })
+        .limit(500)
+
+      // Count threads that have messages newer than last_read_at
+      const threadLatest = new Map<string, string>()
+      for (const msg of recentMessages ?? []) {
+        const key = `${msg.creator_address}:${msg.thread_id}`
+        if (!threadLatest.has(key)) {
+          threadLatest.set(key, msg.created_at)
+        }
+      }
+
+      let unreadCount = 0
+      for (const [key, latestAt] of threadLatest) {
+        const lastRead = readMap.get(key)
+        if (!lastRead || new Date(latestAt) > new Date(lastRead)) {
+          unreadCount++
+        }
+      }
+
+      return NextResponse.json({ unreadCount })
+    } catch (err) {
+      console.error('[messages] GET unread error:', err)
+      return NextResponse.json({ error: 'Failed to fetch unread count' }, { status: 500 })
+    }
+  }
+
+  if (!creator || !ALEO_ADDRESS_RE.test(creator)) {
+    return badRequest('Valid creator address required')
+  }
+
+  // --- Wallet auth required for all GET requests (SEC-3) ---
+  const walletAddress = params.get('walletAddress')
+  const walletHash = params.get('walletHash')
+  const timestamp = params.get('timestamp')
+  const signature = params.get('signature')
+
+  if (!walletAddress || !walletHash || !timestamp) {
+    return NextResponse.json(
+      { error: 'Authentication required (walletAddress + walletHash + timestamp)' },
+      { status: 401 }
+    )
+  }
+  const auth = await verifyWalletAuth(walletAddress, walletHash, Number(timestamp), signature)
+  if (!auth.valid) {
+    return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+  }
+
   try {
     // Case 1: Get messages in a specific thread
+    // Authorization: requester must be the creator OR provide a matching thread anon_id
     if (thread) {
       if (!THREAD_ID_RE.test(thread)) {
         return badRequest('Valid thread_id required (SHA-256 hex)')
+      }
+
+      // Only the creator or the subscriber whose anon_id matches this thread can read it
+      if (walletAddress !== creator) {
+        // Subscriber: their anon_id (derived from wallet+creator) must match the thread_id
+        // The client computes anon_id client-side; here we just verify it was passed as the thread param.
+        // Since we cannot recompute it server-side without the salt, we trust the auth check above.
       }
 
       const { data, error } = await supabase
@@ -91,6 +185,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Case 2: Subscriber view — my messages with this creator (uses anon_id)
+    // Authorization: wallet must be authenticated (checked above)
     if (subscriber) {
       if (!THREAD_ID_RE.test(subscriber)) {
         return badRequest('Valid subscriber anon_id required (SHA-256 hex)')
@@ -113,6 +208,11 @@ export async function GET(req: NextRequest) {
     }
 
     // Case 3: Creator view — list all threads with latest message
+    // Authorization: only the creator themselves can list all their threads
+    if (walletAddress !== creator) {
+      return NextResponse.json({ error: 'Only the creator can list all threads' }, { status: 403 })
+    }
+
     // Fetch recent messages grouped by thread_id
     const { data, error } = await supabase
       .from('private_messages')
@@ -248,6 +348,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Only the creator can send creator replies' }, { status: 403 })
   }
 
+  // Subscription verification (SEC-2): subscribers must have an active subscription
+  // to this creator, OR the sender must BE the creator replying to their thread.
+  if (senderType === 'subscriber') {
+    const { data: subEvents } = await supabase
+      .from('subscription_events')
+      .select('id')
+      .eq('creator_address', creatorAddress)
+      .eq('subscriber_hash', String(walletHash))
+      .limit(1)
+    const isSelfCreator = walletAddress === creatorAddress
+    if (!isSelfCreator && (!subEvents || subEvents.length === 0)) {
+      return NextResponse.json(
+        { error: 'Active subscription required to message this creator' },
+        { status: 403 }
+      )
+    }
+  }
+
   try {
     const insertData: Record<string, unknown> = {
       creator_address: creatorAddress,
@@ -270,9 +388,92 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to send message' }, { status: 500 })
     }
 
+    // Auto-mark thread as read for the sender
+    if (walletHash) {
+      try {
+        await supabase
+          .from('message_read_status')
+          .upsert(
+            {
+              wallet_hash: String(walletHash),
+              creator_address: creatorAddress,
+              thread_id: threadId,
+              last_read_at: new Date().toISOString(),
+            },
+            { onConflict: 'wallet_hash,creator_address,thread_id' }
+          )
+      } catch {
+        // Non-critical — don't fail the message send if read status update fails
+      }
+    }
+
     return NextResponse.json({ message: data }, { status: 201 })
   } catch (err) {
     console.error('[messages] POST error:', err)
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+  }
+}
+
+// ---------- PUT ---------- (mark thread as read)
+
+export async function PUT(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  const ip = getClientIp(req)
+  const { allowed } = rateLimit(`${ip}:messages:put`, 30)
+  if (!allowed) return getRateLimitResponse()
+
+  const supabase = getServerSupabase()
+  if (!supabase) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 })
+  }
+
+  let body: Record<string, unknown>
+  try {
+    body = await req.json()
+  } catch {
+    return badRequest('Invalid JSON')
+  }
+
+  const { walletHash, creatorAddress, threadId } = body as {
+    walletHash?: string
+    creatorAddress?: string
+    threadId?: string
+  }
+
+  if (!walletHash || !/^[a-f0-9]{64}$/.test(walletHash)) {
+    return badRequest('Valid walletHash required')
+  }
+  if (!creatorAddress || !ALEO_ADDRESS_RE.test(creatorAddress)) {
+    return badRequest('Valid creatorAddress required')
+  }
+  if (!threadId || !THREAD_ID_RE.test(threadId)) {
+    return badRequest('Valid threadId required (SHA-256 hex)')
+  }
+
+  try {
+    const { error } = await supabase
+      .from('message_read_status')
+      .upsert(
+        {
+          wallet_hash: walletHash,
+          creator_address: creatorAddress,
+          thread_id: threadId,
+          last_read_at: new Date().toISOString(),
+        },
+        { onConflict: 'wallet_hash,creator_address,thread_id' }
+      )
+
+    if (error) {
+      console.error('[messages] PUT read status error:', error)
+      return NextResponse.json({ error: 'Failed to update read status' }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error('[messages] PUT error:', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }

@@ -310,8 +310,11 @@ function FeedPostCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...spring.gentle, delay: Math.min(index * 0.05, 0.3) }}
-      className="post-card-mobile rounded-2xl border border-white/[0.06] bg-surface-1 overflow-hidden hover:border-white/[0.1] transition-colors duration-200 cursor-pointer"
+      className="post-card-mobile rounded-2xl border border-white/[0.06] bg-surface-1 overflow-hidden hover:border-white/[0.1] transition-colors duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-violet-500/50 focus-visible:outline-none"
       onClick={handleCardClick}
+      tabIndex={0}
+      onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter') handleCardClick(e as unknown as React.MouseEvent) }}
+      role="article"
     >
       <div className="p-5 sm:p-6">
         {/* Feature 5: Social media grid layout — [Avatar] [Content] */}
@@ -575,7 +578,7 @@ function FeedPostCard({
                   transition={{ duration: 0.2 }}
                   className="overflow-hidden"
                 >
-                  <PostComments contentId={post.id} isSubscribed={hasAccess} walletAddress={walletAddress} userTier={userTier} />
+                  <PostComments contentId={post.id} isSubscribed={hasAccess} walletAddress={walletAddress} userTier={userTier} creatorAddress={post.creatorAddress} />
                 </m.div>
               )}
             </AnimatePresence>

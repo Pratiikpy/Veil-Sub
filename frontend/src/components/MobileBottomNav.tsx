@@ -4,18 +4,20 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { Search, Home, CreditCard, Bell, MessageCircle } from 'lucide-react'
+import { useUnreadMessages } from '@/hooks/useUnreadMessages'
 
 const MOBILE_NAV = [
   { href: '/feed', label: 'Feed', icon: Home },
   { href: '/explore', label: 'Explore', icon: Search },
   { href: '/subscriptions', label: 'Subs', icon: CreditCard, requiresWallet: true },
   { href: '/notifications', label: 'Alerts', icon: Bell, requiresWallet: true },
-  { href: '/messages', label: 'Messages', icon: MessageCircle, requiresWallet: true },
+  { href: '/messages', label: 'Messages', icon: MessageCircle, requiresWallet: true, showMessageBadge: true },
 ]
 
 export default function MobileBottomNav() {
   const { connected } = useWallet()
   const pathname = usePathname()
+  const { unreadCount: unreadMessageCount } = useUnreadMessages()
 
   const items = MOBILE_NAV.filter(
     (item) => !item.requiresWallet || connected
@@ -47,6 +49,11 @@ export default function MobileBottomNav() {
                 <Icon className={`w-5 h-5 transition-transform duration-200 ${active ? 'scale-110' : ''}`} aria-hidden="true" />
                 {active && (
                   <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-white transition-all duration-200 scale-100" />
+                )}
+                {item.showMessageBadge && unreadMessageCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[14px] h-[14px] px-0.5 text-[10px] font-bold text-white bg-violet-500 rounded-full">
+                    {unreadMessageCount > 9 ? '9+' : unreadMessageCount}
+                  </span>
                 )}
               </div>
               <span className="text-xs font-medium">{item.label}</span>

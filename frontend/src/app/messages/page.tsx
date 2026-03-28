@@ -22,6 +22,7 @@ import { parseAccessPass } from '@/lib/utils'
 import { FEATURED_CREATORS, ALEO_ADDRESS_RE } from '@/lib/config'
 import PageTransition from '@/components/PageTransition'
 import AddressAvatar from '@/components/ui/AddressAvatar'
+import { useUnreadMessages } from '@/hooks/useUnreadMessages'
 
 // ---- Types ----
 
@@ -94,13 +95,16 @@ export default function MessagesPage() {
   const { connected, address } = useWallet()
   const searchParams = useSearchParams()
   const creatorParam = searchParams.get('creator')
+  const threadParam = searchParams.get('thread')
+  const peerParam = searchParams.get('peer')
   const { getAccessPasses } = useWalletRecords()
+  const { refreshUnread } = useUnreadMessages()
 
   // State
   const [threads, setThreads] = useState<Thread[]>([])
   const [messages, setMessages] = useState<Message[]>([])
   const [decryptedMessages, setDecryptedMessages] = useState<Map<string, string>>(new Map())
-  const [activeThread, setActiveThread] = useState<string | null>(null)
+  const [activeThread, setActiveThread] = useState<string | null>(threadParam || null)
   const [activeCreator, setActiveCreator] = useState<string | null>(creatorParam || null)
   const [activeTier, setActiveTier] = useState<number | null>(null)
   const [messageText, setMessageText] = useState('')
@@ -110,10 +114,27 @@ export default function MessagesPage() {
   const [isCreator, setIsCreator] = useState(false)
   const [userPasses, setUserPasses] = useState<{ creator: string; tier: number }[]>([])
   const [anonId, setAnonId] = useState<string | null>(null)
-  const [mobileShowThread, setMobileShowThread] = useState(false)
+  const [mobileShowThread, setMobileShowThread] = useState(!!threadParam)
+  const [isPeerThread, setIsPeerThread] = useState(peerParam === 'true')
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  // Track message IDs sent by current user (for peer mode message ownership)
+  const sentMessageIdsRef = useRef<Set<string>>(new Set())
+  const prevAddressRef = useRef(address)
+
+  // Reset all messaging state when wallet address changes (DI-1)
+  useEffect(() => {
+    if (prevAddressRef.current !== address) {
+      prevAddressRef.current = address
+      setThreads([])
+      setMessages([])
+      setDecryptedMessages(new Map())
+      setActiveThread(null)
+      setAnonId(null)
+      setMobileShowThread(false)
+    }
+  }, [address])
 
   // Determine if the current user is a creator (when viewing their own inbox)
   useEffect(() => {
@@ -177,12 +198,25 @@ export default function MessagesPage() {
     }
   }, [anonId, isCreator, activeCreator])
 
+  // Build auth query params for GET requests (SEC-3)
+  const buildAuthParams = useCallback(async () => {
+    if (!address) return ''
+    try {
+      const walletHash = await computeWalletHash(address)
+      const timestamp = Date.now()
+      return `&walletAddress=${encodeURIComponent(address)}&walletHash=${encodeURIComponent(walletHash)}&timestamp=${timestamp}`
+    } catch {
+      return ''
+    }
+  }, [address])
+
   // Fetch threads (creator view) or subscriber messages
   const fetchThreads = useCallback(async () => {
     if (!activeCreator) return
     setLoadingThreads(true)
     try {
-      const url = `/api/messages?creator=${encodeURIComponent(activeCreator)}`
+      const authParams = await buildAuthParams()
+      const url = `/api/messages?creator=${encodeURIComponent(activeCreator)}${authParams}`
       const res = await fetch(url)
       if (res.ok) {
         const data = await res.json()
@@ -191,20 +225,23 @@ export default function MessagesPage() {
         }
       }
     } catch {
-      // Silently fail
+      toast.error('Could not load messages. Please try again.')
     } finally {
       setLoadingThreads(false)
     }
-  }, [activeCreator])
+  }, [activeCreator, buildAuthParams])
 
   // Fetch messages for a specific thread
   const fetchMessages = useCallback(async () => {
     if (!activeCreator || !activeThread) return
     setLoadingMessages(true)
     try {
-      const url = isCreator
-        ? `/api/messages?creator=${encodeURIComponent(activeCreator)}&thread=${encodeURIComponent(activeThread)}`
-        : `/api/messages?creator=${encodeURIComponent(activeCreator)}&subscriber=${encodeURIComponent(activeThread)}`
+      const authParams = await buildAuthParams()
+      // For peer threads or creator view, use ?thread=; for subscriber-to-creator, use ?subscriber=
+      const useThreadParam = isCreator || isPeerThread
+      const url = useThreadParam
+        ? `/api/messages?creator=${encodeURIComponent(activeCreator)}&thread=${encodeURIComponent(activeThread)}${authParams}`
+        : `/api/messages?creator=${encodeURIComponent(activeCreator)}&subscriber=${encodeURIComponent(activeThread)}${authParams}`
       const res = await fetch(url)
       if (res.ok) {
         const data = await res.json()
@@ -213,11 +250,11 @@ export default function MessagesPage() {
         }
       }
     } catch {
-      // Silently fail
+      toast.error('Could not load messages. Please try again.')
     } finally {
       setLoadingMessages(false)
     }
-  }, [activeCreator, activeThread, isCreator])
+  }, [activeCreator, activeThread, isCreator, isPeerThread, buildAuthParams])
 
   // Load threads on mount / creator change
   useEffect(() => {
@@ -232,6 +269,31 @@ export default function MessagesPage() {
       fetchMessages()
     }
   }, [activeThread, fetchMessages])
+
+  // Mark thread as read when opened
+  useEffect(() => {
+    if (!activeThread || !activeCreator || !address) return
+    let cancelled = false
+    async function markRead() {
+      try {
+        const walletHash = await computeWalletHash(address!)
+        await fetch('/api/messages', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            walletHash,
+            creatorAddress: activeCreator,
+            threadId: activeThread,
+          }),
+        })
+        if (!cancelled) refreshUnread()
+      } catch {
+        // Non-critical failure
+      }
+    }
+    markRead()
+    return () => { cancelled = true }
+  }, [activeThread, activeCreator, address, refreshUnread])
 
   // Decrypt messages when they change
   useEffect(() => {
@@ -271,7 +333,10 @@ export default function MessagesPage() {
     if (!messageText.trim() || !activeCreator || !address || sending) return
 
     const senderType = isCreator ? 'creator' : 'subscriber'
-    const threadId = isCreator ? activeThread : anonId
+    // For peer threads, use activeThread (the pre-computed peer hash)
+    // For creator replying, use activeThread
+    // For subscriber messaging creator, use anonId
+    const threadId = isCreator ? activeThread : (isPeerThread ? activeThread : anonId)
     if (!threadId) {
       toast.error('Cannot determine conversation thread')
       return
@@ -312,6 +377,7 @@ export default function MessagesPage() {
 
       if (res.ok) {
         const { message: saved } = await res.json()
+        sentMessageIdsRef.current.add(saved.id)
         setMessages(prev => [...prev, saved])
         setMessageText('')
         // Decrypt the new message immediately
@@ -325,6 +391,8 @@ export default function MessagesPage() {
         if (isCreator) {
           fetchThreads()
         }
+        // Refresh unread badge
+        refreshUnread()
       } else {
         const errData = await res.json().catch(() => ({ error: 'Failed to send' }))
         toast.error(errData.error || 'Failed to send message')
@@ -334,7 +402,7 @@ export default function MessagesPage() {
     } finally {
       setSending(false)
     }
-  }, [messageText, activeCreator, address, sending, isCreator, activeThread, anonId, activeTier, messages, fetchThreads])
+  }, [messageText, activeCreator, address, sending, isCreator, isPeerThread, activeThread, anonId, activeTier, messages, fetchThreads, refreshUnread])
 
   // Determine which creators the subscriber can message
   const subscribedCreators = useMemo(() => {
@@ -436,7 +504,7 @@ export default function MessagesPage() {
 
   return (
     <PageTransition className="min-h-screen">
-      <div className="max-w-6xl mx-auto h-[calc(100vh-4rem)]">
+      <div className="max-w-6xl mx-auto h-[calc(100vh-4rem-3.5rem)] md:h-[calc(100vh-4rem)]">
         <div className="flex h-full border-x border-white/[0.06]">
 
           {/* ---- Left Panel: Thread List ---- */}
@@ -459,7 +527,7 @@ export default function MessagesPage() {
                     setDecryptedMessages(new Map())
                     setMobileShowThread(false)
                   }}
-                  className="flex items-center gap-1.5 mt-2 text-xs text-white/50 hover:text-white/70 transition-colors"
+                  className="flex items-center gap-1.5 mt-2 p-2.5 -ml-2.5 text-xs text-white/50 hover:text-white/70 transition-colors"
                 >
                   <ArrowLeft className="w-3 h-3" />
                   Back to conversations
@@ -548,13 +616,23 @@ export default function MessagesPage() {
                   {/* Mobile back button */}
                   <button
                     onClick={() => setMobileShowThread(false)}
-                    className="md:hidden p-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"
+                    className="md:hidden p-2.5 rounded-lg hover:bg-white/[0.04] transition-colors"
                     aria-label="Back to threads"
                   >
                     <ArrowLeft className="w-4 h-4 text-white/60" />
                   </button>
 
-                  {isCreator ? (
+                  {isPeerThread ? (
+                    <>
+                      <div className="w-8 h-8 rounded-full bg-white/[0.06] border border-white/[0.12] flex items-center justify-center">
+                        <Shield className="w-4 h-4 text-white/50" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-white/80">Private conversation</p>
+                        <p className="text-[11px] text-white/40">Anonymous subscriber-to-subscriber</p>
+                      </div>
+                    </>
+                  ) : isCreator ? (
                     <>
                       {(() => {
                         const threadData = threads.find(t => t.thread_id === activeThread)
@@ -618,9 +696,11 @@ export default function MessagesPage() {
                       </div>
 
                       {messages.map(msg => {
-                        const isMine = isCreator
-                          ? msg.sender_type === 'creator'
-                          : msg.sender_type === 'subscriber'
+                        const isMine = isPeerThread
+                          ? sentMessageIdsRef.current.has(msg.id)
+                          : isCreator
+                            ? msg.sender_type === 'creator'
+                            : msg.sender_type === 'subscriber'
                         const decrypted = decryptedMessages.get(msg.id)
 
                         return (
@@ -640,10 +720,10 @@ export default function MessagesPage() {
                             >
                               {!isMine && msg.sender_type === 'subscriber' && msg.tier && (
                                 <p className={`text-[11px] font-medium mb-1 ${getTierStyle(msg.tier).text}`}>
-                                  {getTierLabel(msg.tier)}
+                                  {isPeerThread ? `${getTierLabel(msg.tier)}` : getTierLabel(msg.tier)}
                                 </p>
                               )}
-                              {!isMine && msg.sender_type === 'creator' && (
+                              {!isMine && msg.sender_type === 'creator' && !isPeerThread && (
                                 <p className="text-[11px] font-medium text-white/60 mb-1">Creator</p>
                               )}
                               <p className="text-sm text-white/90 leading-relaxed break-words whitespace-pre-wrap">

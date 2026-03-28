@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
-import { Heart, MessageCircle, ChevronDown, ChevronUp, Shield } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Heart, MessageCircle, ChevronDown, ChevronUp, Shield, Send } from 'lucide-react'
 import { toast } from 'sonner'
 import { computeWalletHash, safeRandomUUID } from '@/lib/utils'
 
@@ -38,6 +39,8 @@ interface PostCommentsProps {
   walletAddress?: string | null
   /** The user's current subscription tier (1-20), used for anonymous commenting */
   userTier?: number | null
+  /** The creator's wallet address (used for DM buttons on comments) */
+  creatorAddress?: string | null
 }
 
 const MAX_CHARS = 280
@@ -136,7 +139,8 @@ function migrateLegacy(raw: string): Comment[] {
   }
 }
 
-export default function PostComments({ contentId, isSubscribed, walletAddress, userTier }: PostCommentsProps) {
+export default function PostComments({ contentId, isSubscribed, walletAddress, userTier, creatorAddress }: PostCommentsProps) {
+  const router = useRouter()
   const [comments, setComments] = useState<Comment[]>([])
   const [text, setText] = useState('')
   const [replyTo, setReplyTo] = useState<string | null>(null)
@@ -150,13 +154,62 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
   // Anonymous commenting: default ON for subscribers with a tier
   const [anonymous, setAnonymous] = useState(true)
   const canCommentAnonymously = isSubscribed && !!userTier && userTier >= 1
+  // Track liked comments in state instead of reading localStorage in render (A11Y-7)
+  const [likedComments, setLikedComments] = useState<Set<string>>(new Set())
+
+  // Determine if the current user is the creator of this content
+  const isContentCreator = !!walletAddress && !!creatorAddress && walletAddress === creatorAddress
+
+  // Compute user's own anon_id for this post (used for peer DM thread calculation)
+  const [myAnonId, setMyAnonId] = useState<string | null>(null)
+  useEffect(() => {
+    if (!walletAddress || !contentId) return
+    let cancelled = false
+    computeAnonId(walletAddress, contentId).then(id => {
+      if (!cancelled) setMyAnonId(id)
+    })
+    return () => { cancelled = true }
+  }, [walletAddress, contentId])
+
+  /** Navigate to DM with a commenter (creator -> subscriber, or subscriber -> subscriber) */
+  const handleDmCommenter = useCallback(async (comment: Comment) => {
+    if (!creatorAddress || !comment.anon_id) return
+
+    if (isContentCreator) {
+      // Creator DMing a subscriber: use subscriber's anon_id as thread
+      router.push(`/messages?creator=${creatorAddress}&thread=${comment.anon_id}`)
+    } else if (walletAddress && myAnonId) {
+      // Subscriber DMing another subscriber: compute peer thread_id
+      if (comment.anon_id === myAnonId) {
+        toast.info('This is your own comment')
+        return
+      }
+      const sorted = [myAnonId, comment.anon_id].sort()
+      const peerData = new TextEncoder().encode(sorted[0] + sorted[1])
+      const buf = await crypto.subtle.digest('SHA-256', peerData)
+      const peerThreadId = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
+      router.push(`/messages?creator=${creatorAddress}&thread=${peerThreadId}&peer=true`)
+    }
+  }, [creatorAddress, isContentCreator, walletAddress, myAnonId, router])
+
+  // Initialize likedComments from localStorage on mount
+  useEffect(() => {
+    if (comments.length === 0) return
+    const liked = new Set<string>()
+    for (const c of comments) {
+      try {
+        if (localStorage.getItem(`veilsub_comment_like_${c.id}`)) liked.add(c.id)
+      } catch { /* ignore */ }
+    }
+    setLikedComments(liked)
+  }, [comments])
 
   // Resolve subscriber hash once
   useEffect(() => {
     getSubscriberHash().then(h => { hashRef.current = h })
   }, [])
 
-  // Fetch subscriber profiles for commenters (skip anonymous comments — they use anon_id, not real hashes)
+  // Fetch subscriber profiles for commenters (skip anonymous comments â€” they use anon_id, not real hashes)
   useEffect(() => {
     if (comments.length === 0) return
     const identifiedComments = comments.filter(c => c.author_type !== 'anonymous')
@@ -215,12 +268,14 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
 
   const submit = useCallback(async () => {
     if (submittingRef.current) return
-    submittingRef.current = true
 
-    try {
     const trimmed = text.trim()
     if (!trimmed || trimmed.length > MAX_CHARS) return
 
+    // Set the lock AFTER validation so early returns don't leave it stuck
+    submittingRef.current = true
+
+    try {
     const subHash = hashRef.current || safeRandomUUID().replace(/-/g, '') + safeRandomUUID().replace(/-/g, '')
 
     // Determine if this is an anonymous comment
@@ -295,7 +350,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
       }
       // After all retries exhausted, notify user that comment is local-only
       if (!succeeded) {
-        toast.error('Comment saved locally only — server unavailable')
+        toast.error('Comment saved locally only â€” server unavailable')
       }
     }
     } finally {
@@ -305,18 +360,21 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
 
   const toggleLike = useCallback(async (id: string) => {
     const likeKey = `veilsub_comment_like_${id}`
-    const wasLiked = !!localStorage.getItem(likeKey)
+    const wasLiked = likedComments.has(id)
     const delta = wasLiked ? -1 : 1
 
-    // Optimistic update
+    // Optimistic update (state + localStorage)
+    setLikedComments(prev => {
+      const next = new Set(prev)
+      if (wasLiked) next.delete(id); else next.add(id)
+      return next
+    })
+    if (wasLiked) { try { localStorage.removeItem(likeKey) } catch { /* ignore */ } }
+    else { try { localStorage.setItem(likeKey, '1') } catch { /* ignore */ } }
+
     const next = comments.map(c => {
       if (c.id !== id) return c
-      if (wasLiked) {
-        localStorage.removeItem(likeKey)
-        return { ...c, likes_count: Math.max(0, c.likes_count - 1) }
-      }
-      localStorage.setItem(likeKey, '1')
-      return { ...c, likes_count: c.likes_count + 1 }
+      return { ...c, likes_count: Math.max(0, c.likes_count + delta) }
     })
     setComments(next)
     saveLocal(next)
@@ -331,34 +389,38 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
         })
         if (!res.ok) {
           // Rollback optimistic update on server error
+          setLikedComments(prev => {
+            const r = new Set(prev)
+            if (wasLiked) r.add(id); else r.delete(id)
+            return r
+          })
+          if (wasLiked) { try { localStorage.setItem(likeKey, '1') } catch { /* ignore */ } }
+          else { try { localStorage.removeItem(likeKey) } catch { /* ignore */ } }
           const rollback = comments.map(c => {
             if (c.id !== id) return c
-            if (wasLiked) {
-              localStorage.setItem(likeKey, '1')
-              return { ...c, likes_count: c.likes_count + 1 }
-            }
-            localStorage.removeItem(likeKey)
-            return { ...c, likes_count: Math.max(0, c.likes_count - 1) }
+            return { ...c, likes_count: Math.max(0, c.likes_count - delta) }
           })
           setComments(rollback)
           saveLocal(rollback)
         }
       } catch {
-        // Network error — rollback optimistic update
+        // Network error â€” rollback optimistic update
+        setLikedComments(prev => {
+          const r = new Set(prev)
+          if (wasLiked) r.add(id); else r.delete(id)
+          return r
+        })
+        if (wasLiked) { try { localStorage.setItem(likeKey, '1') } catch { /* ignore */ } }
+        else { try { localStorage.removeItem(likeKey) } catch { /* ignore */ } }
         const rollback = comments.map(c => {
           if (c.id !== id) return c
-          if (wasLiked) {
-            localStorage.setItem(likeKey, '1')
-            return { ...c, likes_count: c.likes_count + 1 }
-          }
-          localStorage.removeItem(likeKey)
-          return { ...c, likes_count: Math.max(0, c.likes_count - 1) }
+          return { ...c, likes_count: Math.max(0, c.likes_count - delta) }
         })
         setComments(rollback)
         saveLocal(rollback)
       }
     }
-  }, [comments, contentId, serverAvailable, saveLocal])
+  }, [comments, contentId, serverAvailable, saveLocal, likedComments])
 
   const topLevel = useMemo(() => comments.filter(c => !c.parent_id), [comments])
   const replies = useMemo(() => {
@@ -373,6 +435,14 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
   }, [comments])
 
   const visible = expanded ? topLevel : topLevel.slice(0, 3)
+
+  /** Whether a DM button should show for a given comment */
+  const canDmComment = (c: Comment): boolean => {
+    if (!creatorAddress || !c.anon_id || c.author_type !== 'anonymous') return false
+    if (isContentCreator) return true
+    if (isSubscribed && walletAddress && myAnonId && c.anon_id !== myAnonId) return true
+    return false
+  }
 
   return (
     <div className="mt-3 pt-3 border-t border-white/[0.04]">
@@ -390,6 +460,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
         const isAnon = c.author_type === 'anonymous' && c.tier
         const sp = isAnon ? null : subProfiles[c.subscriber_hash]
         const anonStyle = isAnon ? getAnonTierStyle(c.tier as number) : null
+        const showDm = canDmComment(c)
         return (
         <div key={c.id} className="mb-2.5">
           <div className="flex gap-2.5">
@@ -427,12 +498,22 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
               <p className="text-sm text-white/80 leading-relaxed mt-0.5 break-words">{c.text}</p>
               <div className="flex items-center gap-3 mt-1">
                 <button onClick={() => toggleLike(c.id)} className="flex items-center gap-1 text-white/50 hover:text-rose-400 transition-colors">
-                  <Heart className={`w-3 h-3 ${localStorage.getItem(`veilsub_comment_like_${c.id}`) ? 'fill-rose-400 text-rose-400' : ''}`} />
+                  <Heart className={`w-3 h-3 ${likedComments.has(c.id) ? 'fill-rose-400 text-rose-400' : ''}`} />
                   {c.likes_count > 0 && <span className="text-[11px]">{c.likes_count}</span>}
                 </button>
                 {isSubscribed && (
                   <button onClick={() => setReplyTo(replyTo === c.id ? null : c.id)} className="text-[11px] text-white/50 hover:text-white/60 transition-colors">
                     Reply
+                  </button>
+                )}
+                {showDm && (
+                  <button
+                    onClick={() => handleDmCommenter(c)}
+                    title="Direct message this subscriber"
+                    className="flex items-center gap-1 text-white/40 hover:text-violet-400 transition-colors"
+                  >
+                    <Send className="w-3 h-3" />
+                    <span className="text-[11px]">DM</span>
                   </button>
                 )}
               </div>
@@ -492,7 +573,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
                 placeholder="Write a reply..."
                 className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-1.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-white/30"
               />
-              <button onClick={submit} disabled={!text.trim()} className="px-3 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-xs font-medium hover:bg-white/12 disabled:opacity-40 transition-colors">
+              <button onClick={submit} disabled={!text.trim()} className="px-3 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-xs font-medium hover:bg-white/[0.12] disabled:opacity-40 transition-colors">
                 Reply
               </button>
             </div>
@@ -512,7 +593,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
       {/* Anonymous toggle + Input */}
       {isSubscribed ? (
         <div className="space-y-2">
-          {/* Anonymous toggle — only shown to subscribers with a tier */}
+          {/* Anonymous toggle â€” only shown to subscribers with a tier */}
           {canCommentAnonymously && (
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
@@ -523,6 +604,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
                 type="button"
                 role="switch"
                 aria-checked={anonymous}
+                aria-label="Comment anonymously"
                 onClick={() => setAnonymous(prev => !prev)}
                 className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50 ${anonymous ? 'bg-violet-500/60' : 'bg-white/[0.08]'}`}
               >
@@ -548,7 +630,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
               placeholder={canCommentAnonymously && anonymous ? 'Add an anonymous comment...' : 'Add a comment...'}
               className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-colors"
             />
-            <button onClick={() => { setReplyTo(null); submit() }} disabled={!text.trim() || !!replyTo} className="px-4 py-2 rounded-lg bg-white/[0.06] text-white/70 text-sm font-medium hover:bg-white/12 disabled:opacity-40 transition-colors">
+            <button onClick={() => { setReplyTo(null); submit() }} disabled={!text.trim() || !!replyTo} className="px-4 py-2 rounded-lg bg-white/[0.06] text-white/70 text-sm font-medium hover:bg-white/[0.12] disabled:opacity-40 transition-colors">
               Post
             </button>
           </div>

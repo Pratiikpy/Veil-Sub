@@ -541,28 +541,32 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   const noteCount = useMemo(() => posts.filter(p => p.postType === 'note').length, [posts])
   const postCount = useMemo(() => posts.filter(p => p.postType !== 'note').length, [posts])
 
-  // Fetch endorsement counts for all loaded posts
+  // Fetch endorsement counts for all loaded posts (batched with Promise.all instead of N+1 sequential)
   useEffect(() => {
     if (posts.length === 0) return
     let cancelled = false
 
     ;(async () => {
       const counts: Record<string, number> = {}
-      for (const post of posts) {
-        try {
+      const results = await Promise.allSettled(
+        posts.map(async (post) => {
           const res = await fetch(`/api/social?type=reactions&contentId=${encodeURIComponent(post.id)}`)
-          if (cancelled) return
           if (res.ok) {
             const { counts: reactionCounts } = await res.json()
             if (reactionCounts?.endorse > 0) {
-              counts[post.id] = reactionCounts.endorse
+              return { id: post.id, count: reactionCounts.endorse as number }
             }
           }
-        } catch {
-          // Ignore fetch errors for endorsement counts
+          return null
+        })
+      )
+      if (cancelled) return
+      for (const result of results) {
+        if (result.status === 'fulfilled' && result.value) {
+          counts[result.value.id] = result.value.count
         }
       }
-      if (!cancelled && Object.keys(counts).length > 0) {
+      if (Object.keys(counts).length > 0) {
         setEndorseCounts(prev => ({ ...prev, ...counts }))
       }
     })()
