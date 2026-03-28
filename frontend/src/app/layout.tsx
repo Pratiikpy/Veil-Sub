@@ -42,7 +42,10 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://veil-sub.vercel.app'),
-  title: `${APP_NAME} — Private Creator Subscriptions on Aleo`,
+  title: {
+    default: `${APP_NAME} — Private Creator Subscriptions on Aleo`,
+    template: `%s | ${APP_NAME}`,
+  },
   description: `Subscribe to creators without anyone knowing. ${APP_DESCRIPTION} — zero-knowledge proof verification, complete privacy for subscribers and creators.`,
   keywords: ['Aleo', 'ZK', 'zero-knowledge', 'privacy', 'subscriptions', 'creator economy', 'blockchain', 'Leo'],
   alternates: {
@@ -84,6 +87,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.webmanifest" />
         <meta name="theme-color" content="#000000" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
+        <link rel="apple-touch-icon" sizes="192x192" href="/brand/veilsub-icon-192.png" />
         {/* Theme initialization script - runs before paint to prevent FOUC */}
         <script
           dangerouslySetInnerHTML={{

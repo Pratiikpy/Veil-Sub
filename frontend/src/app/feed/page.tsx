@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { m, AnimatePresence } from 'framer-motion'
 import { spring } from '@/lib/motion'
@@ -166,7 +166,7 @@ function FeedSkeleton() {
 
 // ─── Feed Post Card (Features 1-5: engagement bar, expansion, smart click, grid layout) ───
 
-function FeedPostCard({
+const FeedPostCard = memo(function FeedPostCard({
   post,
   hasAccess,
   index,
@@ -605,7 +605,7 @@ function FeedPostCard({
       )}
     </m.article>
   )
-}
+})
 
 // ─── Main Feed Page ───
 

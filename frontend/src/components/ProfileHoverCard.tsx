@@ -180,6 +180,7 @@ export default function ProfileHoverCard({ address, children }: ProfileHoverCard
                   <img
                     src={data.imageUrl}
                     alt={data.displayName}
+                    referrerPolicy="no-referrer"
                     className="w-10 h-10 rounded-xl object-cover ring-1 ring-white/[0.06] shrink-0"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none'

@@ -1,9 +1,0 @@
-# VeilSub — Private Creator Subscriptions on Aleo
-# https://veil-sub.vercel.app
-
-User-agent: *
-Allow: /
-Disallow: /api/
-
-# Sitemap
-Sitemap: https://veil-sub.vercel.app/sitemap.xml

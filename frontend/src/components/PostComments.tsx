@@ -474,6 +474,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
                   <img
                     src={sp.avatar_url}
                     alt={sp.display_name || 'Subscriber'}
+                    referrerPolicy="no-referrer"
                     className="w-7 h-7 rounded-full object-cover shrink-0"
                     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
                   />
@@ -537,6 +538,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
                     <img
                       src={rp.avatar_url}
                       alt={rp.display_name || 'Subscriber'}
+                      referrerPolicy="no-referrer"
                       className="w-6 h-6 rounded-full object-cover shrink-0"
                       onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
                     />
@@ -625,7 +627,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
           <div className="flex gap-2">
             <input
               type="text"
-              value={replyTo ? '' : text}
+              value={text}
               onChange={e => { setReplyTo(null); setText(e.target.value.slice(0, MAX_CHARS)) }}
               onKeyDown={e => e.key === 'Enter' && !replyTo && submit()}
               placeholder={canCommentAnonymously && anonymous ? 'Add an anonymous comment...' : 'Add a comment...'}

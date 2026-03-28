@@ -389,6 +389,7 @@ export default function MessagesPage() {
         sentMessageIdsRef.current.add(saved.id)
         setMessages(prev => [...prev, saved])
         setMessageText('')
+        setTimeout(() => inputRef.current?.focus(), 100)
         // Decrypt the new message immediately
         const plaintext = messageText.trim()
         setDecryptedMessages(prev => {

@@ -121,6 +121,10 @@ export async function GET(req: NextRequest) {
  * Body: { wallet, type, title, message, data? }
  */
 export async function POST(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:notifications:post`, 30)
   if (!allowed) return getRateLimitResponse()
@@ -132,10 +136,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const { wallet, type, title, message, data } = payload
+  const { wallet, type, title, message, data, walletAddress, walletHash, timestamp, signature } = payload
 
   if (!wallet || typeof wallet !== 'string') {
     return NextResponse.json({ error: 'Missing wallet' }, { status: 400 })
+  }
+
+  // Wallet authentication — only the wallet owner (creator) or platform can send notifications
+  const authAddr = walletAddress || (ALEO_ADDRESS_RE.test(wallet) ? wallet : null)
+  if (!authAddr || !walletHash || timestamp === undefined) {
+    return NextResponse.json({ error: 'Authentication required (walletAddress + walletHash + timestamp)' }, { status: 401 })
+  }
+  const auth = await verifyWalletAuth(authAddr, walletHash, timestamp, signature)
+  if (!auth.valid) {
+    return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
   }
   if (!type || typeof type !== 'string') {
     return NextResponse.json({ error: 'Missing type' }, { status: 400 })
@@ -147,8 +161,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid message' }, { status: 400 })
   }
 
-  // Wallet can be an address or an address hash — normalize
-  const walletHash = ALEO_ADDRESS_RE.test(wallet)
+  // Wallet can be an address or an address hash — normalize for storage
+  const storageHash = ALEO_ADDRESS_RE.test(wallet)
     ? await hashAddress(wallet)
     : wallet
 
@@ -185,7 +199,7 @@ export async function POST(req: NextRequest) {
     try {
       const { error: insertError } = await supabase.from('notifications').insert({
         id: storedNotification.id,
-        wallet_hash: walletHash,
+        wallet_hash: storageHash,
         type: storedNotification.type,
         title: storedNotification.title,
         message: storedNotification.message,
@@ -205,7 +219,7 @@ export async function POST(req: NextRequest) {
   const redis = getRedis()
   if (redis) {
     try {
-      const key = redisKey(walletHash)
+      const key = redisKey(storageHash)
       await redis.lpush(key, JSON.stringify(storedNotification))
       await redis.ltrim(key, 0, MAX_NOTIFICATIONS - 1)
       await redis.expire(key, NOTIFICATION_TTL_SECONDS)

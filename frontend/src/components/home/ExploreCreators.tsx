@@ -57,7 +57,7 @@ const HomepageCreatorCard = React.memo(function HomepageCreatorCard({
         {(() => {
           const cached = getCachedCreator(creator.address)
           return cached?.image_url ? (
-            <img src={cached.image_url} alt="" className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0" />
+            <img src={cached.image_url} alt="" referrerPolicy="no-referrer" className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0" />
           ) : (
             <AddressAvatar address={creator.address} />
           )

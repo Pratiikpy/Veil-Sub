@@ -68,7 +68,7 @@ export default function RecommendationsCard({
               {(() => {
                 const cached = getCachedCreator(creator.address)
                 return cached?.image_url ? (
-                  <img src={cached.image_url} alt="" className="w-9 h-9 rounded-full object-cover border border-white/10 shrink-0" />
+                  <img src={cached.image_url} alt="" referrerPolicy="no-referrer" className="w-9 h-9 rounded-full object-cover border border-white/10 shrink-0" />
                 ) : (
                   <AddressAvatar address={creator.address} size={36} />
                 )

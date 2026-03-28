@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: CreatorLayoutProps): Promise<
       type: 'profile',
     },
     twitter: {
-      card: 'summary',
+      card: 'summary_large_image',
       title,
       description,
     },

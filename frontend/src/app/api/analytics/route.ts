@@ -4,6 +4,7 @@ import { hashAddress } from '@/lib/encryption'
 import { getRedis } from '@/lib/redis'
 import { API_LIMITS, RATE_LIMITS, CACHE_HEADERS, AUTH_CONFIG, ALEO_ADDRESS_RE } from '@/lib/config'
 import { rateLimit as rl, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
+import { validateOrigin } from '@/lib/csrf'
 
 export async function GET(req: NextRequest) {
   const ip = getClientIp(req)
@@ -177,6 +178,10 @@ async function verifyAnalyticsAuth(
 }
 
 export async function POST(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip2 = getClientIp(req)
   const { allowed: allowed2 } = rl(`${ip2}:analytics:post`, 30)
   if (!allowed2) return getRateLimitResponse()

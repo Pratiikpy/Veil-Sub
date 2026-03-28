@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSupabase } from '@/lib/supabase'
 import { encrypt, hashAddress } from '@/lib/encryption'
-import { ALEO_ADDRESS_RE } from '@/lib/config'
+import { ALEO_ADDRESS_RE, AUTH_CONFIG } from '@/lib/config'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 import { validateOrigin } from '@/lib/csrf'
+import { verifyWalletAuth } from '@/lib/apiAuth'
 
 export async function GET(req: NextRequest) {
   const ip = getClientIp(req)
@@ -64,14 +65,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Valid Aleo address required' }, { status: 400 })
     }
 
-    // Wallet signature verification
-    // Signature is required for NEW registrations but optional for profile UPDATES
-    // (existing creators can update display_name, bio, etc. without re-signing)
-    const hasValidSignature = signature && typeof signature === 'string' && signature.length >= 20
-    const hasValidTimestamp = typeof timestamp === 'number' && Number.isFinite(timestamp) && Math.abs(Date.now() - timestamp) <= 2 * 60 * 1000
-
-    // We'll check after looking up whether the creator already exists
-    // For now just validate the non-auth fields
+    // Wallet authentication — required for all profile upserts
+    const walletHash = payload.walletHash
+    if (!walletHash || timestamp === undefined) {
+      return NextResponse.json({ error: 'Authentication required (walletHash + timestamp)' }, { status: 401 })
+    }
+    const authResult = await verifyWalletAuth(address, walletHash, timestamp, signature)
+    if (!authResult.valid) {
+      return NextResponse.json({ error: authResult.error || 'Authentication failed' }, { status: 401 })
+    }
     if (display_name && (typeof display_name !== 'string' || display_name.length > 100)) {
       return NextResponse.json({ error: 'Display name too long (max 100)' }, { status: 400 })
     }
@@ -131,13 +133,6 @@ export async function POST(req: NextRequest) {
       .select('address_hash')
       .eq('address_hash', addressHashValue)
       .single()
-
-    // Allow profile saves with OR without signature.
-    // Signature adds extra trust but is not strictly required — the wallet address
-    // in the payload is sufficient for profile updates. Registration on-chain is
-    // the real authentication; Supabase profile is just off-chain metadata.
-    // This prevents the catch-22 where on-chain registration succeeded but
-    // Supabase insert failed, and the user can't re-save because signature fails.
 
     // Validate creator_hash if provided: must be digits followed by "field"
     if (creator_hash !== undefined && creator_hash !== null) {

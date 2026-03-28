@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { m } from 'framer-motion'
 import Link from 'next/link'
 import {
@@ -56,36 +56,30 @@ interface OnChainStats {
 
 // ── Animated Count-up Hook ───────────────────────────────────────
 
-function useCountUp(target: number, duration = 500): number {
-  const [current, setCurrent] = useState(0)
-  const rafRef = useRef<number | null>(null)
-  const startTimeRef = useRef<number>(0)
-  const startValueRef = useRef(0)
+function useCountUp(target: number, duration = 500): React.RefObject<HTMLSpanElement | null> {
+  const ref = useRef<HTMLSpanElement>(null)
 
   useEffect(() => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current)
-    startValueRef.current = current
-    startTimeRef.current = performance.now()
+    if (!ref.current) return
+    const start = performance.now()
+    const startVal = parseInt(ref.current.textContent || '0', 10) || 0
+    let raf: number
 
     const animate = (now: number) => {
-      const elapsed = now - startTimeRef.current
+      const elapsed = now - start
       const progress = Math.min(elapsed / duration, 1)
       // Ease out cubic
       const eased = 1 - Math.pow(1 - progress, 3)
-      const value = startValueRef.current + (target - startValueRef.current) * eased
-      setCurrent(Math.round(value))
-      if (progress < 1) {
-        rafRef.current = requestAnimationFrame(animate)
-      }
+      const value = Math.round(startVal + (target - startVal) * eased)
+      if (ref.current) ref.current.textContent = value.toLocaleString()
+      if (progress < 1) raf = requestAnimationFrame(animate)
     }
 
-    rafRef.current = requestAnimationFrame(animate)
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
-    }
-  }, [target, duration]) // eslint-disable-line react-hooks/exhaustive-deps
+    raf = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(raf)
+  }, [target, duration])
 
-  return current
+  return ref
 }
 
 // ── On-chain Mapping Fetcher ─────────────────────────────────────
@@ -128,12 +122,15 @@ function StatCard({
   value,
   subtext,
   delay = 0,
+  valueContent,
 }: {
   icon: typeof Coins
   label: string
   value: string
   subtext: string
   delay?: number
+  /** Optional custom JSX to render instead of the value string (for ref-controlled count-ups) */
+  valueContent?: React.ReactNode
 }) {
   return (
     <m.div
@@ -150,7 +147,7 @@ function StatCard({
           <Icon className="w-4 h-4 text-white/50" aria-hidden="true" />
           <span className="text-xs text-white/50 font-medium uppercase tracking-wider">{label}</span>
         </div>
-        <p className="text-2xl font-bold text-white tabular-nums tracking-tight">{value}</p>
+        <p className="text-2xl font-bold text-white tabular-nums tracking-tight">{valueContent ?? value}</p>
         <p className="text-xs text-white/50 mt-1">{subtext}</p>
       </div>
     </m.div>
@@ -523,11 +520,11 @@ export default function AnalyticsDashboard({ creatorAddress, stats }: AnalyticsD
   const [posts, setPosts] = useState<ContentPost[]>([])
   const [refreshing, setRefreshing] = useState(false)
 
-  // Animated count-up values
-  const animatedRevenue = useCountUp(onChainStats.totalRevenue, 600)
-  const animatedSubscribers = useCountUp(onChainStats.subscriberCount, 500)
-  const animatedContent = useCountUp(onChainStats.contentCount, 400)
-  const animatedFee = useCountUp(onChainStats.platformFee, 600)
+  // Animated count-up refs (direct DOM updates, no re-renders per frame)
+  const revenueRef = useCountUp(onChainStats.totalRevenue, 600)
+  const subscribersRef = useCountUp(onChainStats.subscriberCount, 500)
+  const contentRef = useCountUp(onChainStats.contentCount, 400)
+  const feeRef = useCountUp(onChainStats.platformFee, 600)
 
   const fetchAll = useCallback(async () => {
     try {
@@ -648,28 +645,32 @@ export default function AnalyticsDashboard({ creatorAddress, stats }: AnalyticsD
           <StatCard
             icon={Coins}
             label="Total Revenue"
-            value={revenueAleo > 0 ? `${formatCredits(animatedRevenue)} ALEO` : '0 ALEO'}
-            subtext={revenueAleo > 0 ? formatUsd(animatedRevenue) : 'No revenue yet'}
+            value={revenueAleo > 0 ? `${formatCredits(onChainStats.totalRevenue)} ALEO` : '0 ALEO'}
+            valueContent={revenueAleo > 0 ? <><span ref={revenueRef}>0</span> ALEO</> : undefined}
+            subtext={revenueAleo > 0 ? formatUsd(onChainStats.totalRevenue) : 'No revenue yet'}
             delay={0}
           />
           <StatCard
             icon={Users}
             label="Subscribers"
-            value={animatedSubscribers.toString()}
+            value={onChainStats.subscriberCount.toString()}
+            valueContent={<span ref={subscribersRef}>0</span>}
             subtext={onChainStats.subscriberCount > 0 ? 'Total on-chain' : 'No subscribers yet'}
             delay={0.05}
           />
           <StatCard
             icon={FileText}
             label="Content Published"
-            value={animatedContent.toString()}
+            value={onChainStats.contentCount.toString()}
+            valueContent={<span ref={contentRef}>0</span>}
             subtext={onChainStats.contentCount > 0 ? 'Posts on-chain' : 'No content yet'}
             delay={0.1}
           />
           <StatCard
             icon={Percent}
             label="Platform Fee"
-            value={feeAleo > 0 ? `${formatCredits(animatedFee)} ALEO` : '0 ALEO'}
+            value={feeAleo > 0 ? `${formatCredits(onChainStats.platformFee)} ALEO` : '0 ALEO'}
+            valueContent={feeAleo > 0 ? <><span ref={feeRef}>0</span> ALEO</> : undefined}
             subtext={`${PLATFORM_FEE_PCT}% of total revenue`}
             delay={0.15}
           />

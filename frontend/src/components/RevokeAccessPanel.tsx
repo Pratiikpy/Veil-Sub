@@ -33,6 +33,11 @@ export default function RevokeAccessPanel({ onSuccess }: Props) {
     try {
       const cleanId = passId.trim().replace(/field$/, '')
       const result = await revokeAccess(cleanId)
+      if (!result) {
+        setTxStatus('failed')
+        setError('Wallet rejected or transaction could not be submitted.')
+        return
+      }
       if (result) {
         setTxId(result)
         setTxStatus('broadcasting')

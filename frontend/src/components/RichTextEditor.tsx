@@ -23,6 +23,7 @@ import {
   Redo,
   Minus,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { authenticatedFetch } from '@/lib/authenticatedFetch'
 
 interface RichTextEditorProps {
@@ -157,11 +158,17 @@ export default function RichTextEditor({ content, onChange, placeholder, walletA
     const maxSize = 5 * 1024 * 1024
     const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
 
-    if (!validTypes.includes(file.type)) return
-    if (file.size > maxSize) return
+    if (!validTypes.includes(file.type)) {
+      toast.error('Invalid image format. Supported: JPEG, PNG, GIF, WebP')
+      return
+    }
+    if (file.size > maxSize) {
+      toast.error('Image too large. Maximum size is 5MB.')
+      return
+    }
 
     if (!walletAddress) {
-      // Cannot upload without wallet authentication
+      toast.error('Connect your wallet to upload images.')
       return
     }
 
@@ -180,7 +187,7 @@ export default function RichTextEditor({ content, onChange, placeholder, walletA
         editor.chain().focus().setImage({ src: data.url }).run()
       }
     } catch {
-      // Silently fail — user can try again
+      toast.error('Image upload failed. Please try again.')
     } finally {
       setImageUploading(false)
       closeUrlInput()

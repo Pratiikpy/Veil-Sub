@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 import { Bell, CheckCircle2, Gift, AlertTriangle, FileText, Users, Coins, Mail } from 'lucide-react'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import PageTransition from '@/components/PageTransition'
 import { useNotifications } from '@/hooks/useNotifications'
 import type { NotificationType } from '@/lib/notifications'
@@ -33,6 +34,7 @@ const ICON_MAP: Record<NotificationType, typeof Bell> = {
 }
 
 export default function NotificationsPage() {
+  const { connected } = useWallet()
   const { notifications, loading, markAllAsRead } = useNotifications()
 
   // Mark all as read when page is viewed (single batch request)
@@ -42,6 +44,22 @@ export default function NotificationsPage() {
       markAllAsRead()
     }
   }, [notifications, loading, markAllAsRead])
+
+  if (!connected) {
+    return (
+      <PageTransition>
+        <main className="min-h-screen bg-background pt-12 pb-24 sm:py-16">
+          <div className="min-h-[60vh] flex items-center justify-center p-4">
+            <div className="text-center">
+              <Bell className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
+              <h2 className="text-xl font-semibold text-white mb-2">Notifications</h2>
+              <p className="text-white/60 mb-6">Connect your wallet to see your notifications.</p>
+            </div>
+          </div>
+        </main>
+      </PageTransition>
+    )
+  }
 
   return (
     <PageTransition>

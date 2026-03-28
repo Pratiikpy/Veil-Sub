@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, use, useCallback, useMemo } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   Shield,
   Heart,
@@ -712,6 +713,7 @@ export default function CreatorPage({
   params: Promise<{ address: string }>
 }) {
   const { address } = use(params)
+  const router = useRouter()
   const { connected, address: publicKey } = useWallet()
   const { fetchCreatorStats } = useCreatorStats()
   const { tiers: onChainTiers, tierCount: onChainTierCount, loading: tiersLoading } = useCreatorTiers(address)
@@ -764,7 +766,7 @@ export default function CreatorPage({
 
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab)
-    window.history.pushState(null, '', `#${tab}`)
+    window.history.replaceState(null, '', `#${tab}`)
   }, [])
 
   const coverGradient = useMemo(() => generateCoverGradient(address), [address])
@@ -777,7 +779,7 @@ export default function CreatorPage({
 
   const handleShare = useCallback(() => {
     if (typeof navigator !== 'undefined' && navigator.share) {
-      navigator.share({ title: displayName || 'VeilSub Creator', url: window.location.href })
+      navigator.share({ title: displayName || 'VeilSub Creator', text: 'Check out this creator on VeilSub — private subscriptions on Aleo.', url: window.location.href })
     } else {
       navigator.clipboard.writeText(window.location.href)
       toast.success('Link copied to clipboard')
@@ -1212,7 +1214,7 @@ export default function CreatorPage({
                     }
                   }}
                   onMessage={() => {
-                    window.location.href = `/messages?creator=${encodeURIComponent(address)}`
+                    router.push(`/messages?creator=${encodeURIComponent(address)}`)
                   }}
                   onShare={handleShare}
                   onReportCreator={() => {
