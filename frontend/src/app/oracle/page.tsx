@@ -5,18 +5,27 @@ import {
   Activity,
   ArrowRight,
   ArrowRightLeft,
+  CheckCircle2,
+  Cloud,
   DollarSign,
   ExternalLink,
+  Loader2,
+  Lock,
   RefreshCw,
+  Send,
   TrendingDown,
   TrendingUp,
   Zap,
   ShieldCheck,
   Clock,
+  AlertTriangle,
+  Database,
 } from 'lucide-react'
 import Link from 'next/link'
 import GlassCard from '@/components/GlassCard'
 import PageTransition from '@/components/PageTransition'
+import { useContractExecute } from '@/hooks/useContractExecute'
+import { toast } from 'sonner'
 import {
   AreaChart,
   Area,
@@ -108,6 +117,217 @@ export default function OraclePage() {
   // Calculator state
   const [usdInput, setUsdInput] = useState('5.00')
   const [aleoResult, setAleoResult] = useState<number | null>(null)
+
+  // ── On-Chain State ──────────────────────────────────────────────────
+  const { address, connected, execute } = useContractExecute()
+
+  // On-chain mapping data
+  const [onChainPrice, setOnChainPrice] = useState<number | null>(null)
+  const [onChainUpdatedAt, setOnChainUpdatedAt] = useState<number | null>(null)
+  const [oracleAdmin, setOracleAdmin] = useState<string | null>(null)
+  const [oracleInitialized, setOracleInitialized] = useState<boolean | null>(null)
+  const [freshnessResult, setFreshnessResult] = useState<'fresh' | 'stale' | null>(null)
+
+  // Transaction loading states
+  const [initLoading, setInitLoading] = useState(false)
+  const [pushLoading, setPushLoading] = useState(false)
+  const [tierCalcLoading, setTierCalcLoading] = useState(false)
+  const [freshnessLoading, setFreshnessLoading] = useState(false)
+  const [onChainQueryLoading, setOnChainQueryLoading] = useState(false)
+
+  // Tier calculator inputs for on-chain computation
+  const [tierCreatorHash, setTierCreatorHash] = useState('')
+  const [tierNumber, setTierNumber] = useState('1')
+  const [tierTargetUsd, setTierTargetUsd] = useState('5.00')
+
+  // ── On-Chain Mapping Queries ────────────────────────────────────────
+
+  const fetchOracleMapping = useCallback(
+    async (mapping: string, key: string): Promise<string | null> => {
+      try {
+        const res = await fetch(
+          `/api/aleo/program/${encodeURIComponent(ORACLE_PROGRAM_ID)}/mapping/${encodeURIComponent(mapping)}/${encodeURIComponent(key)}`
+        )
+        if (!res.ok) return null
+        const text = await res.text()
+        if (!text || text === 'null' || text === '') return null
+        return text.replace(/"/g, '').trim()
+      } catch {
+        return null
+      }
+    },
+    []
+  )
+
+  const refreshOnChainData = useCallback(async () => {
+    setOnChainQueryLoading(true)
+    try {
+      const [priceRaw, updatedRaw, adminRaw] = await Promise.all([
+        fetchOracleMapping('price_feed', '0u8'),
+        fetchOracleMapping('price_updated_at', '0u8'),
+        fetchOracleMapping('oracle_admin', 'true'),
+      ])
+
+      if (priceRaw) {
+        const cleaned = priceRaw.replace(/u128$/, '')
+        const val = parseInt(cleaned, 10)
+        setOnChainPrice(isNaN(val) ? null : val)
+      } else {
+        setOnChainPrice(null)
+      }
+
+      if (updatedRaw) {
+        const cleaned = updatedRaw.replace(/u32$/, '')
+        const val = parseInt(cleaned, 10)
+        setOnChainUpdatedAt(isNaN(val) ? null : val)
+      } else {
+        setOnChainUpdatedAt(null)
+      }
+
+      if (adminRaw) {
+        setOracleAdmin(adminRaw)
+        setOracleInitialized(true)
+      } else {
+        setOracleAdmin(null)
+        setOracleInitialized(false)
+      }
+    } catch {
+      // Query failed silently
+    } finally {
+      setOnChainQueryLoading(false)
+    }
+  }, [fetchOracleMapping])
+
+  // Load on-chain data on mount and when wallet connects
+  useEffect(() => {
+    refreshOnChainData()
+  }, [refreshOnChainData, connected])
+
+  // ── On-Chain Actions ────────────────────────────────────────────────
+
+  const handleInitializeOracle = useCallback(async () => {
+    if (!connected || !address) {
+      toast.error('Connect your wallet first')
+      return
+    }
+    setInitLoading(true)
+    try {
+      const txId = await execute(
+        'initialize_oracle',
+        [address],
+        1_500_000,
+        ORACLE_PROGRAM_ID
+      )
+      if (txId) {
+        toast.success('Oracle initialized! TX: ' + txId.slice(0, 12) + '...')
+        // Refresh after a delay to let finalize complete
+        setTimeout(refreshOnChainData, 15_000)
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Transaction failed'
+      toast.error('Initialize failed: ' + msg)
+    } finally {
+      setInitLoading(false)
+    }
+  }, [connected, address, execute, refreshOnChainData])
+
+  const handlePushPrice = useCallback(async () => {
+    if (!connected || !price) {
+      toast.error(connected ? 'No price data available' : 'Connect your wallet first')
+      return
+    }
+    setPushLoading(true)
+    try {
+      // Convert USD price to micro-USD (6 decimals)
+      const microUsd = Math.round(price.usd * MICRO_USD_SCALE)
+      const txId = await execute(
+        'update_price',
+        ['0u8', `${microUsd}u128`],
+        1_500_000,
+        ORACLE_PROGRAM_ID
+      )
+      if (txId) {
+        toast.success('Price pushed on-chain! TX: ' + txId.slice(0, 12) + '...')
+        setTimeout(refreshOnChainData, 15_000)
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Transaction failed'
+      toast.error('Push price failed: ' + msg)
+    } finally {
+      setPushLoading(false)
+    }
+  }, [connected, price, execute, refreshOnChainData])
+
+  const handleComputeTierPrice = useCallback(async () => {
+    if (!connected) {
+      toast.error('Connect your wallet first')
+      return
+    }
+    const creatorHash = tierCreatorHash.trim()
+    const tier = parseInt(tierNumber, 10)
+    const targetUsd = parseFloat(tierTargetUsd)
+    if (!creatorHash || !creatorHash.endsWith('field')) {
+      toast.error('Enter a valid creator hash (must end with "field")')
+      return
+    }
+    if (isNaN(tier) || tier < 1 || tier > 20) {
+      toast.error('Tier must be between 1 and 20')
+      return
+    }
+    if (isNaN(targetUsd) || targetUsd <= 0) {
+      toast.error('Enter a valid USD target price')
+      return
+    }
+    setTierCalcLoading(true)
+    try {
+      const microUsd = Math.round(targetUsd * MICRO_USD_SCALE)
+      const txId = await execute(
+        'compute_tier_price',
+        [creatorHash, `${tier}u8`, `${microUsd}u128`],
+        1_500_000,
+        ORACLE_PROGRAM_ID
+      )
+      if (txId) {
+        toast.success('Tier price computed on-chain! TX: ' + txId.slice(0, 12) + '...')
+        setTimeout(refreshOnChainData, 15_000)
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Transaction failed'
+      toast.error('Compute tier price failed: ' + msg)
+    } finally {
+      setTierCalcLoading(false)
+    }
+  }, [connected, tierCreatorHash, tierNumber, tierTargetUsd, execute, refreshOnChainData])
+
+  const handleVerifyFreshness = useCallback(async () => {
+    if (!connected) {
+      toast.error('Connect your wallet first')
+      return
+    }
+    setFreshnessLoading(true)
+    setFreshnessResult(null)
+    try {
+      const txId = await execute(
+        'verify_price_freshness',
+        ['0u8'],
+        1_500_000,
+        ORACLE_PROGRAM_ID
+      )
+      if (txId) {
+        // If the transaction succeeds, the price is fresh (the assert passed)
+        setFreshnessResult('fresh')
+        toast.success('Price is fresh! Verification TX: ' + txId.slice(0, 12) + '...')
+      }
+    } catch {
+      // If the transaction fails, the assert failed — price is stale
+      setFreshnessResult('stale')
+      toast.error('Price is stale or not yet set. The on-chain freshness check failed.')
+    } finally {
+      setFreshnessLoading(false)
+    }
+  }, [connected, execute])
+
+  const isAdmin = connected && address && oracleAdmin && address === oracleAdmin
 
   // Track whether component is mounted
   const mountedRef = useRef(true)
@@ -595,6 +815,385 @@ export default function OraclePage() {
                   </p>
                 </div>
               </GlassCard>
+            </div>
+          </section>
+
+          {/* ── On-Chain Oracle ─────────────────────────────────── */}
+
+          <section className="mb-10 sm:mb-16">
+            <div className="flex items-center justify-between mb-6 sm:mb-8">
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg font-medium text-white">
+                  On-Chain Oracle
+                </h2>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-violet-500/20 border border-violet-500/30 text-violet-300">
+                  On-Chain
+                </span>
+              </div>
+              <button
+                onClick={refreshOnChainData}
+                disabled={onChainQueryLoading}
+                className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/50 hover:text-white/70 transition-all disabled:opacity-50"
+                title="Refresh on-chain data"
+              >
+                <RefreshCw
+                  className={`w-4 h-4 ${onChainQueryLoading ? 'animate-spin' : ''}`}
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
+
+            {/* On-Chain vs Off-Chain Comparison */}
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+              {/* Off-Chain (CoinGecko) */}
+              <GlassCard hover={false}>
+                <div className="flex items-center gap-2 mb-4">
+                  <Cloud className="w-4 h-4 text-blue-400" aria-hidden="true" />
+                  <span className="text-xs text-white/60 uppercase tracking-wider">
+                    Off-Chain (CoinGecko)
+                  </span>
+                </div>
+                <p className="text-3xl font-bold text-white tabular-nums mb-1">
+                  {price ? `$${price.usd.toFixed(4)}` : '---'}
+                </p>
+                <p className="text-xs text-white/50">
+                  {price
+                    ? `${Math.round(price.usd * MICRO_USD_SCALE).toLocaleString()} micro-USD`
+                    : 'Fetching...'}
+                </p>
+                {lastUpdated && (
+                  <p className="text-xs text-white/40 mt-2 flex items-center gap-1">
+                    <Clock className="w-3 h-3" aria-hidden="true" />
+                    {lastUpdated}
+                  </p>
+                )}
+              </GlassCard>
+
+              {/* On-Chain */}
+              <GlassCard hover={false}>
+                <div className="flex items-center gap-2 mb-4">
+                  <Database className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                  <span className="text-xs text-white/60 uppercase tracking-wider">
+                    On-Chain (price_feed)
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-violet-500/20 border border-violet-500/30 text-violet-300">
+                    On-Chain
+                  </span>
+                </div>
+                {onChainQueryLoading ? (
+                  <div className="h-9 w-32 bg-white/[0.06] rounded animate-pulse" />
+                ) : onChainPrice !== null ? (
+                  <>
+                    <p className="text-3xl font-bold text-white tabular-nums mb-1">
+                      ${(onChainPrice / MICRO_USD_SCALE).toFixed(4)}
+                    </p>
+                    <p className="text-xs text-white/50">
+                      {onChainPrice.toLocaleString()} micro-USD
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-xl text-white/40">No price on-chain yet</p>
+                )}
+                {onChainUpdatedAt !== null && (
+                  <p className="text-xs text-white/40 mt-2 flex items-center gap-1">
+                    <Clock className="w-3 h-3" aria-hidden="true" />
+                    Block #{onChainUpdatedAt.toLocaleString()}
+                  </p>
+                )}
+              </GlassCard>
+            </div>
+
+            {/* Action Cards */}
+            <div className="grid md:grid-cols-2 gap-4">
+
+              {/* 1. Initialize Oracle (Admin) */}
+              {connected && oracleInitialized === false && (
+                <GlassCard hover={false}>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Lock className="w-4 h-4 text-amber-400" aria-hidden="true" />
+                    <h3 className="text-sm font-medium text-white">
+                      Initialize Oracle
+                    </h3>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300">
+                      Admin
+                    </span>
+                  </div>
+                  <p className="text-xs text-white/50 mb-4 leading-relaxed">
+                    One-time setup: sets your wallet as the oracle admin. Only the
+                    admin can push price updates on-chain.
+                  </p>
+                  <button
+                    onClick={handleInitializeOracle}
+                    disabled={initLoading}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+                  >
+                    {initLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                        Initializing...
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="w-4 h-4" aria-hidden="true" />
+                        Initialize Oracle (set admin)
+                      </>
+                    )}
+                  </button>
+                  <p className="text-[11px] text-white/40 mt-2 text-center">
+                    Fee: ~1.5 ALEO
+                  </p>
+                </GlassCard>
+              )}
+
+              {/* 2. Push Price On-Chain (Admin) */}
+              <GlassCard hover={false}>
+                <div className="flex items-center gap-2 mb-4">
+                  <Send className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                  <h3 className="text-sm font-medium text-white">
+                    Push Price On-Chain
+                  </h3>
+                  {isAdmin && (
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300">
+                      Admin
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-white/50 mb-3 leading-relaxed">
+                  Write the current CoinGecko price to the on-chain{' '}
+                  <code className="text-violet-300/80 bg-violet-500/10 px-1 rounded">
+                    price_feed
+                  </code>{' '}
+                  mapping. Only the oracle admin can execute this.
+                </p>
+                {price && (
+                  <div className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06] mb-4">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-white/50">Price to push:</span>
+                      <span className="text-white font-medium tabular-nums">
+                        ${price.usd.toFixed(4)} ({Math.round(price.usd * MICRO_USD_SCALE).toLocaleString()} micro-USD)
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <button
+                  onClick={handlePushPrice}
+                  disabled={pushLoading || !connected || !price}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+                >
+                  {pushLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                      Pushing price...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" aria-hidden="true" />
+                      Push Price On-Chain
+                    </>
+                  )}
+                </button>
+                {!connected && (
+                  <p className="text-[11px] text-amber-400/70 mt-2 text-center">
+                    Connect your wallet to push prices
+                  </p>
+                )}
+              </GlassCard>
+
+              {/* 3. Compute Tier Price On-Chain */}
+              <GlassCard hover={false}>
+                <div className="flex items-center gap-2 mb-4">
+                  <DollarSign className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+                  <h3 className="text-sm font-medium text-white">
+                    Compute Tier Price On-Chain
+                  </h3>
+                </div>
+                <p className="text-xs text-white/50 mb-4 leading-relaxed">
+                  Calculate the ALEO microcredit equivalent for a creator&apos;s tier
+                  at a USD target. Writes to{' '}
+                  <code className="text-violet-300/80 bg-violet-500/10 px-1 rounded">
+                    dynamic_tier_price
+                  </code>{' '}
+                  mapping.
+                </p>
+
+                <div className="space-y-3 mb-4">
+                  <div>
+                    <label className="text-[11px] text-white/50 uppercase tracking-wider mb-1 block">
+                      Creator Hash
+                    </label>
+                    <input
+                      type="text"
+                      value={tierCreatorHash}
+                      onChange={(e) => setTierCreatorHash(e.target.value)}
+                      placeholder="123...field"
+                      className="w-full px-3 py-2.5 bg-white/[0.04] border border-white/10 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-violet-500/40 focus:ring-1 focus:ring-violet-500/20 transition-all placeholder:text-white/20"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[11px] text-white/50 uppercase tracking-wider mb-1 block">
+                        Tier (1-20)
+                      </label>
+                      <input
+                        type="number"
+                        value={tierNumber}
+                        onChange={(e) => setTierNumber(e.target.value)}
+                        min="1"
+                        max="20"
+                        className="w-full px-3 py-2.5 bg-white/[0.04] border border-white/10 rounded-lg text-white text-sm tabular-nums focus:outline-none focus:border-violet-500/40 focus:ring-1 focus:ring-violet-500/20 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-white/50 uppercase tracking-wider mb-1 block">
+                        Target USD
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-sm">
+                          $
+                        </span>
+                        <input
+                          type="number"
+                          value={tierTargetUsd}
+                          onChange={(e) => setTierTargetUsd(e.target.value)}
+                          min="0.01"
+                          step="0.01"
+                          className="w-full pl-7 pr-3 py-2.5 bg-white/[0.04] border border-white/10 rounded-lg text-white text-sm tabular-nums focus:outline-none focus:border-violet-500/40 focus:ring-1 focus:ring-violet-500/20 transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleComputeTierPrice}
+                  disabled={tierCalcLoading || !connected}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+                >
+                  {tierCalcLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                      Computing...
+                    </>
+                  ) : (
+                    <>
+                      <DollarSign className="w-4 h-4" aria-hidden="true" />
+                      Calculate On-Chain
+                    </>
+                  )}
+                </button>
+                {!connected && (
+                  <p className="text-[11px] text-amber-400/70 mt-2 text-center">
+                    Connect your wallet to compute tier prices
+                  </p>
+                )}
+              </GlassCard>
+
+              {/* 4. Verify Price Freshness */}
+              <GlassCard hover={false}>
+                <div className="flex items-center gap-2 mb-4">
+                  <ShieldCheck className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                  <h3 className="text-sm font-medium text-white">
+                    Verify Price Freshness
+                  </h3>
+                </div>
+                <p className="text-xs text-white/50 mb-4 leading-relaxed">
+                  Check whether the on-chain ALEO price is still fresh (updated
+                  within the 1000-block staleness window, ~50 minutes). The
+                  contract asserts freshness on-chain.
+                </p>
+
+                {freshnessResult && (
+                  <div
+                    className={`p-3 rounded-lg border mb-4 flex items-center gap-2 ${
+                      freshnessResult === 'fresh'
+                        ? 'bg-emerald-500/10 border-emerald-500/20'
+                        : 'bg-red-500/10 border-red-500/20'
+                    }`}
+                  >
+                    {freshnessResult === 'fresh' ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+                        <span className="text-sm text-emerald-300 font-medium">
+                          Price is fresh
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <AlertTriangle className="w-4 h-4 text-red-400" aria-hidden="true" />
+                        <span className="text-sm text-red-300 font-medium">
+                          Price is stale or missing
+                        </span>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  onClick={handleVerifyFreshness}
+                  disabled={freshnessLoading || !connected}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+                >
+                  {freshnessLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                      Verifying...
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-4 h-4" aria-hidden="true" />
+                      Verify Price Freshness
+                    </>
+                  )}
+                </button>
+                {!connected && (
+                  <p className="text-[11px] text-amber-400/70 mt-2 text-center">
+                    Connect your wallet to verify freshness
+                  </p>
+                )}
+              </GlassCard>
+            </div>
+
+            {/* Oracle Status Bar */}
+            <div className="mt-6 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-4 flex-wrap text-xs">
+                  <span className="text-white/50">
+                    Program:{' '}
+                    <code className="text-violet-300/80 bg-violet-500/10 px-1.5 py-0.5 rounded font-mono">
+                      {ORACLE_PROGRAM_ID}
+                    </code>
+                  </span>
+                  <span className="text-white/50">
+                    Admin:{' '}
+                    {oracleAdmin ? (
+                      <code className="text-emerald-300/80 bg-emerald-500/10 px-1.5 py-0.5 rounded font-mono">
+                        {oracleAdmin.slice(0, 10)}...{oracleAdmin.slice(-6)}
+                      </code>
+                    ) : (
+                      <span className="text-amber-400/70">Not initialized</span>
+                    )}
+                  </span>
+                  {connected && (
+                    <span className="text-white/50">
+                      Role:{' '}
+                      {isAdmin ? (
+                        <span className="text-emerald-300 font-medium">Admin</span>
+                      ) : (
+                        <span className="text-white/60">Viewer</span>
+                      )}
+                    </span>
+                  )}
+                </div>
+                <a
+                  href={ALEOSCAN_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors"
+                >
+                  View on AleoScan
+                  <ExternalLink className="w-3 h-3" aria-hidden="true" />
+                </a>
+              </div>
             </div>
           </section>
 

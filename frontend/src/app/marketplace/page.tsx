@@ -1,6 +1,7 @@
 'use client'
 
-import { m } from 'framer-motion'
+import { useState } from 'react'
+import { m, AnimatePresence } from 'framer-motion'
 import { spring } from '@/lib/motion'
 import {
   Store,
@@ -11,6 +12,7 @@ import {
   EyeOff,
   ArrowRight,
   Award,
+  Zap,
 } from 'lucide-react'
 import Link from 'next/link'
 import GlassCard from '@/components/GlassCard'
@@ -19,18 +21,26 @@ import ScrollReveal from '@/components/ScrollReveal'
 import Badge from '@/components/ui/Badge'
 import Container from '@/components/ui/Container'
 import Button from '@/components/ui/Button'
-
-// ─── Static styles ──────────────────────────────────────────────────────────
+import { useContractExecute } from '@/hooks/useContractExecute'
 import { HERO_GLOW_STYLE, TITLE_STYLE as LETTER_SPACING_STYLE } from '@/lib/styles'
+import { MARKETPLACE_PROGRAM_ID } from '@/components/marketplace/constants'
+import SubmitReviewSection from '@/components/marketplace/SubmitReviewSection'
+import ReputationLookupSection from '@/components/marketplace/ReputationLookupSection'
+import ProveReputationSection from '@/components/marketplace/ProveReputationSection'
+import VerifyBadgeSection from '@/components/marketplace/VerifyBadgeSection'
+import CreateAuctionSection from '@/components/marketplace/CreateAuctionSection'
+import PlaceBidSection from '@/components/marketplace/PlaceBidSection'
+import AuctionManagementSection from '@/components/marketplace/AuctionManagementSection'
+import SealedBidExplainer from '@/components/marketplace/SealedBidExplainer'
 
-// ─── How Reputation Works ───────────────────────────────────────────────────
+// ─── How Reputation Works Steps ──────────────────────────────────────────────
 
 const REPUTATION_STEPS = [
   {
     step: 1,
     title: 'Aggregate Ratings',
     description:
-      'Subscribers rate creators privately. Individual ratings are hidden; only the overall score is visible.',
+      'Subscribers rate creators privately. Each rating becomes a Pedersen commitment: rating * G + blinding * H. Individual ratings are hidden.',
     icon: Star,
     color: 'amber',
   },
@@ -38,30 +48,36 @@ const REPUTATION_STEPS = [
     step: 2,
     title: 'Threshold Proofs',
     description:
-      'Creators prove they meet a subscriber threshold -- without revealing the exact count.',
+      'Creators prove they meet a minimum average rating on-chain. The proof verifies Pedersen commitment integrity without revealing the exact score.',
     icon: Shield,
     color: 'violet',
   },
   {
     step: 3,
-    title: 'Reputation Tiers',
+    title: 'Discovery Badges',
     description:
-      'Tiers (Bronze/Silver/Gold/Diamond) are assigned by verified blockchain proofs. No manual curation or gaming.',
+      'Bronze (10+ reviews), Silver (25+), Gold (50+). Badges are awarded via threshold proofs -- no manual curation or gaming possible.',
     icon: Award,
     color: 'emerald',
   },
 ]
 
-// ─── Main Page ──────────────────────────────────────────────────────────────
+// ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function MarketplacePage() {
+  const { connected } = useContractExecute()
+  const [activeTab, setActiveTab] = useState<'reputation' | 'auctions'>('reputation')
+
   return (
     <PageTransition className="min-h-screen">
-      {/* ── BETA Banner ──────────────────────────────────────────────────── */}
-      <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-3 text-center">
-        <p className="text-sm text-amber-300 font-medium">
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold uppercase tracking-wider mr-2">Beta</span>
-          The marketplace is not yet live on-chain. This page describes how it will work.
+      {/* ── Live Banner ──────────────────────────────────────────────────── */}
+      <div className="bg-violet-500/10 border-b border-violet-500/20 px-4 py-3 text-center">
+        <p className="text-sm text-violet-300 font-medium">
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 text-xs font-bold uppercase tracking-wider mr-2">
+            <Zap className="w-3 h-3" aria-hidden="true" />
+            Live
+          </span>
+          Deployed on Aleo Testnet as <code className="font-mono text-xs bg-white/[0.06] px-1.5 py-0.5 rounded">{MARKETPLACE_PROGRAM_ID}</code>
         </p>
       </div>
 
@@ -86,108 +102,222 @@ export default function MarketplacePage() {
             </div>
 
             <h1
-              className="text-3xl sm:text-4xl font-bold text-white mb-6"
+              className="text-3xl sm:text-5xl font-bold text-white mb-6"
               style={LETTER_SPACING_STYLE}
             >
               Creator Marketplace
             </h1>
 
             <p className="text-lg text-white/70 max-w-2xl mx-auto mb-8 leading-relaxed">
-              Discover creators by reputation. Bid on premium content. All ratings are
-              privacy-preserving -- individual reviews are never visible.
+              Privacy-preserving reputation and sealed-bid auctions. Rate creators via Pedersen
+              commitments. Bid on premium content slots with BHP256 sealed bids.
             </p>
 
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs text-white/60">
                 <Shield className="w-3 h-3" aria-hidden="true" />
-                Privacy-preserving ratings
+                Pedersen Reputation
               </div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400">
                 <EyeOff className="w-3 h-3" aria-hidden="true" />
-                Sealed-bid auctions
+                BHP256 Sealed Bids
+              </div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400">
+                <Hash className="w-3 h-3" aria-hidden="true" />
+                Nullifier Anti-Sybil
               </div>
             </div>
+
+            {!connected && (
+              <m.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="mt-6"
+              >
+                <p className="text-sm text-amber-400/70">
+                  Connect your wallet to interact with the marketplace
+                </p>
+              </m.div>
+            )}
           </m.div>
         </Container>
       </section>
 
-      {/* ── Empty State: No Auctions ─────────────────────────────────────── */}
-      <section className="py-12 sm:py-20">
+      {/* ── Tab Navigation ──────────────────────────────────────────────── */}
+      <section className="border-b border-border/50 sticky top-16 z-20 bg-black/80 backdrop-blur-xl">
         <Container>
-          <div className="text-center py-16">
-            <Gavel className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
-            <h3 className="text-lg font-semibold text-white mb-2">No auctions yet</h3>
-            <p className="text-sm text-white/50 max-w-sm mx-auto">
-              The creator marketplace is coming soon. Sealed-bid auctions where nobody
-              sees other bids until reveal.
-            </p>
-          </div>
-        </Container>
-      </section>
-
-      {/* ── How Reputation Works ─────────────────────────────────────────── */}
-      <section className="py-12 sm:py-20 border-t border-border/50">
-        <Container>
-          <ScrollReveal>
-            <div className="text-center mb-12">
-              <h2
-                className="text-3xl sm:text-4xl font-bold text-white mb-4"
-                style={LETTER_SPACING_STYLE}
-              >
-                How Reputation Works
-              </h2>
-              <p className="text-white/80 max-w-xl mx-auto">
-                Private ratings, public trust. Individual reviews are combined mathematically
-                without revealing any single rating.
-              </p>
-            </div>
-          </ScrollReveal>
-
-          <div className="max-w-3xl mx-auto grid gap-4 sm:grid-cols-3">
-            {REPUTATION_STEPS.map((step, i) => {
-              const Icon = step.icon
+          <div className="flex items-center gap-1">
+            {[
+              { key: 'reputation' as const, label: 'Reputation', icon: Star },
+              { key: 'auctions' as const, label: 'Sealed-Bid Auctions', icon: Gavel },
+            ].map(tab => {
+              const Icon = tab.icon
+              const active = activeTab === tab.key
               return (
-                <ScrollReveal key={step.step} delay={i * 0.1}>
-                  <GlassCard className="!p-6 text-center">
-                    <div
-                      className={`w-12 h-12 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-${step.color}-500/10 border border-${step.color}-500/20`}
-                    >
-                      <Icon className={`w-5 h-5 text-${step.color}-400`} aria-hidden="true" />
-                    </div>
-                    <div
-                      className={`text-xs font-bold uppercase tracking-wider text-${step.color}-400 mb-1`}
-                    >
-                      Step {step.step}
-                    </div>
-                    <h3 className="text-white font-semibold mb-2">{step.title}</h3>
-                    <p className="text-xs text-white/80 leading-relaxed">{step.description}</p>
-                  </GlassCard>
-                </ScrollReveal>
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`relative flex items-center gap-2 px-5 py-4 text-sm font-medium transition-colors ${
+                    active ? 'text-white' : 'text-white/40 hover:text-white/70'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" aria-hidden="true" />
+                  {tab.label}
+                  {active && (
+                    <m.div
+                      layoutId="marketplace-tab"
+                      className="absolute inset-x-0 bottom-0 h-0.5 bg-violet-500 rounded-full"
+                      transition={spring.snappy}
+                    />
+                  )}
+                </button>
               )
             })}
           </div>
-
-          {/* Technical detail */}
-          <ScrollReveal delay={0.3}>
-            <div className="max-w-3xl mx-auto mt-8 p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
-              <div className="flex items-start gap-3">
-                <Hash className="w-5 h-5 text-white/60 mt-0.5 shrink-0" aria-hidden="true" />
-                <div>
-                  <p className="text-sm font-semibold text-white/70 mb-1">
-                    Privacy-Preserving Ratings
-                  </p>
-                  <p className="text-sm text-white/80 leading-relaxed">
-                    Each review is encrypted with a hidden counter so that ratings can be
-                    added together on-chain to produce an overall score, without anyone being
-                    able to see any individual rating. Your specific review remains permanently
-                    private -- only the combined result is visible.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </ScrollReveal>
         </Container>
       </section>
+
+      {/* ── Tab Content ────────────────────────────────────────────────── */}
+      <AnimatePresence mode="wait">
+        {activeTab === 'reputation' && (
+          <m.div
+            key="reputation"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={spring.gentle}
+          >
+            {/* How Reputation Works */}
+            <section className="py-12 sm:py-16">
+              <Container>
+                <ScrollReveal>
+                  <div className="text-center mb-12">
+                    <h2
+                      className="text-2xl sm:text-3xl font-bold text-white mb-4"
+                      style={LETTER_SPACING_STYLE}
+                    >
+                      Homomorphic Pedersen Reputation
+                    </h2>
+                    <p className="text-white/60 max-w-xl mx-auto text-sm">
+                      Private ratings, public trust. Individual reviews are combined via additive homomorphism
+                      without revealing any single rating.
+                    </p>
+                  </div>
+                </ScrollReveal>
+
+                <div className="max-w-3xl mx-auto grid gap-4 sm:grid-cols-3 mb-8">
+                  {REPUTATION_STEPS.map((step, i) => {
+                    const Icon = step.icon
+                    return (
+                      <ScrollReveal key={step.step} delay={i * 0.1}>
+                        <GlassCard className="!p-6 text-center">
+                          <div
+                            className={`w-12 h-12 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-${step.color}-500/10 border border-${step.color}-500/20`}
+                          >
+                            <Icon className={`w-5 h-5 text-${step.color}-400`} aria-hidden="true" />
+                          </div>
+                          <div
+                            className={`text-xs font-bold uppercase tracking-wider text-${step.color}-400 mb-1`}
+                          >
+                            Step {step.step}
+                          </div>
+                          <h3 className="text-white font-semibold mb-2">{step.title}</h3>
+                          <p className="text-xs text-white/60 leading-relaxed">{step.description}</p>
+                        </GlassCard>
+                      </ScrollReveal>
+                    )
+                  })}
+                </div>
+
+                {/* Cryptographic detail */}
+                <ScrollReveal delay={0.3}>
+                  <div className="max-w-3xl mx-auto p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
+                    <div className="flex items-start gap-3">
+                      <Hash className="w-5 h-5 text-white/60 mt-0.5 shrink-0" aria-hidden="true" />
+                      <div>
+                        <p className="text-sm font-semibold text-white/70 mb-1">
+                          Cryptographic Properties
+                        </p>
+                        <p className="text-sm text-white/60 leading-relaxed">
+                          commit(rating, blinding) = rating * G + blinding * H where G is the group generator
+                          and H = Poseidon2::hash_to_group(0). Commitments are perfectly hiding and computationally
+                          binding. The aggregate commitment equals the sum of individual commitments via additive
+                          homomorphism: commit(a,r1) + commit(b,r2) = commit(a+b, r1+r2).
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </ScrollReveal>
+              </Container>
+            </section>
+
+            {/* Interactive reputation sections */}
+            <section className="py-8 sm:py-12 border-t border-border/50">
+              <Container>
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <SubmitReviewSection />
+                  <ReputationLookupSection />
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-2 mt-6">
+                  <ProveReputationSection />
+                  <VerifyBadgeSection />
+                </div>
+              </Container>
+            </section>
+          </m.div>
+        )}
+
+        {activeTab === 'auctions' && (
+          <m.div
+            key="auctions"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={spring.gentle}
+          >
+            {/* How Sealed Bids Work */}
+            <section className="py-12 sm:py-16">
+              <Container>
+                <ScrollReveal>
+                  <div className="text-center mb-8">
+                    <h2
+                      className="text-2xl sm:text-3xl font-bold text-white mb-4"
+                      style={LETTER_SPACING_STYLE}
+                    >
+                      Sealed-Bid Content Auctions
+                    </h2>
+                    <p className="text-white/60 max-w-xl mx-auto text-sm">
+                      BHP256 commitment scheme with Vickrey (second-price) settlement. Bid amounts are hidden
+                      on-chain until the reveal phase. Losing bids stay private forever.
+                    </p>
+                  </div>
+                </ScrollReveal>
+
+                <div className="max-w-3xl mx-auto mb-8">
+                  <SealedBidExplainer />
+                </div>
+              </Container>
+            </section>
+
+            {/* Interactive auction sections */}
+            <section className="py-8 sm:py-12 border-t border-border/50">
+              <Container>
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <CreateAuctionSection />
+                  <PlaceBidSection />
+                </div>
+
+                <div className="mt-6">
+                  <AuctionManagementSection />
+                </div>
+              </Container>
+            </section>
+          </m.div>
+        )}
+      </AnimatePresence>
 
       {/* ── CTA ──────────────────────────────────────────────────────────── */}
       <section className="py-12 sm:py-20 border-t border-border/50">
@@ -195,13 +325,14 @@ export default function MarketplacePage() {
           <ScrollReveal>
             <div className="max-w-2xl mx-auto text-center">
               <h2
-                className="text-3xl sm:text-4xl font-bold text-white mb-4"
+                className="text-2xl sm:text-3xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
-                Join the Marketplace
+                Build Your Reputation
               </h2>
-              <p className="text-white/80 mb-8">
-                Build your reputation privately. Discover creators by trust, not by identity.
+              <p className="text-white/60 mb-8 text-sm">
+                Rate creators privately. Prove your reputation on-chain. Bid on premium content slots.
+                All backed by Pedersen commitments and BHP256 sealed bids on Aleo.
               </p>
               <div className="flex items-center justify-center gap-4 flex-wrap">
                 <Link href="/explore">
@@ -210,14 +341,37 @@ export default function MarketplacePage() {
                     <ArrowRight className="w-4 h-4" aria-hidden="true" />
                   </Button>
                 </Link>
-                <Link href="/governance">
+                <Link href="/docs">
                   <Button variant="secondary" size="lg" className="rounded-full">
-                    Governance
+                    Technical Docs
                   </Button>
                 </Link>
               </div>
             </div>
           </ScrollReveal>
+        </Container>
+      </section>
+
+      {/* ── Contract Details Footer ──────────────────────────────────────── */}
+      <section className="py-8 border-t border-border/50">
+        <Container>
+          <div className="grid gap-4 sm:grid-cols-3 text-center">
+            <div>
+              <p className="text-2xl font-bold text-white">9</p>
+              <p className="text-xs text-white/40">Transitions</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">14</p>
+              <p className="text-xs text-white/40">Mappings</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">3</p>
+              <p className="text-xs text-white/40">Record Types</p>
+            </div>
+          </div>
+          <div className="text-center mt-4">
+            <p className="text-xs text-white/30 font-mono">{MARKETPLACE_PROGRAM_ID}</p>
+          </div>
         </Container>
       </section>
     </PageTransition>

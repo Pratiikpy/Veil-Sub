@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { WalletMultiButton } from '@provablehq/aleo-wallet-adaptor-react-ui'
-import { Home, Compass, Bell, LayoutDashboard, CreditCard, BarChart3, Search, Settings, LogOut, FileText, MessageCircle } from 'lucide-react'
+import { Home, Compass, Bell, LayoutDashboard, CreditCard, BarChart3, Search, Settings, LogOut, FileText, MessageCircle, Sparkles, Handshake, KeyRound, Fingerprint } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useUnreadMessages } from '@/hooks/useUnreadMessages'
 
@@ -127,6 +127,38 @@ export default function DesktopSidebar() {
           <FileText size={18} strokeWidth={isActive('/docs') ? 2.5 : 2} aria-hidden="true" />
           Docs
         </Link>
+      </div>
+
+      {/* Ecosystem links — companion programs */}
+      <div className="px-3 pb-1">
+        <p className="px-3 pt-2 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-white/25">
+          Ecosystem
+        </p>
+        <div className="space-y-0.5">
+          {([
+            { href: '/extras', label: 'Extras', icon: Sparkles },
+            { href: '/collab', label: 'Collabs', icon: Handshake },
+            { href: '/access', label: 'Access', icon: KeyRound },
+            { href: '/identity', label: 'Identity', icon: Fingerprint },
+          ] as const).map((item) => {
+            const Icon = item.icon
+            const active = isActive(item.href)
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`group flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-semibold transition-all duration-150 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
+                  active
+                    ? 'text-white bg-white/[0.05]'
+                    : 'text-white/50 hover:text-white/80 hover:bg-white/[0.03]'
+                }`}
+              >
+                <Icon size={16} strokeWidth={active ? 2.5 : 2} aria-hidden="true" />
+                {item.label}
+              </Link>
+            )
+          })}
+        </div>
       </div>
 
       {/* Bottom section */}

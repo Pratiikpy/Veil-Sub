@@ -160,7 +160,7 @@ const SDK_FEATURES = [
   },
 ]
 
-// ─── 7 Programs Overview ────────────────────────────────────────────────────
+// ─── 11 Programs Overview ───────────────────────────────────────────────────
 
 const PROGRAMS = [
   {
@@ -170,6 +170,38 @@ const PROGRAMS = [
     features: 'Core subscriptions, tipping, content, access verification, stablecoin support',
     status: 'deployed' as const,
     explorerUrl: `https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`,
+  },
+  {
+    name: 'veilsub_extras_v2.aleo',
+    transitions: 2,
+    mappings: 7,
+    features: 'Anonymous reviews (Poseidon2 nullifiers), on-chain lottery (ChaCha::rand_u64)',
+    status: 'deployed' as const,
+    explorerUrl: 'https://testnet.aleoscan.io/program?id=veilsub_extras_v2.aleo',
+  },
+  {
+    name: 'veilsub_collab_v2.aleo',
+    transitions: 4,
+    mappings: 4,
+    features: 'Revenue splits, collaboration agreements, atomic payments via credits.aleo',
+    status: 'deployed' as const,
+    explorerUrl: 'https://testnet.aleoscan.io/program?id=veilsub_collab_v2.aleo',
+  },
+  {
+    name: 'veilsub_access_v2.aleo',
+    transitions: 5,
+    mappings: 4,
+    features: '"Login with VeilSub" -- tiered resource gating, access logs, pass revocation',
+    status: 'deployed' as const,
+    explorerUrl: 'https://testnet.aleoscan.io/program?id=veilsub_access_v2.aleo',
+  },
+  {
+    name: 'veilsub_identity_v2.aleo',
+    transitions: 4,
+    mappings: 6,
+    features: 'Content authorship (signature::verify), identity proofs, block.height notarization',
+    status: 'deployed' as const,
+    explorerUrl: 'https://testnet.aleoscan.io/program?id=veilsub_identity_v2.aleo',
   },
   {
     name: 'veilsub_governance_v1.aleo',
@@ -296,8 +328,8 @@ export default function DevelopersPage() {
             </h1>
 
             <p className="text-lg text-white/70 max-w-2xl mx-auto mb-8 leading-relaxed">
-              Add privacy-preserving access control to any Aleo application. 7 composable programs,
-              31+ transitions, 30+ mappings -- all field-hashed, zero addresses in finalize.
+              Add privacy-preserving access control to any Aleo application. 11 composable programs,
+              46+ transitions, 51+ mappings -- all field-hashed, zero addresses in finalize.
             </p>
 
             <div className="flex items-center justify-center gap-3 flex-wrap">
@@ -307,7 +339,7 @@ export default function DevelopersPage() {
               </div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-xs text-violet-400">
                 <Layers className="w-3 h-3" aria-hidden="true" />
-                7 programs
+                11 programs
               </div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400">
                 <Shield className="w-3 h-3" aria-hidden="true" />
@@ -416,7 +448,7 @@ export default function DevelopersPage() {
                 className="text-3xl sm:text-4xl font-bold text-white mb-4"
                 style={LETTER_SPACING_STYLE}
               >
-                7 Composable Programs
+                11 Composable Programs
               </h2>
               <p className="text-white/60 max-w-xl mx-auto">
                 VeilSub is a protocol ecosystem, not a single contract. Each program handles a
@@ -656,8 +688,8 @@ docker run -d veilsub/monitor:latest \\
 
           <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { icon: Activity, value: '31+', label: 'Transitions', color: 'violet' },
-              { icon: Database, value: '30+', label: 'Mappings', color: 'blue' },
+              { icon: Activity, value: '46+', label: 'Transitions', color: 'violet' },
+              { icon: Database, value: '51+', label: 'Mappings', color: 'blue' },
               { icon: GitBranch, value: '866+', label: 'Statements', color: 'emerald' },
               { icon: Eye, value: '0', label: 'Addresses in Finalize', color: 'amber' },
             ].map((stat, i) => {
@@ -688,7 +720,7 @@ docker run -d veilsub/monitor:latest \\
                     <strong className="text-violet-300">Layer 1</strong> (Blind Identity Rotation)
                     uses nonce-rotated Poseidon2 hashes.{' '}
                     <strong className="text-violet-300">Layer 2</strong> (Zero-Address Finalize)
-                    ensures all 30 mappings are field-keyed.{' '}
+                    ensures all 51+ mappings are field-keyed.{' '}
                     <strong className="text-violet-300">Layer 3</strong> (Selective Disclosure)
                     enables scoped audit tokens. When you build on VeilSub, your users inherit all
                     three layers automatically.

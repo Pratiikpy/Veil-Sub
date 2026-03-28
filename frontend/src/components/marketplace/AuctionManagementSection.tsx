@@ -1,0 +1,319 @@
+'use client'
+
+import { useState, useCallback, useEffect } from 'react'
+import { m, AnimatePresence } from 'framer-motion'
+import { spring } from '@/lib/motion'
+import {
+  Gavel,
+  Lock,
+  Unlock,
+  XCircle,
+  CheckCircle2,
+  Trophy,
+  Eye,
+  ArrowRight,
+  Loader2,
+} from 'lucide-react'
+import { toast } from 'sonner'
+import GlassCard from '@/components/GlassCard'
+import Button from '@/components/ui/Button'
+import { useContractExecute } from '@/hooks/useContractExecute'
+import { MARKETPLACE_PROGRAM_ID, MARKETPLACE_FEES, AUCTION_STATUS } from './constants'
+import type { AuctionData, StoredBid } from './constants'
+import { getBidsFromStorage, queryMapping, parseU64, parseU8 } from './helpers'
+import { AuctionStatusBadge } from './SharedComponents'
+import type { AuctionStatus } from './constants'
+
+export default function AuctionManagementSection() {
+  const { execute, connected } = useContractExecute()
+  const [auctionId, setAuctionId] = useState('')
+  const [winnerAddr, setWinnerAddr] = useState('')
+  const [submitting, setSubmitting] = useState<string | null>(null)
+  const [auctionData, setAuctionData] = useState<AuctionData | null>(null)
+  const [lookingUp, setLookingUp] = useState(false)
+  const [storedBids, setStoredBids] = useState<StoredBid[]>([])
+
+  useEffect(() => {
+    setStoredBids(getBidsFromStorage())
+  }, [])
+
+  const lookupAuction = useCallback(async () => {
+    if (!auctionId) return
+    setLookingUp(true)
+    try {
+      const idFormatted = auctionId.endsWith('field') ? auctionId : `${auctionId}field`
+      const [statusRaw, creatorRaw, bidCountRaw, highestRaw, secondRaw, winnerRaw] = await Promise.all([
+        queryMapping('auction_status', idFormatted),
+        queryMapping('auction_creator', idFormatted),
+        queryMapping('auction_bid_count', idFormatted),
+        queryMapping('auction_highest', idFormatted),
+        queryMapping('auction_second', idFormatted),
+        queryMapping('auction_winner', idFormatted),
+      ])
+
+      if (statusRaw === null) {
+        toast.error('Auction not found')
+        setAuctionData(null)
+        return
+      }
+
+      setAuctionData({
+        id: idFormatted,
+        label: `Auction ${idFormatted.slice(0, 12)}...`,
+        status: parseU8(statusRaw) as AuctionStatus,
+        creatorHash: creatorRaw?.replace(/"/g, '') || '0field',
+        bidCount: parseU64(bidCountRaw),
+        highest: parseU64(highestRaw),
+        second: parseU64(secondRaw),
+        winnerHash: winnerRaw?.replace(/"/g, '') || '0field',
+      })
+    } catch {
+      toast.error('Failed to query auction')
+    } finally {
+      setLookingUp(false)
+    }
+  }, [auctionId])
+
+  const handleAction = useCallback(async (action: string) => {
+    if (!connected) {
+      toast.error('Please connect your wallet')
+      return
+    }
+    const idFormatted = auctionId.endsWith('field') ? auctionId : `${auctionId}field`
+    setSubmitting(action)
+    try {
+      let txId: string | null = null
+
+      switch (action) {
+        case 'close': {
+          txId = await execute('close_bidding', [idFormatted], MARKETPLACE_FEES.CLOSE_BIDDING, MARKETPLACE_PROGRAM_ID)
+          if (txId) toast.success('Bidding closed! Bidders can now reveal their bids.')
+          break
+        }
+        case 'reveal': {
+          const bid = storedBids.find(b => b.auctionId === idFormatted)
+          if (!bid) {
+            toast.error('No stored bid found for this auction. You need the BidReceipt record from your wallet.')
+            break
+          }
+          toast.info('Reveal requires the BidReceipt record from your wallet. Use your wallet to execute reveal_bid directly.', { duration: 6000 })
+          break
+        }
+        case 'resolve': {
+          if (!winnerAddr) {
+            toast.error('Please enter the winner address')
+            break
+          }
+          txId = await execute('resolve_auction', [idFormatted, winnerAddr], MARKETPLACE_FEES.RESOLVE_AUCTION, MARKETPLACE_PROGRAM_ID)
+          if (txId) toast.success('Auction resolved! Winner determined via Vickrey (second-price) settlement.')
+          break
+        }
+        case 'cancel': {
+          txId = await execute('cancel_auction', [idFormatted], MARKETPLACE_FEES.CANCEL_AUCTION, MARKETPLACE_PROGRAM_ID)
+          if (txId) toast.success('Auction cancelled.')
+          break
+        }
+      }
+
+      if (txId) {
+        setTimeout(() => lookupAuction(), 3000)
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : `Failed to ${action}`
+      toast.error(msg)
+    } finally {
+      setSubmitting(null)
+    }
+  }, [connected, auctionId, winnerAddr, storedBids, execute, lookupAuction])
+
+  return (
+    <GlassCard className="!p-6 sm:!p-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/10 border border-amber-500/20">
+          <Gavel className="w-5 h-5 text-amber-400" aria-hidden="true" />
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-white">Manage Auction</h3>
+          <p className="text-xs text-white/50">Close bidding, reveal bids, resolve, or cancel</p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={auctionId}
+            onChange={e => { setAuctionId(e.target.value); setAuctionData(null) }}
+            placeholder="Auction ID (field)"
+            className="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/20"
+          />
+          <Button
+            variant="secondary"
+            className="rounded-xl shrink-0"
+            onClick={lookupAuction}
+            disabled={lookingUp || !auctionId}
+          >
+            {lookingUp ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
+          </Button>
+        </div>
+
+        <AnimatePresence>
+          {auctionData && (
+            <m.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={spring.gentle}
+              className="overflow-hidden"
+            >
+              <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-white/60">Status</span>
+                  <AuctionStatusBadge status={auctionData.status} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-white/60">Bids</span>
+                  <span className="text-sm font-semibold text-white">{auctionData.bidCount}</span>
+                </div>
+                {auctionData.status >= AUCTION_STATUS.CLOSED && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-white/60">Highest Revealed</span>
+                      <span className="text-sm font-mono text-white">
+                        {auctionData.highest > 0 ? `${auctionData.highest}` : '--'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-white/60">Second Price</span>
+                      <span className="text-sm font-mono text-white">
+                        {auctionData.second > 0 ? `${auctionData.second}` : '--'}
+                      </span>
+                    </div>
+                  </>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-white/60">Creator Hash</span>
+                  <span className="text-xs font-mono text-white/40 truncate max-w-[180px]">
+                    {auctionData.creatorHash}
+                  </span>
+                </div>
+
+                <div className="pt-3 border-t border-white/[0.06] space-y-2">
+                  {auctionData.status === AUCTION_STATUS.OPEN && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="rounded-xl"
+                        onClick={() => handleAction('close')}
+                        disabled={submitting !== null}
+                      >
+                        {submitting === 'close' ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Lock className="w-3 h-3" />
+                        )}
+                        Close Bidding
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="rounded-xl text-red-400 hover:text-red-300"
+                        onClick={() => handleAction('cancel')}
+                        disabled={submitting !== null}
+                      >
+                        {submitting === 'cancel' ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <XCircle className="w-3 h-3" />
+                        )}
+                        Cancel
+                      </Button>
+                    </div>
+                  )}
+
+                  {auctionData.status === AUCTION_STATUS.CLOSED && (
+                    <div className="space-y-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="w-full rounded-xl"
+                        onClick={() => handleAction('reveal')}
+                        disabled={submitting !== null}
+                      >
+                        {submitting === 'reveal' ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Unlock className="w-3 h-3" />
+                        )}
+                        Reveal My Bid
+                      </Button>
+                      <div>
+                        <input
+                          type="text"
+                          value={winnerAddr}
+                          onChange={e => setWinnerAddr(e.target.value)}
+                          placeholder="Winner address (aleo1...)"
+                          className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/20 mb-2"
+                        />
+                        <Button
+                          variant="accent"
+                          size="sm"
+                          className="w-full rounded-xl"
+                          onClick={() => handleAction('resolve')}
+                          disabled={submitting !== null || !winnerAddr}
+                        >
+                          {submitting === 'resolve' ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Trophy className="w-3 h-3" />
+                          )}
+                          Resolve Auction
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {auctionData.status === AUCTION_STATUS.RESOLVED && (
+                    <div className="text-center py-2">
+                      <p className="text-xs text-emerald-400 flex items-center justify-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" />
+                        Auction finalized
+                      </p>
+                      {auctionData.winnerHash !== '0field' && (
+                        <p className="text-xs text-white/40 mt-1 font-mono truncate">
+                          Winner: {auctionData.winnerHash}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </m.div>
+          )}
+        </AnimatePresence>
+
+        {storedBids.length > 0 && (
+          <div>
+            <p className="text-xs font-medium text-white/50 mb-2">Your Stored Bids</p>
+            <div className="space-y-2">
+              {storedBids.map(bid => (
+                <div
+                  key={bid.auctionId}
+                  className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] cursor-pointer hover:border-white/[0.12] transition-colors"
+                  onClick={() => setAuctionId(bid.auctionId)}
+                >
+                  <div className="min-w-0">
+                    <p className="text-xs font-mono text-white/60 truncate">{bid.auctionId}</p>
+                    <p className="text-xs text-white/30">Amount: {bid.amount} | {new Date(bid.timestamp).toLocaleDateString()}</p>
+                  </div>
+                  <ArrowRight className="w-3 h-3 text-white/20 shrink-0" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </GlassCard>
+  )
+}

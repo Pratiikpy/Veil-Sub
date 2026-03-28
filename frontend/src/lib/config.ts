@@ -2,6 +2,9 @@ export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v30.ale
 // v30: Full stablecoin support (USDCx + USAD), Pedersen commitments, BSP, 31 transitions, 30 mappings
 export const DEPLOYED_PROGRAM_ID = process.env.NEXT_PUBLIC_DEPLOYED_PROGRAM_ID || 'veilsub_v30.aleo'
 
+// Governance companion program (independently deployed)
+export const GOVERNANCE_PROGRAM_ID = 'veilsub_governance_v2.aleo'
+
 // Previous contract versions — AccessPass records from these programs still exist in user wallets.
 // The wallet adapter's requestRecords(programId) only returns records for that specific program,
 // so we must query each legacy version separately to find old subscriptions.
@@ -61,6 +64,12 @@ export const FEES = {
   TIP_USDCX: 400_000,              // 0.4 credits (transfer_private + CreatorReceipt + compliance)
   SUBSCRIBE_USAD: 500_000,         // 0.5 credits (transfer_private + AccessPass + CreatorReceipt + compliance)
   TIP_USAD: 400_000,               // 0.4 credits (transfer_private + CreatorReceipt + compliance)
+  // Governance transitions (veilsub_governance_v2.aleo)
+  GOV_CREATE_PROPOSAL: 300_000,    // 0.3 credits (finalize: initialize proposal + vote aggregates)
+  GOV_CAST_BALLOT: 300_000,        // 0.3 credits (Pedersen commitment + nullifier + finalize)
+  GOV_RESOLVE_PROPOSAL: 200_000,   // 0.2 credits (finalize: verify commitments + write tally)
+  GOV_CANCEL_PROPOSAL: 150_000,    // 0.15 credits (finalize: status update only)
+  GOV_VERIFY_TALLY: 150_000,       // 0.15 credits (finalize: read-only re-verification)
 } as const
 
 // 1 ALEO credit = 1,000,000 microcredits
