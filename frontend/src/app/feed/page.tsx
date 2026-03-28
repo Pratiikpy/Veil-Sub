@@ -827,6 +827,15 @@ export default function FeedPage() {
     }
   }, [connected, subscribedCreators.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Auto-refresh feed every 60 seconds when tab is visible
+  useEffect(() => {
+    if (!connected || subscribedCreators.length === 0) return
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') fetchFeed()
+    }, 60000)
+    return () => clearInterval(interval)
+  }, [connected, subscribedCreators.length, fetchFeed])
+
   // Fetch public/free posts for discovery when user has no subscriptions
   useEffect(() => {
     if (!connected || subscribedCreators.length > 0) {

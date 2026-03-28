@@ -750,6 +750,7 @@ export default function CreatorPage({
     return 'posts'
   })
   const [contentViewMode, setContentViewMode] = useState<'feed' | 'grid'>('feed')
+  const [contentRefreshKey, setContentRefreshKey] = useState(0)
   const [durationPeriod, setDurationPeriod] = useState<DurationPeriod>(1)
 
   // Sync hash on popstate (browser back/forward)
@@ -1266,6 +1267,7 @@ export default function CreatorPage({
                         connected={connected}
                         walletAddress={publicKey}
                         blockHeight={blockHeight}
+                        refreshKey={contentRefreshKey}
                         viewMode={contentViewMode}
                         onViewModeChange={setContentViewMode}
                       />
@@ -1396,7 +1398,7 @@ export default function CreatorPage({
           tier={selectedTier}
           creatorAddress={address}
           basePrice={basePrice}
-          onSuccess={() => { loadPasses(); refreshStats() }}
+          onSuccess={() => { loadPasses(); refreshStats(); setContentRefreshKey(k => k + 1) }}
           availableTiers={displayTiers}
           initialPeriods={durationPeriod}
         />
@@ -1414,7 +1416,7 @@ export default function CreatorPage({
           pass={renewPass}
           basePrice={basePrice}
           initialTierId={upgradeTierId}
-          onSuccess={() => { loadPasses(); refreshStats() }}
+          onSuccess={() => { loadPasses(); refreshStats(); setContentRefreshKey(k => k + 1) }}
         />
       )}
       {giftTier && (
@@ -1457,7 +1459,7 @@ export default function CreatorPage({
         isOpen={showRedeemGift}
         onClose={() => setShowRedeemGift(false)}
         creatorAddress={address}
-        onSuccess={() => { loadPasses(); refreshStats() }}
+        onSuccess={() => { loadPasses(); refreshStats(); setContentRefreshKey(k => k + 1) }}
       />
       {/* Mobile sticky subscribe bar — always visible on scroll */}
       {!isSubscribed && connected && (

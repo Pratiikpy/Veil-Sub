@@ -111,6 +111,17 @@ export function useTransactionFlow({
     return () => clearInterval(interval)
   }, [txStatus])
 
+  // Warn user before navigating away during active ZK proof / broadcast
+  useEffect(() => {
+    if (txStatus === 'idle' || txStatus === 'confirmed' || txStatus === 'failed') return
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [txStatus])
+
   const resetFlow = useCallback(() => {
     setTxStatus('idle')
     setTxId(null)

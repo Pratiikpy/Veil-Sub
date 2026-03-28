@@ -298,7 +298,9 @@ export function useContentFeed() {
         tags?: string[]
         scheduledAt?: string
       },
-      signFn: ((msg: Uint8Array) => Promise<Uint8Array>) | null = null
+      signFn: ((msg: Uint8Array) => Promise<Uint8Array>) | null = null,
+      /** The post's existing minTier — used as encryption tier when updates.minTier is omitted */
+      originalMinTier?: number
     ): Promise<ContentPost | null> => {
       try {
         const timestamp = Date.now()
@@ -321,7 +323,8 @@ export function useContentFeed() {
         }
 
         // E2E encrypt body and preview for tier-gated edits (non-draft, minTier >= 1)
-        const effectiveTier = updates.minTier ?? 1
+        // Use the explicitly provided minTier, fall back to the original post's tier, then 0 (free)
+        const effectiveTier = updates.minTier ?? originalMinTier ?? 0
         const effectiveStatus = updates.status ?? 'published'
         const encUpdates = { ...updates }
         if (effectiveTier >= 1 && effectiveStatus !== 'draft') {

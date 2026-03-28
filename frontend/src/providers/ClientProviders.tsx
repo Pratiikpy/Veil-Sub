@@ -1,9 +1,12 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import { LazyMotion, domAnimation, MotionConfig } from 'framer-motion'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
+import { clearMappingCache } from '@/hooks/useCreatorStats'
+import { clearAllTierCache } from '@/hooks/useCreatorTiers'
 import '@provablehq/aleo-wallet-adaptor-react-ui/dist/styles.css'
 
 // SSR-safe: wallet adapters access `window` in constructors — must be client-only.
@@ -20,10 +23,25 @@ const WelcomeOverlay = dynamic(
   { ssr: false }
 )
 
+/** Clears all module-level caches when the connected wallet changes */
+function WalletCacheClearer() {
+  const { address } = useWallet()
+  const prevKeyRef = useRef(address)
+  useEffect(() => {
+    if (prevKeyRef.current && prevKeyRef.current !== address) {
+      clearMappingCache()
+      clearAllTierCache()
+    }
+    prevKeyRef.current = address
+  }, [address])
+  return null
+}
+
 export function ClientProviders({ children }: { children: ReactNode }) {
   return (
     <ErrorBoundary componentName="WalletProvider">
       <WalletProvider>
+        <WalletCacheClearer />
         <LazyMotion features={domAnimation}>
           <MotionConfig reducedMotion="user">
             {children}

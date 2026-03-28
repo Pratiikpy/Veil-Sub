@@ -86,6 +86,13 @@ export default function SubscribeModal({
   const privacyGroupRef = useRef<HTMLDivElement>(null)
   useRovingTabIndex(privacyGroupRef)
 
+  // Force standard privacy mode when stablecoin is selected (blind/trial require ALEO credits)
+  useEffect(() => {
+    if (paymentToken !== 'credits' && privacyMode !== 'standard') {
+      setPrivacyMode('standard')
+    }
+  }, [paymentToken, privacyMode])
+
   // Dismiss lingering toasts when modal unmounts
   useEffect(() => {
     return () => { toast.dismiss('subscribe-optimistic') }
