@@ -88,8 +88,8 @@ export default function PaidMessagesSection() {
 
         setCreatorDMConfig({
           enabled: enabledText?.includes('true') ?? false,
-          price: priceText ? parseInt(priceText.replace(/[^0-9]/g, ''), 10) || 0 : 0,
-          minTier: tierText ? parseInt(tierText.replace(/[^0-9]/g, ''), 10) || 1 : 1,
+          price: priceText ? parseInt(priceText.replace(/"/g, '').replace(/u\d+$/,'').trim(), 10) || 0 : 0,
+          minTier: tierText ? parseInt(tierText.replace(/"/g, '').replace(/u\d+$/,'').trim(), 10) || 1 : 1,
         })
       } catch {
         setCreatorDMConfig(null)

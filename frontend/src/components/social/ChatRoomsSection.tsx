@@ -63,13 +63,13 @@ export default function ChatRoomsSection() {
               `/api/aleo/program/${SOCIAL_PROGRAM_ID}/mapping/chat_member_count/${hash}`
             )
             const memberText = memberRes.ok ? await memberRes.text() : '0'
-            const memberCount = parseInt(memberText.replace(/[^0-9]/g, ''), 10) || 0
+            const memberCount = parseInt(memberText.replace(/"/g, '').replace(/u\d+$/,'').trim(), 10) || 0
 
             const tierRes = await fetch(
               `/api/aleo/program/${SOCIAL_PROGRAM_ID}/mapping/chat_room_min_tier/${hash}`
             )
             const tierText = tierRes.ok ? await tierRes.text() : '1'
-            const minTier = parseInt(tierText.replace(/[^0-9]/g, ''), 10) || 1
+            const minTier = parseInt(tierText.replace(/"/g, '').replace(/u\d+$/,'').trim(), 10) || 1
 
             if (!cancelled) {
               foundRooms.push({ creatorHash: hash, roomId, minTier, memberCount, creatorAddress: addr })

@@ -62,8 +62,8 @@ export default function DMConfigSection() {
           ? await tierRes.value.text() : null
 
         const enabled = enabledText?.includes('true') ?? null
-        const price = priceText ? parseInt(priceText.replace(/[^0-9]/g, ''), 10) || 0 : 0
-        const minTier = tierText ? parseInt(tierText.replace(/[^0-9]/g, ''), 10) || 1 : 1
+        const price = priceText ? parseInt(priceText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10) || 0 : 0
+        const minTier = tierText ? parseInt(tierText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10) || 1 : 1
 
         setConfig({ enabled, price, minTier })
         setPriceInput(price > 0 ? (price / MICROCREDITS_PER_CREDIT).toString() : '')

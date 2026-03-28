@@ -60,7 +60,7 @@ export default function StoriesSection() {
           )
           if (!countRes.ok) continue
           const countText = await countRes.text()
-          const count = parseInt(countText.replace(/[^0-9]/g, ''), 10)
+          const count = parseInt(countText.replace(/"/g, '').replace(/u\d+$/,'').trim(), 10)
           if (!count || count <= 0) continue
 
           found.push({
