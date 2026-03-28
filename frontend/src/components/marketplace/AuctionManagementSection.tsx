@@ -27,7 +27,7 @@ import Button from '@/components/ui/Button'
 import { useContractExecute } from '@/hooks/useContractExecute'
 import { MARKETPLACE_PROGRAM_ID, MARKETPLACE_FEES, AUCTION_STATUS } from './constants'
 import type { AuctionData, StoredBid, AuctionStatus } from './constants'
-import { getBidsFromStorage, getAuctionsFromStorage, queryMapping, parseU64, parseU8 } from './helpers'
+import { getBidsFromStorage, getAuctionsFromStorage, getSharedAuctions, queryMapping, parseU64, parseU8 } from './helpers'
 import { AuctionStatusBadge } from './SharedComponents'
 import AuctionLifecycleStepper from './AuctionLifecycleStepper'
 import AuctionPrivacyDashboard from './AuctionPrivacyDashboard'
@@ -45,7 +45,7 @@ export default function AuctionManagementSection() {
   const [auctionData, setAuctionData] = useState<AuctionData | null>(null)
   const [lookingUp, setLookingUp] = useState(false)
   const [storedBids, setStoredBids] = useState<StoredBid[]>([])
-  const [storedAuctions, setStoredAuctions] = useState<{ id: string; label: string }[]>([])
+  const [storedAuctions, setStoredAuctions] = useState<{ id: string; label: string; creatorAddress?: string; createdAt?: string }[]>([])
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
   const [txError, setTxError] = useState<string | null>(null)
   const [lastTxId, setLastTxId] = useState<string | null>(null)
@@ -54,8 +54,46 @@ export default function AuctionManagementSection() {
 
   useEffect(() => {
     setStoredBids(getBidsFromStorage())
-    setStoredAuctions(getAuctionsFromStorage())
-  }, [])
+
+    // Merge local + shared localStorage + global Supabase registry
+    const local = getAuctionsFromStorage()
+    const shared = getSharedAuctions().map(a => ({
+      id: a.slotId,
+      label: a.label,
+      creatorAddress: a.creatorAddress,
+    }))
+
+    // Deduplicate by id
+    const seen = new Set<string>()
+    const merged: typeof storedAuctions = []
+    for (const a of [...local, ...shared]) {
+      if (!seen.has(a.id)) {
+        seen.add(a.id)
+        merged.push(a)
+      }
+    }
+    setStoredAuctions(merged)
+
+    // Fetch from global Supabase registry (best-effort)
+    fetch('/api/registry?type=auction')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!data?.entries?.length) return
+        setStoredAuctions(prev => {
+          const prevSeen = new Set(prev.map(a => a.id))
+          const additions = data.entries
+            .filter((e: { item_id: string }) => !prevSeen.has(e.item_id))
+            .map((e: { item_id: string; label: string | null; creator_address: string; created_at: string }) => ({
+              id: e.item_id,
+              label: e.label || `Auction ${e.item_id.slice(0, 12)}...`,
+              creatorAddress: e.creator_address,
+              createdAt: e.created_at,
+            }))
+          return additions.length > 0 ? [...prev, ...additions] : prev
+        })
+      })
+      .catch(() => { /* registry fetch failed — local data still available */ })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check URL params for shared auction ID
   useEffect(() => {
@@ -289,6 +327,9 @@ export default function AuctionManagementSection() {
                   >
                     <p className="text-xs font-medium text-white truncate">{auction.label}</p>
                     <p className="text-[10px] font-mono text-white/40 truncate">{auction.id}</p>
+                    {auction.creatorAddress && (
+                      <p className="text-[10px] text-white/30 truncate">by {auction.creatorAddress.slice(0, 12)}...{auction.creatorAddress.slice(-4)}</p>
+                    )}
                   </button>
                   <div className="flex items-center gap-1.5 shrink-0 ml-2">
                     <button

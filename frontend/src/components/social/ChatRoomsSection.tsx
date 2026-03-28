@@ -141,6 +141,32 @@ export default function ChatRoomsSection() {
         })
       }
 
+      // 3. Merge rooms from global Supabase registry (cross-device discovery)
+      try {
+        const regRes = await fetch('/api/registry?type=chat_room')
+        if (regRes.ok) {
+          const regData = await regRes.json()
+          if (regData?.entries) {
+            for (const entry of regData.entries) {
+              const roomIdMatch = entry.item_id?.match(/^room_(\d+)$/)
+              if (!roomIdMatch) continue
+              const roomId = parseInt(roomIdMatch[1], 10)
+              const key = `${entry.creator_address}-${roomId}`
+              if (seenKeys.has(key)) continue
+              seenKeys.add(key)
+              const meta = entry.metadata || {}
+              foundRooms.push({
+                creatorHash: meta.creatorHash || '',
+                roomId,
+                minTier: meta.minTier || 1,
+                memberCount: 0,
+                creatorAddress: entry.creator_address,
+              })
+            }
+          }
+        }
+      } catch { /* registry fetch failed — local data still available */ }
+
       if (!cancelled) {
         setRooms(foundRooms)
         setLoading(false)
@@ -191,6 +217,25 @@ export default function ChatRoomsSection() {
           minTier: newRoomMinTier,
           timestamp: Date.now(),
         })
+
+        // Save to global Supabase registry for cross-device discovery
+        try {
+          const regHash = await computeWalletHash(address || '')
+          await fetch('/api/registry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'chat_room',
+              creatorAddress: address,
+              itemId: `room_${roomIdNum}`,
+              label: `Chat Room #${roomIdNum}`,
+              metadata: { minTier: newRoomMinTier, creatorHash, txId },
+              walletAddress: address,
+              walletHash: regHash,
+              timestamp: Date.now(),
+            }),
+          })
+        } catch { /* best-effort registry save */ }
 
         toast.success('Chat room created! Room list will refresh after finalize.', { description: `Room #${roomIdNum} -- TX: ${txId.slice(0, 16)}...` })
 

@@ -168,6 +168,25 @@ export default function CreateAuctionSection() {
           timestamp: Date.now(),
         })
 
+        // Save to global Supabase registry so ALL users can discover this auction
+        try {
+          const regHash = await computeWalletHash(address || '')
+          await fetch('/api/registry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'auction',
+              creatorAddress: address,
+              itemId: slotIdFormatted,
+              label: auctionLabel,
+              metadata: { txId, status: 'open' },
+              walletAddress: address,
+              walletHash: regHash,
+              timestamp: Date.now(),
+            }),
+          })
+        } catch { /* best-effort registry save */ }
+
         setLastTxId(txId)
         setTxStatus('confirmed')
         toast.success('Auction created! See transaction details below.', {

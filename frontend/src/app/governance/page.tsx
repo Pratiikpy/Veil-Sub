@@ -36,6 +36,7 @@ import { useGovernance, getStatusLabel, getBallotSalt } from '@/hooks/useGoverna
 import type { Proposal } from '@/hooks/useGovernance'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { GOVERNANCE_PROGRAM_ID, FEES } from '@/lib/config'
+import { computeWalletHash } from '@/lib/utils'
 import type { TxStatus } from '@/types'
 
 // ─── Static styles ──────────────────────────────────────────────────────────
@@ -242,6 +243,26 @@ function CreateProposalForm({ onCreated }: CreateProposalFormProps) {
           localStorage.setItem(`veilsub_gov_desc_${pid}`, description.trim())
         } catch { /* ignore */ }
       }
+
+      // Save to global Supabase registry for cross-device discovery
+      try {
+        const regHash = await computeWalletHash(address)
+        await fetch('/api/registry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'proposal',
+            creatorAddress: address,
+            itemId: pid,
+            label: title.trim(),
+            metadata: { descriptionHash: dHash, description: description.trim().slice(0, 500) },
+            txId: result,
+            walletAddress: address,
+            walletHash: regHash,
+            timestamp: Date.now(),
+          }),
+        })
+      } catch { /* best-effort registry save */ }
 
       // Poll for confirmation
       startPolling(result, (pollResult) => {

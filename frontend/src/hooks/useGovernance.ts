@@ -205,7 +205,35 @@ export function useGovernance() {
 
       // Load locally-known proposal IDs
       const localProposals = loadLocalProposals()
-      const proposalIds = Object.keys(localProposals)
+      const proposalIdSet = new Set(Object.keys(localProposals))
+
+      // Also fetch proposal IDs from global Supabase registry (cross-device discovery)
+      try {
+        const regRes = await fetch('/api/registry?type=proposal')
+        if (regRes.ok) {
+          const regData = await regRes.json()
+          if (regData?.entries) {
+            for (const entry of regData.entries) {
+              if (entry.item_id && !proposalIdSet.has(entry.item_id)) {
+                proposalIdSet.add(entry.item_id)
+                // Also save to localStorage so they persist for next load
+                saveLocalProposal(entry.item_id, entry.label || `Proposal ${entry.item_id.slice(0, 12)}...`)
+                // Save description if available
+                if (entry.metadata?.description && typeof window !== 'undefined') {
+                  try {
+                    const descKey = `veilsub_gov_desc_${entry.item_id}`
+                    if (!localStorage.getItem(descKey)) {
+                      localStorage.setItem(descKey, entry.metadata.description)
+                    }
+                  } catch { /* ignore */ }
+                }
+              }
+            }
+          }
+        }
+      } catch { /* registry fetch failed — local data still available */ }
+
+      const proposalIds = Array.from(proposalIdSet)
 
       if (proposalIds.length === 0) {
         setProposals([])
