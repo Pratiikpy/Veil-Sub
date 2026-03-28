@@ -204,7 +204,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
       if (txId) {
         toast.info('Payment submitted. Waiting for on-chain confirmation...')
-        // Poll for confirmation before unlocking content
+        // Poll for confirmation before unlocking content.
+        // NOTE: Do NOT reset ppvPayingId/ppvPayingRef here — the polling
+        // callback handles cleanup when it gets a definitive result.
         startPpvPolling(txId, async (result) => {
           if (result.status === 'confirmed') {
             toast.success('PPV payment submitted! Unlocking content...')
@@ -261,14 +263,15 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
           setPpvPayingId(null)
           ppvPayingRef.current = false
         })
-        return // Don't clear ppvPayingId yet — polling callback handles it
+        // Polling is running — don't clear paying state in the outer scope
       } else {
         toast.error('PPV payment failed or was cancelled. Content not unlocked.')
+        setPpvPayingId(null)
+        ppvPayingRef.current = false
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Payment failed'
       toast.error(msg)
-    } finally {
       setPpvPayingId(null)
       ppvPayingRef.current = false
     }
@@ -1286,9 +1289,25 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                                 onClick={async () => {
                                   setDeletingId(post.id)
                                   try {
-                                    await deleteContent(post.contentId, post.contentId)
-                                    toast.success('Post deleted')
-                                    setPosts((prev) => prev.filter((p) => p.id !== post.id))
+                                    const txId = await deleteContent(post.contentId, post.contentId)
+                                    if (txId) {
+                                      // Optimistically remove from UI since the tx was accepted by wallet.
+                                      // Also delete from Redis (best-effort) so it disappears from feeds immediately.
+                                      toast.success('Post deletion submitted. It will be removed once confirmed on-chain.')
+                                      setPosts((prev) => prev.filter((p) => p.id !== post.id))
+                                      // Best-effort server-side cleanup (Redis post removal)
+                                      if (walletAddress) {
+                                        computeWalletHash(walletAddress).then(wh => {
+                                          fetch('/api/posts/delete', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ postId: post.id, contentId: post.contentId, walletAddress, walletHash: wh, timestamp: Date.now() }),
+                                          }).catch(() => { /* best-effort */ })
+                                        }).catch(() => { /* best-effort */ })
+                                      }
+                                    } else {
+                                      toast.error('Wallet rejected the deletion.')
+                                    }
                                   } catch {
                                     toast.error('Failed to delete post')
                                   } finally {

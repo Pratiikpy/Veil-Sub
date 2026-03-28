@@ -136,13 +136,23 @@ export function useTransactionFlow({
     onClose()
   }, [stopPolling, resetFlow, onClose])
 
-  // Escape key to close (uses ref to avoid stale closures)
+  // Escape key to close (uses ref to avoid stale closures).
+  // Blocked during active transactions (signing/proving/broadcasting) to prevent
+  // accidental interruption of ZK proof generation or broadcast.
   const handleCloseRef = useRef(handleClose)
   handleCloseRef.current = handleClose
   useEffect(() => {
     if (!isOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleCloseRef.current()
+      if (e.key === 'Escape') {
+        const current = txStatusRef.current
+        // Block Escape during active transaction phases
+        if (current === 'signing' || current === 'proving' || current === 'broadcasting') {
+          e.preventDefault()
+          return
+        }
+        handleCloseRef.current()
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)

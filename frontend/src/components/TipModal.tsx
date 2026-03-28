@@ -463,13 +463,32 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
         toast.warning('Could not verify public balance. Transaction may fail if fees are insufficient.')
       }
 
+      // Save salt to state immediately so it's available if the browser
+      // survives but the polling callback hasn't fired yet.
+      setSavedSalt(salt)
+      setSavedAmount(tipMicrocredits)
+
+      // Pre-save salt to localStorage BEFORE the tx fires.
+      // If the browser crashes during proving/broadcasting, the user can
+      // still recover the salt on next visit. The commitTxId is placeholder
+      // until we get the real one from the wallet.
+      try {
+        localStorage.setItem(PENDING_TIP_KEY, JSON.stringify({
+          salt,
+          amount: tipMicrocredits,
+          commitTxId: 'pending', // will be updated after tx confirms
+          creatorAddress,
+          timestamp: Date.now(),
+        }))
+      } catch {
+        // localStorage unavailable — salt stays in state only
+      }
+
       setTxStatus('proving')
       toast.dismiss('commit-tip')
       const id = await commitTip(creatorAddress, tipMicrocredits, salt)
 
       if (id) {
-        setSavedSalt(salt)
-        setSavedAmount(tipMicrocredits)
         setTxId(id)
         setTxStatus('broadcasting')
         startPolling(id, (result) => {
@@ -482,6 +501,10 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             toast.success('Tip committed! You can reveal it when ready.')
           } else if (result.status === 'failed') {
             setTxStatus('failed')
+            setSavedSalt(null)
+            setSavedAmount(0)
+            // Clean up pre-saved salt since the commit failed
+            try { localStorage.removeItem(PENDING_TIP_KEY) } catch { /* */ }
             setError('Commit failed on-chain.')
             toast.error('Tip commit couldn\u2019t be completed')
           } else if (result.status === 'timeout') {
@@ -497,11 +520,19 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
         })
       } else {
         setTxStatus('failed')
+        setSavedSalt(null)
+        setSavedAmount(0)
+        // Clean up pre-saved salt since wallet rejected
+        try { localStorage.removeItem(PENDING_TIP_KEY) } catch { /* */ }
         setError('Wallet didn\u2019t approve the transaction. Try again when ready.')
       }
     } catch (err) {
       toast.dismiss('commit-tip')
       setTxStatus('failed')
+      setSavedSalt(null)
+      setSavedAmount(0)
+      // Clean up pre-saved salt since commit threw
+      try { localStorage.removeItem(PENDING_TIP_KEY) } catch { /* */ }
       setError(getErrorMessage(err instanceof Error ? err.message : 'Commit failed'))
     } finally {
       submittingRef.current = false

@@ -365,6 +365,20 @@ export default function SettingsPage() {
   // Mounted flag for hydration safety
   const [mounted, setMounted] = useState(false)
 
+  // Track unsaved profile changes to warn on navigation
+  const [profileDirty, setProfileDirty] = useState(false)
+
+  // Warn before navigating away with unsaved profile changes
+  useEffect(() => {
+    if (!profileDirty) return
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [profileDirty])
+
   // ─── Clear profile fields on wallet disconnect ───────────────────────────
 
   useEffect(() => {
@@ -514,6 +528,7 @@ export default function SettingsPage() {
         sounds.success()
         clearCreatorCache()
         setProfileSaved(true)
+        setProfileDirty(false)
         setTimeout(() => setProfileSaved(false), 3000)
       } else {
         // Wait a tick for the error state to propagate from the hook
@@ -589,6 +604,7 @@ export default function SettingsPage() {
       // Show instant preview from local blob URL (like Twitter)
       const blobUrl = URL.createObjectURL(file)
       setImageUrl(blobUrl)
+      setProfileDirty(true)
       // Then upload to server and replace with permanent URL
       uploadImage(file, 2 * 1024 * 1024, (url) => {
         URL.revokeObjectURL(blobUrl)
@@ -604,6 +620,7 @@ export default function SettingsPage() {
       // Show instant preview from local blob URL
       const blobUrl = URL.createObjectURL(file)
       setCoverUrl(blobUrl)
+      setProfileDirty(true)
       // Then upload to server
       uploadImage(file, 5 * 1024 * 1024, (url) => {
         URL.revokeObjectURL(blobUrl)

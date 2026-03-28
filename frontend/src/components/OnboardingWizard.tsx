@@ -67,8 +67,46 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   const { createPost } = useContentFeed()
   const { startPolling, stopPolling } = useTransactionPoller()
 
+  // ── Wizard progress persistence ─────────────────────────────────────────
+  // Saves completed steps to localStorage so the user can resume if they
+  // close the browser mid-wizard (e.g., after registration but before tier).
+  const WIZARD_KEY = publicKey ? `veilsub_onboarding_${publicKey}` : null
+
+  function loadWizardProgress(): { step: number; regComplete: boolean; tierComplete: boolean } {
+    if (!WIZARD_KEY) return { step: 0, regComplete: false, tierComplete: false }
+    try {
+      const raw = localStorage.getItem(WIZARD_KEY)
+      if (!raw) return { step: 0, regComplete: false, tierComplete: false }
+      const data = JSON.parse(raw)
+      return {
+        step: typeof data.step === 'number' ? Math.min(data.step, STEPS.length - 1) : 0,
+        regComplete: !!data.regComplete,
+        tierComplete: !!data.tierComplete,
+      }
+    } catch {
+      return { step: 0, regComplete: false, tierComplete: false }
+    }
+  }
+
+  function saveWizardProgress(step: number, reg: boolean, tier: boolean) {
+    if (!WIZARD_KEY) return
+    try {
+      localStorage.setItem(WIZARD_KEY, JSON.stringify({ step, regComplete: reg, tierComplete: tier }))
+    } catch { /* localStorage full or unavailable */ }
+  }
+
+  function clearWizardProgress() {
+    if (!WIZARD_KEY) return
+    try { localStorage.removeItem(WIZARD_KEY) } catch { /* */ }
+  }
+
+  // Restore wizard progress on mount
+  const restored = useRef(false)
+  const initialProgress = (!restored.current && WIZARD_KEY) ? loadWizardProgress() : { step: 0, regComplete: false, tierComplete: false }
+  if (!restored.current) restored.current = true
+
   // Step state
-  const [currentStep, setCurrentStep] = useState(0)
+  const [currentStep, setCurrentStep] = useState(initialProgress.step)
 
   // Profile state (Step 2)
   const [displayName, setDisplayName] = useState('')
@@ -93,8 +131,8 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   const [regTxStatus, setRegTxStatus] = useState<TxStatus>('idle')
   const [tierTxStatus, setTierTxStatus] = useState<TxStatus>('idle')
   const [publishTxStatus, setPublishTxStatus] = useState<TxStatus>('idle')
-  const [regComplete, setRegComplete] = useState(false)
-  const [tierComplete, setTierComplete] = useState(false)
+  const [regComplete, setRegComplete] = useState(initialProgress.regComplete)
+  const [tierComplete, setTierComplete] = useState(initialProgress.tierComplete)
   const [publishComplete, setPublishComplete] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
 
@@ -197,6 +235,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
 
           toast.success("You're registered as a creator!")
           setRegComplete(true)
+          saveWizardProgress(2, true, false) // Save progress: registration done, moving to tier step
           submittingRef.current = false
           goNext()
         } else if (result.status === 'failed') {
@@ -209,6 +248,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           setRegTxStatus('confirmed')
           toast.success("You're registered as a creator! (confirmation was slow)")
           setRegComplete(true)
+          saveWizardProgress(2, true, false) // Save progress: registration done, moving to tier step
           submittingRef.current = false
           goNext()
         }
@@ -290,6 +330,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           }
 
           setTierComplete(true)
+          saveWizardProgress(3, true, true) // Save progress: tier done, moving to publish step
           submittingRef.current = false
           goNext()
         } else if (result.status === 'failed') {
@@ -302,6 +343,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           setTierTxStatus('confirmed')
           toast.success('Subscription tier created! (confirmation was slow)')
           setTierComplete(true)
+          saveWizardProgress(3, true, true) // Save progress: tier done, moving to publish step
           submittingRef.current = false
           goNext()
         }
@@ -359,6 +401,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           setPublishComplete(true)
           submittingRef.current = false
           setShowConfetti(true)
+          clearWizardProgress()
           confettiTimerRef.current = setTimeout(() => {
             onComplete()
           }, 2000)
@@ -374,6 +417,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
           setPublishComplete(true)
           submittingRef.current = false
           setShowConfetti(true)
+          clearWizardProgress()
           confettiTimerRef.current = setTimeout(() => {
             onComplete()
           }, 2000)
@@ -389,6 +433,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   // ── Skip publish and finish ──────────────────────────────────────────────
 
   const handleSkipPublish = useCallback(() => {
+    clearWizardProgress()
     onComplete()
   }, [onComplete])
 

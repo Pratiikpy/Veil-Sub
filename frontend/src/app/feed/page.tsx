@@ -653,6 +653,7 @@ export default function FeedPage() {
   const { getCreatorProfile } = useSupabase()
 
   const [passes, setPasses] = useState<AccessPass[]>([])
+  const [passesLoading, setPassesLoading] = useState(true)
   const [feedPosts, setFeedPosts] = useState<FeedPost[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -701,8 +702,10 @@ export default function FeedPage() {
   const fetchPasses = useCallback(async () => {
     if (!connected) {
       setPasses([])
+      setPassesLoading(false)
       return
     }
+    setPassesLoading(true)
     try {
       const rawPasses = await getAccessPasses()
       const parsed: AccessPass[] = []
@@ -713,6 +716,8 @@ export default function FeedPage() {
       setPasses(parsed)
     } catch {
       setPasses([])
+    } finally {
+      setPassesLoading(false)
     }
   }, [connected, getAccessPasses])
 
@@ -848,6 +853,9 @@ export default function FeedPage() {
   }, [subscribedCreators, getPostsForCreator])
 
   useEffect(() => {
+    // Don't decide feed state until passes finish loading — otherwise the
+    // "no subscriptions" empty state flashes before passes arrive.
+    if (passesLoading) return
     if (connected && subscribedCreators.length > 0) {
       fetchFeed()
     } else if (connected && passes.length > 0 && subscribedCreators.length === 0) {
@@ -857,7 +865,7 @@ export default function FeedPage() {
     } else if (connected) {
       setLoading(false)
     }
-  }, [connected, subscribedCreators.length]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [connected, passesLoading, subscribedCreators.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-refresh feed every 60 seconds when tab is visible
   useEffect(() => {

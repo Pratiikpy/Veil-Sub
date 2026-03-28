@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { AlertTriangle, ArrowRight, ExternalLink, Loader2, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
+import { parseMicrocredits } from '@/lib/utils'
 
 type ConvertStatus = 'idle' | 'converting' | 'waiting' | 'done' | 'failed'
 
@@ -19,12 +20,37 @@ export default function BalanceConverter({
   largestRecord = 0,
   onConverted,
 }: Props) {
-  const { convertPublicToPrivate, connected, publicKey } = useVeilSub()
+  const { convertPublicToPrivate, getCreditsRecords, connected, publicKey } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
   const [status, setStatus] = useState<ConvertStatus>('idle')
   const convertingRef = useRef(false)
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [publicBalance, setPublicBalance] = useState<number | null>(null)
+
+  // Poll wallet for the new record before calling onConverted.
+  // This prevents the chained action (subscribe/tip/renew) from failing
+  // because the wallet hasn't indexed the new private record yet.
+  const waitForRecordSync = useCallback(async (needed: number) => {
+    const MAX_RETRIES = 5
+    const INITIAL_DELAY = 3000
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      const delay = INITIAL_DELAY + attempt * 2000 // 3s, 5s, 7s, 9s, 11s
+      await new Promise(resolve => {
+        retryTimerRef.current = setTimeout(resolve, delay)
+      })
+      try {
+        const records = await getCreditsRecords()
+        const largest = records.length > 0 ? parseMicrocredits(records[0]) : 0
+        if (largest >= needed) {
+          return true // Record synced and sufficient
+        }
+      } catch {
+        // Wallet not ready yet, retry
+      }
+    }
+    return false // Gave up after retries
+  }, [getCreditsRecords])
 
   // Fetch public balance to check if conversion is possible
   useEffect(() => {
@@ -41,9 +67,12 @@ export default function BalanceConverter({
     return () => controller.abort()
   }, [publicKey])
 
-  // Cleanup poller on unmount (e.g. if modal closes during conversion)
+  // Cleanup poller and retry timer on unmount (e.g. if modal closes during conversion)
   useEffect(() => {
-    return () => stopPolling()
+    return () => {
+      stopPolling()
+      if (retryTimerRef.current) clearTimeout(retryTimerRef.current)
+    }
   }, [stopPolling])
 
   const requiredDisplay = Number.isFinite(requiredAmount) && requiredAmount > 0
@@ -70,15 +99,21 @@ export default function BalanceConverter({
       }
 
       setStatus('waiting')
-      startPolling(txId, (result) => {
+      startPolling(txId, async (result) => {
         if (result.status === 'confirmed') {
           setStatus('done')
-          // Wait for wallet to sync new private record before proceeding
-          // Shield Wallet needs 5-8 seconds to index new records after conversion
-          toast.info('Credits converted! Syncing wallet records...', { duration: 6000 })
-          setTimeout(() => {
+          toast.info('Credits converted! Syncing wallet records...', { duration: 8000 })
+          // Poll for the new record instead of using a fixed delay.
+          // This ensures the chained action has a sufficient record available.
+          const synced = await waitForRecordSync(requiredAmount)
+          if (synced) {
             onConverted?.()
-          }, 6000)
+          } else {
+            // Records didn't sync in time — still call onConverted so the
+            // chained action can attempt (its own checkBalance will retry too)
+            toast.warning('Wallet sync is slow. Retrying the action — this may take a moment.', { duration: 6000 })
+            onConverted?.()
+          }
         } else if (result.status === 'failed') {
           setStatus('failed')
           setError('Conversion couldn\u2019t be completed on-chain. Check your balance and try again.')
@@ -86,10 +121,14 @@ export default function BalanceConverter({
           // Shield Wallet delegates proving and never reports 'confirmed' —
           // the transaction IS broadcast, so treat timeout as likely success.
           setStatus('done')
-          toast.info('Conversion likely succeeded. Syncing wallet records...', { duration: 8000 })
-          setTimeout(() => {
+          toast.info('Conversion likely succeeded. Syncing wallet records...', { duration: 10000 })
+          const synced = await waitForRecordSync(requiredAmount)
+          if (synced) {
             onConverted?.()
-          }, 8000)
+          } else {
+            toast.warning('Wallet sync is slow. Retrying the action — this may take a moment.', { duration: 6000 })
+            onConverted?.()
+          }
         }
       })
     } catch (err) {
