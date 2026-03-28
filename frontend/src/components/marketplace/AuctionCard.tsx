@@ -148,6 +148,7 @@ export default function AuctionCard({
       )
 
       if (txId) {
+        // Save bid locally (needed for reveal phase even if TX fails)
         saveBidToStorage({
           auctionId: formattedId,
           amount: amountNum,
@@ -156,11 +157,39 @@ export default function AuctionCard({
           timestamp: Date.now(),
         })
         setLastTxId(txId)
-        setTxStatus('confirmed')
-        toast.success('Sealed bid submitted! Your bid amount is hidden on-chain.')
-        setBidAmount('')
-        setBidExpanded(false)
-        onStatusChange?.()
+
+        // Verify on-chain by polling bid_count (increases if bid was accepted)
+        toast.info('Bid submitted! Verifying on-chain (~15-30s)...', { duration: 15000 })
+        setTxStatus('pending')
+
+        const prevBidCount = auction.bidCount
+        let verified = false
+        for (let i = 0; i < 10; i++) {
+          await new Promise(r => setTimeout(r, 5000))
+          try {
+            const countRes = await fetch(`/api/aleo/program/${MARKETPLACE_PROGRAM_ID}/mapping/auction_bid_count/${formattedId}`)
+            if (countRes.ok) {
+              const raw = await countRes.text()
+              const newCount = parseInt(raw.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+              if (!isNaN(newCount) && newCount > prevBidCount) {
+                verified = true
+                break
+              }
+            }
+          } catch { /* retry */ }
+        }
+
+        if (verified) {
+          setTxStatus('confirmed')
+          toast.success('Bid confirmed on-chain! Your bid amount is sealed.', { duration: 6000 })
+          setBidAmount('')
+          setBidExpanded(false)
+          onStatusChange?.()
+        } else {
+          setTxStatus('failed')
+          setTxError('Bid may have been rejected on-chain. Common reasons: (1) You already bid on this auction. (2) Auction is not open. (3) Insufficient balance. Check AleoScan to verify.')
+          toast.error('Bid verification failed — may have been rejected on-chain.')
+        }
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to place bid'
