@@ -81,7 +81,11 @@ const templateColors: Record<string, { bg: string; border: string; text: string;
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function CreateAuctionSection() {
+interface CreateAuctionSectionProps {
+  onCreated?: () => void
+}
+
+export default function CreateAuctionSection({ onCreated }: CreateAuctionSectionProps = {}) {
   const { execute, connected, address } = useContractExecute()
   const [slotLabel, setSlotLabel] = useState('')
   const [contentSlotId, setContentSlotId] = useState('')
@@ -251,6 +255,8 @@ export default function CreateAuctionSection() {
         toast.success('Auction submitted! Extracting on-chain auction ID...', {
           duration: 8000,
         })
+        // Trigger immediate parent refresh so card appears in "Your Auctions"
+        onCreated?.()
 
         // Start polling to extract the real auction_id from the confirmed TX output.
         // The Provable API takes ~15-60s to confirm the transaction. Once confirmed,
@@ -289,6 +295,8 @@ export default function CreateAuctionSection() {
                 'Auction ID extracted! Share this with bidders.',
                 { duration: 6000 }
               )
+              // Notify parent that auction was created
+              onCreated?.()
               // Auto-announce auction in creator's feed with the real auction ID
               if (address) {
                 try {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { m, AnimatePresence } from 'framer-motion'
 import { spring } from '@/lib/motion'
@@ -17,6 +17,11 @@ import {
   Lock,
   Eye,
   Trophy,
+  Plus,
+  ChevronDown,
+  ChevronUp,
+  RefreshCw,
+  Loader2 as Spinner,
 } from 'lucide-react'
 import Link from 'next/link'
 import GlassCard from '@/components/GlassCard'
@@ -27,100 +32,17 @@ import Container from '@/components/ui/Container'
 import Button from '@/components/ui/Button'
 import { useContractExecute } from '@/hooks/useContractExecute'
 import { HERO_GLOW_STYLE, TITLE_STYLE as LETTER_SPACING_STYLE } from '@/lib/styles'
-import { MARKETPLACE_PROGRAM_ID } from '@/components/marketplace/constants'
+import { MARKETPLACE_PROGRAM_ID, AUCTION_STATUS } from '@/components/marketplace/constants'
+import type { AuctionStatus } from '@/components/marketplace/constants'
 import SubmitReviewSection from '@/components/marketplace/SubmitReviewSection'
 import ReputationLookupSection from '@/components/marketplace/ReputationLookupSection'
 import ProveReputationSection from '@/components/marketplace/ProveReputationSection'
 import VerifyBadgeSection from '@/components/marketplace/VerifyBadgeSection'
 import CreateAuctionSection from '@/components/marketplace/CreateAuctionSection'
-import PlaceBidSection from '@/components/marketplace/PlaceBidSection'
-import AuctionManagementSection from '@/components/marketplace/AuctionManagementSection'
 import SealedBidExplainer from '@/components/marketplace/SealedBidExplainer'
-import AddressAvatar from '@/components/ui/AddressAvatar'
-import { useCallback } from 'react'
-import { shortenAddress } from '@/lib/utils'
-import { Loader2 as Spinner } from 'lucide-react'
-
-// ─── Live Auctions Browse (fetches from global Supabase registry) ────────────
-
-function LiveAuctionsBrowse({ onSelectAuction }: { onSelectAuction: (id: string) => void }) {
-  const [auctions, setAuctions] = useState<{ id: string; creator_address: string; item_id: string; label: string; tx_id?: string; created_at: string }[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    let cancelled = false
-    fetch('/api/registry?type=auction')
-      .then(r => r.ok ? r.json() : { entries: [] })
-      .then(data => {
-        if (!cancelled) setAuctions(data.entries || [])
-      })
-      .catch(() => {})
-      .finally(() => { if (!cancelled) setLoading(false) })
-    return () => { cancelled = true }
-  }, [])
-
-  const handleBid = useCallback((auction: typeof auctions[0]) => {
-    onSelectAuction(auction.item_id)
-    // Scroll to bid section
-    setTimeout(() => {
-      document.querySelector('[data-section="place-bid"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }, 200)
-  }, [onSelectAuction])
-
-  if (loading) {
-    return (
-      <section className="py-8 border-t border-border/50">
-        <Container>
-          <div className="flex items-center gap-2 text-white/50 text-sm"><Spinner className="w-4 h-4 animate-spin" /> Loading live auctions...</div>
-        </Container>
-      </section>
-    )
-  }
-
-  if (auctions.length === 0) return null // Don't show section if no auctions exist
-
-  return (
-    <section className="py-8 sm:py-12 border-t border-border/50">
-      <Container>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-            <Gavel className="w-5 h-5 text-amber-400" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-white">Live Auctions</h2>
-            <p className="text-xs text-white/50">{auctions.length} auction{auctions.length !== 1 ? 's' : ''} from creators on VeilSub</p>
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {auctions.map((auction) => (
-            <div
-              key={auction.id}
-              className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/20 hover:bg-amber-500/[0.02] transition-all group"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <AddressAvatar address={auction.creator_address} size={32} />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-white truncate">{auction.label || 'Sealed-Bid Auction'}</p>
-                  <p className="text-xs text-white/50">{shortenAddress(auction.creator_address)}</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] text-white/40">{new Date(auction.created_at).toLocaleDateString()}</span>
-                <button
-                  onClick={() => handleBid(auction)}
-                  className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs font-medium text-amber-400 hover:bg-amber-500/20 transition-colors"
-                >
-                  Place Bid →
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Container>
-    </section>
-  )
-}
+import AuctionCard from '@/components/marketplace/AuctionCard'
+import type { AuctionCardData } from '@/components/marketplace/AuctionCard'
+import { queryMapping, parseU64, parseU8, getBidsFromStorage } from '@/components/marketplace/helpers'
 
 // ─── How Reputation Works Steps ──────────────────────────────────────────────
 
@@ -151,6 +73,349 @@ const REPUTATION_STEPS = [
   },
 ]
 
+// ─── Live Auctions Section (card-based) ──────────────────────────────────────
+
+interface RegistryEntry {
+  id: string
+  creator_address: string
+  item_id: string
+  label: string
+  tx_id?: string
+  created_at: string
+  metadata?: {
+    auctionId?: string
+    status?: string
+    slotId?: string
+    txId?: string
+  }
+}
+
+function LiveAuctionsSection({ refreshKey }: { refreshKey: number }) {
+  const { connected, address } = useContractExecute()
+  const [auctions, setAuctions] = useState<AuctionCardData[]>([])
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const storedBids = getBidsFromStorage()
+
+  const fetchAuctions = useCallback(async (showRefreshState = false) => {
+    if (showRefreshState) setRefreshing(true)
+    else setLoading(true)
+
+    try {
+      const res = await fetch('/api/registry?type=auction')
+      if (!res.ok) {
+        setAuctions([])
+        return
+      }
+      const data = await res.json()
+      const entries: RegistryEntry[] = data.entries || []
+
+      // For each registry entry with an auctionId, query on-chain status
+      const enriched = await Promise.allSettled(
+        entries
+          .filter(e => e.metadata?.auctionId)
+          .map(async (entry): Promise<AuctionCardData> => {
+            const auctionId = entry.metadata!.auctionId!
+            const idFormatted = auctionId.endsWith('field') ? auctionId : `${auctionId}field`
+
+            // Query on-chain data in parallel
+            const [statusRaw, bidCountRaw, highestRaw, secondRaw, winnerRaw] = await Promise.all([
+              queryMapping('auction_status', idFormatted),
+              queryMapping('auction_bid_count', idFormatted),
+              queryMapping('auction_highest', idFormatted),
+              queryMapping('auction_second', idFormatted),
+              queryMapping('auction_winner', idFormatted),
+            ])
+
+            return {
+              auctionId,
+              label: entry.label || 'Sealed-Bid Auction',
+              creatorAddress: entry.creator_address,
+              status: (statusRaw !== null ? parseU8(statusRaw) : 0) as AuctionStatus,
+              bidCount: parseU64(bidCountRaw),
+              highest: parseU64(highestRaw),
+              second: parseU64(secondRaw),
+              winnerHash: winnerRaw?.replace(/"/g, '') || '0field',
+              createdAt: entry.created_at,
+            }
+          })
+      )
+
+      const results = enriched
+        .filter((r): r is PromiseFulfilledResult<AuctionCardData> => r.status === 'fulfilled')
+        .map(r => r.value)
+
+      // Also include registry entries that don't have on-chain auctionId yet
+      // (still confirming) with basic data
+      const onChainIds = new Set(results.map(r => r.auctionId))
+      const pendingEntries = entries
+        .filter(e => !e.metadata?.auctionId || !onChainIds.has(e.metadata.auctionId))
+        .filter(e => e.item_id) // Must have some ID
+        .map((entry): AuctionCardData => ({
+          auctionId: entry.metadata?.auctionId || entry.item_id,
+          label: entry.label || 'Sealed-Bid Auction',
+          creatorAddress: entry.creator_address,
+          status: AUCTION_STATUS.OPEN,
+          bidCount: 0,
+          highest: 0,
+          second: 0,
+          winnerHash: '0field',
+          createdAt: entry.created_at,
+        }))
+
+      // Deduplicate by auctionId
+      const seen = new Set<string>()
+      const merged: AuctionCardData[] = []
+      for (const a of [...results, ...pendingEntries]) {
+        if (!seen.has(a.auctionId)) {
+          seen.add(a.auctionId)
+          merged.push(a)
+        }
+      }
+
+      setAuctions(merged)
+    } catch {
+      // Best effort
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchAuctions()
+  }, [fetchAuctions, refreshKey])
+
+  const handleRefresh = useCallback(() => {
+    fetchAuctions(true)
+  }, [fetchAuctions])
+
+  // Split into "Your Auctions" and "Other Auctions"
+  const myAuctions = connected && address
+    ? auctions.filter(a => a.creatorAddress === address)
+    : []
+  const otherAuctions = connected && address
+    ? auctions.filter(a => a.creatorAddress !== address)
+    : auctions
+
+  if (loading) {
+    return (
+      <section className="py-8 sm:py-12 border-t border-border/50">
+        <Container>
+          <div className="flex items-center gap-2 text-white/50 text-sm">
+            <Spinner className="w-4 h-4 animate-spin" />
+            Loading live auctions...
+          </div>
+        </Container>
+      </section>
+    )
+  }
+
+  return (
+    <>
+      {/* ── Live Auctions ──────────────────────────────────────────────── */}
+      <section className="py-8 sm:py-12 border-t border-border/50">
+        <Container>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <Gavel className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-white">Live Auctions</h2>
+                <p className="text-xs text-white/50">
+                  {auctions.length} auction{auctions.length !== 1 ? 's' : ''} from creators on VeilSub
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="p-2 rounded-lg text-white/40 hover:text-white/60 hover:bg-white/[0.04] transition-all disabled:opacity-40"
+              title="Refresh auctions"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
+
+          {auctions.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center">
+                <Gavel className="w-7 h-7 text-white/20" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">No Auctions Yet</h3>
+              <p className="text-sm text-white/50 max-w-md mx-auto mb-4">
+                Be the first to create a sealed-bid auction. Bid amounts stay hidden
+                via BHP256 commitments. Settlement uses Vickrey (second-price) for truthful bidding.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {otherAuctions.map((auction) => (
+                <AuctionCard
+                  key={auction.auctionId}
+                  auction={auction}
+                  isCreator={false}
+                  currentAddress={address || null}
+                  onStatusChange={handleRefresh}
+                />
+              ))}
+              {otherAuctions.length === 0 && myAuctions.length > 0 && (
+                <p className="text-sm text-white/40 col-span-full text-center py-4">
+                  No auctions from other creators yet. Share your auction URL with bidders.
+                </p>
+              )}
+            </div>
+          )}
+        </Container>
+      </section>
+
+      {/* ── Your Auctions (only shown if user has auctions) ────────────── */}
+      {myAuctions.length > 0 && (
+        <section className="py-8 sm:py-12 border-t border-border/50">
+          <Container>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                <Trophy className="w-5 h-5 text-violet-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-white">Your Auctions</h2>
+                <p className="text-xs text-white/50">
+                  Manage auctions you created -- close bidding, resolve winners
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {myAuctions.map((auction) => (
+                <AuctionCard
+                  key={auction.auctionId}
+                  auction={auction}
+                  isCreator={true}
+                  currentAddress={address || null}
+                  onStatusChange={handleRefresh}
+                />
+              ))}
+            </div>
+          </Container>
+        </section>
+      )}
+
+      {/* ── Your Bids (show bids user placed) ──────────────────────────── */}
+      {storedBids.length > 0 && (
+        <section className="py-6 border-t border-border/50">
+          <Container>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                <Lock className="w-4 h-4 text-blue-400" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-white">Your Sealed Bids</h3>
+                <p className="text-[10px] text-white/40">{storedBids.length} bid{storedBids.length !== 1 ? 's' : ''} stored locally</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {storedBids.map((bid) => {
+                // Try to find this auction in the live list
+                const matchedAuction = auctions.find(a => {
+                  const fmtId = a.auctionId.endsWith('field') ? a.auctionId : `${a.auctionId}field`
+                  return fmtId === bid.auctionId || a.auctionId === bid.auctionId
+                })
+
+                return (
+                  <div
+                    key={bid.auctionId}
+                    className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.12] transition-colors"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium text-white truncate">
+                        {matchedAuction?.label || 'Auction'}
+                      </p>
+                      <p className="text-[10px] text-white/40">
+                        Amount: {bid.amount} | {new Date(bid.timestamp).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="shrink-0 ml-2">
+                      {matchedAuction?.status === AUCTION_STATUS.CLOSED ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[10px] font-medium text-amber-400">
+                          <Eye className="w-2.5 h-2.5" />
+                          Ready to Reveal
+                        </span>
+                      ) : matchedAuction?.status === AUCTION_STATUS.RESOLVED ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[10px] font-medium text-blue-400">
+                          Resolved
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-medium text-emerald-400">
+                          <Lock className="w-2.5 h-2.5" />
+                          Sealed
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </Container>
+        </section>
+      )}
+    </>
+  )
+}
+
+// ─── Create Auction Section (collapsible) ────────────────────────────────────
+
+function CollapsibleCreateSection({ onAuctionCreated }: { onAuctionCreated: () => void }) {
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <section className="py-8 sm:py-12 border-t border-border/50">
+      <Container>
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-violet-500/20 hover:bg-violet-500/[0.02] transition-all group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+              <Plus className="w-5 h-5 text-violet-400" />
+            </div>
+            <div className="text-left">
+              <h3 className="text-sm font-semibold text-white group-hover:text-violet-300 transition-colors">
+                Create New Auction
+              </h3>
+              <p className="text-xs text-white/50">
+                Open a sealed-bid auction for a premium content slot
+              </p>
+            </div>
+          </div>
+          {expanded ? (
+            <ChevronUp className="w-5 h-5 text-white/40" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-white/40" />
+          )}
+        </button>
+
+        <AnimatePresence>
+          {expanded && (
+            <m.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={spring.gentle}
+              className="overflow-hidden"
+            >
+              <div className="mt-4">
+                <CreateAuctionSection onCreated={onAuctionCreated} />
+              </div>
+            </m.div>
+          )}
+        </AnimatePresence>
+      </Container>
+    </section>
+  )
+}
+
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function MarketplacePage() {
@@ -158,15 +423,18 @@ export default function MarketplacePage() {
   const searchParams = useSearchParams()
   const auctionParam = searchParams.get('auction')
   const [activeTab, setActiveTab] = useState<'reputation' | 'auctions'>(auctionParam ? 'auctions' : 'reputation')
-  const [prefillAuctionId, setPrefillAuctionId] = useState<string | null>(auctionParam)
+  const [auctionRefreshKey, setAuctionRefreshKey] = useState(0)
 
-  // If URL has ?auction=XYZ, switch to auctions tab and prefill
+  // If URL has ?auction=XYZ, switch to auctions tab
   useEffect(() => {
     if (auctionParam) {
       setActiveTab('auctions')
-      setPrefillAuctionId(auctionParam)
     }
   }, [auctionParam])
+
+  const handleAuctionCreated = useCallback(() => {
+    setAuctionRefreshKey(k => k + 1)
+  }, [])
 
   return (
     <PageTransition className="min-h-screen">
@@ -400,7 +668,7 @@ export default function MarketplacePage() {
                   <SealedBidExplainer />
                 </div>
 
-                {/* Vickrey Explainer — inspired by Obscura's /learn page */}
+                {/* Vickrey Explainer */}
                 <ScrollReveal delay={0.2}>
                   <div className="max-w-3xl mx-auto">
                     <div className="rounded-2xl bg-white/[0.02] border border-white/[0.06] overflow-hidden">
@@ -442,7 +710,7 @@ export default function MarketplacePage() {
                   </div>
                 </ScrollReveal>
 
-                {/* Privacy Stats Bar — inspired by Obscura's privacy wall */}
+                {/* Privacy Stats Bar */}
                 <ScrollReveal delay={0.3}>
                   <div className="max-w-3xl mx-auto mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {[
@@ -465,22 +733,11 @@ export default function MarketplacePage() {
               </Container>
             </section>
 
-            {/* Live Auctions Browse — global discovery from Supabase registry */}
-            <LiveAuctionsBrowse onSelectAuction={(id) => setPrefillAuctionId(id)} />
+            {/* ── Live Auctions + Your Auctions + Your Bids (card-based) ── */}
+            <LiveAuctionsSection refreshKey={auctionRefreshKey} />
 
-            {/* Interactive auction sections */}
-            <section className="py-8 sm:py-12 border-t border-border/50">
-              <Container>
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <CreateAuctionSection />
-                  <PlaceBidSection initialAuctionId={prefillAuctionId} />
-                </div>
-
-                <div className="mt-6">
-                  <AuctionManagementSection />
-                </div>
-              </Container>
-            </section>
+            {/* ── Create Auction (collapsible, at bottom) ─────────────── */}
+            <CollapsibleCreateSection onAuctionCreated={handleAuctionCreated} />
           </m.div>
         )}
       </AnimatePresence>
