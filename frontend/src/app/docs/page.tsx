@@ -74,7 +74,7 @@ const HERO_STATS = [
   { label: 'Mappings', value: '29', color: 'text-blue-400' },
   { label: 'Records', value: '6', color: 'text-emerald-400' },
   { label: 'Structs', value: '5', color: 'text-amber-400' },
-  { label: 'Tests', value: '341', color: 'text-pink-400' },
+  { label: 'Tests', value: '342', color: 'text-pink-400' },
 ]
 
 const TRANSITION_GROUPS: TransitionGroupData[] = [
