@@ -1228,14 +1228,40 @@ export default function GovernancePage() {
               <ProposalSkeleton />
             </div>
           ) : proposals.length === 0 ? (
-            <div className="text-center py-16">
-              <Vote className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
-              <h3 className="text-lg font-semibold text-white mb-2">No proposals yet</h3>
-              <p className="text-sm text-white/50 max-w-sm mx-auto">
-                {connected
-                  ? 'Be the first to create a governance proposal. Click "Create Proposal" above.'
-                  : 'Connect your wallet to create or vote on governance proposals.'}
-              </p>
+            <div className="space-y-6">
+              {/* Show known proposal count from on-chain stats even when no local data */}
+              {stats.totalProposals > 0 && (
+                <div className="p-5 rounded-2xl bg-gradient-to-b from-violet-500/[0.04] to-transparent border border-violet-500/10">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                      <Eye className="w-4 h-4 text-violet-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-white">
+                        {stats.totalProposals} Proposal{stats.totalProposals !== 1 ? 's' : ''} On-Chain
+                      </h3>
+                      <p className="text-[11px] text-white/50">
+                        {stats.totalBallots} ballot{stats.totalBallots !== 1 ? 's' : ''} cast across all proposals
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-white/60 leading-relaxed">
+                    On-chain proposals use Poseidon2 hashed IDs that cannot be enumerated.
+                    Proposals you create from this browser are tracked locally and will appear here.
+                    If you created proposals from another device, the proposal ID can be looked up
+                    manually using the governance contract&apos;s <span className="font-mono text-violet-300">proposals</span> mapping.
+                  </p>
+                </div>
+              )}
+              <div className="text-center py-12">
+                <Vote className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
+                <h3 className="text-lg font-semibold text-white mb-2">No proposals tracked locally</h3>
+                <p className="text-sm text-white/50 max-w-sm mx-auto">
+                  {connected
+                    ? 'Create a proposal above and it will appear here. Proposals you create are saved to your browser for tracking.'
+                    : 'Connect your wallet to create or vote on governance proposals.'}
+                </p>
+              </div>
             </div>
           ) : (
             <div className="space-y-6">
