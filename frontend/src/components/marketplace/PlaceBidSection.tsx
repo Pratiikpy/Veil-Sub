@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef } from 'react'
-import { Lock, EyeOff, AlertTriangle, Loader2 } from 'lucide-react'
+import { Lock, EyeOff, AlertTriangle, Loader2, CheckCircle2, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 import GlassCard from '@/components/GlassCard'
 import Button from '@/components/ui/Button'
@@ -11,12 +11,17 @@ import { MARKETPLACE_PROGRAM_ID, MARKETPLACE_FEES } from './constants'
 import { generateSalt, saveBidToStorage } from './helpers'
 import { CopyButton } from './SharedComponents'
 
-export default function PlaceBidSection() {
+interface Props {
+  initialAuctionId?: string | null
+}
+
+export default function PlaceBidSection({ initialAuctionId }: Props) {
   const { execute, connected, address } = useContractExecute()
-  const [auctionId, setAuctionId] = useState('')
+  const [auctionId, setAuctionId] = useState(initialAuctionId || '')
   const [amount, setAmount] = useState('')
   const [salt] = useState(() => generateSalt())
   const [submitting, setSubmitting] = useState(false)
+  const [lastTxId, setLastTxId] = useState<string | null>(null)
   const biddingRef = useRef(false)
 
   const handleBid = useCallback(async () => {
@@ -37,6 +42,7 @@ export default function PlaceBidSection() {
 
     biddingRef.current = true
     setSubmitting(true)
+    setLastTxId(null)
     try {
       // Check public balance covers fee
       try {
@@ -72,10 +78,8 @@ export default function PlaceBidSection() {
           commitment: txId,
           timestamp: Date.now(),
         })
-        toast.success(
-          'Sealed bid placed! Your bid amount is hidden on-chain. Save your salt for the reveal phase.',
-          { duration: 8000 }
-        )
+        setLastTxId(txId)
+        toast.success('Sealed bid placed! Your bid is hidden on-chain.', { duration: 6000 })
         setAuctionId('')
         setAmount('')
       }
@@ -167,6 +171,25 @@ export default function PlaceBidSection() {
             </>
           )}
         </Button>
+
+        {lastTxId && (
+          <div className="p-4 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 space-y-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span className="text-sm font-medium text-emerald-400">Bid Sealed On-Chain</span>
+            </div>
+            <p className="text-xs text-white/60 font-mono truncate">TX: {lastTxId}</p>
+            <a
+              href={`https://testnet.aleoscan.io/transaction?id=${lastTxId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors"
+            >
+              <ExternalLink className="w-3 h-3" />
+              Verify on AleoScan
+            </a>
+          </div>
+        )}
       </div>
     </GlassCard>
   )

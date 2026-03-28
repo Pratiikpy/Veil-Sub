@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { m, AnimatePresence } from 'framer-motion'
 import { spring } from '@/lib/motion'
 import {
@@ -66,7 +67,18 @@ const REPUTATION_STEPS = [
 
 export default function MarketplacePage() {
   const { connected } = useContractExecute()
-  const [activeTab, setActiveTab] = useState<'reputation' | 'auctions'>('reputation')
+  const searchParams = useSearchParams()
+  const auctionParam = searchParams.get('auction')
+  const [activeTab, setActiveTab] = useState<'reputation' | 'auctions'>(auctionParam ? 'auctions' : 'reputation')
+  const [prefillAuctionId, setPrefillAuctionId] = useState<string | null>(auctionParam)
+
+  // If URL has ?auction=XYZ, switch to auctions tab and prefill
+  useEffect(() => {
+    if (auctionParam) {
+      setActiveTab('auctions')
+      setPrefillAuctionId(auctionParam)
+    }
+  }, [auctionParam])
 
   return (
     <PageTransition className="min-h-screen">
@@ -307,7 +319,7 @@ export default function MarketplacePage() {
               <Container>
                 <div className="grid gap-6 lg:grid-cols-2">
                   <CreateAuctionSection />
-                  <PlaceBidSection />
+                  <PlaceBidSection initialAuctionId={prefillAuctionId} />
                 </div>
 
                 <div className="mt-6">
