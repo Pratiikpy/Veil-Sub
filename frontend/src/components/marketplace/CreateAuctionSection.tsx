@@ -11,7 +11,7 @@ import { MARKETPLACE_PROGRAM_ID, MARKETPLACE_FEES } from './constants'
 import { saveAuctionToStorage } from './helpers'
 
 export default function CreateAuctionSection() {
-  const { execute, connected } = useContractExecute()
+  const { execute, connected, address } = useContractExecute()
   const [slotLabel, setSlotLabel] = useState('')
   const [contentSlotId, setContentSlotId] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -31,6 +31,23 @@ export default function CreateAuctionSection() {
     creatingRef.current = true
     setSubmitting(true)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < MARKETPLACE_FEES.CREATE_AUCTION) {
+            toast.error(`Insufficient public balance. You need ~${(MARKETPLACE_FEES.CREATE_AUCTION / MICROCREDITS_PER_CREDIT).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setSubmitting(false)
+            creatingRef.current = false
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const slotIdFormatted = contentSlotId.endsWith('field') ? contentSlotId : `${contentSlotId}field`
       const txId = await execute(
         'create_auction',

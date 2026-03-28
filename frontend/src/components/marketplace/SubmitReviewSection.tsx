@@ -44,6 +44,23 @@ export default function SubmitReviewSection() {
     submittingRef.current = true
     setSubmitting(true)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < MARKETPLACE_FEES.SUBMIT_REVIEW) {
+            toast.error(`Insufficient public balance. You need ~${(MARKETPLACE_FEES.SUBMIT_REVIEW / MICROCREDITS_PER_CREDIT).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setSubmitting(false)
+            submittingRef.current = false
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       let contentHash = '0field'
       if (reviewText.trim()) {
         let hash = BigInt(0)

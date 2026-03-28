@@ -95,6 +95,23 @@ export default function DMConfigSection() {
     configuringRef.current = true
     setSubmitting(true)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < SOCIAL_FEES.CONFIGURE_DM) {
+            toast.error(`Insufficient public balance. You need ~${(SOCIAL_FEES.CONFIGURE_DM / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setSubmitting(false)
+            configuringRef.current = false
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const txId = await execute(
         'configure_dm',
         [`${creatorHash}`, `${priceMicrocredits}u64`, `${tierInput}u8`],

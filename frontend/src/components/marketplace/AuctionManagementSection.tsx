@@ -25,7 +25,7 @@ import { AuctionStatusBadge } from './SharedComponents'
 import type { AuctionStatus } from './constants'
 
 export default function AuctionManagementSection() {
-  const { execute, connected } = useContractExecute()
+  const { execute, connected, address } = useContractExecute()
   const [auctionId, setAuctionId] = useState('')
   const [winnerAddr, setWinnerAddr] = useState('')
   const [submitting, setSubmitting] = useState<string | null>(null)
@@ -87,6 +87,30 @@ export default function AuctionManagementSection() {
     setSubmitting(action)
     setConfirmCancel(false)
     try {
+      // Check public balance covers fee
+      const feeMap: Record<string, number> = {
+        close: MARKETPLACE_FEES.CLOSE_BIDDING,
+        resolve: MARKETPLACE_FEES.RESOLVE_AUCTION,
+        cancel: MARKETPLACE_FEES.CANCEL_AUCTION,
+        reveal: MARKETPLACE_FEES.REVEAL_BID,
+      }
+      const feeAmount = feeMap[action] ?? 200_000
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < feeAmount) {
+            toast.error(`Insufficient public balance. You need ~${(feeAmount / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setSubmitting(null)
+            actionRef.current = false
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       let txId: string | null = null
 
       switch (action) {

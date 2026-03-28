@@ -100,6 +100,22 @@ export default function ChatRoomsSection() {
 
     setCreating(true)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < SOCIAL_FEES.CREATE_CHAT_ROOM) {
+            toast.error(`Insufficient public balance. You need ~${(SOCIAL_FEES.CREATE_CHAT_ROOM / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setCreating(false)
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const txId = await execute(
         'create_chat_room',
         [`${creatorHash}`, `${roomIdNum}u8`, `${newRoomMinTier}u8`],
@@ -139,6 +155,22 @@ export default function ChatRoomsSection() {
 
     setJoining(joinRoomId)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < SOCIAL_FEES.JOIN_CHAT_ROOM) {
+            toast.error(`Insufficient public balance. You need ~${(SOCIAL_FEES.JOIN_CHAT_ROOM / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setJoining(null)
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const txId = await execute(
         'join_chat_room',
         [joinCreatorAddr, `${roomIdNum}u8`, `${joinTier}u8`, `${expiryNum}u32`],
@@ -367,7 +399,7 @@ export default function ChatRoomsSection() {
 // ─── Prove Chat Membership ─────────────────────────────────────────────────
 
 function ProveMembershipSection() {
-  const { execute, connected } = useContractExecute()
+  const { execute, connected, address } = useContractExecute()
   const [creatorHash, setCreatorHash] = useState('')
   const [roomId, setRoomId] = useState('')
   const [proving, setProving] = useState(false)
@@ -391,6 +423,22 @@ function ProveMembershipSection() {
     setProving(true)
     setTxId(null)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < SOCIAL_FEES.JOIN_CHAT_ROOM) {
+            toast.error(`Insufficient public balance. You need ~${(SOCIAL_FEES.JOIN_CHAT_ROOM / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setProving(false)
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const result = await execute(
         'prove_chat_membership',
         [creatorHash, `${rid}u8`],

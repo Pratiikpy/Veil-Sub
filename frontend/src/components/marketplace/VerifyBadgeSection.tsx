@@ -12,7 +12,7 @@ import { MICROCREDITS_PER_CREDIT } from '@/lib/config'
 import { MARKETPLACE_PROGRAM_ID, MARKETPLACE_FEES } from './constants'
 
 export default function VerifyBadgeSection() {
-  const { execute, connected } = useContractExecute()
+  const { execute, connected, address } = useContractExecute()
   const [creatorHash, setCreatorHash] = useState('')
   const [minBadge, setMinBadge] = useState(1)
   const [submitting, setSubmitting] = useState(false)
@@ -30,6 +30,22 @@ export default function VerifyBadgeSection() {
     setSubmitting(true)
     setVerifyResult(null)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < MARKETPLACE_FEES.VERIFY_BADGE) {
+            toast.error(`Insufficient public balance. You need ~${(MARKETPLACE_FEES.VERIFY_BADGE / MICROCREDITS_PER_CREDIT).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setSubmitting(false)
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const txId = await execute(
         'verify_badge',
         [creatorHash, `${minBadge}u8`],

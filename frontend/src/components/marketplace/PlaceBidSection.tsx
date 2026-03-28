@@ -12,7 +12,7 @@ import { generateSalt, saveBidToStorage } from './helpers'
 import { CopyButton } from './SharedComponents'
 
 export default function PlaceBidSection() {
-  const { execute, connected } = useContractExecute()
+  const { execute, connected, address } = useContractExecute()
   const [auctionId, setAuctionId] = useState('')
   const [amount, setAmount] = useState('')
   const [salt] = useState(() => generateSalt())
@@ -38,6 +38,23 @@ export default function PlaceBidSection() {
     biddingRef.current = true
     setSubmitting(true)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < MARKETPLACE_FEES.PLACE_BID) {
+            toast.error(`Insufficient public balance. You need ~${(MARKETPLACE_FEES.PLACE_BID / MICROCREDITS_PER_CREDIT).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setSubmitting(false)
+            biddingRef.current = false
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const auctionIdFormatted = auctionId.endsWith('field') ? auctionId : `${auctionId}field`
 
       const txId = await execute(

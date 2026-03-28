@@ -104,6 +104,22 @@ export default function StoriesSection() {
 
     setPublishing(true)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < SOCIAL_FEES.PUBLISH_STORY) {
+            toast.error(`Insufficient public balance. You need ~${(SOCIAL_FEES.PUBLISH_STORY / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setPublishing(false)
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const contentHash = await hashToField(storyContent.trim())
       const storyId = generatePassId()
       const encKey = encryptionKey || generatePassId()
@@ -147,6 +163,22 @@ export default function StoriesSection() {
 
     setViewing(story.storyId)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < SOCIAL_FEES.VIEW_STORY) {
+            toast.error(`Insufficient public balance. You need ~${(SOCIAL_FEES.VIEW_STORY / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setViewing(null)
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const txId = await execute(
         'view_story',
         [creatorAddr, `${story.storyId}field`, '1u8'],

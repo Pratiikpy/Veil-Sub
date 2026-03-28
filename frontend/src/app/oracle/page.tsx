@@ -219,6 +219,23 @@ export default function OraclePage() {
     initRef.current = true
     setInitLoading(true)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < 1_500_000) {
+            toast.error(`Insufficient public balance. You need ~1.50 ALEO for fees. Get testnet credits from the faucet.`)
+            setInitLoading(false)
+            initRef.current = false
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const txId = await execute(
         'initialize_oracle',
         [address],
@@ -248,6 +265,23 @@ export default function OraclePage() {
     pushRef.current = true
     setPushLoading(true)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < 1_500_000) {
+            toast.error(`Insufficient public balance. You need ~1.50 ALEO for fees. Get testnet credits from the faucet.`)
+            setPushLoading(false)
+            pushRef.current = false
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       // Convert USD price to micro-USD (6 decimals)
       const microUsd = Math.round(price.usd * MICRO_USD_SCALE)
       const txId = await execute(
@@ -291,6 +325,22 @@ export default function OraclePage() {
     }
     setTierCalcLoading(true)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < 1_500_000) {
+            toast.error(`Insufficient public balance. You need ~1.50 ALEO for fees. Get testnet credits from the faucet.`)
+            setTierCalcLoading(false)
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const microUsd = Math.round(targetUsd * MICRO_USD_SCALE)
       const txId = await execute(
         'compute_tier_price',
@@ -318,6 +368,22 @@ export default function OraclePage() {
     setFreshnessLoading(true)
     setFreshnessResult(null)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < 1_500_000) {
+            toast.error(`Insufficient public balance. You need ~1.50 ALEO for fees. Get testnet credits from the faucet.`)
+            setFreshnessLoading(false)
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const txId = await execute(
         'verify_price_freshness',
         ['0u8'],

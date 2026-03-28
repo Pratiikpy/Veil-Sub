@@ -84,6 +84,22 @@ function VerifyAuthorshipForm() {
     setSubmitting(true)
     setTxId(null)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < FEES.REGISTER) {
+            toast.error(`Insufficient public balance. You need ~${(FEES.REGISTER / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setSubmitting(false)
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const result = await execute(
         'verify_authorship',
         [creatorAddress, contentHash, signature],
@@ -222,6 +238,22 @@ function ProveIdentityForm() {
     setSubmitting(true)
     setTxId(null)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < FEES.REGISTER) {
+            toast.error(`Insufficient public balance. You need ~${(FEES.REGISTER / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setSubmitting(false)
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const result = await execute(
         'prove_identity',
         [challenge, signature],
@@ -341,6 +373,22 @@ function NotarizeContentForm() {
     setSubmitting(true)
     setTxId(null)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < FEES.REGISTER) {
+            toast.error(`Insufficient public balance. You need ~${(FEES.REGISTER / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setSubmitting(false)
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const result = await execute(
         'notarize_content',
         [contentHash, signature],

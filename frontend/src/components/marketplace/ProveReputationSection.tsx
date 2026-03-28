@@ -10,7 +10,7 @@ import { FEATURED_CREATORS, getCreatorHash, MICROCREDITS_PER_CREDIT } from '@/li
 import { MARKETPLACE_PROGRAM_ID, MARKETPLACE_FEES } from './constants'
 
 export default function ProveReputationSection() {
-  const { execute, connected } = useContractExecute()
+  const { execute, connected, address } = useContractExecute()
   const [creatorHash, setCreatorHash] = useState('')
   const [minAvg, setMinAvg] = useState(4)
   const [submitting, setSubmitting] = useState(false)
@@ -34,6 +34,22 @@ export default function ProveReputationSection() {
     }
     setSubmitting(true)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < MARKETPLACE_FEES.PROVE_REPUTATION) {
+            toast.error(`Insufficient public balance. You need ~${(MARKETPLACE_FEES.PROVE_REPUTATION / MICROCREDITS_PER_CREDIT).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setSubmitting(false)
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const txId = await execute(
         'prove_reputation_threshold',
         [creatorHash, `${minAvg}u8`],

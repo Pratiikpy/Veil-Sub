@@ -197,6 +197,23 @@ function CreateProposalForm({ onCreated }: CreateProposalFormProps) {
     setError(null)
 
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < FEES.GOV_CREATE_PROPOSAL) {
+            toast.error(`Insufficient public balance. You need ~${(FEES.GOV_CREATE_PROPOSAL / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setTxStatus('idle')
+            submittingRef.current = false
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const pid = generateProposalId(title)
       const dHash = description ? computeDescriptionHash(description) : '1field'
 
@@ -419,6 +436,23 @@ function CastBallotPanel({ proposal, onVoted, onClose }: CastBallotProps) {
     setError(null)
 
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < FEES.GOV_CAST_BALLOT) {
+            toast.error(`Insufficient public balance. You need ~${(FEES.GOV_CAST_BALLOT / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setTxStatus('idle')
+            votingRef.current = false
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const result = await execute(
         'cast_ballot',
         [proposal.id, `${vote}`, salt],
@@ -577,7 +611,7 @@ interface ProposalActionsProps {
 }
 
 function ProposalActions({ proposal, onAction }: ProposalActionsProps) {
-  const { execute, connected } = useContractExecute()
+  const { execute, connected, address } = useContractExecute()
   const { clearCache } = useGovernance()
   const { startPolling } = useTransactionPoller()
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
@@ -609,6 +643,23 @@ function ProposalActions({ proposal, onAction }: ProposalActionsProps) {
     setError(null)
 
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < FEES.GOV_RESOLVE_PROPOSAL) {
+            toast.error(`Insufficient public balance. You need ~${(FEES.GOV_RESOLVE_PROPOSAL / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setTxStatus('idle')
+            resolvingRef.current = false
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const result = await execute(
         'resolve_proposal',
         [proposal.id, `${yesNum}u64`, `${noNum}u64`],
@@ -653,6 +704,22 @@ function ProposalActions({ proposal, onAction }: ProposalActionsProps) {
     setError(null)
 
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < FEES.GOV_VERIFY_TALLY) {
+            toast.error(`Insufficient public balance. You need ~${(FEES.GOV_VERIFY_TALLY / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setTxStatus('idle')
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const result = await execute(
         'verify_tally',
         [proposal.id, `${proposal.resolvedYes}u64`, `${proposal.resolvedNo}u64`],
@@ -692,6 +759,22 @@ function ProposalActions({ proposal, onAction }: ProposalActionsProps) {
     setError(null)
 
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < FEES.GOV_CANCEL_PROPOSAL) {
+            toast.error(`Insufficient public balance. You need ~${(FEES.GOV_CANCEL_PROPOSAL / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setTxStatus('idle')
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const result = await execute(
         'cancel_proposal',
         [proposal.id],

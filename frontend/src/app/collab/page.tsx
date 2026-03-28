@@ -105,6 +105,23 @@ function CreateCollabForm() {
     setSubmitting(true)
     setTxId(null)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < FEES.REGISTER * 2) {
+            toast.error(`Insufficient public balance. You need ~${(FEES.REGISTER * 2 / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setSubmitting(false)
+            creatingRef.current = false
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       // Generate a unique collab_id from timestamp
       const collabId = `${BigInt(Date.now()) * BigInt(1000003)}field`
       const scopeHash = contentScope.trim()
@@ -229,7 +246,7 @@ function CreateCollabForm() {
 
 // ─── Split Payment Form ─────────────────────────────────────────────────────
 function SplitPaymentForm() {
-  const { connected, execute } = useContractExecute()
+  const { connected, execute, address } = useContractExecute()
   const [collabId, setCollabId] = useState('')
   const [amount, setAmount] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -256,6 +273,23 @@ function SplitPaymentForm() {
     setSubmitting(true)
     setTxId(null)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < FEES.REGISTER * 2) {
+            toast.error(`Insufficient public balance. You need ~${(FEES.REGISTER * 2 / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setSubmitting(false)
+            splittingRef.current = false
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const result = await execute(
         'split_payment',
         [collabId, `${amt}u64`],
@@ -381,7 +415,7 @@ function SplitPaymentForm() {
 
 // ─── Publish Collab Content ─────────────────────────────────────────────────
 function PublishCollabContentForm() {
-  const { connected, execute } = useContractExecute()
+  const { connected, execute, address } = useContractExecute()
   const [collabId, setCollabId] = useState('')
   const [contentId, setContentId] = useState('')
   const [contentHash, setContentHash] = useState('')
@@ -401,6 +435,22 @@ function PublishCollabContentForm() {
     setSubmitting(true)
     setTxId(null)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < FEES.REGISTER) {
+            toast.error(`Insufficient public balance. You need ~${(FEES.REGISTER / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setSubmitting(false)
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const result = await execute(
         'publish_collab_content',
         [collabId, contentId, contentHash],
@@ -500,7 +550,7 @@ function PublishCollabContentForm() {
 
 // ─── End Collab Form ───────────────────────────────────────────────────────
 function EndCollabForm() {
-  const { connected, execute } = useContractExecute()
+  const { connected, execute, address } = useContractExecute()
   const [collabId, setCollabId] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
@@ -523,6 +573,23 @@ function EndCollabForm() {
     setSubmitting(true)
     setTxId(null)
     try {
+      // Check public balance covers fee
+      try {
+        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
+        if (pubRes.ok) {
+          const pubText = await pubRes.text()
+          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+          if (!isNaN(pubBal) && pubBal < FEES.REGISTER) {
+            toast.error(`Insufficient public balance. You need ~${(FEES.REGISTER / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
+            setSubmitting(false)
+            endingRef.current = false
+            return
+          }
+        }
+      } catch {
+        // Non-critical — proceed and let the wallet handle it
+      }
+
       const result = await execute(
         'end_collab',
         [collabId],
