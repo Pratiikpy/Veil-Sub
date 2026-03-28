@@ -148,23 +148,35 @@ export default function AuctionCard({
       )
 
       if (txId) {
-        // Save bid locally (needed for reveal phase even if TX fails)
-        saveBidToStorage({
-          auctionId: formattedId,
-          amount: amountNum,
-          salt,
-          commitment: txId,
-          timestamp: Date.now(),
-        })
         setLastTxId(txId)
 
-        // Verify on-chain by polling bid_count (increases if bid was accepted)
-        toast.info('Bid submitted! Verifying on-chain (~15-30s)...', { duration: 15000 })
+        // IMPORTANT: Do NOT save bid or show success until verified on-chain.
+        // Shield Wallet returns shield_* IDs before TX confirms — many get rejected.
+        toast.info('Bid submitted! Verifying on-chain — this takes ~30-60s...', { duration: 30000, id: 'bid-verify' })
         setTxStatus('pending')
 
+        // First verify the auction exists at this ID (catches slot_id vs auction_id mismatch)
+        let auctionExists = false
+        try {
+          const statusRes = await fetch(`/api/aleo/program/${MARKETPLACE_PROGRAM_ID}/mapping/auction_status/${formattedId}`)
+          if (statusRes.ok) {
+            const statusRaw = await statusRes.text()
+            auctionExists = statusRaw !== 'null' && statusRaw !== ''
+          }
+        } catch { /* ignore */ }
+
+        if (!auctionExists) {
+          toast.dismiss('bid-verify')
+          setTxStatus('failed')
+          setTxError('This auction ID is not valid on-chain. The auction may not have been created yet, or the ID is a slot ID instead of the real Poseidon2 auction ID. Check AleoScan for the correct auction ID.')
+          toast.error('Invalid auction ID — auction not found on-chain.')
+          return
+        }
+
+        // Poll bid_count to verify bid was accepted
         const prevBidCount = auction.bidCount
         let verified = false
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 12; i++) {
           await new Promise(r => setTimeout(r, 5000))
           try {
             const countRes = await fetch(`/api/aleo/program/${MARKETPLACE_PROGRAM_ID}/mapping/auction_bid_count/${formattedId}`)
@@ -179,7 +191,17 @@ export default function AuctionCard({
           } catch { /* retry */ }
         }
 
+        toast.dismiss('bid-verify')
+
         if (verified) {
+          // Only save bid AFTER on-chain verification
+          saveBidToStorage({
+            auctionId: formattedId,
+            amount: amountNum,
+            salt,
+            commitment: txId,
+            timestamp: Date.now(),
+          })
           setTxStatus('confirmed')
           toast.success('Bid confirmed on-chain! Your bid amount is sealed.', { duration: 6000 })
           setBidAmount('')
@@ -187,8 +209,8 @@ export default function AuctionCard({
           onStatusChange?.()
         } else {
           setTxStatus('failed')
-          setTxError('Bid may have been rejected on-chain. Common reasons: (1) You already bid on this auction. (2) Auction is not open. (3) Insufficient balance. Check AleoScan to verify.')
-          toast.error('Bid verification failed — may have been rejected on-chain.')
+          setTxError('Bid was rejected on-chain. Possible reasons: (1) You already bid on this auction (one bid per bidder). (2) The auction is closed. (3) The auction ID is incorrect. No ALEO was spent.')
+          toast.error('Bid rejected on-chain. No ALEO spent.')
         }
       }
     } catch (err) {
