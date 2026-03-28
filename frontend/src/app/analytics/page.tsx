@@ -24,6 +24,7 @@ import Link from 'next/link'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import GlassCard from '@/components/GlassCard'
 import AnalyticsInsights from '@/components/AnalyticsInsights'
+import AnalyticsDashboard from '@/components/dashboard/AnalyticsDashboard'
 import PageTransition from '@/components/PageTransition'
 import { formatCredits, formatUsd } from '@/lib/utils'
 import { useAnalytics, type DateRange } from '@/hooks/useAnalytics'
@@ -410,7 +411,7 @@ function getTimeAgo(dateStr: string): string {
 // ── Main Page ─────────────────────────────────────────────────────
 
 export default function AnalyticsPage() {
-  const { connected } = useWallet()
+  const { connected, address } = useWallet()
   const analytics = useAnalytics()
   const [globalStats, setGlobalStats] = useState<GlobalStats>(EMPTY_STATS)
   const [globalLoading, setGlobalLoading] = useState(true)
@@ -490,6 +491,16 @@ export default function AnalyticsPage() {
                 Reload analytics
               </button>
             </div>
+          )}
+
+          {/* ── Revenue Analytics Dashboard ──────────────────── */}
+
+          {connected && address && (
+            <section className="mb-10 sm:mb-16">
+              <GlassCard hover={false}>
+                <AnalyticsDashboard creatorAddress={address} />
+              </GlassCard>
+            </section>
           )}
 
           {/* ── Date Range Selector ────────────────────────────── */}

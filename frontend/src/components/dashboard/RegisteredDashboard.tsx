@@ -46,6 +46,7 @@ import type { CreatorProfile, TxStatus, CustomTierInfo, ContentPost } from '@/ty
 const TierCreationDialog = dynamic(() => import('@/components/TierCreationDialog'), { ssr: false })
 const ProveThresholdModal = dynamic(() => import('@/components/ProveThresholdModal'), { ssr: false })
 const RevokeAccessPanel = dynamic(() => import('@/components/RevokeAccessPanel'), { ssr: false })
+const AnalyticsDashboard = dynamic(() => import('@/components/dashboard/AnalyticsDashboard'), { ssr: false })
 
 type ComposeMode = 'note' | 'post' | 'article' | 'photo' | 'video'
 
@@ -847,7 +848,18 @@ export default function RegisteredDashboard({
       </m.div>
 
       {/* ═══════════════════════════════════════════════════════
-          SECTION 6: Settings row (Edit Profile + Prove Reputation)
+          SECTION 6: Revenue Analytics Dashboard
+         ═══════════════════════════════════════════════════════ */}
+      <m.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.18 }}
+      >
+        <AnalyticsDashboard creatorAddress={publicKey} stats={stats} />
+      </m.div>
+
+      {/* ═══════════════════════════════════════════════════════
+          SECTION 7: Settings row (Edit Profile + Prove Reputation)
          ═══════════════════════════════════════════════════════ */}
       <m.div
         initial={{ opacity: 0, y: 10 }}

@@ -3,14 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import { Search, Home, CreditCard, Bell, User } from 'lucide-react'
+import { Search, Home, CreditCard, Bell, MessageCircle } from 'lucide-react'
 
 const MOBILE_NAV = [
   { href: '/feed', label: 'Feed', icon: Home },
   { href: '/explore', label: 'Explore', icon: Search },
   { href: '/subscriptions', label: 'Subs', icon: CreditCard, requiresWallet: true },
   { href: '/notifications', label: 'Alerts', icon: Bell, requiresWallet: true },
-  { href: '/settings', label: 'Profile', icon: User, requiresWallet: true },
+  { href: '/messages', label: 'Messages', icon: MessageCircle, requiresWallet: true },
 ]
 
 export default function MobileBottomNav() {

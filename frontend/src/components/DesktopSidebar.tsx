@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { WalletMultiButton } from '@provablehq/aleo-wallet-adaptor-react-ui'
-import { Home, Compass, Bell, LayoutDashboard, CreditCard, BarChart3, Search, Settings, LogOut, FileText } from 'lucide-react'
+import { Home, Compass, Bell, LayoutDashboard, CreditCard, BarChart3, Search, Settings, LogOut, FileText, MessageCircle } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 
 const NAV_ITEMS = [
@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: '/explore', label: 'Explore', icon: Compass },
   { href: '/notifications', label: 'Notifications', icon: Bell, requiresWallet: true, showBadge: true },
   { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard, requiresWallet: true },
+  { href: '/messages', label: 'Messages', icon: MessageCircle, requiresWallet: true },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, requiresWallet: true },
   { href: '/analytics', label: 'Analytics', icon: BarChart3, requiresWallet: true },
 ]

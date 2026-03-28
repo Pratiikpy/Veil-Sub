@@ -31,6 +31,8 @@ import ZKReceipt from './ZKReceipt'
 import { playSubscribeSuccess } from '@/lib/sounds'
 import type { SubscriptionTier } from '@/types'
 
+type DurationPeriod = 1 | 3
+
 interface Props {
   isOpen: boolean
   onClose: () => void
@@ -39,6 +41,7 @@ interface Props {
   basePrice: number // microcredits
   onSuccess?: () => void // Called after successful subscription for cache invalidation
   availableTiers?: SubscriptionTier[] // All tiers for this creator (enables tier switching)
+  initialPeriods?: DurationPeriod // 1 = ~30 days (default), 3 = ~90 days
 }
 
 export default function SubscribeModal({
@@ -49,6 +52,7 @@ export default function SubscribeModal({
   basePrice,
   onSuccess,
   availableTiers,
+  initialPeriods = 1,
 }: Props) {
   const [activeTier, setActiveTier] = useState<SubscriptionTier>(initialTier)
   const [showTierPicker, setShowTierPicker] = useState(false)
@@ -76,6 +80,7 @@ export default function SubscribeModal({
   const [largestRecord, setLargestRecord] = useState(0)
   const [paymentToken, setPaymentToken] = useState<PaymentToken>('credits')
   const [privacyMode, setPrivacyMode] = useState<'standard' | 'blind' | 'trial'>('standard')
+  const [durationPeriod, setDurationPeriod] = useState<DurationPeriod>(initialPeriods)
   const [receiptPassId, setReceiptPassId] = useState('')
   const [receiptExpiry, setReceiptExpiry] = useState(0)
   const privacyGroupRef = useRef<HTMLDivElement>(null)
@@ -97,8 +102,10 @@ export default function SubscribeModal({
       : 'idle'
 
   const trialMinutes = Math.round((TRIAL_DURATION_BLOCKS * 3) / 60) // 3 sec per block
-  const fullPrice = basePrice * tier.priceMultiplier
-  const totalPrice = privacyMode === 'trial' ? Math.floor(fullPrice / TRIAL_PRICE_DIVISOR) : fullPrice
+  // Trial mode always uses single-period pricing; extended duration applies to standard/blind only
+  const effectivePeriods = privacyMode === 'trial' ? 1 : durationPeriod
+  const fullPrice = basePrice * tier.priceMultiplier * effectivePeriods
+  const totalPrice = privacyMode === 'trial' ? Math.floor((basePrice * tier.priceMultiplier) / TRIAL_PRICE_DIVISOR) : fullPrice
   const platformCut = Math.floor(totalPrice * PLATFORM_FEE_PCT / 100)
   const creatorCut = totalPrice - platformCut
 
@@ -186,7 +193,7 @@ export default function SubscribeModal({
         }
 
         const passId = generatePassId()
-        const expiresAt = blockHeight + SUBSCRIPTION_DURATION_BLOCKS
+        const expiresAt = blockHeight + (SUBSCRIPTION_DURATION_BLOCKS * effectivePeriods)
         setReceiptPassId(passId)
         setReceiptExpiry(expiresAt)
         setTxStatus('proving')
@@ -272,7 +279,7 @@ export default function SubscribeModal({
       const passId = generatePassId()
       const expiresAt = privacyMode === 'trial'
         ? blockHeight + TRIAL_DURATION_BLOCKS
-        : blockHeight + SUBSCRIPTION_DURATION_BLOCKS
+        : blockHeight + (SUBSCRIPTION_DURATION_BLOCKS * effectivePeriods)
 
       setReceiptPassId(passId)
       setReceiptExpiry(expiresAt)
@@ -366,6 +373,7 @@ export default function SubscribeModal({
     setInsufficientBalance(false)
     setPaymentToken('credits')
     setPrivacyMode('standard') // Reset privacy mode for next open
+    setDurationPeriod(initialPeriods) // Reset duration for next open
     setShowTierPicker(false)
     handleClose()
   }
@@ -485,6 +493,52 @@ export default function SubscribeModal({
                   </>
                 )}
 
+                {/* Duration Selector — not available for trial mode */}
+                {privacyMode !== 'trial' && (
+                <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
+                  <p className="text-xs text-white/60 mb-2 font-medium">Duration</p>
+                  <div className="relative inline-flex items-center rounded-full bg-white/[0.03] border border-border p-0.5">
+                    <m.div
+                      className="absolute top-0.5 bottom-0.5 rounded-full bg-white/[0.08] border border-white/10"
+                      initial={false}
+                      animate={{
+                        left: durationPeriod === 1 ? 2 : '50%',
+                        right: durationPeriod === 3 ? 2 : '50%',
+                      }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    />
+                    <button
+                      onClick={() => setDurationPeriod(1)}
+                      className={`relative z-10 px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                        durationPeriod === 1 ? 'text-white' : 'text-white/50 hover:text-white/70'
+                      }`}
+                    >
+                      ~30 days
+                    </button>
+                    <button
+                      onClick={() => setDurationPeriod(3)}
+                      className={`relative z-10 px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center gap-1 ${
+                        durationPeriod === 3 ? 'text-white' : 'text-white/50 hover:text-white/70'
+                      }`}
+                    >
+                      ~90 days
+                      <span className="px-1 py-0.5 rounded-full bg-green-500/15 border border-green-500/20 text-[9px] font-semibold text-green-400 leading-none">
+                        3 mo
+                      </span>
+                    </button>
+                  </div>
+                  {durationPeriod === 3 && (
+                    <m.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      className="text-[11px] text-green-400/70 mt-2"
+                    >
+                      One transaction for 3 months of access — no renewal hassle.
+                    </m.p>
+                  )}
+                </div>
+                )}
+
                 {/* Token Selector */}
                 <TokenSelector
                   selected={paymentToken}
@@ -512,10 +566,10 @@ export default function SubscribeModal({
                         <span>
                           {privacyMode === 'trial'
                             ? `~${trialMinutes} minutes`
-                            : '~30 days'}
+                            : effectivePeriods === 3 ? '~90 days (3 months)' : '~30 days'}
                         </span>
                       </div>
-                      <p className="text-[11px] text-white/50 mt-0.5">No auto-renewal. You&apos;ll be notified before expiry.</p>
+                      <p className="text-[11px] text-white/50 mt-0.5">No auto-renewal — you control when to renew.</p>
                     </div>
                     <div className="flex justify-between">
                       <span>Est. network fee</span>
@@ -588,10 +642,11 @@ export default function SubscribeModal({
                   <ul className="text-[11px] text-green-400/80 space-y-1 list-none">
                     <li>Your address is never published on-chain</li>
                     {privacyMode === 'standard' && <li>Creator sees total count, not individuals</li>}
-                    {privacyMode === 'blind' && <li>Identity masked—renewals are unlinkable</li>}
-                    {privacyMode === 'trial' && <li>Short-lived pass—20% cost, ~{trialMinutes} minute access</li>}
+                    {privacyMode === 'blind' && <li>Identity masked — renewals are unlinkable</li>}
+                    {privacyMode === 'trial' && <li>Short-lived pass — 20% cost, ~{trialMinutes} minute access</li>}
                     <li>Subscription pass stored privately in your wallet</li>
                     <li>Payment sent privately to creator</li>
+                    <li>No auto-renewal — cancel anytime by simply not renewing</li>
                   </ul>
                 </div>
 
@@ -634,7 +689,7 @@ export default function SubscribeModal({
                   {txStatus !== 'idle'
                     ? <><Loader2 className="w-4 h-4 animate-spin mr-2 inline" />Processing...</>
                     : paymentToken === 'credits'
-                      ? 'Subscribe Privately'
+                      ? effectivePeriods === 3 ? 'Subscribe for 3 Months' : 'Subscribe Privately'
                       : `Subscribe with ${paymentToken === 'usdcx' ? 'USDCx' : 'USAD'}`}
                 </Button>
               </m.div>
@@ -656,7 +711,7 @@ export default function SubscribeModal({
                       Subscribed successfully!
                     </p>
                     <p className="text-xs text-white/70">
-                      Your subscription pass is now in your wallet. {privacyMode === 'trial' ? `Trial access for ~${trialMinutes} minutes.` : 'Access for ~30 days.'}
+                      Your subscription pass is now in your wallet. {privacyMode === 'trial' ? `Trial access for ~${trialMinutes} minutes.` : effectivePeriods === 3 ? 'Access for ~90 days (3 months).' : 'Access for ~30 days.'}
                     </p>
                     {txId && (
                       <ZKReceipt

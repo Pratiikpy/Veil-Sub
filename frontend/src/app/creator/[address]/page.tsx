@@ -23,6 +23,7 @@ import {
   Gift,
   MoreHorizontal,
   ChevronDown,
+  MessageCircle,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
@@ -88,6 +89,7 @@ function OverflowMenu({
   hasPass,
   onTip,
   onGift,
+  onMessage,
   onShare,
   onReportCreator,
   onRedeem,
@@ -96,6 +98,7 @@ function OverflowMenu({
   hasPass: boolean
   onTip: () => void
   onGift: () => void
+  onMessage: () => void
   onShare: () => void
   onReportCreator: () => void
   onRedeem: () => void
@@ -150,6 +153,16 @@ function OverflowMenu({
               <Heart className="w-4 h-4" />
               Send Tip
             </button>
+            {hasPass && (
+              <button
+                role="menuitem"
+                onClick={() => { onMessage(); setOpen(false) }}
+                className="w-full text-left px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center gap-3"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Message Creator
+              </button>
+            )}
             <button
               role="menuitem"
               disabled={!connected}
@@ -350,6 +363,51 @@ function ActivePasses({
   )
 }
 
+/** Duration toggle — Ghost Portal-style animated toggle */
+type DurationPeriod = 1 | 3
+
+function DurationToggle({
+  period,
+  onChange,
+}: {
+  period: DurationPeriod
+  onChange: (p: DurationPeriod) => void
+}) {
+  return (
+    <div className="inline-flex items-center rounded-full bg-white/[0.04] border border-border p-1 relative">
+      {/* Animated sliding background */}
+      <m.div
+        className="absolute top-1 bottom-1 rounded-full bg-white/[0.08] border border-white/10"
+        initial={false}
+        animate={{
+          left: period === 1 ? 4 : '50%',
+          right: period === 3 ? 4 : '50%',
+        }}
+        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      />
+      <button
+        onClick={() => onChange(1)}
+        className={`relative z-10 px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 ${
+          period === 1 ? 'text-white' : 'text-white/50 hover:text-white/70'
+        }`}
+      >
+        ~30 days
+      </button>
+      <button
+        onClick={() => onChange(3)}
+        className={`relative z-10 px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 flex items-center gap-1.5 ${
+          period === 3 ? 'text-white' : 'text-white/50 hover:text-white/70'
+        }`}
+      >
+        ~90 days
+        <span className="px-1.5 py-0.5 rounded-full bg-green-500/15 border border-green-500/20 text-[10px] font-semibold text-green-400 leading-none">
+          3 months
+        </span>
+      </button>
+    </div>
+  )
+}
+
 /** Tier card for the Tiers tab */
 function TierCard({
   tier,
@@ -360,6 +418,7 @@ function TierCard({
   onSubscribe,
   index,
   subscriberCount,
+  period,
 }: {
   tier: SubscriptionTier
   basePrice: number
@@ -369,17 +428,21 @@ function TierCard({
   onSubscribe: (tier: SubscriptionTier) => void
   index: number
   subscriberCount?: number
+  period: DurationPeriod
 }) {
-  const tierPrice = basePrice * tier.priceMultiplier
+  const singlePrice = basePrice * tier.priceMultiplier
+  const tierPrice = singlePrice * period
+  const durationLabel = period === 3 ? '~90 days' : '~30 days'
 
   return (
     <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.08 }}
-      className={`relative flex flex-col p-6 rounded-xl border transition-all duration-300 hover:-translate-y-0.5 ${
+      whileHover={{ y: -2, transition: { type: 'spring', stiffness: 400, damping: 30 } }}
+      className={`relative flex flex-col p-6 rounded-xl border transition-all duration-300 ${
         isMostPopular
-          ? 'bg-surface-1 border-white/10 hover:border-white/15 shadow-[0_0_30px_rgba(255,255,255,0.04)]'
+          ? 'bg-surface-1 border-white/10 hover:border-white/15 shadow-[0_0_30px_rgba(255,255,255,0.04)] hover:shadow-[0_0_40px_rgba(255,255,255,0.06)]'
           : 'bg-surface-1 border-border hover:border-glass-hover'
       }`}
     >
@@ -395,20 +458,42 @@ function TierCard({
         {tier.name}
       </h3>
       <div className="mb-1">
-        <span className="text-2xl font-bold text-white">
+        <m.span
+          key={`${tier.id}-${period}`}
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          className="text-2xl font-bold text-white inline-block"
+        >
           {formatCredits(tierPrice)}
-        </span>
+        </m.span>
         <span className="text-sm font-normal text-white/60 ml-1">ALEO</span>
       </div>
-      <p className="text-xs text-white/50 mb-4">
-        {formatUsd(tierPrice)}/~30 days
-      </p>
+      <m.p
+        key={`usd-${tier.id}-${period}`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="text-xs text-white/50 mb-1"
+      >
+        {formatUsd(tierPrice)}/{durationLabel}
+      </m.p>
+      {period === 3 && (
+        <m.p
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          className="text-[11px] text-white/40 mb-3"
+        >
+          {formatCredits(singlePrice)} ALEO/~30 days
+        </m.p>
+      )}
+      {period === 1 && <div className="mb-3" />}
 
       {tier.description && (
         <p className="text-xs text-white/60 mb-4">{tier.description}</p>
       )}
 
-      <ul className="space-y-2 mb-6 flex-1">
+      <ul className="space-y-2 mb-4 flex-1">
         {(tier.features?.length ? tier.features : ['Access to exclusive content']).map((f) => (
           <li key={f} className="flex items-start gap-2 text-xs text-white/70">
             <Check className="w-3.5 h-3.5 text-white/60 mt-0.5 shrink-0" />
@@ -416,6 +501,12 @@ function TierCard({
           </li>
         ))}
       </ul>
+
+      {/* No auto-renewal reassurance */}
+      <p className="text-[11px] text-white/40 mb-3 flex items-center gap-1.5">
+        <Shield className="w-3 h-3 text-white/30 shrink-0" />
+        No auto-renewal — you control when to renew
+      </p>
 
       {subscriberCount !== undefined && subscriberCount > 0 && (
         <p className="text-xs text-white/50 mb-3 flex items-center gap-1">
@@ -439,7 +530,9 @@ function TierCard({
               : 'bg-white/[0.05] border border-border text-white hover:bg-white/[0.08]'
           } disabled:opacity-40 disabled:cursor-not-allowed`}
         >
-          {connected ? 'Subscribe' : 'Connect wallet'}
+          {connected
+            ? period === 3 ? `Subscribe for ${durationLabel}` : 'Subscribe'
+            : 'Connect wallet'}
         </button>
       )}
     </m.div>
@@ -655,6 +748,7 @@ export default function CreatorPage({
     return 'posts'
   })
   const [contentViewMode, setContentViewMode] = useState<'feed' | 'grid'>('feed')
+  const [durationPeriod, setDurationPeriod] = useState<DurationPeriod>(1)
 
   // Sync hash on popstate (browser back/forward)
   useEffect(() => {
@@ -1117,6 +1211,9 @@ export default function CreatorPage({
                       setShowGift(true)
                     }
                   }}
+                  onMessage={() => {
+                    window.location.href = `/messages?creator=${encodeURIComponent(address)}`
+                  }}
                   onShare={handleShare}
                   onReportCreator={() => {
                     toast.info('Report submitted. We\'ll review this creator. To dispute specific content, use the report button on individual posts.')
@@ -1192,7 +1289,8 @@ export default function CreatorPage({
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <div className="mb-4 flex items-center gap-3">
+                    <div className="mb-5 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      <DurationToggle period={durationPeriod} onChange={setDurationPeriod} />
                       {tiersLoading ? (
                         <span className="inline-flex items-center gap-1 px-4 py-1 rounded-full bg-white/[0.05] border border-border text-xs text-white/60 font-medium animate-pulse">
                           Loading on-chain tiers...
@@ -1204,6 +1302,18 @@ export default function CreatorPage({
                         </span>
                       ) : null}
                     </div>
+                    {durationPeriod === 3 && (
+                      <m.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mb-4 p-3 rounded-xl bg-green-500/[0.04] border border-green-500/15"
+                      >
+                        <p className="text-xs text-green-300/90">
+                          Extended subscription — one transaction for 3 months of access. No renewal hassle.
+                        </p>
+                      </m.div>
+                    )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {displayTiers.map((tier, i) => (
                         <TierCard
@@ -1213,8 +1323,12 @@ export default function CreatorPage({
                           hasThisTier={userPasses.some((p) => p.tier === tier.id)}
                           isMostPopular={tier.id === 3}
                           connected={connected}
-                          onSubscribe={setSelectedTier}
+                          onSubscribe={(t) => {
+                            // Store duration period for the modal to read
+                            setSelectedTier(t)
+                          }}
                           index={i}
+                          period={durationPeriod}
                         />
                       ))}
                     </div>
@@ -1282,6 +1396,7 @@ export default function CreatorPage({
           basePrice={basePrice}
           onSuccess={() => { loadPasses(); refreshStats() }}
           availableTiers={displayTiers}
+          initialPeriods={durationPeriod}
         />
       )}
       <TipModal
@@ -1348,7 +1463,7 @@ export default function CreatorPage({
           <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
             <div className="min-w-0">
               <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{displayName || 'Creator'}</p>
-              <p className="text-xs text-[var(--text-muted)]">From {basePrice ? `${(basePrice / 1_000_000).toFixed(1)} ALEO / ~30 days` : '...'}</p>
+              <p className="text-xs text-[var(--text-muted)]">From {basePrice ? `${((basePrice * durationPeriod) / 1_000_000).toFixed(1)} ALEO / ~${durationPeriod * 30} days` : '...'}</p>
             </div>
             <button
               onClick={() => setSelectedTier(displayTiers[0] ?? null)}
