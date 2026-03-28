@@ -107,7 +107,7 @@ export default function OnChainExplorer() {
       ])
       const parseNum = (s: string | null): number | null => {
         if (!s) return null
-        const n = parseInt(s.replace('u64', ''), 10)
+        const n = parseInt(s.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
         return Number.isFinite(n) ? n : null
       }
       setCreatorStats({
@@ -135,8 +135,8 @@ export default function OnChainExplorer() {
         queryMapping('content_hashes', contentId),
         queryMapping('content_disputes', contentId),
       ])
-      const parsedTier = tier ? parseInt(tier.replace('u8', ''), 10) : null
-      const parsedDisputes = disputes ? parseInt(disputes.replace('u64', ''), 10) : null
+      const parsedTier = tier ? parseInt(tier.replace(/u\d+$/, '').trim(), 10) : null
+      const parsedDisputes = disputes ? parseInt(disputes.replace(/u\d+$/, '').trim(), 10) : null
       setContentInfo({
         found: tier !== null,
         minTier: Number.isFinite(parsedTier) ? parsedTier : null,

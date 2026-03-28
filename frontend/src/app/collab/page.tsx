@@ -707,8 +707,8 @@ function CollabLookup() {
       setResult({
         exists: existsStr === 'true',
         active: activeStr === 'true',
-        revenue: revStr ? revStr.replace('u64', '') : '0',
-        contentCount: countStr ? countStr.replace('u64', '') : '0',
+        revenue: revStr ? revStr.replace(/u\d+$/, '').trim() : '0',
+        contentCount: countStr ? countStr.replace(/u\d+$/, '').trim() : '0',
       })
     } catch {
       toast.error('Failed to query on-chain data')

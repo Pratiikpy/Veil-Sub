@@ -36,7 +36,7 @@ export const getMicrocredits = (record: WalletRecord): number => {
   try {
     // Path 1: structured data field (Leo Wallet format with includePlaintext: false)
     if (record?.data?.microcredits) {
-      const raw = String(record.data.microcredits).replace(/_/g, '').replace('.private', '').replace('u64', '')
+      const raw = String(record.data.microcredits).replace(/_/g, '').replace('.private', '').replace(/u\d+$/, '')
       const val = parseInt(raw, 10)
       if (Number.isFinite(val) && val > 0) return val
     }
@@ -52,7 +52,7 @@ export const getMicrocredits = (record: WalletRecord): number => {
     }
     // Path 3: if record itself is the data object (nested call)
     if (record?.microcredits) {
-      const raw = String(record.microcredits).replace(/_/g, '').replace('.private', '').replace('u64', '')
+      const raw = String(record.microcredits).replace(/_/g, '').replace('.private', '').replace(/u\d+$/, '')
       const val = parseInt(raw, 10)
       if (Number.isFinite(val) && val > 0) return val
     }

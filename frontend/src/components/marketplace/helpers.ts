@@ -83,12 +83,12 @@ export async function queryMapping(mapping: string, key: string): Promise<string
 
 export function parseU64(raw: string | null): number {
   if (!raw) return 0
-  const cleaned = raw.replace('u64', '').replace(/"/g, '').trim()
+  const cleaned = raw.replace(/"/g, '').replace(/u\d+$/, '').trim()
   return parseInt(cleaned, 10) || 0
 }
 
 export function parseU8(raw: string | null): number {
   if (!raw) return 0
-  const cleaned = raw.replace('u8', '').replace(/"/g, '').trim()
+  const cleaned = raw.replace(/"/g, '').replace(/u\d+$/, '').trim()
   return parseInt(cleaned, 10) || 0
 }

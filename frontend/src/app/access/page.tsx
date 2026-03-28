@@ -444,7 +444,7 @@ function ResourceLookup() {
     setLoading(true)
     try {
       const val = await queryMapping('resource_access_count', resourceId)
-      setCount(val ? val.replace('u64', '') : '0')
+      setCount(val ? val.replace(/u\d+$/, '').trim() : '0')
     } catch {
       toast.error('Query failed')
     } finally {

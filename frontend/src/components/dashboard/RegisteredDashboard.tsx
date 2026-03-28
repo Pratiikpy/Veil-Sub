@@ -220,7 +220,7 @@ export default function RegisteredDashboard({
         const res = await fetch(`/api/aleo/program/${DEPLOYED_PROGRAM_ID}/mapping/total_revenue/${creatorHash}`)
         if (res.ok) {
           const text = await res.text()
-          const cleaned = text.replace(/['"u64\s]/g, '')
+          const cleaned = text.replace(/"/g, '').replace(/u\d+$/, '').trim()
           const value = parseInt(cleaned, 10)
           if (Number.isFinite(value)) {
             setOnChainRevenue(value)

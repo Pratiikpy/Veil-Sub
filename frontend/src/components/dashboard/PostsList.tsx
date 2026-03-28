@@ -99,7 +99,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
             if (!res.ok) return
             const data = await res.json()
             if (data && data !== 'null') {
-              const count = parseInt(String(data).replace(/"/g, '').replace('u64', ''), 10)
+              const count = parseInt(String(data).replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
               if (Number.isFinite(count) && count > 0) results[post.contentId] = count
             }
           } catch { /* non-critical */ }

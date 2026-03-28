@@ -129,9 +129,9 @@ function ReviewsSection() {
         queryMapping('creator_review_count', creatorHash),
         queryMapping('creator_rating_sum', creatorHash),
       ])
-      setAvgRating(avgStr ? parseInt(avgStr.replace('u8', ''), 10) : null)
-      setReviewCount(countStr ? parseInt(countStr.replace('u64', ''), 10) : null)
-      setRatingSum(sumStr ? parseInt(sumStr.replace('u64', ''), 10) : null)
+      setAvgRating(avgStr ? parseInt(avgStr.replace(/u\d+$/, '').trim(), 10) : null)
+      setReviewCount(countStr ? parseInt(countStr.replace(/u\d+$/, '').trim(), 10) : null)
+      setRatingSum(sumStr ? parseInt(sumStr.replace(/u\d+$/, '').trim(), 10) : null)
     } catch {
       // stats fetch failed silently
     } finally {
@@ -360,7 +360,7 @@ function LotterySection() {
     queryMapping('lottery_round', '0u8')
       .then((val) => {
         if (val) {
-          setCurrentRound(parseInt(val.replace('u64', ''), 10))
+          setCurrentRound(parseInt(val.replace(/u\d+$/, '').trim(), 10))
         } else {
           setCurrentRound(0)
         }
