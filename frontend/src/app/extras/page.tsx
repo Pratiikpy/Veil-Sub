@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { m } from 'framer-motion'
 import { spring } from '@/lib/motion'
 import {
@@ -107,6 +107,7 @@ function ReviewsSection() {
   const [reviewContent, setReviewContent] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
+  const reviewSubmittingRef = useRef(false)
 
   // On-chain stats
   const [avgRating, setAvgRating] = useState<number | null>(null)
@@ -146,6 +147,7 @@ function ReviewsSection() {
   }, [creatorHash, fetchStats])
 
   const handleSubmit = useCallback(async () => {
+    if (reviewSubmittingRef.current) return
     if (!connected || !address) {
       toast.error('Connect your wallet to submit a review')
       return
@@ -159,6 +161,7 @@ function ReviewsSection() {
       return
     }
 
+    reviewSubmittingRef.current = true
     setSubmitting(true)
     setTxId(null)
     try {
@@ -188,6 +191,7 @@ function ReviewsSection() {
       }
     } finally {
       setSubmitting(false)
+      reviewSubmittingRef.current = false
     }
   }, [connected, address, creatorHash, rating, reviewContent, execute, fetchStats])
 
@@ -327,6 +331,7 @@ function LotterySection() {
   const [subscriberCount, setSubscriberCount] = useState('')
   const [drawing, setDrawing] = useState(false)
   const [drawTxId, setDrawTxId] = useState<string | null>(null)
+  const drawingRef = useRef(false)
 
   // On-chain lottery state
   const [currentRound, setCurrentRound] = useState<number | null>(null)
@@ -347,6 +352,7 @@ function LotterySection() {
   }, [drawTxId]) // refetch after a draw
 
   const handleDraw = useCallback(async () => {
+    if (drawingRef.current) return
     if (!connected || !address) {
       toast.error('Connect your wallet to draw')
       return
@@ -357,6 +363,7 @@ function LotterySection() {
       return
     }
 
+    drawingRef.current = true
     setDrawing(true)
     setDrawTxId(null)
     try {
@@ -375,6 +382,7 @@ function LotterySection() {
       toast.error(msg)
     } finally {
       setDrawing(false)
+      drawingRef.current = false
     }
   }, [connected, address, subscriberCount, execute])
 

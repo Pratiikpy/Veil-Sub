@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { Plus, Gavel, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import GlassCard from '@/components/GlassCard'
@@ -15,8 +15,10 @@ export default function CreateAuctionSection() {
   const [slotLabel, setSlotLabel] = useState('')
   const [contentSlotId, setContentSlotId] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const creatingRef = useRef(false)
 
   const handleCreate = useCallback(async () => {
+    if (creatingRef.current) return
     if (!connected) {
       toast.error('Please connect your wallet')
       return
@@ -26,6 +28,7 @@ export default function CreateAuctionSection() {
       return
     }
 
+    creatingRef.current = true
     setSubmitting(true)
     try {
       const slotIdFormatted = contentSlotId.endsWith('field') ? contentSlotId : `${contentSlotId}field`
@@ -46,6 +49,7 @@ export default function CreateAuctionSection() {
       toast.error(msg)
     } finally {
       setSubmitting(false)
+      creatingRef.current = false
     }
   }, [connected, contentSlotId, slotLabel, execute])
 

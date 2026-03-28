@@ -92,3 +92,20 @@ frontend/comprehensive-test.js
 frontend/find-undefined.js
 frontend/real-issues-test.js
 frontend/test-pages.js
+
+# Internal prompts and planning docs
+*.PROMPT.md
+*_PROMPT.md
+*_ROADMAP.md
+*_PLAN.md
+*_MASTERPLAN.md
+*_BIBLE.md
+*_TRANSFORMATION.md
+*_ANALYSIS.md
+MEMORY.md
+veil-social-concept.jsx
+FORCE_AUDIT*.md
+MASTER_AUDIT*.md
+FUNCTIONAL_AUDIT*.md
+REDESIGN_PROMPT.md
+

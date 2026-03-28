@@ -358,12 +358,34 @@ export default function MessagesPage() {
       return
     }
 
+    // Optimistic: show message immediately
+    const optimisticId = `optimistic_${Date.now()}`
+    const plaintext = messageText.trim()
+    const optimisticMsg: Message = {
+      id: optimisticId,
+      creator_address: activeCreator,
+      thread_id: threadId!,
+      sender_type: senderType as 'subscriber' | 'creator',
+      tier: senderType === 'subscriber' ? (tier ?? null) : null,
+      content: plaintext,
+      created_at: new Date().toISOString(),
+    }
+    setMessages(prev => [...prev, optimisticMsg])
+    setDecryptedMessages(prev => {
+      const next = new Map(prev)
+      next.set(optimisticId, plaintext)
+      return next
+    })
+    const savedText = messageText.trim()
+    setMessageText('')
+    setTimeout(() => inputRef.current?.focus(), 100)
+
     setSending(true)
     try {
       // Encrypt the message
       const encryptedContent = tier
-        ? await encryptContent(messageText.trim(), activeCreator, tier)
-        : await encryptContent(messageText.trim(), activeCreator, messages.find(m => m.tier)?.tier || 1)
+        ? await encryptContent(savedText, activeCreator, tier)
+        : await encryptContent(savedText, activeCreator, messages.find(m => m.tier)?.tier || 1)
 
       // Build auth payload
       const walletHash = await computeWalletHash(address)
@@ -387,13 +409,11 @@ export default function MessagesPage() {
       if (res.ok) {
         const { message: saved } = await res.json()
         sentMessageIdsRef.current.add(saved.id)
-        setMessages(prev => [...prev, saved])
-        setMessageText('')
-        setTimeout(() => inputRef.current?.focus(), 100)
-        // Decrypt the new message immediately
-        const plaintext = messageText.trim()
+        // Replace optimistic message with server version
+        setMessages(prev => prev.map(m => m.id === optimisticId ? saved : m))
         setDecryptedMessages(prev => {
           const next = new Map(prev)
+          next.delete(optimisticId)
           next.set(saved.id, plaintext)
           return next
         })
@@ -405,10 +425,26 @@ export default function MessagesPage() {
         refreshUnread()
       } else {
         const errData = await res.json().catch(() => ({ error: 'Failed to send' }))
+        // Rollback optimistic message — mark as failed instead of removing
+        setMessages(prev => prev.filter(m => m.id !== optimisticId))
+        setDecryptedMessages(prev => {
+          const next = new Map(prev)
+          next.delete(optimisticId)
+          return next
+        })
+        setMessageText(savedText) // Restore the message text so user doesn't lose it
         toast.error(errData.error || 'Failed to send message')
       }
     } catch (err) {
-      toast.error('Failed to send message')
+      // Rollback optimistic message
+      setMessages(prev => prev.filter(m => m.id !== optimisticId))
+      setDecryptedMessages(prev => {
+        const next = new Map(prev)
+        next.delete(optimisticId)
+        return next
+      })
+      setMessageText(savedText) // Restore the message text
+      toast.error('Failed to send message. Your message has been restored.')
     } finally {
       setSending(false)
       sendingRef.current = false

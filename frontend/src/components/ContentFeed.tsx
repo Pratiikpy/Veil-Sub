@@ -601,9 +601,21 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
     return activePasses.some(p => p.creator === creatorAddress)
   }, [activePasses, creatorAddress])
 
+  const endorsingRef = useRef(false)
   const handleEndorse = useCallback(async (postId: string) => {
+    if (endorsingRef.current) return
     if (!walletAddress || !hasActivePass || endorsingId || endorsedIds.has(postId)) return
+    endorsingRef.current = true
     setEndorsingId(postId)
+
+    // Optimistic update
+    const prevCount = endorseCounts[postId] ?? 0
+    setEndorseCounts(prev => ({ ...prev, [postId]: prevCount + 1 }))
+    setEndorsedIds(prev => {
+      const next = new Set(prev)
+      next.add(postId)
+      return next
+    })
 
     try {
       const walletHash = await computeWalletHash(walletAddress)
@@ -626,22 +638,32 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       if (res.ok) {
         const { count } = await res.json()
         setEndorseCounts(prev => ({ ...prev, [postId]: count }))
-        setEndorsedIds(prev => {
-          const next = new Set(prev)
-          next.add(postId)
-          try { localStorage.setItem(`veilsub_endorsed_${walletAddress}`, JSON.stringify([...next])) } catch { /* quota */ }
-          return next
-        })
+        try { localStorage.setItem(`veilsub_endorsed_${walletAddress}`, JSON.stringify([...endorsedIds, postId])) } catch { /* quota */ }
         toast.success('Endorsement recorded anonymously')
       } else {
+        // Rollback optimistic update
+        setEndorseCounts(prev => ({ ...prev, [postId]: prevCount }))
+        setEndorsedIds(prev => {
+          const next = new Set(prev)
+          next.delete(postId)
+          return next
+        })
         toast.error('Could not record endorsement')
       }
     } catch {
+      // Rollback optimistic update
+      setEndorseCounts(prev => ({ ...prev, [postId]: prevCount }))
+      setEndorsedIds(prev => {
+        const next = new Set(prev)
+        next.delete(postId)
+        return next
+      })
       toast.error('Endorsement failed — check your connection')
     } finally {
       setEndorsingId(null)
+      endorsingRef.current = false
     }
-  }, [walletAddress, hasActivePass, endorsingId, endorsedIds])
+  }, [walletAddress, hasActivePass, endorsingId, endorsedIds, endorseCounts])
 
   return (
     <div>

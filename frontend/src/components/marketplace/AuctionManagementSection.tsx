@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import { spring } from '@/lib/motion'
 import {
@@ -32,6 +32,8 @@ export default function AuctionManagementSection() {
   const [auctionData, setAuctionData] = useState<AuctionData | null>(null)
   const [lookingUp, setLookingUp] = useState(false)
   const [storedBids, setStoredBids] = useState<StoredBid[]>([])
+  const [confirmCancel, setConfirmCancel] = useState(false)
+  const actionRef = useRef(false)
 
   useEffect(() => {
     setStoredBids(getBidsFromStorage())
@@ -75,12 +77,15 @@ export default function AuctionManagementSection() {
   }, [auctionId])
 
   const handleAction = useCallback(async (action: string) => {
+    if (actionRef.current) return
     if (!connected) {
       toast.error('Please connect your wallet')
       return
     }
     const idFormatted = auctionId.endsWith('field') ? auctionId : `${auctionId}field`
+    actionRef.current = true
     setSubmitting(action)
+    setConfirmCancel(false)
     try {
       let txId: string | null = null
 
@@ -123,6 +128,7 @@ export default function AuctionManagementSection() {
       toast.error(msg)
     } finally {
       setSubmitting(null)
+      actionRef.current = false
     }
   }, [connected, auctionId, winnerAddr, storedBids, execute, lookupAuction])
 

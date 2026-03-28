@@ -583,8 +583,8 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
                 placeholder="Write a reply..."
                 className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-1.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-white/30"
               />
-              <button onClick={submit} disabled={!text.trim()} className="px-3 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-xs font-medium hover:bg-white/[0.12] disabled:opacity-40 transition-colors">
-                Reply
+              <button onClick={submit} disabled={!text.trim() || submittingRef.current} className="px-3 py-1.5 rounded-lg bg-white/[0.06] text-white/70 text-xs font-medium hover:bg-white/[0.12] disabled:opacity-40 transition-colors">
+                {submittingRef.current ? 'Sending...' : 'Reply'}
               </button>
             </div>
           )}
@@ -640,8 +640,8 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
               placeholder={canCommentAnonymously && anonymous ? 'Add an anonymous comment...' : 'Add a comment...'}
               className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-colors"
             />
-            <button onClick={() => { setReplyTo(null); submit() }} disabled={!text.trim() || !!replyTo} aria-label="Post comment" className="px-4 py-2 rounded-lg bg-white/[0.06] text-white/70 text-sm font-medium hover:bg-white/[0.12] disabled:opacity-40 transition-colors focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none">
-              Post
+            <button onClick={() => { setReplyTo(null); submit() }} disabled={!text.trim() || !!replyTo || submittingRef.current} aria-label="Post comment" className="px-4 py-2 rounded-lg bg-white/[0.06] text-white/70 text-sm font-medium hover:bg-white/[0.12] disabled:opacity-40 transition-colors focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none">
+              {submittingRef.current ? 'Posting...' : 'Post'}
             </button>
           </div>
         </div>

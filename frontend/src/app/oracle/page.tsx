@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, type RefObject } from 'react'
 import {
   Activity,
   ArrowRight,
@@ -205,11 +205,18 @@ export default function OraclePage() {
 
   // ── On-Chain Actions ────────────────────────────────────────────────
 
+  const initRef = useRef(false)
+  const pushRef = useRef(false)
+  const tierCalcRef = useRef(false)
+  const freshnessRef = useRef(false)
+
   const handleInitializeOracle = useCallback(async () => {
+    if (initRef.current) return
     if (!connected || !address) {
       toast.error('Connect your wallet first')
       return
     }
+    initRef.current = true
     setInitLoading(true)
     try {
       const txId = await execute(
@@ -228,14 +235,17 @@ export default function OraclePage() {
       toast.error('Initialize failed: ' + msg)
     } finally {
       setInitLoading(false)
+      initRef.current = false
     }
   }, [connected, address, execute, refreshOnChainData])
 
   const handlePushPrice = useCallback(async () => {
+    if (pushRef.current) return
     if (!connected || !price) {
       toast.error(connected ? 'No price data available' : 'Connect your wallet first')
       return
     }
+    pushRef.current = true
     setPushLoading(true)
     try {
       // Convert USD price to micro-USD (6 decimals)
@@ -255,6 +265,7 @@ export default function OraclePage() {
       toast.error('Push price failed: ' + msg)
     } finally {
       setPushLoading(false)
+      pushRef.current = false
     }
   }, [connected, price, execute, refreshOnChainData])
 

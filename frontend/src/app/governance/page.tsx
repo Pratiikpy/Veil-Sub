@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useRef } from 'react'
 import { m } from 'framer-motion'
 import { spring } from '@/lib/motion'
 import {
@@ -176,11 +176,13 @@ function CreateProposalForm({ onCreated }: CreateProposalFormProps) {
   const [txId, setTxId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [expanded, setExpanded] = useState(false)
+  const submittingRef = useRef(false)
 
   const proposalId = useMemo(() => title ? generateProposalId(title) : '', [title])
   const descHash = useMemo(() => description ? computeDescriptionHash(description) : '', [description])
 
   const handleSubmit = useCallback(async () => {
+    if (submittingRef.current) return
     if (!connected || !address) {
       toast.error('Connect your wallet first')
       return
@@ -190,6 +192,7 @@ function CreateProposalForm({ onCreated }: CreateProposalFormProps) {
       return
     }
 
+    submittingRef.current = true
     setTxStatus('signing')
     setError(null)
 
@@ -243,6 +246,8 @@ function CreateProposalForm({ onCreated }: CreateProposalFormProps) {
     } catch (err) {
       setTxStatus('failed')
       setError(err instanceof Error ? err.message : 'Transaction failed')
+    } finally {
+      submittingRef.current = false
     }
   }, [connected, address, title, description, execute, registerProposal, startPolling, onCreated])
 
@@ -401,12 +406,15 @@ function CastBallotPanel({ proposal, onVoted, onClose }: CastBallotProps) {
   const [salt] = useState(() => generateSalt())
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
   const [error, setError] = useState<string | null>(null)
+  const votingRef = useRef(false)
 
   const existingBallot = useMemo(() => getBallotSalt(proposal.id), [proposal.id])
 
   const handleVote = useCallback(async () => {
+    if (votingRef.current) return
     if (!connected || !address || vote === null) return
 
+    votingRef.current = true
     setTxStatus('signing')
     setError(null)
 
@@ -448,6 +456,8 @@ function CastBallotPanel({ proposal, onVoted, onClose }: CastBallotProps) {
     } catch (err) {
       setTxStatus('failed')
       setError(err instanceof Error ? err.message : 'Transaction failed')
+    } finally {
+      votingRef.current = false
     }
   }, [connected, address, vote, salt, proposal.id, execute, saveBallot, clearCache, startPolling, onVoted])
 
@@ -576,10 +586,12 @@ function ProposalActions({ proposal, onAction }: ProposalActionsProps) {
   const [resolveNo, setResolveNo] = useState('')
   const [showResolve, setShowResolve] = useState(false)
   const [showVerify, setShowVerify] = useState(false)
+  const resolvingRef = useRef(false)
 
   const isSubmitting = txStatus === 'signing' || txStatus === 'broadcasting' || txStatus === 'proving'
 
   const handleResolve = useCallback(async () => {
+    if (resolvingRef.current) return
     if (!connected) return
     const yesNum = parseInt(resolveYes, 10)
     const noNum = parseInt(resolveNo, 10)
@@ -592,6 +604,7 @@ function ProposalActions({ proposal, onAction }: ProposalActionsProps) {
       return
     }
 
+    resolvingRef.current = true
     setTxStatus('signing')
     setError(null)
 
@@ -628,6 +641,8 @@ function ProposalActions({ proposal, onAction }: ProposalActionsProps) {
     } catch (err) {
       setTxStatus('failed')
       setError(err instanceof Error ? err.message : 'Transaction failed')
+    } finally {
+      resolvingRef.current = false
     }
   }, [connected, resolveYes, resolveNo, proposal, execute, clearCache, startPolling, onAction])
 

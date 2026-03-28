@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
@@ -35,6 +35,7 @@ export default function DMConfigSection() {
   const [submitting, setSubmitting] = useState(false)
   const [priceInput, setPriceInput] = useState('')
   const [tierInput, setTierInput] = useState(1)
+  const configuringRef = useRef(false)
 
   // Fetch current config from mappings
   useEffect(() => {
@@ -78,6 +79,7 @@ export default function DMConfigSection() {
   }, [creatorHash])
 
   const handleConfigure = useCallback(async () => {
+    if (configuringRef.current) return
     if (!creatorHash || submitting) return
 
     const priceMicrocredits = Math.floor(parseFloat(priceInput || '0') * MICROCREDITS_PER_CREDIT)
@@ -90,6 +92,7 @@ export default function DMConfigSection() {
       return
     }
 
+    configuringRef.current = true
     setSubmitting(true)
     try {
       const txId = await execute(
@@ -110,6 +113,7 @@ export default function DMConfigSection() {
       })
     } finally {
       setSubmitting(false)
+      configuringRef.current = false
     }
   }, [creatorHash, priceInput, tierInput, submitting, execute])
 

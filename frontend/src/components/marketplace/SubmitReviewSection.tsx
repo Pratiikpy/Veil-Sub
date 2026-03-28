@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { Star, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import GlassCard from '@/components/GlassCard'
@@ -17,6 +17,7 @@ export default function SubmitReviewSection() {
   const [reviewText, setReviewText] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [selectedCreator, setSelectedCreator] = useState('')
+  const submittingRef = useRef(false)
 
   useEffect(() => {
     if (selectedCreator) {
@@ -26,6 +27,7 @@ export default function SubmitReviewSection() {
   }, [selectedCreator])
 
   const handleSubmit = useCallback(async () => {
+    if (submittingRef.current) return
     if (!connected || !address) {
       toast.error('Please connect your wallet first')
       return
@@ -39,6 +41,7 @@ export default function SubmitReviewSection() {
       return
     }
 
+    submittingRef.current = true
     setSubmitting(true)
     try {
       let contentHash = '0field'
@@ -73,6 +76,7 @@ export default function SubmitReviewSection() {
       }
     } finally {
       setSubmitting(false)
+      submittingRef.current = false
     }
   }, [connected, address, rating, creatorHash, reviewText, execute])
 

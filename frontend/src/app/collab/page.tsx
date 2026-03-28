@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { m } from 'framer-motion'
 import { spring } from '@/lib/motion'
 import {
@@ -79,8 +79,10 @@ function CreateCollabForm() {
   const [contentScope, setContentScope] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
+  const creatingRef = useRef(false)
 
   const handleCreate = useCallback(async () => {
+    if (creatingRef.current) return
     if (!connected || !address) {
       toast.error('Connect your wallet first')
       return
@@ -99,6 +101,7 @@ function CreateCollabForm() {
       return
     }
 
+    creatingRef.current = true
     setSubmitting(true)
     setTxId(null)
     try {
@@ -123,6 +126,7 @@ function CreateCollabForm() {
       toast.error(msg)
     } finally {
       setSubmitting(false)
+      creatingRef.current = false
     }
   }, [connected, address, partner, splitPct, contentScope, execute])
 
@@ -230,8 +234,10 @@ function SplitPaymentForm() {
   const [amount, setAmount] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
+  const splittingRef = useRef(false)
 
   const handleSplit = useCallback(async () => {
+    if (splittingRef.current) return
     if (!connected) {
       toast.error('Connect your wallet first')
       return
@@ -246,6 +252,7 @@ function SplitPaymentForm() {
       return
     }
 
+    splittingRef.current = true
     setSubmitting(true)
     setTxId(null)
     try {
@@ -264,6 +271,7 @@ function SplitPaymentForm() {
       toast.error(msg)
     } finally {
       setSubmitting(false)
+      splittingRef.current = false
     }
   }, [connected, collabId, amount, execute])
 
@@ -496,8 +504,11 @@ function EndCollabForm() {
   const [collabId, setCollabId] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const endingRef = useRef(false)
 
   const handleEnd = useCallback(async () => {
+    if (endingRef.current) return
     if (!connected) {
       toast.error('Connect your wallet first')
       return
@@ -507,6 +518,8 @@ function EndCollabForm() {
       return
     }
 
+    endingRef.current = true
+    setShowConfirm(false)
     setSubmitting(true)
     setTxId(null)
     try {
@@ -525,6 +538,7 @@ function EndCollabForm() {
       toast.error(msg)
     } finally {
       setSubmitting(false)
+      endingRef.current = false
     }
   }, [connected, collabId, execute])
 
@@ -556,27 +570,38 @@ function EndCollabForm() {
         </div>
       </div>
 
-      <Button
-        variant="secondary"
-        className="w-full rounded-xl mt-4 !border-red-500/20 !text-red-400 hover:!bg-red-500/5"
-        disabled={!connected || submitting || !collabId}
-        onClick={handleEnd}
-        size="sm"
-      >
-        {submitting ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            Ending...
-          </>
-        ) : !connected ? (
-          'Connect Wallet'
-        ) : (
-          <>
-            <XCircle className="w-4 h-4" />
-            End Collaboration
-          </>
-        )}
-      </Button>
+      {showConfirm && (
+        <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 space-y-2">
+          <p className="text-xs text-red-300">Are you sure you want to end this collaboration? This action is irreversible on-chain.</p>
+          <div className="flex gap-2">
+            <button onClick={handleEnd} disabled={submitting} className="flex-1 py-2 rounded-lg bg-red-500/20 border border-red-500/40 text-xs font-medium text-red-300 hover:bg-red-500/30 disabled:opacity-40 transition-all">Confirm End</button>
+            <button onClick={() => setShowConfirm(false)} disabled={submitting} className="px-3 py-2 rounded-lg bg-white/[0.05] border border-white/[0.1] text-xs text-white/50 hover:bg-white/[0.08] disabled:opacity-40 transition-all">Cancel</button>
+          </div>
+        </div>
+      )}
+      {!showConfirm && (
+        <Button
+          variant="secondary"
+          className="w-full rounded-xl mt-4 !border-red-500/20 !text-red-400 hover:!bg-red-500/5"
+          disabled={!connected || submitting || !collabId}
+          onClick={() => setShowConfirm(true)}
+          size="sm"
+        >
+          {submitting ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Ending...
+            </>
+          ) : !connected ? (
+            'Connect Wallet'
+          ) : (
+            <>
+              <XCircle className="w-4 h-4" />
+              End Collaboration
+            </>
+          )}
+        </Button>
+      )}
 
       {txId && (
         <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 mt-3">

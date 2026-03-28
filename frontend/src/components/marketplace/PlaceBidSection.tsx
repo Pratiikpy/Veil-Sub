@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { Lock, EyeOff, AlertTriangle, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import GlassCard from '@/components/GlassCard'
@@ -17,8 +17,10 @@ export default function PlaceBidSection() {
   const [amount, setAmount] = useState('')
   const [salt] = useState(() => generateSalt())
   const [submitting, setSubmitting] = useState(false)
+  const biddingRef = useRef(false)
 
   const handleBid = useCallback(async () => {
+    if (biddingRef.current) return
     if (!connected) {
       toast.error('Please connect your wallet')
       return
@@ -33,6 +35,7 @@ export default function PlaceBidSection() {
       return
     }
 
+    biddingRef.current = true
     setSubmitting(true)
     try {
       const auctionIdFormatted = auctionId.endsWith('field') ? auctionId : `${auctionId}field`
@@ -70,6 +73,7 @@ export default function PlaceBidSection() {
       }
     } finally {
       setSubmitting(false)
+      biddingRef.current = false
     }
   }, [connected, amount, auctionId, salt, execute])
 
