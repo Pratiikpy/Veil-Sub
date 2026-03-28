@@ -18,7 +18,26 @@ export default function ArticleReader({ title, body, creator, publishedAt, readi
   const [progress, setProgress] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const sanitizedBody = useMemo(() => DOMPurify.sanitize(body), [body])
+  const sanitizedBody = useMemo(() => DOMPurify.sanitize(body, {
+    ALLOWED_TAGS: [
+      'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's',
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+      'ul', 'ol', 'li',
+      'blockquote', 'pre', 'code',
+      'a', 'img', 'hr',
+      'div', 'span',
+      'iframe',
+    ],
+    ALLOWED_ATTR: [
+      'href', 'target', 'rel',
+      'src', 'alt', 'width', 'height', 'loading',
+      'class', 'style',
+      'allowfullscreen', 'allow', 'frameborder',
+    ],
+    ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
+    ADD_TAGS: ['iframe'],
+    ADD_ATTR: ['allowfullscreen', 'allow', 'frameborder'],
+  }), [body])
 
   useEffect(() => {
     const el = containerRef.current

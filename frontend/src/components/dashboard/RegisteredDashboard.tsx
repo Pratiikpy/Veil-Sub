@@ -8,11 +8,13 @@ import {
   Check,
   ExternalLink,
   Shield,
+  ShieldOff,
   Settings,
   FileText,
   ArrowDownToLine,
   Plus,
   ChevronRight,
+  ChevronDown,
   Users,
   Coins,
   X,
@@ -30,6 +32,7 @@ import CreatePostForm from '@/components/CreatePostForm'
 import ProfileEditor from '@/components/dashboard/ProfileEditor'
 import PostsList from '@/components/dashboard/PostsList'
 import { formatCredits, formatUsd, shortenAddress, generatePassId } from '@/lib/utils'
+import { encryptContent } from '@/lib/e2eEncryption'
 import { PLATFORM_FEE_PCT, PLATFORM_ADDRESS, DEPLOYED_PROGRAM_ID, MICROCREDITS_PER_CREDIT, getCreatorHash } from '@/lib/config'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useContentFeed } from '@/hooks/useContentFeed'
@@ -42,6 +45,7 @@ import type { CreatorProfile, TxStatus, CustomTierInfo, ContentPost } from '@/ty
 
 const TierCreationDialog = dynamic(() => import('@/components/TierCreationDialog'), { ssr: false })
 const ProveThresholdModal = dynamic(() => import('@/components/ProveThresholdModal'), { ssr: false })
+const RevokeAccessPanel = dynamic(() => import('@/components/RevokeAccessPanel'), { ssr: false })
 
 type ComposeMode = 'note' | 'post' | 'article' | 'photo' | 'video'
 
@@ -182,7 +186,18 @@ export default function RegisteredDashboard({
   const [editingTierId, setEditingTierId] = useState<number | null>(null)
   const [showAllPosts, setShowAllPosts] = useState(false)
   const [showWithdrawPanel, setShowWithdrawPanel] = useState(false)
+  const [showWithdrawConfirm, setShowWithdrawConfirm] = useState<'creator' | 'platform' | false>(false)
   const [showProfileEditor, setShowProfileEditor] = useState(false)
+  const [showRevokePanel, setShowRevokePanel] = useState(false)
+  const withdrawSubmittingRef = useRef(false)
+  const withdrawResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Clear withdraw reset timer on unmount to prevent state updates after unmount
+  useEffect(() => {
+    return () => {
+      if (withdrawResetTimerRef.current) clearTimeout(withdrawResetTimerRef.current)
+    }
+  }, [])
 
   // On-chain withdrawable balance (current creator_revenue mapping value)
   const [onChainRevenue, setOnChainRevenue] = useState<number | null>(null)
@@ -261,6 +276,7 @@ export default function RegisteredDashboard({
   }
 
   const handleWithdraw = async (type: 'creator' | 'platform') => {
+    if (withdrawSubmittingRef.current) return
     if (withdrawTxStatus === 'signing' || withdrawTxStatus === 'broadcasting') return
     const amount = parseFloat(withdrawAmount)
     if (!Number.isFinite(amount) || amount <= 0) {
@@ -274,6 +290,8 @@ export default function RegisteredDashboard({
       toast.error(`Maximum available: ${maxAmount.toFixed(6)} ALEO`)
       return
     }
+    withdrawSubmittingRef.current = true
+    setShowWithdrawConfirm(false)
     setWithdrawTxStatus('signing')
     setWithdrawError(null)
     try {
@@ -291,12 +309,15 @@ export default function RegisteredDashboard({
             setWithdrawAmount('')
             setRefreshKey((k) => k + 1)  // Trigger stats refresh
             toast.success(`${type === 'platform' ? 'Platform fee' : 'Revenue'} withdrawal complete!`)
+            withdrawSubmittingRef.current = false
             // Reset status after 3s so user can initiate another withdrawal
-            setTimeout(() => setWithdrawTxStatus('idle'), 3000)
+            if (withdrawResetTimerRef.current) clearTimeout(withdrawResetTimerRef.current)
+            withdrawResetTimerRef.current = setTimeout(() => setWithdrawTxStatus('idle'), 3000)
           } else if (pollResult.status === 'failed') {
             setWithdrawTxStatus('failed')
             setWithdrawError('Withdrawal could not be completed. Check your on-chain balance and try again.')
             stopPolling()
+            withdrawSubmittingRef.current = false
           } else if (pollResult.status === 'timeout') {
             // Shield Wallet delegates proving and never reports 'confirmed' —
             // the transaction IS broadcast, so treat timeout as likely success.
@@ -304,18 +325,22 @@ export default function RegisteredDashboard({
             stopPolling()
             setWithdrawAmount('')
             setRefreshKey((k) => k + 1)
-            toast.success(`${type === 'platform' ? 'Platform fee' : 'Revenue'} withdrawal complete! (confirmation was slow)`)
-            setTimeout(() => setWithdrawTxStatus('idle'), 3000)
+            toast.success('Transaction likely succeeded — verify on the explorer if needed.', { duration: 6000 })
+            withdrawSubmittingRef.current = false
+            if (withdrawResetTimerRef.current) clearTimeout(withdrawResetTimerRef.current)
+            withdrawResetTimerRef.current = setTimeout(() => setWithdrawTxStatus('idle'), 3000)
           }
         })
       } else {
         setWithdrawTxStatus('idle')
+        withdrawSubmittingRef.current = false
         toast.error('Wallet did not approve the withdrawal. Check your balance and try again.')
       }
     } catch (err: unknown) {
       setWithdrawTxStatus('failed')
       setWithdrawError(err instanceof Error ? err.message : 'Withdrawal could not be completed')
       toast.error('Withdrawal could not be completed')
+      withdrawSubmittingRef.current = false
     }
   }
 
@@ -362,10 +387,14 @@ export default function RegisteredDashboard({
         className="flex items-center gap-4"
       >
         {profileImageUrl ? (
-          <img src={profileImageUrl} alt="" className="w-12 h-12 rounded-full object-cover shrink-0 ring-2 ring-white/[0.06]" />
-        ) : (
-          <AddressAvatar address={publicKey} size={48} className="shrink-0 rounded-full ring-2 ring-white/[0.06]" />
-        )}
+          <img
+            src={profileImageUrl}
+            alt=""
+            className="w-12 h-12 rounded-full object-cover shrink-0 ring-2 ring-white/[0.06]"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
+          />
+        ) : null}
+        <AddressAvatar address={publicKey} size={48} className={`shrink-0 rounded-full ring-2 ring-white/[0.06] ${profileImageUrl ? 'hidden' : ''}`} />
         <div className="flex-1 min-w-0">
           <h1 className="text-lg font-semibold text-white truncate">
             {profileName || shortenAddress(publicKey)}
@@ -499,7 +528,7 @@ export default function RegisteredDashboard({
                   </button>
                 </div>
                 <button
-                  onClick={() => handleWithdraw('creator')}
+                  onClick={() => setShowWithdrawConfirm('creator')}
                   disabled={withdrawTxStatus === 'signing' || withdrawTxStatus === 'broadcasting' || !withdrawAmount}
                   className="px-5 py-2.5 rounded-xl bg-white/10 border border-white/[0.08] text-sm font-semibold text-white hover:bg-white/15 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 active:scale-[0.97]"
                 >
@@ -509,12 +538,33 @@ export default function RegisteredDashboard({
               </div>
               {publicKey === PLATFORM_ADDRESS && (
                 <button
-                  onClick={() => handleWithdraw('platform')}
+                  onClick={() => setShowWithdrawConfirm('platform')}
                   disabled={withdrawTxStatus === 'signing' || withdrawTxStatus === 'broadcasting' || !withdrawAmount}
                   className="w-full px-4 py-2 rounded-xl bg-white/[0.06] border border-white/[0.06] text-sm font-medium text-white/70 hover:bg-white/[0.1] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Withdraw Platform Fees
                 </button>
+              )}
+              {showWithdrawConfirm && (
+                <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 space-y-2">
+                  <p className="text-xs text-yellow-300">
+                    Withdraw {withdrawAmount} ALEO? This is irreversible.
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleWithdraw(showWithdrawConfirm)}
+                      className="flex-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-yellow-500/20 border border-yellow-500/30 text-yellow-200 hover:bg-yellow-500/30 transition-all"
+                    >
+                      Confirm
+                    </button>
+                    <button
+                      onClick={() => setShowWithdrawConfirm(false)}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.05] border border-white/[0.1] text-white/50 hover:bg-white/[0.08] transition-all"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
               )}
               {withdrawTxStatus !== 'idle' && (
                 <TransactionStatus status={withdrawTxStatus} txId={withdrawTxId} errorMessage={withdrawError} />
@@ -576,15 +626,27 @@ export default function RegisteredDashboard({
             profileName={profileName}
             walletAddress={publicKey}
             submitting={noteSubmitting}
-            onSubmit={async (noteText: string) => {
+            showEncryptToggle
+            onSubmit={async (noteText: string, subscribersOnly?: boolean) => {
               setNoteSubmitting(true)
               try {
                 const contentId = generatePassId()
+                // When "Subscribers only" is toggled, encrypt the note body
+                // using tier 1 (base tier) so any subscriber can decrypt it
+                let body = noteText
+                const minTier = subscribersOnly ? 1 : 0
+                if (subscribersOnly) {
+                  try {
+                    body = await encryptContent(noteText, publicKey, 1)
+                  } catch {
+                    toast.error('Encryption failed — posting as public note instead.')
+                  }
+                }
                 await createPost(
                   publicKey,
                   '',
-                  noteText,
-                  0,
+                  body,
+                  minTier,
                   contentId,
                   null,
                   undefined,
@@ -597,7 +659,7 @@ export default function RegisteredDashboard({
                   undefined,
                   'note'
                 )
-                toast.success('Note posted!')
+                toast.success(subscribersOnly ? 'Encrypted note posted! Only subscribers can read it.' : 'Note posted!')
                 setRefreshKey((k) => k + 1)
               } catch {
                 toast.error('Failed to post note. Please try again.')
@@ -830,6 +892,40 @@ export default function RegisteredDashboard({
           </m.div>
         )}
       </AnimatePresence>
+
+      {/* ═══════════════════════════════════════════════════════
+          SECTION 7: Revoke Access (destructive — collapsible)
+         ═══════════════════════════════════════════════════════ */}
+      <m.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+      >
+        <button
+          onClick={() => setShowRevokePanel(!showRevokePanel)}
+          className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-surface-1 border border-white/[0.06] text-sm text-white/60 hover:text-white/80 hover:bg-white/[0.03] transition-all"
+        >
+          <span className="flex items-center gap-2">
+            <ShieldOff className="w-4 h-4 text-red-400/60" aria-hidden="true" />
+            Revoke Subscriber Access
+          </span>
+          <ChevronDown className={`w-4 h-4 transition-transform ${showRevokePanel ? 'rotate-180' : ''}`} aria-hidden="true" />
+        </button>
+        <AnimatePresence>
+          {showRevokePanel && (
+            <m.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="pt-3">
+                <RevokeAccessPanel onSuccess={() => setRefreshKey((k) => k + 1)} />
+              </div>
+            </m.div>
+          )}
+        </AnimatePresence>
+      </m.div>
 
       {/* Footer note */}
       <p className="text-center text-[11px] text-white/50 py-1">

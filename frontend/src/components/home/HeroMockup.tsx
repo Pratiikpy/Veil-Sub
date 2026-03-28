@@ -144,7 +144,7 @@ export default function HeroMockup() {
       >
         <FloatingLabel
           icon={Zap}
-          label="Privacy v27"
+          label="Privacy v30"
           sub="Private subs · Blind renewals"
           colorClass="bg-pink-500/[0.08] border-pink-500/[0.2] text-pink-300"
           animDelay="3.2s"

@@ -94,10 +94,10 @@ export default function OGImage() {
           }}
         >
           {[
-            { value: '27', label: 'Transitions' },
-            { value: '25', label: 'Mappings' },
+            { value: '31', label: 'Transitions' },
+            { value: '30', label: 'Mappings' },
             { value: '6', label: 'Record Types' },
-            { value: 'v27', label: 'Deployed' },
+            { value: 'v30', label: 'Deployed' },
           ].map((stat) => (
             <div key={stat.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div style={{ fontSize: 28, fontWeight: 700, color: '#fafafa' }}>{stat.value}</div>
@@ -124,7 +124,7 @@ export default function OGImage() {
               color: '#a0a0a0',
             }}
           >
-            Zero-Knowledge Privacy · Zero Addresses in Finalize · v27 Deployed
+            Zero-Knowledge Privacy · Zero Addresses in Finalize · v30 Deployed
           </div>
         </div>
       </div>

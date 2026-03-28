@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
-import { X, Shield, Sparkles, ArrowRight, CreditCard } from 'lucide-react'
+import { X, Shield, Sparkles, ArrowRight, CreditCard, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
@@ -23,6 +23,8 @@ import TransactionProgress from './TransactionProgress'
 import type { ProgressStep } from './TransactionProgress'
 import BalanceConverter from './BalanceConverter'
 import Button from './ui/Button'
+import TokenSelector from './TokenSelector'
+import type { PaymentToken } from './TokenSelector'
 import dynamic from 'next/dynamic'
 const RecommendationsCard = dynamic(() => import('./RecommendationsCard'), { ssr: false })
 import ZKReceipt from './ZKReceipt'
@@ -58,7 +60,7 @@ export default function SubscribeModal({
     setShowTierPicker(false)
   }
   const tier = activeTier
-  const { subscribe, subscribeBlind, subscribeTrial, getCreditsRecords, connected, publicKey } = useVeilSub()
+  const { subscribe, subscribeBlind, subscribeTrial, subscribeUsdcx, subscribeUsad, getCreditsRecords, getUsdcxRecords, getUsadRecords, connected, publicKey } = useVeilSub()
   const { signMessage } = useWallet()
   const { blockHeight, error: blockHeightError } = useBlockHeight()
   const { startPolling, stopPolling } = useTransactionPoller()
@@ -72,11 +74,17 @@ export default function SubscribeModal({
 
   const [insufficientBalance, setInsufficientBalance] = useState(false)
   const [largestRecord, setLargestRecord] = useState(0)
+  const [paymentToken, setPaymentToken] = useState<PaymentToken>('credits')
   const [privacyMode, setPrivacyMode] = useState<'standard' | 'blind' | 'trial'>('standard')
   const [receiptPassId, setReceiptPassId] = useState('')
   const [receiptExpiry, setReceiptExpiry] = useState(0)
   const privacyGroupRef = useRef<HTMLDivElement>(null)
   useRovingTabIndex(privacyGroupRef)
+
+  // Dismiss lingering toasts when modal unmounts
+  useEffect(() => {
+    return () => { toast.dismiss('subscribe-optimistic') }
+  }, [])
 
   // Map TxStatus → ProgressStep for the visual progress bar
   const progressStep: ProgressStep =
@@ -93,6 +101,10 @@ export default function SubscribeModal({
   const totalPrice = privacyMode === 'trial' ? Math.floor(fullPrice / TRIAL_PRICE_DIVISOR) : fullPrice
   const platformCut = Math.floor(totalPrice * PLATFORM_FEE_PCT / 100)
   const creatorCut = totalPrice - platformCut
+
+  // Placeholder MerkleProof for stablecoin freeze list compliance.
+  // TODO: Generate real MerkleProof from freeze list oracle when available.
+  const PLACEHOLDER_MERKLE_PROOF = '{ path: [0field, 0field, 0field, 0field, 0field, 0field, 0field, 0field], indices: [false, false, false, false, false, false, false, false] }'
 
   const handleSubscribe = async () => {
     if (submittingRef.current) return
@@ -115,6 +127,116 @@ export default function SubscribeModal({
     toast.loading('Preparing your private subscription...', { id: 'subscribe-optimistic', duration: 60000 })
 
     try {
+      // For stablecoin payments, fetch token records instead of credits
+      if (paymentToken === 'usdcx' || paymentToken === 'usad') {
+        const fetchRecords = paymentToken === 'usdcx' ? getUsdcxRecords : getUsadRecords
+        const tokenLabel = paymentToken === 'usdcx' ? 'USDCx' : 'USAD'
+
+        let tokenRecords: string[]
+        try {
+          tokenRecords = await fetchRecords()
+        } catch {
+          toast.dismiss('subscribe-optimistic')
+          setError(`Could not fetch ${tokenLabel} records. Make sure Shield Wallet is connected.`)
+          setTxStatus('idle')
+          submittingRef.current = false
+          return
+        }
+
+        if (!tokenRecords.length) {
+          toast.dismiss('subscribe-optimistic')
+          setError(`No ${tokenLabel} tokens found in your wallet. You need ${tokenLabel} to pay with stablecoins.`)
+          setTxStatus('idle')
+          submittingRef.current = false
+          return
+        }
+
+        // Find a token record with sufficient amount (u128)
+        const needed = BigInt(totalPrice)
+        const paymentRecord = tokenRecords.find((r) => {
+          const match = r.match(/amount\s*:\s*([\d_]+)u128/)
+          return match ? BigInt(match[1].replace(/_/g, '')) >= needed : false
+        })
+
+        if (!paymentRecord) {
+          toast.dismiss('subscribe-optimistic')
+          setError(`Insufficient ${tokenLabel} balance. Need at least ${totalPrice} micro-${tokenLabel}.`)
+          setTxStatus('idle')
+          submittingRef.current = false
+          return
+        }
+
+        // Check public balance covers the stablecoin network fee
+        try {
+          const feeNeeded = paymentToken === 'usdcx' ? FEES.SUBSCRIBE_USDCX : FEES.SUBSCRIBE_USAD
+          const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(publicKey ?? '')}`)
+          if (pubRes.ok) {
+            const pubText = await pubRes.text()
+            const pubBal = parseInt((pubText ?? '').replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+            if (!isNaN(pubBal) && pubBal < feeNeeded) {
+              toast.dismiss('subscribe-optimistic')
+              setError(`Insufficient public balance for network fee. You need ~${formatCredits(feeNeeded)} ALEO public credits.`)
+              setTxStatus('idle')
+              submittingRef.current = false
+              return
+            }
+          }
+        } catch {
+          toast.warning('Could not verify public balance. Transaction may fail if fees are insufficient.')
+        }
+
+        const passId = generatePassId()
+        const expiresAt = blockHeight + SUBSCRIPTION_DURATION_BLOCKS
+        setReceiptPassId(passId)
+        setReceiptExpiry(expiresAt)
+        setTxStatus('proving')
+        toast.dismiss('subscribe-optimistic')
+
+        const subscribeFn = paymentToken === 'usdcx' ? subscribeUsdcx : subscribeUsad
+        const id = await subscribeFn(
+          paymentRecord,
+          creatorAddress,
+          tier.id,
+          String(totalPrice),
+          passId,
+          expiresAt,
+          PLACEHOLDER_MERKLE_PROOF
+        )
+
+        if (id) {
+          setTxId(id)
+          setTxStatus('broadcasting')
+          startPolling(id, (result) => {
+            if (result.status === 'confirmed') {
+              if (result.resolvedTxId) setTxId(result.resolvedTxId)
+              setTxStatus('confirmed')
+              playSubscribeSuccess()
+              clearMappingCache()
+              onSuccess?.()
+              notifyNewSubscriber(creatorAddress, tier.id, result.resolvedTxId || id)
+              toast.success("You're subscribed!")
+            } else if (result.status === 'failed') {
+              setTxStatus('failed')
+              setError(`Stablecoin subscription failed. Make sure you have enough ${tokenLabel} tokens and public credits for fees.`)
+              toast.error('Subscription failed')
+            } else if (result.status === 'timeout') {
+              if (result.resolvedTxId) setTxId(result.resolvedTxId)
+              setTxStatus('confirmed')
+              toast.success('Transaction likely succeeded — verify on the explorer if needed.', { duration: 6000 })
+              clearMappingCache()
+              onSuccess?.()
+              notifyNewSubscriber(creatorAddress, tier.id, result.resolvedTxId || id)
+            }
+          })
+        } else {
+          setTxStatus('failed')
+          setError('Wallet rejected or failed. Make sure you approved the transaction in your wallet.')
+        }
+
+        return // stablecoin path complete
+      }
+
+      // --- ALEO Credits path (existing logic) ---
       const balanceResult = await checkBalance(totalPrice)
       if (balanceResult.largestRecord) setLargestRecord(balanceResult.largestRecord)
       if (balanceResult.error || !balanceResult.records?.length) {
@@ -213,11 +335,11 @@ export default function SubscribeModal({
             setError(`Subscription failed.${walletDetail} Make sure you have enough public credits (~0.3 ALEO) for fees and private credits for the tier price.`)
             toast.error('Subscription failed')
           } else if (result.status === 'timeout') {
-            // Transaction likely confirmed — Shield Wallet doesn't report status well
-            // Treat as success since the wallet already signed and broadcast
+            // Transaction likely succeeded — Shield Wallet delegates proving and
+            // never reports 'confirmed', but the tx IS signed and broadcast.
+            if (result.resolvedTxId) setTxId(result.resolvedTxId)
             setTxStatus('confirmed')
-            playSubscribeSuccess()
-            toast.success('Subscribed! (confirmation was slow but your transaction was sent)')
+            toast.success('Transaction likely succeeded — verify on the explorer if needed.', { duration: 6000 })
             clearMappingCache()
             onSuccess?.()
             notifyNewSubscriber(creatorAddress, tier.id, result.resolvedTxId || id)
@@ -242,6 +364,7 @@ export default function SubscribeModal({
 
   const handleModalClose = () => {
     setInsufficientBalance(false)
+    setPaymentToken('credits')
     setPrivacyMode('standard') // Reset privacy mode for next open
     setShowTierPicker(false)
     handleClose()
@@ -254,7 +377,7 @@ export default function SubscribeModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh] bg-black/60 backdrop-blur-sm overflow-y-auto"
+          className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[5vh] sm:pt-[10vh] bg-black/60 backdrop-blur-sm overflow-y-auto"
           onClick={handleModalClose}
         >
           <m.div
@@ -281,14 +404,15 @@ export default function SubscribeModal({
                 disabled={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed'}
                 aria-label="Close subscription dialog"
                 title={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed' ? 'Transaction in progress - please wait' : 'Close dialog'}
-                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                className="p-2.5 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
               >
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
+            <AnimatePresence mode="wait">
             {txStatus === 'idle' ? (
-              <>
+              <m.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                 {/* Tier Picker (shown when user clicks "Change tier") */}
                 {showTierPicker && availableTiers && availableTiers.length > 1 ? (
                   <div className="mb-4">
@@ -361,9 +485,16 @@ export default function SubscribeModal({
                   </>
                 )}
 
+                {/* Token Selector */}
+                <TokenSelector
+                  selected={paymentToken}
+                  onChange={setPaymentToken}
+                  disabled={txStatus !== 'idle'}
+                />
+
                 {/* Fee Breakdown */}
                 <p className="text-[11px] text-white/60 mb-2">
-                  Includes {PLATFORM_FEE_PCT}% platform fee &middot; {formatCredits(creatorCut)} ALEO goes to creator
+                  Includes {PLATFORM_FEE_PCT}% platform fee &middot; {formatCredits(creatorCut)} {paymentToken === 'credits' ? 'ALEO' : paymentToken === 'usdcx' ? 'USDCx' : 'USAD'} goes to creator
                 </p>
                 <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
                   <div className="text-xs text-white/60 space-y-1">
@@ -389,7 +520,9 @@ export default function SubscribeModal({
                     <div className="flex justify-between">
                       <span>Est. network fee</span>
                       <span>~{formatCredits(
-                        privacyMode === 'trial' ? FEES.SUBSCRIBE_TRIAL
+                        paymentToken === 'usdcx' ? FEES.SUBSCRIBE_USDCX
+                          : paymentToken === 'usad' ? FEES.SUBSCRIBE_USAD
+                          : privacyMode === 'trial' ? FEES.SUBSCRIBE_TRIAL
                           : privacyMode === 'blind' ? FEES.SUBSCRIBE_BLIND
                           : FEES.SUBSCRIBE
                       )} ALEO</span>
@@ -397,7 +530,8 @@ export default function SubscribeModal({
                   </div>
                 </div>
 
-                {/* Privacy Mode Selector */}
+                {/* Privacy Mode Selector — only for ALEO credits; stablecoins use standard mode */}
+                {paymentToken === 'credits' ? (
                 <div className="p-4 rounded-xl bg-surface-2 border border-border mb-4">
                     <p className="text-xs text-white/60 mb-2 font-medium">Privacy Level</p>
                     <div ref={privacyGroupRef} className="grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="Privacy level">
@@ -430,15 +564,23 @@ export default function SubscribeModal({
                     )}
                     {privacyMode === 'blind' && (
                       <p className="text-[11px] text-white/50 mt-2">
-                        Each renewal looks different to the creator—they cannot track you across renewals.
+                        Maximum privacy — each renewal uses a fresh anonymous identity, so no one can track your subscription history across periods.
                       </p>
                     )}
                     {privacyMode === 'trial' && (
                       <p className="text-[11px] text-white/50 mt-2">
-                        Try before committing — short-term access at reduced cost.
+                        Try risk-free — short-term access at 20% price. Auto-expires with zero trace. One trial per creator.
                       </p>
                     )}
+                    <a href="/privacy" target="_blank" className="text-[11px] text-violet-400 hover:text-violet-300 mt-2 inline-block transition-colors">Learn about our privacy modes &rarr;</a>
                 </div>
+                ) : (
+                <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4">
+                  <p className="text-[11px] text-white/50">
+                    Stablecoin subscriptions use standard privacy mode (30 days). Blind and trial modes are available with ALEO credits.
+                  </p>
+                </div>
+                )}
 
                 {/* Privacy Notice */}
                 <div className="p-4 rounded-xl bg-surface-2 border border-border mb-6 space-y-2">
@@ -473,6 +615,8 @@ export default function SubscribeModal({
                   </div>
                 )}
 
+                <p className="text-[11px] text-white/50 text-center mb-2">Blockchain transactions are final and non-refundable.</p>
+
                 {/* Subscribe Button */}
                 <Button
                   variant="accent"
@@ -481,15 +625,21 @@ export default function SubscribeModal({
                   title={
                     !connected ? 'Connect your wallet to subscribe' :
                     txStatus !== 'idle' ? 'Transaction in progress...' :
-                    `Subscribe to ${tier.name} tier for ${formatCredits(totalPrice)} ALEO`
+                    paymentToken === 'credits'
+                      ? `Subscribe to ${tier.name} tier for ${formatCredits(totalPrice)} ALEO`
+                      : `Subscribe to ${tier.name} tier with ${paymentToken === 'usdcx' ? 'USDCx' : 'USAD'}`
                   }
                   className="w-full"
                 >
-                  {txStatus !== 'idle' ? 'Creating subscription...' : 'Subscribe Privately'}
+                  {txStatus !== 'idle'
+                    ? <><Loader2 className="w-4 h-4 animate-spin mr-2 inline" />Processing...</>
+                    : paymentToken === 'credits'
+                      ? 'Subscribe Privately'
+                      : `Subscribe with ${paymentToken === 'usdcx' ? 'USDCx' : 'USAD'}`}
                 </Button>
-              </>
+              </m.div>
             ) : (
-              <div className="py-2 space-y-4">
+              <m.div key="progress" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="py-2 space-y-4">
                 <TransactionProgress
                   currentStep={progressStep}
                   error={error ?? undefined}
@@ -571,8 +721,9 @@ export default function SubscribeModal({
                     </button>
                   </div>
                 )}
-              </div>
+              </m.div>
             )}
+            </AnimatePresence>
           </m.div>
         </m.div>
       )}

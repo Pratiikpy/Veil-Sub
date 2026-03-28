@@ -14,12 +14,12 @@ const TICKER_ITEMS = [
   { icon: Lock, text: 'Identity Never Stored' },
   { icon: Zap, text: 'Aleo Testnet Live' },
   { icon: Coins, text: 'Pay with Private Credits' },
-  { icon: Layers, text: 'v27 Contract Deployed' },
+  { icon: Layers, text: 'v30 Contract Deployed' },
   { icon: Shield, text: '6 Private Record Types' },
   { icon: EyeOff, text: 'Unlinkable Renewals' },
   { icon: Lock, text: 'Scoped Audit Tokens' },
   { icon: Shield, text: 'Commit-Reveal Tipping' },
-  { icon: Code, text: '27 Transitions, 25 Mappings' },
+  { icon: Code, text: '31 Transitions, 30 Mappings' },
 ]
 
 export default function TrustTicker() {

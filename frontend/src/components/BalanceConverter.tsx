@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { AlertTriangle, ArrowRight, ExternalLink, Loader2, Check } from 'lucide-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
@@ -21,20 +21,23 @@ export default function BalanceConverter({
   const { convertPublicToPrivate, connected, publicKey } = useVeilSub()
   const { startPolling, stopPolling } = useTransactionPoller()
   const [status, setStatus] = useState<ConvertStatus>('idle')
+  const convertingRef = useRef(false)
   const [error, setError] = useState<string | null>(null)
   const [publicBalance, setPublicBalance] = useState<number | null>(null)
 
   // Fetch public balance to check if conversion is possible
   useEffect(() => {
     if (!publicKey) return
-    fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(publicKey)}`)
+    const controller = new AbortController()
+    fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(publicKey)}`, { signal: controller.signal })
       .then(res => res.ok ? res.text() : null)
       .then(text => {
         if (!text) return
         const bal = parseInt(text.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
         if (!isNaN(bal)) setPublicBalance(bal)
       })
-      .catch(() => {}) // non-critical
+      .catch(() => {}) // non-critical (includes AbortError)
+    return () => controller.abort()
   }, [publicKey])
 
   // Cleanup poller on unmount (e.g. if modal closes during conversion)
@@ -51,7 +54,9 @@ export default function BalanceConverter({
   const publicBalanceInsufficient = publicBalance !== null && publicBalance < convertAmount
 
   const handleConvert = async () => {
-    if (!connected || status === 'converting' || status === 'waiting') return
+    if (convertingRef.current) return
+    convertingRef.current = true
+    if (!connected || status === 'converting' || status === 'waiting') { convertingRef.current = false; return }
     setStatus('converting')
     setError(null)
 
@@ -86,6 +91,8 @@ export default function BalanceConverter({
     } catch (err) {
       setStatus('failed')
       setError(err instanceof Error ? err.message : 'Conversion couldn\u2019t be completed')
+    } finally {
+      convertingRef.current = false
     }
   }
 
@@ -134,7 +141,7 @@ export default function BalanceConverter({
             <p className="text-xs text-red-400 text-center" role="alert">{error}</p>
           )}
           <p className="text-[11px] text-white/60 text-center">
-            Converts public credits to a private record via credits.aleo/transfer_public_to_private
+            Converts your public balance to a private record for anonymous payments
           </p>
         </div>
       ) : status === 'converting' ? (
@@ -181,7 +188,7 @@ export default function BalanceConverter({
       <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06]">
         <p className="text-xs text-white/70">
           <strong className="text-white/70">Why private credits?</strong>{' '}
-          VeilSub uses transfer_private to keep your subscription anonymous.
+          VeilSub uses private transfers to keep your subscription anonymous.
           Public transfers would expose your identity on-chain.
         </p>
       </div>

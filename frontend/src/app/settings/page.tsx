@@ -1031,12 +1031,12 @@ export default function SettingsPage() {
                     {
                       value: 'standard',
                       label: 'Standard',
-                      description: 'Subscriber identity is hashed with Poseidon2 before finalize. Creator can see hashed subscriber ID in mapping.',
+                      description: 'Your identity is cryptographically hashed before being stored. Creators can see an anonymized ID but not your wallet address.',
                     },
                     {
                       value: 'blind',
                       label: 'Maximum (Blind)',
-                      description: 'Nonce-rotated identity via Blind Subscription Protocol. Every renewal generates a new mapping key. Unlinkable across periods.',
+                      description: 'Maximum privacy — each renewal generates a completely new anonymous identity. Your subscriptions cannot be linked across periods.',
                     },
                   ]}
                 />

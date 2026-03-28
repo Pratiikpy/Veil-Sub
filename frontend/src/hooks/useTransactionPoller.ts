@@ -137,9 +137,9 @@ export function useTransactionPoller() {
           }
 
           if (result.status === 'pending') {
-            const rawResult = await transactionStatus?.(txId)
-            if (aborted.current) return
-            const rawS = (typeof rawResult === 'string' ? rawResult : (rawResult as { status?: string } | null)?.status || '').toLowerCase()
+            // Use the walletMessage from the already-completed pollWallet call
+            // instead of making a redundant second transactionStatus query
+            const rawS = (result.walletMessage || '').toLowerCase()
 
             if (!rawS.includes('fail') && !rawS.includes('reject')) {
               nonFailureSince++
@@ -160,7 +160,7 @@ export function useTransactionPoller() {
       timeoutId = setTimeout(poll, 1000)
       return abort
     },
-    [pollWallet, transactionStatus]
+    [pollWallet]
   )
 
   const stopPolling = useCallback(() => {

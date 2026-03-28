@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import { Github, ExternalLink, Shield } from 'lucide-react'
-import { DEPLOYED_PROGRAM_ID } from '@/lib/config'
+import { DEPLOYED_PROGRAM_ID, PROGRAM_ID } from '@/lib/config'
+
+// Extract version label from PROGRAM_ID (e.g., "veilsub_v30.aleo" -> "v30")
+const VERSION_LABEL = PROGRAM_ID.match(/v(\d+)/)?.[0] ?? 'v30'
 
 export default function Footer() {
   return (
@@ -13,7 +16,7 @@ export default function Footer() {
             <div className="flex items-center gap-2 mb-4">
               <span className="font-serif italic text-white text-lg">VeilSub</span>
               <span className="px-2 py-1 text-[11px] font-medium text-white/50 bg-white/[0.04] border border-white/[0.06] rounded">
-                v29
+                {VERSION_LABEL}
               </span>
             </div>
             <p className="text-xs text-white/60 leading-relaxed max-w-[260px]">

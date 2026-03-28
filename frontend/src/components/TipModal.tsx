@@ -17,6 +17,8 @@ import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
 import { useBalanceCheck } from '@/hooks/useBalanceCheck'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
+import TokenSelector from './TokenSelector'
+import type { PaymentToken } from './TokenSelector'
 import { FEES } from '@/lib/config'
 import { getErrorMessage } from '@/lib/errorMessages'
 import { clearMappingCache } from '@/hooks/useCreatorStats'
@@ -35,7 +37,7 @@ type TipMode = 'direct' | 'private'
 type CommitPhase = 'commit' | 'reveal' | 'done'
 
 export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }: Props) {
-  const { tip, commitTip, revealTip, getCreditsRecords, connected, publicKey: walletAddress } = useVeilSub()
+  const { tip, tipUsdcx, tipUsad, commitTip, revealTip, getCreditsRecords, getUsdcxRecords, getUsadRecords, connected, publicKey: walletAddress } = useVeilSub()
   const { signMessage } = useWallet()
   const { startPolling, stopPolling } = useTransactionPoller()
   const {
@@ -49,6 +51,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
   const [selectedAmount, setSelectedAmount] = useState(5)
   const [customAmount, setCustomAmount] = useState('')
   const [insufficientBalance, setInsufficientBalance] = useState(false)
+  const [paymentToken, setPaymentToken] = useState<PaymentToken>('credits')
   const [tipMode, setTipMode] = useState<TipMode>('direct')
   const [commitPhase, setCommitPhase] = useState<CommitPhase>('commit')
   const [savedSalt, setSavedSalt] = useState<string | null>(null)
@@ -58,6 +61,15 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
   const modeGroupRef = useRef<HTMLDivElement>(null)
   useRovingTabIndex(tipGroupRef)
   useRovingTabIndex(modeGroupRef)
+
+  // Dismiss lingering toasts when modal unmounts
+  useEffect(() => {
+    return () => {
+      toast.dismiss('tip-optimistic')
+      toast.dismiss('commit-tip')
+      toast.dismiss('reveal-tip')
+    }
+  }, [])
 
   // --- localStorage persistence for commit-reveal salt ---
   const PENDING_TIP_KEY = `veilsub_pending_tip_${creatorAddress}`
@@ -189,6 +201,10 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
     return Number.isFinite(parsed) ? parsed : selectedAmount
   }
 
+  // Placeholder MerkleProof for stablecoin freeze list compliance.
+  // TODO: Generate real MerkleProof from freeze list oracle when available.
+  const PLACEHOLDER_MERKLE_PROOF = '{ path: [0field, 0field, 0field, 0field, 0field, 0field, 0field, 0field], indices: [false, false, false, false, false, false, false, false] }'
+
   const handleDirectTip = async () => {
     if (submittingRef.current) return
     if (!connected) {
@@ -200,13 +216,14 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
     setError(null)
     setTxStatus('signing')
     const tipDisplay = getTipAmount()
-    toast.loading(`Sending ${tipDisplay} ALEO tip...`, { id: 'tip-optimistic', duration: 60000 })
+    const tokenLabel = paymentToken === 'credits' ? 'ALEO' : paymentToken === 'usdcx' ? 'USDCx' : 'USAD'
+    toast.loading(`Sending ${tipDisplay} ${tokenLabel} tip...`, { id: 'tip-optimistic', duration: 60000 })
 
     try {
       const tipAmount = getTipAmount()
       if (tipAmount < 0.1 || tipAmount > 1000) {
         toast.dismiss('tip-optimistic')
-        setError('Tip amount must be between 0.1 and 1000 ALEO.')
+        setError(`Tip amount must be between 0.1 and 1000 ${tokenLabel}.`)
         setTxStatus('idle')
         submittingRef.current = false
         return
@@ -214,6 +231,102 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
 
       const tipMicrocredits = creditsToMicrocredits(tipAmount)
 
+      // --- Stablecoin tip path ---
+      if (paymentToken === 'usdcx' || paymentToken === 'usad') {
+        const fetchRecords = paymentToken === 'usdcx' ? getUsdcxRecords : getUsadRecords
+
+        let tokenRecords: string[]
+        try {
+          tokenRecords = await fetchRecords()
+        } catch {
+          toast.dismiss('tip-optimistic')
+          setError(`Could not fetch ${tokenLabel} records. Make sure Shield Wallet is connected.`)
+          setTxStatus('idle')
+          submittingRef.current = false
+          return
+        }
+
+        if (!tokenRecords.length) {
+          toast.dismiss('tip-optimistic')
+          setError(`No ${tokenLabel} tokens found in your wallet.`)
+          setTxStatus('idle')
+          submittingRef.current = false
+          return
+        }
+
+        // Find a token record with sufficient amount (u128)
+        const needed = BigInt(tipMicrocredits)
+        const paymentRecord = tokenRecords.find((r) => {
+          const match = r.match(/amount\s*:\s*([\d_]+)u128/)
+          return match ? BigInt(match[1].replace(/_/g, '')) >= needed : false
+        })
+
+        if (!paymentRecord) {
+          toast.dismiss('tip-optimistic')
+          setError(`Insufficient ${tokenLabel} balance for this tip.`)
+          setTxStatus('idle')
+          submittingRef.current = false
+          return
+        }
+
+        // Check public balance covers the stablecoin network fee
+        try {
+          const feeNeeded = paymentToken === 'usdcx' ? FEES.TIP_USDCX : FEES.TIP_USAD
+          const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(walletAddress ?? '')}`)
+          if (pubRes.ok) {
+            const pubText = await pubRes.text()
+            const pubBal = parseInt((pubText ?? '').replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
+            if (!isNaN(pubBal) && pubBal < feeNeeded) {
+              toast.dismiss('tip-optimistic')
+              setError(`Insufficient public balance for network fee. You need ~${formatCredits(feeNeeded)} ALEO public credits.`)
+              setTxStatus('idle')
+              submittingRef.current = false
+              return
+            }
+          }
+        } catch {
+          toast.warning('Could not verify public balance. Transaction may fail if fees are insufficient.')
+        }
+
+        setTxStatus('proving')
+        toast.dismiss('tip-optimistic')
+
+        const tipFn = paymentToken === 'usdcx' ? tipUsdcx : tipUsad
+        const id = await tipFn(paymentRecord, creatorAddress, String(tipMicrocredits), PLACEHOLDER_MERKLE_PROOF)
+
+        if (id) {
+          setTxId(id)
+          setTxStatus('broadcasting')
+          startPolling(id, (result) => {
+            if (result.status === 'confirmed') {
+              if (result.resolvedTxId) setTxId(result.resolvedTxId)
+              setTxStatus('confirmed')
+              clearMappingCache()
+              onSuccess?.()
+              toast.success(`Private ${tokenLabel} tip sent—you remain anonymous`)
+              notifyNewTip(creatorAddress, String(tipMicrocredits), result.resolvedTxId || id)
+            } else if (result.status === 'failed') {
+              setTxStatus('failed')
+              setError(`${tokenLabel} tip failed on-chain. Verify token balance.`)
+              toast.error('Tip couldn\u2019t be sent')
+            } else if (result.status === 'timeout') {
+              if (result.resolvedTxId) setTxId(result.resolvedTxId)
+              setTxStatus('confirmed')
+              clearMappingCache()
+              onSuccess?.()
+              toast.success('Transaction likely succeeded — verify on the explorer if needed.', { duration: 6000 })
+              notifyNewTip(creatorAddress, String(tipMicrocredits), result.resolvedTxId || id)
+            }
+          })
+        } else {
+          setTxStatus('failed')
+          setError('Wallet didn\u2019t approve the transaction. Try again when ready.')
+        }
+
+        return // stablecoin path complete
+      }
+
+      // --- ALEO Credits tip path (existing logic) ---
       const balanceResult = await checkBalance(tipMicrocredits)
       if (balanceResult.error) {
         toast.dismiss('tip-optimistic')
@@ -286,7 +399,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             logSubscriptionEvent(creatorAddress, 0, tipMicrocredits, result.resolvedTxId || id, wrappedSign)
             clearMappingCache()
             onSuccess?.()
-            toast.success('Private tip sent! (confirmation was slow)')
+            toast.success('Transaction likely succeeded — verify on the explorer if needed.', { duration: 6000 })
             notifyNewTip(creatorAddress, String(tipMicrocredits), result.resolvedTxId || id)
           }
         })
@@ -373,7 +486,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             setTxStatus('confirmed')
             setCommitPhase('reveal')
             savePendingTip(salt, tipMicrocredits, resolvedId)
-            toast.success('Tip committed! (confirmation was slow) You can reveal it when ready.')
+            toast.success('Transaction likely succeeded — verify on the explorer if needed.', { duration: 6000 })
           }
         })
       } else {
@@ -472,7 +585,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
             setPendingTipRestored(false)
             clearMappingCache()
             onSuccess?.()
-            toast.success('Tip revealed and sent! (confirmation was slow)')
+            toast.success('Transaction likely succeeded — verify on the explorer if needed.', { duration: 6000 })
             notifyNewTip(creatorAddress, String(savedAmount), result.resolvedTxId || id)
           }
         })
@@ -506,6 +619,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
       setCommitPhase('commit')
       setSavedSalt(null)
       setSavedAmount(0)
+      setPaymentToken('credits')
       setTipMode('direct')
       setSelectedAmount(5) // Reset to default
       setCustomAmount('') // Clear custom amount
@@ -525,7 +639,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
   }
 
   const currentFee = tipMode === 'direct'
-    ? FEES.TIP
+    ? (paymentToken === 'usdcx' ? FEES.TIP_USDCX : paymentToken === 'usad' ? FEES.TIP_USAD : FEES.TIP)
     : commitPhase === 'commit'
       ? FEES.COMMIT_TIP
       : FEES.REVEAL_TIP
@@ -573,8 +687,21 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
 
             {(txStatus === 'idle' || isRevealReady) ? (
               <>
-                {/* Tip Mode Toggle */}
+                {/* Token Selector — only in initial commit phase */}
                 {commitPhase === 'commit' && (
+                  <TokenSelector
+                    selected={paymentToken}
+                    onChange={(token) => {
+                      setPaymentToken(token)
+                      // Stablecoins only support direct tip mode (no commit-reveal)
+                      if (token !== 'credits') setTipMode('direct')
+                    }}
+                    disabled={txStatus !== 'idle'}
+                  />
+                )}
+
+                {/* Tip Mode Toggle — only for ALEO credits; stablecoin tips are always direct */}
+                {commitPhase === 'commit' && paymentToken === 'credits' && (
                   <div ref={modeGroupRef} className="grid grid-cols-2 gap-1.5 mb-4" role="radiogroup" aria-label="Tip mode">
                     <button
                       role="radio"
@@ -604,8 +731,17 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                     >
                       <EyeOff className="w-4 h-4 mx-auto mb-1" aria-hidden="true" />
                       <span className="text-[11px] font-medium block">Private Tip</span>
-                      <span className="text-[11px] text-white/60 block">BHP256 commit-reveal</span>
+                      <span className="text-[11px] text-white/60 block">Two-step private tip</span>
                     </button>
+                  </div>
+                )}
+
+                {/* Stablecoin mode note — shown when commit-reveal is unavailable */}
+                {commitPhase === 'commit' && paymentToken !== 'credits' && (
+                  <div className="p-3 rounded-xl bg-surface-2 border border-border mb-4">
+                    <p className="text-[11px] text-white/50">
+                      {paymentToken === 'usdcx' ? 'USDCx' : 'USAD'} tips use direct private transfer. Commit-reveal mode is available with ALEO credits.
+                    </p>
                   </div>
                 )}
 
@@ -704,6 +840,9 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                       <p className="text-[11px] text-white/60">
                         Est. network fee: ~{formatCredits(currentFee)} ALEO
                       </p>
+                      <p className="text-[11px] text-white/60">
+                        Platform fee: 5% ({formatCredits(creditsToMicrocredits(getTipAmount()) > 0 ? Math.floor(creditsToMicrocredits(getTipAmount()) * 0.05) : 0)} ALEO)
+                      </p>
                     </>
                   ) : (
                     <>
@@ -744,6 +883,8 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                   </div>
                 )}
 
+                <p className="text-[11px] text-white/50 text-center mb-2">Blockchain transactions are final and non-refundable.</p>
+
                 <Button
                   variant="accent"
                   onClick={handleAction}
@@ -752,15 +893,17 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                     !connected ? 'Connect your wallet to send a tip' :
                     (txStatus !== 'idle' && !isRevealReady) ? 'Transaction in progress...' :
                     tipMode === 'direct'
-                      ? `Send ${getTipAmount()} ALEO tip privately`
+                      ? `Send ${getTipAmount()} ${paymentToken === 'credits' ? 'ALEO' : paymentToken === 'usdcx' ? 'USDCx' : 'USAD'} tip privately`
                       : commitPhase === 'commit'
-                        ? 'Commit hidden tip amount (BHP256 hash)'
+                        ? 'Lock your tip amount privately'
                         : 'Reveal tip amount and send payment'
                   }
                   className="w-full"
                 >
                   {tipMode === 'direct'
-                    ? 'Tip Privately'
+                    ? paymentToken === 'credits'
+                      ? 'Tip Privately'
+                      : `Tip with ${paymentToken === 'usdcx' ? 'USDCx' : 'USAD'}`
                     : commitPhase === 'commit'
                       ? 'Commit Tip (Phase 1)'
                       : 'Reveal & Send (Phase 2)'}
@@ -786,6 +929,8 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
                     <p className="text-xs text-white/70 mt-1">
                       The creator has received your support anonymously.
                     </p>
+                    {txId && <p className="text-xs font-mono text-white/50 mt-2 break-all">TX: {txId.slice(0, 20)}...{txId.slice(-8)}</p>}
+                    {txId?.startsWith('at1') && <a href={`https://testnet.aleoscan.io/transaction/${txId}`} target="_blank" rel="noopener noreferrer" className="text-xs text-violet-400 hover:text-violet-300 mt-1 block">Verify on explorer &rarr;</a>}
 
                     {/* What's Next guidance */}
                     <div className="mt-4 p-4 rounded-xl bg-surface-2 border border-border text-left">

@@ -102,12 +102,16 @@ function SubscriptionCard({ sub, onRenew, blockHeight, profile }: { sub: ParsedS
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           {imageUrl ? (
-            <img src={imageUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0" />
-          ) : (
-            <div className="p-2 rounded-lg bg-white/[0.04] border border-white/10">
-              <Shield className="w-5 h-5 text-white/60" aria-hidden="true" />
-            </div>
-          )}
+            <img
+              src={imageUrl}
+              alt=""
+              className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
+            />
+          ) : null}
+          <div className={`p-2 rounded-lg bg-white/[0.04] border border-white/10 ${imageUrl ? 'hidden' : ''}`}>
+            <Shield className="w-5 h-5 text-white/60" aria-hidden="true" />
+          </div>
           <div>
             <p className="text-sm font-medium text-white">{displayName}</p>
             <p className="text-xs text-white/50 font-mono mt-0.5">
@@ -252,7 +256,7 @@ export default function SubscriptionsPage() {
   const { blockHeight, loading: blockLoading } = useBlockHeight()
   const { getCreatorProfile } = useSupabase()
   const [passes, setPasses] = useState<ParsedSubscription[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showExpired, setShowExpired] = useState(false)
   const [renewTarget, setRenewTarget] = useState<ParsedSubscription | null>(null)
@@ -379,7 +383,7 @@ export default function SubscriptionsPage() {
 
   return (
     <PageTransition>
-      <main className="min-h-screen bg-background py-12 sm:py-16 relative">
+      <div className="min-h-screen bg-background pt-12 pb-24 sm:py-16 relative">
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none"
           style={HERO_GLOW_STYLE}
@@ -427,11 +431,21 @@ export default function SubscriptionsPage() {
                 <h2 className="text-lg font-medium text-white mb-2">
                   Connect your wallet to manage subscriptions
                 </h2>
-                <p className="text-sm text-white/60 max-w-md mx-auto mb-3">
+                <p className="text-sm text-white/60 max-w-md mx-auto mb-6">
                   Your subscription passes live privately in your wallet. Connect to view, renew, or manage them.
                 </p>
+                <button
+                  onClick={() => {
+                    const btn = document.querySelector('.wallet-sidebar-btn button') as HTMLButtonElement
+                    btn?.click()
+                  }}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all mb-4"
+                >
+                  <CreditCard className="w-4 h-4" aria-hidden="true" />
+                  Connect Wallet
+                </button>
                 <p className="text-xs text-white/50">
-                  Use the wallet button in the top right to connect.
+                  Or <Link href="/explore" className="underline hover:text-white/70 transition-colors">explore creators</Link> to find someone to support.
                 </p>
               </div>
             </GlassCard>
@@ -598,7 +612,7 @@ export default function SubscriptionsPage() {
             onSuccess={fetchPasses}
           />
         )}
-      </main>
+      </div>
     </PageTransition>
   )
 }

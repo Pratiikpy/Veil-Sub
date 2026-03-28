@@ -128,7 +128,7 @@ export default function HeroSection() {
               className="flex items-center justify-center lg:justify-start gap-3 flex-wrap mt-8 sm:mt-10"
               style={{ y: descY }}
             >
-              <Link href="/dashboard" className="px-7 py-3 rounded-full bg-white text-black font-medium text-sm hover:bg-white/90 transition-all duration-300 active:scale-[0.98] inline-flex items-center justify-center">
+              <Link href="/explore" className="px-7 py-3 rounded-full bg-white text-black font-medium text-sm hover:bg-white/90 transition-all duration-300 active:scale-[0.98] inline-flex items-center justify-center">
                 Get Started
               </Link>
               <Link href="/explore" className="px-7 py-3 rounded-full bg-transparent border border-white/20 text-white font-medium text-sm hover:border-white/40 hover:bg-white/[0.04] transition-all duration-300 active:scale-[0.98] inline-flex items-center justify-center gap-2">

@@ -167,11 +167,13 @@ function FeedPostCard({
   hasAccess,
   index,
   walletAddress,
+  userTier,
 }: {
   post: FeedPost
   hasAccess: boolean
   index: number
   walletAddress?: string | null
+  userTier?: number | null
 }) {
   const tier = tierConfig[post.minTier] || tierConfig[1]
   const tierName = getTierName(post.creatorAddress, post.minTier)
@@ -214,14 +216,14 @@ function FeedPostCard({
                 src={post.creatorImageUrl}
                 alt=""
                 className="w-9 h-9 rounded-full object-cover border border-white/10"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
               />
-            ) : (
-              <div className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center">
-                <span className="text-sm font-medium text-white/70">
-                  {post.creatorLabel.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
+            ) : null}
+            <div className={`w-9 h-9 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center ${post.creatorImageUrl ? 'hidden' : ''}`}>
+              <span className="text-sm font-medium text-white/70">
+                {post.creatorLabel.charAt(0).toUpperCase()}
+              </span>
+            </div>
           </Link>
           <div className="flex-1 min-w-0">
             <Link
@@ -263,11 +265,22 @@ function FeedPostCard({
         {unlocked && post.imageUrl && (
           <div
             className="mb-4 rounded-xl overflow-hidden border border-white/[0.06] aspect-video bg-white/[0.02] cursor-zoom-in"
+            role="button"
+            tabIndex={0}
             onClick={() => {
               const imgs = post.imageUrl!.includes(',')
                 ? post.imageUrl!.split(',').map((s: string) => s.trim()).filter(Boolean)
                 : [post.imageUrl!]
               setLightboxImages(imgs)
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                const imgs = post.imageUrl!.includes(',')
+                  ? post.imageUrl!.split(',').map((s: string) => s.trim()).filter(Boolean)
+                  : [post.imageUrl!]
+                setLightboxImages(imgs)
+              }
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -381,7 +394,7 @@ function FeedPostCard({
 
         {/* Collapsible comments */}
         {showComments && (
-          <PostComments contentId={post.id} isSubscribed={hasAccess} walletAddress={walletAddress} />
+          <PostComments contentId={post.id} isSubscribed={hasAccess} walletAddress={walletAddress} userTier={userTier} />
         )}
         {!showComments && (
           <button
@@ -781,8 +794,10 @@ export default function FeedPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feedPosts.length, activePasses.length, publicKey])
 
-  // Reset unlock tracking when wallet changes or disconnects
+  // Clear feed posts and reset unlock tracking when wallet changes
   useEffect(() => {
+    setFeedPosts([])
+    setLoading(true)
     unlockedIdsRef.current = new Set()
     unlockRunningRef.current = false
   }, [publicKey])
@@ -895,8 +910,21 @@ export default function FeedPage() {
               <h2 className="text-lg font-medium text-white mb-2">
                 Connect your wallet to see your personal feed
               </h2>
-              <p className="text-sm text-white/50 max-w-md mx-auto">
+              <p className="text-sm text-white/50 max-w-md mx-auto mb-6">
                 Your feed shows exclusive content from creators you support. Connect an Aleo wallet to get started.
+              </p>
+              <button
+                onClick={() => {
+                  const btn = document.querySelector('.wallet-sidebar-btn button') as HTMLButtonElement
+                  btn?.click()
+                }}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all"
+              >
+                <Wallet className="w-4 h-4" aria-hidden="true" />
+                Connect Wallet
+              </button>
+              <p className="text-xs text-white/50 mt-4">
+                Or <Link href="/explore" className="underline hover:text-white/70 transition-colors">explore creators</Link> to browse without connecting.
               </p>
             </div>
           )}
@@ -956,6 +984,7 @@ export default function FeedPage() {
                         hasAccess={post.minTier === 0 || !!publicKey}
                         index={i}
                         walletAddress={publicKey}
+                        userTier={creatorTierMap[post.creatorAddress] || null}
                       />
                     ))}
                   </div>
@@ -1197,6 +1226,7 @@ export default function FeedPage() {
                           hasAccess={hasAccess}
                           index={i}
                           walletAddress={publicKey}
+                          userTier={highestTier || null}
                         />
                       )
                     })}

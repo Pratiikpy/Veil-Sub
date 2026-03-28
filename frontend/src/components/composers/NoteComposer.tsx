@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { m } from 'framer-motion'
+import { Lock } from 'lucide-react'
 import AddressAvatar from '@/components/ui/AddressAvatar'
 import CharacterRing from './CharacterRing'
 
@@ -11,8 +12,10 @@ interface NoteComposerProps {
   profileImageUrl?: string | null
   profileName?: string | null
   walletAddress?: string
-  onSubmit: (text: string) => Promise<void>
+  onSubmit: (text: string, subscribersOnly?: boolean) => Promise<void>
   submitting?: boolean
+  /** Show the "Subscribers only" toggle for encrypted notes */
+  showEncryptToggle?: boolean
 }
 
 export default function NoteComposer({
@@ -21,8 +24,11 @@ export default function NoteComposer({
   walletAddress,
   onSubmit,
   submitting = false,
+  showEncryptToggle = false,
 }: NoteComposerProps) {
   const [text, setText] = useState('')
+  const [imgError, setImgError] = useState(false)
+  const [subscribersOnly, setSubscribersOnly] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // Auto-resize textarea based on content
@@ -45,8 +51,9 @@ export default function NoteComposer({
     const trimmed = text.trim()
     if (!trimmed || trimmed.length > MAX_CHARS || submitting) return
     try {
-      await onSubmit(trimmed)
+      await onSubmit(trimmed, subscribersOnly)
       setText('')
+      setSubscribersOnly(false)
       // Reset textarea height after clearing
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto'
@@ -71,11 +78,12 @@ export default function NoteComposer({
       <div className="flex gap-3">
         {/* Avatar */}
         <div className="shrink-0 pt-1">
-          {profileImageUrl ? (
+          {profileImageUrl && !imgError ? (
             <img
               src={profileImageUrl}
               alt={profileName || 'Creator'}
               className="w-10 h-10 rounded-full object-cover"
+              onError={() => setImgError(true)}
             />
           ) : (
             <AddressAvatar
@@ -107,9 +115,25 @@ export default function NoteComposer({
 
           {/* Bottom toolbar */}
           <div className="border-t border-white/[0.06] pt-3 mt-2 flex items-center justify-between">
-            {/* Left side — reserved for future toolbar icons */}
+            {/* Left side — encrypt toggle + shortcut hint */}
             <div className="flex items-center gap-2">
-              <span id="note-shortcut-hint" className="text-[11px] text-white/30">
+              {showEncryptToggle && (
+                <button
+                  type="button"
+                  onClick={() => setSubscribersOnly(prev => !prev)}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${
+                    subscribersOnly
+                      ? 'bg-violet-500/15 border border-violet-500/30 text-violet-300'
+                      : 'bg-white/[0.04] border border-white/[0.06] text-white/50 hover:text-white/70 hover:bg-white/[0.06]'
+                  }`}
+                  aria-pressed={subscribersOnly}
+                  aria-label="Toggle subscribers-only encryption"
+                >
+                  <Lock className="w-3 h-3" aria-hidden="true" />
+                  Subscribers only
+                </button>
+              )}
+              <span id="note-shortcut-hint" className="text-[11px] text-white/50">
                 {text.length > 0 ? `Ctrl+Enter to post` : ''}
               </span>
             </div>
@@ -130,10 +154,10 @@ export default function NoteComposer({
                 onClick={handleSubmit}
                 disabled={!canPost}
                 className={`
-                  px-5 py-1.5 rounded-full text-sm font-semibold transition-all
+                  px-5 py-1.5 rounded-full text-sm font-semibold transition-all focus-visible:ring-2 focus-visible:ring-violet-500
                   ${canPost
                     ? 'bg-white text-black hover:bg-white/90 active:scale-[0.97]'
-                    : 'bg-white/10 text-white/30 cursor-not-allowed'
+                    : 'bg-white/10 text-white/50 cursor-not-allowed'
                   }
                 `}
               >

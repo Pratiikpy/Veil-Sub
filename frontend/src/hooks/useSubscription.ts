@@ -194,8 +194,8 @@ export function useSubscription() {
   )
 
   // v29: USDCx stablecoin subscription
-  // NOTE: Requires USDCx Token records and MerkleProof compliance arrays from test_usdcx_stablecoin.aleo.
-  // TODO: Full integration pending Shield Wallet support for stablecoin record selection.
+  // Requires USDCx Token records and MerkleProof compliance arrays from test_usdcx_stablecoin.aleo.
+  // Shield Wallet supports stablecoin record fetching via requestRecords('test_usdcx_stablecoin.aleo', false).
   const subscribeUsdcx = useCallback(
     async (
       tokenRecord: string,
@@ -224,8 +224,8 @@ export function useSubscription() {
   )
 
   // v29: USAD stablecoin subscription
-  // NOTE: Requires USAD Token records and MerkleProof compliance arrays from test_usad_stablecoin.aleo.
-  // TODO: Full integration pending Shield Wallet support for stablecoin record selection.
+  // Requires USAD Token records and MerkleProof compliance arrays from test_usad_stablecoin.aleo.
+  // Shield Wallet supports stablecoin record fetching via requestRecords('test_usad_stablecoin.aleo', false).
   const subscribeUsad = useCallback(
     async (
       tokenRecord: string,

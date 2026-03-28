@@ -7,6 +7,7 @@ import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import TransactionStatus from './TransactionStatus'
 import Button from './ui/Button'
+import { clearMappingCache } from '@/hooks/useCreatorStats'
 import type { TxStatus } from '@/types'
 
 interface Props {
@@ -35,13 +36,13 @@ export default function RevokeAccessPanel({ onSuccess }: Props) {
       if (result) {
         setTxId(result)
         setTxStatus('broadcasting')
-        toast.success('Revocation submitted')
         startPolling(result, (pollResult) => {
           if (pollResult.status === 'confirmed') {
             setTxStatus('confirmed')
             stopPolling()
             setPassId('')
             toast.success('Access revoked successfully')
+            clearMappingCache()
             onSuccess?.()
           } else if (pollResult.status === 'failed') {
             setTxStatus('failed')
@@ -53,6 +54,7 @@ export default function RevokeAccessPanel({ onSuccess }: Props) {
             stopPolling()
             setPassId('')
             toast.success('Access revoked! (confirmation was slow)')
+            clearMappingCache()
             onSuccess?.()
           }
         })
@@ -81,7 +83,7 @@ export default function RevokeAccessPanel({ onSuccess }: Props) {
       <div className="rounded-xl bg-red-500/[0.04] border border-red-500/[0.08] p-4 mb-4">
         <p className="text-xs text-red-300 flex items-center gap-1.5">
           <AlertTriangle className="w-3 h-3 shrink-0" aria-hidden="true" />
-          Irreversible on-chain revocation. The pass_id is added to revoked_passes mapping; content gating checks will reject this subscription.
+          Irreversible on-chain revocation. The subscriber's access will be permanently blocked and they will no longer be able to view gated content.
         </p>
       </div>
 
@@ -90,7 +92,7 @@ export default function RevokeAccessPanel({ onSuccess }: Props) {
           type="text"
           value={passId}
           onChange={(e) => { setPassId(e.target.value); setShowConfirm(false) }}
-          placeholder="Enter subscription pass_id (field)"
+          placeholder="Enter subscription pass ID"
           aria-label="Pass ID to revoke (required)"
           aria-required="true"
           className="flex-1 px-4 py-2.5 rounded-xl bg-black/40 border border-border text-white text-base font-mono placeholder-subtle focus:outline-none focus:border-red-500/[0.3] focus:ring-2 focus:ring-red-400/50 focus:shadow-[0_0_20px_rgba(239,68,68,0.08)] transition-all"
@@ -133,9 +135,6 @@ export default function RevokeAccessPanel({ onSuccess }: Props) {
         <TransactionStatus status={txStatus} txId={txId} errorMessage={error} />
       )}
 
-      {error && (
-        <p className="text-xs text-red-400 mt-2">{error}</p>
-      )}
     </div>
   )
 }

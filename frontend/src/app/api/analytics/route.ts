@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
       totalCreators: uniqueCreators,
       totalSubscriptions: totalSubscriptions || 0,
       totalRevenue,
-      activePrograms: 1, // veilsub_v29.aleo (deployed)
+      activePrograms: 1, // veilsub_v30.aleo (deployed)
       ...(fallback && { fallback }),
     }, {
       headers: {

@@ -4,6 +4,11 @@
  * Privacy: subscriber_hash = SHA-256(wallet), never raw addresses.
  * Reaction counts are aggregate only. Bookmarks stay client-side.
  *
+ * Anonymous comments: subscribers can comment showing only their tier level
+ * (e.g. "Tier 2 Subscriber") instead of their identity. Uses a per-post
+ * anon_id = SHA-256(wallet + postId + salt) for spam detection while
+ * preserving anonymity.
+ *
  * Supabase SQL (run once in SQL Editor):
  *
  * CREATE TABLE IF NOT EXISTS post_comments (
@@ -11,11 +16,20 @@
  *   content_id TEXT NOT NULL, subscriber_hash TEXT NOT NULL,
  *   text TEXT NOT NULL CHECK (char_length(text) <= 280),
  *   parent_id UUID REFERENCES post_comments(id),
- *   likes_count INTEGER DEFAULT 0, created_at TIMESTAMPTZ DEFAULT now());
+ *   likes_count INTEGER DEFAULT 0,
+ *   author_type TEXT DEFAULT 'identified',
+ *   anon_id TEXT,
+ *   tier INTEGER,
+ *   created_at TIMESTAMPTZ DEFAULT now());
  * CREATE INDEX idx_comments_content ON post_comments(content_id);
  * ALTER TABLE post_comments ENABLE ROW LEVEL SECURITY;
  * CREATE POLICY "anyone_can_read_comments" ON post_comments FOR SELECT USING (true);
  * CREATE POLICY "service_role_manages_comments" ON post_comments FOR ALL USING (true);
+ *
+ * -- Migration for existing tables:
+ * ALTER TABLE post_comments ADD COLUMN IF NOT EXISTS author_type TEXT DEFAULT 'identified';
+ * ALTER TABLE post_comments ADD COLUMN IF NOT EXISTS anon_id TEXT;
+ * ALTER TABLE post_comments ADD COLUMN IF NOT EXISTS tier INTEGER;
  *
  * CREATE TABLE IF NOT EXISTS post_reaction_counts (
  *   content_id TEXT NOT NULL, reaction_type TEXT NOT NULL,
@@ -31,7 +45,7 @@ import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 import { verifyWalletAuth } from '@/lib/apiAuth'
 import { validateOrigin } from '@/lib/csrf'
 
-const VALID_REACTION_TYPES = new Set(['heart', 'fire', 'clap', 'wow', 'idea', 'pray'])
+const VALID_REACTION_TYPES = new Set(['heart', 'fire', 'clap', 'wow', 'idea', 'pray', 'endorse'])
 const MAX_COMMENT_LEN = 280
 const MAX_COMMENTS_PER_FETCH = 100
 const CONTENT_ID_RE = /^[\w-]{1,128}$/
@@ -64,7 +78,7 @@ export async function GET(req: NextRequest) {
     if (type === 'comments') {
       const { data, error } = await supabase
         .from('post_comments')
-        .select('id, content_id, subscriber_hash, text, parent_id, likes_count, created_at')
+        .select('id, content_id, subscriber_hash, text, parent_id, likes_count, author_type, anon_id, tier, created_at')
         .eq('content_id', contentId)
         .order('created_at', { ascending: false })
         .limit(MAX_COMMENTS_PER_FETCH)
@@ -131,12 +145,12 @@ export async function POST(req: NextRequest) {
     return badRequest('type and valid contentId required')
   }
 
-  // Wallet authentication — required for comments (create persistent data),
+  // Wallet authentication — required for comments and endorsements (create persistent data),
   // optional for reactions/likes (lightweight, CSRF-protected by validateOrigin above)
   const { walletAddress, walletHash, timestamp, signature } = body as {
     walletAddress?: string; walletHash?: unknown; timestamp?: unknown; signature?: unknown
   }
-  if (type === 'comment') {
+  if (type === 'comment' || type === 'endorse') {
     if (!walletAddress || !walletHash || timestamp === undefined) {
       return NextResponse.json({ error: 'Authentication required (walletAddress + walletHash + timestamp)' }, { status: 401 })
     }
@@ -149,8 +163,9 @@ export async function POST(req: NextRequest) {
   try {
     // --- Create comment ---
     if (type === 'comment') {
-      const { text, subscriberHash, parentId } = body as {
+      const { text, subscriberHash, parentId, anonymousTier, anonId } = body as {
         text?: string; subscriberHash?: string; parentId?: string
+        anonymousTier?: number; anonId?: string
       }
       if (!text || typeof text !== 'string' || text.trim().length === 0 || text.length > MAX_COMMENT_LEN) {
         return badRequest(`text required (max ${MAX_COMMENT_LEN} chars)`)
@@ -164,16 +179,33 @@ export async function POST(req: NextRequest) {
           return badRequest('Invalid parentId format')
         }
       }
+      // Validate anonymous comment fields
+      const isAnonymous = anonymousTier !== undefined && anonymousTier !== null
+      if (isAnonymous) {
+        if (typeof anonymousTier !== 'number' || !Number.isInteger(anonymousTier) || anonymousTier < 1 || anonymousTier > 20) {
+          return badRequest('anonymousTier must be an integer between 1 and 20')
+        }
+        if (!anonId || typeof anonId !== 'string' || !/^[a-f0-9]{64}$/.test(anonId)) {
+          return badRequest('Valid anonId required for anonymous comments (SHA-256 hex)')
+        }
+      }
+
+      const insertData: Record<string, unknown> = {
+        content_id: contentId,
+        subscriber_hash: isAnonymous ? anonId : subscriberHash,
+        text: text.trim(),
+        parent_id: parentId || null,
+      }
+      if (isAnonymous) {
+        insertData.author_type = 'anonymous'
+        insertData.anon_id = anonId
+        insertData.tier = anonymousTier
+      }
 
       const { data, error } = await supabase
         .from('post_comments')
-        .insert({
-          content_id: contentId,
-          subscriber_hash: subscriberHash,
-          text: text.trim(),
-          parent_id: parentId || null,
-        })
-        .select('id, content_id, subscriber_hash, text, parent_id, likes_count, created_at')
+        .insert(insertData)
+        .select('id, content_id, subscriber_hash, text, parent_id, likes_count, author_type, anon_id, tier, created_at')
         .single()
 
       if (error) {
@@ -186,7 +218,7 @@ export async function POST(req: NextRequest) {
     if (type === 'reaction') {
       const { reactionType, delta } = body as { reactionType?: string; delta?: number }
       if (!reactionType || !VALID_REACTION_TYPES.has(reactionType)) {
-        return badRequest('Valid reactionType required (heart|fire|clap|wow|idea|pray)')
+        return badRequest('Valid reactionType required (heart|fire|clap|wow|idea|pray|endorse)')
       }
       if (delta !== 1 && delta !== -1) {
         return badRequest('delta must be 1 or -1')

@@ -2,6 +2,7 @@
 
 import { useCallback } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
+import { toast } from 'sonner'
 import { DEPLOYED_PROGRAM_ID } from '@/lib/config'
 
 // Wallet record type -- wallet adaptors return untyped objects
@@ -83,6 +84,22 @@ export function useContractExecute() {
     ): Promise<string | null> => {
       if (!address || !executeTransaction) {
         throw new Error('Wallet not connected')
+      }
+
+      // Network validation: the app targets testnet.
+      // The @provablehq wallet adapter does not expose a `network` property,
+      // so we cannot programmatically verify the wallet's active network here.
+      // If a future adapter version exposes `wallet.network` or similar,
+      // add a check like:
+      //   if (wallet?.network && wallet.network !== 'testnet') {
+      //     toast.error('Wrong network: please switch your wallet to Aleo Testnet.')
+      //     return null
+      //   }
+      // For now, we do a best-effort check via the wallet adapter object.
+      const walletAdapter = wallet?.adapter as Record<string, unknown> | undefined
+      if (walletAdapter?.network && walletAdapter.network !== 'testnet') {
+        toast.error('Wrong network detected. Please switch your wallet to Aleo Testnet.')
+        return null
       }
 
       // Wrap executeTransaction with timeout to prevent indefinite ZK proof hangs

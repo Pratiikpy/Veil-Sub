@@ -1,6 +1,15 @@
 export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v30.aleo'
 // v30: Full stablecoin support (USDCx + USAD), Pedersen commitments, BSP, 31 transitions, 30 mappings
 export const DEPLOYED_PROGRAM_ID = process.env.NEXT_PUBLIC_DEPLOYED_PROGRAM_ID || 'veilsub_v30.aleo'
+
+// Previous contract versions — AccessPass records from these programs still exist in user wallets.
+// The wallet adapter's requestRecords(programId) only returns records for that specific program,
+// so we must query each legacy version separately to find old subscriptions.
+// Add new entries when upgrading: the old DEPLOYED_PROGRAM_ID moves here.
+export const LEGACY_PROGRAM_IDS = [
+  'veilsub_v29.aleo',
+  'veilsub_v27.aleo',
+] as const
 // API calls use Next.js rewrite proxy (/api/aleo/*) to avoid leaking user interest to third parties
 // The actual endpoint is configured in next.config.ts rewrites
 export const APP_NAME = 'VeilSub'
@@ -182,8 +191,19 @@ export const CREATOR_HASH_MAP: Record<string, string> = {
 export function getCreatorHash(address: string): string | null {
   if (CREATOR_HASH_MAP[address]) return CREATOR_HASH_MAP[address]
   if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem(`veilsub_creator_hash_${address}`)
+    const newKey = `veilsub_${PROGRAM_ID}_creator_hash_${address}`
+    const stored = localStorage.getItem(newKey)
     if (stored) return stored
+    // Migrate from old key format (pre-versioned)
+    const oldKey = `veilsub_creator_hash_${address}`
+    const oldStored = localStorage.getItem(oldKey)
+    if (oldStored) {
+      try {
+        localStorage.setItem(newKey, oldStored)
+        localStorage.removeItem(oldKey)
+      } catch { /* localStorage full or unavailable */ }
+      return oldStored
+    }
   }
   return null
 }
@@ -193,7 +213,7 @@ export function getCreatorHash(address: string): string | null {
 export function saveCreatorHash(address: string, hash: string): void {
   if (typeof window !== 'undefined') {
     try {
-      localStorage.setItem(`veilsub_creator_hash_${address}`, hash)
+      localStorage.setItem(`veilsub_${PROGRAM_ID}_creator_hash_${address}`, hash)
     } catch { /* localStorage full or unavailable */ }
   }
 }
@@ -213,8 +233,19 @@ export function getContentHash(contentId: string): string | null {
   const clean = contentId.replace('field', '')
   if (CONTENT_HASH_MAP[clean]) return CONTENT_HASH_MAP[clean]
   if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem(`veilsub_content_hash_${clean}`)
+    const newKey = `veilsub_${PROGRAM_ID}_content_hash_${clean}`
+    const stored = localStorage.getItem(newKey)
     if (stored) return stored
+    // Migrate from old key format (pre-versioned)
+    const oldKey = `veilsub_content_hash_${clean}`
+    const oldStored = localStorage.getItem(oldKey)
+    if (oldStored) {
+      try {
+        localStorage.setItem(newKey, oldStored)
+        localStorage.removeItem(oldKey)
+      } catch { /* localStorage full or unavailable */ }
+      return oldStored
+    }
   }
   return null
 }
@@ -223,7 +254,7 @@ export function getContentHash(contentId: string): string | null {
 export function saveContentHash(contentId: string, hash: string): void {
   if (typeof window !== 'undefined') {
     try {
-      localStorage.setItem(`veilsub_content_hash_${contentId.replace('field', '')}`, hash)
+      localStorage.setItem(`veilsub_${PROGRAM_ID}_content_hash_${contentId.replace('field', '')}`, hash)
     } catch { /* localStorage full or unavailable */ }
   }
 }

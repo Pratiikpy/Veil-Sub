@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react'
 import { useContractExecute, WalletRecord, withTimeout, getMicrocredits } from './useContractExecute'
-import { DEPLOYED_PROGRAM_ID, FEES } from '@/lib/config'
+import { DEPLOYED_PROGRAM_ID, LEGACY_PROGRAM_IDS, FEES } from '@/lib/config'
 
 export function useWalletRecords() {
   const {
@@ -200,29 +200,44 @@ export function useWalletRecords() {
 
   const getAccessPasses = useCallback(async (): Promise<string[]> => {
     if (!connected || !requestRecords) return []
-    try {
-      const records = await withTimeout(
-        requestRecords(DEPLOYED_PROGRAM_ID, false),
-        15000,
-        `requestRecords(${DEPLOYED_PROGRAM_ID})`
-      )
-      if (!Array.isArray(records)) return []
-      const results: string[] = []
 
-      for (const r of records as WalletRecord[]) {
-        if (r?.spent) continue
-        const text = await extractPlaintext(r)
-        if (text && text.includes('pass_id') && text.includes('expires_at')) results.push(text)
+    // Helper to extract AccessPass records from a single program
+    async function extractPasses(programId: string): Promise<string[]> {
+      try {
+        const records = await withTimeout(
+          requestRecords(programId, false),
+          15000,
+          `requestRecords(${programId})`
+        )
+        if (!Array.isArray(records)) return []
+        const results: string[] = []
+        for (const r of records as WalletRecord[]) {
+          if (r?.spent) continue
+          const text = await extractPlaintext(r)
+          if (text && text.includes('pass_id') && text.includes('expires_at')) results.push(text)
+        }
+        return results
+      } catch (err) {
+        if (err instanceof Error &&
+            (err.message.includes('timed out') || err.message.includes('TimedOut') || err.message.includes('network'))) {
+          throw err
+        }
+        return []
       }
-
-      return results
-    } catch (err) {
-      if (err instanceof Error &&
-          (err.message.includes('timed out') || err.message.includes('TimedOut') || err.message.includes('network'))) {
-        throw err
-      }
-      return []
     }
+
+    // Query current version first
+    const currentPasses = await extractPasses(DEPLOYED_PROGRAM_ID)
+
+    // Also query legacy versions for old AccessPass records (best-effort, don't block on failure)
+    const legacyResults = await Promise.allSettled(
+      LEGACY_PROGRAM_IDS.map(pid => extractPasses(pid))
+    )
+    const legacyPasses = legacyResults
+      .filter((r): r is PromiseFulfilledResult<string[]> => r.status === 'fulfilled')
+      .flatMap(r => r.value)
+
+    return [...currentPasses, ...legacyPasses]
   }, [connected, requestRecords, extractPlaintext])
 
   // v8: Fetch CreatorReceipt records (for creator dashboard)
@@ -302,8 +317,68 @@ export function useWalletRecords() {
     [wallet]
   )
 
+  // Fetch USDCx stablecoin Token records from test_usdcx_stablecoin.aleo
+  const getUsdcxRecords = useCallback(async (): Promise<string[]> => {
+    if (!connected || !requestRecords) return []
+    try {
+      const records = await withTimeout(
+        requestRecords('test_usdcx_stablecoin.aleo', false),
+        15000,
+        'requestRecords(test_usdcx_stablecoin.aleo)'
+      )
+      if (!Array.isArray(records)) return []
+      const results: { plaintext: string; amount: bigint }[] = []
+      for (const r of records as WalletRecord[]) {
+        if (r?.spent) continue
+        const text = await extractPlaintext(r)
+        if (!text) continue
+        const match = text.match(/amount\s*:\s*([\d_]+)u128/)
+        const amount = match?.[1] ? BigInt(match[1].replace(/_/g, '')) : BigInt(0)
+        if (amount > BigInt(0)) results.push({ plaintext: text, amount })
+      }
+      return results.sort((a, b) => (b.amount > a.amount ? 1 : b.amount < a.amount ? -1 : 0)).map((r) => r.plaintext)
+    } catch (err) {
+      if (err instanceof Error &&
+          (err.message.includes('timed out') || err.message.includes('TimedOut') || err.message.includes('network'))) {
+        throw err
+      }
+      return []
+    }
+  }, [connected, requestRecords, extractPlaintext])
+
+  // Fetch USAD stablecoin Token records from test_usad_stablecoin.aleo
+  const getUsadRecords = useCallback(async (): Promise<string[]> => {
+    if (!connected || !requestRecords) return []
+    try {
+      const records = await withTimeout(
+        requestRecords('test_usad_stablecoin.aleo', false),
+        15000,
+        'requestRecords(test_usad_stablecoin.aleo)'
+      )
+      if (!Array.isArray(records)) return []
+      const results: { plaintext: string; amount: bigint }[] = []
+      for (const r of records as WalletRecord[]) {
+        if (r?.spent) continue
+        const text = await extractPlaintext(r)
+        if (!text) continue
+        const match = text.match(/amount\s*:\s*([\d_]+)u128/)
+        const amount = match?.[1] ? BigInt(match[1].replace(/_/g, '')) : BigInt(0)
+        if (amount > BigInt(0)) results.push({ plaintext: text, amount })
+      }
+      return results.sort((a, b) => (b.amount > a.amount ? 1 : b.amount < a.amount ? -1 : 0)).map((r) => r.plaintext)
+    } catch (err) {
+      if (err instanceof Error &&
+          (err.message.includes('timed out') || err.message.includes('TimedOut') || err.message.includes('network'))) {
+        throw err
+      }
+      return []
+    }
+  }, [connected, requestRecords, extractPlaintext])
+
   return {
     getCreditsRecords,
+    getUsdcxRecords,
+    getUsadRecords,
     getTierRecords,
     getGiftTokens,
     getTokenRecords,

@@ -13,7 +13,7 @@ export default function CharacterRing({ current, max, size = 28 }: CharacterRing
   const circumference = 2 * Math.PI * radius
   const offset = circumference * (1 - progress)
 
-  const color = progress < 0.8 ? 'stroke-white/30'
+  const color = progress < 0.8 ? 'stroke-white/50'
     : progress < 0.93 ? 'stroke-yellow-500'
     : 'stroke-red-500'
 
@@ -30,7 +30,7 @@ export default function CharacterRing({ current, max, size = 28 }: CharacterRing
         <circle cx={size/2} cy={size/2} r={radius} fill="none" className="stroke-white/10" strokeWidth={2.5} />
         <circle cx={size/2} cy={size/2} r={radius} fill="none" className={color} strokeWidth={2.5}
           strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round"
-          style={{ transition: 'stroke-dashoffset 0.15s ease' }}
+          style={{ transition: 'stroke-dashoffset 0.15s ease, stroke 0.3s ease' }}
         />
       </svg>
       {remaining <= 20 && (

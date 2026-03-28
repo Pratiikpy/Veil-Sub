@@ -52,6 +52,7 @@ export interface CreatorProfile {
   contentCount?: number     // number of published posts
   tierCount?: number        // number of custom tiers on-chain (from tier_count mapping)
   customTiers?: Record<number, CustomTierInfo>  // tier_id → {price, name} from on-chain + cache
+  dataUnavailable?: boolean // true when stats could not be fetched (API error) — distinguishes from genuine zeros
 }
 
 export type TxStatus =

@@ -51,10 +51,32 @@ export default function ProtocolStats() {
                   </div>
                 </div>
                 {!loading && (
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/[0.08] border border-emerald-500/20">
-                    <CheckCircle2 className={`w-4 h-4 ${stats.programDeployed ? 'text-emerald-400 animate-pulse' : 'text-white/50'}`} aria-hidden="true" />
-                    <span className={`text-xs font-semibold ${stats.programDeployed ? 'text-emerald-400' : 'text-white/50'}`}>
-                      {stats.programDeployed ? 'Live on Testnet' : 'Checking...'}
+                  <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${
+                    stats.programDeployed === true
+                      ? 'bg-emerald-500/[0.08] border-emerald-500/20'
+                      : stats.programDeployed === null
+                        ? 'bg-amber-500/[0.08] border-amber-500/20'
+                        : 'bg-red-500/[0.08] border-red-500/20'
+                  }`}>
+                    <CheckCircle2 className={`w-4 h-4 ${
+                      stats.programDeployed === true
+                        ? 'text-emerald-400 animate-pulse'
+                        : stats.programDeployed === null
+                          ? 'text-amber-400'
+                          : 'text-red-400'
+                    }`} aria-hidden="true" />
+                    <span className={`text-xs font-semibold ${
+                      stats.programDeployed === true
+                        ? 'text-emerald-400'
+                        : stats.programDeployed === null
+                          ? 'text-amber-400'
+                          : 'text-red-400'
+                    }`}>
+                      {stats.programDeployed === true
+                        ? 'Live on Testnet'
+                        : stats.programDeployed === null
+                          ? 'Status Unknown'
+                          : 'Not Deployed'}
                     </span>
                   </div>
                 )}

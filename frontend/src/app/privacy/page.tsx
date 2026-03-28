@@ -52,13 +52,24 @@ export default function PrivacyPage() {
               >
                 How VeilSub Protects You
               </h1>
-              <p className="text-lg text-white/70 max-w-2xl mx-auto mb-8">
-                Built on Aleo&apos;s zero-knowledge proof system. The Blind Subscription Protocol (BSP)
-                prevents subscriber addresses from reaching finalize layer through three isolation mechanisms:
-                (1) private AccessPass records owned only by subscribers, (2) Poseidon2 field-hashed mapping keys
-                for aggregate-only finalize writes, (3) pass_id-based verification with zero finalize footprint.
-                Enforced at compile time, not runtime policy.
-              </p>
+              <ul className="text-lg text-white/70 max-w-2xl mx-auto mb-6 text-left space-y-2">
+                <li>Your name is never linked to which creator you support.</li>
+                <li>No payment history connects you to creators.</li>
+                <li>Even we (the VeilSub team) cannot see who subscribed to whom.</li>
+                <li>Your subscription pass is stored only in your wallet — nowhere else.</li>
+              </ul>
+              <details className="max-w-2xl mx-auto mb-8 text-left">
+                <summary className="text-sm text-violet-300 cursor-pointer hover:text-violet-200 transition-colors">
+                  Technical details
+                </summary>
+                <p className="text-sm text-white/60 mt-3 leading-relaxed">
+                  Built on Aleo&apos;s zero-knowledge proof system. The Blind Subscription Protocol (BSP)
+                  prevents subscriber addresses from reaching finalize layer through three isolation mechanisms:
+                  (1) private AccessPass records owned only by subscribers, (2) Poseidon2 field-hashed mapping keys
+                  for aggregate-only finalize writes, (3) pass_id-based verification with zero finalize footprint.
+                  Enforced at compile time, not runtime policy.
+                </p>
+              </details>
               <a
                 href={`https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`}
                 target="_blank"
@@ -95,19 +106,6 @@ export default function PrivacyPage() {
             ))}
           </div>
         </nav>
-
-        {/* Privacy in Plain English */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-8 pt-8 sm:pt-12">
-          <div className="p-5 rounded-xl bg-emerald-500/5 border border-emerald-500/15 mb-8">
-            <h3 className="text-sm font-semibold text-emerald-400 mb-2">Privacy in Plain English</h3>
-            <ul className="text-sm text-white/70 space-y-1.5">
-              <li>Your name is never linked to which creator you support.</li>
-              <li>No payment history connects you to creators.</li>
-              <li>Even we (the VeilSub team) cannot see who subscribed to whom.</li>
-              <li>Your subscription pass is stored only in your wallet — nowhere else.</li>
-            </ul>
-          </div>
-        </div>
 
         {/* Blind Subscription Protocol (BSP) */}
         <section id="bsp" className="py-8 sm:py-16 scroll-mt-28">

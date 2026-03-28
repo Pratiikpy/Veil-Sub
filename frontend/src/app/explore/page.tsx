@@ -21,7 +21,7 @@ import PageTransition from '@/components/PageTransition'
 import { spring, cardHover, buttonTap } from '@/lib/motion'
 import AddressAvatar from '@/components/ui/AddressAvatar'
 import { shortenAddress, isValidAleoAddress, formatCredits, formatUsd } from '@/lib/utils'
-import { FEATURED_CREATORS } from '@/lib/config'
+import { FEATURED_CREATORS, CREATOR_HASH_MAP } from '@/lib/config'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { cacheCreators, getCachedCreator } from '@/lib/creatorCache'
 
@@ -180,7 +180,7 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
             </div>
           )}
           {bioSnippet && (
-            <p className="text-xs text-white/55 leading-relaxed line-clamp-2">
+            <p className="text-xs text-white/55 leading-relaxed line-clamp-2" title={creator.bio || undefined}>
               {bioSnippet}
             </p>
           )}
@@ -206,6 +206,11 @@ const CreatorCard = memo(function CreatorCard({ creator, index }: { creator: Cre
                 </span>
               )}
             </>
+          ) : stats && stats.tierPrice === null && (creator.address in CREATOR_HASH_MAP || isFeatured) ? (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/[0.06] border border-amber-500/15 text-[11px] text-amber-300/80">
+              <AlertTriangle className="w-3 h-3" aria-hidden="true" />
+              Registered on older version
+            </span>
           ) : null}
         </div>
 
@@ -247,7 +252,7 @@ function SortDropdown({ value, onChange }: { value: SortOption; onChange: (v: So
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-border/75 text-xs text-white/70 hover:text-white hover:bg-white/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+        className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-white/[0.04] border border-border/75 text-xs text-white/70 hover:text-white hover:bg-white/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
       >
         <SlidersHorizontal className="w-3 h-3" aria-hidden="true" />
         {current.label}
@@ -453,7 +458,7 @@ export default function ExplorePage() {
               {search && (
                 <button
                   onClick={handleClearSearch}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-white/[0.06] text-white/50 hover:text-white/60 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-md hover:bg-white/[0.06] text-white/50 hover:text-white/60 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
                   aria-label="Clear search"
                 >
                   <X className="w-4 h-4" aria-hidden="true" />
@@ -540,7 +545,7 @@ export default function ExplorePage() {
 
           {/* ── Results Grid ──────────────────────────────────────────────── */}
           {fetchError ? (
-            <div className="text-center py-20">
+            <div role="alert" className="text-center py-20">
               <AlertTriangle className="w-10 h-10 text-red-400/70 mx-auto mb-4" aria-hidden="true" />
               <h3 className="text-white font-medium mb-1">Couldn&apos;t load the creator directory</h3>
               <p className="text-sm text-white/50 mb-6">This is usually a connection issue. Check your network and try again.</p>

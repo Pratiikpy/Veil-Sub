@@ -104,7 +104,7 @@ function DataRow({
       }}
     >
       <span className={`text-[11px] uppercase tracking-wider font-medium transition-colors duration-300 ${
-        isChainView ? 'text-green-500/60' : 'text-white/40'
+        isChainView ? 'text-green-400' : 'text-white/60'
       }`}>
         {label}
       </span>
@@ -193,9 +193,9 @@ export default function BlockchainView({
               isChainView ? 'bg-green-500/10' : 'bg-white/[0.04]'
             }`}>
               {isChainView ? (
-                <Terminal className="w-4 h-4 text-green-400" />
+                <Terminal className="w-4 h-4 text-green-400" aria-hidden="true" />
               ) : (
-                <Shield className="w-4 h-4 text-white/60" />
+                <Shield className="w-4 h-4 text-white/60" aria-hidden="true" />
               )}
             </div>
             <div>
@@ -205,7 +205,7 @@ export default function BlockchainView({
                 {isChainView ? 'Blockchain Perspective' : 'What Can the Blockchain See?'}
               </h3>
               <p className={`text-[11px] transition-colors duration-300 ${
-                isChainView ? 'text-green-500/50' : 'text-white/40'
+                isChainView ? 'text-green-400/80' : 'text-white/60'
               }`}>
                 {isChainView ? 'This is ALL an observer can extract from on-chain data' : 'Toggle to see what on-chain data actually reveals'}
               </p>
@@ -225,12 +225,12 @@ export default function BlockchainView({
           >
             {isChainView ? (
               <>
-                <EyeOff className="w-3.5 h-3.5" />
+                <EyeOff className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>Chain View</span>
               </>
             ) : (
               <>
-                <Eye className="w-3.5 h-3.5" />
+                <Eye className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>User View</span>
               </>
             )}
@@ -294,7 +294,7 @@ export default function BlockchainView({
               transition={spring.gentle}
               className="mt-4 p-3 rounded-lg bg-green-500/[0.05] border border-green-500/15"
             >
-              <p className="text-[11px] text-green-400/80 leading-relaxed">
+              <p className="text-[11px] text-green-400 leading-relaxed">
                 <strong className="text-green-400">Zero addresses in finalize.</strong>{' '}
                 All 30 on-chain mappings use Poseidon2 hashes as keys, never wallet addresses.
                 Subscriber lists don&apos;t exist. Revenue and counts are Pedersen commitments.
@@ -310,7 +310,7 @@ export default function BlockchainView({
               transition={spring.gentle}
               className="mt-4 p-3 rounded-lg bg-white/[0.02] border border-border"
             >
-              <p className="text-[11px] text-white/50 leading-relaxed">
+              <p className="text-[11px] text-white/60 leading-relaxed">
                 <strong className="text-white/60">You see this.</strong>{' '}
                 Toggle to &quot;Chain View&quot; to see what a blockchain observer, analytics firm, or
                 government subpoena could actually extract from on-chain data. Spoiler: almost nothing.

@@ -236,7 +236,7 @@ export default function ZKProofDemo() {
                       Try Again
                     </button>
                     <Link
-                      href="/dashboard"
+                      href="/explore"
                       className="flex-1 py-3 rounded-full bg-white text-black font-medium text-sm hover:bg-white/90 transition-all duration-300 active:scale-[0.98] inline-flex items-center justify-center gap-1"
                     >
                       Subscribe Privately

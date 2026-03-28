@@ -58,7 +58,7 @@ import {
 } from '@/lib/utils'
 import { TIERS } from '@/types'
 import type { CreatorProfile, SubscriptionTier, AccessPass } from '@/types'
-import { FEATURED_CREATORS, DEPLOYED_PROGRAM_ID, getCreatorHash } from '@/lib/config'
+import { FEATURED_CREATORS, DEPLOYED_PROGRAM_ID, PROGRAM_ID, getCreatorHash, CREATOR_HASH_MAP } from '@/lib/config'
 import { getCachedCreator, cacheSingleCreator } from '@/lib/creatorCache'
 
 import CreatorSkeleton from '@/components/CreatorSkeleton'
@@ -401,7 +401,7 @@ function TierCard({
         <span className="text-sm font-normal text-white/60 ml-1">ALEO</span>
       </div>
       <p className="text-xs text-white/50 mb-4">
-        {formatUsd(tierPrice)}/mo
+        {formatUsd(tierPrice)}/~30 days
       </p>
 
       {tier.description && (
@@ -493,33 +493,47 @@ function AboutTab({
       </div>
 
       {/* Stats — threshold badges for privacy */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-xl bg-surface-1 border border-border text-center">
-          <p className="text-2xl font-bold text-white">{stats?.subscriberThreshold ?? 'New'}</p>
-          <p className="text-xs text-white/50 mt-1">Subscribers</p>
+      {stats?.dataUnavailable ? (
+        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" aria-hidden="true" />
+          <div>
+            <p className="text-sm font-medium text-amber-300">Stats unavailable</p>
+            <p className="text-xs text-amber-300/70 mt-0.5">On-chain data could not be loaded. This does not mean the creator has no activity.</p>
+          </div>
         </div>
-        <div className="p-4 rounded-xl bg-surface-1 border border-border text-center">
-          <p className="text-2xl font-bold text-white">{stats?.contentCount ?? 0}</p>
-          <p className="text-xs text-white/50 mt-1">Posts</p>
-        </div>
-        <div className="p-4 rounded-xl bg-surface-1 border border-border text-center col-span-2 sm:col-span-1">
-          <p className="text-2xl font-bold text-white">{stats?.revenueThreshold ?? 'New'}</p>
-          <p className="text-xs text-white/50 mt-1">Revenue</p>
-        </div>
-      </div>
-      <p className="text-[11px] text-white/50 mt-2 flex items-center gap-1">
-        <Shield className="w-3 h-3 text-white/50" />
-        Counts shown as threshold badges to protect creator privacy. Exact figures are never displayed.
-      </p>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl bg-surface-1 border border-border text-center" title="Shown as a range to protect creator privacy">
+              <p className="text-2xl font-bold text-white">{stats?.subscriberThreshold ?? 'New'}</p>
+              <p className="text-xs text-white/50 mt-1">Subscribers</p>
+            </div>
+            <div className="p-4 rounded-xl bg-surface-1 border border-border text-center">
+              <p className="text-2xl font-bold text-white">{stats?.contentCount ?? 0}</p>
+              <p className="text-xs text-white/50 mt-1">Posts</p>
+            </div>
+            <div className="p-4 rounded-xl bg-surface-1 border border-border text-center col-span-2 sm:col-span-1" title="Shown as a range to protect creator privacy">
+              <p className="text-2xl font-bold text-white">{stats?.revenueThreshold ?? 'New'}</p>
+              <p className="text-xs text-white/50 mt-1">Revenue</p>
+            </div>
+          </div>
+          <p className="text-[11px] text-white/50 mt-2 flex items-center gap-1">
+            <Shield className="w-3 h-3 text-white/50" />
+            Counts shown as threshold badges to protect creator privacy. Exact figures are never displayed.
+          </p>
+        </>
+      )}
 
       {/* Privacy Score */}
       {(() => {
         const userPassForCreator = userPasses.find(p => p.creator === address)
+        const hasEnhancedPass = userPasses.some(p => p.creator === address && p.privacyLevel >= 2)
         return (
           <PrivacyScore
-            usesBlindSub={userPassForCreator?.privacyLevel === 1}
+            usesBlindSub={userPassForCreator?.privacyLevel === 1 || hasEnhancedPass}
+            // TODO: Derive from actual commit-reveal tip history once on-chain query is available
             usesCommitRevealTip={false}
-            hasScopedAuditToken={false}
+            hasScopedAuditToken={false} /* TODO: derive from wallet audit token records */
             usesTrialPass={userPassForCreator?.privacyLevel === 2}
             hasE2EContent={true}
           />
@@ -656,7 +670,7 @@ export default function CreatorPage({
 
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab)
-    window.history.replaceState(null, '', `#${tab}`)
+    window.history.pushState(null, '', `#${tab}`)
   }, [])
 
   const coverGradient = useMemo(() => generateCoverGradient(address), [address])
@@ -799,11 +813,11 @@ export default function CreatorPage({
             <h2 className="text-xl font-semibold text-white mb-2">Failed to Load Creator</h2>
             <p className="text-sm text-white/70 mb-4">Could not fetch creator data. Please check your connection and try again.</p>
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => { setFetchError(false); setLoading(true); fetchCreatorStats(address).then((s) => { setStats(s); setLoading(false) }).catch(() => { setFetchError(true); setLoading(false) }) }}
               className="px-6 py-2.5 rounded-xl bg-white/[0.05] border border-border text-white font-medium text-sm hover:bg-white/[0.08] transition-all duration-300 inline-flex items-center gap-2"
             >
               <RefreshCw className="w-4 h-4" aria-hidden="true" />
-              Reload creator
+              Retry
             </button>
           </div>
         </div>
@@ -923,43 +937,81 @@ export default function CreatorPage({
     <PageTransition className="min-h-screen">
       <ReadingProgressBar />
       {!isRegistered ? (
-        /* Unregistered creator state */
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <m.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-20"
-          >
-            <div className="mx-auto mb-6 w-16 h-16">
-              <AddressAvatar address={address} size={64} />
-            </div>
-            <h2 className="text-2xl font-semibold text-white mb-4">
-              Creator Not Found
-            </h2>
-            <p className="text-white/70 max-w-md mx-auto mb-2">
-              This address hasn&apos;t registered as a creator on VeilSub yet.
-            </p>
-            <p className="text-base text-white/60 font-mono mb-8">
-              {shortenAddress(address)}
-            </p>
-            <div className="flex items-center justify-center gap-4 flex-wrap">
-              <Link
-                href="/#featured"
-                className="inline-flex items-center gap-2 px-6 py-4 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 transition-all duration-300 active:scale-[0.98]"
+        /* Unregistered creator state — check if known from older contract version */
+        (() => {
+          const isKnownCreator = address in CREATOR_HASH_MAP || FEATURED_CREATORS.some(fc => fc.address === address)
+          const featuredInfo = FEATURED_CREATORS.find(fc => fc.address === address)
+          const versionLabel = PROGRAM_ID.match(/v(\d+)/)?.[0] ?? 'v30'
+          return (
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+              <m.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center py-20"
               >
-                <Search className="w-4 h-4" aria-hidden="true" />
-                Browse Featured Creators
-              </Link>
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-white/[0.05] border border-border text-white/70 text-sm hover:bg-white/[0.08] transition-all duration-300"
-              >
-                Register as a Creator
-                <ArrowRight className="w-4 h-4" aria-hidden="true" />
-              </Link>
+                {/* Show profile image if available from Supabase/cache */}
+                {profileImageUrl ? (
+                  <div className="mx-auto mb-6 w-16 h-16 rounded-2xl overflow-hidden ring-2 ring-white/10">
+                    <img src={profileImageUrl} alt="" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="mx-auto mb-6 w-16 h-16">
+                    <AddressAvatar address={address} size={64} />
+                  </div>
+                )}
+                {/* Show display name if available */}
+                {(displayName || featuredInfo?.label) && (
+                  <p className="text-lg font-medium text-white mb-2">
+                    {displayName || featuredInfo?.label}
+                  </p>
+                )}
+                <h2 className="text-2xl font-semibold text-white mb-4">
+                  {isKnownCreator ? 'Creator Needs Re-registration' : 'Creator Not Found'}
+                </h2>
+                {isKnownCreator ? (
+                  <>
+                    <div className="max-w-lg mx-auto mb-4 p-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/15">
+                      <p className="text-sm text-amber-300/90 mb-2">
+                        This creator is known but hasn&apos;t registered on the current contract version ({versionLabel}).
+                      </p>
+                      <p className="text-xs text-white/60">
+                        Each contract upgrade (e.g., v27 to {versionLabel}) creates a new on-chain program. Creator registrations, subscriptions, and content exist only on the version where they were created. This creator needs to re-register on {versionLabel} for their page to be fully active.
+                      </p>
+                    </div>
+                    {(bio || featuredInfo?.bio) && (
+                      <p className="text-sm text-white/60 max-w-md mx-auto mb-4">
+                        {bio || featuredInfo?.bio}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-white/70 max-w-md mx-auto mb-2">
+                    This address hasn&apos;t registered as a creator on VeilSub yet.
+                  </p>
+                )}
+                <p className="text-base text-white/60 font-mono mb-8">
+                  {shortenAddress(address)}
+                </p>
+                <div className="flex items-center justify-center gap-4 flex-wrap">
+                  <Link
+                    href="/explore"
+                    className="inline-flex items-center gap-2 px-6 py-4 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 transition-all duration-300 active:scale-[0.98]"
+                  >
+                    <Search className="w-4 h-4" aria-hidden="true" />
+                    Browse Featured Creators
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-white/[0.05] border border-border text-white/70 text-sm hover:bg-white/[0.08] transition-all duration-300"
+                  >
+                    Register as a Creator
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                  </Link>
+                </div>
+              </m.div>
             </div>
-          </m.div>
-        </div>
+          )
+        })()
       ) : (
         <>
           {/* ===== A. Cover Banner ===== */}
@@ -1024,13 +1076,17 @@ export default function CreatorPage({
                   <p className="text-sm text-white/60 mt-0.5 line-clamp-1">{creatorBio}</p>
                 )}
                 <div className="flex items-center gap-4 mt-1 text-xs text-white/50">
-                  <span className="flex items-center gap-1" title="Privacy-preserving threshold badge">
+                  <span className="flex items-center gap-1" title={stats?.dataUnavailable ? 'Stats could not be loaded' : 'Shown as a range to protect creator privacy'}>
                     <Users className="w-3 h-3" />
-                    {stats?.subscriberThreshold ?? 'New'} subscribers
+                    {stats?.dataUnavailable ? (
+                      <span className="text-amber-400/70">Stats unavailable</span>
+                    ) : (
+                      <>{stats?.subscriberThreshold ?? 'New'} subscribers</>
+                    )}
                   </span>
                   <span className="flex items-center gap-1">
                     <Coins className="w-3 h-3" />
-                    From {formatCredits(basePrice)} ALEO ({formatUsd(basePrice)})/mo
+                    From {formatCredits(basePrice)} ALEO ({formatUsd(basePrice)}) / ~30 days
                   </span>
                   <button
                     onClick={copyAddress}
@@ -1292,7 +1348,7 @@ export default function CreatorPage({
           <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
             <div className="min-w-0">
               <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{displayName || 'Creator'}</p>
-              <p className="text-xs text-[var(--text-muted)]">From {basePrice ? `${(basePrice / 1_000_000).toFixed(1)} ALEO/mo` : '...'}</p>
+              <p className="text-xs text-[var(--text-muted)]">From {basePrice ? `${(basePrice / 1_000_000).toFixed(1)} ALEO / ~30 days` : '...'}</p>
             </div>
             <button
               onClick={() => setSelectedTier(displayTiers[0] ?? null)}

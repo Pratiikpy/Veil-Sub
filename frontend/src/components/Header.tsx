@@ -59,6 +59,7 @@ export default function Header() {
       className={`md:hidden fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
         hidden && !mobileOpen ? '-translate-y-full' : 'translate-y-0'
       }`}
+      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
       <div
         className={`transition-all duration-500 ${
@@ -111,7 +112,7 @@ export default function Header() {
               ))}
             </nav>
 
-            <div className="ml-auto flex items-center gap-3" aria-live="polite">
+            <div className="ml-auto flex items-center gap-3">
               <ThemeToggle />
               <CommandPaletteTrigger />
               {connected && <NotificationBell />}
@@ -119,13 +120,13 @@ export default function Header() {
                 <Link
                   href="/settings"
                   aria-label="Settings"
-                  className={`p-2 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
+                  className={`p-2.5 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                     pathname.startsWith('/settings')
                       ? 'bg-white/[0.08] text-white'
                       : 'hover:bg-white/5 text-white/50 hover:text-white/70'
                   }`}
                 >
-                  <Settings size={16} aria-hidden="true" />
+                  <Settings size={18} aria-hidden="true" />
                 </Link>
               )}
               <WalletMultiButton />

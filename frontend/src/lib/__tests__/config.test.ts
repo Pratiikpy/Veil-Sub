@@ -16,7 +16,7 @@ import { isValidAleoAddress } from '../utils'
 
 describe('program configuration', () => {
   it('PROGRAM_ID matches deployed contract', () => {
-    expect(PROGRAM_ID).toBe('veilsub_v29.aleo')
+    expect(PROGRAM_ID).toBe('veilsub_v30.aleo')
   })
 
   it('DEPLOYED_PROGRAM_ID matches PROGRAM_ID', () => {

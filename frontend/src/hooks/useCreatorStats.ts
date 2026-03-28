@@ -149,6 +149,7 @@ export function useCreatorStats() {
           revenueThreshold: 'New',
           contentCount: 0,
           tierCount: undefined,
+          dataUnavailable: true,
         }
       } finally {
         setLoading(false)

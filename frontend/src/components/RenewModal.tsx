@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
-import { X, RefreshCw, ArrowRight, CreditCard } from 'lucide-react'
+import { X, RefreshCw, ArrowRight, CreditCard, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
@@ -23,6 +23,7 @@ import { useCreatorStats, clearMappingCache } from '@/hooks/useCreatorStats'
 import { TIERS } from '@/types'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
+import ZKReceipt from './ZKReceipt'
 import Button from './ui/Button'
 import type { AccessPass } from '@/types'
 
@@ -98,10 +99,17 @@ export default function RenewModal({
   const [privacyMode, setPrivacyMode] = useState<'standard' | 'blind'>('standard')
   const [insufficientBalance, setInsufficientBalance] = useState(false)
   const [largestRecord, setLargestRecord] = useState(0)
+  const [receiptPassId, setReceiptPassId] = useState('')
+  const [receiptExpiry, setReceiptExpiry] = useState(0)
   const tierGroupRef = useRef<HTMLDivElement>(null)
   const privacyGroupRef = useRef<HTMLDivElement>(null)
   useRovingTabIndex(tierGroupRef)
   useRovingTabIndex(privacyGroupRef)
+
+  // Dismiss lingering toasts when modal unmounts
+  useEffect(() => {
+    return () => { toast.dismiss('renew-optimistic') }
+  }, [])
 
   // Derive selected option — fall back to legacy on-chain price formula if not in tier options.
   const selectedOption = tierOptions.find(t => t.id === selectedTierId)
@@ -184,6 +192,8 @@ export default function RenewModal({
       const newPassId = generatePassId()
       const newExpiresAt = blockHeight + SUBSCRIPTION_DURATION_BLOCKS
 
+      setReceiptPassId(newPassId)
+      setReceiptExpiry(newExpiresAt)
       setTxStatus('proving')
       toast.dismiss('renew-optimistic')
 
@@ -221,7 +231,7 @@ export default function RenewModal({
               ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
               : null
             logSubscriptionEvent(pass.creator, selectedTierId, totalPrice, result.resolvedTxId || id, wrappedSign)
-            toast.success('Subscription renewed!')
+            toast.success(`${selectedOption.name} subscription renewed!`)
             clearMappingCache()
             onSuccess?.()
             notifyNewSubscriber(pass.creator, selectedTierId, result.resolvedTxId || id)
@@ -240,7 +250,7 @@ export default function RenewModal({
               ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
               : null
             logSubscriptionEvent(pass.creator, selectedTierId, totalPrice, result.resolvedTxId || id, wrappedSign)
-            toast.success('Subscription renewed! (confirmation was slow)')
+            toast.success('Transaction likely succeeded — verify on the explorer if needed.', { duration: 6000 })
             clearMappingCache()
             onSuccess?.()
             notifyNewSubscriber(pass.creator, selectedTierId, result.resolvedTxId || id)
@@ -273,7 +283,7 @@ export default function RenewModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh] bg-black/60 backdrop-blur-sm overflow-y-auto"
+          className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[5vh] sm:pt-[10vh] bg-black/60 backdrop-blur-sm overflow-y-auto"
           onClick={handleModalClose}
         >
           <m.div
@@ -300,7 +310,7 @@ export default function RenewModal({
                 disabled={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed'}
                 aria-label="Close renewal dialog"
                 title={txStatus !== 'idle' && txStatus !== 'confirmed' && txStatus !== 'failed' ? 'Transaction in progress - please wait' : 'Close dialog'}
-                className="p-1 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                className="p-2.5 rounded-lg hover:bg-white/[0.05] text-white/70 hover:text-white active:scale-[0.9] transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
               >
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
@@ -329,7 +339,7 @@ export default function RenewModal({
                 <div className="mb-4">
                   <p className="text-xs text-white/70 mb-2">Renew as:</p>
                   {tiersLoading && (
-                    <p className="text-xs text-white/50 mb-2">Loading tier options...</p>
+                    <p className="text-xs text-white/50 mb-2"><Loader2 className="w-4 h-4 animate-spin mr-2 inline" />Loading tier options...</p>
                   )}
                   {tiersError && (
                     <p className="text-xs text-yellow-400/80 mb-2">Could not load custom tiers. Showing default tier only.</p>
@@ -348,7 +358,7 @@ export default function RenewModal({
                             : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:border-white/15'
                         }`}
                       >
-                        {tier.name}
+                        {tier.name} &mdash; {formatCredits(tier.price)} ALEO
                       </button>
                     ))}
                   </div>
@@ -381,9 +391,10 @@ export default function RenewModal({
                     </div>
                     {privacyMode === 'blind' && (
                       <p className="text-[11px] text-white/50 mt-2">
-                        Each renewal looks different to the creator—they cannot track you across renewals.
+                        Maximum privacy — each renewal uses a fresh anonymous identity, so no one can track your subscription history across periods.
                       </p>
                     )}
+                    <a href="/privacy" target="_blank" className="text-[11px] text-violet-400 hover:text-violet-300 mt-2 inline-block transition-colors">Learn about our privacy modes &rarr;</a>
                 </div>
 
                 {/* Payment Breakdown */}
@@ -455,6 +466,8 @@ export default function RenewModal({
                   </div>
                 )}
 
+                <p className="text-[11px] text-white/50 text-center mb-2">Blockchain transactions are final and non-refundable.</p>
+
                 <Button
                   variant="accent"
                   onClick={handleRenew}
@@ -466,7 +479,7 @@ export default function RenewModal({
                   }
                   className="w-full"
                 >
-                  {initialTierId && initialTierId > pass.tier ? 'Upgrade Privately' : 'Renew Privately'}
+                  {txStatus !== 'idle' ? <><Loader2 className="w-4 h-4 animate-spin mr-2 inline" />Processing...</> : initialTierId && initialTierId > pass.tier ? 'Upgrade Privately' : 'Renew Privately'}
                 </Button>
               </>
             ) : (
@@ -490,9 +503,13 @@ export default function RenewModal({
                       Your subscription is renewed and saved privately to your wallet.
                     </p>
                     {txId && (
-                      <p className="text-[11px] text-white/60 mt-2 font-mono break-all">
-                        TX: {txId.slice(0, 16)}...{txId.slice(-8)}
-                      </p>
+                      <ZKReceipt
+                        creatorHash={pass.creator}
+                        tier={`Tier ${selectedTierId}`}
+                        expiresAt={receiptExpiry}
+                        txId={txId}
+                        passId={receiptPassId}
+                      />
                     )}
 
                     {/* What's Next guidance */}

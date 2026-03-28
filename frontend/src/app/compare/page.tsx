@@ -47,7 +47,7 @@ const ROWS = [
 
 export default function ComparePage() {
   return (
-    <main className="min-h-screen bg-[var(--bg-base)] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[var(--bg-base)] py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
         {/* Header */}
         <div className="text-center mb-12">
@@ -154,6 +154,6 @@ export default function ComparePage() {
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

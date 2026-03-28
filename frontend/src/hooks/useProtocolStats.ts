@@ -7,7 +7,7 @@ import { DEPLOYED_PROGRAM_ID } from '@/lib/config'
 const ALEO_API = '/api/aleo'
 
 interface ProtocolStats {
-  programDeployed: boolean
+  programDeployed: boolean | null  // true = deployed, false = not deployed, null = unknown/unreachable
   transitionCount: number
   recordTypes: number
   versions: number
@@ -15,11 +15,12 @@ interface ProtocolStats {
 
 // Module-level cache for program deployment check — prevents repeated
 // calls to the Aleo API on every component mount / navigation.
-const deployedCache: { data: boolean | null; timestamp: number } = { data: null, timestamp: 0 }
+// Uses a tri-state: true = deployed, false = not deployed, null = unknown/unreachable, undefined = not yet cached
+const deployedCache: { data: boolean | null | undefined; timestamp: number } = { data: undefined, timestamp: 0 }
 const DEPLOYED_CACHE_TTL = 30_000 // 30 seconds
 
-async function checkProgramDeployed(): Promise<boolean> {
-  if (deployedCache.data !== null && Date.now() - deployedCache.timestamp < DEPLOYED_CACHE_TTL) {
+async function checkProgramDeployed(): Promise<boolean | null> {
+  if (deployedCache.data !== undefined && Date.now() - deployedCache.timestamp < DEPLOYED_CACHE_TTL) {
     return deployedCache.data
   }
 
@@ -30,16 +31,19 @@ async function checkProgramDeployed(): Promise<boolean> {
     deployedCache.timestamp = Date.now()
     return result
   } catch {
-    return false
+    // API unreachable — return null to distinguish from "not deployed"
+    deployedCache.data = null
+    deployedCache.timestamp = Date.now()
+    return null
   }
 }
 
 export function useProtocolStats() {
   const [stats, setStats] = useState<ProtocolStats>({
-    programDeployed: false,
-    transitionCount: 27,
+    programDeployed: null,
+    transitionCount: 31,
     recordTypes: 6,
-    versions: 27,
+    versions: 30,
   })
   const [loading, setLoading] = useState(true)
 
@@ -54,9 +58,9 @@ export function useProtocolStats() {
       // These are verified from the compiled contract
       setStats({
         programDeployed: deployed,
-        transitionCount: 27,
+        transitionCount: 31,
         recordTypes: 6,
-        versions: 27,
+        versions: 30,
       })
       setLoading(false)
     }

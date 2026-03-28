@@ -37,6 +37,7 @@ export const viewport: Viewport = {
   colorScheme: 'dark',
   width: 'device-width',
   initialScale: 1,
+  viewportFit: 'cover',
 }
 
 export const metadata: Metadata = {
@@ -159,7 +160,7 @@ export default function RootLayout({
           <FloatingComposeButton />
           <Toaster
             theme="dark"
-            position="bottom-right"
+            position="top-center"
             toastOptions={{
               style: {
                 background: 'var(--color-surface-1)',

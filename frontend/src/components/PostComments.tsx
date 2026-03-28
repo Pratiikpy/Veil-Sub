@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
-import { Heart, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react'
+import { Heart, MessageCircle, ChevronDown, ChevronUp, Shield } from 'lucide-react'
 import { toast } from 'sonner'
 import { computeWalletHash, safeRandomUUID } from '@/lib/utils'
 
@@ -12,6 +12,9 @@ interface Comment {
   subscriber_hash: string
   parent_id?: string | null
   likes_count: number
+  author_type?: 'identified' | 'anonymous' | null
+  anon_id?: string | null
+  tier?: number | null
 }
 
 interface SubscriberProfile {
@@ -33,6 +36,8 @@ interface PostCommentsProps {
   contentId: string
   isSubscribed: boolean
   walletAddress?: string | null
+  /** The user's current subscription tier (1-20), used for anonymous commenting */
+  userTier?: number | null
 }
 
 const MAX_CHARS = 280
@@ -85,6 +90,30 @@ function avatarColor(hash: string): string {
   return colors[n % colors.length]
 }
 
+/** Tier-based colors for anonymous comment badges */
+const ANON_TIER_STYLES: Record<number, { bg: string; text: string; border: string; avatarBg: string }> = {
+  1: { bg: 'bg-violet-500/10', text: 'text-violet-300', border: 'border-violet-500/20', avatarBg: 'bg-violet-500/20' },
+  2: { bg: 'bg-amber-500/10', text: 'text-amber-300', border: 'border-amber-500/20', avatarBg: 'bg-amber-500/20' },
+  3: { bg: 'bg-emerald-500/10', text: 'text-emerald-300', border: 'border-emerald-500/20', avatarBg: 'bg-emerald-500/20' },
+}
+
+function getAnonTierStyle(tier: number) {
+  return ANON_TIER_STYLES[tier] || ANON_TIER_STYLES[1]
+}
+
+function getAnonTierLabel(tier: number): string {
+  const names: Record<number, string> = { 1: 'Supporter', 2: 'Premium', 3: 'VIP' }
+  return `Tier ${tier} ${names[tier] || 'Subscriber'}`
+}
+
+/** Compute a per-post anonymous ID: SHA-256(wallet + contentId + salt) */
+async function computeAnonId(walletAddress: string, contentId: string): Promise<string> {
+  const salt = 'veilsub-anon-v1'
+  const data = new TextEncoder().encode(walletAddress + contentId + salt)
+  const buf = await crypto.subtle.digest('SHA-256', data)
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
 /** Migrate legacy localStorage comments to the new shape */
 function migrateLegacy(raw: string): Comment[] {
   try {
@@ -107,7 +136,7 @@ function migrateLegacy(raw: string): Comment[] {
   }
 }
 
-export default function PostComments({ contentId, isSubscribed, walletAddress }: PostCommentsProps) {
+export default function PostComments({ contentId, isSubscribed, walletAddress, userTier }: PostCommentsProps) {
   const [comments, setComments] = useState<Comment[]>([])
   const [text, setText] = useState('')
   const [replyTo, setReplyTo] = useState<string | null>(null)
@@ -118,16 +147,20 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
   const [subProfiles, setSubProfiles] = useState<Record<string, SubscriberProfile>>({})
   const fetchedHashesRef = useRef<Set<string>>(new Set())
   const submittingRef = useRef(false)
+  // Anonymous commenting: default ON for subscribers with a tier
+  const [anonymous, setAnonymous] = useState(true)
+  const canCommentAnonymously = isSubscribed && !!userTier && userTier >= 1
 
   // Resolve subscriber hash once
   useEffect(() => {
     getSubscriberHash().then(h => { hashRef.current = h })
   }, [])
 
-  // Fetch subscriber profiles for commenters
+  // Fetch subscriber profiles for commenters (skip anonymous comments — they use anon_id, not real hashes)
   useEffect(() => {
     if (comments.length === 0) return
-    const uniqueHashes = [...new Set(comments.map(c => c.subscriber_hash))].filter(h => !fetchedHashesRef.current.has(h))
+    const identifiedComments = comments.filter(c => c.author_type !== 'anonymous')
+    const uniqueHashes = [...new Set(identifiedComments.map(c => c.subscriber_hash))].filter(h => !fetchedHashesRef.current.has(h))
     if (uniqueHashes.length === 0) return
 
     uniqueHashes.forEach(hash => {
@@ -190,14 +223,24 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
 
     const subHash = hashRef.current || safeRandomUUID().replace(/-/g, '') + safeRandomUUID().replace(/-/g, '')
 
+    // Determine if this is an anonymous comment
+    const isAnonComment = canCommentAnonymously && anonymous && !!walletAddress && !!userTier
+    let anonId: string | undefined
+    if (isAnonComment) {
+      anonId = await computeAnonId(walletAddress, contentId)
+    }
+
     // Optimistic local-only comment (shown immediately)
     const optimistic: Comment = {
       id: safeRandomUUID(),
       text: trimmed,
       created_at: new Date().toISOString(),
-      subscriber_hash: subHash,
+      subscriber_hash: isAnonComment ? (anonId as string) : subHash,
       parent_id: replyTo || null,
       likes_count: 0,
+      author_type: isAnonComment ? 'anonymous' : 'identified',
+      anon_id: anonId || null,
+      tier: isAnonComment ? userTier : null,
     }
     const next = [optimistic, ...comments].slice(0, MAX_COMMENTS)
     setComments(next)
@@ -222,6 +265,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
         text: trimmed,
         subscriberHash: subHash,
         parentId: replyTo || undefined,
+        ...(isAnonComment ? { anonymousTier: userTier, anonId } : {}),
         ...authPayload,
       })
       let retries = 3
@@ -257,7 +301,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
     } finally {
       submittingRef.current = false
     }
-  }, [text, comments, replyTo, contentId, serverAvailable, saveLocal, walletAddress])
+  }, [text, comments, replyTo, contentId, serverAvailable, saveLocal, walletAddress, canCommentAnonymously, anonymous, userTier])
 
   const toggleLike = useCallback(async (id: string) => {
     const likeKey = `veilsub_comment_like_${id}`
@@ -343,24 +387,41 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
 
       {/* Comments list */}
       {visible.map(c => {
-        const sp = subProfiles[c.subscriber_hash]
+        const isAnon = c.author_type === 'anonymous' && c.tier
+        const sp = isAnon ? null : subProfiles[c.subscriber_hash]
+        const anonStyle = isAnon ? getAnonTierStyle(c.tier as number) : null
         return (
         <div key={c.id} className="mb-2.5">
           <div className="flex gap-2.5">
-            {sp?.avatar_url ? (
-              <img
-                src={sp.avatar_url}
-                alt={sp.display_name || 'Subscriber'}
-                className="w-7 h-7 rounded-full object-cover shrink-0"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
-              />
-            ) : null}
-            <div className={`w-7 h-7 rounded-full ${avatarColor(c.subscriber_hash)} flex items-center justify-center shrink-0 ${sp?.avatar_url ? 'hidden' : ''}`}>
-              <span className="text-[11px] font-bold text-white/70">{sp?.display_name?.[0]?.toUpperCase() || 'S'}</span>
-            </div>
+            {isAnon ? (
+              <div className={`w-7 h-7 rounded-full ${anonStyle!.avatarBg} flex items-center justify-center shrink-0`}>
+                <Shield className={`w-3.5 h-3.5 ${anonStyle!.text}`} />
+              </div>
+            ) : (
+              <>
+                {sp?.avatar_url ? (
+                  <img
+                    src={sp.avatar_url}
+                    alt={sp.display_name || 'Subscriber'}
+                    className="w-7 h-7 rounded-full object-cover shrink-0"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
+                  />
+                ) : null}
+                <div className={`w-7 h-7 rounded-full ${avatarColor(c.subscriber_hash)} flex items-center justify-center shrink-0 ${sp?.avatar_url ? 'hidden' : ''}`}>
+                  <span className="text-[11px] font-bold text-white/70">{sp?.display_name?.[0]?.toUpperCase() || 'S'}</span>
+                </div>
+              </>
+            )}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-white/70">{sp?.display_name || 'Subscriber'}</span>
+                {isAnon ? (
+                  <>
+                    <span className={`text-xs font-medium ${anonStyle!.text}`}>{getAnonTierLabel(c.tier as number)}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${anonStyle!.bg} ${anonStyle!.text} border ${anonStyle!.border}`}>Anonymous</span>
+                  </>
+                ) : (
+                  <span className="text-xs font-medium text-white/70">{sp?.display_name || 'Subscriber'}</span>
+                )}
                 <span className="text-[11px] text-white/50">{timeAgo(c.created_at)}</span>
               </div>
               <p className="text-sm text-white/80 leading-relaxed mt-0.5 break-words">{c.text}</p>
@@ -379,23 +440,40 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
           </div>
           {/* Replies */}
           {replies[c.id]?.map(r => {
-            const rp = subProfiles[r.subscriber_hash]
+            const isReplyAnon = r.author_type === 'anonymous' && r.tier
+            const rp = isReplyAnon ? null : subProfiles[r.subscriber_hash]
+            const replyAnonStyle = isReplyAnon ? getAnonTierStyle(r.tier as number) : null
             return (
             <div key={r.id} className="flex gap-2.5 ml-9 mt-2">
-              {rp?.avatar_url ? (
-                <img
-                  src={rp.avatar_url}
-                  alt={rp.display_name || 'Subscriber'}
-                  className="w-6 h-6 rounded-full object-cover shrink-0"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
-                />
-              ) : null}
-              <div className={`w-6 h-6 rounded-full ${avatarColor(r.subscriber_hash)} flex items-center justify-center shrink-0 ${rp?.avatar_url ? 'hidden' : ''}`}>
-                <span className="text-[11px] font-bold text-white/60">{rp?.display_name?.[0]?.toUpperCase() || 'S'}</span>
-              </div>
+              {isReplyAnon ? (
+                <div className={`w-6 h-6 rounded-full ${replyAnonStyle!.avatarBg} flex items-center justify-center shrink-0`}>
+                  <Shield className={`w-3 h-3 ${replyAnonStyle!.text}`} />
+                </div>
+              ) : (
+                <>
+                  {rp?.avatar_url ? (
+                    <img
+                      src={rp.avatar_url}
+                      alt={rp.display_name || 'Subscriber'}
+                      className="w-6 h-6 rounded-full object-cover shrink-0"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
+                    />
+                  ) : null}
+                  <div className={`w-6 h-6 rounded-full ${avatarColor(r.subscriber_hash)} flex items-center justify-center shrink-0 ${rp?.avatar_url ? 'hidden' : ''}`}>
+                    <span className="text-[11px] font-bold text-white/60">{rp?.display_name?.[0]?.toUpperCase() || 'S'}</span>
+                  </div>
+                </>
+              )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-medium text-white/60">{rp?.display_name || 'Subscriber'}</span>
+                  {isReplyAnon ? (
+                    <>
+                      <span className={`text-[11px] font-medium ${replyAnonStyle!.text}`}>{getAnonTierLabel(r.tier as number)}</span>
+                      <span className={`text-[9px] px-1 py-px rounded-full ${replyAnonStyle!.bg} ${replyAnonStyle!.text} border ${replyAnonStyle!.border}`}>Anon</span>
+                    </>
+                  ) : (
+                    <span className="text-[11px] font-medium text-white/60">{rp?.display_name || 'Subscriber'}</span>
+                  )}
                   <span className="text-[11px] text-white/50">{timeAgo(r.created_at)}</span>
                 </div>
                 <p className="text-xs text-white/70 leading-relaxed mt-0.5 break-words">{r.text}</p>
@@ -431,20 +509,49 @@ export default function PostComments({ contentId, isSubscribed, walletAddress }:
         </button>
       )}
 
-      {/* Input */}
+      {/* Anonymous toggle + Input */}
       {isSubscribed ? (
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={replyTo ? '' : text}
-            onChange={e => { setReplyTo(null); setText(e.target.value.slice(0, MAX_CHARS)) }}
-            onKeyDown={e => e.key === 'Enter' && !replyTo && submit()}
-            placeholder="Add a comment..."
-            className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-colors"
-          />
-          <button onClick={() => { setReplyTo(null); submit() }} disabled={!text.trim() || !!replyTo} className="px-4 py-2 rounded-lg bg-white/[0.06] text-white/70 text-sm font-medium hover:bg-white/12 disabled:opacity-40 transition-colors">
-            Post
-          </button>
+        <div className="space-y-2">
+          {/* Anonymous toggle — only shown to subscribers with a tier */}
+          {canCommentAnonymously && (
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-2">
+                <Shield className="w-3.5 h-3.5 text-white/50" aria-hidden="true" />
+                <span className="text-xs text-white/60">Comment anonymously</span>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={anonymous}
+                onClick={() => setAnonymous(prev => !prev)}
+                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50 ${anonymous ? 'bg-violet-500/60' : 'bg-white/[0.08]'}`}
+              >
+                <span className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${anonymous ? 'translate-x-4' : 'translate-x-0.5'}`} />
+              </button>
+            </div>
+          )}
+          {/* Preview of anonymous identity */}
+          {canCommentAnonymously && anonymous && userTier && (
+            <div className={`flex items-center gap-2 px-2 py-1.5 rounded-lg ${getAnonTierStyle(userTier).bg} border ${getAnonTierStyle(userTier).border}`}>
+              <Shield className={`w-3 h-3 ${getAnonTierStyle(userTier).text}`} aria-hidden="true" />
+              <span className={`text-[11px] ${getAnonTierStyle(userTier).text}`}>
+                You&apos;ll appear as: <strong>{getAnonTierLabel(userTier)}</strong>
+              </span>
+            </div>
+          )}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={replyTo ? '' : text}
+              onChange={e => { setReplyTo(null); setText(e.target.value.slice(0, MAX_CHARS)) }}
+              onKeyDown={e => e.key === 'Enter' && !replyTo && submit()}
+              placeholder={canCommentAnonymously && anonymous ? 'Add an anonymous comment...' : 'Add a comment...'}
+              className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-colors"
+            />
+            <button onClick={() => { setReplyTo(null); submit() }} disabled={!text.trim() || !!replyTo} className="px-4 py-2 rounded-lg bg-white/[0.06] text-white/70 text-sm font-medium hover:bg-white/12 disabled:opacity-40 transition-colors">
+              Post
+            </button>
+          </div>
         </div>
       ) : (
         <p className="text-xs text-white/50 text-center py-2">Subscribe to join the conversation</p>

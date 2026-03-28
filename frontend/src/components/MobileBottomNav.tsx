@@ -3,12 +3,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import { Search, Home, PlusCircle, Bell, User } from 'lucide-react'
+import { Search, Home, CreditCard, Bell, User } from 'lucide-react'
 
 const MOBILE_NAV = [
   { href: '/feed', label: 'Feed', icon: Home },
   { href: '/explore', label: 'Explore', icon: Search },
-  { href: '/dashboard', label: 'Create', icon: PlusCircle, requiresWallet: true },
+  { href: '/subscriptions', label: 'Subs', icon: CreditCard, requiresWallet: true },
   { href: '/notifications', label: 'Alerts', icon: Bell, requiresWallet: true },
   { href: '/settings', label: 'Profile', icon: User, requiresWallet: true },
 ]
@@ -46,7 +46,7 @@ export default function MobileBottomNav() {
               <div className="relative">
                 <Icon className={`w-5 h-5 transition-transform duration-200 ${active ? 'scale-110' : ''}`} aria-hidden="true" />
                 {active && (
-                  <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-white" />
+                  <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-white transition-all duration-200 scale-100" />
                 )}
               </div>
               <span className="text-xs font-medium">{item.label}</span>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Link from 'next/link'
 import { Bell, CheckCircle2, Gift, AlertTriangle, FileText, Users, Coins, Mail } from 'lucide-react'
 import PageTransition from '@/components/PageTransition'
 import { useNotifications } from '@/hooks/useNotifications'
@@ -44,7 +45,7 @@ export default function NotificationsPage() {
 
   return (
     <PageTransition>
-      <main className="min-h-screen bg-background py-12 sm:py-16">
+      <main className="min-h-screen bg-background pt-12 pb-24 sm:py-16">
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
           <div className="mb-8">
             <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
@@ -96,13 +97,13 @@ export default function NotificationsPage() {
                   <span>You receive a gift subscription</span>
                 </li>
               </ul>
-              <a
+              <Link
                 href="/explore"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all"
               >
                 <Users className="w-4 h-4" aria-hidden="true" />
                 Browse Creators
-              </a>
+              </Link>
             </div>
           )}
 

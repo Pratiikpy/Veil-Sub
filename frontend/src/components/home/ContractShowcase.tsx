@@ -93,7 +93,7 @@ export default function ContractShowcase() {
       <Container>
         <ScrollReveal>
           <SectionHeader
-            badge="v8 → v27 Evolution"
+            badge="v8 → v30 Evolution"
             title="What changed across twenty deploys"
             subtitle="Each iteration adds novel cryptographic features. Built in public, deployed on testnet."
           />

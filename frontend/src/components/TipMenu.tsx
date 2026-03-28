@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { m } from 'framer-motion'
 import { toast } from 'sonner'
 import { formatCredits, formatUsd, computeWalletHash } from '@/lib/utils'
@@ -8,6 +8,7 @@ import { Loader2, CheckCircle2 } from 'lucide-react'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { FEES } from '@/lib/config'
+import { clearMappingCache } from '@/hooks/useCreatorStats'
 
 export interface TipMenuItem {
   id: string
@@ -37,6 +38,7 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
   const [orderingId, setOrderingId] = useState<string | null>(null)
   const [confirmingItem, setConfirmingItem] = useState<TipMenuItem | null>(null)
   const [payingItem, setPayingItem] = useState<string | null>(null)
+  const payingRef = useRef(false)
   const { tip, getCreditsRecords, publicKey: walletAddress } = useVeilSub()
   const { startPolling } = useTransactionPoller()
 
@@ -44,6 +46,8 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
 
   // Execute the actual tip payment on-chain
   const executePayment = useCallback(async (item: TipMenuItem) => {
+    if (payingRef.current) return
+    payingRef.current = true
     setPayingItem(item.id)
     setConfirmingItem(null)
 
@@ -111,9 +115,10 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
           localStorage.setItem(key, JSON.stringify(existing.slice(-50)))
         } catch { /* localStorage unavailable */ }
 
-        toast.success(`"${item.name}" purchased! Tip of ${formatCredits(item.price)} ALEO sent to ${creatorName || 'creator'}.`, {
+        toast.success(`"${item.name}" tip sent! ${formatCredits(item.price)} ALEO sent to ${creatorName || 'creator'}.`, {
           duration: 5000,
         })
+        clearMappingCache()
 
         // Notify parent if handler exists (for cache invalidation etc.)
         if (onTipRequest) {
@@ -127,6 +132,7 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
       toast.error(msg)
     } finally {
       setPayingItem(null)
+      payingRef.current = false
     }
   }, [getCreditsRecords, tip, creatorAddress, creatorName, onTipRequest, walletAddress])
 
@@ -180,13 +186,13 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
               {confirmingItem?.id === item.id ? (
                 <div className="mt-3 space-y-2">
                   <p className="text-[11px] text-white/60 text-center">
-                    Pay {formatCredits(item.price)} ALEO (~{formatUsd(item.price)}) + network fee?
+                    Pay {formatCredits(item.price)} ALEO (~{formatUsd(item.price)})? Includes 5% platform fee + ~{formatCredits(FEES.TIP)} network fee.
                   </p>
                   <div className="flex gap-2">
                     <button
                       onClick={() => executePayment(item)}
                       disabled={payingItem === item.id}
-                      className="flex-1 py-2 rounded-lg text-xs font-medium transition-all active:scale-[0.98] bg-amber-500/20 border border-amber-500/40 text-amber-200 hover:bg-amber-500/30 disabled:opacity-40 flex items-center justify-center gap-1.5"
+                      className="flex-1 py-2 rounded-lg text-xs font-medium transition-all active:scale-[0.98] bg-amber-500/20 border border-amber-500/40 text-amber-200 hover:bg-amber-500/30 disabled:opacity-40 flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none"
                     >
                       {payingItem === item.id ? (
                         <>
@@ -203,7 +209,7 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
                     <button
                       onClick={() => setConfirmingItem(null)}
                       disabled={payingItem === item.id}
-                      className="px-3 py-2 rounded-lg text-xs font-medium transition-all bg-white/[0.05] border border-white/[0.1] text-white/50 hover:bg-white/[0.08] disabled:opacity-40"
+                      className="px-3 py-2 rounded-lg text-xs font-medium transition-all bg-white/[0.05] border border-white/[0.1] text-white/50 hover:bg-white/[0.08] disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none"
                     >
                       Cancel
                     </button>
@@ -213,7 +219,7 @@ export default function TipMenu({ creatorAddress, creatorName, items, isSubscrib
                 <button
                   onClick={() => handleOrder(item)}
                   disabled={!connected || payingItem === item.id}
-                  className="mt-3 w-full py-2 rounded-lg text-xs font-medium transition-all active:scale-[0.98] bg-amber-500/10 border border-amber-500/25 text-amber-300 hover:bg-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                  className="mt-3 w-full py-2 rounded-lg text-xs font-medium transition-all active:scale-[0.98] bg-amber-500/10 border border-amber-500/25 text-amber-300 hover:bg-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none"
                 >
                   {payingItem === item.id ? (
                     <>

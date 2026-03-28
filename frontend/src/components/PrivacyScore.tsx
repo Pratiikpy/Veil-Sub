@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Shield, Check, X } from 'lucide-react'
 
 interface PrivacyScoreProps {
@@ -25,6 +26,9 @@ function getScoreColor(score: number): { ring: string; text: string; label: stri
 }
 
 export default function PrivacyScore(props: PrivacyScoreProps) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+
   const score = FEATURES.reduce(
     (total, feature) => total + (props[feature.key] ? feature.points : 0),
     0,
@@ -35,7 +39,7 @@ export default function PrivacyScore(props: PrivacyScoreProps) {
   const strokeWidth = 5
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
-  const offset = circumference * (1 - score / 100)
+  const offset = mounted ? circumference * (1 - score / 100) : circumference
 
   return (
     <div className="rounded-xl border border-border bg-white/[0.02] p-5">
@@ -105,10 +109,10 @@ export default function PrivacyScore(props: PrivacyScoreProps) {
               ) : (
                 <X className="w-3.5 h-3.5 text-white/30 shrink-0" aria-hidden="true" />
               )}
-              <span className={`text-xs ${active ? 'text-white/80' : 'text-white/40'}`}>
+              <span className={`text-xs ${active ? 'text-white/80' : 'text-white/60'}`}>
                 {feature.label}
               </span>
-              <span className={`ml-auto text-[11px] font-mono ${active ? 'text-emerald-400/70' : 'text-white/20'}`}>
+              <span className={`ml-auto text-[11px] font-mono ${active ? 'text-emerald-400/70' : 'text-white/50'}`}>
                 +{feature.points}
               </span>
             </li>

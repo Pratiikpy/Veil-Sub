@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { WalletMultiButton } from '@provablehq/aleo-wallet-adaptor-react-ui'
-import { Home, Compass, Bell, LayoutDashboard, CreditCard, BarChart3, Search, Settings, LogOut } from 'lucide-react'
+import { Home, Compass, Bell, LayoutDashboard, CreditCard, BarChart3, Search, Settings, LogOut, FileText } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 
 const NAV_ITEMS = [
@@ -74,7 +74,7 @@ export default function DesktopSidebar() {
                   const btn = document.querySelector('.wallet-sidebar-btn button') as HTMLButtonElement
                   btn?.click()
                 }}
-                className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold w-full text-left text-white/25 hover:text-white/40 hover:bg-white/[0.02] transition-all duration-150"
+                className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold w-full text-left text-white/50 hover:text-white/60 hover:bg-white/[0.02] transition-all duration-150 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none"
               >
                 <Icon size={18} strokeWidth={2} aria-hidden="true" />
                 {item.label}
@@ -106,6 +106,21 @@ export default function DesktopSidebar() {
         })}
       </nav>
 
+      {/* Docs link — not wallet-gated */}
+      <div className="px-3 pb-1">
+        <Link
+          href="/docs"
+          className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
+            isActive('/docs')
+              ? 'text-white bg-white/[0.05]'
+              : 'text-white/50 hover:text-white/80 hover:bg-white/[0.03]'
+          }`}
+        >
+          <FileText size={18} strokeWidth={isActive('/docs') ? 2.5 : 2} aria-hidden="true" />
+          Docs
+        </Link>
+      </div>
+
       {/* Bottom section */}
       <div className="px-3 pb-3 space-y-0.5">
         {/* Search trigger */}
@@ -115,7 +130,7 @@ export default function DesktopSidebar() {
         >
           <Search size={18} strokeWidth={2} aria-hidden="true" />
           <span>Search</span>
-          <kbd className="ml-auto text-[11px] font-mono text-white/25 bg-white/[0.04] border border-white/[0.08] rounded px-1.5 py-0.5">
+          <kbd className="ml-auto text-[11px] font-mono text-white/50 bg-white/[0.04] border border-white/[0.08] rounded px-1.5 py-0.5">
             /K
           </kbd>
         </button>
@@ -140,7 +155,7 @@ export default function DesktopSidebar() {
           {connected ? (
             <button
               onClick={() => disconnect()}
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.05] hover:border-white/[0.12] transition-all text-left group"
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.05] hover:border-white/[0.12] transition-all text-left group focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none"
             >
               <span className="relative flex h-2 w-2 flex-shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-50" />
@@ -150,7 +165,7 @@ export default function DesktopSidebar() {
                 <p className="text-[11px] font-medium text-white/70">Connected</p>
                 <p className="text-[11px] font-mono text-white/50 truncate">{truncatedAddress}</p>
               </div>
-              <LogOut size={14} className="text-white/20 group-hover:text-white/50 transition-colors flex-shrink-0" />
+              <LogOut size={14} className="text-white/50 group-hover:text-white/70 transition-colors flex-shrink-0" aria-hidden="true" />
             </button>
           ) : (
             <div className="wallet-sidebar-btn [&_button]:!w-full [&_button]:!rounded-xl [&_button]:!bg-white [&_button]:!text-black [&_button]:!text-sm [&_button]:!font-semibold [&_button]:!py-3 [&_button]:!border-0">

@@ -337,12 +337,16 @@ function OverviewTab() {
       {/* What is VeilSub */}
       <div>
         <h3 className="text-xl font-semibold text-white mb-4">What is VeilSub?</h3>
-        <p className="text-white/70 leading-relaxed mb-6">
-          VeilSub is a privacy-first creator subscription platform where the Aleo blockchain enforces
-          zero-footprint subscriptions via the Blind Subscription Protocol (BSP) — a novel three-layer
-          architecture combining identity rotation, Poseidon2 field-hashed mapping keys, and selective
-          disclosure. Subscriber addresses are physically impossible to reach finalize due to Leo&apos;s
-          static analysis.
+        <p className="text-white/70 leading-relaxed mb-4">
+          VeilSub is a privacy-first subscription platform. Creators publish content, subscribers
+          pay with ALEO, and nobody — not even VeilSub — can see who subscribed to whom. Your
+          subscription pass lives only in your wallet, and all payments are private by default.
+        </p>
+        <p className="text-white/60 leading-relaxed mb-6 text-sm">
+          Under the hood, the Aleo blockchain enforces zero-footprint subscriptions via the Blind
+          Subscription Protocol (BSP) — a three-layer architecture combining identity rotation,
+          Poseidon2 field-hashed mapping keys, and selective disclosure. Subscriber addresses are
+          physically impossible to reach finalize due to Leo&apos;s static analysis.
         </p>
 
         {/* Architecture - Visual Cards */}
@@ -429,7 +433,7 @@ function OverviewTab() {
         <h3 className="text-xl font-semibold text-white mb-4">Tech Stack</h3>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {[
-            { label: 'Smart Contract', value: 'Leo 3.4.0 (v27)', icon: Code },
+            { label: 'Smart Contract', value: 'Leo 3.4.0 (v30)', icon: Code },
             { label: 'Frontend', value: 'Next.js 16, React 19, TypeScript', icon: Blocks },
             { label: 'Styling', value: 'Tailwind CSS 4, Framer Motion', icon: Layers },
             { label: 'Wallet', value: 'Shield, Leo, Fox, Puzzle, Soter', icon: KeyRound },
@@ -508,7 +512,7 @@ function ContractTab() {
       <div>
         <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
           <Database className="w-4 h-4 text-blue-400" aria-hidden="true" />
-          Mappings (Public) — 25 Total
+          Mappings (Public) — 30 Total
         </h3>
         <CodeBlock
           lang="leo"
@@ -563,7 +567,7 @@ mapping trial_used: field => bool;              // hash(caller, creator) => tria
       <div>
         <h3 className="text-lg font-semibold text-white mb-1 flex items-center gap-2">
           <Zap className="w-4 h-4 text-violet-400" aria-hidden="true" />
-          Transitions — 27 Total
+          Transitions — 31 Total
         </h3>
         <p className="text-xs text-white/50 mb-4">Click to expand each category.</p>
         <div className="space-y-3">
@@ -577,7 +581,7 @@ mapping trial_used: field => bool;              // hash(caller, creator) => tria
       <div>
         <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
           <Hash className="w-4 h-4 text-amber-400" aria-hidden="true" />
-          Error Codes (102 unique)
+          Error Codes (119 unique)
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {[
@@ -594,6 +598,9 @@ mapping trial_used: field => bool;              // hash(caller, creator) => tria
             { range: 'ERR_104–110', desc: 'Threshold proofs, platform stats', color: 'text-violet-400/70' },
             { range: 'ERR_111–117', desc: 'Trial subscriptions', color: 'text-emerald-400/70' },
             { range: 'ERR_118–119', desc: 'Scoped audit tokens (v27)', color: 'text-indigo-400/70' },
+            { range: 'ERR_120–128', desc: 'USDCx stablecoin subscriptions & tipping (v28)', color: 'text-blue-400/70' },
+            { range: 'ERR_129–137', desc: 'USAD stablecoin subscriptions & tipping (v28)', color: 'text-pink-400/70' },
+            { range: 'ERR_138', desc: 'Pedersen commitment integrity (v29)', color: 'text-violet-400/70' },
           ].map((e) => (
             <div key={e.range} className="flex items-center gap-3 p-2.5 rounded-lg bg-white/[0.02] border border-border/50">
               <code className={`text-xs font-mono shrink-0 ${e.color}`}>{e.range}</code>
@@ -781,7 +788,7 @@ curl https://api.explorer.provable.com/v1/testnet/program/${DEPLOYED_PROGRAM_ID}
 
 const { executeTransaction } = useWallet()
 
-// Subscribe to a creator (v27)
+// Subscribe to a creator (v30)
 const result = await executeTransaction({
   program: '${DEPLOYED_PROGRAM_ID}',
   function: 'subscribe',
@@ -985,7 +992,7 @@ function FaqTab() {
     { q: 'Can I tip a creator without subscribing?', a: 'Yes! The tip() transition lets you send a private tip to any registered creator. The creator receives ALEO credits but never sees your address.' },
     { q: 'How can I test subscribing?', a: 'Connect your wallet on the app, visit a creator page, and subscribe. If no creator is registered, register yourself on the Dashboard page first. Then open the creator page in a different browser/wallet to test subscribing. Use the Verify page to check on-chain data.' },
     { q: 'Is there a pre-registered test creator?', a: 'Yes! The platform account (aleo1hp9m...sprk5wk) is registered with base price 1000 microcredits, 3 custom tiers (Supporter @ 500, Premium @ 2000, VIP @ 5000), and 5+ published content pieces. Visit Explore to find it.' },
-    { q: 'How did VeilSub evolve from v15 to v29?', a: 'v15 was the first testnet deploy (security hardening). v16–v21 added features but exceeded testnet limits. v23 was a privacy overhaul: all mapping keys use Poseidon2 field hashes. v24 added content auth. v25 added threshold proofs. v26 added trial passes. v27 added scoped audit tokens and trial rate-limiting. v28 added stablecoin support (USDCx + USAD). v29 added Pedersen commitment mappings. Result: 31 transitions, 30 mappings.' },
+    { q: 'How did VeilSub evolve from v15 to v30?', a: 'v15 was the first testnet deploy (security hardening). v16–v21 added features but exceeded testnet limits. v23 was a privacy overhaul: all mapping keys use Poseidon2 field hashes. v24 added content auth. v25 added threshold proofs. v26 added trial passes. v27 added scoped audit tokens and trial rate-limiting. v28 added stablecoin support (USDCx + USAD). v29 added Pedersen commitment mappings. v30 is the current deployed version. Result: 31 transitions, 30 mappings.' },
   ]
 
   return (
@@ -1022,7 +1029,7 @@ export default function DocsPage() {
   const switchTab = useCallback((tab: TabId) => {
     setActiveTab(tab)
     if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', `#${tab}`)
+      window.history.pushState(null, '', `#${tab}`)
     }
   }, [])
 
@@ -1051,7 +1058,7 @@ export default function DocsPage() {
                 Documentation
               </h1>
               <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/[0.06] text-white/60 border border-white/10">
-                v27
+                v30
               </span>
             </div>
 

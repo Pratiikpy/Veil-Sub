@@ -116,7 +116,7 @@ export default function ZKReceipt({
             aria-label="Copy receipt to clipboard"
             className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white/[0.06] border border-white/10 text-xs font-medium text-white/70 hover:bg-white/[0.1] hover:text-white transition-all focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
           >
-            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+            <span className={`inline-flex transition-transform duration-200 ${copied ? 'scale-110' : 'scale-100'}`}>{copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}</span>
             {copied ? 'Copied' : 'Copy Receipt'}
           </button>
           <button
@@ -135,7 +135,7 @@ export default function ZKReceipt({
             href={`https://testnet.aleoscan.io/transaction?id=${txId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[11px] text-white/40 hover:text-white/60 underline underline-offset-2 transition-colors"
+            className="text-[11px] text-white/60 hover:text-white/80 underline underline-offset-2 transition-colors"
           >
             Verify on-chain
           </a>

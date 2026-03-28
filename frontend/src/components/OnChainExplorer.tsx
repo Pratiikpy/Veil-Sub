@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   XCircle,
   Loader2,
+  AlertCircle,
 } from 'lucide-react'
 import { DEPLOYED_PROGRAM_ID, getCreatorHash, saveCreatorHash } from '@/lib/config'
 import { TIERS } from '@/types'
@@ -61,6 +62,7 @@ export default function OnChainExplorer() {
 
   const [programDeployed, setProgramDeployed] = useState<boolean | null>(null)
   const [deployLoading, setDeployLoading] = useState(false)
+  const [deployedChecked, setDeployedChecked] = useState(false)
 
   // v23: mappings use Poseidon2 field hashes, not raw addresses
   const CREATOR_HASH = '7077346389288357645876044527218031735459465201928260558184537791016616885101field'
@@ -150,11 +152,15 @@ export default function OnChainExplorer() {
   const checkDeployment = async () => {
     setDeployLoading(true)
     setProgramDeployed(null)
+    setDeployedChecked(true)
     try {
       const res = await fetch(`${ALEO_API}/program/${DEPLOYED_PROGRAM_ID}`)
       setProgramDeployed(res.ok)
     } catch {
-      setProgramDeployed(false)
+      // API unreachable — keep null to distinguish from "not deployed"
+      setProgramDeployed(null)
+      setDeployLoading(false)
+      return
     }
     setDeployLoading(false)
   }
@@ -350,7 +356,7 @@ export default function OnChainExplorer() {
                 {deployLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-label="Loading" /> : <Search className="w-4 h-4" aria-hidden="true" />}
                 Check Deployment
               </button>
-              {programDeployed !== null && (
+              {!deployLoading && programDeployed !== null && (
                 <div className="flex items-center gap-2 text-sm pt-2 border-t border-white/5">
                   {programDeployed ? (
                     <>
@@ -363,6 +369,12 @@ export default function OnChainExplorer() {
                       <span className="text-red-300">Not Found on Testnet</span>
                     </>
                   )}
+                </div>
+              )}
+              {!deployLoading && programDeployed === null && deployedChecked && (
+                <div className="flex items-center gap-2 text-sm pt-2 border-t border-white/5">
+                  <AlertCircle className="w-4 h-4 text-amber-400" aria-hidden="true" />
+                  <span className="text-amber-300">API unreachable — status unknown</span>
                 </div>
               )}
             </div>

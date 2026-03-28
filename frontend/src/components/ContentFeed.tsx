@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { m } from 'framer-motion'
-import { Lock, Unlock, Shield, RefreshCw, Loader2, FileText, ArrowRight, Flag, Image as ImageIcon, Video, ShieldCheck, Globe, DollarSign, StickyNote } from 'lucide-react'
+import { Lock, Unlock, Shield, RefreshCw, Loader2, FileText, ArrowRight, Flag, Image as ImageIcon, Video, ShieldCheck, Globe, DollarSign, StickyNote, Pencil, Trash2, ThumbsUp } from 'lucide-react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { useVeilSub } from '@/hooks/useVeilSub'
+import { useContentActions } from '@/hooks/useContentActions'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { isE2EEncrypted, decryptContent as e2eDecrypt } from '@/lib/e2eEncryption'
 import dynamic from 'next/dynamic'
@@ -101,9 +102,18 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
   // PPV payment state
   const [ppvPayingId, setPpvPayingId] = useState<string | null>(null)
+  const ppvPayingRef = useRef(false)
   const [ppvConfirmId, setPpvConfirmId] = useState<string | null>(null)
   const { tip, getCreditsRecords, publicKey } = useVeilSub()
+  const { updateContent, deleteContent } = useContentActions()
   const { startPolling: startPpvPolling } = useTransactionPoller()
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  // Anonymous endorsement tracking
+  const [endorseCounts, setEndorseCounts] = useState<Record<string, number>>({})
+  const [endorsedIds, setEndorsedIds] = useState<Set<string>>(new Set())
+  const [endorsingId, setEndorsingId] = useState<string | null>(null)
 
   // PPV unlock tracking (server-backed with localStorage cache)
   const [ppvUnlocked, setPpvUnlocked] = useState<Set<string>>(new Set())
@@ -155,7 +165,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
   // PPV payment: execute a real tip transaction, then unlock on confirmation
   const handlePpvPayment = useCallback(async (postId: string, ppvPrice: number) => {
-    if (ppvPayingId) return // prevent double-click
+    if (ppvPayingRef.current) return // ref-based guard prevents double-click across async ticks
+    ppvPayingRef.current = true
+    if (ppvPayingId) { ppvPayingRef.current = false; return } // state-based guard still used for UI
     setPpvPayingId(postId)
     setPpvConfirmId(null)
 
@@ -188,30 +200,65 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       const txId = await tip(paymentRecord, creatorAddress, ppvPrice)
 
       if (txId) {
-        toast.success('PPV payment confirmed! Unlocking content...')
-        markPpvUnlocked(postId)
-        setJustUnlockedIds((prev) => new Set(prev).add(postId))
-        // Persist unlock to server with proper authentication
-        if (walletAddress) {
-          try {
-            const walletHash = await computeWalletHash(walletAddress)
-            const timestamp = Date.now()
-            await fetch('/api/posts/ppv-unlock', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                postId,
-                txId,
-                walletAddress,
-                walletHash,
-                timestamp,
-                creatorAddress,
-              }),
-            }).catch(() => {
-              toast.warning('Unlock saved locally but server backup failed. Your access is preserved on this device.')
-            })
-          } catch { /* ignore API tracking failures */ }
-        }
+        toast.info('Payment submitted. Waiting for on-chain confirmation...')
+        // Poll for confirmation before unlocking content
+        startPpvPolling(txId, async (result) => {
+          if (result.status === 'confirmed') {
+            toast.success('PPV payment submitted! Unlocking content...')
+            markPpvUnlocked(postId)
+            setJustUnlockedIds((prev) => new Set(prev).add(postId))
+            // Persist unlock to server with proper authentication
+            if (walletAddress) {
+              try {
+                const walletHash = await computeWalletHash(walletAddress)
+                const timestamp = Date.now()
+                await fetch('/api/posts/ppv-unlock', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    postId,
+                    txId: result.resolvedTxId || txId,
+                    walletAddress,
+                    walletHash,
+                    timestamp,
+                    creatorAddress,
+                  }),
+                }).catch(() => {
+                  toast.warning('Unlock saved locally but server backup failed. Your access is preserved on this device.')
+                })
+              } catch { /* ignore API tracking failures */ }
+            }
+          } else if (result.status === 'timeout') {
+            // Shield Wallet often doesn't report final status — unlock but warn
+            toast.warning('Payment submitted but not yet confirmed on-chain.', { duration: 6000 })
+            markPpvUnlocked(postId)
+            setJustUnlockedIds((prev) => new Set(prev).add(postId))
+            // Persist unlock to server with proper authentication
+            if (walletAddress) {
+              try {
+                const walletHash = await computeWalletHash(walletAddress)
+                const timestamp = Date.now()
+                await fetch('/api/posts/ppv-unlock', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    postId,
+                    txId,
+                    walletAddress,
+                    walletHash,
+                    timestamp,
+                    creatorAddress,
+                  }),
+                }).catch(() => { /* server save is best-effort */ })
+              } catch { /* ignore API tracking failures */ }
+            }
+          } else if (result.status === 'failed') {
+            toast.error('PPV payment failed on-chain. Content not unlocked.')
+          }
+          setPpvPayingId(null)
+          ppvPayingRef.current = false
+        })
+        return // Don't clear ppvPayingId yet — polling callback handles it
       } else {
         toast.error('PPV payment failed or was cancelled. Content not unlocked.')
       }
@@ -220,8 +267,9 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       toast.error(msg)
     } finally {
       setPpvPayingId(null)
+      ppvPayingRef.current = false
     }
-  }, [ppvPayingId, getCreditsRecords, tip, creatorAddress, markPpvUnlocked, walletAddress])
+  }, [ppvPayingId, getCreditsRecords, tip, creatorAddress, markPpvUnlocked, walletAddress, startPpvPolling])
 
   // Keep refs in sync without triggering effects
   signMessageRef.current = signMessage
@@ -316,6 +364,42 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
       }
     })()
   }, [posts, activePasses, creatorAddress, decryptedPreviews])
+
+  // Decrypt E2E-encrypted note bodies client-side.
+  // Notes with e2e flag or E2E-prefixed body need subscriber-tier key to decrypt.
+  useEffect(() => {
+    if (posts.length === 0 || highestTier === 0) return
+    const encryptedNotes = posts.filter(
+      (p) => p.postType === 'note' && p.body && isE2EEncrypted(p.body) && !unlockedBodies[p.id]
+    )
+    if (encryptedNotes.length === 0) return
+
+    ;(async () => {
+      const results: Record<string, string> = {}
+      for (const note of encryptedNotes) {
+        if (!note.body) continue
+        const matchingPass = activePasses.find((ap) => ap.creator === creatorAddress)
+        if (matchingPass) {
+          // Try the note's minTier first (encrypted at this tier)
+          try {
+            results[note.id] = await e2eDecrypt(note.body, creatorAddress, note.minTier)
+            continue
+          } catch {
+            // Try subscriber's actual tier
+            try {
+              results[note.id] = await e2eDecrypt(note.body, creatorAddress, matchingPass.tier)
+              continue
+            } catch {
+              // Cannot decrypt — subscriber may not have the right tier
+            }
+          }
+        }
+      }
+      if (Object.keys(results).length > 0) {
+        setUnlockedBodies((prev) => ({ ...prev, ...results }))
+      }
+    })()
+  }, [posts, activePasses, creatorAddress, highestTier, unlockedBodies])
 
   // Reset unlock state when the user's highest tier changes (e.g., after subscribing).
   // This allows previously-failed or not-yet-attempted unlocks to be retried.
@@ -456,6 +540,94 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   const noteCount = useMemo(() => posts.filter(p => p.postType === 'note').length, [posts])
   const postCount = useMemo(() => posts.filter(p => p.postType !== 'note').length, [posts])
 
+  // Fetch endorsement counts for all loaded posts
+  useEffect(() => {
+    if (posts.length === 0) return
+    let cancelled = false
+
+    ;(async () => {
+      const counts: Record<string, number> = {}
+      for (const post of posts) {
+        try {
+          const res = await fetch(`/api/social?type=reactions&contentId=${encodeURIComponent(post.id)}`)
+          if (cancelled) return
+          if (res.ok) {
+            const { counts: reactionCounts } = await res.json()
+            if (reactionCounts?.endorse > 0) {
+              counts[post.id] = reactionCounts.endorse
+            }
+          }
+        } catch {
+          // Ignore fetch errors for endorsement counts
+        }
+      }
+      if (!cancelled && Object.keys(counts).length > 0) {
+        setEndorseCounts(prev => ({ ...prev, ...counts }))
+      }
+    })()
+
+    return () => { cancelled = true }
+  }, [posts])
+
+  // Load user's endorsed posts from localStorage
+  useEffect(() => {
+    if (!walletAddress) {
+      setEndorsedIds(new Set())
+      return
+    }
+    try {
+      const stored = localStorage.getItem(`veilsub_endorsed_${walletAddress}`)
+      if (stored) setEndorsedIds(new Set(JSON.parse(stored)))
+    } catch { /* ignore */ }
+  }, [walletAddress])
+
+  // Check if user has a valid pass for the current creator
+  const hasActivePass = useMemo(() => {
+    return activePasses.some(p => p.creator === creatorAddress)
+  }, [activePasses, creatorAddress])
+
+  const handleEndorse = useCallback(async (postId: string) => {
+    if (!walletAddress || !hasActivePass || endorsingId || endorsedIds.has(postId)) return
+    setEndorsingId(postId)
+
+    try {
+      const walletHash = await computeWalletHash(walletAddress)
+      const timestamp = Date.now()
+
+      const res = await fetch('/api/social', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'reaction',
+          contentId: postId,
+          reactionType: 'endorse',
+          delta: 1,
+          walletAddress,
+          walletHash,
+          timestamp,
+        }),
+      })
+
+      if (res.ok) {
+        const { count } = await res.json()
+        setEndorseCounts(prev => ({ ...prev, [postId]: count }))
+        setEndorsedIds(prev => {
+          const next = new Set(prev)
+          next.add(postId)
+          try { localStorage.setItem(`veilsub_endorsed_${walletAddress}`, JSON.stringify([...next])) } catch { /* quota */ }
+          return next
+        })
+        toast.success('Endorsement recorded anonymously')
+      } else {
+        toast.error('Could not record endorsement')
+      }
+    } catch {
+      toast.error('Endorsement failed — check your connection')
+    } finally {
+      setEndorsingId(null)
+    }
+  }, [walletAddress, hasActivePass, endorsingId, endorsedIds])
+
   return (
     <div>
       <h2 className="text-lg font-semibold text-white mb-2">
@@ -551,20 +723,29 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
             const isPPV = !!(post.ppvPrice && post.ppvPrice > 0)
             const isPPVUnlocked = ppvUnlocked.has(post.id)
 
-            // --- Note rendering (compact, no title, always public) ---
+            // --- Note rendering (compact, may be encrypted for subscribers-only) ---
             if (isNote) {
               const creatorInfo = FEATURED_CREATORS.find(c => c.address === creatorAddress)
+              const noteIsEncrypted = !!post.e2e || (post.body && isE2EEncrypted(post.body))
+              const noteDecryptedBody = unlockedBodies[post.id]
+              const noteDisplayBody = noteDecryptedBody || post.body
+              const noteHasAccess = !noteIsEncrypted || highestTier >= post.minTier
+              const noteUnlocked = !noteIsEncrypted || (noteHasAccess && noteDisplayBody != null && !isE2EEncrypted(noteDisplayBody))
               return (
                 <m.div
                   key={post.id}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.04 }}
-                  className="rounded-xl border border-white/[0.06] bg-white/[0.015] p-4"
+                  className={`rounded-xl border p-4 ${noteIsEncrypted ? 'border-violet-500/15 bg-violet-500/[0.02]' : 'border-white/[0.06] bg-white/[0.015]'}`}
                 >
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                      <StickyNote className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${noteIsEncrypted ? 'bg-violet-500/10 border border-violet-500/20' : 'bg-emerald-500/10 border border-emerald-500/20'}`}>
+                      {noteIsEncrypted && !noteUnlocked ? (
+                        <Lock className="w-3.5 h-3.5 text-violet-400" aria-hidden="true" />
+                      ) : (
+                        <StickyNote className={`w-3.5 h-3.5 ${noteIsEncrypted ? 'text-violet-400' : 'text-emerald-400'}`} aria-hidden="true" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -572,13 +753,32 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                           {creatorInfo?.label || shortenAddress(creatorAddress)}
                         </span>
                         <span className="text-[11px] text-white/50">{post.createdAt ? timeAgo(post.createdAt) : ''}</span>
-                        <span className="px-1.5 py-0.5 rounded text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/15">
-                          Note
+                        <span className={`px-1.5 py-0.5 rounded text-[11px] font-medium ${noteIsEncrypted ? 'bg-violet-500/10 text-violet-400 border border-violet-500/15' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/15'}`}>
+                          {noteIsEncrypted ? 'Subscribers Only' : 'Note'}
                         </span>
+                        {noteIsEncrypted && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                            <ShieldCheck className="w-3 h-3" aria-hidden="true" />
+                            E2E
+                          </span>
+                        )}
                       </div>
-                      <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap break-words">
-                        {post.body}
-                      </p>
+                      {noteUnlocked ? (
+                        <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap break-words">
+                          {noteDisplayBody}
+                        </p>
+                      ) : (
+                        <div className="py-3">
+                          <div className="flex items-center gap-2 text-white/60">
+                            <Lock className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                            <p className="text-sm">
+                              {connected && highestTier > 0
+                                ? 'Decrypting...'
+                                : 'This note is end-to-end encrypted. Subscribe to read it.'}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                       {post.imageUrl && (
                         <div
                           className="mt-2 rounded-lg overflow-hidden border border-white/[0.06] max-h-60 cursor-zoom-in"
@@ -590,7 +790,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={post.imageUrl}
-                            alt="Note image"
+                            alt=""
                             className="w-full object-cover"
                             loading="lazy"
                           />
@@ -599,6 +799,35 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                       <div className="mt-2">
                         <PostInteractions contentId={post.id} creatorAddress={creatorAddress} postTitle="Note" />
                       </div>
+                      {/* Anonymous endorsement badge */}
+                      {(endorseCounts[post.id] > 0 || (connected && hasActivePass)) && (
+                        <div className="mt-2 flex items-center gap-2">
+                          {endorseCounts[post.id] > 0 && (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-500/10 border border-amber-500/20 text-amber-300">
+                              <Shield className="w-3 h-3" aria-hidden="true" />
+                              {endorseCounts[post.id]} verified subscriber{endorseCounts[post.id] !== 1 ? 's' : ''} endorse{endorseCounts[post.id] === 1 ? 's' : ''} this
+                            </span>
+                          )}
+                          {connected && hasActivePass && !endorsedIds.has(post.id) && (
+                            <button
+                              onClick={() => handleEndorse(post.id)}
+                              disabled={endorsingId === post.id}
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium text-white/50 hover:text-amber-300 hover:bg-amber-500/10 border border-white/[0.06] hover:border-amber-500/20 transition-all disabled:opacity-40"
+                              aria-label="Endorse this post as a verified subscriber"
+                            >
+                              <ThumbsUp className="w-3 h-3" aria-hidden="true" />
+                              <Shield className="w-2.5 h-2.5" aria-hidden="true" />
+                              {endorsingId === post.id ? 'Endorsing...' : 'Endorse'}
+                            </button>
+                          )}
+                          {connected && hasActivePass && endorsedIds.has(post.id) && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium text-amber-400/60">
+                              <ThumbsUp className="w-3 h-3 fill-current" aria-hidden="true" />
+                              Endorsed
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </m.div>
@@ -716,12 +945,24 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                   {unlocked && displayImage && (
                     <div
                       className={`mb-4 rounded-lg overflow-hidden border border-white/[0.06] aspect-video bg-white/[0.02] cursor-zoom-in${justUnlockedIds.has(post.id) ? ' content-unlock-reveal' : ''}`}
+                      role="button"
+                      tabIndex={0}
                       onClick={() => {
                         const imgs = displayImage.includes(',')
                           ? displayImage.split(',').map((s: string) => s.trim()).filter(Boolean)
                           : [displayImage]
                         setLightboxImages(imgs)
                         setLightboxIndex(0)
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          const imgs = displayImage.includes(',')
+                            ? displayImage.split(',').map((s: string) => s.trim()).filter(Boolean)
+                            : [displayImage]
+                          setLightboxImages(imgs)
+                          setLightboxIndex(0)
+                        }
                       }}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -734,10 +975,13 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                           const img = e.target as HTMLImageElement
                           img.style.display = 'none'
                           const fallback = img.nextElementSibling as HTMLElement | null
-                          if (fallback) fallback.classList.remove('hidden')
+                          if (fallback) fallback.style.display = 'flex'
                         }}
                       />
-                      <div className="hidden h-20 sm:h-24 lg:h-28 bg-white/[0.02] border-t border-white/[0.06] flex items-center justify-center">
+                      <div
+                        style={{ display: 'none' }}
+                        className="h-20 sm:h-24 lg:h-28 bg-white/[0.02] border-t border-white/[0.06] flex items-center justify-center"
+                      >
                         <div className="flex items-center gap-2 text-white/50">
                           <ImageIcon className="w-5 h-5" aria-hidden="true" />
                           <span className="text-xs">Image unavailable</span>
@@ -781,7 +1025,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                               {' '}to unlock?
                             </p>
                             <p className="text-[11px] text-white/50">
-                              + ~{formatCredits(FEES.TIP)} ALEO network fee
+                              Includes 5% platform fee + ~{formatCredits(FEES.TIP)} ALEO network fee
                             </p>
                             <div className="flex gap-2">
                               <button
@@ -930,6 +1174,36 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     </div>
                   )}
 
+                  {/* Anonymous endorsement badge */}
+                  {unlocked && (endorseCounts[post.id] > 0 || (connected && hasActivePass)) && (
+                    <div className="mt-3 flex items-center gap-2">
+                      {endorseCounts[post.id] > 0 && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-500/10 border border-amber-500/20 text-amber-300">
+                          <Shield className="w-3 h-3" aria-hidden="true" />
+                          {endorseCounts[post.id]} verified subscriber{endorseCounts[post.id] !== 1 ? 's' : ''} endorse{endorseCounts[post.id] === 1 ? 's' : ''} this
+                        </span>
+                      )}
+                      {connected && hasActivePass && !endorsedIds.has(post.id) && (
+                        <button
+                          onClick={() => handleEndorse(post.id)}
+                          disabled={endorsingId === post.id}
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium text-white/50 hover:text-amber-300 hover:bg-amber-500/10 border border-white/[0.06] hover:border-amber-500/20 transition-all disabled:opacity-40"
+                          aria-label="Endorse this post as a verified subscriber"
+                        >
+                          <ThumbsUp className="w-3 h-3" aria-hidden="true" />
+                          <Shield className="w-2.5 h-2.5" aria-hidden="true" />
+                          {endorsingId === post.id ? 'Endorsing...' : 'Endorse'}
+                        </button>
+                      )}
+                      {connected && hasActivePass && endorsedIds.has(post.id) && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium text-amber-400/60">
+                          <ThumbsUp className="w-3 h-3 fill-current" aria-hidden="true" />
+                          Endorsed
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   {/* Interactions bar */}
                   {unlocked && (
                     <div className="mt-3 pt-2 border-t border-white/[0.04]">
@@ -952,6 +1226,67 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                   )}
 
                   <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center gap-4">
+                      {/* Owner actions: Edit & Delete (only for connected creator) */}
+                      {walletAddress && walletAddress === creatorAddress && post.contentId !== 'seed' && (
+                        <>
+                          <button
+                            onClick={() => {
+                              // Navigate to dashboard edit — uses window.location to signal edit intent
+                              window.location.href = `/dashboard?edit=${post.id}`
+                            }}
+                            className="text-xs text-white/60 hover:text-blue-400 transition-colors flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded px-1"
+                            aria-label={`Edit post: ${post.title}`}
+                          >
+                            <Pencil className="w-3 h-3" aria-hidden="true" />
+                            Edit
+                          </button>
+                          {deleteConfirmId === post.id ? (
+                            <span className="flex items-center gap-1.5">
+                              <button
+                                onClick={async () => {
+                                  setDeletingId(post.id)
+                                  try {
+                                    await deleteContent(post.contentId, post.contentId)
+                                    toast.success('Post deleted')
+                                    setPosts((prev) => prev.filter((p) => p.id !== post.id))
+                                  } catch {
+                                    toast.error('Failed to delete post')
+                                  } finally {
+                                    setDeletingId(null)
+                                    setDeleteConfirmId(null)
+                                  }
+                                }}
+                                disabled={deletingId === post.id}
+                                className="text-xs text-red-400 hover:text-red-300 transition-colors flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-red-400/50 focus-visible:outline-none rounded px-1"
+                              >
+                                {deletingId === post.id ? (
+                                  <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" />
+                                ) : (
+                                  <Trash2 className="w-3 h-3" aria-hidden="true" />
+                                )}
+                                Confirm
+                              </button>
+                              <button
+                                onClick={() => setDeleteConfirmId(null)}
+                                className="text-xs text-white/50 hover:text-white/70 transition-colors rounded px-1"
+                              >
+                                Cancel
+                              </button>
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => setDeleteConfirmId(post.id)}
+                              className="text-xs text-white/60 hover:text-red-400 transition-colors flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded px-1"
+                              aria-label={`Delete post: ${post.title}`}
+                            >
+                              <Trash2 className="w-3 h-3" aria-hidden="true" />
+                              Delete
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
                     <div className="flex items-center gap-4 ml-auto">
                       {unlocked && post.contentId !== 'seed' && (
                         <button

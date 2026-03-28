@@ -1,5 +1,5 @@
 /**
- * Maps on-chain error codes from VeilSub smart contract (veilsub_v29.aleo)
+ * Maps on-chain error codes from VeilSub smart contract (veilsub_v30.aleo)
  * to user-friendly messages displayed in the frontend.
  *
  * Error codes are embedded as comments in the Leo contract's assert statements.
@@ -151,29 +151,30 @@ export const ERROR_MESSAGES: Record<string, string> = {
   // === Trial Rate Limiting (v27) ===
   'ERR_119': 'You have already used a trial subscription for this creator.',
 
-  // === USDCx Stablecoin Subscriptions & Tipping (v29) ===
-  'ERR_120': 'USDCx subscription failed — insufficient token balance.',
-  'ERR_121': 'USDCx subscription — invalid tier.',
-  'ERR_122': 'USDCx subscription — amount below tier price.',
-  'ERR_123': 'USDCx subscription — creator not registered.',
-  'ERR_124': 'USDCx tip failed — insufficient token balance.',
-  'ERR_125': 'USDCx tip — invalid amount.',
-  'ERR_126': 'USDCx tip — creator not registered.',
+  // === USDCx Stablecoin Subscriptions & Tipping (v28) ===
+  'ERR_120': 'USDCx subscription tier must be at least 1.',
+  'ERR_121': 'USDCx subscription tier exceeds the maximum allowed.',
+  'ERR_122': 'USDCx payment amount must be greater than zero.',
+  'ERR_123': 'Insufficient USDCx payment for this tier.',
+  'ERR_124': 'This tier is deprecated and cannot be used for USDCx subscriptions.',
+  'ERR_125': 'USDCx subscription expiry must be in the future.',
+  'ERR_126': 'USDCx subscription expiry is set too far into the future.',
+  'ERR_127': 'This creator has reached the maximum subscriber limit (USDCx).',
+  'ERR_128': 'USDCx tip amount must be greater than zero.',
 
-  // === USAD Stablecoin Subscriptions & Tipping (v29) ===
-  'ERR_127': 'USAD subscription failed — insufficient token balance.',
-  'ERR_128': 'USAD subscription — invalid tier.',
-  'ERR_129': 'USAD subscription — amount below tier price.',
-  'ERR_130': 'USAD subscription — creator not registered.',
-  'ERR_131': 'USAD tip failed — insufficient token balance.',
-  'ERR_132': 'USAD tip — invalid amount.',
-  'ERR_133': 'USAD tip — creator not registered.',
+  // === USAD Stablecoin Subscriptions & Tipping (v28) ===
+  'ERR_129': 'USAD subscription tier must be at least 1.',
+  'ERR_130': 'USAD subscription tier exceeds the maximum allowed.',
+  'ERR_131': 'USAD payment amount must be greater than zero.',
+  'ERR_132': 'Insufficient USAD payment for this tier.',
+  'ERR_133': 'This tier is deprecated and cannot be used for USAD subscriptions.',
+  'ERR_134': 'USAD subscription expiry must be in the future.',
+  'ERR_135': 'USAD subscription expiry is set too far into the future.',
+  'ERR_136': 'This creator has reached the maximum subscriber limit (USAD).',
+  'ERR_137': 'USAD tip amount must be greater than zero.',
 
-  // === Stablecoin General Errors (v29) ===
-  'ERR_134': 'Stablecoin transfer failed.',
-  'ERR_135': 'Stablecoin transfer could not be verified. Please try again.',
-  'ERR_136': 'Stablecoin amount exceeds the maximum allowed.',
-  'ERR_137': 'Stablecoin transfer failed — the recipient address does not match.',
+  // === Pedersen Commitment Integrity (v29) ===
+  'ERR_138': 'Pedersen commitment mismatch — on-chain integrity check failed.',
 }
 
 /**

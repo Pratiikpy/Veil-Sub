@@ -33,6 +33,8 @@ export function useVeilSub() {
     subscribe: subscription.subscribe,
     subscribeBlind: subscription.subscribeBlind,
     subscribeTrial: subscription.subscribeTrial,
+    subscribeUsdcx: subscription.subscribeUsdcx,
+    subscribeUsad: subscription.subscribeUsad,
     renew: subscription.renew,
     renewBlind: subscription.renewBlind,
     giftSubscription: subscription.giftSubscription,
@@ -47,6 +49,8 @@ export function useVeilSub() {
     revokeAccess: contentActions.revokeAccess,
     // Tipping & verification (useTipping)
     tip: tipping.tip,
+    tipUsdcx: tipping.tipUsdcx,
+    tipUsad: tipping.tipUsad,
     commitTip: tipping.commitTip,
     revealTip: tipping.revealTip,
     createAuditToken: tipping.createAuditToken,
@@ -55,6 +59,8 @@ export function useVeilSub() {
     proveSubscriberThreshold: tipping.proveSubscriberThreshold,
     // Wallet records & utilities (useWalletRecords)
     getCreditsRecords: walletRecords.getCreditsRecords,
+    getUsdcxRecords: walletRecords.getUsdcxRecords,
+    getUsadRecords: walletRecords.getUsadRecords,
     getTierRecords: walletRecords.getTierRecords,
     getGiftTokens: walletRecords.getGiftTokens,
     getTokenRecords: walletRecords.getTokenRecords,

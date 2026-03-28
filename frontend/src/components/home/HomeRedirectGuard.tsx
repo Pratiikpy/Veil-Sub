@@ -22,7 +22,7 @@ export default function HomeRedirectGuard({ children }: Props) {
 
   useEffect(() => {
     if (connected) {
-      router.replace('/feed')
+      router.push('/feed')
     }
   }, [connected, router])
 

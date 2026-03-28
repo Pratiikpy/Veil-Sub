@@ -5,14 +5,14 @@ import { m } from 'framer-motion'
 import { spring } from '@/lib/motion'
 import Link from 'next/link'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import { ExternalLink, Shield, Share2 } from 'lucide-react'
+import { ExternalLink, Shield, Share2, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import dynamic from 'next/dynamic'
 import { useCreatorStats } from '@/hooks/useCreatorStats'
 import { useSupabase } from '@/hooks/useSupabase'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import PageTransition from '@/components/PageTransition'
-import { saveCreatorHash, getCreatorHash } from '@/lib/config'
+import { saveCreatorHash, getCreatorHash, CREATOR_HASH_MAP, FEATURED_CREATORS, PROGRAM_ID } from '@/lib/config'
 import type { CreatorProfile } from '@/types'
 
 import ConnectWalletPrompt from '@/components/dashboard/ConnectWalletPrompt'
@@ -64,6 +64,10 @@ export default function DashboardPage() {
       setLoading(false)
       return
     }
+    // Reset state on wallet switch so stale data from a previous wallet never persists
+    setIsRegistered(false)
+    setProfileName('')
+    setProfileImageUrl('')
     let cancelled = false
     setStatsError(false)
     // If hash missing from localStorage/hardcoded map, try to restore from Supabase first.
@@ -73,8 +77,7 @@ export default function DashboardPage() {
       fetchCreatorStats(publicKey).then((s) => {
         if (cancelled) return
         setStats(s)
-        // Only promote to registered — never demote during an active session.
-        setIsRegistered((prev) => prev || s.tierPrice !== null)
+        setIsRegistered(s.tierPrice !== null)
         setLoading(false)
       }).catch(() => {
         if (cancelled) return
@@ -152,7 +155,7 @@ export default function DashboardPage() {
       <PageTransition className="min-h-screen">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-center">
           <h1 className="text-3xl font-bold text-white mb-4">Creator Dashboard</h1>
-          <div className="p-6 rounded-xl bg-red-500/5 border border-red-500/15 max-w-md mx-auto">
+          <div role="alert" className="p-6 rounded-xl bg-red-500/5 border border-red-500/15 max-w-md mx-auto">
             <p className="text-sm text-red-300 mb-4">Could not load your creator status. This may be a network issue.</p>
             <button
               onClick={() => setRefreshKey((k) => k + 1)}
@@ -235,15 +238,41 @@ export default function DashboardPage() {
             </m.div>
           </m.div>
         ) : !isRegistered ? (
-          <OnboardingWizard
-            onComplete={() => {
-              setIsRegistered(true)
-              setRefreshKey((k) => k + 1)
-              setShowCelebration(true)
-              if (celebrationTimerRef.current) clearTimeout(celebrationTimerRef.current)
-              celebrationTimerRef.current = setTimeout(() => setShowCelebration(false), 5000)
-            }}
-          />
+          <>
+            {/* Show re-registration notice if creator exists in hash map or has a Supabase profile */}
+            {publicKey && (publicKey in CREATOR_HASH_MAP || FEATURED_CREATORS.some(fc => fc.address === publicKey) || profileName) && (
+              <m.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-5 rounded-xl bg-amber-500/[0.06] border border-amber-500/15"
+              >
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" aria-hidden="true" />
+                  <div>
+                    <p className="text-sm font-medium text-amber-300 mb-1">
+                      Contract version upgrade detected
+                    </p>
+                    <p className="text-xs text-white/60 leading-relaxed">
+                      Your previous registration was on an older contract version. The current version is{' '}
+                      <span className="font-mono text-white/70">{PROGRAM_ID.match(/v(\d+)/)?.[0] ?? 'v30'}</span>.
+                      Each contract upgrade creates a new on-chain program with independent state.
+                      Please re-register below to activate your creator page on the current version.
+                      Your Supabase profile (name, image, bio) will be preserved.
+                    </p>
+                  </div>
+                </div>
+              </m.div>
+            )}
+            <OnboardingWizard
+              onComplete={() => {
+                setIsRegistered(true)
+                setRefreshKey((k) => k + 1)
+                setShowCelebration(true)
+                if (celebrationTimerRef.current) clearTimeout(celebrationTimerRef.current)
+                celebrationTimerRef.current = setTimeout(() => setShowCelebration(false), 5000)
+              }}
+            />
+          </>
         ) : (
           <RegisteredDashboard
             publicKey={publicKey!}
