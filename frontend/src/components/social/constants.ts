@@ -24,11 +24,12 @@ export const TABS = [
 
 export type TabId = (typeof TABS)[number]['id']
 
-export const TIER_OPTIONS = [
-  { value: 1, label: `Tier 1 - ${DEFAULT_TIER_NAMES[1]}` },
-  { value: 2, label: `Tier 2 - ${DEFAULT_TIER_NAMES[2]}` },
-  { value: 3, label: `Tier 3 - ${DEFAULT_TIER_NAMES[3]}` },
-]
+// Min tier options for DM/chat gating — shows tier numbers only.
+// Creator sets the minimum tier required. Actual tier names come from on-chain data.
+export const TIER_OPTIONS = Array.from({ length: 20 }, (_, i) => ({
+  value: i + 1,
+  label: `Tier ${i + 1}${DEFAULT_TIER_NAMES[i + 1] ? ` (${DEFAULT_TIER_NAMES[i + 1]})` : ''}`,
+}))
 
 // ---------------------------------------------------------------------------
 // Helpers
