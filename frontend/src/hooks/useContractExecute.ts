@@ -115,7 +115,18 @@ export function useContractExecute() {
           ZK_PROOF_TIMEOUT_MS,
           `ZK proof for ${functionName}`
         )
-        return result?.transactionId ?? null
+
+        // Check if the wallet returned a rejection status.
+        // Shield Wallet may return a transactionId even for rejected transactions.
+        const txId = result?.transactionId ?? null
+        const status = (result as Record<string, unknown>)?.status
+        if (status && typeof status === 'string') {
+          const statusLower = status.toLowerCase()
+          if (statusLower === 'rejected' || statusLower === 'failed' || statusLower === 'error') {
+            throw new Error(`Transaction was rejected by the wallet (status: ${status}). The on-chain execution may have failed. Check AleoScan for details.`)
+          }
+        }
+        return txId
       } catch (execErr) {
         // Enhance error message for companion programs
         const progId = program || DEPLOYED_PROGRAM_ID
