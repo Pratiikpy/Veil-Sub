@@ -871,6 +871,4 @@ Built with zero-knowledge proofs on [Aleo](https://aleo.org)
 
 **10 programs** · **88 transitions** · **101 mappings** · **4,752 lines of Leo** · **130 components** · **341 tests**
 
-*The most comprehensive entry in the Aleo Privacy Buildathon.*
-
 </div>
