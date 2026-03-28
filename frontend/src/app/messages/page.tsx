@@ -21,6 +21,7 @@ import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { parseAccessPass } from '@/lib/utils'
 import { FEATURED_CREATORS, ALEO_ADDRESS_RE, DEFAULT_TIER_NAMES } from '@/lib/config'
+import { getCachedCreator } from '@/lib/creatorCache'
 import PageTransition from '@/components/PageTransition'
 import AddressAvatar from '@/components/ui/AddressAvatar'
 import { useUnreadMessages } from '@/hooks/useUnreadMessages'
@@ -85,8 +86,17 @@ function getTierLabel(tier: number): string {
 }
 
 function getCreatorDisplayName(address: string): string {
+  // Check Supabase cache first (populated by explore/feed pages)
+  const cached = getCachedCreator(address)
+  if (cached?.display_name) return cached.display_name
   const featured = FEATURED_CREATORS.find(c => c.address === address)
   return featured?.label || shortenAddress(address)
+}
+
+function getCreatorImage(address: string): string | null {
+  const cached = getCachedCreator(address)
+  if (cached?.image_url) return cached.image_url
+  return null
 }
 
 // ---- Main Component ----
@@ -205,11 +215,17 @@ export default function MessagesPage() {
     return () => { cancelled = true }
   }, [address, activeCreator, isCreator])
 
-  // Set active tier from passes when creator changes
+  // Set active tier from passes when creator changes.
+  // Check both exact match and trimmed match to handle whitespace/format differences.
   useEffect(() => {
     if (activeCreator && !isCreator) {
-      const pass = userPasses.find(p => p.creator === activeCreator)
+      const normalizedCreator = activeCreator.trim().toLowerCase()
+      const pass = userPasses.find(p => p.creator.trim().toLowerCase() === normalizedCreator)
       setActiveTier(pass?.tier ?? null)
+      // If we have passes but none match this creator, it could be a format issue
+      if (!pass && userPasses.length > 0) {
+        console.warn('[Messages] No pass matches creator', activeCreator, 'Available passes:', userPasses.map(p => p.creator.slice(0, 20)))
+      }
     }
   }, [activeCreator, isCreator, userPasses])
 
@@ -821,9 +837,22 @@ export default function MessagesPage() {
                         <p className="text-xs text-white/50">Checking subscription...</p>
                       </div>
                     ) : (
-                      <p className="text-xs text-white/50 text-center py-2">
-                        You need an active subscription to message this creator
-                      </p>
+                      <div className="text-center py-2">
+                        <p className="text-xs text-white/50">
+                          You need an active subscription to message this creator
+                        </p>
+                        <p className="text-[10px] text-white/40 mt-1">
+                          {userPasses.length === 0
+                            ? 'No access passes found in your wallet. Try refreshing the page.'
+                            : `Found ${userPasses.length} pass(es) but none match this creator.`}
+                        </p>
+                        <button
+                          onClick={() => window.location.reload()}
+                          className="text-[10px] text-violet-400 hover:text-violet-300 mt-1"
+                        >
+                          Refresh page
+                        </button>
+                      </div>
                     )
                   ) : (
                     <div className="flex items-center gap-2">
