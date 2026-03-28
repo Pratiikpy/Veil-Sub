@@ -344,9 +344,14 @@ export default function SubscribeModal({
             }
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            const walletDetail = result.walletMessage ? ` (Wallet: ${result.walletMessage.slice(0, 150)})` : ''
-            console.error('[SubscribeModal] Transaction failed on-chain:', walletDetail)
-            setError(`Subscription failed.${walletDetail} Make sure you have enough public credits (~0.3 ALEO) for fees and private credits for the tier price.`)
+            const walletMsg = result.walletMessage || ''
+            const isRejected = walletMsg.includes('Rejected') || walletMsg.includes('rejected')
+            console.error('[SubscribeModal] Transaction failed:', walletMsg.slice(0, 200))
+            if (isRejected) {
+              setError('Transaction was rejected by your wallet. Please try again and approve the transaction when prompted.')
+            } else {
+              setError('Subscription failed. Make sure you have enough public ALEO (~0.3) for fees and private ALEO for the tier price. If you just converted credits, wait a few seconds for your wallet to sync.')
+            }
             toast.error('Subscription failed')
           } else if (result.status === 'timeout') {
             // Transaction likely succeeded — Shield Wallet delegates proving and

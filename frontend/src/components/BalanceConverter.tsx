@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { AlertTriangle, ArrowRight, ExternalLink, Loader2, Check } from 'lucide-react'
+import { toast } from 'sonner'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 
@@ -72,10 +73,12 @@ export default function BalanceConverter({
       startPolling(txId, (result) => {
         if (result.status === 'confirmed') {
           setStatus('done')
-          // Wait for record sync before notifying parent
+          // Wait for wallet to sync new private record before proceeding
+          // Shield Wallet needs 5-8 seconds to index new records after conversion
+          toast.info('Credits converted! Syncing wallet records...', { duration: 6000 })
           setTimeout(() => {
             onConverted?.()
-          }, 3000)
+          }, 6000)
         } else if (result.status === 'failed') {
           setStatus('failed')
           setError('Conversion couldn\u2019t be completed on-chain. Check your balance and try again.')
@@ -83,9 +86,10 @@ export default function BalanceConverter({
           // Shield Wallet delegates proving and never reports 'confirmed' —
           // the transaction IS broadcast, so treat timeout as likely success.
           setStatus('done')
+          toast.info('Conversion likely succeeded. Syncing wallet records...', { duration: 8000 })
           setTimeout(() => {
             onConverted?.()
-          }, 3000)
+          }, 8000)
         }
       })
     } catch (err) {
