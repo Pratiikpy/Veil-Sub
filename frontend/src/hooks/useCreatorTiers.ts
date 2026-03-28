@@ -205,22 +205,23 @@ export function useCreatorTiers(creatorAddress: string): CreatorTierResult {
 
         const resultTiers: Record<number, CustomTierInfo> = {}
 
-        // Start with fallback data for known tiers
+        // Only include fallback tiers that are within the on-chain tier count.
+        // This prevents phantom tiers from Supabase/localStorage (e.g., tiers 2 and 3
+        // saved during onboarding wizard) from appearing when only tier 1 exists on-chain.
         for (const [idStr, info] of Object.entries(fallbackTiers)) {
           const id = Number(idStr)
-          resultTiers[id] = { ...info }
+          if (id <= onChainTierCount) {
+            resultTiers[id] = { ...info }
+          }
         }
 
         // If on-chain count exceeds our fallback knowledge, add placeholder entries
         // so the UI can show "Tier X exists on-chain" even without exact price
-        const knownCount = Object.keys(resultTiers).length
-        if (onChainTierCount > knownCount) {
-          for (let i = knownCount + 1; i <= onChainTierCount; i++) {
-            if (!resultTiers[i]) {
-              resultTiers[i] = {
-                price: 0, // Price unknown — can't compute Poseidon2(TierKey) in JS
-                name: `Tier ${i}`,
-              }
+        for (let i = 1; i <= onChainTierCount; i++) {
+          if (!resultTiers[i]) {
+            resultTiers[i] = {
+              price: 0, // Price unknown — can't compute Poseidon2(TierKey) in JS
+              name: `Tier ${i}`,
             }
           }
         }
