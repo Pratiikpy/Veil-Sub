@@ -116,7 +116,7 @@ export function CopyButton({ text, label }: { text: string; label?: string }) {
     <button
       type="button"
       onClick={handleCopy}
-      className="inline-flex items-center gap-1 text-xs text-white/40 hover:text-white/70 transition-colors"
+      className="inline-flex items-center gap-1 text-xs text-white/60 hover:text-white/70 transition-colors"
       title={label || 'Copy'}
     >
       {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}

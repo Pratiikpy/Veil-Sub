@@ -697,7 +697,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
                   <div className="flex items-center gap-4">
                     <div className="relative group">
                       {imageUrl ? (
-                        <img src={imageUrl} alt="Profile" className="w-16 h-16 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }} />
+                        <img src={imageUrl} alt="Profile" referrerPolicy="no-referrer" className="w-16 h-16 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }} />
                       ) : null}
                       <div className={`w-16 h-16 rounded-full bg-gradient-to-br from-white/10 to-white/[0.06] flex items-center justify-center text-lg font-bold text-white/60 ${imageUrl ? 'hidden' : ''}`}>
                         {displayName?.[0]?.toUpperCase() || '?'}

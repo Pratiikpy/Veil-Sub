@@ -145,7 +145,7 @@ export default function ZKProofDemo() {
                       <span className="font-mono text-white text-sm tracking-widest" aria-label="Hidden secret">
                         &#x2588;&#x2588;&#x2588;&#x2588;
                       </span>
-                      <span className="text-xs text-white/30">(hidden)</span>
+                      <span className="text-xs text-white/60">(hidden)</span>
                     </div>
                     <div>
                       <span className="text-sm text-white/50">Hash:</span>

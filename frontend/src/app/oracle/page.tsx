@@ -862,7 +862,7 @@ export default function OraclePage() {
                     : 'Fetching...'}
                 </p>
                 {lastUpdated && (
-                  <p className="text-xs text-white/40 mt-2 flex items-center gap-1">
+                  <p className="text-xs text-white/60 mt-2 flex items-center gap-1">
                     <Clock className="w-3 h-3" aria-hidden="true" />
                     {lastUpdated}
                   </p>
@@ -892,10 +892,10 @@ export default function OraclePage() {
                     </p>
                   </>
                 ) : (
-                  <p className="text-xl text-white/40">No price on-chain yet</p>
+                  <p className="text-xl text-white/60">No price on-chain yet</p>
                 )}
                 {onChainUpdatedAt !== null && (
-                  <p className="text-xs text-white/40 mt-2 flex items-center gap-1">
+                  <p className="text-xs text-white/60 mt-2 flex items-center gap-1">
                     <Clock className="w-3 h-3" aria-hidden="true" />
                     Block #{onChainUpdatedAt.toLocaleString()}
                   </p>
@@ -939,7 +939,7 @@ export default function OraclePage() {
                       </>
                     )}
                   </button>
-                  <p className="text-[11px] text-white/40 mt-2 text-center">
+                  <p className="text-[11px] text-white/60 mt-2 text-center">
                     Fee: ~1.5 ALEO
                   </p>
                 </GlassCard>
@@ -1026,7 +1026,7 @@ export default function OraclePage() {
                       value={tierCreatorHash}
                       onChange={(e) => setTierCreatorHash(e.target.value)}
                       placeholder="123...field"
-                      className="w-full px-3 py-2.5 bg-white/[0.04] border border-white/10 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-violet-500/40 focus:ring-1 focus:ring-violet-500/20 transition-all placeholder:text-white/20"
+                      className="w-full px-3 py-2.5 bg-white/[0.04] border border-white/10 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-violet-500/40 focus:ring-1 focus:ring-violet-500/20 transition-all placeholder:text-white/50"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
@@ -1048,7 +1048,7 @@ export default function OraclePage() {
                         Target USD
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-sm">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60 text-sm">
                           $
                         </span>
                         <input

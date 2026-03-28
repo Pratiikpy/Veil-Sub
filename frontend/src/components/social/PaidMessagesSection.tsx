@@ -164,7 +164,7 @@ export default function PaidMessagesSection() {
 
         {/* Quick Select */}
         <div className="mb-4">
-          <p className="text-xs text-white/40 mb-2">Quick select a creator:</p>
+          <p className="text-xs text-white/60 mb-2">Quick select a creator:</p>
           <div className="flex flex-wrap gap-2">
             {FEATURED_CREATORS.map(c => (
               <button
@@ -192,7 +192,7 @@ export default function PaidMessagesSection() {
             value={creatorAddress}
             onChange={e => setCreatorAddress(e.target.value)}
             placeholder="aleo1..."
-            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 font-mono focus:outline-none focus:border-violet-500/40 transition-colors"
+            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/50 font-mono focus:outline-none focus:border-violet-500/40 transition-colors"
           />
         </div>
 
@@ -200,7 +200,7 @@ export default function PaidMessagesSection() {
         {creatorAddress && isValidAleoAddress(creatorAddress) && (
           <div className="mb-4">
             {loadingConfig ? (
-              <div className="flex items-center gap-2 text-xs text-white/40">
+              <div className="flex items-center gap-2 text-xs text-white/60">
                 <Loader2 className="w-3 h-3 animate-spin" />
                 Loading DM configuration...
               </div>
@@ -236,15 +236,15 @@ export default function PaidMessagesSection() {
             placeholder="Your message (will be hashed on-chain)..."
             maxLength={500}
             rows={3}
-            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500/40 transition-colors resize-none"
+            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/50 focus:outline-none focus:border-violet-500/40 transition-colors resize-none"
           />
-          <p className="text-[11px] text-white/30 mt-1">
+          <p className="text-[11px] text-white/60 mt-1">
             {messageContent.length}/500 -- Only the hash is stored on-chain for privacy.
           </p>
         </div>
 
         {/* Wallet Status */}
-        <div className="flex items-center gap-2 mb-4 text-xs text-white/40">
+        <div className="flex items-center gap-2 mb-4 text-xs text-white/60">
           <Wallet className="w-3.5 h-3.5" />
           {loadingRecords ? (
             <span>Loading records...</span>
@@ -285,15 +285,15 @@ export default function PaidMessagesSection() {
           </div>
           <div className="space-y-2 text-xs font-mono">
             <div className="flex justify-between">
-              <span className="text-white/40">tx_id</span>
+              <span className="text-white/60">tx_id</span>
               <span className="text-white/70">{lastReceipt.txId.slice(0, 24)}...</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/40">message_hash</span>
+              <span className="text-white/60">message_hash</span>
               <span className="text-white/70">{lastReceipt.messageHash.slice(0, 20)}...field</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/40">amount</span>
+              <span className="text-white/60">amount</span>
               <span className="text-white/70">{formatCredits(lastReceipt.amount)} ALEO</span>
             </div>
           </div>

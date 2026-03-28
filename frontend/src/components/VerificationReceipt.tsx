@@ -106,7 +106,7 @@ export default function VerificationReceipt({
             <div>
               <p className="text-[11px] text-white/50 mb-0.5">Verified on {verifiedAt}</p>
               {passId && (
-                <p className="text-[11px] text-white/20 font-mono">{passId.length > 16 ? passId.slice(0, 16) + '...' : passId}</p>
+                <p className="text-[11px] text-white/50 font-mono">{passId.length > 16 ? passId.slice(0, 16) + '...' : passId}</p>
               )}
             </div>
             <p className="text-sm font-serif italic text-white/50">VeilSub</p>

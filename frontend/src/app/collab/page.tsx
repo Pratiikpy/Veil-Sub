@@ -132,7 +132,7 @@ function CreateCollabForm() {
         <Handshake className="w-4 h-4 text-violet-400" />
         Create Collaboration
       </h3>
-      <p className="text-xs text-white/40 mb-5">
+      <p className="text-xs text-white/60 mb-5">
         Set up a revenue-sharing agreement with another creator.
       </p>
 
@@ -144,14 +144,14 @@ function CreateCollabForm() {
             value={partner}
             onChange={(e) => setPartner(e.target.value)}
             placeholder="aleo1..."
-            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all font-mono"
+            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all font-mono"
           />
         </div>
 
         <div>
           <label className="block text-xs text-white/50 mb-1.5">
             Your Revenue Split: <span className="text-violet-400 font-bold">{splitPct}%</span>
-            <span className="text-white/30 ml-1">(partner gets {100 - parseInt(splitPct || '0', 10)}%)</span>
+            <span className="text-white/60 ml-1">(partner gets {100 - parseInt(splitPct || '0', 10)}%)</span>
           </label>
           <input
             type="range"
@@ -161,7 +161,7 @@ function CreateCollabForm() {
             onChange={(e) => setSplitPct(e.target.value)}
             className="w-full accent-violet-500"
           />
-          <div className="flex justify-between text-xs text-white/30 mt-1">
+          <div className="flex justify-between text-xs text-white/60 mt-1">
             <span>1%</span>
             <span>50/50</span>
             <span>99%</span>
@@ -175,7 +175,7 @@ function CreateCollabForm() {
             value={contentScope}
             onChange={(e) => setContentScope(e.target.value)}
             placeholder="e.g. ZK Tutorial Series"
-            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all"
+            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all"
           />
         </div>
 
@@ -214,7 +214,7 @@ function CreateCollabForm() {
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <div className="min-w-0">
               <p className="text-xs text-emerald-400 font-medium">Collaboration created!</p>
-              <p className="text-xs text-white/40 font-mono truncate">{txId}</p>
+              <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
             </div>
           </div>
         )}
@@ -225,7 +225,47 @@ function CreateCollabForm() {
 
 // ─── Split Payment Form ─────────────────────────────────────────────────────
 function SplitPaymentForm() {
-  const { connected } = useContractExecute()
+  const { connected, execute } = useContractExecute()
+  const [collabId, setCollabId] = useState('')
+  const [amount, setAmount] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [txId, setTxId] = useState<string | null>(null)
+
+  const handleSplit = useCallback(async () => {
+    if (!connected) {
+      toast.error('Connect your wallet first')
+      return
+    }
+    if (!collabId) {
+      toast.error('Enter the collaboration ID')
+      return
+    }
+    const amt = parseInt(amount, 10)
+    if (!amt || amt <= 0) {
+      toast.error('Enter a valid amount in microcredits')
+      return
+    }
+
+    setSubmitting(true)
+    setTxId(null)
+    try {
+      const result = await execute(
+        'split_payment',
+        [collabId, `${amt}u64`],
+        FEES.REGISTER * 2, // 300k
+        COLLAB_PROGRAM
+      )
+      if (result) {
+        setTxId(result)
+        toast.success('Payment split on-chain!')
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Transaction failed'
+      toast.error(msg)
+    } finally {
+      setSubmitting(false)
+    }
+  }, [connected, collabId, amount, execute])
 
   return (
     <GlassCard className="!p-6">
@@ -233,7 +273,7 @@ function SplitPaymentForm() {
         <Split className="w-4 h-4 text-emerald-400" />
         Split Payment
       </h3>
-      <p className="text-xs text-white/40 mb-5">
+      <p className="text-xs text-white/60 mb-5">
         Atomically split incoming revenue between collaborators using credits.aleo.
       </p>
 
@@ -246,7 +286,7 @@ function SplitPaymentForm() {
                 <DollarSign className="w-5 h-5 text-violet-400" />
               </div>
               <p className="text-xs text-white/70 font-semibold">Payment In</p>
-              <p className="text-xs text-white/40">Total amount</p>
+              <p className="text-xs text-white/60">Total amount</p>
             </div>
             <ArrowRight className="w-5 h-5 text-white/20 shrink-0" />
             <div className="flex-1">
@@ -259,9 +299,32 @@ function SplitPaymentForm() {
                 </div>
               </div>
               <p className="text-xs text-white/70 font-semibold">Split</p>
-              <p className="text-xs text-white/40">Per agreement %</p>
+              <p className="text-xs text-white/60">Per agreement %</p>
             </div>
           </div>
+        </div>
+
+        <div>
+          <label className="block text-xs text-white/50 mb-1.5">Collaboration ID (field)</label>
+          <input
+            type="text"
+            value={collabId}
+            onChange={(e) => setCollabId(e.target.value)}
+            placeholder="Collab ID from create_collab"
+            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30 transition-all font-mono"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs text-white/50 mb-1.5">Amount (microcredits)</label>
+          <input
+            type="number"
+            min="1"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="e.g. 1000000 (= 1 credit)"
+            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30 transition-all"
+          />
         </div>
 
         <div className="flex items-start gap-2 p-3 rounded-xl bg-blue-500/[0.06] border border-blue-500/15">
@@ -274,81 +337,257 @@ function SplitPaymentForm() {
         </div>
 
         <Button
-          variant="secondary"
+          variant="accent"
           className="w-full rounded-xl"
-          disabled={!connected}
+          disabled={!connected || submitting || !collabId || !amount}
+          onClick={handleSplit}
         >
-          {!connected ? 'Connect Wallet' : 'Split Payment (requires agreement record)'}
+          {submitting ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Splitting Payment...
+            </>
+          ) : !connected ? (
+            'Connect Wallet'
+          ) : (
+            <>
+              <Split className="w-4 h-4" />
+              Split Payment
+            </>
+          )}
         </Button>
+
+        {txId && (
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs text-emerald-400 font-medium">Payment split!</p>
+              <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
+            </div>
+          </div>
+        )}
       </div>
     </GlassCard>
   )
 }
 
-// ─── Publish & End Collab ───────────────────────────────────────────────────
-function CollabActionsForm() {
-  const { connected } = useContractExecute()
+// ─── Publish Collab Content ─────────────────────────────────────────────────
+function PublishCollabContentForm() {
+  const { connected, execute } = useContractExecute()
+  const [collabId, setCollabId] = useState('')
+  const [contentId, setContentId] = useState('')
+  const [contentHash, setContentHash] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [txId, setTxId] = useState<string | null>(null)
+
+  const handlePublish = useCallback(async () => {
+    if (!connected) {
+      toast.error('Connect your wallet first')
+      return
+    }
+    if (!collabId || !contentId || !contentHash) {
+      toast.error('All fields are required')
+      return
+    }
+
+    setSubmitting(true)
+    setTxId(null)
+    try {
+      const result = await execute(
+        'publish_collab_content',
+        [collabId, contentId, contentHash],
+        FEES.REGISTER, // 150k
+        COLLAB_PROGRAM
+      )
+      if (result) {
+        setTxId(result)
+        toast.success('Co-authored content published on-chain!')
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Transaction failed'
+      toast.error(msg)
+    } finally {
+      setSubmitting(false)
+    }
+  }, [connected, collabId, contentId, contentHash, execute])
 
   return (
-    <div className="grid sm:grid-cols-2 gap-4">
-      <GlassCard className="!p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <FileText className="w-4 h-4 text-blue-400" />
-          <h3 className="text-white font-semibold text-sm">Publish Co-Authored Content</h3>
-        </div>
-        <p className="text-xs text-white/50 leading-relaxed mb-4">
-          Publish content linked to your collaboration. Increments the shared content counter
-          on-chain. Requires an active CollabAgreement.
-        </p>
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-xs text-white/40">
-            <Hash className="w-3 h-3" />
-            <span>content_id: field (unique identifier)</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-white/40">
-            <Hash className="w-3 h-3" />
-            <span>content_hash: field (content integrity)</span>
-          </div>
-        </div>
-        <Button
-          variant="secondary"
-          className="w-full rounded-xl mt-4"
-          disabled={!connected}
-          size="sm"
-        >
-          {!connected ? 'Connect Wallet' : 'Publish (requires agreement)'}
-        </Button>
-      </GlassCard>
+    <GlassCard className="!p-5">
+      <div className="flex items-center gap-2 mb-3">
+        <FileText className="w-4 h-4 text-blue-400" />
+        <h3 className="text-white font-semibold text-sm">Publish Co-Authored Content</h3>
+      </div>
+      <p className="text-xs text-white/50 leading-relaxed mb-4">
+        Publish content linked to your collaboration. Increments the shared content counter
+        on-chain. Requires an active CollabAgreement.
+      </p>
 
-      <GlassCard className="!p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <XCircle className="w-4 h-4 text-red-400" />
-          <h3 className="text-white font-semibold text-sm">End Collaboration</h3>
+      <div className="space-y-3">
+        <div>
+          <label className="block text-xs text-white/50 mb-1">Collaboration ID (field)</label>
+          <input
+            type="text"
+            value={collabId}
+            onChange={(e) => setCollabId(e.target.value)}
+            placeholder="Collab ID from create_collab"
+            className="w-full px-3 py-2 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all font-mono"
+          />
         </div>
-        <p className="text-xs text-white/50 leading-relaxed mb-4">
-          Either party can end the collaboration at any time. Sets the collab_active mapping
-          to false. Revenue already split is unaffected.
-        </p>
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-xs text-white/40">
-            <Shield className="w-3 h-3" />
-            <span>No penalty -- mutual exit at any time</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-white/40">
-            <Hash className="w-3 h-3" />
-            <span>On-chain: collab_active = false</span>
+        <div>
+          <label className="block text-xs text-white/50 mb-1">Content ID (field)</label>
+          <input
+            type="text"
+            value={contentId}
+            onChange={(e) => setContentId(e.target.value)}
+            placeholder="Unique content identifier"
+            className="w-full px-3 py-2 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all font-mono"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-white/50 mb-1">Content Hash (field)</label>
+          <input
+            type="text"
+            value={contentHash}
+            onChange={(e) => setContentHash(e.target.value)}
+            placeholder="Hash of content for integrity"
+            className="w-full px-3 py-2 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all font-mono"
+          />
+        </div>
+      </div>
+
+      <Button
+        variant="accent"
+        className="w-full rounded-xl mt-4"
+        disabled={!connected || submitting || !collabId || !contentId || !contentHash}
+        onClick={handlePublish}
+        size="sm"
+      >
+        {submitting ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Publishing...
+          </>
+        ) : !connected ? (
+          'Connect Wallet'
+        ) : (
+          <>
+            <FileText className="w-4 h-4" />
+            Publish Content
+          </>
+        )}
+      </Button>
+
+      {txId && (
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 mt-3">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-xs text-emerald-400 font-medium">Content published!</p>
+            <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
           </div>
         </div>
-        <Button
-          variant="secondary"
-          className="w-full rounded-xl mt-4 !border-red-500/20 !text-red-400 hover:!bg-red-500/5"
-          disabled={!connected}
-          size="sm"
-        >
-          {!connected ? 'Connect Wallet' : 'End Collaboration'}
-        </Button>
-      </GlassCard>
-    </div>
+      )}
+    </GlassCard>
+  )
+}
+
+// ─── End Collab Form ───────────────────────────────────────────────────────
+function EndCollabForm() {
+  const { connected, execute } = useContractExecute()
+  const [collabId, setCollabId] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [txId, setTxId] = useState<string | null>(null)
+
+  const handleEnd = useCallback(async () => {
+    if (!connected) {
+      toast.error('Connect your wallet first')
+      return
+    }
+    if (!collabId) {
+      toast.error('Enter the collaboration ID')
+      return
+    }
+
+    setSubmitting(true)
+    setTxId(null)
+    try {
+      const result = await execute(
+        'end_collab',
+        [collabId],
+        FEES.REGISTER, // 150k
+        COLLAB_PROGRAM
+      )
+      if (result) {
+        setTxId(result)
+        toast.success('Collaboration ended on-chain!')
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Transaction failed'
+      toast.error(msg)
+    } finally {
+      setSubmitting(false)
+    }
+  }, [connected, collabId, execute])
+
+  return (
+    <GlassCard className="!p-5">
+      <div className="flex items-center gap-2 mb-3">
+        <XCircle className="w-4 h-4 text-red-400" />
+        <h3 className="text-white font-semibold text-sm">End Collaboration</h3>
+      </div>
+      <p className="text-xs text-white/50 leading-relaxed mb-4">
+        Either party can end the collaboration at any time. Sets the collab_active mapping
+        to false. Revenue already split is unaffected.
+      </p>
+
+      <div className="space-y-3">
+        <div>
+          <label className="block text-xs text-white/50 mb-1">Collaboration ID (field)</label>
+          <input
+            type="text"
+            value={collabId}
+            onChange={(e) => setCollabId(e.target.value)}
+            placeholder="Collab ID to end"
+            className="w-full px-3 py-2 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-red-500/50 focus:outline-none focus:ring-1 focus:ring-red-500/30 transition-all font-mono"
+          />
+        </div>
+        <div className="flex items-center gap-2 text-xs text-white/60">
+          <Shield className="w-3 h-3" />
+          <span>No penalty -- mutual exit at any time</span>
+        </div>
+      </div>
+
+      <Button
+        variant="secondary"
+        className="w-full rounded-xl mt-4 !border-red-500/20 !text-red-400 hover:!bg-red-500/5"
+        disabled={!connected || submitting || !collabId}
+        onClick={handleEnd}
+        size="sm"
+      >
+        {submitting ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Ending...
+          </>
+        ) : !connected ? (
+          'Connect Wallet'
+        ) : (
+          <>
+            <XCircle className="w-4 h-4" />
+            End Collaboration
+          </>
+        )}
+      </Button>
+
+      {txId && (
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 mt-3">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-xs text-emerald-400 font-medium">Collaboration ended!</p>
+            <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
+          </div>
+        </div>
+      )}
+    </GlassCard>
   )
 }
 
@@ -392,7 +631,7 @@ function CollabLookup() {
         <Hash className="w-4 h-4 text-violet-400" />
         Lookup Collaboration
       </h3>
-      <p className="text-xs text-white/40 mb-4">
+      <p className="text-xs text-white/60 mb-4">
         Query on-chain mappings by Poseidon2 collab key (no wallet needed).
       </p>
 
@@ -402,7 +641,7 @@ function CollabLookup() {
           value={collabKey}
           onChange={(e) => setCollabKey(e.target.value)}
           placeholder="Collab key (field hash)"
-          className="flex-1 px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all font-mono"
+          className="flex-1 px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all font-mono"
         />
         <Button
           variant="secondary"
@@ -417,19 +656,19 @@ function CollabLookup() {
       {result && (
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-lg bg-black/30 border border-border/30">
-            <p className="text-xs text-white/40 mb-0.5">Status</p>
-            <p className={`text-sm font-semibold ${result.active ? 'text-emerald-400' : result.exists ? 'text-red-400' : 'text-white/30'}`}>
+            <p className="text-xs text-white/60 mb-0.5">Status</p>
+            <p className={`text-sm font-semibold ${result.active ? 'text-emerald-400' : result.exists ? 'text-red-400' : 'text-white/60'}`}>
               {result.exists ? (result.active ? 'Active' : 'Ended') : 'Not Found'}
             </p>
           </div>
           <div className="p-3 rounded-lg bg-black/30 border border-border/30">
-            <p className="text-xs text-white/40 mb-0.5">Total Revenue</p>
+            <p className="text-xs text-white/60 mb-0.5">Total Revenue</p>
             <p className="text-sm font-semibold text-white">
               {result.revenue ? `${(parseInt(result.revenue) / 1_000_000).toFixed(2)} credits` : '--'}
             </p>
           </div>
           <div className="p-3 rounded-lg bg-black/30 border border-border/30 col-span-2">
-            <p className="text-xs text-white/40 mb-0.5">Content Published</p>
+            <p className="text-xs text-white/60 mb-0.5">Content Published</p>
             <p className="text-sm font-semibold text-white">{result.contentCount ?? '0'} pieces</p>
           </div>
         </div>
@@ -505,7 +744,10 @@ export default function CollabPage() {
             </ScrollReveal>
 
             <ScrollReveal delay={0.15}>
-              <CollabActionsForm />
+              <div className="grid sm:grid-cols-2 gap-4">
+                <PublishCollabContentForm />
+                <EndCollabForm />
+              </div>
             </ScrollReveal>
 
             <ScrollReveal delay={0.2}>

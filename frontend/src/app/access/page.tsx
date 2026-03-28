@@ -149,10 +149,10 @@ function InteractiveDemo() {
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                 active ? `bg-${s.color}-500/10` : 'bg-white/[0.03]'
               }`}>
-                <Icon className={`w-4 h-4 ${active ? `text-${s.color}-400` : 'text-white/30'}`} />
+                <Icon className={`w-4 h-4 ${active ? `text-${s.color}-400` : 'text-white/50'}`} />
               </div>
               <div>
-                <p className={`text-sm font-medium ${active ? 'text-white' : 'text-white/40'}`}>
+                <p className={`text-sm font-medium ${active ? 'text-white' : 'text-white/60'}`}>
                   {i + 1}. {s.label}
                 </p>
                 {active && (
@@ -233,7 +233,7 @@ function RegisterGateForm() {
         <Lock className="w-4 h-4 text-violet-400" />
         Register Gated Resource
       </h3>
-      <p className="text-xs text-white/40 mb-5">
+      <p className="text-xs text-white/60 mb-5">
         Declare a resource that requires VeilSub subscription access.
       </p>
 
@@ -245,7 +245,7 @@ function RegisterGateForm() {
             value={creatorHash}
             onChange={(e) => setCreatorHash(e.target.value)}
             placeholder="Poseidon2 hash of creator address"
-            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all font-mono"
+            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all font-mono"
           />
         </div>
 
@@ -256,7 +256,7 @@ function RegisterGateForm() {
             value={resourceId}
             onChange={(e) => setResourceId(e.target.value)}
             placeholder="Hash of API endpoint, content ID, or feature name"
-            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all font-mono"
+            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all font-mono"
           />
         </div>
 
@@ -286,7 +286,7 @@ function RegisterGateForm() {
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <div className="min-w-0">
               <p className="text-xs text-emerald-400 font-medium">Gate registered!</p>
-              <p className="text-xs text-white/40 font-mono truncate">{txId}</p>
+              <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
             </div>
           </div>
         )}
@@ -339,7 +339,7 @@ function RevokePassForm() {
         <Ban className="w-4 h-4 text-red-400" />
         Revoke Access Pass
       </h3>
-      <p className="text-xs text-white/40 mb-5">
+      <p className="text-xs text-white/60 mb-5">
         Mark a pass as revoked in this program&apos;s local revocation mapping.
       </p>
 
@@ -351,7 +351,7 @@ function RevokePassForm() {
             value={passId}
             onChange={(e) => setPassId(e.target.value)}
             placeholder="The pass_id to revoke"
-            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-red-500/50 focus:outline-none focus:ring-1 focus:ring-red-500/30 transition-all font-mono"
+            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-red-500/50 focus:outline-none focus:ring-1 focus:ring-red-500/30 transition-all font-mono"
           />
         </div>
 
@@ -362,7 +362,7 @@ function RevokePassForm() {
             value={callerHash}
             onChange={(e) => setCallerHash(e.target.value)}
             placeholder="Poseidon2 hash of your address"
-            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-red-500/50 focus:outline-none focus:ring-1 focus:ring-red-500/30 transition-all font-mono"
+            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-red-500/50 focus:outline-none focus:ring-1 focus:ring-red-500/30 transition-all font-mono"
           />
         </div>
 
@@ -392,7 +392,7 @@ function RevokePassForm() {
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <div className="min-w-0">
               <p className="text-xs text-emerald-400 font-medium">Pass revoked!</p>
-              <p className="text-xs text-white/40 font-mono truncate">{txId}</p>
+              <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
             </div>
           </div>
         )}
@@ -426,7 +426,7 @@ function ResourceLookup() {
         <Cpu className="w-4 h-4 text-blue-400" />
         Resource Access Counter
       </h3>
-      <p className="text-xs text-white/40 mb-4">
+      <p className="text-xs text-white/60 mb-4">
         Query aggregate access count for any resource (no wallet needed).
       </p>
 
@@ -436,7 +436,7 @@ function ResourceLookup() {
           value={resourceId}
           onChange={(e) => setResourceId(e.target.value)}
           placeholder="resource_id (field)"
-          className="flex-1 px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all font-mono"
+          className="flex-1 px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all font-mono"
         />
         <Button
           variant="secondary"
@@ -451,7 +451,7 @@ function ResourceLookup() {
       {count !== null && (
         <div className="p-4 rounded-xl bg-black/30 border border-border/30 text-center">
           <p className="text-3xl font-bold text-white">{count}</p>
-          <p className="text-xs text-white/40 mt-1">total accesses (aggregate, no per-user tracking)</p>
+          <p className="text-xs text-white/60 mt-1">total accesses (aggregate, no per-user tracking)</p>
         </div>
       )}
     </GlassCard>
@@ -641,7 +641,7 @@ export default function AccessPage() {
                       <p className="text-xs text-white/55">{t.purpose}</p>
                     </div>
                     <div className="sm:col-span-2">
-                      <p className="text-xs text-white/40">{t.finalize}</p>
+                      <p className="text-xs text-white/60">{t.finalize}</p>
                     </div>
                   </div>
                 ))}

@@ -483,7 +483,7 @@ function TierCard({
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="text-[11px] text-white/40 mb-3"
+          className="text-[11px] text-white/60 mb-3"
         >
           {formatCredits(singlePrice)} ALEO/~30 days
         </m.p>
@@ -504,8 +504,8 @@ function TierCard({
       </ul>
 
       {/* No auto-renewal reassurance */}
-      <p className="text-[11px] text-white/40 mb-3 flex items-center gap-1.5">
-        <Shield className="w-3 h-3 text-white/30 shrink-0" />
+      <p className="text-[11px] text-white/60 mb-3 flex items-center gap-1.5">
+        <Shield className="w-3 h-3 text-white/50 shrink-0" />
         No auto-renewal — you control when to renew
       </p>
 
@@ -625,9 +625,9 @@ function AboutTab({
         return (
           <PrivacyScore
             usesBlindSub={userPassForCreator?.privacyLevel === 1 || hasEnhancedPass}
-            // TODO: Derive from actual commit-reveal tip history once on-chain query is available
+            // Blocked: commit-reveal tip history not queryable on-chain yet
             usesCommitRevealTip={false}
-            hasScopedAuditToken={false} /* TODO: derive from wallet audit token records */
+            hasScopedAuditToken={false} /* Blocked: audit token record query not available yet */
             usesTrialPass={userPassForCreator?.privacyLevel === 2}
             hasE2EContent={true}
           />
@@ -1049,7 +1049,7 @@ export default function CreatorPage({
                 {/* Show profile image if available from Supabase/cache */}
                 {profileImageUrl ? (
                   <div className="mx-auto mb-6 w-16 h-16 rounded-2xl overflow-hidden ring-2 ring-white/10">
-                    <img src={profileImageUrl} alt="" className="w-full h-full object-cover" />
+                    <img src={profileImageUrl} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                   </div>
                 ) : (
                   <div className="mx-auto mb-6 w-16 h-16">

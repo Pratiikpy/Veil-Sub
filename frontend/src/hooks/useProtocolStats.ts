@@ -46,6 +46,7 @@ export function useProtocolStats() {
     versions: 30,
   })
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -62,6 +63,11 @@ export function useProtocolStats() {
         recordTypes: 6,
         versions: 30,
       })
+      if (deployed === null) {
+        setError('Could not reach the Aleo API to verify deployment status.')
+      } else {
+        setError(null)
+      }
       setLoading(false)
     }
 
@@ -69,5 +75,5 @@ export function useProtocolStats() {
     return () => { cancelled = true }
   }, [])
 
-  return { stats, loading }
+  return { stats, loading, error }
 }

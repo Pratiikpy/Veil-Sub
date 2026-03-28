@@ -5,7 +5,18 @@ import { m } from 'framer-motion'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { FileText, Trash2, AlertTriangle, Search, X, Clock, Edit3, Send, Tag, CalendarClock, PenLine } from 'lucide-react'
 import { toast } from 'sonner'
-import Fuse from 'fuse.js'
+import type Fuse from 'fuse.js'
+
+// Lazy-load Fuse.js to reduce initial bundle size
+let _FuseClass: typeof import('fuse.js').default | null = null
+let _fuseLoadPromise: Promise<typeof import('fuse.js').default> | null = null
+function getFuseClass(): typeof import('fuse.js').default | null {
+  if (_FuseClass) return _FuseClass
+  if (!_fuseLoadPromise) {
+    _fuseLoadPromise = import('fuse.js').then(m => { _FuseClass = m.default; return m.default })
+  }
+  return null
+}
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
 import { getContentHash, DEPLOYED_PROGRAM_ID, TAG_COLORS } from '@/lib/config'
@@ -121,19 +132,38 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
     return currentTabPosts.filter(p => p.tags?.includes(selectedTag))
   }, [currentTabPosts, selectedTag])
 
-  // Apply Fuse.js search
-  const fuse = useMemo(() => {
-    return new Fuse(tagFilteredPosts, {
+  // Lazy-load Fuse.js on first render
+  const [fuseReady, setFuseReady] = useState(!!_FuseClass)
+  useEffect(() => {
+    if (_FuseClass) { setFuseReady(true); return }
+    getFuseClass()
+    _fuseLoadPromise?.then(() => setFuseReady(true))
+  }, [])
+
+  // Apply Fuse.js search (falls back to substring match while Fuse loads)
+  const fuse = useMemo((): Fuse<ContentPost> | null => {
+    const FuseClass = _FuseClass
+    if (!FuseClass || !fuseReady) return null
+    return new FuseClass(tagFilteredPosts, {
       keys: ['title', 'body', 'preview'],
       threshold: 0.4,
       ignoreLocation: true,
       includeMatches: true,
     })
-  }, [tagFilteredPosts])
+  }, [tagFilteredPosts, fuseReady])
 
   const filteredPosts = useMemo(() => {
     if (!searchQuery.trim()) return tagFilteredPosts
-    return fuse.search(searchQuery.trim()).map(result => result.item)
+    if (fuse) {
+      return fuse.search(searchQuery.trim()).map(result => result.item)
+    }
+    // Fallback: basic substring match while Fuse.js is loading
+    const q = searchQuery.trim().toLowerCase()
+    return tagFilteredPosts.filter(p =>
+      p.title?.toLowerCase().includes(q) ||
+      p.body?.toLowerCase().includes(q) ||
+      p.preview?.toLowerCase().includes(q)
+    )
   }, [fuse, searchQuery, tagFilteredPosts])
 
   const getWrappedSign = useCallback(() => {

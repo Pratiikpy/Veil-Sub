@@ -29,8 +29,20 @@ import {
   Zap,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import Fuse from 'fuse.js'
+import type FuseType from 'fuse.js'
 import dynamic from 'next/dynamic'
+
+// Lazy-load Fuse.js: deferred until first search to reduce initial bundle size.
+// The module is cached after the first import so subsequent uses are synchronous.
+let _FuseClass: typeof import('fuse.js').default | null = null
+let _fuseLoadPromise: Promise<typeof import('fuse.js').default> | null = null
+function getFuseClass(): typeof import('fuse.js').default | null {
+  if (_FuseClass) return _FuseClass
+  if (!_fuseLoadPromise) {
+    _fuseLoadPromise = import('fuse.js').then(m => { _FuseClass = m.default; return m.default })
+  }
+  return null
+}
 const RichContentRenderer = dynamic(() => import('@/components/RichContentRenderer'), { ssr: false })
 const VideoEmbed = dynamic(() => import('@/components/VideoEmbed'), { ssr: false })
 const PostComments = dynamic(() => import('@/components/PostComments'), { ssr: false })
@@ -237,10 +249,17 @@ const FeedPostCard = memo(function FeedPostCard({
 
     if (serverAvailableRef.current) {
       try {
+        let authFields: Record<string, unknown> = {}
+        if (walletAddress) {
+          try {
+            const wh = await computeWalletHash(walletAddress)
+            authFields = { walletAddress, walletHash: wh, timestamp: Date.now() }
+          } catch { /* auth best-effort */ }
+        }
         const res = await fetch('/api/social', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'reaction', contentId: post.id, reactionType: 'heart', delta }),
+          body: JSON.stringify({ type: 'reaction', contentId: post.id, reactionType: 'heart', delta, ...authFields }),
         })
         if (!res.ok) {
           setLiked(wasLiked)
@@ -260,7 +279,7 @@ const FeedPostCard = memo(function FeedPostCard({
         serverAvailableRef.current = false
       }
     }
-  }, [liked, likeCount, post.id])
+  }, [liked, likeCount, post.id, walletAddress])
 
   // Share handler
   const handleShare = useCallback(() => {
@@ -326,6 +345,7 @@ const FeedPostCard = memo(function FeedPostCard({
                 src={post.creatorImageUrl}
                 alt=""
                 className="w-10 h-10 rounded-full object-cover border border-white/10"
+                loading="lazy"
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
               />
             ) : null}
@@ -351,13 +371,13 @@ const FeedPostCard = memo(function FeedPostCard({
               </ProfileHoverCard>
               {post.creatorCategory && (
                 <>
-                  <span className="text-white/30 text-xs" aria-hidden="true">&middot;</span>
+                  <span className="text-white/50 text-xs" aria-hidden="true">&middot;</span>
                   <span className="text-xs text-white/50">{post.creatorCategory}</span>
                 </>
               )}
               {post.createdAt && (
                 <>
-                  <span className="text-white/30 text-xs" aria-hidden="true">&middot;</span>
+                  <span className="text-white/50 text-xs" aria-hidden="true">&middot;</span>
                   <span className="text-xs text-white/50">{timeAgo(post.createdAt)}</span>
                 </>
               )}
@@ -560,7 +580,7 @@ const FeedPostCard = memo(function FeedPostCard({
                 </div>
 
                 {readingTime && (
-                  <span className="flex items-center gap-1 text-[11px] text-white/40">
+                  <span className="flex items-center gap-1 text-[11px] text-white/60">
                     <BookOpen className="w-3 h-3" aria-hidden="true" />
                     {readingTime}
                   </span>
@@ -895,6 +915,9 @@ export default function FeedPage() {
                       type: 'welcome_message',
                       title: msg.title,
                       message: msg.message,
+                      walletAddress: publicKey,
+                      walletHash,
+                      timestamp: Date.now(),
                     }),
                   }).catch(() => { /* non-critical */ })
                 })
@@ -1005,14 +1028,25 @@ export default function FeedPage() {
     unlockRunningRef.current = false
   }, [publicKey])
 
-  // Fuse.js instance for feed search
-  const feedFuse = useMemo(() => {
+  // Lazy-loaded Fuse.js: trigger the dynamic import on first render,
+  // and force a re-render once it arrives so the search index builds.
+  const [fuseReady, setFuseReady] = useState(!!_FuseClass)
+  useEffect(() => {
+    if (_FuseClass) { setFuseReady(true); return }
+    getFuseClass() // kicks off the import
+    _fuseLoadPromise?.then(() => setFuseReady(true))
+  }, [])
+
+  // Fuse.js instance for feed search (only created after lazy load completes)
+  const feedFuse = useMemo((): FuseType<FeedPost> | null => {
+    const Fuse = _FuseClass
+    if (!Fuse || !fuseReady) return null
     return new Fuse(feedPosts, {
       keys: ['title', 'body', 'preview', 'creatorLabel'],
       threshold: 0.4,
       ignoreLocation: true,
     })
-  }, [feedPosts])
+  }, [feedPosts, fuseReady])
 
   // Apply filters, search, and sort (includes Feature 2: feed tabs)
   const filteredPosts = useMemo(() => {
@@ -1026,9 +1060,19 @@ export default function FeedPage() {
       result = result.filter(p => p.minTier === 0)
     }
 
-    // Apply search
+    // Apply search (Fuse may still be loading; fall back to basic substring match)
     if (feedSearchQuery.trim()) {
-      result = feedFuse.search(feedSearchQuery.trim()).map(r => r.item)
+      if (feedFuse) {
+        result = feedFuse.search(feedSearchQuery.trim()).map(r => r.item)
+      } else {
+        const q = feedSearchQuery.trim().toLowerCase()
+        result = result.filter(p =>
+          p.title?.toLowerCase().includes(q) ||
+          p.body?.toLowerCase().includes(q) ||
+          p.preview?.toLowerCase().includes(q) ||
+          p.creatorLabel?.toLowerCase().includes(q)
+        )
+      }
     }
 
     // Filter by selected creator
@@ -1192,7 +1236,7 @@ export default function FeedPage() {
                       <FeedPostCard
                         key={post.id}
                         post={post}
-                        hasAccess={post.minTier === 0 || !!publicKey}
+                        hasAccess={post.minTier === 0}
                         index={i}
                         walletAddress={publicKey}
                         userTier={creatorTierMap[post.creatorAddress] || null}
@@ -1279,6 +1323,7 @@ export default function FeedPage() {
                               src={creator.imageUrl}
                               alt={creator.name || 'Creator'}
                               className="w-full h-full rounded-full object-cover"
+                              loading="lazy"
                               onError={(e) => {
                                 const img = e.target as HTMLImageElement
                                 img.style.display = 'none'

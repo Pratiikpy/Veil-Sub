@@ -435,10 +435,14 @@ export default function SettingsPage() {
     if (!publicKey) return
     let cancelled = false
     setNotifEmailLoading(true)
-    computeSubscriberHash(publicKey).then(async (hash) => {
+    Promise.all([
+      computeSubscriberHash(publicKey),
+      computeWalletHash(publicKey),
+    ]).then(async ([hash, wHash]) => {
       if (cancelled) return
       try {
-        const res = await fetch(`/api/notification-emails?subscriber_hash=${hash}`)
+        const ts = Date.now()
+        const res = await fetch(`/api/notification-emails?subscriber_hash=${hash}&walletAddress=${encodeURIComponent(publicKey)}&walletHash=${wHash}&timestamp=${ts}`)
         if (res.ok) {
           const { subscription } = await res.json()
           if (!cancelled && subscription) {
@@ -630,6 +634,8 @@ export default function SettingsPage() {
     setSubProfileSaved(false)
     try {
       const subscriberHash = await computeSubscriberHash(publicKey)
+      const walletHash = await computeWalletHash(publicKey)
+      const timestamp = Date.now()
       const res = await fetch('/api/subscriber-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -637,6 +643,9 @@ export default function SettingsPage() {
           subscriber_hash: subscriberHash,
           display_name: subDisplayName.trim() || null,
           avatar_url: subAvatarUrl || null,
+          walletAddress: publicKey,
+          walletHash,
+          timestamp,
         }),
       })
       if (res.ok) {
@@ -855,7 +864,7 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-4">
                       <div className="relative group">
                         {subAvatarUrl ? (
-                          <img src={subAvatarUrl} alt="Avatar" className="w-16 h-16 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }} />
+                          <img src={subAvatarUrl} alt="Avatar" referrerPolicy="no-referrer" className="w-16 h-16 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }} />
                         ) : null}
                         <div className={`w-16 h-16 rounded-full bg-gradient-to-br from-white/10 to-white/[0.06] flex items-center justify-center text-lg font-bold text-white/50 ${subAvatarUrl ? 'hidden' : ''}`}>
                           {subDisplayName?.[0]?.toUpperCase() || 'S'}
@@ -923,7 +932,7 @@ export default function SettingsPage() {
                   {/* Cover Image */}
                   <div className="relative rounded-xl overflow-hidden h-32 mb-2 group">
                     {coverUrl ? (
-                      <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                      <img src={coverUrl} alt="Cover" referrerPolicy="no-referrer" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-white/[0.08] via-white/[0.04] to-white/[0.08]" />
                     )}
@@ -949,7 +958,7 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-4">
                     <div className="relative group">
                       {imageUrl ? (
-                        <img src={imageUrl} alt="Profile" className="w-20 h-20 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }} />
+                        <img src={imageUrl} alt="Profile" referrerPolicy="no-referrer" className="w-20 h-20 rounded-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }} />
                       ) : null}
                       <div className={`w-20 h-20 rounded-full bg-gradient-to-br from-white/10 to-white/[0.06] flex items-center justify-center text-2xl font-bold text-white/60 ${imageUrl ? 'hidden' : ''}`}>
                         {displayName?.[0]?.toUpperCase() || '?'}

@@ -117,7 +117,7 @@ export default function SubscribeModal({
   const creatorCut = totalPrice - platformCut
 
   // Placeholder MerkleProof for stablecoin freeze list compliance.
-  // TODO: Generate real MerkleProof from freeze list oracle when available.
+  // Blocked: Aleo freeze list oracle does not exist yet — replace when available.
   const PLACEHOLDER_MERKLE_PROOF = '{ path: [0field, 0field, 0field, 0field, 0field, 0field, 0field, 0field], indices: [false, false, false, false, false, false, false, false] }'
 
   const handleSubscribe = async () => {

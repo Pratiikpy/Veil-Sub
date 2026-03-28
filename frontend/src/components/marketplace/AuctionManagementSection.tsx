@@ -145,7 +145,7 @@ export default function AuctionManagementSection() {
             value={auctionId}
             onChange={e => { setAuctionId(e.target.value); setAuctionData(null) }}
             placeholder="Auction ID (field)"
-            className="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/20"
+            className="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/50"
           />
           <Button
             variant="secondary"
@@ -193,7 +193,7 @@ export default function AuctionManagementSection() {
                 )}
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-white/60">Creator Hash</span>
-                  <span className="text-xs font-mono text-white/40 truncate max-w-[180px]">
+                  <span className="text-xs font-mono text-white/60 truncate max-w-[180px]">
                     {auctionData.creatorHash}
                   </span>
                 </div>
@@ -254,7 +254,7 @@ export default function AuctionManagementSection() {
                           value={winnerAddr}
                           onChange={e => setWinnerAddr(e.target.value)}
                           placeholder="Winner address (aleo1...)"
-                          className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/20 mb-2"
+                          className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/50 mb-2"
                         />
                         <Button
                           variant="accent"
@@ -281,7 +281,7 @@ export default function AuctionManagementSection() {
                         Auction finalized
                       </p>
                       {auctionData.winnerHash !== '0field' && (
-                        <p className="text-xs text-white/40 mt-1 font-mono truncate">
+                        <p className="text-xs text-white/60 mt-1 font-mono truncate">
                           Winner: {auctionData.winnerHash}
                         </p>
                       )}
@@ -305,7 +305,7 @@ export default function AuctionManagementSection() {
                 >
                   <div className="min-w-0">
                     <p className="text-xs font-mono text-white/60 truncate">{bid.auctionId}</p>
-                    <p className="text-xs text-white/30">Amount: {bid.amount} | {new Date(bid.timestamp).toLocaleDateString()}</p>
+                    <p className="text-xs text-white/60">Amount: {bid.amount} | {new Date(bid.timestamp).toLocaleDateString()}</p>
                   </div>
                   <ArrowRight className="w-3 h-3 text-white/20 shrink-0" />
                 </div>

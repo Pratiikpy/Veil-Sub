@@ -29,7 +29,8 @@ function triggerSubscriberNotification(
   creatorAddress: string,
   postTitle: string,
   postBody: string,
-  postId: string
+  postId: string,
+  walletHash: string,
 ): void {
   // Strip HTML tags for preview text
   const previewText = postBody.replace(/<[^>]*>/g, '').slice(0, 200)
@@ -41,6 +42,9 @@ function triggerSubscriberNotification(
       postTitle,
       postPreview: previewText,
       postId,
+      walletAddress: creatorAddress,
+      walletHash,
+      timestamp: Date.now(),
     }),
   }).catch(() => {
     // Best-effort — never block the publish flow
@@ -551,7 +555,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
           toast.success('Free post published!')
           clearMappingCache()
           // Trigger subscriber email notification (best-effort, non-blocking)
-          triggerSubscriberNotification(creatorAddress, title.trim(), body, saved.id)
+          computeWalletHash(creatorAddress).then(wh => triggerSubscriberNotification(creatorAddress, title.trim(), body, saved.id, wh)).catch(() => {})
           notifyContentPublished(creatorAddress, title.trim())
           resetForm()
           onPostCreated?.()
@@ -617,7 +621,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
               toast.success('Post published!')
               clearMappingCache()
               // Trigger subscriber email notification (best-effort, non-blocking)
-              triggerSubscriberNotification(creatorAddress, postTitle, postBody, saved.id)
+              computeWalletHash(creatorAddress).then(wh => triggerSubscriberNotification(creatorAddress, postTitle, postBody, saved.id, wh)).catch(() => {})
               notifyContentPublished(creatorAddress, postTitle)
               resetForm()
               onPostCreated?.()
@@ -882,12 +886,12 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
                         : 'border-white/20 bg-white/[0.02] hover:border-white/30 hover:bg-white/[0.04]'
                     }`}
                   >
-                    <Camera className="w-10 h-10 mb-3 text-white/40" aria-hidden="true" />
+                    <Camera className="w-10 h-10 mb-3 text-white/60" aria-hidden="true" />
                     <p className="text-base font-medium text-white/60">
                       {isDragging ? 'Drop photo here' : 'Upload Photo'}
                     </p>
-                    <p className="text-xs text-white/40 mt-1">Drag & drop or click to browse</p>
-                    <p className="text-[11px] text-white/30 mt-1">JPG, PNG, GIF, WebP (max 5MB)</p>
+                    <p className="text-xs text-white/60 mt-1">Drag & drop or click to browse</p>
+                    <p className="text-[11px] text-white/60 mt-1">JPG, PNG, GIF, WebP (max 5MB)</p>
                   </div>
                 )}
                 {imageUploading && (

@@ -144,7 +144,7 @@ export default function DMConfigSection() {
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
             config.enabled ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-white/[0.04] border border-white/[0.08]'
           }`}>
-            <Radio className={`w-5 h-5 ${config.enabled ? 'text-emerald-400' : 'text-white/40'}`} />
+            <Radio className={`w-5 h-5 ${config.enabled ? 'text-emerald-400' : 'text-white/60'}`} />
           </div>
           <div>
             <h3 className="text-sm font-medium text-white">DM Status</h3>
@@ -163,13 +163,13 @@ export default function DMConfigSection() {
         {config.enabled && (
           <div className="grid grid-cols-2 gap-3 mt-4">
             <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] px-4 py-3">
-              <p className="text-[11px] text-white/40 uppercase tracking-wider mb-1">Price per DM</p>
+              <p className="text-[11px] text-white/60 uppercase tracking-wider mb-1">Price per DM</p>
               <p className="text-sm font-medium text-white">
                 {config.price > 0 ? `${formatCredits(config.price)} ALEO` : 'Free (for subs)'}
               </p>
             </div>
             <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] px-4 py-3">
-              <p className="text-[11px] text-white/40 uppercase tracking-wider mb-1">Min Tier</p>
+              <p className="text-[11px] text-white/60 uppercase tracking-wider mb-1">Min Tier</p>
               <p className="text-sm font-medium text-white">Tier {config.minTier}</p>
             </div>
           </div>
@@ -194,11 +194,11 @@ export default function DMConfigSection() {
                 value={priceInput}
                 onChange={e => setPriceInput(e.target.value)}
                 placeholder="0.00"
-                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500/40 transition-colors"
+                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/50 focus:outline-none focus:border-violet-500/40 transition-colors"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-white/30">ALEO</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-white/60">ALEO</span>
             </div>
-            <p className="text-[11px] text-white/30 mt-1">Set to 0 for free DMs (subscribers still need min tier)</p>
+            <p className="text-[11px] text-white/60 mt-1">Set to 0 for free DMs (subscribers still need min tier)</p>
           </div>
 
           <div>
@@ -214,7 +214,7 @@ export default function DMConfigSection() {
                   <option key={opt.value} value={opt.value} className="bg-zinc-900 text-white">{opt.label}</option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
             </div>
           </div>
 
@@ -231,7 +231,7 @@ export default function DMConfigSection() {
           </button>
         </div>
 
-        <div className="flex items-center gap-2 mt-4 text-[11px] text-white/30">
+        <div className="flex items-center gap-2 mt-4 text-[11px] text-white/60">
           <Shield className="w-3 h-3 shrink-0" />
           <span>Configuration is stored on-chain via Poseidon2 hash keys. Your address is never exposed.</span>
         </div>

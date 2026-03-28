@@ -10,26 +10,28 @@ import { LeoWalletAdapter } from '@provablehq/aleo-wallet-adaptor-leo'
  */
 export class PatchedLeoWalletAdapter extends LeoWalletAdapter {
   async connect(
-    network: any,
-    decryptPermission: any,
+    // `as any` justified: LeoWalletAdapter types are not publicly exported
+    network: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    decryptPermission: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     programs: string[]
-  ): Promise<any> {
-    // Fix race condition: re-read wallet reference from window before connecting
-    const win = window as any
+  ): Promise<any> { // eslint-disable-line @typescript-eslint/no-explicit-any
+    // Fix race condition: re-read wallet reference from window before connecting.
+    // `as any` justified: accessing browser-injected wallet globals with no type declarations
+    const win = window as any // eslint-disable-line @typescript-eslint/no-explicit-any
     const leoWallet = win.leoWallet || win.leo
 
     if (leoWallet) {
-      // Patch the internal reference that the constructor missed
-      ;(this as any)._leoWallet = leoWallet
+      // `as any` justified: _leoWallet is a private field on the parent class with no public setter
+      ;(this as any)._leoWallet = leoWallet // eslint-disable-line @typescript-eslint/no-explicit-any
     } else {
       // Extension not injected yet — poll up to 3 seconds
       await new Promise<void>((resolve) => {
         let elapsed = 0
         const interval = setInterval(() => {
-          const w = window as any
+          const w = window as any // eslint-disable-line @typescript-eslint/no-explicit-any
           const wallet = w.leoWallet || w.leo
           if (wallet) {
-            ;(this as any)._leoWallet = wallet
+            ;(this as any)._leoWallet = wallet // eslint-disable-line @typescript-eslint/no-explicit-any
             clearInterval(interval)
             resolve()
           }

@@ -190,9 +190,6 @@ body.light {
 .light .bg-black\/20 {
   background: rgba(255, 255, 255, 0.40) !important;
 }
-.light .bg-black {
-  background: var(--bg-base) !important;
-}
 .light .border-border\/75 {
   border-color: rgba(0, 0, 0, 0.08) !important;
 }
@@ -420,7 +417,7 @@ body::after {
   width: 100vw;
   height: 100vh;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
   opacity: 0.02;
 }
@@ -527,18 +524,6 @@ body::after {
 @keyframes shimmer-diagonal {
   0% { background-position: -200% -200%; }
   100% { background-position: 200% 200%; }
-}
-.skeleton-shimmer {
-  background: linear-gradient(
-    -45deg,
-    rgba(255,255,255,0.02) 0%,
-    rgba(255,255,255,0.02) 35%,
-    rgba(255,255,255,0.06) 50%,
-    rgba(255,255,255,0.02) 65%,
-    rgba(255,255,255,0.02) 100%
-  );
-  background-size: 300% 300%;
-  animation: shimmer-diagonal 1.6s ease-in-out infinite;
 }
 
 /* ─── Scroll indicator ─── */
@@ -657,8 +642,6 @@ body::after {
 .glass {
   background: var(--bg-surface);
   border: 1px solid var(--glass-border);
-}
-.glass {
   transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
 }
 .glass:hover {
@@ -879,7 +862,7 @@ a:focus:not(:focus-visible) {
 .rich-editor-content p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.50);
   pointer-events: none;
   height: 0;
 }

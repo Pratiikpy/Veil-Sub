@@ -232,7 +232,7 @@ export default function CommandPalette() {
                 onKeyDown={onKeyDown}
                 placeholder="Search pages, actions, creators..."
                 maxLength={100}
-                className="flex-1 bg-transparent text-lg text-white placeholder:text-white/30 outline-none"
+                className="flex-1 bg-transparent text-lg text-white placeholder:text-white/50 outline-none"
                 aria-label="Search commands"
                 aria-describedby="command-palette-hint"
                 autoComplete="off"
@@ -288,7 +288,7 @@ export default function CommandPalette() {
                           <span className="flex-1 text-sm text-white/90 truncate">
                             {item.label}
                           </span>
-                          <span className="shrink-0 text-[11px] uppercase tracking-wide text-white/20 font-medium">
+                          <span className="shrink-0 text-[11px] uppercase tracking-wide text-white/50 font-medium">
                             {item.category}
                           </span>
                           {item.shortcut && (
@@ -305,7 +305,7 @@ export default function CommandPalette() {
             </div>
 
             {/* Footer hint */}
-            <div className="flex items-center gap-4 px-4 py-2 border-t border-white/[0.06] text-[11px] text-white/20">
+            <div className="flex items-center gap-4 px-4 py-2 border-t border-white/[0.06] text-[11px] text-white/50">
               <span className="flex items-center gap-1">
                 <kbd className="px-1 rounded bg-white/[0.06] font-mono">&uarr;</kbd>
                 <kbd className="px-1 rounded bg-white/[0.06] font-mono">&darr;</kbd>

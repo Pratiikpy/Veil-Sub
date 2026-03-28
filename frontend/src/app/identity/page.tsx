@@ -112,7 +112,7 @@ function VerifyAuthorshipForm() {
         <FileSignature className="w-4 h-4 text-violet-400" />
         Verify Content Authorship
       </h3>
-      <p className="text-xs text-white/40 mb-5">
+      <p className="text-xs text-white/60 mb-5">
         Submit a creator&apos;s Aleo signature on a content hash to prove authorship on-chain.
         Uses Leo&apos;s native <code className="text-violet-400">signature::verify</code>.
       </p>
@@ -125,7 +125,7 @@ function VerifyAuthorshipForm() {
             value={creatorAddress}
             onChange={(e) => setCreatorAddress(e.target.value)}
             placeholder="aleo1..."
-            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all font-mono"
+            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all font-mono"
           />
         </div>
 
@@ -136,7 +136,7 @@ function VerifyAuthorshipForm() {
             value={contentHash}
             onChange={(e) => setContentHash(e.target.value)}
             placeholder="e.g. 12345field"
-            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all font-mono"
+            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all font-mono"
           />
         </div>
 
@@ -147,7 +147,7 @@ function VerifyAuthorshipForm() {
             onChange={(e) => setSignature(e.target.value)}
             placeholder="sign1..."
             rows={3}
-            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all resize-none font-mono"
+            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all resize-none font-mono"
           />
         </div>
 
@@ -186,7 +186,7 @@ function VerifyAuthorshipForm() {
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <div className="min-w-0">
               <p className="text-xs text-emerald-400 font-medium">Authorship verified and recorded!</p>
-              <p className="text-xs text-white/40 font-mono truncate">{txId}</p>
+              <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
             </div>
           </div>
         )}
@@ -250,7 +250,7 @@ function ProveIdentityForm() {
         <Fingerprint className="w-4 h-4 text-blue-400" />
         Prove Identity
       </h3>
-      <p className="text-xs text-white/40 mb-5">
+      <p className="text-xs text-white/60 mb-5">
         Prove you control an Aleo address by signing a challenge. Creates a privacy-preserving
         identity proof chain (only Poseidon2 hash stored).
       </p>
@@ -264,7 +264,7 @@ function ProveIdentityForm() {
               value={challenge}
               onChange={(e) => setChallenge(e.target.value)}
               placeholder="Random challenge field value"
-              className="flex-1 px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all font-mono"
+              className="flex-1 px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all font-mono"
             />
             <Button variant="ghost" size="sm" onClick={generateChallenge} className="rounded-xl shrink-0">
               Generate
@@ -281,7 +281,7 @@ function ProveIdentityForm() {
             onChange={(e) => setSignature(e.target.value)}
             placeholder="sign1..."
             rows={3}
-            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all resize-none font-mono"
+            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all resize-none font-mono"
           />
         </div>
 
@@ -311,7 +311,7 @@ function ProveIdentityForm() {
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <div className="min-w-0">
               <p className="text-xs text-emerald-400 font-medium">Identity proved!</p>
-              <p className="text-xs text-white/40 font-mono truncate">{txId}</p>
+              <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
             </div>
           </div>
         )}
@@ -371,7 +371,7 @@ function NotarizeContentForm() {
         <Stamp className="w-4 h-4 text-emerald-400" />
         Notarize Content
       </h3>
-      <p className="text-xs text-white/40 mb-5">
+      <p className="text-xs text-white/60 mb-5">
         Timestamp content on-chain with <code className="text-emerald-400">block.height</code>.
         First-claim-wins: once notarized, the timestamp cannot be overwritten.
       </p>
@@ -384,7 +384,7 @@ function NotarizeContentForm() {
             value={contentHash}
             onChange={(e) => setContentHash(e.target.value)}
             placeholder="Hash of your content (e.g. 12345field)"
-            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30 transition-all font-mono"
+            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30 transition-all font-mono"
           />
         </div>
 
@@ -397,7 +397,7 @@ function NotarizeContentForm() {
             onChange={(e) => setSignature(e.target.value)}
             placeholder="sign1..."
             rows={3}
-            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30 transition-all resize-none font-mono"
+            className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30 transition-all resize-none font-mono"
           />
         </div>
 
@@ -436,7 +436,7 @@ function NotarizeContentForm() {
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <div className="min-w-0">
               <p className="text-xs text-emerald-400 font-medium">Content notarized!</p>
-              <p className="text-xs text-white/40 font-mono truncate">{txId}</p>
+              <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
             </div>
           </div>
         )}
@@ -479,7 +479,7 @@ function VerifiedContentLookup() {
         <Search className="w-4 h-4 text-violet-400" />
         Lookup Verified Content
       </h3>
-      <p className="text-xs text-white/40 mb-4">
+      <p className="text-xs text-white/60 mb-4">
         Check if content has been verified on-chain and who authored it (no wallet needed).
       </p>
 
@@ -489,7 +489,7 @@ function VerifiedContentLookup() {
           value={contentHash}
           onChange={(e) => setContentHash(e.target.value)}
           placeholder="content_hash (field)"
-          className="flex-1 px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all font-mono"
+          className="flex-1 px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all font-mono"
         />
         <Button
           variant="secondary"
@@ -512,14 +512,14 @@ function VerifiedContentLookup() {
                 </>
               ) : (
                 <>
-                  <AlertCircle className="w-5 h-5 text-white/30" />
-                  <span className="text-sm font-semibold text-white/40">Not Found</span>
+                  <AlertCircle className="w-5 h-5 text-white/50" />
+                  <span className="text-sm font-semibold text-white/60">Not Found</span>
                 </>
               )}
             </div>
             {result.author && (
               <div>
-                <p className="text-xs text-white/40 mb-0.5">Author (Poseidon2 hash)</p>
+                <p className="text-xs text-white/60 mb-0.5">Author (Poseidon2 hash)</p>
                 <p className="text-xs text-white/70 font-mono break-all">{result.author}</p>
               </div>
             )}
@@ -538,7 +538,7 @@ function BatchVerifyInfo() {
         <Layers className="w-4 h-4 text-amber-400" />
         Batch Authorship Verification
       </h3>
-      <p className="text-xs text-white/40 mb-4">
+      <p className="text-xs text-white/60 mb-4">
         Verify two content hashes in a single atomic transaction via <code className="text-amber-400">verify_authorship_batch</code>.
       </p>
 
@@ -755,7 +755,7 @@ export default function IdentityPage() {
                     } hover:bg-white/[0.02] transition-colors`}
                   >
                     <code className="text-xs font-mono text-blue-400 w-44 shrink-0">{m.name}</code>
-                    <code className="text-xs font-mono text-white/30 w-28 shrink-0">{m.type}</code>
+                    <code className="text-xs font-mono text-white/60 w-28 shrink-0">{m.type}</code>
                     <p className="text-xs text-white/50">{m.desc}</p>
                   </div>
                 ))}

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Shield, Users, Hash, Plus, Loader2 } from 'lucide-react'
+import { Shield, Users, Hash, Plus, Loader2, CheckCircle2, BadgeCheck } from 'lucide-react'
 import { useContractExecute } from '@/hooks/useContractExecute'
 import { FEATURED_CREATORS, getCreatorHash, CREATOR_HASH_MAP } from '@/lib/config'
 import { shortenAddress, isValidAleoAddress } from '@/lib/utils'
@@ -189,7 +189,7 @@ export default function ChatRoomsSection() {
           <div className="text-center py-10">
             <Users className="w-10 h-10 text-white/10 mx-auto mb-3" />
             <p className="text-sm text-white/50">No chat rooms discovered</p>
-            <p className="text-xs text-white/30 mt-1">Create one or join by entering room details below</p>
+            <p className="text-xs text-white/60 mt-1">Create one or join by entering room details below</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -211,7 +211,7 @@ export default function ChatRoomsSection() {
                     <p className="text-sm font-medium text-white truncate">
                       {creatorLabel} -- Room #{room.roomId}
                     </p>
-                    <div className="flex items-center gap-3 text-xs text-white/40">
+                    <div className="flex items-center gap-3 text-xs text-white/60">
                       <span className="flex items-center gap-1">
                         <Users className="w-3 h-3" />
                         {room.memberCount} member{room.memberCount !== 1 ? 's' : ''}
@@ -249,7 +249,7 @@ export default function ChatRoomsSection() {
                     value={newRoomId}
                     onChange={e => setNewRoomId(e.target.value)}
                     placeholder="1"
-                    className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500/40 transition-colors"
+                    className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/50 focus:outline-none focus:border-violet-500/40 transition-colors"
                   />
                 </div>
                 <div>
@@ -294,7 +294,7 @@ export default function ChatRoomsSection() {
               value={joinCreatorAddr}
               onChange={e => setJoinCreatorAddr(e.target.value)}
               placeholder="aleo1..."
-              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 font-mono focus:outline-none focus:border-violet-500/40 transition-colors"
+              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/50 font-mono focus:outline-none focus:border-violet-500/40 transition-colors"
             />
           </div>
           <div className="grid grid-cols-3 gap-3">
@@ -308,7 +308,7 @@ export default function ChatRoomsSection() {
                 value={joinRoomId}
                 onChange={e => setJoinRoomId(e.target.value)}
                 placeholder="1"
-                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500/40 transition-colors"
+                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/50 focus:outline-none focus:border-violet-500/40 transition-colors"
               />
             </div>
             <div>
@@ -332,7 +332,7 @@ export default function ChatRoomsSection() {
                 value={joinExpiry}
                 onChange={e => setJoinExpiry(e.target.value)}
                 placeholder="Block #"
-                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500/40 transition-colors"
+                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/50 focus:outline-none focus:border-violet-500/40 transition-colors"
               />
             </div>
           </div>
@@ -349,7 +349,7 @@ export default function ChatRoomsSection() {
           </button>
         </div>
 
-        <div className="flex items-center gap-2 mt-4 text-[11px] text-white/30">
+        <div className="flex items-center gap-2 mt-4 text-[11px] text-white/60">
           <Shield className="w-3 h-3 shrink-0" />
           <span>
             Membership is proven via ZK circuit -- your address is never revealed to other members.
@@ -357,6 +357,124 @@ export default function ChatRoomsSection() {
           </span>
         </div>
       </motion.div>
+
+      {/* Prove Chat Membership */}
+      <ProveMembershipSection />
+    </motion.div>
+  )
+}
+
+// ─── Prove Chat Membership ─────────────────────────────────────────────────
+
+function ProveMembershipSection() {
+  const { execute, connected } = useContractExecute()
+  const [creatorHash, setCreatorHash] = useState('')
+  const [roomId, setRoomId] = useState('')
+  const [proving, setProving] = useState(false)
+  const [txId, setTxId] = useState<string | null>(null)
+
+  const handleProve = useCallback(async () => {
+    if (!connected) {
+      toast.error('Connect your wallet first')
+      return
+    }
+    if (!creatorHash) {
+      toast.error('Enter the creator hash')
+      return
+    }
+    const rid = parseInt(roomId, 10)
+    if (isNaN(rid) || rid < 1 || rid > 255) {
+      toast.error('Room ID must be between 1 and 255')
+      return
+    }
+
+    setProving(true)
+    setTxId(null)
+    try {
+      const result = await execute(
+        'prove_chat_membership',
+        [creatorHash, `${rid}u8`],
+        SOCIAL_FEES.JOIN_CHAT_ROOM,
+        SOCIAL_PROGRAM_ID,
+      )
+      if (result) {
+        setTxId(result)
+        toast.success('Membership proved on-chain!')
+      }
+    } catch (err) {
+      toast.error('Membership proof failed', {
+        description: err instanceof Error ? err.message : 'Unknown error',
+      })
+    } finally {
+      setProving(false)
+    }
+  }, [connected, creatorHash, roomId, execute])
+
+  return (
+    <motion.div variants={staggerItem} className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-5">
+      <h3 className="text-sm font-medium text-white mb-1 flex items-center gap-2">
+        <BadgeCheck className="w-4 h-4 text-emerald-400" />
+        Prove Chat Membership
+      </h3>
+      <p className="text-xs text-white/60 mb-4">
+        Generate a zero-knowledge proof that you are a member of a chat room without revealing your identity.
+      </p>
+
+      <div className="space-y-3">
+        <div>
+          <label htmlFor="prove-creator-hash" className="block text-xs text-white/50 mb-1.5">Creator Hash (field)</label>
+          <input
+            id="prove-creator-hash"
+            type="text"
+            value={creatorHash}
+            onChange={e => setCreatorHash(e.target.value)}
+            placeholder="Creator hash of the room owner"
+            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/50 font-mono focus:outline-none focus:border-emerald-500/40 transition-colors"
+          />
+        </div>
+        <div>
+          <label htmlFor="prove-room-id" className="block text-xs text-white/50 mb-1.5">Room ID (1-255)</label>
+          <input
+            id="prove-room-id"
+            type="number"
+            min="1"
+            max="255"
+            value={roomId}
+            onChange={e => setRoomId(e.target.value)}
+            placeholder="1"
+            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/40 transition-colors"
+          />
+        </div>
+        <button
+          onClick={handleProve}
+          disabled={proving || !connected || !creatorHash || !roomId}
+          className="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-200 font-medium text-sm hover:bg-emerald-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        >
+          {proving ? (
+            <><Loader2 className="w-4 h-4 animate-spin" /> Proving...</>
+          ) : (
+            <><BadgeCheck className="w-4 h-4" /> Prove Membership</>
+          )}
+        </button>
+
+        {txId && (
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs text-emerald-400 font-medium">Membership proved!</p>
+              <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2 mt-4 text-[11px] text-white/60">
+        <Shield className="w-3 h-3 shrink-0" />
+        <span>
+          The ZK proof verifies you are a room member without revealing your address.
+          Only the Poseidon2 nullifier is stored on-chain.
+        </span>
+      </div>
     </motion.div>
   )
 }

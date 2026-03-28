@@ -116,7 +116,7 @@ export function useContractExecute() {
       )
       return result?.transactionId ?? null
     },
-    [address, executeTransaction]
+    [address, executeTransaction, wallet]
   )
 
   // Process a single record: try all formats, lazy-decrypt if needed

@@ -264,9 +264,9 @@ function CreateProposalForm({ onCreated }: CreateProposalFormProps) {
           </div>
         </div>
         {expanded ? (
-          <ChevronUp className="w-5 h-5 text-white/40" />
+          <ChevronUp className="w-5 h-5 text-white/60" />
         ) : (
-          <ChevronDown className="w-5 h-5 text-white/40" />
+          <ChevronDown className="w-5 h-5 text-white/60" />
         )}
       </button>
 
@@ -290,7 +290,7 @@ function CreateProposalForm({ onCreated }: CreateProposalFormProps) {
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., Reduce platform fee to 3%"
                 maxLength={120}
-                className="w-full bg-white/[0.04] border border-border rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/25 transition-colors text-sm"
+                className="w-full bg-white/[0.04] border border-border rounded-xl px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/25 transition-colors text-sm"
                 disabled={isSubmitting}
               />
             </div>
@@ -298,7 +298,7 @@ function CreateProposalForm({ onCreated }: CreateProposalFormProps) {
             {/* Description */}
             <div>
               <label htmlFor="proposal-desc" className="block text-sm font-medium text-white/70 mb-1.5">
-                Description <span className="text-white/30">(optional)</span>
+                Description <span className="text-white/60">(optional)</span>
               </label>
               <textarea
                 id="proposal-desc"
@@ -307,7 +307,7 @@ function CreateProposalForm({ onCreated }: CreateProposalFormProps) {
                 placeholder="Describe your proposal in detail..."
                 rows={3}
                 maxLength={1000}
-                className="w-full bg-white/[0.04] border border-border rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/25 transition-colors text-sm resize-none"
+                className="w-full bg-white/[0.04] border border-border rounded-xl px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/25 transition-colors text-sm resize-none"
                 disabled={isSubmitting}
               />
             </div>
@@ -316,7 +316,7 @@ function CreateProposalForm({ onCreated }: CreateProposalFormProps) {
             {title && (
               <div className="p-3 rounded-xl bg-white/[0.02] border border-border/50 space-y-2 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-white/40">Proposal ID:</span>
+                  <span className="text-white/60">Proposal ID:</span>
                   <button
                     onClick={() => copyToClipboard(proposalId)}
                     className="flex items-center gap-1 text-white/60 hover:text-white/80 transition-colors font-mono"
@@ -327,12 +327,12 @@ function CreateProposalForm({ onCreated }: CreateProposalFormProps) {
                 </div>
                 {description && (
                   <div className="flex items-center justify-between">
-                    <span className="text-white/40">Description Hash:</span>
+                    <span className="text-white/60">Description Hash:</span>
                     <span className="text-white/60 font-mono">{truncateField(descHash, 6)}</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between">
-                  <span className="text-white/40">Fee:</span>
+                  <span className="text-white/60">Fee:</span>
                   <span className="text-white/60">{(FEES.GOV_CREATE_PROPOSAL / 1_000_000).toFixed(2)} ALEO</span>
                 </div>
               </div>
@@ -457,7 +457,7 @@ function CastBallotPanel({ proposal, onVoted, onClose }: CastBallotProps) {
     <div className="p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h4 className="text-white font-semibold">Cast Your Ballot</h4>
-        <button onClick={onClose} className="text-white/40 hover:text-white/60 text-sm transition-colors">
+        <button onClick={onClose} className="text-white/60 hover:text-white/60 text-sm transition-colors">
           Cancel
         </button>
       </div>
@@ -511,7 +511,7 @@ function CastBallotPanel({ proposal, onVoted, onClose }: CastBallotProps) {
       {/* Salt display */}
       <div className="p-3 rounded-xl bg-white/[0.02] border border-border/50 space-y-2 text-xs">
         <div className="flex items-center justify-between">
-          <span className="text-white/40">Random Salt (stored locally):</span>
+          <span className="text-white/60">Random Salt (stored locally):</span>
           <button
             onClick={() => copyToClipboard(salt)}
             className="flex items-center gap-1 text-white/60 hover:text-white/80 transition-colors font-mono"
@@ -520,7 +520,7 @@ function CastBallotPanel({ proposal, onVoted, onClose }: CastBallotProps) {
             <Copy className="w-3 h-3" />
           </button>
         </div>
-        <p className="text-white/30">This salt is saved in your browser. Keep it to prove your vote later.</p>
+        <p className="text-white/60">This salt is saved in your browser. Keep it to prove your vote later.</p>
       </div>
 
       {error && (
@@ -780,7 +780,7 @@ function ProposalActions({ proposal, onAction }: ProposalActionsProps) {
           </p>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="resolve-yes" className="block text-xs text-white/40 mb-1">Yes Count</label>
+              <label htmlFor="resolve-yes" className="block text-xs text-white/60 mb-1">Yes Count</label>
               <input
                 id="resolve-yes"
                 type="number"
@@ -792,7 +792,7 @@ function ProposalActions({ proposal, onAction }: ProposalActionsProps) {
               />
             </div>
             <div>
-              <label htmlFor="resolve-no" className="block text-xs text-white/40 mb-1">No Count</label>
+              <label htmlFor="resolve-no" className="block text-xs text-white/60 mb-1">No Count</label>
               <input
                 id="resolve-no"
                 type="number"
@@ -804,7 +804,7 @@ function ProposalActions({ proposal, onAction }: ProposalActionsProps) {
               />
             </div>
           </div>
-          <p className="text-xs text-white/30">Total votes: {proposal.voteCount} (yes + no must equal this)</p>
+          <p className="text-xs text-white/60">Total votes: {proposal.voteCount} (yes + no must equal this)</p>
           <Button
             variant="accent"
             size="sm"
@@ -833,11 +833,11 @@ function ProposalActions({ proposal, onAction }: ProposalActionsProps) {
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="p-2 rounded-lg bg-emerald-500/5 border border-emerald-500/15">
               <span className="text-emerald-400 font-medium">{proposal.resolvedYes ?? '?'}</span>
-              <span className="text-white/40 ml-1">Yes votes</span>
+              <span className="text-white/60 ml-1">Yes votes</span>
             </div>
             <div className="p-2 rounded-lg bg-red-500/5 border border-red-500/15">
               <span className="text-red-400 font-medium">{proposal.resolvedNo ?? '?'}</span>
-              <span className="text-white/40 ml-1">No votes</span>
+              <span className="text-white/60 ml-1">No votes</span>
             </div>
           </div>
           <Button
@@ -910,7 +910,7 @@ function ProposalCard({ proposal, onRefresh }: ProposalCardProps) {
             </div>
           )}
           {proposal.createdAt && (
-            <div className="text-white/30">
+            <div className="text-white/60">
               {new Date(proposal.createdAt).toLocaleDateString()}
             </div>
           )}
@@ -933,7 +933,7 @@ function ProposalCard({ proposal, onRefresh }: ProposalCardProps) {
         {/* Pedersen commitment details (collapsible) */}
         <button
           onClick={() => setDetailsOpen(!detailsOpen)}
-          className="flex items-center gap-1 text-xs text-white/30 hover:text-white/50 transition-colors mb-2"
+          className="flex items-center gap-1 text-xs text-white/60 hover:text-white/70 transition-colors mb-2"
         >
           <Hash className="w-3 h-3" />
           Commitment details
@@ -948,19 +948,19 @@ function ProposalCard({ proposal, onRefresh }: ProposalCardProps) {
             className="p-3 rounded-xl bg-white/[0.015] border border-border/30 space-y-1.5 text-xs font-mono mb-3"
           >
             <div className="flex items-center justify-between">
-              <span className="text-white/30">Proposal ID:</span>
+              <span className="text-white/60">Proposal ID:</span>
               <button onClick={() => copyToClipboard(proposal.id)} className="text-white/50 hover:text-white/70 flex items-center gap-1 transition-colors">
                 {truncateField(proposal.id, 6)} <Copy className="w-3 h-3" />
               </button>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-white/30">Creator Hash:</span>
+              <span className="text-white/60">Creator Hash:</span>
               <button onClick={() => copyToClipboard(proposal.creatorHash)} className="text-white/50 hover:text-white/70 flex items-center gap-1 transition-colors">
                 {truncateField(proposal.creatorHash, 6)} <Copy className="w-3 h-3" />
               </button>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-white/30">Desc Hash:</span>
+              <span className="text-white/60">Desc Hash:</span>
               <span className="text-white/50">{truncateField(proposal.descriptionHash, 6)}</span>
             </div>
             <div className="pt-1.5 border-t border-border/20">
@@ -1074,17 +1074,17 @@ export default function GovernancePage() {
             <div className="flex items-center justify-center gap-6 mt-8">
               <div className="text-center">
                 <div className="text-2xl font-bold text-white">{stats.totalProposals}</div>
-                <div className="text-xs text-white/40">Proposals</div>
+                <div className="text-xs text-white/60">Proposals</div>
               </div>
               <div className="w-px h-8 bg-border/50" />
               <div className="text-center">
                 <div className="text-2xl font-bold text-white">{stats.totalBallots}</div>
-                <div className="text-xs text-white/40">Ballots Cast</div>
+                <div className="text-xs text-white/60">Ballots Cast</div>
               </div>
               <div className="w-px h-8 bg-border/50" />
               <div className="text-center">
                 <div className="text-2xl font-bold text-violet-400">v2</div>
-                <div className="text-xs text-white/40">Contract</div>
+                <div className="text-xs text-white/60">Contract</div>
               </div>
             </div>
           </m.div>
@@ -1110,7 +1110,7 @@ export default function GovernancePage() {
             <button
               onClick={refresh}
               disabled={loading}
-              className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/60 transition-colors disabled:opacity-40"
+              className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white/80 transition-colors disabled:opacity-40"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               Refresh

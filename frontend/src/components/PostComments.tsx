@@ -382,10 +382,17 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
     // Persist to server
     if (serverAvailable) {
       try {
+        let authFields: Record<string, unknown> = {}
+        if (walletAddress) {
+          try {
+            const wh = await computeWalletHash(walletAddress)
+            authFields = { walletAddress, walletHash: wh, timestamp: Date.now() }
+          } catch { /* auth best-effort */ }
+        }
         const res = await fetch('/api/social', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'comment_like', contentId, commentId: id, delta }),
+          body: JSON.stringify({ type: 'comment_like', contentId, commentId: id, delta, ...authFields }),
         })
         if (!res.ok) {
           // Rollback optimistic update on server error
@@ -512,7 +519,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
                     onClick={() => handleDmCommenter(c)}
                     aria-label="Direct message subscriber"
                     title="Direct message this subscriber"
-                    className="flex items-center gap-1 text-white/40 hover:text-violet-400 transition-colors py-2 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none rounded"
+                    className="flex items-center gap-1 text-white/60 hover:text-violet-400 transition-colors py-2 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none rounded"
                   >
                     <Send className="w-3 h-3" />
                     <span className="text-[11px]">DM</span>

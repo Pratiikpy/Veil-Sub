@@ -69,7 +69,7 @@ export default function CreateAuctionSection() {
             value={slotLabel}
             onChange={e => setSlotLabel(e.target.value)}
             placeholder="e.g. Featured Slot #1"
-            className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/20"
+            className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/50"
           />
         </div>
 
@@ -80,9 +80,9 @@ export default function CreateAuctionSection() {
             value={contentSlotId}
             onChange={e => setContentSlotId(e.target.value)}
             placeholder="Unique numeric ID (e.g. 12345)"
-            className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/20"
+            className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/50"
           />
-          <p className="text-xs text-white/30 mt-1">
+          <p className="text-xs text-white/60 mt-1">
             The auction ID is derived on-chain from your address + this slot ID
           </p>
         </div>

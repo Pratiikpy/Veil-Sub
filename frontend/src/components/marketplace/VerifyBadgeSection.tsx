@@ -71,7 +71,7 @@ export default function VerifyBadgeSection() {
           value={creatorHash}
           onChange={e => { setCreatorHash(e.target.value); setVerifyResult(null) }}
           placeholder="Creator hash (field)"
-          className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/20"
+          className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/50"
         />
 
         <div>

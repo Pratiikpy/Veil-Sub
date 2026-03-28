@@ -65,7 +65,7 @@ function MissingCreatorContext() {
       <div className="text-center max-w-md px-6">
         <p className="text-4xl font-bold text-white/20 mb-4">?</p>
         <p className="text-sm text-white/50 mb-2">Missing creator context</p>
-        <p className="text-xs text-white/30 mb-6">
+        <p className="text-xs text-white/60 mb-6">
           This post link is incomplete. Please visit the creator&apos;s page to find this content.
         </p>
         <Link
@@ -213,7 +213,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
             <div className="flex items-center gap-3 mb-6">
               <AddressAvatar address={post.creatorAddress} size={20} />
               <span className="text-sm text-white/60">{getCreatorLabel(post.creatorAddress)}</span>
-              <span className="text-xs text-white/30">{publishedAt}</span>
+              <span className="text-xs text-white/60">{publishedAt}</span>
             </div>
             <h1 className="text-2xl font-bold text-white mb-4">{post.title}</h1>
             <p className="text-sm text-white/50 mb-8">{readingTime}</p>

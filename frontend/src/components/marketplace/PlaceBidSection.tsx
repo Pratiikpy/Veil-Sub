@@ -93,7 +93,7 @@ export default function PlaceBidSection() {
             value={auctionId}
             onChange={e => setAuctionId(e.target.value)}
             placeholder="Auction ID (field)"
-            className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/20"
+            className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/50"
           />
         </div>
 
@@ -106,18 +106,18 @@ export default function PlaceBidSection() {
               value={amount}
               onChange={e => setAmount(e.target.value)}
               placeholder="Amount in microcredits"
-              className="w-full px-4 py-2.5 pr-16 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/20"
+              className="w-full px-4 py-2.5 pr-16 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/50"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/30">u64</span>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/60">u64</span>
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-white/70 mb-2">
-            Salt <span className="text-white/30">(auto-generated, saved locally)</span>
+            Salt <span className="text-white/60">(auto-generated, saved locally)</span>
           </label>
           <div className="flex items-center gap-2">
-            <div className="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs text-white/30 font-mono truncate">
+            <div className="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs text-white/60 font-mono truncate">
               {salt.slice(0, 24)}...
             </div>
             <CopyButton text={salt} label="Copy" />

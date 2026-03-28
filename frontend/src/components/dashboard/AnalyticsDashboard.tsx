@@ -167,7 +167,7 @@ function RevenueChart({ data }: { data: DailyBucket[] }) {
         <div className="text-center">
           <BarChart3 className="w-8 h-8 text-white/20 mx-auto mb-2" aria-hidden="true" />
           <p className="text-sm text-white/50">Revenue chart will appear as subscribers join</p>
-          <p className="text-xs text-white/40 mt-1">Share your creator page to get started</p>
+          <p className="text-xs text-white/60 mt-1">Share your creator page to get started</p>
         </div>
       </div>
     )
@@ -296,7 +296,7 @@ function TopContentTable({ posts }: { posts: ContentPost[] }) {
         <div className="text-center">
           <FileText className="w-8 h-8 text-white/20 mx-auto mb-2" aria-hidden="true" />
           <p className="text-sm text-white/50">No posts yet</p>
-          <p className="text-xs text-white/40 mt-1">Create your first post from the dashboard</p>
+          <p className="text-xs text-white/60 mt-1">Create your first post from the dashboard</p>
         </div>
       </div>
     )
@@ -335,7 +335,7 @@ function TopContentTable({ posts }: { posts: ContentPost[] }) {
                 {post.tags && post.tags.length > 0 && (
                   <div className="flex gap-1 mt-1">
                     {post.tags.slice(0, 2).map((tag) => (
-                      <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.04] text-white/40">
+                      <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.04] text-white/60">
                         {tag}
                       </span>
                     ))}
@@ -437,7 +437,7 @@ function RecentActivity({ events }: { events: RecentEvent[] }) {
         <div className="text-center">
           <Activity className="w-8 h-8 text-white/20 mx-auto mb-2" aria-hidden="true" />
           <p className="text-sm text-white/50">No recent activity</p>
-          <p className="text-xs text-white/40 mt-1">Events will appear as subscribers join</p>
+          <p className="text-xs text-white/60 mt-1">Events will appear as subscribers join</p>
         </div>
       </div>
     )
@@ -475,7 +475,7 @@ function RecentActivity({ events }: { events: RecentEvent[] }) {
                   <>New <span className="text-white/70 font-medium">{tierName}</span> subscriber</>
                 )}
               </p>
-              <p className="text-xs text-white/40">{getTimeAgo(event.created_at)}</p>
+              <p className="text-xs text-white/60">{getTimeAgo(event.created_at)}</p>
             </div>
             <span className="text-sm font-medium text-emerald-400 shrink-0 tabular-nums">
               +{formatCredits(event.amount_microcredits)}
@@ -690,7 +690,7 @@ export default function AnalyticsDashboard({ creatorAddress, stats }: AnalyticsD
             <h3 className="text-sm font-medium text-white">Revenue (Last 30 Days)</h3>
           </div>
           {dailyData.some((d) => d.revenue > 0) && (
-            <span className="text-xs text-white/40 bg-white/[0.04] px-2.5 py-1 rounded-full">
+            <span className="text-xs text-white/60 bg-white/[0.04] px-2.5 py-1 rounded-full">
               {dailyData.filter((d) => d.revenue > 0).length} active days
             </span>
           )}
@@ -752,7 +752,7 @@ export default function AnalyticsDashboard({ creatorAddress, stats }: AnalyticsD
             <h3 className="text-sm font-medium text-white">Recent Activity</h3>
           </div>
           {recentEvents.length > 0 && (
-            <span className="text-xs text-white/40">
+            <span className="text-xs text-white/60">
               Last {recentEvents.length} events
             </span>
           )}

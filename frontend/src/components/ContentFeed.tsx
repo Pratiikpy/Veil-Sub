@@ -87,6 +87,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   const [unlockedImages, setUnlockedImages] = useState<Record<string, string>>({})
   const [unlockedVideos, setUnlockedVideos] = useState<Record<string, string>>({})
   const [decryptedPreviews, setDecryptedPreviews] = useState<Record<string, string>>({})
+  const decryptedPreviewsRef = useRef<Record<string, string>>({})
   const unlockedBodiesRef = useRef<Record<string, string>>({})
   const signMessageRef = useRef(signMessage)
   const unlockRunningRef = useRef(false)
@@ -128,7 +129,8 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
     ;(async () => {
       try {
         const walletHash = await computeWalletHash(walletAddress)
-        const res = await fetch(`/api/posts/ppv-unlock?walletHash=${walletHash}`)
+        const timestamp = Date.now()
+        const res = await fetch(`/api/posts/ppv-unlock?walletHash=${walletHash}&walletAddress=${encodeURIComponent(walletAddress)}&timestamp=${timestamp}`)
         if (res.ok) {
           const data = await res.json()
           if (data.unlockedPosts && Array.isArray(data.unlockedPosts)) {
@@ -275,6 +277,7 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
   // Keep refs in sync without triggering effects
   signMessageRef.current = signMessage
   unlockedBodiesRef.current = unlockedBodies
+  decryptedPreviewsRef.current = decryptedPreviews
 
   // Clear decrypted content when wallet disconnects or address changes
   useEffect(() => {
@@ -329,10 +332,14 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
 
   // Decrypt E2E-encrypted previews client-side so subscribers see teasers.
   // Non-subscribers see "[Encrypted preview]" since they lack the tier key.
+  // Uses decryptedPreviewsRef (not state) in the filter to avoid an infinite
+  // re-fire loop — the effect sets decryptedPreviews, which would re-trigger
+  // itself if included in the dependency array.
   useEffect(() => {
     if (posts.length === 0) return
+    const currentDecrypted = decryptedPreviewsRef.current
     const toDecrypt = posts.filter(
-      (p) => p.preview && isE2EEncrypted(p.preview) && !decryptedPreviews[p.id]
+      (p) => p.preview && isE2EEncrypted(p.preview) && !currentDecrypted[p.id]
     )
     if (toDecrypt.length === 0) return
 
@@ -364,14 +371,16 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         setDecryptedPreviews((prev) => ({ ...prev, ...results }))
       }
     })()
-  }, [posts, activePasses, creatorAddress, decryptedPreviews])
+  }, [posts, activePasses, creatorAddress])
 
   // Decrypt E2E-encrypted note bodies client-side.
   // Notes with e2e flag or E2E-prefixed body need subscriber-tier key to decrypt.
+  // Uses unlockedBodiesRef (not state) in the filter to avoid unnecessary re-fires.
   useEffect(() => {
     if (posts.length === 0 || highestTier === 0) return
+    const currentUnlocked = unlockedBodiesRef.current
     const encryptedNotes = posts.filter(
-      (p) => p.postType === 'note' && p.body && isE2EEncrypted(p.body) && !unlockedBodies[p.id]
+      (p) => p.postType === 'note' && p.body && isE2EEncrypted(p.body) && !currentUnlocked[p.id]
     )
     if (encryptedNotes.length === 0) return
 
@@ -400,7 +409,8 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
         setUnlockedBodies((prev) => ({ ...prev, ...results }))
       }
     })()
-  }, [posts, activePasses, creatorAddress, highestTier, unlockedBodies])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [posts, activePasses, creatorAddress, highestTier])
 
   // Reset unlock state when the user's highest tier changes (e.g., after subscribing).
   // This allows previously-failed or not-yet-attempted unlocks to be retried.

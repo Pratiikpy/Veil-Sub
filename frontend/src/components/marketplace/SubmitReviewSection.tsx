@@ -110,14 +110,14 @@ export default function SubmitReviewSection() {
 
         <div>
           <label className="block text-sm font-medium text-white/70 mb-2">
-            Creator Hash <span className="text-white/30">(or enter directly)</span>
+            Creator Hash <span className="text-white/60">(or enter directly)</span>
           </label>
           <input
             type="text"
             value={creatorHash}
             onChange={e => setCreatorHash(e.target.value)}
             placeholder="e.g. 7077346389...field"
-            className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/20"
+            className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/50"
           />
         </div>
 
@@ -125,7 +125,7 @@ export default function SubmitReviewSection() {
           <label className="block text-sm font-medium text-white/70 mb-2">Rating</label>
           <StarRating rating={rating} onRate={setRating} size="lg" />
           {rating > 0 && (
-            <p className="text-xs text-white/40 mt-1">
+            <p className="text-xs text-white/60 mt-1">
               {rating} star{rating !== 1 ? 's' : ''} -- your individual rating is hidden via Pedersen commitment
             </p>
           )}
@@ -133,14 +133,14 @@ export default function SubmitReviewSection() {
 
         <div>
           <label className="block text-sm font-medium text-white/70 mb-2">
-            Review Text <span className="text-white/30">(optional, stored off-chain)</span>
+            Review Text <span className="text-white/60">(optional, stored off-chain)</span>
           </label>
           <textarea
             value={reviewText}
             onChange={e => setReviewText(e.target.value)}
             placeholder="Share your experience..."
             rows={3}
-            className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/20 resize-none"
+            className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/50 resize-none"
           />
         </div>
 

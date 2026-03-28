@@ -107,7 +107,7 @@ export default function PrivacyScore(props: PrivacyScoreProps) {
               {active ? (
                 <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
               ) : (
-                <X className="w-3.5 h-3.5 text-white/30 shrink-0" aria-hidden="true" />
+                <X className="w-3.5 h-3.5 text-white/50 shrink-0" aria-hidden="true" />
               )}
               <span className={`text-xs ${active ? 'text-white/80' : 'text-white/60'}`}>
                 {feature.label}

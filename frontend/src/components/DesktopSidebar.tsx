@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { WalletMultiButton } from '@provablehq/aleo-wallet-adaptor-react-ui'
-import { Home, Compass, Bell, LayoutDashboard, CreditCard, BarChart3, Search, Settings, LogOut, FileText, MessageCircle, Sparkles, Handshake, KeyRound, Fingerprint } from 'lucide-react'
+import { Home, Compass, Bell, LayoutDashboard, CreditCard, BarChart3, Search, Settings, LogOut, FileText, MessageCircle, Sparkles, Handshake, KeyRound, Fingerprint, Vote, Store, MessageSquare, Zap } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useUnreadMessages } from '@/hooks/useUnreadMessages'
 
@@ -131,11 +131,15 @@ export default function DesktopSidebar() {
 
       {/* Ecosystem links — companion programs */}
       <div className="px-3 pb-1">
-        <p className="px-3 pt-2 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-white/25">
+        <p className="px-3 pt-2 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-white/50">
           Ecosystem
         </p>
         <div className="space-y-0.5">
           {([
+            { href: '/governance', label: 'Governance', icon: Vote },
+            { href: '/marketplace', label: 'Marketplace', icon: Store },
+            { href: '/social', label: 'Social', icon: MessageSquare },
+            { href: '/oracle', label: 'Oracle', icon: Zap },
             { href: '/extras', label: 'Extras', icon: Sparkles },
             { href: '/collab', label: 'Collabs', icon: Handshake },
             { href: '/access', label: 'Access', icon: KeyRound },

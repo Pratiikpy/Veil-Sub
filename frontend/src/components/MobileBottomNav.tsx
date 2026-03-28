@@ -30,7 +30,7 @@ export default function MobileBottomNav() {
 
   return (
     <nav aria-label="Bottom navigation" className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-border bg-black/95 backdrop-blur-xl safe-area-bottom">
-      <div className="flex items-center justify-around h-14 px-2">
+      <div className="flex items-center justify-around h-16 px-2">
         {items.map((item) => {
           const Icon = item.icon
           const active = isActive(item.href)

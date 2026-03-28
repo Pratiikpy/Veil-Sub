@@ -5,6 +5,7 @@ import { Heart, MessageCircle, Share2, Bookmark, BookOpen, Coins } from 'lucide-
 import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { playClickPop } from '@/lib/sounds'
+import { computeWalletHash } from '@/lib/utils'
 
 interface PostInteractionsProps {
   contentId: string
@@ -101,6 +102,15 @@ export default function PostInteractions({
     const wasLiked = liked
     const prevLikes = likes
 
+    // Build auth payload for social API
+    let authFields: { walletAddress?: string; walletHash?: string; timestamp?: number } = {}
+    if (walletAddr) {
+      try {
+        const wh = await computeWalletHash(walletAddr)
+        authFields = { walletAddress: walletAddr, walletHash: wh, timestamp: Date.now() }
+      } catch { /* auth best-effort */ }
+    }
+
     if (wasLiked) {
       // Unlike
       const next = Math.max(0, likes - 1)
@@ -117,7 +127,7 @@ export default function PostInteractions({
           const res = await fetch('/api/social', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: 'reaction', contentId, reactionType: 'heart', delta: -1 }),
+            body: JSON.stringify({ type: 'reaction', contentId, reactionType: 'heart', delta: -1, ...authFields }),
           })
           if (!res.ok) {
             // Rollback on server error
@@ -163,7 +173,7 @@ export default function PostInteractions({
         const res = await fetch('/api/social', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'reaction', contentId, reactionType: 'heart', delta: 1 }),
+          body: JSON.stringify({ type: 'reaction', contentId, reactionType: 'heart', delta: 1, ...authFields }),
         })
         if (!res.ok) {
           // Rollback on server error

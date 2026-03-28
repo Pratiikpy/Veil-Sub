@@ -76,7 +76,7 @@ export function NotConnectedCard({ message }: { message: string }) {
   return (
     <div className="text-center py-16">
       <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mx-auto mb-6">
-        <Lock className="w-8 h-8 text-white/40" />
+        <Lock className="w-8 h-8 text-white/60" />
       </div>
       <h3 className="text-lg font-medium text-white mb-2">Wallet Required</h3>
       <p className="text-sm text-white/50 max-w-md mx-auto">{message}</p>
@@ -115,7 +115,7 @@ export function PrivacyNotice({ text }: { text: string }) {
     <div className="rounded-xl bg-white/[0.01] border border-white/[0.04] px-4 py-3">
       <div className="flex items-start gap-2">
         <Shield className="w-3.5 h-3.5 text-violet-400/40 mt-0.5 shrink-0" />
-        <p className="text-[11px] text-white/30 leading-relaxed">{text}</p>
+        <p className="text-[11px] text-white/60 leading-relaxed">{text}</p>
       </div>
     </div>
   )

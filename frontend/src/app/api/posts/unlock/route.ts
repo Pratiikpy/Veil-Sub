@@ -3,8 +3,13 @@ import { getRedis } from '@/lib/redis'
 import { ALEO_API_BASE_URL, RATE_LIMITS, AUTH_CONFIG, ALEO_ADDRESS_RE } from '@/lib/config'
 import { decryptContent } from '@/lib/contentEncryption'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
+import { validateOrigin } from '@/lib/csrf'
 
 export async function POST(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:unlock`, 30)
   if (!allowed) return getRateLimitResponse()

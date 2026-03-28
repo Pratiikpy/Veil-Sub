@@ -104,6 +104,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid wallet hash' }, { status: 400 })
   }
 
+  // Wallet authentication — PPV unlock status is per-subscriber private data
+  const walletAddress = req.nextUrl.searchParams.get('walletAddress')
+  const timestamp = req.nextUrl.searchParams.get('timestamp')
+  if (!walletAddress || !timestamp) {
+    return NextResponse.json({ error: 'Authentication required (walletAddress + walletHash + timestamp)' }, { status: 401 })
+  }
+  const auth = await verifyWalletAuth(walletAddress, walletHash, Number(timestamp))
+  if (!auth.valid) {
+    return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+  }
+
   // If postId is provided, check specific unlock
   if (postId) {
     if (!validatePostId(postId)) {

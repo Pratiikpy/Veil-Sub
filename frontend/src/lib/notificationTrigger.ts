@@ -4,6 +4,7 @@
  * Best-effort: never throws, never blocks the transaction flow.
  */
 
+import { computeWalletHash } from '@/lib/utils'
 import type { NotificationType } from './notifications'
 
 interface NotificationPayload {
@@ -21,10 +22,17 @@ interface NotificationPayload {
  */
 export async function sendNotification(payload: NotificationPayload): Promise<void> {
   try {
+    const walletHash = await computeWalletHash(payload.wallet)
+    const timestamp = Date.now()
     await fetch('/api/notifications', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        ...payload,
+        walletAddress: payload.wallet,
+        walletHash,
+        timestamp,
+      }),
     })
   } catch {
     // Best-effort — never block transaction flow

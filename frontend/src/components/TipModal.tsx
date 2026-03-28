@@ -181,16 +181,22 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
     }
 
     // Fallback: check server backup (handles cleared browser cache)
-    computeWalletHash(creatorAddress).then(subscriberHash => {
-      if (cancelled) return
-      fetch(`/api/tip-recovery?subscriberHash=${subscriberHash}&creatorAddress=${creatorAddress}`)
-        .then(r => r.ok ? r.json() : null)
-        .then(data => {
-          if (cancelled || !data?.pending) return
-          restoreFromData(data.pending)
-        })
-        .catch(() => { /* server unavailable */ })
-    }).catch(() => { /* hash failed */ })
+    if (walletAddress) {
+      Promise.all([
+        computeWalletHash(creatorAddress),
+        computeWalletHash(walletAddress),
+      ]).then(([subscriberHash, wHash]) => {
+        if (cancelled) return
+        const ts = Date.now()
+        fetch(`/api/tip-recovery?subscriberHash=${subscriberHash}&creatorAddress=${creatorAddress}&walletAddress=${encodeURIComponent(walletAddress)}&walletHash=${wHash}&timestamp=${ts}`)
+          .then(r => r.ok ? r.json() : null)
+          .then(data => {
+            if (cancelled || !data?.pending) return
+            restoreFromData(data.pending)
+          })
+          .catch(() => { /* server unavailable */ })
+      }).catch(() => { /* hash failed */ })
+    }
 
     return () => { cancelled = true }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -202,7 +208,7 @@ export default function TipModal({ isOpen, onClose, creatorAddress, onSuccess }:
   }
 
   // Placeholder MerkleProof for stablecoin freeze list compliance.
-  // TODO: Generate real MerkleProof from freeze list oracle when available.
+  // Blocked: Aleo freeze list oracle does not exist yet — replace when available.
   const PLACEHOLDER_MERKLE_PROOF = '{ path: [0field, 0field, 0field, 0field, 0field, 0field, 0field, 0field], indices: [false, false, false, false, false, false, false, false] }'
 
   const handleDirectTip = async () => {

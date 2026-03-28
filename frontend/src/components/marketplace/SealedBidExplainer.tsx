@@ -61,9 +61,9 @@ export default function SealedBidExplainer() {
           <span className="text-sm font-semibold text-white">How Sealed-Bid Auctions Work</span>
         </div>
         {expanded ? (
-          <ChevronUp className="w-4 h-4 text-white/40" />
+          <ChevronUp className="w-4 h-4 text-white/60" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-white/40" />
+          <ChevronDown className="w-4 h-4 text-white/60" />
         )}
       </button>
 

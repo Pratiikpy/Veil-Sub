@@ -7,6 +7,7 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { clearMappingCache } from '@/hooks/useCreatorStats'
 import { clearAllTierCache } from '@/hooks/useCreatorTiers'
+import { clearCreatorCache } from '@/lib/creatorCache'
 import '@provablehq/aleo-wallet-adaptor-react-ui/dist/styles.css'
 
 // SSR-safe: wallet adapters access `window` in constructors — must be client-only.
@@ -31,6 +32,22 @@ function WalletCacheClearer() {
     if (prevKeyRef.current && prevKeyRef.current !== address) {
       clearMappingCache()
       clearAllTierCache()
+      clearCreatorCache()
+      // Clear feed unlock cache from sessionStorage to prevent cross-wallet data leak.
+      // Keys are prefixed with "veilsub:feed-unlock:{walletAddress}:" so they are
+      // wallet-scoped, but clearing on switch is defense-in-depth.
+      if (typeof sessionStorage !== 'undefined') {
+        try {
+          const keysToRemove: string[] = []
+          for (let i = 0; i < sessionStorage.length; i++) {
+            const key = sessionStorage.key(i)
+            if (key?.startsWith('veilsub:feed-unlock:')) {
+              keysToRemove.push(key)
+            }
+          }
+          keysToRemove.forEach(k => sessionStorage.removeItem(k))
+        } catch { /* sessionStorage unavailable */ }
+      }
     }
     prevKeyRef.current = address
   }, [address])

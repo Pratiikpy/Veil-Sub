@@ -87,7 +87,7 @@ export default function ReputationLookupSection() {
           value={creatorHash}
           onChange={e => { setCreatorHash(e.target.value); setReputation(null) }}
           placeholder="Creator hash (field)"
-          className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/20"
+          className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/50"
         />
 
         <Button
@@ -123,7 +123,7 @@ export default function ReputationLookupSection() {
                   <span className="text-sm text-white/60">Badge</span>
                   <BadgeDisplay level={reputation.badge} />
                   {reputation.badge === 0 && (
-                    <span className="text-xs text-white/30">No badge yet</span>
+                    <span className="text-xs text-white/60">No badge yet</span>
                   )}
                 </div>
                 <div className="flex items-center justify-between">
@@ -140,7 +140,7 @@ export default function ReputationLookupSection() {
                   </div>
                 )}
                 <div className="pt-2 border-t border-white/[0.06]">
-                  <p className="text-xs text-white/40">
+                  <p className="text-xs text-white/60">
                     Aggregate is a Pedersen commitment. Individual ratings are hidden.
                   </p>
                 </div>

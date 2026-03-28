@@ -160,7 +160,7 @@ export default function MarketplacePage() {
                   type="button"
                   onClick={() => setActiveTab(tab.key)}
                   className={`relative flex items-center gap-2 px-5 py-4 text-sm font-medium transition-colors ${
-                    active ? 'text-white' : 'text-white/40 hover:text-white/70'
+                    active ? 'text-white' : 'text-white/60 hover:text-white/80'
                   }`}
                 >
                   <Icon className="w-4 h-4" aria-hidden="true" />
@@ -358,19 +358,19 @@ export default function MarketplacePage() {
           <div className="grid gap-4 sm:grid-cols-3 text-center">
             <div>
               <p className="text-2xl font-bold text-white">9</p>
-              <p className="text-xs text-white/40">Transitions</p>
+              <p className="text-xs text-white/60">Transitions</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-white">14</p>
-              <p className="text-xs text-white/40">Mappings</p>
+              <p className="text-xs text-white/60">Mappings</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-white">3</p>
-              <p className="text-xs text-white/40">Record Types</p>
+              <p className="text-xs text-white/60">Record Types</p>
             </div>
           </div>
           <div className="text-center mt-4">
-            <p className="text-xs text-white/30 font-mono">{MARKETPLACE_PROGRAM_ID}</p>
+            <p className="text-xs text-white/60 font-mono">{MARKETPLACE_PROGRAM_ID}</p>
           </div>
         </Container>
       </section>

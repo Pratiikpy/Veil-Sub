@@ -33,6 +33,18 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Valid subscriber_hash required' }, { status: 400 })
   }
 
+  // Wallet authentication — email preferences contain PII (email address)
+  const walletAddress = req.nextUrl.searchParams.get('walletAddress')
+  const walletHash = req.nextUrl.searchParams.get('walletHash')
+  const timestamp = req.nextUrl.searchParams.get('timestamp')
+  if (!walletAddress || !walletHash || !timestamp) {
+    return NextResponse.json({ error: 'Authentication required (walletAddress + walletHash + timestamp)' }, { status: 401 })
+  }
+  const auth = await verifyWalletAuth(walletAddress, walletHash, Number(timestamp))
+  if (!auth.valid) {
+    return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+  }
+
   const supabase = getServerSupabase()
   if (!supabase) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 503 })

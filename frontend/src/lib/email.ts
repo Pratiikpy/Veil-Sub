@@ -24,7 +24,7 @@ export interface SendEmailResult {
 export async function sendEmail(params: SendEmailParams): Promise<SendEmailResult> {
   if (!resend) {
     if (process.env.NODE_ENV === 'development') {
-      console.log('[email] Resend not configured, skipping email:', params.subject)
+      console.warn('[email] Resend not configured, skipping email:', params.subject)
     }
     return { success: false, reason: 'not_configured' }
   }

@@ -67,7 +67,7 @@ function StarRating({
               className={`${sizeClass} transition-colors duration-150 ${
                 filled
                   ? 'fill-amber-400 text-amber-400'
-                  : 'fill-transparent text-white/20'
+                  : 'fill-transparent text-white/40'
               }`}
             />
           </button>
@@ -206,7 +206,7 @@ function ReviewsSection() {
                   <span className="text-2xl font-bold text-white">{avgRating}</span>
                 </>
               ) : (
-                <span className="text-2xl font-bold text-white/30">--</span>
+                <span className="text-2xl font-bold text-white/60">--</span>
               )}
             </div>
           )}
@@ -252,7 +252,7 @@ function ReviewsSection() {
               value={creatorHash}
               onChange={(e) => setCreatorHash(e.target.value)}
               placeholder="123456789field"
-              className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all"
+              className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all"
             />
           </div>
 
@@ -270,7 +270,7 @@ function ReviewsSection() {
               onChange={(e) => setReviewContent(e.target.value)}
               placeholder="Great content, learned a lot about ZK proofs..."
               rows={3}
-              className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all resize-none"
+              className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all resize-none"
             />
           </div>
 
@@ -311,7 +311,7 @@ function ReviewsSection() {
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
               <div className="min-w-0">
                 <p className="text-xs text-emerald-400 font-medium">Review submitted!</p>
-                <p className="text-xs text-white/40 font-mono truncate">{txId}</p>
+                <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
               </div>
             </div>
           )}
@@ -423,7 +423,7 @@ function LotterySection() {
               value={subscriberCount}
               onChange={(e) => setSubscriberCount(e.target.value)}
               placeholder="e.g. 50"
-              className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/25 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30 transition-all"
+              className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-border/50 text-sm text-white placeholder:text-white/50 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30 transition-all"
             />
           </div>
 
@@ -434,7 +434,7 @@ function LotterySection() {
               via ChaCha20 CSPRNG. The winner index = <code className="text-amber-300">rand_u64() % subscriber_count</code>.
               Neither you nor anyone else can predict or manipulate the outcome.
             </p>
-            <p className="text-xs text-white/40">
+            <p className="text-xs text-white/60">
               Each draw increments the global round counter and stores the winner index permanently on-chain.
             </p>
           </div>
@@ -467,7 +467,7 @@ function LotterySection() {
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
               <div className="min-w-0">
                 <p className="text-xs text-emerald-400 font-medium">Winner drawn for round #{(currentRound ?? 0) + 1}!</p>
-                <p className="text-xs text-white/40 font-mono truncate">{drawTxId}</p>
+                <p className="text-xs text-white/60 font-mono truncate">{drawTxId}</p>
               </div>
             </div>
           )}

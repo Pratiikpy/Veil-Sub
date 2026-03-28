@@ -10,7 +10,7 @@ export default function Footer() {
     <footer className="border-t border-border/75 bg-black/80 pb-20 md:pb-0">
       {/* Desktop footer */}
       <div className="hidden md:block max-w-[1120px] mx-auto px-6 py-8">
-        <div className="grid grid-cols-3 gap-8 mb-6">
+        <div className="grid grid-cols-4 gap-8 mb-6">
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
@@ -32,6 +32,18 @@ export default function Footer() {
               <Link href="/explorer" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">On-Chain Explorer</Link>
               <Link href="/dashboard" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">Creator Dashboard</Link>
               <Link href="/analytics" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">Platform Analytics</Link>
+            </div>
+          </div>
+          {/* Ecosystem */}
+          <div>
+            <p className="text-xs font-medium text-white/70 mb-4 uppercase tracking-wider">Ecosystem</p>
+            <div className="space-y-2">
+              <Link href="/governance" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">Governance</Link>
+              <Link href="/marketplace" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">Marketplace</Link>
+              <Link href="/social" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">Social</Link>
+              <Link href="/oracle" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">Oracle</Link>
+              <Link href="/collab" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">Collaborations</Link>
+              <Link href="/identity" className="block text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">Identity</Link>
             </div>
           </div>
           {/* Resources */}
@@ -86,6 +98,10 @@ export default function Footer() {
           <Link href="/privacy" className="text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">Privacy</Link>
           <Link href="/vision" className="text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">Vision</Link>
           <Link href="/explorer" className="text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">On-Chain</Link>
+          <Link href="/governance" className="text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">Governance</Link>
+          <Link href="/marketplace" className="text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">Marketplace</Link>
+          <Link href="/social" className="text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">Social</Link>
+          <Link href="/oracle" className="text-xs text-white/60 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">Oracle</Link>
         </div>
         <div className="pt-3 border-t border-border/75 flex items-center justify-between text-xs text-white/60">
           <div className="flex items-center gap-2">

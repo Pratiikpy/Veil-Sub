@@ -34,7 +34,7 @@ export default function SocialPage() {
             </div>
             <div>
               <h1 className="text-2xl font-serif italic text-white">On-Chain Social</h1>
-              <p className="text-xs text-white/40">
+              <p className="text-xs text-white/60">
                 veilsub_social_v2.aleo -- 7 transitions, 12 mappings
               </p>
             </div>
@@ -51,7 +51,7 @@ export default function SocialPage() {
           {PRIVACY_BADGES.map(badge => (
             <div
               key={badge.label}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.03] border border-white/[0.06] text-[11px] text-white/40"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.03] border border-white/[0.06] text-[11px] text-white/60"
             >
               <badge.icon className="w-3 h-3 text-violet-400/60" />
               {badge.label}

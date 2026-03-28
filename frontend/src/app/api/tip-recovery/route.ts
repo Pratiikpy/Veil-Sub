@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getRedis } from '@/lib/redis'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 import { verifyWalletAuth } from '@/lib/apiAuth'
+import { validateOrigin } from '@/lib/csrf'
 import { encryptContent, decryptContent } from '@/lib/contentEncryption'
 
 /**
@@ -21,6 +22,10 @@ function validateSubscriberHash(hash: unknown): hash is string {
 }
 
 export async function POST(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:tip-recovery:post`, 10)
   if (!allowed) return getRateLimitResponse()
@@ -100,6 +105,18 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid creator address' }, { status: 400 })
   }
 
+  // Wallet authentication — tip recovery data contains sensitive salt info
+  const walletAddress = req.nextUrl.searchParams.get('walletAddress')
+  const walletHash = req.nextUrl.searchParams.get('walletHash')
+  const timestamp = req.nextUrl.searchParams.get('timestamp')
+  if (!walletAddress || !walletHash || !timestamp) {
+    return NextResponse.json({ error: 'Authentication required (walletAddress + walletHash + timestamp)' }, { status: 401 })
+  }
+  const auth = await verifyWalletAuth(walletAddress, walletHash, Number(timestamp))
+  if (!auth.valid) {
+    return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+  }
+
   const key = `veilsub:tip-recovery:${subscriberHash}:${creatorAddress}`
   const raw = await redis.get<string>(key)
 
@@ -125,6 +142,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:tip-recovery:delete`, 10)
   if (!allowed) return getRateLimitResponse()

@@ -91,7 +91,7 @@ export default function ProveReputationSection() {
           value={creatorHash}
           onChange={e => setCreatorHash(e.target.value)}
           placeholder="Creator hash (field)"
-          className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/20"
+          className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/50"
         />
 
         <div>
@@ -136,7 +136,7 @@ export default function ProveReputationSection() {
         </Button>
 
         <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-          <p className="text-xs text-white/40 leading-relaxed">
+          <p className="text-xs text-white/60 leading-relaxed">
             This verifies the Pedersen commitment integrity on-chain and awards a badge if the
             creator meets the minimum average and has enough reviews (10+ Bronze, 25+ Silver, 50+ Gold).
           </p>

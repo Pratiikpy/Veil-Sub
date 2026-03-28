@@ -92,13 +92,13 @@ export default function RightSidebar() {
       {/* Footer links */}
       <div className="px-5 pb-6">
         <div className="flex flex-wrap gap-x-2 gap-y-1 mb-3">
-          <Link href="/privacy" className="text-[11px] text-white/25 hover:text-white/45 transition-colors">Privacy</Link>
+          <Link href="/privacy" className="text-[11px] text-white/50 hover:text-white/70 transition-colors">Privacy</Link>
           <span className="text-white/15">·</span>
-          <Link href="/docs" className="text-[11px] text-white/25 hover:text-white/45 transition-colors">Docs</Link>
+          <Link href="/docs" className="text-[11px] text-white/50 hover:text-white/70 transition-colors">Docs</Link>
           <span className="text-white/15">·</span>
-          <Link href="/vision" className="text-[11px] text-white/25 hover:text-white/45 transition-colors">Vision</Link>
+          <Link href="/vision" className="text-[11px] text-white/50 hover:text-white/70 transition-colors">Vision</Link>
         </div>
-        <p className="text-[11px] text-white/20">&copy; 2026 VeilSub</p>
+        <p className="text-[11px] text-white/50">&copy; 2026 VeilSub</p>
       </div>
     </aside>
   )

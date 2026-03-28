@@ -4,6 +4,8 @@ import { sendEmail } from '@/lib/email'
 import { newPostNotificationEmail } from '@/lib/emailTemplates'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
 import { ALEO_ADDRESS_RE } from '@/lib/config'
+import { validateOrigin } from '@/lib/csrf'
+import { verifyWalletAuth } from '@/lib/apiAuth'
 
 /**
  * POST /api/email/notify-subscribers
@@ -17,11 +19,18 @@ import { ALEO_ADDRESS_RE } from '@/lib/config'
  *   postTitle: string,
  *   postPreview: string,
  *   postId: string,
+ *   walletAddress: string,
+ *   walletHash: string,
+ *   timestamp: number,
  * }
  *
  * Rate limit: max 1 notification batch per creator per hour.
  */
 export async function POST(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   // Rate limit per IP
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`email-notify:${ip}`, 5, 60_000)
@@ -40,6 +49,9 @@ export async function POST(req: NextRequest) {
   }
 
   const { creatorAddress, postTitle, postPreview, postId } = body
+  const { walletAddress, walletHash, timestamp } = body as {
+    walletAddress?: string; walletHash?: unknown; timestamp?: unknown
+  }
 
   // Validate inputs
   if (!creatorAddress || !ALEO_ADDRESS_RE.test(creatorAddress)) {
@@ -47,6 +59,18 @@ export async function POST(req: NextRequest) {
   }
   if (!postTitle || typeof postTitle !== 'string') {
     return NextResponse.json({ error: 'Post title required' }, { status: 400 })
+  }
+
+  // Wallet authentication — only the creator can trigger subscriber notifications
+  if (!walletAddress || !walletHash || timestamp === undefined) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+  }
+  const auth = await verifyWalletAuth(walletAddress, walletHash, timestamp)
+  if (!auth.valid) {
+    return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
+  }
+  if (walletAddress !== creatorAddress) {
+    return NextResponse.json({ error: 'Only the creator can trigger subscriber notifications' }, { status: 403 })
   }
 
   // Rate limit: max 1 notification batch per creator per hour

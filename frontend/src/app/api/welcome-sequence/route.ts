@@ -4,6 +4,7 @@ import { getRedis } from '@/lib/redis'
 import { ALEO_ADDRESS_RE, AUTH_CONFIG } from '@/lib/config'
 import { hashAddress } from '@/lib/encryption'
 import { rateLimit, getRateLimitResponse, getClientIp } from '@/lib/rateLimit'
+import { validateOrigin } from '@/lib/csrf'
 
 /**
  * Verify wallet ownership via server-salted hash.
@@ -149,6 +150,10 @@ export async function GET(req: NextRequest) {
  * Requires wallet authentication to prove subscriber owns the address.
  */
 export async function POST(req: NextRequest) {
+  if (!validateOrigin(req)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
   const ip = getClientIp(req)
   const { allowed } = rateLimit(`${ip}:welcome:post`, 10)
   if (!allowed) return getRateLimitResponse()

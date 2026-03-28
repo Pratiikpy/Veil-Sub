@@ -100,8 +100,8 @@ export async function GET(req: NextRequest) {
   }
 
   // Existing per-creator query
-  if (!addressHash) {
-    return NextResponse.json({ error: 'Missing creator_address_hash parameter' }, { status: 400 })
+  if (!addressHash || typeof addressHash !== 'string' || !/^[a-f0-9]{64}$/.test(addressHash)) {
+    return NextResponse.json({ error: 'Valid creator_address_hash required (SHA-256 hex)' }, { status: 400 })
   }
 
   if (!supabase) {
