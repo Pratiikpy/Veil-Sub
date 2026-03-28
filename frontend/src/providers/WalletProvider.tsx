@@ -35,7 +35,19 @@ export const WalletProvider: FC<Props> = ({ children }) => {
       decryptPermission={DecryptPermission.AutoDecrypt}
       network={Network.TESTNET}
       autoConnect
-      programs={[DEPLOYED_PROGRAM_ID, 'credits.aleo']}
+      programs={[
+        DEPLOYED_PROGRAM_ID,
+        'credits.aleo',
+        'hash_helper.aleo',
+        'veilsub_extras_v2.aleo',
+        'veilsub_oracle_v1.aleo',
+        'veilsub_identity_v2.aleo',
+        'veilsub_access_v2.aleo',
+        'veilsub_governance_v2.aleo',
+        'veilsub_collab_v2.aleo',
+        'veilsub_marketplace_v2.aleo',
+        'veilsub_social_v2.aleo',
+      ]}
     >
       <WalletModalProvider>{children}</WalletModalProvider>
     </AleoWalletProvider>
