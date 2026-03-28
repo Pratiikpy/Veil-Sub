@@ -20,7 +20,7 @@ import { encryptContent, decryptContent, isE2EEncrypted } from '@/lib/e2eEncrypt
 import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { parseAccessPass } from '@/lib/utils'
-import { FEATURED_CREATORS, ALEO_ADDRESS_RE, DEFAULT_TIER_NAMES } from '@/lib/config'
+import { FEATURED_CREATORS, ALEO_ADDRESS_RE, DEFAULT_TIER_NAMES, getCreatorHash } from '@/lib/config'
 import { getCachedCreator } from '@/lib/creatorCache'
 import PageTransition from '@/components/PageTransition'
 import AddressAvatar from '@/components/ui/AddressAvatar'
@@ -538,8 +538,17 @@ export default function MessagesPage() {
     )
   }
 
+  // Auto-set activeCreator for creators visiting their inbox (no URL param).
+  // A creator is someone whose address is in CREATOR_HASH_MAP (registered on-chain).
+  const isRegisteredCreator = !!address && !!getCreatorHash(address)
+  useEffect(() => {
+    if (connected && address && !activeCreator && isRegisteredCreator) {
+      setActiveCreator(address)
+    }
+  }, [connected, address, activeCreator, isRegisteredCreator])
+
   // ---- Render: No active creator selected (subscriber landing) ----
-  if (!activeCreator && !isCreator) {
+  if (!activeCreator && !isRegisteredCreator) {
     return (
       <PageTransition className="min-h-screen">
         <div className="max-w-4xl mx-auto px-4 py-12">
