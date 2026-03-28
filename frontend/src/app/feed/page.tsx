@@ -698,7 +698,12 @@ export default function FeedPage() {
     return () => document.removeEventListener('mousedown', handler)
   }, [showSortMenu])
 
-  // Fetch access passes from wallet
+  // Fetch access passes from wallet.
+  // Use a ref for getAccessPasses to prevent effect re-cancellation from unstable
+  // callback chain (decrypt → extractPlaintext → getAccessPasses reference changes).
+  const getAccessPassesRef = useRef(getAccessPasses)
+  getAccessPassesRef.current = getAccessPasses
+
   const fetchPasses = useCallback(async () => {
     if (!connected) {
       setPasses([])
@@ -707,19 +712,33 @@ export default function FeedPage() {
     }
     setPassesLoading(true)
     try {
-      const rawPasses = await getAccessPasses()
+      const rawPasses = await getAccessPassesRef.current()
       const parsed: AccessPass[] = []
       for (const raw of rawPasses) {
         const pass = parseAccessPass(raw)
         if (pass) parsed.push(pass)
       }
       setPasses(parsed)
+      // Retry once if empty (wallet adapter initialization race)
+      if (parsed.length === 0) {
+        setTimeout(async () => {
+          try {
+            const retry = await getAccessPassesRef.current()
+            const retryParsed: AccessPass[] = []
+            for (const raw of retry) {
+              const pass = parseAccessPass(raw)
+              if (pass) retryParsed.push(pass)
+            }
+            if (retryParsed.length > 0) setPasses(retryParsed)
+          } catch { /* retry failed silently */ }
+        }, 2000)
+      }
     } catch {
       setPasses([])
     } finally {
       setPassesLoading(false)
     }
-  }, [connected, getAccessPasses])
+  }, [connected])
 
   useEffect(() => {
     fetchPasses()
