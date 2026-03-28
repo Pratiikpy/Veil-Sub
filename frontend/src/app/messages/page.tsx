@@ -18,6 +18,7 @@ import Link from 'next/link'
 import { computeWalletHash, shortenAddress } from '@/lib/utils'
 import { encryptContent, decryptContent, isE2EEncrypted } from '@/lib/e2eEncryption'
 import { useWalletRecords } from '@/hooks/useWalletRecords'
+import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { parseAccessPass } from '@/lib/utils'
 import { FEATURED_CREATORS, ALEO_ADDRESS_RE, DEFAULT_TIER_NAMES } from '@/lib/config'
 import PageTransition from '@/components/PageTransition'
@@ -97,6 +98,7 @@ export default function MessagesPage() {
   const threadParam = searchParams.get('thread')
   const peerParam = searchParams.get('peer')
   const { getAccessPasses } = useWalletRecords()
+  const { blockHeight } = useBlockHeight()
   const { refreshUnread } = useUnreadMessages()
 
   // State
@@ -112,6 +114,7 @@ export default function MessagesPage() {
   const [loadingMessages, setLoadingMessages] = useState(false)
   const [isCreator, setIsCreator] = useState(false)
   const [userPasses, setUserPasses] = useState<{ creator: string; tier: number }[]>([])
+  const [loadingPasses, setLoadingPasses] = useState(true)
   const [anonId, setAnonId] = useState<string | null>(null)
   const [mobileShowThread, setMobileShowThread] = useState(!!threadParam)
   const [isPeerThread, setIsPeerThread] = useState(peerParam === 'true')
@@ -135,6 +138,7 @@ export default function MessagesPage() {
       setActiveCreator(null)
       setAnonId(null)
       setMobileShowThread(false)
+      setLoadingPasses(true)
       sentMessageIdsRef.current = new Set()
     }
   }, [address])
@@ -148,13 +152,17 @@ export default function MessagesPage() {
     }
   }, [connected, address, activeCreator])
 
-  // Load user's access passes to determine which creators they can message
+  // Load user's raw access passes from the wallet (does NOT depend on blockHeight
+  // to avoid cancelling in-flight wallet queries when block height refreshes).
+  const [rawPasses, setRawPasses] = useState<{ creator: string; tier: number; expiresAt: number }[]>([])
   useEffect(() => {
     if (!connected) {
-      setUserPasses([])
+      setRawPasses([])
+      setLoadingPasses(false)
       return
     }
     let cancelled = false
+    setLoadingPasses(true)
     async function loadPasses() {
       try {
         const passTexts = await getAccessPasses()
@@ -162,15 +170,27 @@ export default function MessagesPage() {
         const parsed = passTexts
           .map(p => parseAccessPass(p))
           .filter((p): p is NonNullable<typeof p> => p !== null)
-          .map(p => ({ creator: p.creator, tier: p.tier }))
-        setUserPasses(parsed)
+          .map(p => ({ creator: p.creator, tier: p.tier, expiresAt: p.expiresAt }))
+        setRawPasses(parsed)
       } catch {
         // Silently fail — passes are optional for creators viewing their inbox
+      } finally {
+        if (!cancelled) setLoadingPasses(false)
       }
     }
     loadPasses()
     return () => { cancelled = true }
   }, [connected, getAccessPasses])
+
+  // Derive active (non-expired) passes from raw passes + current block height.
+  // This updates reactively when blockHeight changes without re-fetching from wallet.
+  useEffect(() => {
+    const active = rawPasses.filter(p => {
+      if (blockHeight != null && p.expiresAt > 0 && p.expiresAt <= blockHeight) return false
+      return true
+    })
+    setUserPasses(active.map(p => ({ creator: p.creator, tier: p.tier })))
+  }, [rawPasses, blockHeight])
 
   // Compute anon_id when creator and wallet are known (subscriber mode)
   useEffect(() => {
@@ -795,9 +815,16 @@ export default function MessagesPage() {
                 {/* Message Input */}
                 <div className="px-4 py-3 border-t border-white/[0.06]">
                   {(!isCreator && !activeTier) ? (
-                    <p className="text-xs text-white/50 text-center py-2">
-                      You need an active subscription to message this creator
-                    </p>
+                    loadingPasses ? (
+                      <div className="flex items-center justify-center gap-2 py-2">
+                        <Loader2 className="w-3 h-3 animate-spin text-white/50" />
+                        <p className="text-xs text-white/50">Checking subscription...</p>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-white/50 text-center py-2">
+                        You need an active subscription to message this creator
+                      </p>
+                    )
                   ) : (
                     <div className="flex items-center gap-2">
                       <input

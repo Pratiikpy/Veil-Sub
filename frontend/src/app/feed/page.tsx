@@ -1252,16 +1252,19 @@ export default function FeedPage() {
                     </Link>
                   </div>
                   <div className="space-y-6">
-                    {discoveryPosts.map((post, i) => (
-                      <FeedPostCard
-                        key={post.id}
-                        post={post}
-                        hasAccess={post.minTier === 0}
-                        index={i}
-                        walletAddress={publicKey}
-                        userTier={creatorTierMap[post.creatorAddress] || null}
-                      />
-                    ))}
+                    {discoveryPosts.map((post, i) => {
+                      const highestTier = creatorTierMap[post.creatorAddress] || 0
+                      return (
+                        <FeedPostCard
+                          key={post.id}
+                          post={post}
+                          hasAccess={highestTier >= post.minTier}
+                          index={i}
+                          walletAddress={publicKey}
+                          userTier={highestTier || null}
+                        />
+                      )
+                    })}
                   </div>
                   <div className="mt-6 text-center">
                     <Link

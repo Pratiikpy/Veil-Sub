@@ -619,17 +619,18 @@ function AboutTab({
         </>
       )}
 
-      {/* Privacy Score */}
+      {/* Privacy Score — checks ALL passes for this creator, not just the first */}
       {(() => {
-        const userPassForCreator = userPasses.find(p => p.creator === address)
-        const hasEnhancedPass = userPasses.some(p => p.creator === address && p.privacyLevel >= 2)
+        const passesForCreator = userPasses.filter(p => p.creator === address)
+        const usesBlind = passesForCreator.some(p => p.privacyLevel >= 1)
+        const usesTrial = passesForCreator.some(p => p.privacyLevel === 2)
         return (
           <PrivacyScore
-            usesBlindSub={userPassForCreator?.privacyLevel === 1 || hasEnhancedPass}
+            usesBlindSub={usesBlind}
             // Blocked: commit-reveal tip history not queryable on-chain yet
             usesCommitRevealTip={false}
             hasScopedAuditToken={false} /* Blocked: audit token record query not available yet */
-            usesTrialPass={userPassForCreator?.privacyLevel === 2}
+            usesTrialPass={usesTrial}
             hasE2EContent={true}
           />
         )
@@ -789,7 +790,9 @@ export default function CreatorPage({
     }
   }, [displayName])
 
-  // Refetch user's access passes (called after subscribe/redeem success)
+  // Refetch user's access passes (called after subscribe/redeem success).
+  // Filters out expired passes so isSubscribed, hasThisTier, and content access
+  // are consistent with the feed page's expiry checks.
   const loadPasses = useCallback(async () => {
     if (!connected) {
       setUserPasses([])
@@ -799,13 +802,18 @@ export default function CreatorPage({
       const records = await getAccessPasses()
       const passes = (records ?? [])
         .map((r) => parseAccessPass(r))
-        .filter((p): p is NonNullable<typeof p> => p !== null && p.creator === address)
+        .filter((p): p is NonNullable<typeof p> => {
+          if (p === null || p.creator !== address) return false
+          // Filter expired passes when block height is available (same as feed page)
+          if (blockHeight != null && p.expiresAt > 0 && p.expiresAt <= blockHeight) return false
+          return true
+        })
       setUserPasses(passes)
     } catch {
       // Show error instead of silent fail so user knows to refresh
       toast.error('Could not load your access passes. Refresh the page to see your subscription.', { id: 'load-passes-error' })
     }
-  }, [connected, address, getAccessPasses])
+  }, [connected, address, getAccessPasses, blockHeight])
 
   // Refetch creator stats (called after tip/subscribe success)
   const refreshStats = useCallback(async () => {
@@ -878,7 +886,8 @@ export default function CreatorPage({
     return () => clearTimeout(timeout)
   }, [loading])
 
-  // Fetch user's access passes for this creator
+  // Fetch user's access passes for this creator.
+  // Filters expired passes using blockHeight (consistent with feed page).
   useEffect(() => {
     if (!connected) {
       setUserPasses([])
@@ -889,7 +898,12 @@ export default function CreatorPage({
       if (cancelled) return
       const passes = (records ?? [])
         .map((r) => parseAccessPass(r))
-        .filter((p): p is NonNullable<typeof p> => p !== null && p.creator === address)
+        .filter((p): p is NonNullable<typeof p> => {
+          if (p === null || p.creator !== address) return false
+          // Filter expired passes when block height is available (same as feed page)
+          if (blockHeight != null && p.expiresAt > 0 && p.expiresAt <= blockHeight) return false
+          return true
+        })
       setUserPasses(passes)
     }).catch(() => {
       if (cancelled) return
@@ -897,7 +911,7 @@ export default function CreatorPage({
       toast.error('Failed to load your access passes', { id: 'access-passes-error' })
     })
     return () => { cancelled = true }
-  }, [connected, address, getAccessPasses])
+  }, [connected, address, getAccessPasses, blockHeight])
 
   if (loading) {
     return <CreatorSkeleton />

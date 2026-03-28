@@ -8,11 +8,14 @@ import dynamic from 'next/dynamic'
 import PageTransition from '@/components/PageTransition'
 import Skeleton from '@/components/ui/Skeleton'
 import AddressAvatar from '@/components/ui/AddressAvatar'
-import { estimateReadingTime, shortenAddress, computeWalletHash } from '@/lib/utils'
+import { estimateReadingTime, shortenAddress, computeWalletHash, parseAccessPass } from '@/lib/utils'
 import { FEATURED_CREATORS } from '@/lib/config'
 import { getCachedCreator } from '@/lib/creatorCache'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import type { ContentPost } from '@/types'
+import { useWalletRecords } from '@/hooks/useWalletRecords'
+import { useContentFeed } from '@/hooks/useContentFeed'
+import { useBlockHeight } from '@/hooks/useBlockHeight'
+import type { ContentPost, AccessPass } from '@/types'
 
 const ArticleReader = dynamic(() => import('@/components/ArticleReader'), { ssr: false })
 
@@ -96,6 +99,9 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
   const creator = searchParams.get('creator')
 
   const { address: publicKey, signMessage, connected } = useWallet()
+  const { getAccessPasses } = useWalletRecords()
+  const { unlockPost } = useContentFeed()
+  const { blockHeight } = useBlockHeight()
   const [post, setPost] = useState<(ContentPost & { creatorAddress: string }) | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
@@ -103,7 +109,10 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
   const [readerOpen, setReaderOpen] = useState(true)
   const [unlocking, setUnlocking] = useState(false)
 
-  // Auto-unlock gated content if the user has a wallet connected
+  // Auto-unlock gated content using the same path as the feed:
+  // 1. Fetch wallet AccessPasses
+  // 2. Filter to active (non-expired) passes for this creator
+  // 3. Call useContentFeed.unlockPost which sends correct { creatorAddress, accessPasses } to the API
   useEffect(() => {
     if (!post || post.body || !connected || !publicKey || !post.creatorAddress) return
     if (post.minTier === 0) return // Free content should have body — if null, it's a fetch issue
@@ -112,32 +121,35 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
 
     const tryUnlock = async () => {
       try {
-        const walletHash = await computeWalletHash(publicKey)
-        const timestamp = Date.now()
+        // Load and parse access passes from wallet (same as feed/creator pages)
+        const rawPasses = await getAccessPasses()
+        const allPasses: AccessPass[] = rawPasses
+          .map(r => parseAccessPass(r))
+          .filter((p): p is NonNullable<typeof p> => p !== null)
+
+        // Filter to active passes for this creator (same logic as feed page)
+        const creatorPasses = allPasses.filter(p => {
+          if (p.creator !== post.creatorAddress) return false
+          if (p.tier < (post.minTier || 1)) return false
+          // Expiry check: 0 means no expiry, otherwise must be after current block
+          if (blockHeight != null && p.expiresAt > 0 && p.expiresAt <= blockHeight) return false
+          return true
+        })
+
+        if (creatorPasses.length === 0) {
+          // No valid passes — leave post locked
+          if (!cancelled) setUnlocking(false)
+          return
+        }
+
+        // Use the same unlockPost function as the feed page
         const signFn = signMessage
           ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
           : null
-        const signatureB64 = signFn
-          ? btoa(String.fromCharCode(...(await signFn(new TextEncoder().encode(`veilsub-unlock:${post.id}:${timestamp}`)))))
-          : undefined
 
-        const res = await fetch('/api/posts/unlock', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            postId: post.id,
-            creator: post.creatorAddress,
-            walletHash,
-            walletAddress: publicKey,
-            timestamp,
-            signature: signatureB64,
-          }),
-        })
-        if (res.ok) {
-          const data = await res.json()
-          if (!cancelled && data.body) {
-            setPost(prev => prev ? { ...prev, body: data.body } : prev)
-          }
+        const result = await unlockPost(post.id, post.creatorAddress, publicKey, creatorPasses, signFn)
+        if (!cancelled && result?.body) {
+          setPost(prev => prev ? { ...prev, body: result.body, imageUrl: result.imageUrl || prev.imageUrl, videoUrl: result.videoUrl || prev.videoUrl } : prev)
         }
       } catch {
         // Unlock failed silently — user still sees the gated notice
@@ -147,7 +159,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
     }
     tryUnlock()
     return () => { cancelled = true }
-  }, [post?.id, post?.body, post?.creatorAddress, post?.minTier, connected, publicKey, signMessage])
+  }, [post?.id, post?.body, post?.creatorAddress, post?.minTier, connected, publicKey, signMessage, getAccessPasses, unlockPost, blockHeight])
 
   useEffect(() => {
     if (creator) {
