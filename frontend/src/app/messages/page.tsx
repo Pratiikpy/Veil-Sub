@@ -122,7 +122,7 @@ export default function MessagesPage() {
   const [sending, setSending] = useState(false)
   const [loadingThreads, setLoadingThreads] = useState(false)
   const [loadingMessages, setLoadingMessages] = useState(false)
-  const [isCreator, setIsCreator] = useState(false)
+  // isCreator is now computed as a derived value below, not state
   const [userPasses, setUserPasses] = useState<{ creator: string; tier: number }[]>([])
   const [loadingPasses, setLoadingPasses] = useState(true)
   const [anonId, setAnonId] = useState<string | null>(null)
@@ -153,14 +153,10 @@ export default function MessagesPage() {
     }
   }, [address])
 
-  // Determine if the current user is a creator (when viewing their own inbox)
-  useEffect(() => {
-    if (connected && address && activeCreator) {
-      setIsCreator(address === activeCreator)
-    } else {
-      setIsCreator(false)
-    }
-  }, [connected, address, activeCreator])
+  // Determine if the current user is a creator (when viewing their own inbox).
+  // Computed as derived value, not effect, to avoid timing issues where isCreator
+  // is false during first render even when address === activeCreator.
+  const isCreator = connected && !!address && !!activeCreator && address === activeCreator
 
   // Load user's raw access passes from the wallet (does NOT depend on blockHeight
   // to avoid cancelling in-flight wallet queries when block height refreshes).
@@ -182,8 +178,8 @@ export default function MessagesPage() {
           .filter((p): p is NonNullable<typeof p> => p !== null)
           .map(p => ({ creator: p.creator, tier: p.tier, expiresAt: p.expiresAt }))
         setRawPasses(parsed)
-      } catch {
-        // Silently fail — passes are optional for creators viewing their inbox
+      } catch (err) {
+        console.warn('[Messages] Failed to load passes:', err instanceof Error ? err.message : err)
       } finally {
         if (!cancelled) setLoadingPasses(false)
       }
