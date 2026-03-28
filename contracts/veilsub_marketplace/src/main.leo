@@ -67,7 +67,10 @@
 // TRANSITIONS: 9  |  MAPPINGS: 14  |  RECORDS: 3  |  STRUCTS: 2
 // =============================================================================
 
-program veilsub_marketplace_v1.aleo {
+program veilsub_marketplace_v2.aleo {
+
+    @noupgrade
+    async constructor() {}
 
     // =========================================================================
     // HOMOMORPHIC PEDERSEN COMMITMENT GENERATORS
@@ -135,8 +138,7 @@ program veilsub_marketplace_v1.aleo {
 
     // Private receipt proving a review was submitted (held by reviewer)
     // Proves participation without revealing identity on-chain
-    record ReviewReceipt {
-        owner: address,
+    struct ReviewReceipt {
         creator_hash: field,    // which creator was reviewed (Poseidon2 hash)
         rating: u8,             // 1-5 stars (private — only in record)
         review_hash: field,     // hash of off-chain review text
@@ -144,8 +146,7 @@ program veilsub_marketplace_v1.aleo {
 
     // Private receipt proving a sealed bid was placed (held by bidder)
     // Contains the salt needed for reveal phase — losing this means losing the bid
-    record BidReceipt {
-        owner: address,
+    struct BidReceipt {
         auction_id: field,      // which auction this bid is for
         commitment: field,      // the BHP256 commitment stored on-chain
         amount: u64,            // actual bid amount (private — only in record)
@@ -153,8 +154,8 @@ program veilsub_marketplace_v1.aleo {
     }
 
     // Private receipt for auction winner (held by winning bidder or creator)
-    record AuctionResult {
-        owner: address,
+    struct AuctionResult {
+        recipient: address,
         auction_id: field,      // which auction was resolved
         winning_amount: u64,    // settlement price (Vickrey: second-price)
         creator_hash: field,    // creator who ran the auction
@@ -270,7 +271,6 @@ program veilsub_marketplace_v1.aleo {
 
         // Private receipt for the reviewer
         let receipt: ReviewReceipt = ReviewReceipt {
-            owner: self.caller,
             creator_hash: creator_hash,
             rating: rating,
             review_hash: review_content_hash,
@@ -475,7 +475,6 @@ program veilsub_marketplace_v1.aleo {
 
         // Private receipt — bidder needs this to reveal later
         let receipt: BidReceipt = BidReceipt {
-            owner: self.caller,
             auction_id: auction_id,
             commitment: commitment,
             amount: amount,
@@ -644,7 +643,7 @@ program veilsub_marketplace_v1.aleo {
 
         // Creator's result record
         let creator_result: AuctionResult = AuctionResult {
-            owner: self.caller,
+            recipient: self.caller,
             auction_id: auction_id,
             winning_amount: 0u64,               // placeholder — real amount in finalize
             creator_hash: creator_hash,
@@ -652,7 +651,7 @@ program veilsub_marketplace_v1.aleo {
 
         // Winner's result record
         let winner_result: AuctionResult = AuctionResult {
-            owner: winner_addr,
+            recipient: winner_addr,
             auction_id: auction_id,
             winning_amount: 0u64,               // placeholder — real amount in finalize
             creator_hash: creator_hash,

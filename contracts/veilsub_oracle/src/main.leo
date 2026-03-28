@@ -19,13 +19,14 @@
 //   2 = USAD (test stablecoin)
 //
 // MAPPINGS: 4 (price_feed, price_updated_at, dynamic_tier_price, oracle_admin)
-// TRANSITIONS: 5 (initialize_oracle, update_price, compute_tier_price,
-//                  verify_price_freshness, read_oracle_attestation)
+// TRANSITIONS: 4 (initialize_oracle, update_price, compute_tier_price,
+//                  verify_price_freshness)
 // =============================================================================
 
-import official_oracle_v2.aleo;
-
 program veilsub_oracle_v1.aleo {
+
+    @noupgrade
+    async constructor() {}
 
     // ── Constants ─────────────────────────────────────────────────────────
 
@@ -178,35 +179,27 @@ program veilsub_oracle_v1.aleo {
     }
 
     // ── Oracle Attestation Reader ─────────────────────────────────────────
-
-    // Read attested price data from official_oracle_v2.aleo's SGX attestation.
-    // This demonstrates cross-program oracle integration — the same pattern lasagna
-    // uses for prediction market resolution (Mapping::get from external program).
+    // TODO: Enable when official_oracle_v2.aleo is deployed on testnet.
+    // This transition would read attested price data from official_oracle_v2.aleo's
+    // SGX attestation, demonstrating cross-program oracle integration.
     // The request_hash identifies which oracle data feed to read.
-    async transition read_oracle_attestation(
-        public request_hash: u128,
-    ) -> Future {
-        return finalize_read_oracle_attestation(request_hash);
-    }
-
-    async function finalize_read_oracle_attestation(
-        request_hash: u128,
-    ) {
-        // Read attested data from official_oracle_v2's SGX-verified data store
-        // AttestedData struct: { data: u128, attestation_timestamp: u128 }
-        let attested: AttestedData = Mapping::get(
-            official_oracle_v2.aleo/sgx_attested_data,
-            request_hash
-        );
-
-        // Verify the attestation data is non-zero (valid)
-        assert(attested.data > 0u128);
-        assert(attested.attestation_timestamp > 0u128);
-
-        // The attested.data value can be used as a verified price feed
-        // In production: update price_feed mapping with attested.data
-        // For now: just verify the oracle data is accessible and valid
-        Mapping::set(price_feed, 0u8, attested.data);
-        Mapping::set(price_updated_at, 0u8, block.height);
-    }
+    //
+    // async transition read_oracle_attestation(
+    //     public request_hash: u128,
+    // ) -> Future {
+    //     return finalize_read_oracle_attestation(request_hash);
+    // }
+    //
+    // async function finalize_read_oracle_attestation(
+    //     request_hash: u128,
+    // ) {
+    //     let attested: AttestedData = Mapping::get(
+    //         official_oracle_v2.aleo/sgx_attested_data,
+    //         request_hash
+    //     );
+    //     assert(attested.data > 0u128);
+    //     assert(attested.attestation_timestamp > 0u128);
+    //     Mapping::set(price_feed, 0u8, attested.data);
+    //     Mapping::set(price_updated_at, 0u8, block.height);
+    // }
 }

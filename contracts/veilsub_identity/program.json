@@ -1,6 +1,6 @@
 {
-  "program": "veilsub_identity_v1.aleo",
-  "version": "0.1.0",
+  "program": "veilsub_identity_v2.aleo",
+  "version": "0.2.0",
   "description": "VeilSub Identity — Signature-verified content authorship, cross-chain ECDSA identity verification, and content timestamp notarization on Aleo",
   "license": "MIT",
   "leo": "3.4.0",

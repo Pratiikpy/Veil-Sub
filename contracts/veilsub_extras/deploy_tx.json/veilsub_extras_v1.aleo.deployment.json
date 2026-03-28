@@ -1,0 +1,99 @@
+{
+  "type": "deploy",
+  "id": "at1pzzfyryuvae6myfuq2g2plx4755c6u0xe22w4jw3fe0fzvphpv9qt6wg52",
+  "owner": {
+    "address": "aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk",
+    "signature": "sign194cs4teujrnggn45j5y975s2dg7h9drhfqutr96m7qzn9yjehqppf3x78f6kya2usf7zzz5vxekp40q2wz600l979q46cp5xuu0asq8yfl7vfmst5e6vevc6j5rhrw6swrzfkzkehlveaktcrgqy3z6wpgaa2qur8k03636f6xkfgsz2hapqyzd8aqfezxplq7cpvehd536sxh0j7xg"
+  },
+  "deployment": {
+    "edition": 0,
+    "program": "program veilsub_extras_v1.aleo;\n\nrecord ReviewReceipt:\n    owner as address.private;\n    creator_hash as field.private;\n    rating as u8.private;\n    review_hash as field.private;\n\nrecord LotteryReceipt:\n    owner as address.private;\n    creator_hash as field.private;\n    round as u64.private;\n    round_hash as field.private;\n\nmapping review_nullifiers:\n    key as field.public;\n    value as boolean.public;\n\nmapping creator_rating_sum:\n    key as field.public;\n    value as u64.public;\n\nmapping creator_review_count:\n    key as field.public;\n    value as u64.public;\n\nmapping creator_avg_rating:\n    key as field.public;\n    value as u8.public;\n\nmapping lottery_round:\n    key as u8.public;\n    value as u64.public;\n\nmapping lottery_winner:\n    key as field.public;\n    value as u64.public;\n\nmapping lottery_entries:\n    key as field.public;\n    value as u64.public;\n\nfunction submit_review:\n    input r0 as field.private;\n    input r1 as u8.private;\n    input r2 as field.private;\n    gte r1 1u8 into r3;\n    assert.eq r3 true;\n    lte r1 5u8 into r4;\n    assert.eq r4 true;\n    hash.psd2 self.caller into r5 as field;\n    add r5 r0 into r6;\n    add r6 7777777777777777777field into r7;\n    hash.psd2 r7 into r8 as field;\n    cast self.caller r0 r1 r2 into r9 as ReviewReceipt.record;\n    async submit_review r8 r0 r1 into r10;\n    output r9 as ReviewReceipt.record;\n    output r10 as veilsub_extras_v1.aleo/submit_review.future;\n\nfinalize submit_review:\n    input r0 as field.public;\n    input r1 as field.public;\n    input r2 as u8.public;\n    get.or_use review_nullifiers[r0] false into r3;\n    not r3 into r4;\n    assert.eq r4 true;\n    set true into review_nullifiers[r0];\n    get.or_use creator_rating_sum[r1] 0u64 into r5;\n    get.or_use creator_review_count[r1] 0u64 into r6;\n    cast r2 into r7 as u64;\n    add r5 r7 into r8;\n    add r6 1u64 into r9;\n    set r8 into creator_rating_sum[r1];\n    set r9 into creator_review_count[r1];\n    div r8 r9 into r10;\n    cast r10 into r11 as u8;\n    set r11 into creator_avg_rating[r1];\n\nfunction draw_lottery:\n    input r0 as u64.private;\n    gt r0 0u64 into r1;\n    assert.eq r1 true;\n    hash.psd2 self.caller into r2 as field;\n    cast self.caller r2 0u64 r2 into r3 as LotteryReceipt.record;\n    async draw_lottery r2 r0 into r4;\n    output r3 as LotteryReceipt.record;\n    output r4 as veilsub_extras_v1.aleo/draw_lottery.future;\n\nfinalize draw_lottery:\n    input r0 as field.public;\n    input r1 as u64.public;\n    get.or_use lottery_round[0u8] 0u64 into r2;\n    add r2 1u64 into r3;\n    set r3 into lottery_round[0u8];\n    rand.chacha into r4 as u64;\n    rem r4 r1 into r5;\n    cast r3 into r6 as field;\n    add r6 r0 into r7;\n    add r7 8888888888888888888field into r8;\n    hash.psd2 r8 into r9 as field;\n    set r5 into lottery_winner[r9];\n    set r1 into lottery_entries[r9];\n",
+    "verifying_keys": [
+      [
+        "submit_review",
+        [
+          "verifier1qygqqqqqqqqqqqp5n5qqqqqqqqq9f8gqqqqqqqqq0enqzqqqqqqqpzyeqyqqqqqqqzp76qqqqqqqqqqvqqqqqqqqqqqqtmws56pp7waauhksek7hyltdlnp77mg7dmv72qmmaruvvr6kgqk6tqap20hkylxv3cwswnznuqvpg7nt6g5300736pqdux9qjc462823yavm84az4qhh8jt0tzddlhdfzdmarq3jx3xxkwrc6tjxz05gpvewwzrllpcwhtsms6akqjs69672595w8403zc6x3swxa4u4fn0nwjgc3x6t5725mhhdhrmk9hnjsyx3c6jrlsmv47kc0yv0khk6dxfuklplwe77hc5s84hnkh99pkvgnhvahxltrsvly0jmyhk4lw28dq0eef7llqw2m6paweck8jweat39d53u5r5vs36wa2gauame5n63m9ecj49qen2px3cp3l2vh39ylgqwwtz96qzd3v7jr6nnhp6lnzpqucv7ns0lhzl2snhap0sh5prf8hlu44r2zcsxnekzlswkj9ja7pyqcmqzrakq0zqw4upagat43nmas746xuc9u2av065004596d3xwy6v00pc0awj4d57t9v0lr554umcp7lptj8w9szesc7t3mhngxvqu7dmlu9t8wvje7uwfx2dvzl96ps5lntt334xn8r6564zg4yp2cdssp07yxc3mglgwg6gf2w6wd3aqcga8pv7k9y25kt84unsr0xqwdv6zg54e3z6wgu3v2c9geh2sp5chq0gnf3nmj950re4tlylh4te3xs008wm5pxa4altz67cam4ayq87d46lrcu420fekcp4ydcmls5wrqq286027xafc7ff8pw0dtnsxd9ddxyxjllpsdej08t3hwj2nxjsfw708dhryelkpjcry504dv7v8egqke34ucfpnsqg7nx37yslxeqd037mvsjxwan6v8eqfeveqqhymutcxu40qcp3et7crpk9vpgfj9wqz8fk08nfqxtnftf59ua8fun2yj4h35nhqemr8gagj29vhh4mnpj23rpsqqqqqqqqqm7e0jr",
+          "certificate1qyqsqqqqqqqqqqzrcg80d98gm252uex7pdahnfvwy57qw4fkpvh8ddt4fgqaakkt8ad6y4nzz6fc2ulruv7x9ywyn2qqqa8crz3"
+        ]
+      ],
+      [
+        "draw_lottery",
+        [
+          "verifier1qygqqqqqqqqqqqxfjqqqqqqqqqqw0yqqqqqqqqqqwgeszqqqqqqqqjjpqyqqqqqqqzh7qqqqqqqqqqqvqqqqqqqqqqq250h5h6dl6srddunmkf8uhmrjtwn03zr9tdkevku8seujhsd4jyayzdpx60l6f8un279aflcus7vq4gwykpvtfpge9ue80335dcfcrc3v5juj5z02tpcfvclqqta0t83zuhsy8p7509jet9cj2l2m62xsp5dq9je4clgrfax9nc4hm8wjuwgn35qz4uq75d3g2hu2hkqv4pek3cer0nfac5xdx2yyfgwrguu3qz3n8argsggl3msrsnfd6vp9l2hj6mpdnzp8fyj5szdvps2fapc8858m6np2rrapd8apjj3x0mm5tqfncyhjf4u9kzcy7vndalaczams7puy43fmnt0ysye85s5n3tkh0y9r4pcc0d7gh52tqdr22lclgwqc5ad7twc306ggnx4atvhfn3ftwejl8ws9fxssn5rdjpumfhr7gs7eh33lu4a77lfmxuk32zg86hsqj4r970vmcqk7qudg60yn3m3y4c99gf2uauedt56ng75q0vvfhehdpaz7wvj33wd8xlcc39lrwawqrv6gxmzt38qjn43slu6d55xaf3wjstqjqwrqtr69xfn8rmr8z66jc02deh8mw4rtgvuwkq0f0tm0syza6ldtuhktuwj553g5smturmn7pa874rue9nxsgd4ghtcc9c5p6twqkntyezkv52muasjvdygqmqyl566djd940ly9xd7zhtt3tmz7wpta2u5l0zr2m3zldyelfyltuhfc6rk43tfzf6n5jnjkt8n22gqgeyr76cdxjyfthge9zgvk092m3aksmkau8dpqpeqskre8zcdvxdcygmecw7gvsfkml2pt305hgfspwmjr9gddwfl2v2sfgas80hnuw2nwwl3lph3g9culx08f09eufueh0zxh0kelghrwjn8gc4fel9pqz2skjv6yslnrdr5u3vf85hawhtx69p8jzlm5s5xrgr3zkh3vzm3a87msqqqqqqqqqkntm97",
+          "certificate1qyqsqqqqqqqqqq9yqjwn9pj2ejr2q0jadusc4rwhxwmnvespt3y7yxs3l6wz7u66e0tsld0lhc5gvr7mcgsra3jmtgqqqd5akcx"
+        ]
+      ]
+    ],
+    "program_checksum": [
+      "49u8",
+      "79u8",
+      "155u8",
+      "121u8",
+      "95u8",
+      "227u8",
+      "7u8",
+      "27u8",
+      "173u8",
+      "225u8",
+      "43u8",
+      "161u8",
+      "95u8",
+      "150u8",
+      "58u8",
+      "237u8",
+      "83u8",
+      "218u8",
+      "208u8",
+      "254u8",
+      "247u8",
+      "210u8",
+      "44u8",
+      "89u8",
+      "142u8",
+      "51u8",
+      "97u8",
+      "169u8",
+      "227u8",
+      "142u8",
+      "125u8",
+      "0u8"
+    ],
+    "program_owner": "aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk"
+  },
+  "fee": {
+    "transition": {
+      "id": "au14926a3awr9n86ks7543h7qfsfyt5wvqxyn8axcshy53rq925xyrsxheskm",
+      "program": "credits.aleo",
+      "function": "fee_public",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "6309696614738611171366285792791265815894244680633688814717181682238514199247field",
+          "value": "4046338u64"
+        },
+        {
+          "type": "public",
+          "id": "1871164601451656348619729910137776546667799173391088407075767722709029995681field",
+          "value": "0u64"
+        },
+        {
+          "type": "public",
+          "id": "2428037549726595557469584494112098218447083421531826963909736117689830102797field",
+          "value": "4313091577277888662530908430950067754232941218765541888411944397116862261452field"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "3532660998644050273290665289080503553131432169265838683440730547229297238533field",
+          "value": "{\n  program_id: credits.aleo,\n  function_name: fee_public,\n  arguments: [\n    aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk,\n    4046338u64\n  ]\n}"
+        }
+      ],
+      "tpk": "1970370718499742350618282141043774231283053710740804425773615220378437397173group",
+      "tcm": "6898736052811944256033857922962107528368793543575615142187291447618628707481field",
+      "scm": "3029063305870734581851277162260192770695747290087213851118833786558073127163field"
+    },
+    "global_state_root": "sr1zw9hn0lp2aggu78sspl3vs0nujykps4vcf2dqplwp3n06vd7tqpqv35aru",
+    "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqpfnrw6vthqr4nh9fy45xws7wl77lnv8y96xrv066hc37zuvzkrszp2trlztn7peqyqr9h6pl9vcypq9lz96z9z9upc2gflqc3h6ynn5qmaxt5kuneg04t6euemmk4jv9em5ztr72vhapjt55ssxflwyh29qql0q3lx72yfzmr9626anxwflpa5txwds6a8ky35m93rpw0065zyrg8k96lfjj2we6kxns7ett5f5qvqhukvykn0d6pwmt6t4fmwlwegkgnlm0shklfgeepkkyasvkvr0t6ygtk4fnxwg4g5wxrq2syxkgqstm0n0np9n90a9up7ycyd5p4mm4uctmkquaf7stxjpugllyn77x9a9u5lu7c3t3l8zy3fsug328cq5nf32r0xf0ld4ef6v5zzrfkf5fgz7nm7wkzwd9z56qpfzh8e5n7dge5kmds2gvlrgsf7pa9e66cqqpzhgv03wcvfvspwwlnnc73j3p3cz45qymzc3e235z3t8ejpjgkaecjt46juylr8tg5du2dyvljcqwpy35ssq44sysc6fgzmxj3s9stl2mff0mpg736v6s9zdnyru7jmpjh390n97mvlh87acur6v37tgqu94pptamgn2gfnen7e72gzhfpt32an8j2l0f5lrcfa8adxuq6cx0yyvp73eckrjukf9aj8vdv0tqprh3rfjtcajcpf5etalkmeew9aepg7c4297dvxpj20kfe607agsylaawphqmna854mzcgqvvqh0tuayfra8ug3e5mgq769j6q22tcyyy8pkna2x2r4v3f40n076qt0xk0f8pw99y5ur2fhtfwq52exv9jphamc9tf6cw0nqh3pgctee9npv5e9vlpx47k6ync557rhslr6evpyvjvxjnuearw380he5lz4xlrrpcr9yq9rc4ngqcg0e6u2qnnh2sz8mmqh9saj4vwm9vg8fljrx706eqxma82wr4jkf6k6fp0fdra6gp2d9jv5svxg0sd5eaf20mscermqstetruhv4uk3tvuvptqj850wr499d49nwtt74fn72yzdzegjn4eeyag9tjks5gjp8ycsvnz8ugvqmxrn7xpexqzk23xljf9hfddavay7rgegt5uzsq4pv0ueppngk5pr79nwgmleuy7qhcrj99vqu9an9exhgxq9uh72ffw7kwfe85u2ygtqvqqqqqqqqqqp086khus3wjh5rucexdh25g35hzc48y6rgasqul20swk8gap4prhjfgkh39gpj58nj676rgy08f5qqqxjkzm5mgm38gd0r9mnk0k3j5jhwt373ep0shqk9ylg3g0wgj9nshm3uk3ptdmytmcgyt6ecvgurspqxwt8n98aeetz6cap4f9k3glx6guwa8ss2667959ghqtq95vzhrqwj5cdup2pknfd53wmwgfknh79hswdhwqg9vpnewqwsyj27n7e27a6l5qa6rvg2tyc3upfx84edrcqqqqyypq36"
+  }
+}

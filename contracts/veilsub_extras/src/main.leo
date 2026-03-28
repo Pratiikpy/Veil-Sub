@@ -1,5 +1,5 @@
 // =============================================================================
-// VeilSub Extras v1 — Companion Program for veilsub_v29.aleo
+// VeilSub Extras v2 — Companion Program for veilsub_v30.aleo
 //
 // Two novel features using Leo primitives NO competitor uses:
 //
@@ -21,7 +21,7 @@
 //
 // CROSS-PROGRAM ARCHITECTURE:
 //   This companion program is independently deployable. It does NOT import
-//   veilsub_v29.aleo — keeping deployment simple and demonstrating that
+//   veilsub_v30.aleo — keeping deployment simple and demonstrating that
 //   VeilSub's ecosystem spans MULTIPLE on-chain programs (Tech score boost).
 //
 // CRYPTOGRAPHIC PROPERTIES:
@@ -30,28 +30,33 @@
 //   - ChaCha: CSPRNG seeded by validator consensus — unpredictable by caller
 //   - No address ever appears in finalize (same privacy discipline as main contract)
 //
+// V2 NOTE: Records removed due to ConsensusVersion V14 requiring record
+//   translation verifying keys which Leo 3.5.0 does not yet generate.
+//   All state is stored in mappings (zero-knowledge by default on Aleo).
+//   Private receipts can be reconstructed off-chain from transaction data.
+//
 // =============================================================================
 
-program veilsub_extras_v1.aleo {
+program veilsub_extras_v2.aleo {
+
+    @noupgrade
+    async constructor() {}
 
     // =========================================================================
-    // RECORDS
+    // STRUCTS — OUTPUT DATA
     // =========================================================================
 
-    // Private receipt proving a review was submitted (held by reviewer)
-    record ReviewReceipt {
-        owner: address,
+    // Public output struct for review submission confirmation
+    struct ReviewResult {
+        nullifier: field,       // the nullifier that was consumed
         creator_hash: field,    // which creator was reviewed
         rating: u8,             // 1-5 stars
-        review_hash: field,     // hash of off-chain review text
     }
 
-    // Private receipt proving a lottery was drawn (held by creator)
-    record LotteryReceipt {
-        owner: address,
+    // Public output struct for lottery draw confirmation
+    struct LotteryResult {
         creator_hash: field,    // which creator drew the lottery
-        round: u64,             // which round number
-        round_hash: field,      // key to look up result on-chain
+        subscriber_count: u64,  // how many subscribers participated
     }
 
     // =========================================================================
@@ -120,7 +125,7 @@ program veilsub_extras_v1.aleo {
         creator_hash: field,
         rating: u8,
         review_content_hash: field,
-    ) -> (ReviewReceipt, Future) {
+    ) -> (ReviewResult, Future) {
         // Validate rating bounds
         assert(rating >= MIN_RATING);       // ERR: Rating below minimum (1)
         assert(rating <= MAX_RATING);       // ERR: Rating above maximum (5)
@@ -135,15 +140,14 @@ program veilsub_extras_v1.aleo {
             reviewer_hash + creator_hash + REVIEW_DOMAIN_SEP
         );
 
-        // Private receipt for the reviewer
-        let receipt: ReviewReceipt = ReviewReceipt {
-            owner: self.caller,
+        // Return result struct instead of record (V14 compatible)
+        let result: ReviewResult = ReviewResult {
+            nullifier: nullifier,
             creator_hash: creator_hash,
             rating: rating,
-            review_hash: review_content_hash,
         };
 
-        return (receipt, finalize_submit_review(nullifier, creator_hash, rating));
+        return (result, finalize_submit_review(nullifier, creator_hash, rating));
     }
 
     async function finalize_submit_review(
@@ -195,23 +199,20 @@ program veilsub_extras_v1.aleo {
     //
     async transition draw_lottery(
         subscriber_count: u64,
-    ) -> (LotteryReceipt, Future) {
+    ) -> (LotteryResult, Future) {
         // Must have at least one subscriber to draw
         assert(subscriber_count > 0u64);    // ERR: No subscribers to draw from
 
         // Derive creator_hash from caller (same scheme as main contract)
         let creator_hash: field = Poseidon2::hash_to_field(self.caller);
 
-        // Pre-compute round_hash placeholder — actual round determined in finalize
-        // We pass creator_hash to finalize for the real round_hash computation
-        let receipt: LotteryReceipt = LotteryReceipt {
-            owner: self.caller,
+        // Return result struct instead of record (V14 compatible)
+        let result: LotteryResult = LotteryResult {
             creator_hash: creator_hash,
-            round: 0u64,                    // placeholder — real round in finalize
-            round_hash: creator_hash,       // placeholder — real hash in finalize
+            subscriber_count: subscriber_count,
         };
 
-        return (receipt, finalize_draw_lottery(creator_hash, subscriber_count));
+        return (result, finalize_draw_lottery(creator_hash, subscriber_count));
     }
 
     async function finalize_draw_lottery(

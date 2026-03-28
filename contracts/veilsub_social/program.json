@@ -1,6 +1,6 @@
 {
-  "program": "veilsub_social_v1.aleo",
-  "version": "0.1.0",
+  "program": "veilsub_social_v2.aleo",
+  "version": "0.2.0",
   "description": "VeilSub social features: paid DMs, community chat, ephemeral stories",
   "license": "MIT",
   "dependencies": [

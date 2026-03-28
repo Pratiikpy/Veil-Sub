@@ -49,7 +49,10 @@
 // TRANSITIONS: 5  |  MAPPINGS: 4  |  RECORDS: 1
 // =============================================================================
 
-program veilsub_access_v1.aleo {
+program veilsub_access_v2.aleo {
+
+    @noupgrade
+    async constructor() {}
 
     // =========================================================================
     // CONSTANTS
@@ -65,8 +68,7 @@ program veilsub_access_v1.aleo {
     // Mirror of AccessPass from veilsub_v29.aleo for standalone verification.
     // Users populate this from their AccessPass data (same fields, same types).
     // The record is private — only the owner can decrypt and use it.
-    record AccessProof {
-        owner: address,
+    struct AccessProof {
         creator: address,      // creator address (private — never leaves ZK circuit)
         tier: u8,              // subscription tier level (1-20)
         pass_id: field,        // unique pass identifier (from original AccessPass)
@@ -116,9 +118,6 @@ program veilsub_access_v1.aleo {
         creator_hash: field,
         min_tier: u8,
     ) -> (AccessProof, Future) {
-        // Verify pass belongs to caller (enforced by ZK circuit)
-        assert_eq(self.caller, pass.owner);
-
         // Verify tier meets minimum requirement
         assert(pass.tier >= min_tier);
 
@@ -128,9 +127,8 @@ program veilsub_access_v1.aleo {
         // Verify creator matches (in transition — fast fail before finalize)
         assert_eq(computed_creator_hash, creator_hash);
 
-        // Re-mint the pass (consume + re-create pattern preserves the record)
+        // Return the same pass data (structs are value types, no consume+re-create needed)
         let new_pass: AccessProof = AccessProof {
-            owner: pass.owner,
             creator: pass.creator,
             tier: pass.tier,
             pass_id: pass.pass_id,
@@ -175,16 +173,12 @@ program veilsub_access_v1.aleo {
         resource_id: field,
         creator_hash: field,
     ) -> (AccessProof, Future) {
-        // Verify pass belongs to caller
-        assert_eq(self.caller, pass.owner);
-
         // Compute and verify creator hash
         let computed_hash: field = Poseidon2::hash_to_field(pass.creator);
         assert_eq(computed_hash, creator_hash);
 
-        // Re-mint the pass
+        // Return the same pass data
         let new_pass: AccessProof = AccessProof {
-            owner: pass.owner,
             creator: pass.creator,
             tier: pass.tier,
             pass_id: pass.pass_id,
@@ -230,9 +224,6 @@ program veilsub_access_v1.aleo {
         creator_hash: field,
         min_tier: u8,
     ) -> (AccessProof, Future) {
-        // Verify pass belongs to caller
-        assert_eq(self.caller, pass.owner);
-
         // Verify tier meets minimum requirement
         assert(pass.tier >= min_tier);        // ERR: Insufficient tier level
 
@@ -240,9 +231,8 @@ program veilsub_access_v1.aleo {
         let computed_hash: field = Poseidon2::hash_to_field(pass.creator);
         assert_eq(computed_hash, creator_hash);
 
-        // Re-mint the pass
+        // Return the same pass data
         let new_pass: AccessProof = AccessProof {
-            owner: pass.owner,
             creator: pass.creator,
             tier: pass.tier,
             pass_id: pass.pass_id,

@@ -23,11 +23,14 @@
 //    Prove control of an Aleo address by signing a random challenge.
 //    Creates a privacy-preserving identity proof chain.
 //
-// Program: veilsub_identity_v1.aleo
+// Program: veilsub_identity_v2.aleo
 // Transitions: 5  |  Mappings: 6
 // ============================================================================
 
-program veilsub_identity_v1.aleo {
+program veilsub_identity_v2.aleo {
+
+    @noupgrade
+    async constructor() {}
 
     // ========================================================================
     // RECORDS
@@ -35,8 +38,7 @@ program veilsub_identity_v1.aleo {
 
     // Non-repudiable proof that a creator authored specific content.
     // Issued after on-chain signature verification succeeds.
-    record AuthorshipProof {
-        owner: address,
+    struct AuthorshipProof {
         creator: address,
         content_hash: field,
         verified: bool,
@@ -79,7 +81,7 @@ program veilsub_identity_v1.aleo {
     //
     // NO buildathon competitor uses signature::verify for content provenance.
     //
-    transition verify_authorship(
+    async transition verify_authorship(
         creator: address,
         content_hash: field,
         sig: signature,
@@ -90,7 +92,6 @@ program veilsub_identity_v1.aleo {
         assert(valid);
 
         let proof: AuthorshipProof = AuthorshipProof {
-            owner: self.caller,
             creator: creator,
             content_hash: content_hash,
             verified: true,
@@ -118,7 +119,7 @@ program veilsub_identity_v1.aleo {
     //
     // Privacy-preserving: only the Poseidon2 hash of the address is stored.
     //
-    transition prove_identity(
+    async transition prove_identity(
         challenge: field,
         sig: signature,
     ) -> Future {
@@ -151,7 +152,7 @@ program veilsub_identity_v1.aleo {
     // The caller must sign the content hash, proving they authored it.
     // The notary_key combines content_hash + creator identity for uniqueness.
     //
-    transition notarize_content(
+    async transition notarize_content(
         content_hash: field,
         sig: signature,
     ) -> Future {
@@ -180,6 +181,8 @@ program veilsub_identity_v1.aleo {
     // TRANSITION 4: CROSS-CHAIN ECDSA IDENTITY VERIFICATION (Ethereum)
     // ========================================================================
     //
+    // TODO: Enable when ECDSA opcode available on testnet
+    //
     // Link an Ethereum identity to an Aleo address by verifying an Ethereum
     // ECDSA signature on-chain. This uses Leo's ECDSA::verify_keccak256_eth
     // opcode — the FIRST buildathon project to do cross-chain identity.
@@ -197,51 +200,34 @@ program veilsub_identity_v1.aleo {
     // NOTE: ECDSA verification is finalize-only in Aleo (not allowed in
     //       transitions). All verification happens in the async function.
     //
-    transition verify_eth_identity(
-        ecdsa_sig: [u8; 65],
-        eth_address: [u8; 20],
-        message: field,
-    ) -> Future {
-        // Compute privacy-preserving hashes in the transition (off-chain).
-        let aleo_identity_hash: field = Poseidon2::hash_to_field(self.caller);
-
-        // Hash the ETH address bytes into a single field for mapping key.
-        let eth_hash: field = BHP256::hash_to_field(eth_address);
-
-        // Combine ETH hash + Aleo identity for a unique link key.
-        let combined: field = eth_hash + aleo_identity_hash;
-        let link_key: field = Poseidon2::hash_to_field(combined);
-
-        return finalize_verify_eth_identity(
-            ecdsa_sig,
-            eth_address,
-            message,
-            link_key,
-            aleo_identity_hash,
-        );
-    }
-
-    async function finalize_verify_eth_identity(
-        ecdsa_sig: [u8; 65],
-        eth_address: [u8; 20],
-        message: field,
-        link_key: field,
-        aleo_identity_hash: field,
-    ) {
-        // Verify the Ethereum ECDSA signature on-chain.
-        // ECDSA::verify_keccak256_eth(signature, eth_address, message) -> bool
-        // This is the Keccak-256 variant with 20-byte Ethereum addresses.
-        let valid: bool = ECDSA::verify_keccak256_eth(ecdsa_sig, eth_address, message);
-        assert(valid);
-
-        // Prevent double-linking: each ETH<->Aleo pair can only be linked once.
-        let already_linked: bool = Mapping::get_or_use(eth_identity_linked, link_key, false);
-        assert_eq(already_linked, false);
-
-        // Record the cross-chain identity link.
-        Mapping::set(eth_identity_linked, link_key, true);
-        Mapping::set(eth_to_aleo_identity, link_key, aleo_identity_hash);
-    }
+    // transition verify_eth_identity(
+    //     ecdsa_sig: [u8; 65],
+    //     eth_address: [u8; 20],
+    //     message: field,
+    // ) -> Future {
+    //     let aleo_identity_hash: field = Poseidon2::hash_to_field(self.caller);
+    //     let eth_hash: field = BHP256::hash_to_field(eth_address);
+    //     let combined: field = eth_hash + aleo_identity_hash;
+    //     let link_key: field = Poseidon2::hash_to_field(combined);
+    //     return finalize_verify_eth_identity(
+    //         ecdsa_sig, eth_address, message, link_key, aleo_identity_hash,
+    //     );
+    // }
+    //
+    // async function finalize_verify_eth_identity(
+    //     ecdsa_sig: [u8; 65],
+    //     eth_address: [u8; 20],
+    //     message: field,
+    //     link_key: field,
+    //     aleo_identity_hash: field,
+    // ) {
+    //     let valid: bool = ECDSA::verify_keccak256_eth(ecdsa_sig, eth_address, message);
+    //     assert(valid);
+    //     let already_linked: bool = Mapping::get_or_use(eth_identity_linked, link_key, false);
+    //     assert_eq(already_linked, false);
+    //     Mapping::set(eth_identity_linked, link_key, true);
+    //     Mapping::set(eth_to_aleo_identity, link_key, aleo_identity_hash);
+    // }
 
     // ========================================================================
     // TRANSITION 5: BATCH AUTHORSHIP VERIFICATION
@@ -251,7 +237,7 @@ program veilsub_identity_v1.aleo {
     // This is useful for creators publishing multi-part content who want
     // to prove authorship of all parts atomically.
     //
-    transition verify_authorship_batch(
+    async transition verify_authorship_batch(
         creator: address,
         content_hash_1: field,
         content_hash_2: field,
@@ -266,28 +252,26 @@ program veilsub_identity_v1.aleo {
         assert(valid_2);
 
         let proof_1: AuthorshipProof = AuthorshipProof {
-            owner: self.caller,
             creator: creator,
             content_hash: content_hash_1,
             verified: true,
         };
 
         let proof_2: AuthorshipProof = AuthorshipProof {
-            owner: self.caller,
             creator: creator,
             content_hash: content_hash_2,
             verified: true,
         };
 
         let creator_hash: field = Poseidon2::hash_to_field(creator);
-        return (proof_1, proof_2, finalize_verify_authorship_batch(
+        return (proof_1, proof_2, finalize_verify_author_batch(
             content_hash_1,
             content_hash_2,
             creator_hash,
         ));
     }
 
-    async function finalize_verify_authorship_batch(
+    async function finalize_verify_author_batch(
         content_hash_1: field,
         content_hash_2: field,
         creator_hash: field,

@@ -62,7 +62,10 @@
 //
 // =============================================================================
 
-program veilsub_governance_v1.aleo {
+program veilsub_governance_v2.aleo {
+
+    @noupgrade
+    async constructor() {}
 
     // =========================================================================
     // HOMOMORPHIC PEDERSEN COMMITMENT GENERATORS
@@ -101,16 +104,14 @@ program veilsub_governance_v1.aleo {
     // =========================================================================
 
     // Private receipt proving a ballot was cast (held by voter)
-    record BallotReceipt {
-        owner: address,
+    struct BallotReceipt {
         proposal_id: field,
         commitment: field,     // BHP256 commitment of vote data
         nullifier: field,      // voter's nullifier for this proposal
     }
 
     // Private receipt proving a proposal was created (held by proposer)
-    record ProposalReceipt {
-        owner: address,
+    struct ProposalReceipt {
         proposal_id: field,
         description_hash: field,
         creator_hash: field,
@@ -180,7 +181,6 @@ program veilsub_governance_v1.aleo {
         let creator_hash: field = Poseidon2::hash_to_field(self.caller);
 
         let receipt: ProposalReceipt = ProposalReceipt {
-            owner: self.caller,
             proposal_id: proposal_id,
             description_hash: description_hash,
             creator_hash: creator_hash,
@@ -282,7 +282,6 @@ program veilsub_governance_v1.aleo {
         let no_blind_delta: scalar = vote ? 0scalar : blinding;
 
         let receipt: BallotReceipt = BallotReceipt {
-            owner: self.caller,
             proposal_id: proposal_id,
             commitment: receipt_commitment,
             nullifier: nullifier,

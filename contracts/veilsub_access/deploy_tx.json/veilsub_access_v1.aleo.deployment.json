@@ -1,0 +1,120 @@
+{
+  "type": "deploy",
+  "id": "at19ljv5kqkzchwn0v5r70jvm9f2np6dd44mzdl8w5sqq5lemvksyrqm978w0",
+  "owner": {
+    "address": "aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk",
+    "signature": "sign1shtxvqa4hqfdhnzks2nque738r3mqj6w03udklhyqc7ety62q5qpqee2tfcvew3hqhwz05w4d2r0lqc5jksu2nd56que5p68wp5rgp8yfl7vfmst5e6vevc6j5rhrw6swrzfkzkehlveaktcrgqy3z6wpgaa2qur8k03636f6xkfgsz2hapqyzd8aqfezxplq7cpvehd536sx29ga4q"
+  },
+  "deployment": {
+    "edition": 0,
+    "program": "program veilsub_access_v1.aleo;\n\nrecord AccessProof:\n    owner as address.private;\n    creator as address.private;\n    tier as u8.private;\n    pass_id as field.private;\n    expires_at as u32.private;\n    privacy_level as u8.private;\n\nmapping access_log:\n    key as field.public;\n    value as boolean.public;\n\nmapping resource_access_count:\n    key as field.public;\n    value as u64.public;\n\nmapping creator_gates:\n    key as field.public;\n    value as u64.public;\n\nmapping pass_revoked:\n    key as field.public;\n    value as boolean.public;\n\nfunction verify_membership:\n    input r0 as AccessProof.record;\n    input r1 as field.private;\n    input r2 as u8.private;\n    assert.eq self.caller r0.owner;\n    gte r0.tier r2 into r3;\n    assert.eq r3 true;\n    hash.psd2 r0.creator into r4 as field;\n    assert.eq r4 r1;\n    cast r0.owner r0.creator r0.tier r0.pass_id r0.expires_at r0.privacy_level into r5 as AccessProof.record;\n    async verify_membership r0.pass_id r0.expires_at into r6;\n    output r5 as AccessProof.record;\n    output r6 as veilsub_access_v1.aleo/verify_membership.future;\n\nfinalize verify_membership:\n    input r0 as field.public;\n    input r1 as u32.public;\n    get.or_use pass_revoked[r0] false into r2;\n    not r2 into r3;\n    assert.eq r3 true;\n    gt r1 block.height into r4;\n    assert.eq r4 true;\n\nfunction gate_resource:\n    input r0 as AccessProof.record;\n    input r1 as field.private;\n    input r2 as field.private;\n    assert.eq self.caller r0.owner;\n    hash.psd2 r0.creator into r3 as field;\n    assert.eq r3 r2;\n    cast r0.owner r0.creator r0.tier r0.pass_id r0.expires_at r0.privacy_level into r4 as AccessProof.record;\n    async gate_resource r0.pass_id r1 r0.expires_at into r5;\n    output r4 as AccessProof.record;\n    output r5 as veilsub_access_v1.aleo/gate_resource.future;\n\nfinalize gate_resource:\n    input r0 as field.public;\n    input r1 as field.public;\n    input r2 as u32.public;\n    get.or_use pass_revoked[r0] false into r3;\n    not r3 into r4;\n    assert.eq r4 true;\n    gt r2 block.height into r5;\n    assert.eq r5 true;\n    add r0 r1 into r6;\n    add r6 9999999999999999999field into r7;\n    hash.psd2 r7 into r8 as field;\n    set true into access_log[r8];\n    get.or_use resource_access_count[r1] 0u64 into r9;\n    add r9 1u64 into r10;\n    set r10 into resource_access_count[r1];\n\nfunction gate_resource_tiered:\n    input r0 as AccessProof.record;\n    input r1 as field.private;\n    input r2 as field.private;\n    input r3 as u8.private;\n    assert.eq self.caller r0.owner;\n    gte r0.tier r3 into r4;\n    assert.eq r4 true;\n    hash.psd2 r0.creator into r5 as field;\n    assert.eq r5 r2;\n    cast r0.owner r0.creator r0.tier r0.pass_id r0.expires_at r0.privacy_level into r6 as AccessProof.record;\n    async gate_resource_tiered r0.pass_id r1 r0.expires_at into r7;\n    output r6 as AccessProof.record;\n    output r7 as veilsub_access_v1.aleo/gate_resource_tiered.future;\n\nfinalize gate_resource_tiered:\n    input r0 as field.public;\n    input r1 as field.public;\n    input r2 as u32.public;\n    get.or_use pass_revoked[r0] false into r3;\n    not r3 into r4;\n    assert.eq r4 true;\n    gt r2 block.height into r5;\n    assert.eq r5 true;\n    add r0 r1 into r6;\n    add r6 9999999999999999999field into r7;\n    hash.psd2 r7 into r8 as field;\n    set true into access_log[r8];\n    get.or_use resource_access_count[r1] 0u64 into r9;\n    add r9 1u64 into r10;\n    set r10 into resource_access_count[r1];\n\nfunction register_gate:\n    input r0 as field.private;\n    input r1 as field.private;\n    async register_gate r0 into r2;\n    output r2 as veilsub_access_v1.aleo/register_gate.future;\n\nfinalize register_gate:\n    input r0 as field.public;\n    get.or_use creator_gates[r0] 0u64 into r1;\n    add r1 1u64 into r2;\n    set r2 into creator_gates[r0];\n\nfunction revoke_pass:\n    input r0 as field.private;\n    input r1 as field.private;\n    hash.psd2 self.caller into r2 as field;\n    assert.eq r2 r1;\n    async revoke_pass r0 into r3;\n    output r3 as veilsub_access_v1.aleo/revoke_pass.future;\n\nfinalize revoke_pass:\n    input r0 as field.public;\n    set true into pass_revoked[r0];\n",
+    "verifying_keys": [
+      [
+        "verify_membership",
+        [
+          "verifier1qygqqqqqqqqqqqx3aqqqqqqqqqqq86gqqqqqqqqq4rdszqqqqqqqpf80qyqqqqqqqplx5qgqqqqqqqqvqqqqqqqqqqqr0d3rhk5u3rgtdd37lfvdhqdvcj62qpjufp7lp3uf7msudkyykjv80f5k22wesjn5kjzy4u0hv8uphp4k29jsp0ctl9zzzdz8vwfpf55ad5v9jk35698tv43cmcqxe7vfvaq8xy2u0gxfrnpc0ux0le9qr2mj9en0pqezm5lj49hcu4k9t3yz7q9y2hc3jrna8nmt3kq25rfq3tffr288weqn404yel9vqv65s99v9pqa42f6732879c0sr85lw3hfqzg4458usgm77n5gd44matak75052kpsss4786jvd2tlyvsvq0zayp2hvy54hu77xu8qrn2fxsg2tyuf542y5swfnxztdyszwh968rn3gt7qflt47kmn0ldgm6vqxq9h407x3m00keskegqtl80yavnge0ds34pdfcrskjxxhvww3qk25m0sg23wxufc9t9ks4phjy4dhuq9ypxr6rdaucseyvnau8ccwffj56nlpj5xzdy73hgpgzs28gwjs6qu5sugwl7uve0zrxevynwfecqq262c3a3h290jr56yh5pw7e828e5u72qmdx9yzc29j944zjv0ckzw45gv53meu5h4gzucdlnwaehqz7qxnxw7whff4shqf5n74krhpt04llev6k2lc3nawe00mx8vv5gwd9ns8m5rgjay6qu50w2e29lzqp9l8m6vs0c69ujzwnnxfcc765cajy7y2hj55sr60vr64j2s3relway902nqhhvej05fgmdl25twqq4jeg7jueygjw5p45ecqqhtqmlwr3e209k3dej7d2fgx4lh9eeppw2nr8xxfq4axx039pzqdwsgxspm3whk5hpvyxu34h353qnhg3kth99nptysmrdlepnu58mcda40tx9mmxdz8as9uyrwgm2wtqzsauspk449wmgmc0nhhyyljsarvc3em3hejvulw246t28rnht8kkkwef8egkqzqqqqqqqqtat07g",
+          "certificate1qyqsqqqqqqqqqqryya5je7cp8vey6hg0pc3q0v7wna5sy9dedjtg4q9hgjcf2fujg7ul06xsx72kv7klqelvgdp8xkqsq762ndy"
+        ]
+      ],
+      [
+        "gate_resource",
+        [
+          "verifier1qygqqqqqqqqqqqxyagqqqqqqqqq0t6sqqqqqqqqq98sszqqqqqqqq40kqyqqqqqqqqwk6qgqqqqqqqqvqqqqqqqqqqqt4d2jqh6j37xdf384ww9pfpmvt96q49clccrpkejset98mtxam0ymhpjpyux0pdmwk37s24ld6luquh6l7u04w8cw5v0yhnfh9mcgjng27kaf759jjfpmmy8gfpc6xpcnxtl7776rsvvl3g8ufgwxzy8spx8y9ak7zzj0dy4r88njp2ss7ckx68wmpw6p2qrrpqks8nwzcwxul85mtc6x9k2wqtszwahankm9q9kdde2x3my9e7d3kqedh5crhde3gt457jaxd9qlasktyvjf38rhz5nz2dj2d4jywpgag655grum4qzta9ex5zm5a94vx9uwk5ythhrjtyjgal72hacu05qwlcktm8aj0esn62rcr0vnl9x0u62uknasgcqafnhdddhmfvewk58jg9z6ay30jz6dk87fak52hl02jp4wfheums52jnuu2kpm6a8hcq7k2h46vz5pzgnn2c7d7v9zmljcv87s6z8wdr5mh2n8uhq03mhal6sl4n2wyea5rrdqelcsk4vvuykrfej4ra5cruv50mgvz02fme3h0h8mrn9d7ka8u2ch6vgp65mn5y4jz0p5209fy663v9qqcxpxuc5lxxjlxjulqxph9ya3q40k8t4pfplp7q40qsszz5gd258k45fvs6sn6amceepd3tv773aajacf4akmmz0t7sdhtqxmw7uxgf2r34mz7kj9efmvgan5vdxl78rapgzs4rfh57pj4s9y8vmru629pxadru94mw7eu0y6ywqwsyngmfmy0txysg4jf99sgtxvmm0z7cmf7mnj4n68ncfc56s8h3lvsjd0876ccfhg0eah9ltcszyqfgfkvmhclg53a8fu2d6dy6lmu7upg2saqhcdhtgej80vv98nejxvaj7seaugq2djlrxwl0qs9pzgztert7dst98vkqf8dfhh9dhcv8x388c0ldpqsjc946tsn4y44yxdhqkszqqqqqqqqelq40t",
+          "certificate1qyqsqqqqqqqqqqypt0g7skz9eunkf599m37vam6jz9wapv9jq4ng6kuryk3drfseh77w6e8g6ru9yv2838wmu8xmmkqqqcu2jm9"
+        ]
+      ],
+      [
+        "gate_resource_tiered",
+        [
+          "verifier1qysqqqqqqqqqqq8jauqqqqqqqqqptuqqqqqqqqqqr0mqzqqqqqqqpdg6qgqqqqqqqqehyqgqqqqqqqqvqqqqqqqqqqqzs36224gs2hfehzhdwld76exse65qttfs6ecfyd5vlxs0ksy58x0hv52ycvlnc6gdfg8eyy8f7gsqdhlme84avcuv07vk9mrnw6g7lakzu4p9y5apzwxnzsvestvzsp5z7vu38r4fqn2m7n05razarzcspjkv7ppwvz59qmgq4cqj565pflw8rxumwk7xax9pa2ak9glcemxek48gh8f3uq377n73ekek5p0qsqlccw4g3vg4zh2k6j5z2fzkwtcw5dlzf08zhv66pa39lhrujc8uvw0km8z0tlzxsw3yyrztpavhzqzsqppmvfu2cpee9jxlrfe0n5j24nrpmarxm86ecvevftxsqm0p6rxynryfn82sa6st3d8wg5354zq7y2xf9369wshm5xq6xt7swaam0z2s4tdwwp9xkz64dlhzrtwqsjfc9qsvknesfy0vad3c07rq28cpp2mrvehxzefvyptucrnee3s2223tdxshf6mxr869yuze87dlfked7wju0hfj7hep5m0mfrwseufqz6u89yr3t3crqt2k253ca99qsw36amqkwy37ucu60ntkgempa8jn3mmugdcwjwe839vwd6jx0xfts84wt0z9rydf5yjqp6cnr0sezs2wn66mdvxhq8ufe82h48j0434mm4lkcaffa9k8g8faxjc3glugnqr7v53y3hwp2un75pszs25ss9m7wxtl42hv2te5szjj2p4wtarwsdlp759ku4dtpggfgz7kwmfgh5qrdwa828qeycunqs49frclyzq389t49etjh94967gynnqumcvkx4yg0v6q06x9jm6tcrjp5y8gqg5pyf9a3g8gyf0hr8fjy9s9mdzjmv64cljdcxrrg5kvlnwsk60gzgmus0yde0zzh5tkh3mvchs5xy4qr3xdr2tv54wkhe7cjvj45q58rypxrcscg9ny49t3m3xdwaty30ztnq6qzqqqqqqqqx7lvky",
+          "certificate1qyqsqqqqqqqqqqx0a6yrhmnlyjyc0dav4z7qcek4j8zvku4rdk7wxe8fhk5upllxptzm3k4jj94upq3uv3nfurxmgjqqqthpn9l"
+        ]
+      ],
+      [
+        "register_gate",
+        [
+          "verifier1qygqqqqqqqqqqqp0xcqqqqqqqqqzxdsqqqqqqqqqekrqqqqqqqqqpedlqqqqqqqqqp3ywqqqqqqqqqqvqqqqqqqqqqq87hysf3ttcharh3y4frv0mx8m688ftluedzdmfxhzdxpgruvekmrd4xxltu5ng5r9kv76kwmqdqqprphv6cx8fqmwd8rx0zylx4wwwkgml3chwy6dycc49j4e4rrcwr7d2em3q68csuxqarljt2nv5taqppdcjx2dxh2n82zgc6wyrmdlu2mmyngslwu99l2qpc2l364d8cz7ycgf2hd604zzrclr90y847qsqrzj74vmnpn2slch9kzc3wtjk6zz9h0w5zju00wdv9etpuquqm50dxc5hcap48wuhhl5tqqkd76feq04wh8h7tz28l0x9dag943atlk4c50m0teet59dhkueeyfwtgpd892lggplz4sujwzy0pmgc9k75zqt68pws9tcyaxl0l3twulvmgnx4uencrle7k4f6qjf3f2r5z8ftkjmcsvkggxxtl7q3unsxv9mt4qqdhhvcrsk3rm3uuhymqkg8t0mnxhju8ul6fh6nt394wzghdklhhpk060skdhpe4jwjdeaxk0u58rqqd7y2q0q3yp96jx40fmyxlu360hgcgru9tulfdla0rsjjnqsskgee5e2l9jqku2uup2zejsytupjqpwja4pdarrldwkpg2cj3l8lhgyqc3u5d3ne05hunh85yv45gm4pat4ad9ncq34k64fsj33g9lkelqyfd88n9qeylrukvzv78pxyrr9mqdqfef7crsyv3g6cwxlxxgqpn0kydz9zkaushtm3jwmg7gfaegqvfqzrh2zjytvau4uq83q4ea5sqxvf2nted65v69qtzdzh4gnwu7u3pr50q2y2hu2ukpmfxmyecgvpl0gg7m0d2eszgj28qherdgfdcpk89vvvqfrgx6vt7ucgqu2z36mtnj6g7my0jqfvm7mzrmnsc3kspedm7x3g3cflrm7h49h5um45rxwch8r7clmxkqady4jc5sxlp0r4keysqqqqqqqqq0pquyu",
+          "certificate1qyqsqqqqqqqqqqqztz38fn8ls33lhuzqqpg08yrrffajlz8uafewrx50r3mpv2u70tlc688zsxnz4j7r2hlgynhdpkqsq9p6k7d"
+        ]
+      ],
+      [
+        "revoke_pass",
+        [
+          "verifier1qygqqqqqqqqqqqpc8yqqqqqqqqqz7wgqqqqqqqqqg78sqqqqqqqqq87tqqqqqqqqqqg5kqqqqqqqqqqvqqqqqqqqqqqv0f70q3ztpqwdjt4cpk7fc4hjmmn5wh7uhm6ngrr4wdwn48xrypfys9k8awy99xhzyq6y6sgmesgqfrk4kf7m4gyaj25rxkhe63xsyv5j7z8gtk3tn56wljgpqqffymdy437p8w4tu2uldfc9wm59ywwcq404tlefrudtsacpljrln8z03gc6tuqtp4hy6ruud8sx5a8wgslzscazkgrjhq5n9n5tn276rrgeqzzxwfnpqvg8dctksu3mhwvvndmmx8lyu59jl3mertf4a2lfch637jy7jc6e86dc6hsmqvz7fc5u4q8lwyszuzxktzylh9gv2se96hjcmds3k896rgxre0czssd8ehj0amufnrsqdhkvrlfnd4s0t7s2qsqqs0ttxctdwf2jpjjgy4pppetwa3yaspkanvugupwetvuqruj07xm4da5y2gse2yhmw0mw25k0ssvpcqput74cgh3q3nlcpd8qx92urd7vdxgcqa237yjrvyq4mhjvmhhfge0w0vyq6xj4e8avcvelj5rcr2mz0f96y0y0ga3vgwt3ezl2fyfwuz33sdfm6r4qpt4m4ceyzm7hkxksf4ea0jlhha7n5jhvzgq6qxguu5af2d43hlgql5gwyrsd59qrfv9x8nc0a8tnxzl602pkz9a9ddddtcj0azfdvupt4fqwmwu3cq2k4tqag456pje59u8l0nymjm2lnsc7mj7ajch3vplx4p54ezrtgede4nplzhqqldqap7336w4pq7q4h6vqyp09c6xr0alxewfu0a85zhtp3px32swsg6wyjrsjyqsg2jw7ncnqpzkdyc9gj3ftqlv5cu5pr07ag0lmzwxjxx0my3txcj9g4hqn92yg0cdxf7vjauttfulx2k4rvjt9nd88esw4737n5vu7nkqsrm274dnnsquc0veg7dj8ahxpr20gx9sjvwaz8swez9m3u0eqflkg03xqqqqqqqqqqx607r4",
+          "certificate1qyqsqqqqqqqqqqz60ngsrz4mu5qfwrurnqspkdzyrx3adc8el2tlqnm0fv6nshh2qeqa5vl3wczcdae7l7555pqe92qsqcegqxy"
+        ]
+      ]
+    ],
+    "program_checksum": [
+      "116u8",
+      "199u8",
+      "239u8",
+      "124u8",
+      "117u8",
+      "238u8",
+      "252u8",
+      "237u8",
+      "30u8",
+      "218u8",
+      "141u8",
+      "213u8",
+      "132u8",
+      "145u8",
+      "164u8",
+      "130u8",
+      "199u8",
+      "11u8",
+      "177u8",
+      "220u8",
+      "129u8",
+      "212u8",
+      "35u8",
+      "54u8",
+      "94u8",
+      "220u8",
+      "219u8",
+      "134u8",
+      "235u8",
+      "143u8",
+      "249u8",
+      "27u8"
+    ],
+    "program_owner": "aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk"
+  },
+  "fee": {
+    "transition": {
+      "id": "au1wpy6ymp7sftrf0dgd9lul2wenfqdvgetwyfw4cyaxg4pdeat5syq7pr52w",
+      "program": "credits.aleo",
+      "function": "fee_public",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "7986497734415668007957623326085637613256918568151380623371934819479806852286field",
+          "value": "7451451u64"
+        },
+        {
+          "type": "public",
+          "id": "6949253417852103544700738090137923688291900753259347501077668020534171539434field",
+          "value": "0u64"
+        },
+        {
+          "type": "public",
+          "id": "6391862697569838964188101051417783611896245754250915643225862344395893633240field",
+          "value": "1025397133603409602219932858583101948221121779251926072641601039361415933668field"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "7302830007718614210688332671217140196765495233938221594721729095681089284196field",
+          "value": "{\n  program_id: credits.aleo,\n  function_name: fee_public,\n  arguments: [\n    aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk,\n    7451451u64\n  ]\n}"
+        }
+      ],
+      "tpk": "333730287679334104647511158226332141495242784365443627888851326750744552756group",
+      "tcm": "6421940058802420351374810492032472207759998310124736972945219426390235510205field",
+      "scm": "6158254756607824276873019144636670146668224887223450397328899036783635879798field"
+    },
+    "global_state_root": "sr1mrter527r4untzx2l4zgqkvu22swag5v5ucgcdrx3uth8ddzxy9qd4t3vg",
+    "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqgynr6j5gujee3a6jh5axqcg2hndfycd4vg48sw84nmsmcugkdcszpksryh5u30fm5jkg593enj4vqqx0tv73sv8sus5kau5qnfm2wzjggfk8pgp6lrpluck0p7kk3suj70l0n267elw58gxwq9yarcc246qfzclgs5qygkfqvrrtp7r4j9jax7uwjxrgh65ydzkrgh2z4k20gzyshesdll7qcwnlar4wschljj6qgy8gywgjnxrscg6kypxq787ve257cuuwffp9pyypsk5y2gl9cpepkvqy8sx7ju9gvy7n6zm7gqqvqykcy6h0mhlzl5vsmrkpk2v6auqnyt6lmdqsuyagqrpth3teppc0r3hseeruetk4xp9npqh6259fqp0xdt50wwkd5yyxnul7nkdz7kktp44snxap0fm9qsw62vp6rkkw68u9uuedg922pzfldzgrmhjvjs9njudrn4vef3shzgsem4k0mu8tn67hpuum7r2904dzgwp6f7gvr753265g33c8qpn5d5h5qn6w7yqrf4evql4453zvz7vkdts9psj64wjleg3ethcnsjp3dzkzzvvkqa8tcv28fcsukj37uhyl2knws97qc6lvmlcdlwvn0h8km4hqrrzkh539fqhm06h8crrutmfvr69hkshc0jexjgsdvfhg52xlv2uyc2lcpdstf9k6jc487kzzms29gmjrrshnu9ktrgnkepvh8sx4ct30qg5zr5858sn62aj9tv339v7mayshpp4fes9f5zcmfvvjjja3a865uzz5akftz59run8squxql6fc2yngju0p3svm7a7neyqcxm2z6925gqe2jf8wf8xu9w8vym5z047c9mdw0vjzkrdukmp73d633xycr0ukshhuxjegxzawclg0s02hqzf2gxezz7lrynztt2pezp2kthfxk8vc947z4tcpu6nv7es9gj455da38n0rqlrj6nqntzt8v7w9pq9tmuq8vmzqtrn7afm7zgjznenw2jmrk05qq8q6xa2en74nah3css0z9gqf9gklhde5pgzcwks0l4pe603f9wtyk5kk84l0hh4mhry4j59dyq60vcxna0xd3gy86epfmapx4f3m79d4r6hzpxqhx2p22jzutev9qfys5h2tcl55jwda3p49afw50q3m3d3pememyl86ulggak3edsacxqvqqqqqqqqqqp9rc4s953twke0g63xxf29ccz7uyarmce7lem35mxyd04f2lstvvn6n7aa70pc84pyzr2s7awlyfqyq8wjas4zf5sagvjnhyg0m0pv2tr54papa2eam9kaase5fkvhsulzwhvdgmt2vq58lnqcx4mwryvqvqqxx8e0r74zg45vwcfqnv7m5k4x5n3r8jm5fng38g28wc87qquy4suyms29p9eufqe4qjg7rxv9kcgyhle69d8drwmwsz6a5djx2cjfflh32l52fw62fxde73f474wgsfsqqqhvcu6w"
+  }
+}

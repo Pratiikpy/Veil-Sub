@@ -27,7 +27,10 @@ import credits.aleo;
 //
 // =============================================================================
 
-program veilsub_collab_v1.aleo {
+program veilsub_collab_v2.aleo {
+
+    @noupgrade
+    async constructor() {}
 
     // =========================================================================
     // STRUCTS
@@ -44,11 +47,11 @@ program veilsub_collab_v1.aleo {
     // =========================================================================
 
     // Collaboration agreement record (both creators get one)
-    record CollabAgreement {
-        owner: address,
+    struct CollabAgreement {
+        caller: address,
         partner: address,
         collab_id: field,
-        split_pct: u8,        // owner's percentage (0-100)
+        split_pct: u8,        // caller's percentage (0-100)
         partner_split: u8,    // partner's percentage (100 - split_pct)
         content_hash: field,  // hash of agreed content scope
         created_at: u32,
@@ -56,8 +59,8 @@ program veilsub_collab_v1.aleo {
     }
 
     // Revenue receipt from a collaboration
-    record CollabReceipt {
-        owner: address,
+    struct CollabReceipt {
+        recipient: address,
         collab_id: field,
         amount: u64,         // this party's share in microcredits
         total_amount: u64,   // total before split
@@ -96,7 +99,7 @@ program veilsub_collab_v1.aleo {
 
         // Agreement for creator A (caller)
         let agreement_a: CollabAgreement = CollabAgreement {
-            owner: self.caller,
+            caller: self.caller,
             partner: partner,
             collab_id: collab_id,
             split_pct: my_split_pct,
@@ -108,7 +111,7 @@ program veilsub_collab_v1.aleo {
 
         // Agreement for creator B (partner)
         let agreement_b: CollabAgreement = CollabAgreement {
-            owner: partner,
+            caller: partner,
             partner: self.caller,
             collab_id: collab_id,
             split_pct: partner_split,
@@ -153,7 +156,7 @@ program veilsub_collab_v1.aleo {
 
         // Receipts
         let my_receipt: CollabReceipt = CollabReceipt {
-            owner: self.caller,
+            recipient: self.caller,
             collab_id: agreement.collab_id,
             amount: my_amount,
             total_amount: total_amount,
@@ -161,7 +164,7 @@ program veilsub_collab_v1.aleo {
         };
 
         let partner_receipt: CollabReceipt = CollabReceipt {
-            owner: agreement.partner,
+            recipient: agreement.partner,
             collab_id: agreement.collab_id,
             amount: partner_amount,
             total_amount: total_amount,

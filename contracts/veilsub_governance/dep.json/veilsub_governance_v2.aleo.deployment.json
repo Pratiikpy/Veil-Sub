@@ -1,0 +1,120 @@
+{
+  "type": "deploy",
+  "id": "at1lwzm63y5jrhue9nztsv8ddfw9gffaj0vg5r6lsxpufhkc2528crq76pq36",
+  "owner": {
+    "address": "aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk",
+    "signature": "sign16yvjh6v0ddkyhlanec40rag4qleycjuvcgtuwl8mcnjctdjmdups8e6v73s0wek6h07jk9ndvp0nvfjkw8pervafk568quqnsmnfxqhyfl7vfmst5e6vevc6j5rhrw6swrzfkzkehlveaktcrgqy3z6wpgaa2qur8k03636f6xkfgsz2hapqyzd8aqfezxplq7cpvehd536sx055app"
+  },
+  "deployment": {
+    "edition": 0,
+    "program": "program veilsub_governance_v2.aleo;\n\nstruct BallotReceipt:\n    proposal_id as field;\n    commitment as field;\n    nullifier as field;\n\nstruct ProposalReceipt:\n    proposal_id as field;\n    description_hash as field;\n    creator_hash as field;\n\nmapping proposals:\n    key as field.public;\n    value as u8.public;\n\nmapping proposal_creator:\n    key as field.public;\n    value as field.public;\n\nmapping proposal_description:\n    key as field.public;\n    value as field.public;\n\nmapping yes_commit:\n    key as field.public;\n    value as group.public;\n\nmapping no_commit:\n    key as field.public;\n    value as group.public;\n\nmapping yes_blind_sum:\n    key as field.public;\n    value as scalar.public;\n\nmapping no_blind_sum:\n    key as field.public;\n    value as scalar.public;\n\nmapping vote_count:\n    key as field.public;\n    value as u64.public;\n\nmapping ballot_nullifier:\n    key as field.public;\n    value as boolean.public;\n\nmapping resolved_yes:\n    key as field.public;\n    value as u64.public;\n\nmapping resolved_no:\n    key as field.public;\n    value as u64.public;\n\nmapping creator_proposal_count:\n    key as field.public;\n    value as u64.public;\n\nmapping total_proposals:\n    key as u8.public;\n    value as u64.public;\n\nmapping total_ballots:\n    key as u8.public;\n    value as u64.public;\n\nfunction create_proposal:\n    input r0 as field.private;\n    input r1 as field.private;\n    hash.psd2 self.caller into r2 as field;\n    cast r0 r1 r2 into r3 as ProposalReceipt;\n    async create_proposal r0 r2 r1 into r4;\n    output r3 as ProposalReceipt.private;\n    output r4 as veilsub_governance_v2.aleo/create_proposal.future;\n\nfinalize create_proposal:\n    input r0 as field.public;\n    input r1 as field.public;\n    input r2 as field.public;\n    contains proposals[r0] into r3;\n    not r3 into r4;\n    assert.eq r4 true;\n    get.or_use creator_proposal_count[r1] 0u64 into r5;\n    lt r5 50u64 into r6;\n    assert.eq r6 true;\n    set 0u8 into proposals[r0];\n    set r1 into proposal_creator[r0];\n    set r2 into proposal_description[r0];\n    set 0group into yes_commit[r0];\n    set 0group into no_commit[r0];\n    set 0scalar into yes_blind_sum[r0];\n    set 0scalar into no_blind_sum[r0];\n    set 0u64 into vote_count[r0];\n    add r5 1u64 into r7;\n    set r7 into creator_proposal_count[r1];\n    get.or_use total_proposals[0u8] 0u64 into r8;\n    add r8 1u64 into r9;\n    set r9 into total_proposals[0u8];\n\nfunction cast_ballot:\n    input r0 as field.private;\n    input r1 as boolean.private;\n    input r2 as field.private;\n    hash.psd2 self.caller into r3 as field;\n    add r3 r0 into r4;\n    add r4 9999999999999999999field into r5;\n    hash.bhp256 r5 into r6 as field;\n    ternary r1 1field 0field into r7;\n    add r7 r0 into r8;\n    add r8 r3 into r9;\n    add r9 r2 into r10;\n    hash.psd2 r10 into r11 as field;\n    hash.bhp256 r2 into r12 as scalar;\n    commit.bhp256 r11 r12 into r13 as field;\n    add r2 9999999999999999999field into r14;\n    hash.bhp256 r14 into r15 as scalar;\n    mul r15 4756945026257194583189722752066097511643190336079386933095348702435126773568group into r16;\n    add 1540945439182663264862696551825005342995406165131907382295858612069623286213group r16 into r17;\n    ternary r1 r17 0group into r18;\n    ternary r1 0group r17 into r19;\n    ternary r1 r15 0scalar into r20;\n    ternary r1 0scalar r15 into r21;\n    cast r0 r13 r6 into r22 as BallotReceipt;\n    async cast_ballot r0 r6 r18 r19 r20 r21 into r23;\n    output r22 as BallotReceipt.private;\n    output r23 as veilsub_governance_v2.aleo/cast_ballot.future;\n\nfinalize cast_ballot:\n    input r0 as field.public;\n    input r1 as field.public;\n    input r2 as group.public;\n    input r3 as group.public;\n    input r4 as scalar.public;\n    input r5 as scalar.public;\n    get proposals[r0] into r6;\n    assert.eq r6 0u8;\n    get.or_use ballot_nullifier[r1] false into r7;\n    not r7 into r8;\n    assert.eq r8 true;\n    set true into ballot_nullifier[r1];\n    get.or_use yes_commit[r0] 0group into r9;\n    add r9 r2 into r10;\n    set r10 into yes_commit[r0];\n    get.or_use no_commit[r0] 0group into r11;\n    add r11 r3 into r12;\n    set r12 into no_commit[r0];\n    get.or_use yes_blind_sum[r0] 0scalar into r13;\n    add r13 r4 into r14;\n    set r14 into yes_blind_sum[r0];\n    get.or_use no_blind_sum[r0] 0scalar into r15;\n    add r15 r5 into r16;\n    set r16 into no_blind_sum[r0];\n    get.or_use vote_count[r0] 0u64 into r17;\n    add r17 1u64 into r18;\n    set r18 into vote_count[r0];\n    get.or_use total_ballots[0u8] 0u64 into r19;\n    add r19 1u64 into r20;\n    set r20 into total_ballots[0u8];\n\nfunction resolve_proposal:\n    input r0 as field.private;\n    input r1 as u64.public;\n    input r2 as u64.public;\n    async resolve_proposal r0 r1 r2 into r3;\n    output r3 as veilsub_governance_v2.aleo/resolve_proposal.future;\n\nfinalize resolve_proposal:\n    input r0 as field.public;\n    input r1 as u64.public;\n    input r2 as u64.public;\n    get proposals[r0] into r3;\n    assert.eq r3 0u8;\n    get.or_use vote_count[r0] 0u64 into r4;\n    gte r4 1u64 into r5;\n    assert.eq r5 true;\n    add r1 r2 into r6;\n    assert.eq r6 r4;\n    get.or_use yes_commit[r0] 0group into r7;\n    get.or_use yes_blind_sum[r0] 0scalar into r8;\n    cast r1 into r9 as scalar;\n    mul r9 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r10;\n    mul r8 4756945026257194583189722752066097511643190336079386933095348702435126773568group into r11;\n    add r10 r11 into r12;\n    assert.eq r7 r12;\n    get.or_use no_commit[r0] 0group into r13;\n    get.or_use no_blind_sum[r0] 0scalar into r14;\n    cast r2 into r15 as scalar;\n    mul r15 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r16;\n    mul r14 4756945026257194583189722752066097511643190336079386933095348702435126773568group into r17;\n    add r16 r17 into r18;\n    assert.eq r13 r18;\n    set 1u8 into proposals[r0];\n    set r1 into resolved_yes[r0];\n    set r2 into resolved_no[r0];\n\nfunction cancel_proposal:\n    input r0 as field.private;\n    hash.psd2 self.caller into r1 as field;\n    async cancel_proposal r0 r1 into r2;\n    output r2 as veilsub_governance_v2.aleo/cancel_proposal.future;\n\nfinalize cancel_proposal:\n    input r0 as field.public;\n    input r1 as field.public;\n    get proposals[r0] into r2;\n    assert.eq r2 0u8;\n    get proposal_creator[r0] into r3;\n    assert.eq r1 r3;\n    set 2u8 into proposals[r0];\n\nfunction verify_tally:\n    input r0 as field.private;\n    input r1 as u64.public;\n    input r2 as u64.public;\n    async verify_tally r0 r1 r2 into r3;\n    output r3 as veilsub_governance_v2.aleo/verify_tally.future;\n\nfinalize verify_tally:\n    input r0 as field.public;\n    input r1 as u64.public;\n    input r2 as u64.public;\n    get proposals[r0] into r3;\n    assert.eq r3 1u8;\n    get resolved_yes[r0] into r4;\n    get resolved_no[r0] into r5;\n    assert.eq r1 r4;\n    assert.eq r2 r5;\n    get.or_use yes_commit[r0] 0group into r6;\n    get.or_use yes_blind_sum[r0] 0scalar into r7;\n    cast r1 into r8 as scalar;\n    mul r8 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r9;\n    mul r7 4756945026257194583189722752066097511643190336079386933095348702435126773568group into r10;\n    add r9 r10 into r11;\n    assert.eq r6 r11;\n    get.or_use no_commit[r0] 0group into r12;\n    get.or_use no_blind_sum[r0] 0scalar into r13;\n    cast r2 into r14 as scalar;\n    mul r14 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r15;\n    mul r13 4756945026257194583189722752066097511643190336079386933095348702435126773568group into r16;\n    add r15 r16 into r17;\n    assert.eq r12 r17;\n\nconstructor:\n    assert.eq edition 0u16;\n",
+    "verifying_keys": [
+      [
+        "create_proposal",
+        [
+          "verifier1qygqqqqqqqqqqqztggqqqqqqqqqyvssqqqqqqqqq02cqqqqqqqqqqv0lqqqqqqqqqpu42qqqqqqqqqqvqqqqqqqqqqqg8qscdfhq676a5q9c45a68wqyr3lsp3whtdy8ats2jzqfe8pm52sdf38la33xvwh733e7rxkrg2vqjamuhrzv7vm6vcc8wwmucwh9tt6te4scjfcnjss6mfmfpzpe8pg0dgz7ly7tz4xmlmp9jy8m7eusr3xjtkev26s2hnja3cp0say2hnqt0htkhzgsrm8zkkj2cnpzg4p7lujk928rkud2g22klg3sy7vdq9x9lf9w8vurekfse0d4hw2rsvv2curjwf4y5yuwec738msmyczsmg2m9csj36t4lxzqeu425x9v9qzkjnqzr3rhgz3zgyvdku560k9gmhh6rw2sljd8ardzjqnv2qemryder4xz34repmty2gpc83kpmuq05x32l6h34hkm7c7u9j9urrgyp2ahflj6xmzwh8ypwt56qxrtnm9luxnyj0uttv60csf7kzzwzqsprenkq30ek6kr0qhfytyzyqprm65f2hckcxwtsg7hy8lxzvae329zly30ahf78nc0rzkprhfskh9gqlguxdxt6myzkkxu8wp2a3c5shzn8w5mlt2e4evccp8r7h0fxv3j6xdudavmw34n0pw3zxkvkt7gsrpn2tk369e8cjycqtz2f0nzjwgqah5hfz06td2qdq7av622faywsfqp9d376cphxskz760687qzrqtllpfkrshl6ua0xgtyfn0s9v6lwfx6ah5aeaa05d8dapc78j7ehetjjcsfh2qnpkham3sszk5p8gqa0ptv4arss0drnrzr7u8hsdz32yq660wd6vexl4hkp8p738ckhh5m04w8d09ut7cz9fyey33py2spsgcx7ruqznkxa0d0g5elayanh6atzwlmkxw3dqrekdjeeas6xtm3vtv0w9mzz0vy4jjkgpcdk2fspjy9w9kva6rnj7dxwywuvevdp25dngwm6a3aqa0sgnuee76gmacaa9vqqqqqqqqqq5aa2re",
+          "certificate1qyqsqqqqqqqqqqzswqxy7zgvr5vngww2zu2wmzjllgstcnxxjpr4ym8j97xnva2x5nvn4r08t5n4vlg7gmlxjnpm5zqsqaz00r8"
+        ]
+      ],
+      [
+        "cast_ballot",
+        [
+          "verifier1qygqqqqqqqqqqqqqs5qqqqqqqqqpnpgqqqqqqqqq2epqzqqqqqqqp8ysqyqqqqqqqzetcqqqqqqqqqqvqqqqqqqqqqqyz6c8g0ake70c0kt0rk4n3kdnygjqhgt8awektdavqd8ee6dg0ee43axdw0xaq39ra8nk38gf8euqch02na7radugcwrt642n96v2svmh55ggtvsnsagyyx7sev9y3qk9t5t76fxly7lxnq9rjlnr2npqppjd3p7qzrue3qreslmxrw4p8rx877kmfrww5fmp639zyeyts30mv0m4gqs3ppj0ehrervdz3c4tsprvk735hve2dnweg6xrucrm8grjqwgczx7htx5xrpxs3tmjy5lj4wg6ejv99kvfy583k25jx7dj0qpwk59xjhd7kvc4psuruef4nqmmkc29egs3rngveakdrn383xnxtd7txvuzxjg42dzhhzxj6a0ad6qzfdagvrt760a3tkgcfzenazzl0z2lmqre3fcnclqtd4tf386mzgtg3d59c3ksusgxnj8wwcezf8sqzsw2vlm39rm32p9y2vq2tjm0jerdk5u2djjxmudtnaak40s96n5w0m748vs8s6sdzkxxtjuk353qppgn50egvk5yac2kh3k8nqmact8sk07jkxf05n0j74j4v73l6gkx96qzm6pdxeuvt30hjhlwq5q7sza8h27wat62ewlxnk7kw5qnejd7zlcnaxat6sdlp645f5ry869wzg5jvwvwsstsfdh9zgt4k9queqrhs4f5t75e4t3c4m2qtc20amqm4kqn090kq346wr6p8fa0lq9ff0vumrgtzzt5rhw88gdd8reu7xq20l3s04m6cur9u5ca7xph85mszrxhtp48njautwepaksv0rjehz0fnpv6kmc7zjss0f0atshj55vqk6z3kr7kzej2q9fsgtyy3vy6xg9hd50hzgm92nrnxw9zp7wu408mw4m5wnj4erlfynr37yzte3lcpx9zqw8drmd7q3k938dhjcvjt08lgx26w9v5dpfg2f0hmkkyl02w4knsqqqqqqqqq55tza5",
+          "certificate1qyqsqqqqqqqqqq8fd7fjvdjehgkvaqhl2c67n8y3w7amym8jcct87rpac3hxtkhlpjczyx4x0a6skjqzx8u6vvgukwqqqpza7w4"
+        ]
+      ],
+      [
+        "resolve_proposal",
+        [
+          "verifier1qygqqqqqqqqqqqrnxvqqqqqqqqqxvvcqqqqqqqqqtelsqqqqqqqqqsa4qqqqqqqqqzqyxqqqqqqqqqqvqqqqqqqqqqqq0khf8apee97fkul2udsx07kqsy0hzz6gh5ruyx9lp3jjx0kvhqvx2k64xxee68udfvf4hcd4gavpx65zrcxxetjc2aqw4k6mlxzdjmj74pw5hp3m38uncctmnx9fa89yh5s2jjx3xd3lq608egxxxkgqzurs8sz7xgtxrr8l3ju8zs4j7x5xw8pz8a6tah527zdxx5kvcvccw9jxl0qmxyxt07chhdlj42fnqpq5kfk3nrhgvadsal0zflp7c68zm9zkcrf8vz853yd33vukg7aamy2v5utdz7qwlzm9zxjmk4ujuqg5w58vjk43jnq32ezj55t0e4cycqfyqtmz90ttxjhg8n46ycczs7umxssxpmndhs4dpj7afn4fjvq4gu5xw8ns8mcjkxl5f5d60k0rmfjlgpuuacdp9hsa28s6dns47sa3nmc6f3ua4axmt22p6rhmcmyqkfrehegagfhys9ye6eseq32sh060pmlnsdtznevh2f38pfnvlejcryqd3ue9dqsfraj2q9kepergp9qf4ce5a5hqqfqe0n4xmcvlpr43d0ux4ghx36m369p4t3g2a64yttddrrszv3jyrr2nvzu2cgnqqpemu030547cnhfac0urhwyjayq0t40g7un4wef6uy6c8sf3m56r8q9hh4p00kxglsh93q9lnrc0lqpdhm34g98nhdh6kculu0dustct8px4k57yxzt7k5v5h6v4w2t67x082vmy53zp63hfhjxzv4l46qqxd24uezfxfzqytasnfylq0yxtq6x2gaderd9hu279qs6e23dkvpnkk7pndmmqnrlv4cug7a82l45qdrs3903gvfan9ud3n9uqajzhqw4hjdqwdlyar9a73063hmsenjg8u7paweg90gcrld2sfe59dgqcz2s2z84ftzrampuc8vfjqm6s0f39ffdt6ykjua5ves9lya900hrr3pyqqqqqqqqqqhc64qu",
+          "certificate1qyqsqqqqqqqqqqy6q9wvyqdf9lh7plrv996ewwe8tx7f92p48jtn7eyxh2qrck6cq4uxv08m5hyk472rpq5vj8n7wsqqqgz3006"
+        ]
+      ],
+      [
+        "cancel_proposal",
+        [
+          "verifier1qygqqqqqqqqqqqpdxsqqqqqqqqqzgdqqqqqqqqqq3eaqqqqqqqqqpe4xqqqqqqqqqqyyvqqqqqqqqqqvqqqqqqqqqqq88nyyk3jlt02rkenjcrjf3grdwunqp6u8xa470kvt6usc874wdjvc43h2ft4tkk4uudg2gqjfuvyp0khekewn4jurhsztpmptcj7a5kzaeyerqdnqxd8jd0t9nr58j4t9p6q7xha6xztyvznxhxl3p79crz4dl2m45hqv544dluyv0hfl34ngfs8v50lnkhd7z4a62aqzefq83tf8x5ru5hjxwf5jy3kxjyd7qq53h4wde0rxapyddgu3f060mz6qeykgvw46d2lp9weshrga3jra368u86vky9hhlvwp862x64x7lqzqqzu6r7zcjycnre7k74y6te8wjgdketca62jampmwcuc70yar36htslfrl37m3mpzgd86z3zsx6qz4k9hftnddfda0fznrrq5t79cgt8yaz4xg4vx9g3wchh5g2uyzjquqz3xd6lj0u79sxhvj3gmwjsqmercrg7fy074aq5gtnzxr8jy42mtqn2syskpgj69gpjju0swckvgng43vnm2pymd3wckgww3jqfgzqd6qgd8j8teh9y3r8768t4rp36xytsqdfl96x3thuq4wjw0m039cfgs4ccnxy8w7pfu2sn8z5vysyf2l2lw66srp4hn06p3zhyzagal97rxl2tx768hjjdpwfpacw8fkz9q97r6hmtnpg2a0yewqze27q9wl50lve0d20rqx5kmtcgmhzgz3q2uhm05j35c3ar7mxyj5x04updccpur60sp256f0pt46g9pngqgrsglqhrd0z44xlyw25a3zzls725yclcwpfwls4f0ukzqfj0kxlmlr9nh05a7gtjsygannefrrs5q097kmqk9ula6eyrytnr3uxp4alae8g8vhgwshug2f4q9h5ty7aw6lg8qkpqc0gq46cws378s56acpn23u20j8dh0wdvs7sz3m5l2zgkatwjag7k9ps48k05phlx0a9akl9yqqqqqqqqqqupw4cr",
+          "certificate1qyqsqqqqqqqqqqz9p4setaw4tn28gtdwq97vqd3muagjyzcqejzvsr2t2cfex2x0n4uy6luca2u4zmlspue04cufdwqsqvy0sfr"
+        ]
+      ],
+      [
+        "verify_tally",
+        [
+          "verifier1qygqqqqqqqqqqqrnxvqqqqqqqqqxvvcqqqqqqqqqtelsqqqqqqqqqsa4qqqqqqqqqzqyxqqqqqqqqqqvqqqqqqqqqqq99jcgcgwn9ed425q33yruzvzqgtp5h2hmxt7wltsytmkrzqclrjp245v2j95va0ng9n6jq4m0q7yq6z4cgxh3k3x5e5ez67vg540gl602y2523n7tk0kutgpmktwdvu9z5dssl63lawaap6ezsgtnvzysqurs8sz7xgtxrr8l3ju8zs4j7x5xw8pz8a6tah527zdxx5kvcvccw9jxl0qmxyxt07chhdlj42fnqqqn8megd248caxmys7elk4xwf0s4u0f8w0kv3q9yn0rz4p897qc2pmqc9r56w74j08480uwz3g9xqg4yeutck5ftpga2yz6k47wfpqmwmjvvqa7c8nxk3jetad5thls82wa9sfdnfap4ytmnhp24kk79uq4gu5xw8ns8mcjkxl5f5d60k0rmfjlgpuuacdp9hsa28s6dns47sa3nmc6f3ua4axmt22p6rhmcmyq4lwpwalltcfu76ysukuemjcwpdp2lxz584wjvua533nkpq32used5q0c6pv74j2s2huqcd98p5dspj02fhmu02emhhhzvv0k9mt9jmdu8qudf7hn5ce7hc3ym2pkv5edww3afap77mxtsk8h88azf2hsqpemu030547cnhfac0urhwyjayq0t40g7un4wef6uy6c8sf3m56r8q9hh4p00kxglsh93q9lnrc0lqzmsns9nqay62vddma37ey7yv7uhwuw73sssrzqmmznen3els3uyk6ddkcnq64d73hk32rhvndfr6qc7qz0gfen0wh3rdjtejj4kz3rglme60xy3as45hkd0y6tla9dpxs0ggvngjhltuwurnd3za68stcqdrs3903gvfan9ud3n9uqajzhqw4hjdqwdlyar9a73063hmsenjg8u7paweg90gcrld2sfe59dgqcrwf9fyvm9vhwp5rrq0c8x3054c3g508t3f6hcgpwtdynyu75mlwvc3rsqqqqqqqqqqhfstk",
+          "certificate1qyqsqqqqqqqqqqpgk7fvukgeckql0lq3r7r0wtacmenr2y85terjhsmndgl9h9sm69mlvxw3w8xyu98raegka25s32qsql5ydt8"
+        ]
+      ]
+    ],
+    "program_checksum": [
+      "187u8",
+      "178u8",
+      "88u8",
+      "28u8",
+      "100u8",
+      "67u8",
+      "214u8",
+      "244u8",
+      "116u8",
+      "133u8",
+      "110u8",
+      "255u8",
+      "14u8",
+      "201u8",
+      "201u8",
+      "12u8",
+      "90u8",
+      "166u8",
+      "216u8",
+      "191u8",
+      "157u8",
+      "144u8",
+      "82u8",
+      "140u8",
+      "84u8",
+      "230u8",
+      "213u8",
+      "115u8",
+      "240u8",
+      "228u8",
+      "187u8",
+      "227u8"
+    ],
+    "program_owner": "aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk"
+  },
+  "fee": {
+    "transition": {
+      "id": "au1r9fqxt27k553er42n9s9x9yrvfefn25mujw4mdqv96g8m9uucsrqhnpv40",
+      "program": "credits.aleo",
+      "function": "fee_public",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "7942859523798964747999200797125382268334507178249473474343355548827252554795field",
+          "value": "9162010u64"
+        },
+        {
+          "type": "public",
+          "id": "2867714508818753439525406319224429223493339331181829859965122528440352350309field",
+          "value": "0u64"
+        },
+        {
+          "type": "public",
+          "id": "3679876621775593056297331952345577140388885708064561514731632874955314606478field",
+          "value": "4309141613127015099650170941297489869543712559338435300678120147600776586430field"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "8091349800953129736272700667182537766539270823459901455369942356278903761331field",
+          "value": "{\n  program_id: credits.aleo,\n  function_name: fee_public,\n  arguments: [\n    aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk,\n    9162010u64\n  ]\n}"
+        }
+      ],
+      "tpk": "5101792994171615806069202036957147774949868282830217218551854564310964642458group",
+      "tcm": "2066338029840755169188257548835529541990548080017710246947057847161205057917field",
+      "scm": "4990598203065612327402342545339627748222025568779372249763209852975636348167field"
+    },
+    "global_state_root": "sr15p7304m9rfn5ys6trgfgarpy5u7nnxuv7dz37na4z835vx2lkurqyjmj95",
+    "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqwqqeaa9gycl8y524g2934k0cup0hzpg8m5gt3ra3rsl5g4xh2xtasxvmcej4vttatd238gjuf89sqqy5akqvqeqfhr4ynlvrss4jklvap54x88xu64qq9kuxxc9nle4wskqu7003ptkpmrfp7f2sysqy5mq9vlq4jplua9gny2mj7ucpqsl73ctpm242emsafg0fc57e3776e67zhjt22vznpx08x2egcp0sc02q9drpunv4pzvy73twyxym6yzfa5zruxqsejeky6zwq449m2g0wvcae0ku43xzh927jtx8n99syvf5pxk2tgfy2rgduwllsr4q0ve28ylwwp2tytxl89k7fms9w802mk0g8tz9rvxllk8nlegna4s06fkqczwpg5nj46qaz0uymfe20mvhdln9u4y3wk7lpjv7cfg36m4uzeptrswp3kpfs7e2cmuwjt7pz80ytszvaxsnhmmstq45l8ne7xvtf0wn22sarafpmky2tk5u7zn8l4fq387tmuzgmg0jsvryracd67elgzq2n505j3zyusxcg2md6v460agzna8psw00fy76zljpf7w800p6y804pmh7vs4t7nrxnluup890502q09x8tj9mh6yxkuz8zgpalmk99gty74q8yfhj9utdys5ry3mk9jeht20rk7nv3ly26n3nn5mg5ktyp0hqf7qx99w3v83k8fmh8w5agzx9wccxr7y3gx7vy9ck4pfwmxgr0hq2z8eqyekjewlwxs9xvw0pxy4q5m8wn6gzxkz4t4xc6kk0jyq7w8vxg58sk0tu527lmsflzd5adk239cyqzva3c34dj5ey5uk8tpqxlrstrdelqtj923jjfad9pc3ug7w2ssafpwfpfhqf77h8ewm3qhrg9u8v0a5celsd3waxu5qwzynkcc3ev5cjvy2jc0c7tmzwfyuc2k4r248mfvgyup5x54k5lt2taxpzdwfpl69n8vp2pyh9yt5t0ns9eywxxazu3r7e29c58wcdp598jc6m87qu8m6296qk2r33v44uuvpkp2g60e86jy6g258jqfqnvmg4xfhquygu3m2nygpzft9pxsy95ql45zwguf34t66y0jnq3lgcxtkpwpmx4hr2npv5a8jlvvmu5wussxz56ynpled8g745np37dumlw2dze5skrmd7vxavsjeypf4qphxcxqvqqqqqqqqqqqnwfj7dywzcwflz2v6pl845hw7hhqscc9klz97nteamd59c40nea264nesp4hjtdlp7vfqdvknzmqyqfmsje8z7a6e2m5jankurrmuxgesk4utzhavwf24znk08qlzpqew34m3egr2awh9ftu99pvwwex6qqq84xtaw58adw8zzyv002hda6pkeaz9m5j0j6djyutz5mgm2crjj3yd58ps30cjauer9hurtgk8lf5pmdqhfvqt9fex9ucg7mjxs0mc6fnnu5xva7qxjjazn30pddqng4qyqqtzj4ew"
+  }
+}

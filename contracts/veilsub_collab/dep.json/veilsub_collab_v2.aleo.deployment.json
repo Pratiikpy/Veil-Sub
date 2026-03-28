@@ -1,0 +1,113 @@
+{
+  "type": "deploy",
+  "id": "at1dxny9w43lh7ng02hn3jr85vwge0a9ld92slrjc8cgefn90sflcysm9tz3g",
+  "owner": {
+    "address": "aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk",
+    "signature": "sign1ep8ntk8jxhwkthwtyf5crtxy5ay5562g5qtgfx3m2zf2vsec0yp24480088aslw6hk58u5rz95q8yl7mrf9zc6g2wytut22d8kzrzq0yfl7vfmst5e6vevc6j5rhrw6swrzfkzkehlveaktcrgqy3z6wpgaa2qur8k03636f6xkfgsz2hapqyzd8aqfezxplq7cpvehd536sxd3pdus"
+  },
+  "deployment": {
+    "edition": 0,
+    "program": "import credits.aleo;\n\nprogram veilsub_collab_v2.aleo;\n\nstruct CollabKey:\n    creator_a_hash as field;\n    creator_b_hash as field;\n    collab_id as field;\n\nstruct CollabAgreement:\n    caller as address;\n    partner as address;\n    collab_id as field;\n    split_pct as u8;\n    partner_split as u8;\n    content_hash as field;\n    created_at as u32;\n    active as boolean;\n\nstruct CollabReceipt:\n    recipient as address;\n    collab_id as field;\n    amount as u64;\n    total_amount as u64;\n    content_id as field;\n\nmapping collab_exists:\n    key as field.public;\n    value as boolean.public;\n\nmapping collab_active:\n    key as field.public;\n    value as boolean.public;\n\nmapping collab_revenue:\n    key as field.public;\n    value as u64.public;\n\nmapping collab_content_count:\n    key as field.public;\n    value as u64.public;\n\nfunction create_collab:\n    input r0 as address.private;\n    input r1 as field.private;\n    input r2 as u8.private;\n    input r3 as field.private;\n    gte r2 1u8 into r4;\n    assert.eq r4 true;\n    lte r2 99u8 into r5;\n    assert.eq r5 true;\n    sub 100u8 r2 into r6;\n    hash.psd2 self.caller into r7 as field;\n    hash.psd2 r0 into r8 as field;\n    cast self.caller r0 r1 r2 r6 r3 0u32 true into r9 as CollabAgreement;\n    cast r0 self.caller r1 r6 r2 r3 0u32 true into r10 as CollabAgreement;\n    cast r7 r8 r1 into r11 as CollabKey;\n    hash.psd2 r11 into r12 as field;\n    async create_collab r12 into r13;\n    output r9 as CollabAgreement.private;\n    output r10 as CollabAgreement.private;\n    output r13 as veilsub_collab_v2.aleo/create_collab.future;\n\nfinalize create_collab:\n    input r0 as field.public;\n    get.or_use collab_exists[r0] false into r1;\n    not r1 into r2;\n    assert.eq r2 true;\n    set true into collab_exists[r0];\n    set true into collab_active[r0];\n    set 0u64 into collab_revenue[r0];\n    set 0u64 into collab_content_count[r0];\n\nfunction split_payment:\n    input r0 as CollabAgreement.private;\n    input r1 as credits.aleo/credits.record;\n    input r2 as u64.private;\n    input r3 as field.private;\n    assert.eq r0.active true;\n    gt r2 0u64 into r4;\n    assert.eq r4 true;\n    cast r2 into r5 as u128;\n    cast r0.split_pct into r6 as u128;\n    mul r5 r6 into r7;\n    div r7 100u128 into r8;\n    cast r8 into r9 as u64;\n    sub r2 r9 into r10;\n    call credits.aleo/transfer_private r1 r0.partner r10 into r11 r12;\n    cast self.caller r0.collab_id r9 r2 r3 into r13 as CollabReceipt;\n    cast r0.partner r0.collab_id r10 r2 r3 into r14 as CollabReceipt;\n    hash.psd2 self.caller into r15 as field;\n    hash.psd2 r0.partner into r16 as field;\n    cast r15 r16 r0.collab_id into r17 as CollabKey;\n    hash.psd2 r17 into r18 as field;\n    async split_payment r18 r2 into r19;\n    output r13 as CollabReceipt.private;\n    output r14 as CollabReceipt.private;\n    output r11 as credits.aleo/credits.record;\n    output r12 as credits.aleo/credits.record;\n    output r19 as veilsub_collab_v2.aleo/split_payment.future;\n\nfinalize split_payment:\n    input r0 as field.public;\n    input r1 as u64.public;\n    get.or_use collab_active[r0] false into r2;\n    assert.eq r2 true;\n    get.or_use collab_revenue[r0] 0u64 into r3;\n    add r3 r1 into r4;\n    set r4 into collab_revenue[r0];\n\nfunction publish_collab_content:\n    input r0 as CollabAgreement.private;\n    input r1 as field.public;\n    input r2 as field.public;\n    assert.eq r0.active true;\n    hash.psd2 self.caller into r3 as field;\n    hash.psd2 r0.partner into r4 as field;\n    cast r3 r4 r0.collab_id into r5 as CollabKey;\n    hash.psd2 r5 into r6 as field;\n    async publish_collab_content r6 into r7;\n    output r7 as veilsub_collab_v2.aleo/publish_collab_content.future;\n\nfinalize publish_collab_content:\n    input r0 as field.public;\n    get.or_use collab_active[r0] false into r1;\n    assert.eq r1 true;\n    get.or_use collab_content_count[r0] 0u64 into r2;\n    add r2 1u64 into r3;\n    set r3 into collab_content_count[r0];\n\nfunction end_collab:\n    input r0 as CollabAgreement.private;\n    hash.psd2 self.caller into r1 as field;\n    hash.psd2 r0.partner into r2 as field;\n    cast r1 r2 r0.collab_id into r3 as CollabKey;\n    hash.psd2 r3 into r4 as field;\n    async end_collab r4 into r5;\n    output r5 as veilsub_collab_v2.aleo/end_collab.future;\n\nfinalize end_collab:\n    input r0 as field.public;\n    set false into collab_active[r0];\n\nconstructor:\n    assert.eq edition 0u16;\n",
+    "verifying_keys": [
+      [
+        "create_collab",
+        [
+          "verifier1qygqqqqqqqqqqq8sv5qqqqqqqqq0jegqqqqqqqqqaymszqqqqqqqqgwlqyqqqqqqqza8kqqqqqqqqqqvqqqqqqqqqqq9ygrquv8gj69la2plkyxrn4qjhznh6335c247zf8pp7tm73f3geg9s58z5j5v2ayvre0tchv6g8gpav94lc43w2846jsxf74grfk2qnedrgpcuvs4q48g6ph3j6nvueq83de9sva866y8sez788ps9znsp2cplw2udul8skph4srwzfqq4ugwqs0zt28v92cs4nq7c82w36flaqchet22t6238mw8pdnnvn4asq465euy378f8uf7g0jgzp54m5zga42x67846gm5y0fhwtkej52qkan2s5hdawg3u5qhs393u7ehuqd9umthjaj7kc6nl43qw20vvkskf676scsgrljulm8n8e0cpvjphhwkz4cg7vayjs23up3a9dqadvqzqmkpmh9haswdcqv2luzx6fsg04xycuyn3hhany36t9wgxlsets70j7a9awmtkswaxwrpm6288uqqr4fmkjpgx0l2uat907a30wfyu0u2q0wjctz6aejm2m2kgjgrrzfas84sujhazp8gl3ta7tezcysgqtrapuhy8qfjum5qw2qht07d2j6fzqy5r0p37hgyt842dawzrc9jk9ak57luf29743z8xwgansa3qqhkqtmskayra88rq5q555krhdzuaxt95k2fsgjkkedhzgdtk3l00h2qhl7z6uqtvsp9g3z7vvw4xqgedc5py2uj2ktafc6azl9dl0p2qllz07fuczvtec98dtn32fw9yahr7gv7zzw4cvfsps9q3smxvvq7f4423jd97qn77pqg9xnce8yptrjhjm9yvsge2atwy30a0mrkrc2gkcynhsxrha4h2pcn2ut92ssqa3k2s82vl4mj5s36f4axl6sejscnfdhry33r7ulzjpl84enrgn95x7duy0wey9jpfmtl465audtcqdzwahlvsn84jn7v7d6t4apc04ph9yg2ng72zm9r8etemgql6hm867pqqqqqqqqqq2mmmmt",
+          "certificate1qyqsqqqqqqqqqqz7n5vg59a4yxlazc46a7f8v0zv89tfkajelzp3x32c8n6jlvms6jna7v3u8qpvx4y3c5cwjukc36qqq7xn9wx"
+        ]
+      ],
+      [
+        "split_payment",
+        [
+          "verifier1qysqqqqqqqqqqqy4uyqqqqqqqqqtpcgqqqqqqqqqqgmqyqqqqqqqp2hwqgqqqqqqqz2nxqgqqqqqqqqvqqqqqqqqqqqr2wxaguzse6e2cpsnvtj47fw4dyt0y7awrae47al3y9yz07p0ldu32czn2tkeuxp66dd9nrcz8yspucnpfaf5tatldgpyn7y7ywcpd9njp4qsy8jlwqrrk6fvw5f0cvvhagges5hgqacqpw9xwcjy3g7cr2vnus4rwfth9ygnm98x4wn7ppf8s09x49sp87ez495jugza0f4gkgzx8dh7z6eq22fjxn45xwelsrmpk97n53ndgye90mvjr3hccpzd2cxcj5dg5d5jrmejulu9vxtza5ppa9v3hdzythgzl2hevmv5rqf7pytneh02hl8sllq54uy4ex6svyzgv4gyv9r2aqx4cfyu5y7u34g4nx57e7q2urxznzwxjpghpsqszqua65s2arf7sg35jg2vzj8d3gh5ul24g2qejzdyf3jk886ks3luansxz6zp0a06xdxeerq6p2yqknqd00dmvcn950600dnecqyazs29yxt92veef3lvqu57yguuw63233ljfl4r6lyhpu93q9u3t34gp8suxkgrmwef3aq2wnpnp59nrg3tz0l4jz3ymllar6ggrn33q56gh275sxa069tykmylf6xkj8r7qysdv0f4j9mnf0cakvlznxdzfta2pllcjvlhzzf4eu4e6sx3x2qd9s6fjx9e4ddmxj2esvqzyvq8nq24t0d2sph27pgjs88stsf4v64tnkv04ncjt8hv4ge39sc0s8d0rcpnwkegl68udnntkfwr6k75xkqxafhvyhuvhqqrftaxes8dwdtxachwaw5dm7fvujd3cmyxga0yfskwzm3fhpey4c65kgl09h8agauq5arnhqg86gp4q85rfzk0gaw9zklnvpgs9qufjggxx7wwmguvm3qfp3hx5mpa7eamduek3cdz5cvgrm6k04x5tzrn64fplktdjl044t9uz0kmegvexzr5qk224m05snqtug4qzqqqqqqqqaucq49",
+          "certificate1qyqsqqqqqqqqqqqvg36yenzekutywaaexv5p8dv47yenzgp7gydc7mxt6axynvd72ddysarngx7kmxckvx6kvctn67qqq4snfh2"
+        ]
+      ],
+      [
+        "publish_collab_content",
+        [
+          "verifier1qygqqqqqqqqqqqrafcqqqqqqqqq8unsqqqqqqqqqstxsqqqqqqqqq6slqyqqqqqqqzckgqqqqqqqqqqvqqqqqqqqqqqp2pjh379aj9tpugd5ra4rkrpn0anmlxqp6pslcr3jemcpvdxkg6pw27eqvnuma2cglcjy5j5r3svqxa6zf947uvr8zae3j65deplgnn7x06x3vqlakkmz2lavdd6sh3kyxacaazgjeufw42sjxazx49pqzyppjqhwkaxkssfe7pcjshwe2lq55ren325gky8eg4fmjk2txtpwscg675j46e8acn6jzzp6hu29q9wklldjg45yhvghwqdl8gsjaey9x6764azvrz3j6m4vr4r64v3m3nxf77p5gc6853eatt5rp4srnq0s3djgcuq9xpxqfw2vgev78ycml0sj8swgnnk2gducncrctugy4fmetc0qymgdx2njmlay93yrfxq8a62z8ayukax5utmuqaff4ln36fykmlyjsfgxz437mw8fwlgjf3gej40wdxk9f0c9tyt89mvw6rqq4y79xjuuj66hdw9wuufw49kny6u906gfy8p8ctn8n55q8ykj03jphy4zq5vx2m0npmjy3j5kp4kgz30fsx798m8xq0xj2wcz8mlheczguawkmjkuy2qlaaa8f6zt90xdfts3d2sjkxemevetnp4k9j9mqqgtxuxnxnxrusdmupwc5p8fzayjnelu3zlgdfy8utfms7xg39nw5m3qrmcmz92y3px6aaa47wynxq2qjzw527sxyn3muwtc3auxfaz5hsmszgef3gzpv8k507jak0jjcsp6rsq3cjxry6q8l2tjwhk29zqmxcr7r6qtuyvdhlete6t2ppum059zanfaefg0f3pk53pgr9l7htu26papp7cpyaq6erjngm65f2upty4tmtrysmglrmk78u84ngkfxcvj5tp00xchq0gd30uaq20gjwt9vea90m8xhzfaj8rusvp8p79qqvr0dstflh3x9xg2r8j50efnt6huahj9923lhty9e7kr87k4th2zzf4qqqqqqqqqqy9jsyz",
+          "certificate1qyqsqqqqqqqqqqrg23wqpznld83rmmn45nep8853jtsyu95z6cm2qr6gnddhhwkrweqtd9tmctunr4yza7zkjseppqqqqhmp6dj"
+        ]
+      ],
+      [
+        "end_collab",
+        [
+          "verifier1qygqqqqqqqqqqq9egcqqqqqqqqqtw3sqqqqqqqqq226qqqqqqqqqqkh6qqqqqqqqqzj9kqqqqqqqqqqvqqqqqqqqqqq037shdg2wjhm6vf9ht6wluv6x6rqpz6wthvhlg9tfvxgvx0s7yjmpsd0wnjfeksy97mzlej68zcvqwjws4kyg30qcjhql3yc0jzlwfqagzc8ava20f85j8cn4vwlhgevxly77pfgvzxj7ytxj9rvn7prcrjez530t6zj453zmj87nmj5mf7sdfesqnx3rp79y4jnvgffxklpjn6me3c6c2actwg9a3ka4q0a8s8q7k0mrzjjqnp782ljkaxscm66cv2ypk705m47fd35jqe7gs6u0jxr2m3a77045uyfry99uzta6pqx8sravfyr90za23hwf96dj60ngde8egene9llycf9hutpwxrr9v86qw56xc7mv72hlh2r922hrvsqut7pphknt0kmj2qyup4ywqfyhzxx5n6j52fjxtjutc3zc99dhpr0c7cdvz9d92ws4e0wwul0xqzvqva8w5px6xgkxlmh9rnngqx66tw4nczv84efzuusl4e0rcwhc3w9jlx0ke96dapz2rzmkn589qc8cr86w9jcmcjxx7u9mgxe82mcsgjzcp8vd6kd7p3tsqpzmqrguzq4scla9efs20yhacs6szxaxv4ptsp0tmp7cucf4mmhtzgtd7wvlawj0es4xz7rpenmk05l8s80tl42gctgt6xv3kqvq3d0cjsvw8ln5yqtllx4v2me0a2dj3jpk4kw78nnjha78gafr5407khp5akj22ln8dqus2jhyatt2a4ek3s7sg70tsgqu648xwtucl334h2j2k9h3ypycv6hjfqrrktupq4y5mqn0qxs652468gu5d28hwc23k7hw6rlp2mcppt9des0d7nzs397g6azkw7r5tvnjmrncvxxxhh6cgytw7a86v2qay79y3w59sfya5fz3upgx2pmcz70nzzrh0x083pyf03axh2v4gfkudw46flze4vhzyjrfzvaarc6p5a0sqqqqqqqqqdsyhxg",
+          "certificate1qyqsqqqqqqqqqqqhhfkggt47lz3dqug57jzyrqx0nnpfywpgxfr9gr5arzyljfq9qhhqj2g476zd7hjadkd65zzc0qqqqpeetwh"
+        ]
+      ]
+    ],
+    "program_checksum": [
+      "54u8",
+      "238u8",
+      "204u8",
+      "191u8",
+      "41u8",
+      "159u8",
+      "16u8",
+      "159u8",
+      "140u8",
+      "175u8",
+      "165u8",
+      "232u8",
+      "143u8",
+      "147u8",
+      "168u8",
+      "136u8",
+      "144u8",
+      "70u8",
+      "211u8",
+      "24u8",
+      "11u8",
+      "74u8",
+      "60u8",
+      "234u8",
+      "112u8",
+      "0u8",
+      "211u8",
+      "145u8",
+      "137u8",
+      "222u8",
+      "47u8",
+      "229u8"
+    ],
+    "program_owner": "aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk"
+  },
+  "fee": {
+    "transition": {
+      "id": "au1s97djupwx5ll8hcn46y5negg3m25z7x6vhykx6v45cq8cv5nqqgsdjke4z",
+      "program": "credits.aleo",
+      "function": "fee_public",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "2368646779432408285090755604784502004235978811954034681574844420550380433044field",
+          "value": "6602728u64"
+        },
+        {
+          "type": "public",
+          "id": "3152725187120453812896575734773006749947433583232915274057285458517186270295field",
+          "value": "0u64"
+        },
+        {
+          "type": "public",
+          "id": "5790774799466681229454460648576663732226746844220541159810562221381705991154field",
+          "value": "5901640303241548453725962226945425026119124828291962666258117358990691072147field"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "8296013829890437837300841534477393819367458688196581644971712516738108189773field",
+          "value": "{\n  program_id: credits.aleo,\n  function_name: fee_public,\n  arguments: [\n    aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk,\n    6602728u64\n  ]\n}"
+        }
+      ],
+      "tpk": "4767048917513146343089130772350979631073982327781231485446391844685582474045group",
+      "tcm": "7657370984778950177276774790605442880789069469545983735029157871676313535628field",
+      "scm": "6201273723971111712166249704289143999006697782453598996497168614791514017928field"
+    },
+    "global_state_root": "sr1afltspqugt3n05zkvjpldvvanp3jvxaht7guvn67phpnvqkx7sqsmj28y9",
+    "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqzs9akw62rccxyap46pxc733pmtcevxgn0c4mtmylzgsl8gjsj4datq5d9hu7gtvadka2x04s5csyqqym576l024axv4u357p2n2w3akc7u0gzv5j07av0r70rrj9nyuz7ntsptr9qas88ut6fx8thy2sr5qt9sguqp2sx598r37wss6t6dseny7jwsfh9ag2djj5m6auuafntn9yy79fyshsczjdxjajfxjxa2qqc9tpx7s83yschl5qynhyzhpq7fdaf9ysndy7n47wlx72e9cqta0dkcfrtnxjj278lyhw07kclsugqap7z4k92a9dpeln3gl0hq4zg4m9seap3pkhtj7yye258052qkw9jnmmxp9nyrmdrmejq547n4a6sq972ltkv6wnexglcyyqf2xd2u7sshzdmuf72xgyxwscjmp02yvv0ezj0wf8z4gyfsvtd2kc9h9jtqzlmq8zh3m754c7xj005m30fl63xl0ncxuggumfs684z7z97mtxcduvh2mtydmq72cxydt2x3t6puqp2y93afy3a809c6gvpmwv436n4e9qn80le0nx3v9ctxxncs2yahfyv5y0rcg5s3wht3ha3u7hsx6q4k7jkltl7qg2r8yltnnws0avm2vxcpjvvypkhn85wwt54w82ssyxcv3lsuxlurqhhuxexvwpyufgp044ktwytsw7cgpvcpddjv7pzw4jhfupe82jtvrn58j5jl9hfjg9522rvt30gqtnuf7ucmzzcgx7hugxred285vh37dcpsp4tk8t57rj8re8d430r43cjz93shv47v4gcpysmvzfywd7ac2ze63afynrzpn868lt8cwkgt9dm6gn23fcumpym28rul9he6tq0f3qyzjd446w3q8d7frkatk70uf5hln4vlcpkgcn7erw7tjsvxmavcpczeg2mwjcp4h72uxpm2uplhm6ht2f6hr9p9d8fff50lngw2uua6dr086j37s84pru49a5qz0q2sgefm9ug2phf3kc7q0uuyyejwe9xlxpv4fv4vrdgh3yuucxnfcfqu0mhv50j43gdt32nwnagyapmyl86k3lv3alhz8xevnspnx5n8psamez7wkcu7sszfnh87klglu0qxxenxghqce3q26xmh5v0ez8pjucmq6pq7n6xvy67v6jr5zhjp2vwvg9q8yx4jasyqvqqqqqqqqqqpv7qt2gxz2tumtpwywz7z3j6t2eu2laevfkysdfgas9swvcraj5r2etrl7pzka54ryjzmmgtm6jaqyq8zqtus4ss43jmjqj3d7j8kqf8vwqwernnd8y6z8prx8eewjan7n6642qv3p9cmhwawavepqfr5puqqyex9k6yp072yulcxztlt8dr7qxzr43r2p3k2kp9sgs5g3k25pfqhnkpu4relmcv68tfncuzqvjyv9kcft0yft4acq9fser7lhsgf203xe5eamq82vvp9rcp3p2gguxvqqqqg9py2g"
+  }
+}

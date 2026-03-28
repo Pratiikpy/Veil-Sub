@@ -1,6 +1,6 @@
 {
-  "program": "veilsub_extras_v1.aleo",
-  "version": "0.1.0",
-  "description": "VeilSub companion program: anonymous reviews with nullifiers and on-chain lottery with ChaCha randomness",
+  "program": "veilsub_extras_v2.aleo",
+  "version": "0.2.0",
+  "description": "VeilSub companion program: anonymous reviews with nullifiers and on-chain lottery with ChaCha randomness (V14 compatible, no records)",
   "license": "MIT"
 }

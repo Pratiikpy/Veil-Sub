@@ -23,7 +23,10 @@ import credits.aleo;
 //
 // =============================================================================
 
-program veilsub_social_v1.aleo {
+program veilsub_social_v2.aleo {
+
+    @noupgrade
+    async constructor() {}
 
     // =========================================================================
     // STRUCTS
@@ -49,8 +52,7 @@ program veilsub_social_v1.aleo {
     // =========================================================================
 
     // Proof that a subscriber has DM access to a specific creator
-    record DMAccessProof {
-        owner: address,
+    struct DMAccessProof {
         creator: address,
         creator_hash: field,
         tier: u8,
@@ -58,8 +60,8 @@ program veilsub_social_v1.aleo {
     }
 
     // Encrypted message receipt (both parties get one)
-    record MessageReceipt {
-        owner: address,
+    struct MessageReceipt {
+        recipient: address,
         message_hash: field,       // hash of encrypted message content
         counterparty_hash: field,  // hash of the other party (not raw address)
         timestamp: u32,            // block height when sent
@@ -67,8 +69,8 @@ program veilsub_social_v1.aleo {
     }
 
     // Chat room membership proof
-    record ChatMembership {
-        owner: address,
+    struct ChatMembership {
+        member: address,
         creator: address,
         room_id: u8,
         min_tier: u8,
@@ -76,8 +78,8 @@ program veilsub_social_v1.aleo {
     }
 
     // Ephemeral story access token
-    record StoryAccess {
-        owner: address,
+    struct StoryAccess {
+        viewer: address,
         creator: address,
         story_id: field,
         expires_at: u32,      // block height when story becomes inaccessible
@@ -142,7 +144,6 @@ program veilsub_social_v1.aleo {
         let creator_hash: field = Poseidon2::hash_to_field(creator);
 
         return DMAccessProof {
-            owner: self.caller,
             creator: creator,
             creator_hash: creator_hash,
             tier: subscriber_tier,
@@ -157,9 +158,6 @@ program veilsub_social_v1.aleo {
         private payment: credits.aleo/credits,
         private amount: u64,
     ) -> (MessageReceipt, MessageReceipt, credits.aleo/credits, Future) {
-        // Verify DM proof belongs to caller
-        assert_eq(self.caller, dm_proof.owner);
-
         let subscriber_hash: field = Poseidon2::hash_to_field(self.caller);
         let creator_hash: field = dm_proof.creator_hash;
 
@@ -169,7 +167,7 @@ program veilsub_social_v1.aleo {
 
         // Receipt for subscriber
         let sub_receipt: MessageReceipt = MessageReceipt {
-            owner: self.caller,
+            recipient: self.caller,
             message_hash: message_hash,
             counterparty_hash: creator_hash,
             timestamp: 0u32, // set in finalize
@@ -178,7 +176,7 @@ program veilsub_social_v1.aleo {
 
         // Receipt for creator (anonymous — uses subscriber_hash not address)
         let creator_receipt: MessageReceipt = MessageReceipt {
-            owner: dm_proof.creator,
+            recipient: dm_proof.creator,
             message_hash: message_hash,
             counterparty_hash: subscriber_hash,
             timestamp: 0u32,
@@ -233,7 +231,7 @@ program veilsub_social_v1.aleo {
         let key: field = Poseidon2::hash_to_field(ChatRoomKey { creator_hash, room_id });
 
         let membership: ChatMembership = ChatMembership {
-            owner: self.caller,
+            member: self.caller,
             creator: creator,
             room_id: room_id,
             min_tier: subscriber_tier,
@@ -308,7 +306,7 @@ program veilsub_social_v1.aleo {
         let derived_key: field = Poseidon2::hash_to_field(story_id + creator_hash);
 
         let access: StoryAccess = StoryAccess {
-            owner: self.caller,
+            viewer: self.caller,
             creator: creator,
             story_id: story_id,
             expires_at: 0u32, // set in finalize via check

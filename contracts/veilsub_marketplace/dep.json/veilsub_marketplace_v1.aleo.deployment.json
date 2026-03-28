@@ -1,0 +1,148 @@
+{
+  "type": "deploy",
+  "id": "at15h2v8zeqlst53udyxmlveslsk8wa43fqc9zcz88kpezg473lgvzq6s7l2z",
+  "owner": {
+    "address": "aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk",
+    "signature": "sign1lwtj7wtrjaryqn2c5ajtg0p2404epkcp4hp7dge824xmqtp6fsqzuh0jjtx3edt0j0pdewmz0scq333hnxfwsu4xc6tlfwg5p7lfwq0yfl7vfmst5e6vevc6j5rhrw6swrzfkzkehlveaktcrgqy3z6wpgaa2qur8k03636f6xkfgsz2hapqyzd8aqfezxplq7cpvehd536sx3aunf4"
+  },
+  "deployment": {
+    "edition": 0,
+    "program": "program veilsub_marketplace_v1.aleo;\n\nrecord ReviewReceipt:\n    owner as address.private;\n    creator_hash as field.private;\n    rating as u8.private;\n    review_hash as field.private;\n\nrecord BidReceipt:\n    owner as address.private;\n    auction_id as field.private;\n    commitment as field.private;\n    amount as u64.private;\n    salt as field.private;\n\nrecord AuctionResult:\n    owner as address.private;\n    auction_id as field.private;\n    winning_amount as u64.private;\n    creator_hash as field.private;\n\nstruct BidCommitData:\n    auction_id as field;\n    amount as u64;\n\nstruct AuctionBidKey:\n    auction_id as field;\n    bidder_hash as field;\n\nmapping reputation_commit:\n    key as field.public;\n    value as group.public;\n\nmapping reputation_count:\n    key as field.public;\n    value as u64.public;\n\nmapping reputation_blind_sum:\n    key as field.public;\n    value as scalar.public;\n\nmapping reputation_sum:\n    key as field.public;\n    value as u64.public;\n\nmapping review_nullifier:\n    key as field.public;\n    value as boolean.public;\n\nmapping creator_badge:\n    key as field.public;\n    value as u8.public;\n\nmapping auction_status:\n    key as field.public;\n    value as u8.public;\n\nmapping auction_creator:\n    key as field.public;\n    value as field.public;\n\nmapping bid_commits:\n    key as field.public;\n    value as field.public;\n\nmapping auction_bid_count:\n    key as field.public;\n    value as u64.public;\n\nmapping auction_highest:\n    key as field.public;\n    value as u64.public;\n\nmapping auction_second:\n    key as field.public;\n    value as u64.public;\n\nmapping auction_winner:\n    key as field.public;\n    value as field.public;\n\nfunction submit_review:\n    input r0 as field.private;\n    input r1 as u8.private;\n    input r2 as field.private;\n    gte r1 1u8 into r3;\n    assert.eq r3 true;\n    lte r1 5u8 into r4;\n    assert.eq r4 true;\n    hash.psd2 self.caller into r5 as field;\n    add r5 r0 into r6;\n    add r6 9999999999999999991field into r7;\n    hash.psd2 r7 into r8 as field;\n    hash.bhp256 r6 into r9 as scalar;\n    cast self.caller r0 r1 r2 into r10 as ReviewReceipt.record;\n    async submit_review r8 r0 r1 r9 into r11;\n    output r10 as ReviewReceipt.record;\n    output r11 as veilsub_marketplace_v1.aleo/submit_review.future;\n\nfinalize submit_review:\n    input r0 as field.public;\n    input r1 as field.public;\n    input r2 as u8.public;\n    input r3 as scalar.public;\n    get.or_use review_nullifier[r0] false into r4;\n    not r4 into r5;\n    assert.eq r5 true;\n    set true into review_nullifier[r0];\n    cast r2 into r6 as scalar;\n    mul r6 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r7;\n    mul r3 4756945026257194583189722752066097511643190336079386933095348702435126773568group into r8;\n    add r7 r8 into r9;\n    get.or_use reputation_commit[r1] 0group into r10;\n    add r10 r9 into r11;\n    set r11 into reputation_commit[r1];\n    get.or_use reputation_blind_sum[r1] 0scalar into r12;\n    add r12 r3 into r13;\n    set r13 into reputation_blind_sum[r1];\n    get.or_use reputation_sum[r1] 0u64 into r14;\n    cast r2 into r15 as u64;\n    add r14 r15 into r16;\n    set r16 into reputation_sum[r1];\n    get.or_use reputation_count[r1] 0u64 into r17;\n    add r17 1u64 into r18;\n    set r18 into reputation_count[r1];\n\nfunction prove_reputation_threshold:\n    input r0 as field.private;\n    input r1 as u8.private;\n    gte r1 1u8 into r2;\n    assert.eq r2 true;\n    lte r1 5u8 into r3;\n    assert.eq r3 true;\n    async prove_reputation_threshold r0 r1 into r4;\n    output r4 as veilsub_marketplace_v1.aleo/prove_reputation_threshold.future;\n\nfinalize prove_reputation_threshold:\n    input r0 as field.public;\n    input r1 as u8.public;\n    get.or_use reputation_count[r0] 0u64 into r2;\n    gt r2 0u64 into r3;\n    assert.eq r3 true;\n    get.or_use reputation_sum[r0] 0u64 into r4;\n    get.or_use reputation_blind_sum[r0] 0scalar into r5;\n    get.or_use reputation_commit[r0] 0group into r6;\n    cast r4 into r7 as scalar;\n    mul r7 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r8;\n    mul r5 4756945026257194583189722752066097511643190336079386933095348702435126773568group into r9;\n    add r8 r9 into r10;\n    assert.eq r6 r10;\n    div r4 r2 into r11;\n    cast r1 into r12 as u64;\n    gte r11 r12 into r13;\n    assert.eq r13 true;\n    gte r2 50u64 into r14;\n    gte r2 25u64 into r15;\n    gte r2 10u64 into r16;\n    ternary r16 1u8 0u8 into r17;\n    ternary r15 2u8 r17 into r18;\n    ternary r14 3u8 r18 into r19;\n    set r19 into creator_badge[r0];\n\nfunction create_auction:\n    input r0 as field.private;\n    hash.psd2 self.caller into r1 as field;\n    add r1 r0 into r2;\n    add r2 9999999999999999992field into r3;\n    hash.psd2 r3 into r4 as field;\n    async create_auction r4 r1 into r5;\n    output r5 as veilsub_marketplace_v1.aleo/create_auction.future;\n\nfinalize create_auction:\n    input r0 as field.public;\n    input r1 as field.public;\n    get.or_use auction_status[r0] 255u8 into r2;\n    assert.eq r2 255u8;\n    set 0u8 into auction_status[r0];\n    set r1 into auction_creator[r0];\n    set 0u64 into auction_bid_count[r0];\n    set 0u64 into auction_highest[r0];\n    set 0u64 into auction_second[r0];\n    set 0field into auction_winner[r0];\n\nfunction place_sealed_bid:\n    input r0 as field.private;\n    input r1 as u64.private;\n    input r2 as field.private;\n    gt r1 0u64 into r3;\n    assert.eq r3 true;\n    hash.psd2 self.caller into r4 as field;\n    cast r0 r1 into r5 as BidCommitData;\n    hash.psd2 r5 into r6 as field;\n    hash.bhp256 r2 into r7 as scalar;\n    commit.bhp256 r6 r7 into r8 as field;\n    cast r0 r4 into r9 as AuctionBidKey;\n    hash.psd2 r9 into r10 as field;\n    cast self.caller r0 r8 r1 r2 into r11 as BidReceipt.record;\n    async place_sealed_bid r0 r10 r8 into r12;\n    output r11 as BidReceipt.record;\n    output r12 as veilsub_marketplace_v1.aleo/place_sealed_bid.future;\n\nfinalize place_sealed_bid:\n    input r0 as field.public;\n    input r1 as field.public;\n    input r2 as field.public;\n    get.or_use auction_status[r0] 255u8 into r3;\n    assert.eq r3 0u8;\n    get.or_use bid_commits[r1] 0field into r4;\n    assert.eq r4 0field;\n    get.or_use auction_bid_count[r0] 0u64 into r5;\n    lt r5 1000u64 into r6;\n    assert.eq r6 true;\n    set r2 into bid_commits[r1];\n    add r5 1u64 into r7;\n    set r7 into auction_bid_count[r0];\n\nfunction close_bidding:\n    input r0 as field.private;\n    hash.psd2 self.caller into r1 as field;\n    async close_bidding r0 r1 into r2;\n    output r2 as veilsub_marketplace_v1.aleo/close_bidding.future;\n\nfinalize close_bidding:\n    input r0 as field.public;\n    input r1 as field.public;\n    get.or_use auction_creator[r0] 0field into r2;\n    assert.eq r2 r1;\n    get.or_use auction_status[r0] 255u8 into r3;\n    assert.eq r3 0u8;\n    set 1u8 into auction_status[r0];\n\nfunction reveal_bid:\n    input r0 as BidReceipt.record;\n    cast r0.auction_id r0.amount into r1 as BidCommitData;\n    hash.psd2 r1 into r2 as field;\n    hash.bhp256 r0.salt into r3 as scalar;\n    commit.bhp256 r2 r3 into r4 as field;\n    assert.eq r4 r0.commitment;\n    hash.psd2 self.caller into r5 as field;\n    cast r0.auction_id r5 into r6 as AuctionBidKey;\n    hash.psd2 r6 into r7 as field;\n    async reveal_bid r0.auction_id r7 r0.commitment r0.amount r5 into r8;\n    output r8 as veilsub_marketplace_v1.aleo/reveal_bid.future;\n\nfinalize reveal_bid:\n    input r0 as field.public;\n    input r1 as field.public;\n    input r2 as field.public;\n    input r3 as u64.public;\n    input r4 as field.public;\n    get.or_use auction_status[r0] 255u8 into r5;\n    assert.eq r5 1u8;\n    get.or_use bid_commits[r1] 0field into r6;\n    assert.eq r6 r2;\n    get.or_use auction_highest[r0] 0u64 into r7;\n    get.or_use auction_second[r0] 0u64 into r8;\n    gt r3 r7 into r9;\n    branch.eq r9 false to end_then_0_0;\n    set r7 into auction_second[r0];\n    set r3 into auction_highest[r0];\n    set r4 into auction_winner[r0];\n    branch.eq true true to end_otherwise_0_1;\n    position end_then_0_0;\n    gt r3 r8 into r10;\n    branch.eq r10 false to end_then_1_2;\n    set r3 into auction_second[r0];\n    branch.eq true true to end_otherwise_1_3;\n    position end_then_1_2;\n    position end_otherwise_1_3;\n    position end_otherwise_0_1;\n    set 0field into bid_commits[r1];\n\nfunction resolve_auction:\n    input r0 as field.private;\n    input r1 as address.private;\n    hash.psd2 self.caller into r2 as field;\n    cast self.caller r0 0u64 r2 into r3 as AuctionResult.record;\n    cast r1 r0 0u64 r2 into r4 as AuctionResult.record;\n    async resolve_auction r0 r2 into r5;\n    output r3 as AuctionResult.record;\n    output r4 as AuctionResult.record;\n    output r5 as veilsub_marketplace_v1.aleo/resolve_auction.future;\n\nfinalize resolve_auction:\n    input r0 as field.public;\n    input r1 as field.public;\n    get.or_use auction_creator[r0] 0field into r2;\n    assert.eq r2 r1;\n    get.or_use auction_status[r0] 255u8 into r3;\n    assert.eq r3 1u8;\n    get.or_use auction_highest[r0] 0u64 into r4;\n    gt r4 0u64 into r5;\n    assert.eq r5 true;\n    set 2u8 into auction_status[r0];\n    get.or_use auction_second[r0] 0u64 into r6;\n    is.eq r6 0u64 into r7;\n    ternary r7 r4 r6 into r8;\n    set r8 into auction_second[r0];\n\nfunction verify_badge:\n    input r0 as field.private;\n    input r1 as u8.private;\n    gte r1 1u8 into r2;\n    assert.eq r2 true;\n    lte r1 3u8 into r3;\n    assert.eq r3 true;\n    async verify_badge r0 r1 into r4;\n    output r4 as veilsub_marketplace_v1.aleo/verify_badge.future;\n\nfinalize verify_badge:\n    input r0 as field.public;\n    input r1 as u8.public;\n    get.or_use creator_badge[r0] 0u8 into r2;\n    gte r2 r1 into r3;\n    assert.eq r3 true;\n\nfunction cancel_auction:\n    input r0 as field.private;\n    hash.psd2 self.caller into r1 as field;\n    async cancel_auction r0 r1 into r2;\n    output r2 as veilsub_marketplace_v1.aleo/cancel_auction.future;\n\nfinalize cancel_auction:\n    input r0 as field.public;\n    input r1 as field.public;\n    get.or_use auction_creator[r0] 0field into r2;\n    assert.eq r2 r1;\n    get.or_use auction_status[r0] 255u8 into r3;\n    assert.eq r3 0u8;\n    set 2u8 into auction_status[r0];\n\nconstructor:\n    assert.eq edition 0u16;\n",
+    "verifying_keys": [
+      [
+        "submit_review",
+        [
+          "verifier1qygqqqqqqqqqqqx64qqqqqqqqqqqp2gqqqqqqqqqyxzqzqqqqqqqqqdhqyqqqqqqqqssqqgqqqqqqqqvqqqqqqqqqqqfxpt9tu5mevvujufuluwr9y9df02wp969l428hka3wwrpy3f6gxu36j67g5snjr92f0t846qnx6cqy2u5s5cg3rjaqen4m3lq6meqdtd5jlgpzmyr36f9r77udwh5h8s079dsl2ac5mqhxswt5sqg06ssq95ae2d6w5zcn8r9cppl7y83yedrkukla2gdpl6w7c6d6jlpf2m5x4aftvska22np80hj83m2w22spkgqvzjatqtexsggwanz26dsrztnmvmnaj78nem0s2nspndu8mnzz32rg48nw5v6ezkhy5vdy9fyqgmg8yay60azwcqc2350f34r6hnrpzas5h84qqxxhtaa4pc3z59y43gsd3lpk89slrudu9zm5cc4yq85rn0x3tmxrsjhyrghfy09xeamznypfw45zzmsjp064f9n4yag23e4t0uztag2ssqcpmsfz87ydcpvwy5l0dycrfs9wrkcylkfueh4ajtt7sx73nn920kkefz2uwzyqfv28uyf9x446vd2s633crtfhuqpd43qak8dvur9vkuajajyvhc08d400e7jkev9kfcedhjvfsx96xwq5lkcvqqkauhdtxfyqqt5jt0s8cxxgs6kr3e0uun82ppj5m3070spexxz098g65ykyzjgc9d7j67lpd8f6cmtvek338t5q2s70uc5qpzd6ejl32jphkf25zt3z4u50k8erxlxtrt2745uqlrw9q6tuqvwccxxdrc4pkk66xxd07c0qcz3cqwphr9w33907w7826g6y55a8403449pqjqfemgl4kvv3v6rveqpump2skm2htjfhu762a35ymxg8vqecw5xjkpntkmdmp5car34ra2es42y2tg44ch5p2q64ytav6gjlydhq9jvx5nqmtcy73q6359krqcq460hlruw9zsl3u9x669s7e057hnp7yrsk8kah7yhqdf4hp28yy3qtfqqqqqqqqqqzldvje",
+          "certificate1qyqsqqqqqqqqqqz5ghkdl84rp9ke8vl36w3ugsw8uszwk6yk0uyhnaadd4rldl0ezlql2uggq94n2ndm4540ylcuxuqqqw9wjtd"
+        ]
+      ],
+      [
+        "prove_reputation_threshold",
+        [
+          "verifier1qygqqqqqqqqqqqz0xsqqqqqqqqqyvdqqqqqqqqqqs2pqqqqqqqqqq7dmqqqqqqqqqrt5gqqqqqqqqqqvqqqqqqqqqqq88pl9xyskjxahkevwt40m20nf8hdp6pm65hw5fgw5qyhmxgzgjlyzvd3nznacd99k7rvf3rpgq4sqgnv2dt72g8xywdul2yzf8v6hg84w6rdvgxnarkszs6p343vc44ry6kjh98mftv3f75xdlx8m6zzcrfjj704wep8qar2f8pq8qsk5ps0vhdmmhamzq3qdjhyyx5ggajvkad4834ztfzc0vg7g0s7s7ltksyel43aaa0dhguprce6f3tt39ntgkfe0kxdnfzfdj38wum73eydrw5qy3f0tjvlc9gc24psj84tudqzyqrqd7rq3h0drkrznp8rk3a5dlu7k7varf4wrf3zgyf6rnt5urfs059s4gs898rcx6ud4u72xsyqwfeq650ugle3gnhgxjjmafhmys203yay407vvapwna35gn30vzvl7l6jl0t0g09cm749sgvj7s7qqnljndvc64q6a4ljnrdgsw8d23ykz84v46985xzmenrydtq8cgvh4qy4rav6drfg0cn4jjy8074rsq0snqk96drjdft8asywpjdedm3twruvc2x0w979pamanxdr5pc3y0k49h6hnxsm7jl4utatgjqgvsxd27h2lddata403rm6cca5attahhrsjr9lvtaytapp5g2rxymaqmrs74q62t7g8u5zxhnhzhgwyvqx7dfvxy4j9cvcshyjkwgjqez33g6z3c58uk29k7sjm5h64j8qw3y79x56gkuqrjsrq5qamwkvcxqqchmk5lmj0u8zw0elet0c7v53sll8y2ud5qfjwef0nucg0w68nm4ue2zckkyatyg8369vz8ppl29vqrn5wqudeay3s8w686tv47kqqfl2ygr8vzksqvmc68088xtupj90eu7258ytszwtx2s84pe86lkygzeh7gdfmrv5ntstmk8gr3chdfvhxlp78qnt7yuxrmv7w5xnrvrsrwf9sqqqqqqqqq4hpmt0",
+          "certificate1qyqsqqqqqqqqqq94ne06cppzxhhdt280pxp6yfyaucaa9htmhajdl9drdt3n2phhn3uz2vax4uutsjn3zay7xfqwkyqqqy0lrk5"
+        ]
+      ],
+      [
+        "create_auction",
+        [
+          "verifier1qygqqqqqqqqqqqpd8yqqqqqqqqqzswgqqqqqqqqq52rqqqqqqqqqp095qqqqqqqqqp2ycqqqqqqqqqqvqqqqqqqqqqqqhpk6e4hlurcay463u89vjvfu7a003lvgcltnhkj3sc2q9s6cc0eh8a4u22u9rptcuvnxdgdw3kqqz7evht6lynh73g7hx24lttxuur3wxz9ky9rkfkpepqrxr2xq89upsksn26kgwgzsf4j6zje55nqcp98jz2th2psw62n027cq0fqj52mzdnl4g2rqg45cfv696ugpq97hz7e6h4d47xdqyjv5v4m3wv6mqx0yrpr4u0hjq2v3gkekhegzhlk24qg8v0wxtk30gfx0yj0v7psasr508cva9z3e2hvjujgndqpqmqztdn8y3umu6llextgy6raq3apjxg3catu00hmcn8ueymcvpxcn47ue4mztzzaw2nnas9wgancvxzqhn47re079jj3x6twcm9dm8h52cgsr7ul5wmwx4sn7jzludxl20l7uns29al5l776z8zwtvyw0fqcq9l0f7lw570dcj0gfnvvx5vn7xhjrk37ysugk6mc3t27dpu0uza60ecyvd8a6mvekzkcl9zect5yczdm8a2zqmekkapcchj33fqaftsguu0hhs550vjpu6492mhdk33lxvw7v4q9qmv0vf3ru953djnuzszljykxxrfrjck06fth4nlu0prhqzekqv7k5vhq5wlzc6mamv4lasyqcls3tc6h3ujsgvwtfqp6ssqw4p4z57lhklda4cqr6tthc46rfqkpvylpddl3egpq79hergn4n90htftjwzp5typ3857nfy6nuqkq4cz2jd2pp6dsrgz2chesn3tsw6q67ae5c79pk40y5cztc8kf8f9n67vr7ka7fa4e72vrg2edwu7qqqy8g4a50pdv0rxwtvr2fskxm3xypjgx5xulr2tedhhg9suxhqd33hngwqlkltjymqcauwewqhascpy65vm0g87uygzsznxmcw06qleec093zjv2vflam4qxftdapsv079d8qqqqqqqqqqk26djl",
+          "certificate1qyqsqqqqqqqqqqr3vctavkhrz8mce6x6c6hxqmsg5959vt9ylee68fhy245js3mt6y53e9vy25shl2melvw5f7cajqqqq80k3a3"
+        ]
+      ],
+      [
+        "place_sealed_bid",
+        [
+          "verifier1qygqqqqqqqqqqqrjeqqqqqqqqqq29jqqqqqqqqqqjr9szqqqqqqqqnlkqyqqqqqqqpkngqgqqqqqqqqvqqqqqqqqqqq9ldfdzx46rwrdvrr86dd0fx2cn34e6mtkeu0rx9mgr6tx2dc50zx9srqglakrpafgjvcycqx3xzgpmach07z85sg26mlsyfl2lfkzxf5hqlxcfzhc67qgz2vd9tvzc7a64s52wqv2r7ythl4cmddl634gzs2gr9vlaz9h56ndpkddylrnsztam042d4d7r3kj3mrp3j5u7wduuxgqe939uhkzwd23u5ud9gsdqrkn4d6lj66sn5v8klc09s5dh8c7derm9jhvgq400qm8vxhvedpwg8l5yp24vlktuv43tmx8t0xtsqqdvwcqpvvea6sepskdysgf9wjs66huqe5eemvq5mcyke3pq25avak5s36yeem2lx9ufcz7d4rrwqq8tkhsrl76nr97c3ds9mc3h34hrtsfknxr6xnwh033f2eh5xrdf2a589yrdzn89thhy0smuw6r5cuqw4m28p65jle8sns7z6vkqmdy6y44r3f35qejp9f6t0ehynk3wg2ywdt85kqsjanl77qwdgu42jygz3h0zpd6c758mx9c42jh3xdmt5kwypwskynay2xyhtuvydxu0d5svkd9fcqw3f7xl8fu96k4gy5ksxvxgtk5lfpaq6ssv4l5luuvcuxd95e909xtnmxer248w79zl5adw0syp8s8jhfha8fkwhyc6dgpzqy3g385dhfzuqygduek4eaurzpsh9a3rhwcf0a8etmxj4t3agc78q9nsm0avn84rgs6wqf5qahay5q3qq3l0u8dpc4yrkeg6ncsqj52ynajgkrkwckyylgsfp9u0l2q23twcg2p3g7hw407hrxk6us338cq02uuwacy974gj288wzkm8tvm6p4uwu63sz0933yhkqj62e8jgyp97mnek274gjygn6467us9ycusrlmwwjpe9f95ajqn42clypr4tty0ev0ngt562l6ys9y7z6rqva97pmuqqqqqqqqqqmzayvu",
+          "certificate1qyqsqqqqqqqqqqqg8zcspjv0ee3lqgwdznuvdys0dnx7dxtdl7ywt7na333pxlp8vjldlyltud9qjvusn790rc9nyyqqq8phuxx"
+        ]
+      ],
+      [
+        "close_bidding",
+        [
+          "verifier1qygqqqqqqqqqqqpdxsqqqqqqqqqzgdqqqqqqqqqq3eaqqqqqqqqqpe4xqqqqqqqqqqyyvqqqqqqqqqqvqqqqqqqqqqq857fqwqwaprar8w3pmtdqensm6lpsp58gvm73vk3p5dw5rdhzuvs6lgfx9n38vllk7nupz7llhzupmls600tvg8gdjwe3j848zjrtac3tl7z5gw3j24azzfq4ehwf086ftkt4hq5kdeckv9p9f8vxcfugrz4dl2m45hqv544dluyv0hfl34ngfs8v50lnkhd7z4a62aqzefq83tf8x5ru5hjxwf5jy3kxjyd7qqsgfm5a2fjuaqm6kt00u7jmd8s5hgjyx25aqgu5w4pgl34h03gvuzdh37302853ekdxu0a04046eqznypa8h4gk6u034psj8dj9f27384jqe8v8s2ww4a2zx80hnxflx2uvkcextkntlj764t2d2s7dkjqz4k9hftnddfda0fznrrq5t79cgt8yaz4xg4vx9g3wchh5g2uyzjquqz3xd6lj0u79sxhvj3gmwjsqt3qe6fy6t6vph7wcaank4f543drcw3n2k4cp3jf7a68sp63596zxytl56xqmlvhkqn6y4s2p45kcqnkxytnk8m6uw53evctky50a584sv453vdjf97kdgksnkhh455ync8mu882vehcz0nc3t3d873q3qyf2l2lw66srp4hn06p3zhyzagal97rxl2tx768hjjdpwfpacw8fkz9q97r6hmtnpg2a0yewqze27qztpu98wgwmm23a7j0905xw0jmt4u30c6c0qdda6tnq93wjctes6cyt39wrg9hcgxvqa2tqefc83yq42yavuk6vzutz4ps0z70nke9ej6ge3cquzqwnczlqyg9lddh3k9xagk4un22e8r2j953ksacnefqq097kmqk9ula6eyrytnr3uxp4alae8g8vhgwshug2f4q9h5ty7aw6lg8qkpqc0gq46cws378s56acp3q0tvgug94a6zv20u4dumn5zkychlwltzhmtxmdxnacpw0rnkme69yqqqqqqqqqqtwnvxk",
+          "certificate1qyqsqqqqqqqqqqyug6ctyu3cv345e7ajyjqsz2g5yvn3eptdj0v98h0cfj223wgajqqwufhrzt0uymp84pptnd62ywqqq3lr8qq"
+        ]
+      ],
+      [
+        "reveal_bid",
+        [
+          "verifier1qygqqqqqqqqqqqyanuqqqqqqqqqtd8cqqqqqqqqqfglqzqqqqqqqqmz7qyqqqqqqqrywuqqqqqqqqqqvqqqqqqqqqqq8uqru50eywryprqvt5dw9f9xjghh88v92gxxyt2avuzrp5nutjsywsnpfp3vyr726vn8ypmxsc3sqrgql7wr9tdhfwresszma2r9d4tu9cvw0aq8yrg6gjavsatk5ujymg2c6tufnd6e5djkuksqng3fqprjtccu4qk8a0zrd82cp0cyx2pay7s9gcllq44yph7jq3xxjym3ylwk7arj8tmv59jcfqk8r6agwsxx42unc0w3m094p4c68l3s2s6agwqtdxhwe7ce00qe308qyzpkw2sp3e5hh7hegvxpgdmpj6qqn9qw5jfvh6khtq6mdlmjl54wa7qv49eupatkrynxud3ga0t7mddgpuqa9gfen6ydgcvql08uzln2kmkqprl7cc5yqpphfwgq0pj6au8r0rudgg96zwzpt8g2flclc9wtkgjqys995s6uass3hth040crvj2ypzzqskrzmsqf635ws4ax9vnw8jrww25edq5e7zqac2g6lqdswym8jvx6pmzpa9d78un9258e5h3dsq9t9dxeu45rnwn5g9fnna90e9yt2t263ada9ze4n5h8gk497h5vhaf77epn5m00sgetwnd8etm7xsrm724rr4z67xrx9aneppwuncdsj2upmq3qr2xeavkgc7ecgww9scg6ue4l9n7u8ugfzcalrzhd88q2g88c3j48nhjwapv6lpu52fvw6fmcgtmjhltzn0pqd7e2we3lnxgshkgq52vgjsmxrsu6kegzpvgq5ntke0up360s0mul7tz50ct48gmejrue9czuf3wx3qw6yty6eq52nkc8xc8r67mp7tax30t0hducqa2nsxmnc5z0g6zfzxhtgkxpjg4tfnwduyqllzm40thsnsl70nlxdmtmlm3dw79utkndr3jg7x7wczmrq78tlq46jj63gaavu29x04ww5y6xqcpjv2kq0uddjamv6zfvw0n2sqqqqqqqqqrunljw",
+          "certificate1qyqsqqqqqqqqqqx2tzvnuxwlcrq9pvdzn2vxgeke24eutz3yuyerdvmxk5vhvlk8mf5nf5pfqascu3jkug2qdme9zcqsqchsqxe"
+        ]
+      ],
+      [
+        "resolve_auction",
+        [
+          "verifier1qysqqqqqqqqqqqqylqqqqqqqqqqrd7qqqqqqqqqqysgsyqqqqqqqp5q0qgqqqqqqqqxgkqgqqqqqqqqvqqqqqqqqqqq073g5k3a3zmr7vcaakvmwvnt7tkeuryxenckuwy80qltjw5etpr8nhg90nacxrtc0xcdu8qem5y5qc8a9adhj70xqgjhm32slzwmewah9txvsjgmtqq272zwfpa702d429r7ehn9fd4wph08a97q6rvngpp2uesthy8cwlafg0tjmckz0tfjpk5qgaef3rf96xetarngjj9hfe2l72em24teg48ypxgvcgkn4sz5x37nv79yltjl8m6nauqxqjhstf7gtvx3frdqden40gh6jd38ygwmas8vf8zf5cfg8pkymtwgqhqtvzam632jzdnqk35azejymn8ljlg9tp49vvn4qszsw6q3v8k7uymyf8rcxl0kraxqcuatsc4m6zyqzktzh945d72tvjpzvpww5ptgma8v9ssr2l5327fe7c4ap2epn287ljswlqt5k9cl5lg0pmz64pnvqudfr74835gpzgvcgvzr4nakxp2t9867xfamed27skxwhd9yxrenm9napxxtadp0p4a55e55tesxqzjzfsf4vgn5nylueze2cgtcwjdlrf5wz8z6u6jcnrdga8xfn9ep0cw6cch9fe8gwucrq5znevvwnqpuap6lh95drfp8e5h2uvra2lrmj3zvgk43rzmkrgqq226my6wtgt7dxz735ywypy5hxx5s0t4vesq8jhlkjyrtanky722wdv4ed85g58nt6kxqlq64ltt0nfptmgmc0j72g0ejdnqqf8me35h2acdvsrsqg208ghmyaeacdylxyaffztf9w6k0lahkzawxtw8vw39sszu99uhdq7kjhmlnh7z0mgv8qzau6prgqrjpcqdynyarjt2lf88qqpj72rmfrpufna6f7suw6zkwj9wyzy8dx2h4p4g6kkevkxurtjqe85v2sr46fkuu3ekgtc5xdn6h45ncalyrpnggzfmnksc4r7ut82chmjwy6z56szqqqqqqqqvrx7r5",
+          "certificate1qyqsqqqqqqqqqqpmyd5cvjlqr5e0nfqe7qvqaud5nqfms7rl37kpz4pwez3h26r6ukts2s84fnp9swlyn8k9m0vz6vqqqwjek06"
+        ]
+      ],
+      [
+        "verify_badge",
+        [
+          "verifier1qygqqqqqqqqqqqz2xsqqqqqqqqqyzdqqqqqqqqqqwjpqqqqqqqqqqc4mqqqqqqqqqrfygqqqqqqqqqqvqqqqqqqqqqqwthjkch46t79wmmwp97hazj8jqxqtk3tydf2cgem49sqy7uuh845fvlth9trfnstsenhz3zqh9hsqv3jwthxcw7jjctw9vyeuze84xwsmv2ln7sgy50fejlp6afxpydjdlzqrfckq2v6d5t6yydh425gqp49xkcds4yj5s2nzj2pmksffr5msq4lac86h2c87432su9vnnxjwxnts048maepyx20w7rg8sryfq8v26upgpfsla9mc2u4wgqnnsk8surwzgmkqf9j084lsrptxyxhm7rlcwgzxr8c7q6078p0h5649eqfz6m5jjfkm6ef68duv57jgje7p4c0f98l22nx6tv9rekhhdfqr2u37yy69jwlpzc6xrv4pfz7ydgqvjakvvuzhdcz92grxql4zy2wmruv29g7ws53t7hpnrt90dn9455tylqtgs3y3x3dd8s8jxny5u3qq9d4wxruhuh2u4wp43lhs9lp5j6h988ntznxy5ftx3pe33krp8qm8f0hzw0e7s73nq0wtlj5eevsgp7xw4esgmsdgu3s86nlkp3d9y3exh4ldaaj9c5v44vz96rqcgjwnmfnwyc277nmhfpn4a6tdjwkjspy43l0fy4xu4j9u4qwyu55fqjqyenauxtqwwsr3gxu7tjdqyalq63uru3nx0va2elmyqxlays5yxqtd02ac9d69t8fpsnqmytux5hjp5yaqzk28yzcq076kyfnk6f80tee3d0zx8cgph7eq39x0d5um4jq98aygzw4gzw4ak9jsdah0n3jlm0e4c952w456yld727nzy8mn59acxf6zjt6lgnwz3nrxuxuw08sq83j5qyr4n7c930hf2pkc52qn6svneskerjq3n29jrd2p2m97epufr7hmc38nlgkjc288wpqt9z2qrspulk64vl2xcdhjmexkz5w6f3j3gydqtukpfqkl5m229s2f0736epyqqqqqqqqqqx3dp3c",
+          "certificate1qyqsqqqqqqqqqq8m5tnkhsawghz5nz45vt9kqaqk5guytng3ejyq8l04sx7kqdw5yjddfqunyfphnrkn9qnq6kytlxqqqfrhtu0"
+        ]
+      ],
+      [
+        "cancel_auction",
+        [
+          "verifier1qygqqqqqqqqqqqpdxsqqqqqqqqqzgdqqqqqqqqqq3eaqqqqqqqqqpe4xqqqqqqqqqqyyvqqqqqqqqqqvqqqqqqqqqqq88nyyk3jlt02rkenjcrjf3grdwunqp6u8xa470kvt6usc874wdjvc43h2ft4tkk4uudg2gqjfuvyp0khekewn4jurhsztpmptcj7a5kzaeyerqdnqxd8jd0t9nr58j4t9p6q7xha6xztyvznxhxl3p79crz4dl2m45hqv544dluyv0hfl34ngfs8v50lnkhd7z4a62aqzefq83tf8x5ru5hjxwf5jy3kxjyd7qq53h4wde0rxapyddgu3f060mz6qeykgvw46d2lp9weshrga3jra368u86vky9hhlvwp862x64x7lqzqqzu6r7zcjycnre7k74y6te8wjgdketca62jampmwcuc70yar36htslfrl37m3mpzgd86z3zsx6qz4k9hftnddfda0fznrrq5t79cgt8yaz4xg4vx9g3wchh5g2uyzjquqz3xd6lj0u79sxhvj3gmwjsqmercrg7fy074aq5gtnzxr8jy42mtqn2syskpgj69gpjju0swckvgng43vnm2pymd3wckgww3jqfgzqd6qgd8j8teh9y3r8768t4rp36xytsqdfl96x3thuq4wjw0m039cfgs4ccnxy8w7pfu2sn8z5vysyf2l2lw66srp4hn06p3zhyzagal97rxl2tx768hjjdpwfpacw8fkz9q97r6hmtnpg2a0yewqze27qzfjd9wuhnagjsggm34n6us0p29udp5yqtc6a3t93kskqhlnnu7wlpzk3kyetmxqzgj9ah948vq5xqenyryup7ktfscjqst835ucw6umepw09793phhh4u4tn0ksy9cklwg9x6fvttk7lmhsnfl6rk7h3vq097kmqk9ula6eyrytnr3uxp4alae8g8vhgwshug2f4q9h5ty7aw6lg8qkpqc0gq46cws378s56acq80sn3e2c6pfpngyky78n639mgdnf4wcwundjr4h276nljvtaafal9yqqqqqqqqqqdh6vdt",
+          "certificate1qyqsqqqqqqqqqqxctylsn0xfza2y4m7k2svrgxfmc0dmu8wxq7lx6eugeqyyl5jzfc573yldl4ma0uqpjwahdrdc5uqsqjeats0"
+        ]
+      ]
+    ],
+    "program_checksum": [
+      "167u8",
+      "165u8",
+      "245u8",
+      "31u8",
+      "183u8",
+      "142u8",
+      "13u8",
+      "73u8",
+      "181u8",
+      "137u8",
+      "115u8",
+      "147u8",
+      "93u8",
+      "141u8",
+      "227u8",
+      "30u8",
+      "153u8",
+      "51u8",
+      "12u8",
+      "228u8",
+      "120u8",
+      "55u8",
+      "70u8",
+      "244u8",
+      "211u8",
+      "249u8",
+      "92u8",
+      "210u8",
+      "170u8",
+      "152u8",
+      "185u8",
+      "148u8"
+    ],
+    "program_owner": "aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk"
+  },
+  "fee": {
+    "transition": {
+      "id": "au17ulx8aqpm9xgm2wfd8agyuc3la43u3vfhjdkj0h6vzp00dsd05pqaxrlee",
+      "program": "credits.aleo",
+      "function": "fee_public",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "4905030140126022022075195576577368672993227367053440031576549382979578177935field",
+          "value": "13719461u64"
+        },
+        {
+          "type": "public",
+          "id": "8387195134253487865674209711513813996046029652370285477262329690118881968310field",
+          "value": "0u64"
+        },
+        {
+          "type": "public",
+          "id": "4062421782119784174036627188261921997272600834002181743076262024622070861812field",
+          "value": "7229452978647020766028219902714063399791270939574729324203777076717328714462field"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5917855070503138259141632091711436747583124498755667302649079960579125744321field",
+          "value": "{\n  program_id: credits.aleo,\n  function_name: fee_public,\n  arguments: [\n    aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk,\n    13719461u64\n  ]\n}"
+        }
+      ],
+      "tpk": "4830576620539296514157019190807148233048354349776517780525078378973931855186group",
+      "tcm": "5789696184601494413294038602059421664760005720459706908208556901173013705638field",
+      "scm": "5492092748519814978319392893805929423115168455038251145138065747700837609967field"
+    },
+    "global_state_root": "sr1ckuexcnm59k45rram63x749wyaspumnpleeujcwvqldpajpjwc9q4t452g",
+    "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqtsnrdf5ghzzj4ypsft4m085ughxer4j2fvvlt9ylfy5sawdxef6ykp4krx6qsp7m53c88re5jv25qq93tlcgx32jvu0kdzkw6f5hpmrrcpklxhk5las6ynlye69yr093ze7qrjmy9egacy9mkxmh828ssxqyjqhphthsdnrv8kr2l42g09y3uvjt8qtjefvpcnzh0czsz5mavjqs48txzxjjaszfd8cr3tf4jx2qdke4kz8sqqeenf4aga4rc0mcvk952sj8gmck4xg7xjpnduxts455dqf39jvcspv96atqhyykwyxuq85372elt3xcj429m6jdwyx2wrnyxgmhmhpz2fm7tkh9vhfxjvv6q5pdgsyurnx2lhjggc8d9kkqqzf54cxquqmk0sphnvgpyk7rgn76gwjzuyl3dygystvu7rhmjjfwcwh66m6yenryj5mxt6443ntzcqz5dtdehsw3q9xdn4dgftsvu4nlu6zcmrgzpql7qpgphl0dcml4ft7gpn3xdzg89x0stv3rnp3wjkqys8grfnyanc8pkxxgm9s5quau0639f9vqfdulan4mn57lctkttgc2dfgwqw3qwjsd5lcw7lavd4qqzhtrkmucw0yhdhs6082ns4zvhjn5yczr0xmxkj9ldml3zpngnft975acc7dkcpyx4jemml4hahf5qjte7hrrqqu8ezxa73smxh3ck3cdrqufqp04s6uqecf03lp3tk5pxccnvecdkrtv92pt7yfrujgg0cpylnec40m9fghykjapkvvqxjqxc967xd4l2lfc09qv3adfj328cusn4f0m0nv5p0r0qkthqyqj0pw2nkf0sc383pve8veuxx3674vnepfuje9792r46v4dwvmsdahcqamqf6hv0nw557ca7q5l84wn0q50gl80dsdcsyhat8e0dmky4s2qxk7xp8620yhx3dhat4jl58q3qmhwnxcrc4895hs3cg9sz4exgzvpay4dwr79xzryt2ecmu08sz5378j6tkvcyhcrm53ayyza5ufcn5r2z5uxwc9pnnx0sm3vgfalzx6aqfn0wgeanjfndssvzsqu7nerdq7x2huswf7vgklhukrty8srxm8utx7rqpdc6pe97wkpw38lnnynqgfmzz4nv7dn3fc3hjqwc3rdlqqc385406kp8fxtmv2ulyfjt0kgsqvqqqqqqqqqqpnymkw3zls4j8h66znldlqfdss283rae6vr8r357ysannlpdj47vwm2mpdwvmctm32sjc4dd7je0syq9y95waffwlg7w7f5l74hs0tgrqt2z7f3mt22x7qa7xg7kw5udjn6pfl6ugq7s074hsd0y0w6carvqqx29yruyvs7afetjhttged8wh3yeclf0vgduxydxpxezuef9cdcq4sjfj7g807xns89d0n8h43vt2qk0dz62ff3dmezs4lpytautxwy4uhlystmc2aaphgchw4dtph4vqqqqrugd8g"
+  }
+}

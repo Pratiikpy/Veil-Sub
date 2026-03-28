@@ -3,12 +3,5 @@
   "version": "0.1.0",
   "description": "VeilSub oracle for USD-pegged subscription pricing with anti-manipulation guards",
   "license": "MIT",
-  "leo": "3.4.0",
-  "dependencies": [
-    {
-      "name": "official_oracle_v2.aleo",
-      "location": "network",
-      "network": "testnet"
-    }
-  ]
+  "leo": "3.4.0"
 }

@@ -1,0 +1,134 @@
+{
+  "type": "deploy",
+  "id": "at1vl95qg5y2xjlhvaddnhr676nklwd0yc8egs66djkn25t94yapgqslfgrvu",
+  "owner": {
+    "address": "aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk",
+    "signature": "sign167gjvexaskl5pf2m2x33n84ygs28nq485srjyxrfs3agpshr7uqj3937s2pww5fcp3qv44er777usgqfc7vg2ctschgj4jeuu3acsp8yfl7vfmst5e6vevc6j5rhrw6swrzfkzkehlveaktcrgqy3z6wpgaa2qur8k03636f6xkfgsz2hapqyzd8aqfezxplq7cpvehd536sxuxnw5n"
+  },
+  "deployment": {
+    "edition": 0,
+    "program": "import credits.aleo;\n\nprogram veilsub_social_v1.aleo;\n\nrecord DMAccessProof:\n    owner as address.private;\n    creator as address.private;\n    creator_hash as field.private;\n    tier as u8.private;\n    expires_at as u32.private;\n\nrecord MessageReceipt:\n    owner as address.private;\n    message_hash as field.private;\n    counterparty_hash as field.private;\n    timestamp as u32.private;\n    amount as u64.private;\n\nrecord ChatMembership:\n    owner as address.private;\n    creator as address.private;\n    room_id as u8.private;\n    min_tier as u8.private;\n    joined_at as u32.private;\n\nrecord StoryAccess:\n    owner as address.private;\n    creator as address.private;\n    story_id as field.private;\n    expires_at as u32.private;\n    encryption_key as field.private;\n\nstruct ChatRoomKey:\n    creator_hash as field;\n    room_id as u8;\n\nstruct StoryKey:\n    creator_hash as field;\n    story_id as field;\n\nmapping dm_enabled:\n    key as field.public;\n    value as boolean.public;\n\nmapping dm_price:\n    key as field.public;\n    value as u64.public;\n\nmapping dm_min_tier:\n    key as field.public;\n    value as u8.public;\n\nmapping dm_count:\n    key as field.public;\n    value as u64.public;\n\nmapping chat_room_exists:\n    key as field.public;\n    value as boolean.public;\n\nmapping chat_room_min_tier:\n    key as field.public;\n    value as u8.public;\n\nmapping chat_member_count:\n    key as field.public;\n    value as u64.public;\n\nmapping story_exists:\n    key as field.public;\n    value as boolean.public;\n\nmapping story_expiry:\n    key as field.public;\n    value as u32.public;\n\nmapping story_view_count:\n    key as field.public;\n    value as u64.public;\n\nmapping creator_story_count:\n    key as field.public;\n    value as u64.public;\n\nfunction configure_dm:\n    input r0 as field.public;\n    input r1 as u64.public;\n    input r2 as u8.public;\n    async configure_dm r0 r1 r2 into r3;\n    output r3 as veilsub_social_v1.aleo/configure_dm.future;\n\nfinalize configure_dm:\n    input r0 as field.public;\n    input r1 as u64.public;\n    input r2 as u8.public;\n    set true into dm_enabled[r0];\n    set r1 into dm_price[r0];\n    set r2 into dm_min_tier[r0];\n\nfunction prove_dm_access:\n    input r0 as address.private;\n    input r1 as u8.private;\n    input r2 as u32.private;\n    input r3 as field.private;\n    gte r1 1u8 into r4;\n    assert.eq r4 true;\n    hash.psd2 r0 into r5 as field;\n    cast self.caller r0 r5 r1 r2 into r6 as DMAccessProof.record;\n    output r6 as DMAccessProof.record;\n\nfunction send_paid_message:\n    input r0 as DMAccessProof.record;\n    input r1 as field.private;\n    input r2 as credits.aleo/credits.record;\n    input r3 as u64.private;\n    assert.eq self.caller r0.owner;\n    hash.psd2 self.caller into r4 as field;\n    call credits.aleo/transfer_private r2 r0.creator r3 into r5 r6;\n    cast self.caller r1 r0.creator_hash 0u32 r3 into r7 as MessageReceipt.record;\n    cast r0.creator r1 r4 0u32 r3 into r8 as MessageReceipt.record;\n    async send_paid_message r0.creator_hash into r9;\n    output r7 as MessageReceipt.record;\n    output r8 as MessageReceipt.record;\n    output r5 as credits.aleo/credits.record;\n    output r9 as veilsub_social_v1.aleo/send_paid_message.future;\n\nfinalize send_paid_message:\n    input r0 as field.public;\n    get.or_use dm_count[r0] 0u64 into r1;\n    add r1 1u64 into r2;\n    set r2 into dm_count[r0];\n\nfunction create_chat_room:\n    input r0 as field.public;\n    input r1 as u8.public;\n    input r2 as u8.public;\n    async create_chat_room r0 r1 r2 into r3;\n    output r3 as veilsub_social_v1.aleo/create_chat_room.future;\n\nfinalize create_chat_room:\n    input r0 as field.public;\n    input r1 as u8.public;\n    input r2 as u8.public;\n    cast r0 r1 into r3 as ChatRoomKey;\n    hash.psd2 r3 into r4 as field;\n    get.or_use chat_room_exists[r4] false into r5;\n    not r5 into r6;\n    assert.eq r6 true;\n    set true into chat_room_exists[r4];\n    set r2 into chat_room_min_tier[r4];\n    set 0u64 into chat_member_count[r4];\n\nfunction join_chat_room:\n    input r0 as address.private;\n    input r1 as u8.private;\n    input r2 as u8.private;\n    input r3 as u32.private;\n    gte r2 1u8 into r4;\n    assert.eq r4 true;\n    hash.psd2 r0 into r5 as field;\n    cast r5 r1 into r6 as ChatRoomKey;\n    hash.psd2 r6 into r7 as field;\n    cast self.caller r0 r1 r2 0u32 into r8 as ChatMembership.record;\n    async join_chat_room r7 r2 into r9;\n    output r8 as ChatMembership.record;\n    output r9 as veilsub_social_v1.aleo/join_chat_room.future;\n\nfinalize join_chat_room:\n    input r0 as field.public;\n    input r1 as u8.public;\n    get.or_use chat_room_exists[r0] false into r2;\n    assert.eq r2 true;\n    get.or_use chat_room_min_tier[r0] 1u8 into r3;\n    gte r1 r3 into r4;\n    assert.eq r4 true;\n    get.or_use chat_member_count[r0] 0u64 into r5;\n    add r5 1u64 into r6;\n    set r6 into chat_member_count[r0];\n\nfunction publish_story:\n    input r0 as field.public;\n    input r1 as field.public;\n    input r2 as field.public;\n    input r3 as u32.public;\n    input r4 as field.private;\n    gt r3 0u32 into r5;\n    assert.eq r5 true;\n    lte r3 28800u32 into r6;\n    assert.eq r6 true;\n    async publish_story r0 r1 r2 r3 into r7;\n    output r7 as veilsub_social_v1.aleo/publish_story.future;\n\nfinalize publish_story:\n    input r0 as field.public;\n    input r1 as field.public;\n    input r2 as field.public;\n    input r3 as u32.public;\n    cast r0 r1 into r4 as StoryKey;\n    hash.psd2 r4 into r5 as field;\n    get.or_use story_exists[r5] false into r6;\n    not r6 into r7;\n    assert.eq r7 true;\n    set true into story_exists[r5];\n    add block.height r3 into r8;\n    set r8 into story_expiry[r5];\n    set 0u64 into story_view_count[r5];\n    get.or_use creator_story_count[r0] 0u64 into r9;\n    add r9 1u64 into r10;\n    set r10 into creator_story_count[r0];\n\nfunction view_story:\n    input r0 as address.private;\n    input r1 as field.private;\n    input r2 as u8.private;\n    gte r2 1u8 into r3;\n    assert.eq r3 true;\n    hash.psd2 r0 into r4 as field;\n    cast r4 r1 into r5 as StoryKey;\n    hash.psd2 r5 into r6 as field;\n    add r1 r4 into r7;\n    hash.psd2 r7 into r8 as field;\n    cast self.caller r0 r1 0u32 r8 into r9 as StoryAccess.record;\n    async view_story r6 into r10;\n    output r9 as StoryAccess.record;\n    output r10 as veilsub_social_v1.aleo/view_story.future;\n\nfinalize view_story:\n    input r0 as field.public;\n    get.or_use story_exists[r0] false into r1;\n    assert.eq r1 true;\n    get.or_use story_expiry[r0] 0u32 into r2;\n    lt block.height r2 into r3;\n    assert.eq r3 true;\n    get.or_use story_view_count[r0] 0u64 into r4;\n    add r4 1u64 into r5;\n    set r5 into story_view_count[r0];\n",
+    "verifying_keys": [
+      [
+        "configure_dm",
+        [
+          "verifier1qygqqqqqqqqqqqqkxqqqqqqqqqqqjvqqqqqqqqqqhfcsqqqqqqqqpjyaqqqqqqqqqpd5qqqqqqqqqqqvqqqqqqqqqqqrp5j957mlq5z267c9l3c72f4kxz0jpflc7qzm2f8pa55m99mc0mqtw9mj6emrrpvcdtd5z2ee5kcq9vdnqjhyvphsyqq868x7yjcaw0lew9hvm0njytjuhyt0fyxrdmqsecypj66p6v4qpjlu5zxy79ysqpc6gdfzrt452v85n0npvmd7rle5p6fn22j2hvp9ju8lfsp54uqaeghlkd89clqamvswk0psev30sxg9du2nmf5nqvtqg2zmnp3l8k7hlmln4ygmew3xf795pfakq72dvhs98wwz2zffkw07t9mjzd3g8qqu4g7mxz9mkpv335s2yfc9jwdgvpej6azjk65ddfkh7ppek2908vpywxkmhpvj8r56cvqwk4sh8uqjwqke6usgjql9ffk5xcq0tep9p4rqdsq2n6apgu0k3y3k00x4uek94qznmhl6684ax8tldukzrq5pdcaq2ca3dup07ft6dduzn5alunrpf5wrrsxj6sej4ee0vjmu8nk56kh4lkkq6jrayvm4hs3ky7ccqktsgj7nfv34dgwsxuv5uy5ts3yl50s7ffr802k9d3nlvtp8cnfxr06v9mvya4hm0de09t5npksgsy7rpeufpd2vesk6an0epd4txp9uurrecx5m8w9hqs5th2d90n97hhhxcxpczxzyaczfrtkkxgzz8qqnu2fw4xm49fy65ecagsqdlp8tnvr97txqhyrs0q4kst5j4vekv2jagt0j75m50hl4cq3g42c9guqzxxrz03uqrxn93mdx6lhhpqg4jljkwugwh72jugzkv4egjwykw0pe8up042ajwwzy9qqzcw5knxqq3z373g8udpz8ycvmtadd4v9fh4xpg2lzf3s3g24httv33sqlx0hdymjyvpv87clmj0gjveuw7fwgzrxns8vhtyda0u8h4yhnyuw6yjup9tqgusddgd4t707j5na42xjg43psqqqqqqqqq0u4lgs",
+          "certificate1qyqsqqqqqqqqqqpzmmmk675tpz8agvav8sv3rlff079yumsn0jnl4u2twnk66mgkge8kz9qujqq6xxq69uufw7hqqcqsqw2qu79"
+        ]
+      ],
+      [
+        "prove_dm_access",
+        [
+          "verifier1qygqqqqqqqqqqqxl5gqqqqqqqqq0egsqqqqqqqqqe46szqqqqqqqpd48qyqqqqqqqrplwqqqqqqqqqqvqqqqqqqqqqqy48j6pqc3q3py75g9qj6x8fa4nxljsfhdxn6cxukprnnw9f9ul6wpkswnepmc0gqklgg0twsfxwyqkfxwnvk087q56qxtdjksdphe2t5h79cwzwhz86f0mxrnkup96lmpe05ehuar0m23grt8zvegu4wgpa0l6ygzsqzph3vnr9ytgdxu0e9fqrywgkxyt7wlh7j550z7mw04qppn74ltp44hmz2czaaug7z8s8frcx03atsylt3nep9nqjr82lylktqjuqlwkvwg9gye3gjm5nswt04kps0ufcn2mr2wxvw24sj2kqwrll4echk9zp7lletq4jx2hzt6q4ap8ch23a9w4s88ed33rqcqfp9jfzw49kt4x4tccnns9t29uwqglpacmnky59unxtywp5ysmavg7cq9m9tdw0mkpqdx6drym5xy8wtvmrznzlf46725t8tx6w6nx4cq4n36ssqv4yzyv6w8sz6asvvk3da94977wtw5r4qdmfajddnwhtzjhdxf5mf04gjzy3kx8l3yctdcpxkmk6xemcaxs6kvwl84r5kfvu6x68tc4w2gv2t7z5h9zwee48lc5np8xtnweqxf7frtmvxneys3qq8yl479m0h84usd85eer528z528pjcua6ale5u6wzvsfws0xumupkrwtha24y3c4ez74hnphjv57qrnqgrr4g8yx56mwgywa3skgktn3c3mymcy6hprxasgf88e5tj4jw23y5k38rsamt0q5lc69dhky6q5vu6xznp9jd0g9cru3d48jj5udcwgp4q5v322xs6x3ukqk3ynjq6yvpxzxknu2ycm7jjm0jwfd0qqmca9nj36lcz0qty4gg8udnyshdnwvspaman90v4e2tsfzuvgke6tv4chlgsgk659mqy49qln2alqpkagcfnfs9qh6rmmcvfcmk2nzpaxa0x2kazrvekmutmg9n39z4tkh8yqqqqqqqqqq5qzhqa",
+          "certificate1qyqsqqqqqqqqqqym343q9v4w57l2wlymyc5ka9s56xwethyhura9zcmnzx32mug0h6j3ac9006hw2yjewt9jhsw3yqqsqzu7qf2"
+        ]
+      ],
+      [
+        "send_paid_message",
+        [
+          "verifier1qysqqqqqqqqqqqqpeyqsqqqqqqqxrjgpqqqqqqqqh74sxqqqqqqqqqxtqvqqqqqqqpnvkqsqqqqqqqqvqqqqqqqqqqqxz3qanvsxmn30umwkmpev33ctlx5am46050lw9rz70r2wx56hweqyz47tg34tl5qdw0vnfasp4lgqwejhdkc8tn37ayd5z55k50zz632kr5v680aw8nvm5dskx8j8qpek9g566f7hmhp5q5p6d948yadcpmv893hr7cwmz0mt4ltx75wermjz5qrvg7ry780wdu8lg98kjdtm0zhzucq7rpqaxx2hp6h6yfy6q8nrh38zxtfrv2mgy7xmmlejqv8hcexefxjzuug7c2f6ju6rr39hztay9kv5ey4k5q5fc4zm20er8qtv6cj0tjjwy0zyh3v2lw3s9t7dhkucr0a5zgez8c2qpryfc4euldjsm0lhunmj8krzh34wqah63kqr6c0rx2n0g3z5awwgual365d6r6ce24q9kvwly332l83lguet0fkc530qqdm6ersk83sz0mh5zgsqatzy7nfg6fpxgz8qhkects5al7kr7tmjlc3hvgenxug7tcurjwmtytfhkhntudwl2khg86gv8ghcrqj5w66yg0g9xkdgal99tlkgegmxvq6fr5zca3wdk5zaavrjrkr63tuc20dlevs35sgfj2u7lfvpsrde8rt5t9szmk7t9rkyzlytr8r40ydp4jem8ffvgfe4d0uev32gheuyljqrhyst5uyuzdjf4ghjxqqe0w28g480wmfftzkuuqyzavzspjzjldthy5atsm74yxgxavzqela028wxrwfvflfgzqzkewuqaqqy36z97a7tjhtecy7485qdtpvx6x9rnkrf9uy24fj6clxdt6k3572lxvxy05ec4muktxquna9u6eup24h5jzy5jye8jmguvj9s75ulk2uwm3a7zjtzj8m8658guul2qxnztys84yemk9d02tjwst8mazjsp7647sdl7svuq9mqrwqnd34gryx32u9ccsek4yg8ewnv9x2jn6u3m9zsyqqqqqqqqj6fl5c",
+          "certificate1qyqsqqqqqqqqqq8re7afk5ze4jjhemxcvdgny0g5dukdsru7rmladwyk6w7xjtu6zrjgv8krdx5e9apesvcsxssg56qqq8nfm57"
+        ]
+      ],
+      [
+        "create_chat_room",
+        [
+          "verifier1qygqqqqqqqqqqqxe9uqqqqqqqqqvctcqqqqqqqqqe3cqqqqqqqqqpxvuqqqqqqqqqptyqqqqqqqqqqqvqqqqqqqqqqqr2q0a66fqah3kk4qwjn4rxy8ldmzk9u3mu3n7zaxg4h3aqnnf9053ddd29ha27c57qzm2rf7dalcqy6e2ye0zgmmm6tuw0un3jhhg68n4ytnpgg542e8p4qa07a772rhs0uaym5mvt42eh9c8y855znwgqajvhz83ndt5sznuu2ta5geaygea7ujwttzwsfgxhpwftrv032vyj3x4n69j33kprdlvcnc99sweqpf3dj2strhjcyyn7xke28wuchz7k77n6dmcjw2dg7arvte5gdfltwpzpmem9ztw6cq9335u80pdeqykvfr8hvysd96hm03qxs94mc22zad2jqzrfdmem25p9zyafkfqwwakan8emvsdw6dp0j5uwnttrzqm6carknwnllgfar5xj7hcp9h5tyz2vylwp43ewzj9cq8w2t59xze9cruchtjfaau02ny68pqg54yqj83al3zf5h0lj2m83gwr6p48jl6x9rwxyh05uvyx7pyjggsumd9p3xdjvpdp7su27t5snkspdcycrvaydtmj8c5j2flk7gxquf2wxtlejdup5pltlhy5crek599ganvtcetxv3scx7a84rajs4vppvvcs8mq65kunw9esfvdr4j0wfd9uapulx6f5049kdwrg4lruruaf64dcy8vpt59sclazphfnxpjexa9yqvh3k6g448t9ytn33sgjfmdq3faswgy4ul7zwpfzqcnct38yapx7m2hk0umylcy03f2lcruh87s2qq8zuyklzzg7uuh22nf26sh538l6c3z5nm5fj2qrj6hgpjuulzer4uffvulcppl2kt09utcs6eewyuqlne6lfsu47rehcu7pdjh0lvgcrdv60d535z698c5wdzhpggn7ddkzuy9yv9jnvug3aplhqs2tp3qp2v2zr88vl225rx4xp8eklxk2qzwep92nquars8qqrj6t70p89xlyazqqqqqqqqqqy6t2k0",
+          "certificate1qyqsqqqqqqqqqq9n6gadzsl9j4hrxmlfdzvtutrcyjvhdu4ghljgy2xm5xxu9cx07pduwf60yljmmy36uq9v4y90psqsqwuqlua"
+        ]
+      ],
+      [
+        "join_chat_room",
+        [
+          "verifier1qygqqqqqqqqqqqzxncqqqqqqqqqxr8sqqqqqqqqq5fcszqqqqqqqp79eqyqqqqqqqpkwkqqqqqqqqqqvqqqqqqqqqqqzkm76k7xd5plur78pvdslz5arj7vnccqdkzw095ycejagyyrzsgxhpyvy4sacmsm49acl0jqd7xyprjyrluga0h88892w438k9st7xfyv4ps9aucvp5jnwyhum2g09fw9us4nz8qg35g6d8sn2q7je50srwgmdee5q53y7xkjfk9v6pf6zrea2sr3gaew024pn226s2mphhw3a9xyylrvq5klfhp6th7nvprhqrzud8ammh56vetg6n8sfvu2l46pyjwns2dvsgpdr5w6u9xrzka4y6r4e7dcptdx2s9a23pa63wkwqpftltgfdf2j6wswpw3hwzfnd6hrh0q8v5gsy8h4sk48x7vyd0as7et7kg344wsd2n0tx9yqq7vsjqlm2qw58ejghd99s30n58fypcmcuul06f9elyxen5dxskpuftha3v43a2477a82gjaf4pseedky7qp9ucqk5ehxnm6rdgs00mzrfea2l75666elwyynke70v3fczq7zsy8dqjmhl5yv7w9654dwaqkvwqcrj4f348pakrl2c9mr2n24ux9rqweaus7qer5qmsdvkny8e8ndwjlhxntnmqpmkqnlz6xgw56qepeqz5artqwu4mkdhjpgkhenr5xs4uutsrp5cxeczey2ewuhjgj5qh2dkqjmlnak5dtakhcr9q6rzp32q2ggcetgtk4uhu8skytvrhjuqe6uyyxvc0uz65arplqdne90f8e5hc0q60rwf3wxpsc5mgvwe5e5jqz4z75u4f3stnda2xdnxkj7j5cl646rq8vq0dyg7t8wxnw9pqzkly7qsssfmxfdrx0sa6u925tq4vqe6fyw9gma78p36lzgsuqkhvwugs0eu70yzm546ap07fv595nrj8y8vzrdlelyg94zhn3uyluvv3gzrw9z0jxyt9z6syt72lfn42yrk3mrakcqhsr0v4lnnxj48x6wx2d7lzsqqqqqqqqql0vtxh",
+          "certificate1qyqsqqqqqqqqqqx3zk99qwh4ueqmkz94yt4n5f0g6vdjtky8lfwanq2apjn5942j8d43lg2q7kxcgp2va8xkak4p37qqqvnpwp6"
+        ]
+      ],
+      [
+        "publish_story",
+        [
+          "verifier1qygqqqqqqqqqqqp98uqqqqqqqqqp70cqqqqqqqqqrknsqqqqqqqqpxlsqqqqqqqqqzq4zqqqqqqqqqqvqqqqqqqqqqqgj09l72ls9puhehp5lt773uyqtd0rrajkdze3gw9hartlgghygnd9y8ek9k3mn5te2mzc55496tcqercqhuzensy303e7tzxmgvsm60cl0v5yyrseqwq72nrfn6vx8fy2j8yhd57peldnth6xuaqc223szg3cth5q76777cw43zjzq2kyt3aj7eyrrr3x3gu7maptg8lc0er5lcv4ej70prlv73d5wvla84mnqqgk7qe57lnv64xt3pzrmgr599le028zfxuq0dy52xkn6ghppa98gp89vl0vxj44j78c9swatde32q0y4ltjvhtwhagy0fn92wwsf6tckwva6jv36sn9953ukzj4rnkzpmn04ra9x5swvxrrpv4wledsr2q6pdymweyqlxsj3s8pze32xl87ey69xvxd7z9tv0f2efg2juu35f64wmqtfu856s9t83240a2mry5qpvapwesfhrnmqlt3x88wynnl4g8lf4pq279qh5x697qdzg84avutc3rcjzfl9s6us8u26puu5gkcpyzj93y2x5meapfhmv8nltdalv93ww78x2jz5ry034dmlsz5pfsrd3sa0w6eaemxs5y598wmpt4qsy3k47hz8pu0ny3ywvjdw49lxje2cfewhcnnmevg8eh7lz83eln2gf9n85e4k8y2ylqte8zlm9qxqqgr20nznayk7uxex6vwpp5vyvsncq6hjfusdqqht2seaspfkzvm6q6y0uh290tayl93w6rp53rl5uqqrfr4y48l0ka98g8uqlzejxr7pxhjj2zu4adjcxppe0smj02m75dqurrdqkc0wqk4u448276kzscquhhf938rfq26k6uyutj2uz572vr0ve4nn7xv0tlrfcqp4w244e0yku48dxz7tz526y0qd65dncwszn2v048e2m3evjkm6fa8lhw6ruqlvqtalakj5dfekxh580jjjuwy44fsqqqqqqqqq0ds95h",
+          "certificate1qyqsqqqqqqqqqqxut5shvuzkleg459r3ghtfyz6gcpgqcf92f8e90jar7qq3856rmrqh7z7gvtrt4p5ma7ypcn3lw2qqqm3ue2r"
+        ]
+      ],
+      [
+        "view_story",
+        [
+          "verifier1qygqqqqqqqqqqqqs45qqqqqqqqqrdtgqqqqqqqqqg78qzqqqqqqqq746qyqqqqqqqqpssqgqqqqqqqqvqqqqqqqqqqq24cxuknvhrgcvhqxj76447mhpnaj70flq5gmkqnyr4x0ufw8knwlekpzwux7p8m6ahrkyx4sl46uqd3paup0nzggwaywxqsrsj2dvaft4nkj0l8gu67wknhdqg68k92dmmdezcul43wm3qyjsk0sacvfgpp9ytr7s596cgg7tcs0wvfqtkegy57tq2fetyw6vxkm3kru4cdy7xkh7hzn37mwsjy9dwdm28xclq8dkk5j5qzzlxrhdpu88x23qvcjw6l3ss3w6pxg4360v900dzg80uvf6x6j9a4962dewpktvwm75vq9ns5sqs8y54etk6yg0pnuclrx2fkjhlpzhvlmrs3nwalwlrpxx2k4qnftmahus6sqf69rjpjy225qj5hy6hly4up9n869qcft8jwugcjpkh7ez468lkt8uzau2j6nqnclg5suzhkz7n5rku2w4sd57vdvqg09y8z5tc28nes2tdr9hvavajkkwtpqm6m2qqc6v363auplekd2h3hjlgtkm8j864r8w8t65725czpyh2s4n0xypjtxguhhlarnks7mwddh3yqhl6qmuwwcc6as5cn79pnhgyxdda8qcwkn895sdkpaqqznyqkq0ny09rhre0p07hrry5dhjw2twa5y4jlnug05eyzqr987defh0j6pzeu6f4reewh7gk62ecqzh2f6xq9rlw3vcr3cs4cc29mvm8z6mgler0wxzvlmgqx2ynzwdvhwksczgnw8g6gqk4kara9pdpgqseudv7auplpprjk8w0yqeg7nsyvd55mc48fpycx5jpz2l5z55zzhvk2xnz0jnm8q7x7r6as8t50yqcystm0huey98ex56aywh5ejwrkkh87mqstta86qc6pdc3r06f9qfsusc6z4xjhgknx4vpxz3aj5gq8rsdzej8gvfc4w45usq632njph99kyuzu9a2al59vft7m6n2h0rlr2sqqqqqqqqqse87l3",
+          "certificate1qyqsqqqqqqqqqqqrh07yjj0cwltc62rt6hq7tk5hd94zf5d4p6sczd0sa6l7j5f9uuqdcayr5n68f588r9qu4cvprcqqq6lk5xu"
+        ]
+      ]
+    ],
+    "program_checksum": [
+      "172u8",
+      "140u8",
+      "38u8",
+      "81u8",
+      "152u8",
+      "205u8",
+      "50u8",
+      "226u8",
+      "244u8",
+      "242u8",
+      "153u8",
+      "195u8",
+      "103u8",
+      "110u8",
+      "109u8",
+      "249u8",
+      "116u8",
+      "239u8",
+      "50u8",
+      "252u8",
+      "240u8",
+      "120u8",
+      "203u8",
+      "175u8",
+      "203u8",
+      "246u8",
+      "167u8",
+      "175u8",
+      "134u8",
+      "230u8",
+      "51u8",
+      "150u8"
+    ],
+    "program_owner": "aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk"
+  },
+  "fee": {
+    "transition": {
+      "id": "au1ayfwl0h0nqtkr0asymuwpnu75xs74xdxmzk0ltk7hcah6r3j3czss22pdm",
+      "program": "credits.aleo",
+      "function": "fee_public",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "3417312377561611892844956377149754332352280822371214534920758220421477313025field",
+          "value": "9968377u64"
+        },
+        {
+          "type": "public",
+          "id": "3630117247210751531053482222345967747151320002655388400852991869470407756919field",
+          "value": "0u64"
+        },
+        {
+          "type": "public",
+          "id": "4264514262377290133217425662498603331989356389086536883244447773327857055803field",
+          "value": "7779274532067523759681511647093384310735862068578039784480752763561425650535field"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "2320886743787725023986233391776835930963960030372916329115294531979578580781field",
+          "value": "{\n  program_id: credits.aleo,\n  function_name: fee_public,\n  arguments: [\n    aleo1hp9m08faf27hr7yu686t6r52nj36g3k5n7ymjhyzsvxjp58epyxsprk5wk,\n    9968377u64\n  ]\n}"
+        }
+      ],
+      "tpk": "4459662679137981927211993336767130521101891923654128612388365323565381603469group",
+      "tcm": "7770307173851939563132634249799278768472465232371675966212059156546888749042field",
+      "scm": "657771732911728239951283436040607582163269579495270237993451678016517767911field"
+    },
+    "global_state_root": "sr1e30v3ueyqe7w87f4q0w6gr0tcyvqv80mt3k95s34d6fxdt58dsysaly7wz",
+    "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqvf7e905nwszdzp0q4xq346tuh3z8h2tsrym22pukhpr9ltrmxgz43csarjvykc8gn8xrqmuckxlqqqynu54zgn82f736pa6he5t0jf8t2snnghyemz353kyz2fsntnsqhqcmfpe3yflgje00tj2p5l2s2eqvp50f2al5j8z0y8vsggz9hkp6v0upx2rrpdfew53kraejyq8w5mskqcvfamu580ar8fy2eshcw3yqd8h52kxsu4tezkrp32fsyl0vfxx39vrues9nvmu8f0nr2k7ckevn9t56fedgnv66fd9danu5h5yyq5hcjh77tvytudln4w0qrsjkjnz7qxerj6qhqyc52f95cu7anugxjdzkxgnr9c29dvr7wpgjuudfgqn3nl64f9t26ywk5avsnwr4puk7xftj8ns3hrqqel4zems4fw82x0ml5jtvn2zxas4f2f9jkuwjfqx229lxrfsk8fajg9yyc2zx5xcaupgmjfhg98sgxlg42t2r9e9amp8n2e4qn6cpv5lf5f2m82fn99qr8mwfpz0hgdj92vz03ktfslc2e8x639fnwrty62l5lujakzjjpkypy2vx5m7mh5jg2e4apdsxj0zqyxy08tylan24stantsnadp8en883ylv6uxp4yn4wvt5k64tjqnempvd2jef2s3hsu98ngnd7eq4uqlw2nqv4kcc94ama7dxnjkalhx6anc56ssltttrhng47kfu9j0uzultevp6ckxrmgtystqjhmch9qhtxpuw2f2hjszkqtr630m8v47rzz7xdmc4k96380u3zqdjh96682hsyuj794sjj8nhu2dl4kvv4yq6wvjn7mjmmavdfzvh9awdpl45ujh5djkjaguaqntypc0jjf09e3zx29d79386yn8hzka9yd8xprnx972cmdtemusr2mt0wj6qs65msp6xglg4j59dkenh9mvd4859gwy8u73rgxhvym84exuw40zncsfvqa40euv4zzpz2zga62hgmqt394ag84czx5nzwnf74vzqcpv4a6wp2vkdzmxk9axzweu54hndkvux5f9w2t47wzvc070jktymhce6uvqvh2yma6mxs4fp5ccknxue00p5qdl5n82wytdkhcvkxh49yz4ktsd9ucx0njpgy74zhq8dgyjnz8zkx7ayu0k8quek73exwp0lhw8lqwqvqqqqqqqqqqq5xsv22gz9k6ecaz73d3s5g4yfxgln59whuuf7n7cuevz6uvx5znljgkfvnrtzj6y7p8w37rn7edsqqquhgajjxkual5n7hvuz5qfkm8jz2anyzduydvl8un5h8p58xqwjldye3csjxursdklvpj0acgrjvqqy2wd00nl6sstv6la7xuqhx9k0ruwedhxlxkvlelfdu0p6fgrufs7h7f5ewpjt2xt6sd7krr8scsv7e6m33f5jr3d7sklrwunxqs9auk0j5yr0c53wps2rm6ns3x58xkqqqqwemzn2"
+  }
+}

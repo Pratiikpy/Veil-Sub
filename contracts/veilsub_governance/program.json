@@ -1,13 +1,7 @@
 {
-    "program": "veilsub_governance_v1.aleo",
-    "version": "0.1.0",
+    "program": "veilsub_governance_v2.aleo",
+    "version": "0.2.0",
     "description": "VeilSub private governance with Pedersen vote aggregation",
     "license": "MIT",
-    "dependencies": [
-        {
-            "name": "veilsub_v29.aleo",
-            "location": "network",
-            "network": "testnet"
-        }
-    ]
+    "leo": "3.4.0"
 }
