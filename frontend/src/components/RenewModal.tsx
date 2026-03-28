@@ -20,7 +20,6 @@ import { useRovingTabIndex } from '@/hooks/useRovingTabIndex'
 import { useBalanceCheck } from '@/hooks/useBalanceCheck'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
 import { useCreatorStats, clearMappingCache } from '@/hooks/useCreatorStats'
-import { TIERS } from '@/types'
 import TransactionStatus from './TransactionStatus'
 import BalanceConverter from './BalanceConverter'
 import ZKReceipt from './ZKReceipt'
@@ -77,9 +76,10 @@ export default function RenewModal({
   const effectiveBasePrice = fetchedBasePrice ?? basePrice ?? 0
   const priceUnavailable = effectiveBasePrice === 0 && !tiersLoading
 
-  // Build tier options. When custom tiers exist on-chain, use those prices.
-  // Otherwise use default TIERS with legacy pricing formula (base × multiplier).
-  const legacyMultiplierFn = (tid: number) => tid === 3 ? 5 : tid === 2 ? 2 : 1
+  // Build tier options from on-chain data ONLY.
+  // When custom tiers exist: show Tier 1 (base price) + each custom tier.
+  // When NO custom tiers exist: show ONLY Tier 1 at base price.
+  // NEVER generate phantom tiers from the hardcoded TIERS array.
   const hasCustomTiers = Object.values(onChainTiers).some(t => t.price > 0)
   const tierOptions: { id: number; name: string; price: number }[] = hasCustomTiers
     ? [
@@ -89,11 +89,7 @@ export default function RenewModal({
           .map(([id, t]) => ({ id: Number(id), name: t.name, price: t.price }))
           .sort((a, b) => a.id - b.id),
       ]
-    : TIERS.map(t => ({
-        id: t.id,
-        name: t.name,
-        price: effectiveBasePrice * legacyMultiplierFn(t.id),
-      }))
+    : [{ id: 1, name: DEFAULT_TIER_NAMES[1], price: effectiveBasePrice }]
 
   const [selectedTierId, setSelectedTierId] = useState<number>(initialTierId ?? pass.tier)
   const [privacyMode, setPrivacyMode] = useState<'standard' | 'blind'>('standard')
@@ -111,12 +107,12 @@ export default function RenewModal({
     return () => { toast.dismiss('renew-optimistic') }
   }, [])
 
-  // Derive selected option — fall back to legacy on-chain price formula if not in tier options.
+  // Derive selected option — fall back to Tier 1 at base price if not in tier options.
   const selectedOption = tierOptions.find(t => t.id === selectedTierId)
     ?? {
       id: selectedTierId,
-      name: TIERS.find(t => t.id === selectedTierId)?.name ?? `Tier ${selectedTierId}`,
-      price: effectiveBasePrice * legacyMultiplierFn(selectedTierId),
+      name: DEFAULT_TIER_NAMES[selectedTierId] ?? `Tier ${selectedTierId}`,
+      price: effectiveBasePrice,
     }
 
   const totalPrice = selectedOption.price

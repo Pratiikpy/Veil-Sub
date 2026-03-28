@@ -934,9 +934,14 @@ export default function CreatorPage({
     .map(([id]) => Number(id))
     .sort((a, b) => a - b)
 
+  // Build display tiers from on-chain data ONLY.
+  // When creator has custom tiers: show Tier 1 (base price) + each custom tier.
+  // When creator has NO custom tiers: show ONLY Tier 1 at base price.
+  // NEVER generate phantom tiers from the hardcoded TIERS array — those don't exist on-chain
+  // and clicking "Subscribe" at a phantom tier causes a wallet rejection.
   const displayTiers = (hasOnChainTiers
     ? [1, ...confirmedCustomIds]
-    : TIERS.map(t => t.id)
+    : [1] // Only Tier 1 exists on-chain when no custom tiers are created
   ).map(id => {
     const hardcoded = TIERS.find(t => t.id === id)
     const custom = onChainTiers[id]
@@ -950,13 +955,14 @@ export default function CreatorPage({
         features: creatorPerks[id] || [],
       }
     }
-    // Legacy fallback — only when NO custom tiers exist
-    // Still prefer creator's Supabase perks/descriptions over hardcoded defaults
-    if (!hasOnChainTiers && hardcoded) {
+    // Tier 1 at base price — always exists on-chain for registered creators
+    if (id === 1) {
       return {
-        ...hardcoded,
-        description: creatorDescriptions[id] || hardcoded.description,
-        features: creatorPerks[id]?.length ? creatorPerks[id] : hardcoded.features,
+        id: 1,
+        name: hardcoded?.name || 'Supporter',
+        priceMultiplier: 1,
+        description: creatorDescriptions[1] || '',
+        features: creatorPerks[1]?.length ? creatorPerks[1] : ['Access to exclusive content'],
       }
     }
     return { id, name: `Tier ${id}`, priceMultiplier: id, description: creatorDescriptions[id] || '', features: creatorPerks[id] || [] }
@@ -1338,7 +1344,7 @@ export default function CreatorPage({
                           tier={tier}
                           basePrice={basePrice}
                           hasThisTier={userPasses.some((p) => p.tier === tier.id)}
-                          isMostPopular={tier.id === 3}
+                          isMostPopular={displayTiers.length > 1 && tier.id === Math.max(...displayTiers.map(t => t.id))}
                           connected={connected}
                           onSubscribe={(t) => {
                             // Store duration period for the modal to read

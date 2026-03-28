@@ -40,7 +40,6 @@ import { useCreatorTiers, invalidateCreatorTierCache } from '@/hooks/useCreatorT
 import { useCreatorPerks } from '@/hooks/useCreatorPerks'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import TransactionStatus from '@/components/TransactionStatus'
-import { TIERS } from '@/types'
 import type { CreatorProfile, TxStatus, CustomTierInfo, ContentPost } from '@/types'
 
 const TierCreationDialog = dynamic(() => import('@/components/TierCreationDialog'), { ssr: false })
@@ -349,7 +348,10 @@ export default function RegisteredDashboard({
   const revenueAleo = (stats?.totalRevenue ?? 0) / MICROCREDITS_PER_CREDIT
   const revenueUsdStr = formatUsd(stats?.totalRevenue ?? 0)
 
-  // Build tier display list (monochrome)
+  // Build tier display list from on-chain data ONLY.
+  // When custom tiers exist: show Tier 1 (base price) + each custom tier.
+  // When NO custom tiers exist: show ONLY Tier 1 at base price.
+  // NEVER generate phantom tiers from the hardcoded TIERS array.
   const tierList = useMemo(() => {
     const basePrice = stats?.tierPrice ?? 0
     const confirmedIds = Object.entries(creatorTiers)
@@ -358,12 +360,11 @@ export default function RegisteredDashboard({
       .sort((a, b) => a - b)
     const tierIds = confirmedIds.length > 0
       ? Array.from(new Set([1, ...confirmedIds]))
-      : TIERS.map((t) => t.id)
+      : [1] // Only Tier 1 exists on-chain when no custom tiers are created
     return tierIds.map((id) => {
-      const hardcoded = TIERS.find((t) => t.id === id)
       const custom = creatorTiers[id]
-      const tierPrice = custom ? custom.price : basePrice * (hardcoded?.priceMultiplier ?? id)
-      const tierName = custom?.name || hardcoded?.name || `Tier ${id}`
+      const tierPrice = custom ? custom.price : basePrice
+      const tierName = custom?.name || (id === 1 ? 'Supporter' : `Tier ${id}`)
       return { id, name: tierName, price: tierPrice, isCustom: !!custom }
     })
   }, [stats?.tierPrice, creatorTiers])
