@@ -348,7 +348,8 @@ export default function SubscribeModal({
             const isRejected = walletMsg.includes('Rejected') || walletMsg.includes('rejected')
             console.error('[SubscribeModal] Transaction failed:', walletMsg.slice(0, 200))
             if (isRejected) {
-              setError('Transaction was rejected by your wallet. Please try again and approve the transaction when prompted.')
+              setError('Transaction was rejected by your wallet. Possible causes: (1) Not enough private ALEO — convert more public credits. (2) Wallet needs a page refresh to detect new records. (3) Try waiting 10 seconds and retry.')
+              setInsufficientBalance(true) // Show BalanceConverter
             } else {
               setError('Subscription failed. Make sure you have enough public ALEO (~0.3) for fees and private ALEO for the tier price. If you just converted credits, wait a few seconds for your wallet to sync.')
             }
