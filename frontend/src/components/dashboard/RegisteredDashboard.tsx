@@ -33,7 +33,7 @@ import ProfileEditor from '@/components/dashboard/ProfileEditor'
 import PostsList from '@/components/dashboard/PostsList'
 import { formatCredits, formatUsd, shortenAddress, generatePassId } from '@/lib/utils'
 import { encryptContent } from '@/lib/e2eEncryption'
-import { PLATFORM_FEE_PCT, PLATFORM_ADDRESS, DEPLOYED_PROGRAM_ID, MICROCREDITS_PER_CREDIT, getCreatorHash } from '@/lib/config'
+import { PLATFORM_FEE_PCT, PLATFORM_ADDRESS, DEPLOYED_PROGRAM_ID, MICROCREDITS_PER_CREDIT, getCreatorHash, DEFAULT_TIER_NAMES } from '@/lib/config'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { useCreatorTiers, invalidateCreatorTierCache } from '@/hooks/useCreatorTiers'
@@ -363,8 +363,10 @@ export default function RegisteredDashboard({
       : [1] // Only Tier 1 exists on-chain when no custom tiers are created
     return tierIds.map((id) => {
       const custom = creatorTiers[id]
-      const tierPrice = custom ? custom.price : basePrice
-      const tierName = custom?.name || (id === 1 ? 'Supporter' : `Tier ${id}`)
+      // Tier 1 always uses base price (set during register_creator).
+      // Custom tiers (2+) use their on-chain price. Fallback to basePrice if price is 0/unknown.
+      const tierPrice = id === 1 ? basePrice : (custom && custom.price > 0 ? custom.price : basePrice)
+      const tierName = custom?.name || DEFAULT_TIER_NAMES[id] || `Tier ${id}`
       return { id, name: tierName, price: tierPrice, isCustom: !!custom }
     })
   }, [stats?.tierPrice, creatorTiers])

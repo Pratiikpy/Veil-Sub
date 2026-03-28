@@ -216,8 +216,9 @@ export function useCreatorTiers(creatorAddress: string): CreatorTierResult {
         }
 
         // If on-chain count exceeds our fallback knowledge, add placeholder entries
-        // so the UI can show "Tier X exists on-chain" even without exact price
-        for (let i = 1; i <= onChainTierCount; i++) {
+        // so the UI can show "Tier X exists on-chain" even without exact price.
+        // Skip tier 1 — it uses base price from tier_prices mapping, not custom tier data.
+        for (let i = 2; i <= onChainTierCount; i++) {
           if (!resultTiers[i]) {
             resultTiers[i] = {
               price: 0, // Price unknown — can't compute Poseidon2(TierKey) in JS
