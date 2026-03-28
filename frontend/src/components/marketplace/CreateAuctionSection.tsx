@@ -57,9 +57,12 @@ export default function CreateAuctionSection() {
       )
       if (txId) {
         saveAuctionToStorage(slotIdFormatted, slotLabel || `Auction ${slotIdFormatted.slice(0, 8)}...`)
-        toast.success('Auction created! Bidding is now open.')
+        // Save TX ID so user can find their auction ID from the explorer
+        toast.success(
+          `Auction created! TX: ${txId.slice(0, 16)}... View on AleoScan to find your auction ID (first argument in the transition output).`,
+          { duration: 12000 }
+        )
         setSlotLabel('')
-        setContentSlotId('')
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to create auction'
