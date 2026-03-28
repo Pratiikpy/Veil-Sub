@@ -54,7 +54,7 @@ export default function VerifyBadgeSection() {
       )
       if (txId) {
         setVerifyResult('success')
-        toast.success('Badge verified! Creator meets the required badge level.')
+        toast.success('Badge verification submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', { duration: 8000 })
       }
     } catch (err) {
       setVerifyResult('fail')
@@ -155,10 +155,10 @@ export default function VerifyBadgeSection() {
                   <XCircle className="w-5 h-5 text-red-400" />
                 )}
                 <span className={`text-sm font-medium ${
-                  verifyResult === 'success' ? 'text-emerald-400' : 'text-red-400'
+                  verifyResult === 'success' ? 'text-amber-400' : 'text-red-400'
                 }`}>
                   {verifyResult === 'success'
-                    ? 'Badge verified on-chain'
+                    ? 'Verification submitted -- check AleoScan to confirm'
                     : 'Creator does not meet badge threshold'}
                 </span>
               </div>

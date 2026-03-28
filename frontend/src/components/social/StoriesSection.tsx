@@ -138,8 +138,9 @@ export default function StoriesSection() {
         SOCIAL_PROGRAM_ID,
       )
       if (txId) {
-        toast.success('Story published! Feed will refresh after finalize (~15-30s).', {
+        toast.success('Story submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', {
           description: `Expires in ${formatDurationBlocks(duration)} -- TX: ${txId.slice(0, 16)}...`,
+          duration: 8000,
         })
         setStoryContent('')
         setDurationBlocks('1200')
@@ -189,8 +190,9 @@ export default function StoriesSection() {
         SOCIAL_PROGRAM_ID,
       )
       if (txId) {
-        toast.success('Story viewed!', {
-          description: `You received a StoryAccess token. TX: ${txId.slice(0, 16)}...`,
+        toast.success('View story submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', {
+          description: `TX: ${txId.slice(0, 16)}...`,
+          duration: 8000,
         })
       }
     } catch (err) {

@@ -122,8 +122,9 @@ export default function DMConfigSection() {
       )
       if (txId) {
         setLastTxId(txId)
-        toast.success('DM configuration submitted! Status will refresh after finalize.', {
+        toast.success('DM config submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', {
           description: `TX: ${txId.slice(0, 16)}...`,
+          duration: 8000,
         })
         setConfig({ enabled: true, price: priceMicrocredits, minTier: tierInput })
         // Re-fetch from chain after finalize

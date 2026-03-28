@@ -46,8 +46,8 @@ const steps: Step[] = [
     time: '~15-30s',
   },
   {
-    label: 'Confirmed on-chain',
-    description: 'Transaction finalized. State updated.',
+    label: 'Submitted to network',
+    description: 'Transaction sent. Verify on AleoScan for final confirmation.',
     time: '',
   },
 ]

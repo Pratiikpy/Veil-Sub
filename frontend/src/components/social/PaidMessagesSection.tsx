@@ -269,7 +269,7 @@ export default function PaidMessagesSection() {
           console.warn('[PaidMessages] Off-chain message delivery failed (non-critical)')
         }
 
-        toast.success('Paid message sent! The creator can read it in their Messages inbox.', {
+        toast.success('Paid message submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', {
           description: `Payment: ${formatCredits(amount)} ALEO | TX: ${txId.slice(0, 16)}...`,
           duration: 8000,
         })
@@ -467,11 +467,11 @@ export default function PaidMessagesSection() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={spring.gentle}
-          className="rounded-2xl bg-violet-500/5 border border-violet-500/10 p-5"
+          className="rounded-2xl bg-amber-500/5 border border-amber-500/10 p-5"
         >
           <div className="flex items-center gap-2 mb-3">
-            <CheckCircle2 className="w-4 h-4 text-violet-400" />
-            <h3 className="text-sm font-medium text-violet-300">MessageReceipt</h3>
+            <CheckCircle2 className="w-4 h-4 text-amber-400" />
+            <h3 className="text-sm font-medium text-amber-300">Message Submitted -- Verify on Explorer</h3>
           </div>
           <div className="space-y-2 text-xs font-mono">
             <div className="flex justify-between">

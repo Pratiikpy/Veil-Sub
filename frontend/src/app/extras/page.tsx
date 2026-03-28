@@ -195,7 +195,7 @@ function ReviewsSection() {
       )
       if (result) {
         setTxId(result)
-        toast.success('Review submitted on-chain! Stats will update in ~15-30s.')
+        toast.success('Review submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', { duration: 8000 })
         // Refresh stats after finalize completes
         setTimeout(fetchStats, 15000)
         setTimeout(fetchStats, 30000)
@@ -342,11 +342,12 @@ function ReviewsSection() {
 
           {/* Transaction result */}
           {txId && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-500/[0.06] border border-amber-500/15">
+              <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
               <div className="min-w-0">
-                <p className="text-xs text-emerald-400 font-medium">Review submitted!</p>
+                <p className="text-xs text-amber-400 font-medium">Review submitted -- verify on AleoScan</p>
                 <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
+                <p className="text-[11px] text-white/40 mt-1">Shield Wallet uses delegated proving. Check AleoScan to verify final status.</p>
               </div>
             </div>
           )}
@@ -431,7 +432,7 @@ function LotterySection() {
       )
       if (result) {
         setDrawTxId(result)
-        toast.success('Lottery drawn! Round counter will update in ~15-30s after finalize completes.')
+        toast.success('Lottery draw submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', { duration: 8000 })
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Transaction failed'
@@ -537,11 +538,12 @@ function LotterySection() {
 
           {/* Result */}
           {drawTxId && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-500/[0.06] border border-amber-500/15">
+              <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
               <div className="min-w-0">
-                <p className="text-xs text-emerald-400 font-medium">Winner drawn for round #{(currentRound ?? 0) + 1}!</p>
+                <p className="text-xs text-amber-400 font-medium">Lottery draw submitted -- verify on AleoScan</p>
                 <p className="text-xs text-white/60 font-mono truncate">{drawTxId}</p>
+                <p className="text-[11px] text-white/40 mt-1">Shield Wallet uses delegated proving. Check AleoScan to verify final status.</p>
               </div>
             </div>
           )}

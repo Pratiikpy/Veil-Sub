@@ -216,7 +216,7 @@ export default function AuctionManagementSection() {
               MARKETPLACE_FEES.CLOSE_BIDDING,
               MARKETPLACE_PROGRAM_ID
             )
-            if (txId) toast.success('Bidding closed! Bidders can now reveal.')
+            if (txId) toast.success('Close bidding submitted! Confirming on-chain (~15-30s)...')
             break
           }
           case 'reveal': {
@@ -249,7 +249,7 @@ export default function AuctionManagementSection() {
             )
             if (txId)
               toast.success(
-                'Auction resolved! Winner pays Vickrey second-price.'
+                'Resolve submitted! Confirming on-chain (~15-30s)...'
               )
             break
           }
@@ -260,7 +260,7 @@ export default function AuctionManagementSection() {
               MARKETPLACE_FEES.CANCEL_AUCTION,
               MARKETPLACE_PROGRAM_ID
             )
-            if (txId) toast.success('Auction cancelled.')
+            if (txId) toast.success('Cancel submitted! Confirming on-chain (~15-30s)...')
             break
           }
         }
@@ -269,8 +269,8 @@ export default function AuctionManagementSection() {
           setLastTxId(txId)
           setTxStatus('confirmed')
           toast.info(
-            'On-chain state updates in ~15-30s. Use refresh to check.',
-            { duration: 6000 }
+            'Transaction submitted. On-chain state updates in ~15-30s. Verify on AleoScan.',
+            { duration: 8000 }
           )
           setTimeout(() => lookupAuction(), 15000)
         }

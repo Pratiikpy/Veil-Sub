@@ -78,7 +78,7 @@ export default function SubmitReviewSection() {
       )
 
       if (txId) {
-        toast.success('Review submitted! Your rating is now part of the aggregate Pedersen commitment.')
+        toast.success('Review submitted! Confirming on-chain (~15-30s). Your rating will be part of the aggregate Pedersen commitment.', { duration: 8000 })
         setRating(0)
         setReviewText('')
         setCreatorHash('')

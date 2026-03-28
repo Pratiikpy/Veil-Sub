@@ -117,8 +117,8 @@ export default function PlaceBidSection({ initialAuctionId }: Props) {
         })
         setLastTxId(txId)
         setTxStatus('confirmed')
-        toast.success('Sealed bid placed! Your bid is hidden on-chain.', {
-          duration: 6000,
+        toast.success('Bid submitted! Confirming on-chain (~15-30s)...', {
+          duration: 8000,
         })
         setAuctionId('')
         setAmount('')
@@ -261,18 +261,18 @@ export default function PlaceBidSection({ initialAuctionId }: Props) {
           />
         )}
 
-        {/* Confirmed success */}
+        {/* Submitted — verify on explorer */}
         {lastTxId && txStatus === 'confirmed' && (
-          <div className="p-4 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 space-y-3">
+          <div className="p-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/15 space-y-3">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span className="text-sm font-medium text-emerald-400">
-                Bid Sealed On-Chain
+              <CheckCircle2 className="w-4 h-4 text-amber-400" />
+              <span className="text-sm font-medium text-amber-400">
+                Bid Submitted -- Verify on Explorer
               </span>
             </div>
             <div className="flex items-center gap-2">
               <Shield
-                className="w-3 h-3 text-emerald-400/60"
+                className="w-3 h-3 text-amber-400/60"
                 aria-hidden="true"
               />
               <p className="text-xs text-white/50">
@@ -292,6 +292,9 @@ export default function PlaceBidSection({ initialAuctionId }: Props) {
               <ExternalLink className="w-3 h-3" />
               Verify on AleoScan
             </a>
+            <p className="text-[11px] text-white/40">
+              Shield Wallet uses delegated proving. Check AleoScan to verify final status.
+            </p>
           </div>
         )}
       </div>

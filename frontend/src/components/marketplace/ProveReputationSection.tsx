@@ -57,7 +57,7 @@ export default function ProveReputationSection() {
         MARKETPLACE_PROGRAM_ID
       )
       if (txId) {
-        toast.success('Reputation threshold proven! Badge level updated on-chain.')
+        toast.success('Reputation proof submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', { duration: 8000 })
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Proof failed'

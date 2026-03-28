@@ -234,7 +234,7 @@ function RegisterGateForm() {
       )
       if (result) {
         setTxId(result)
-        toast.success('Resource gate registered on-chain! Access count will be available after finalize (~15-30s).')
+        toast.success('Gate registration submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', { duration: 8000 })
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Transaction failed')
@@ -298,10 +298,10 @@ function RegisterGateForm() {
         </Button>
 
         {txId && (
-          <div className="p-4 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 space-y-2">
+          <div className="p-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/15 space-y-2">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="text-xs text-emerald-400 font-medium">Gate registered!</span>
+              <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+              <span className="text-xs text-amber-400 font-medium">Gate registration submitted -- verify on AleoScan</span>
             </div>
             <p className="text-xs text-white/60 font-mono truncate">TX: {txId}</p>
             <a
@@ -311,9 +311,10 @@ function RegisterGateForm() {
               className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 transition-colors"
             >
               <Globe className="w-3 h-3" />
-              View on AleoScan
+              Verify on AleoScan
             </a>
-            <p className="text-[11px] text-white/60 leading-relaxed">
+            <p className="text-[11px] text-white/40 leading-relaxed">
+              Shield Wallet uses delegated proving. Check AleoScan to verify final status.
               Use the Resource Access Counter below to check the access count (available after finalize ~15-30s).
             </p>
           </div>
@@ -368,7 +369,7 @@ function RevokePassForm() {
       )
       if (result) {
         setTxId(result)
-        toast.success('Pass revoked!')
+        toast.success('Revoke pass submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', { duration: 8000 })
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Transaction failed')
@@ -432,10 +433,10 @@ function RevokePassForm() {
         </Button>
 
         {txId && (
-          <div className="p-4 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 space-y-2">
+          <div className="p-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/15 space-y-2">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="text-xs text-emerald-400 font-medium">Pass revoked!</span>
+              <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+              <span className="text-xs text-amber-400 font-medium">Revoke submitted -- verify on AleoScan</span>
             </div>
             <p className="text-xs text-white/60 font-mono truncate">TX: {txId}</p>
             <a
@@ -447,6 +448,7 @@ function RevokePassForm() {
               <Globe className="w-3 h-3" />
               Verify on AleoScan
             </a>
+            <p className="text-[11px] text-white/40">Shield Wallet uses delegated proving. Check AleoScan to verify final status.</p>
           </div>
         )}
       </div>

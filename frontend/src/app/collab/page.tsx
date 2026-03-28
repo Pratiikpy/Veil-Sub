@@ -136,7 +136,7 @@ function CreateCollabForm() {
       )
       if (result) {
         setTxId(result)
-        toast.success('Collaboration created on-chain!')
+        toast.success('Collaboration submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', { duration: 8000 })
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Transaction failed'
@@ -231,10 +231,10 @@ function CreateCollabForm() {
         </Button>
 
         {txId && (
-          <div className="p-4 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 space-y-2">
+          <div className="p-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/15 space-y-2">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="text-xs text-emerald-400 font-medium">Collaboration created!</span>
+              <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+              <span className="text-xs text-amber-400 font-medium">Collaboration submitted -- verify on AleoScan</span>
             </div>
             <p className="text-xs text-white/60 font-mono truncate">TX: {txId}</p>
             <a
@@ -311,7 +311,7 @@ function SplitPaymentForm() {
       )
       if (result) {
         setTxId(result)
-        toast.success('Payment split on-chain!')
+        toast.success('Split payment submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', { duration: 8000 })
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Transaction failed'
@@ -413,11 +413,12 @@ function SplitPaymentForm() {
         </Button>
 
         {txId && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-500/[0.06] border border-amber-500/15">
+            <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
             <div className="min-w-0">
-              <p className="text-xs text-emerald-400 font-medium">Payment split!</p>
+              <p className="text-xs text-amber-400 font-medium">Split payment submitted -- verify on AleoScan</p>
               <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
+              <p className="text-[11px] text-white/40 mt-1">Shield Wallet uses delegated proving. Check AleoScan to verify final status.</p>
             </div>
           </div>
         )}
@@ -472,7 +473,7 @@ function PublishCollabContentForm() {
       )
       if (result) {
         setTxId(result)
-        toast.success('Co-authored content published on-chain!')
+        toast.success('Collab content submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', { duration: 8000 })
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Transaction failed'
@@ -549,11 +550,12 @@ function PublishCollabContentForm() {
       </Button>
 
       {txId && (
-        <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 mt-3">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-500/[0.06] border border-amber-500/15 mt-3">
+          <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
           <div className="min-w-0">
-            <p className="text-xs text-emerald-400 font-medium">Content published!</p>
+            <p className="text-xs text-amber-400 font-medium">Content submitted -- verify on AleoScan</p>
             <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
+            <p className="text-[11px] text-white/40 mt-1">Shield Wallet uses delegated proving. Check AleoScan to verify final status.</p>
           </div>
         </div>
       )}
@@ -611,7 +613,7 @@ function EndCollabForm() {
       )
       if (result) {
         setTxId(result)
-        toast.success('Collaboration ended on-chain!')
+        toast.success('End collab submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', { duration: 8000 })
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Transaction failed'
@@ -684,11 +686,12 @@ function EndCollabForm() {
       )}
 
       {txId && (
-        <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 mt-3">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-500/[0.06] border border-amber-500/15 mt-3">
+          <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
           <div className="min-w-0">
-            <p className="text-xs text-emerald-400 font-medium">Collaboration ended!</p>
+            <p className="text-xs text-amber-400 font-medium">End collab submitted -- verify on AleoScan</p>
             <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
+            <p className="text-[11px] text-white/40 mt-1">Shield Wallet uses delegated proving. Check AleoScan to verify final status.</p>
           </div>
         </div>
       )}

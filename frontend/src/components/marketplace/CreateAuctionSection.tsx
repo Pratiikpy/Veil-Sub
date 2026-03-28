@@ -189,7 +189,7 @@ export default function CreateAuctionSection() {
 
         setLastTxId(txId)
         setTxStatus('confirmed')
-        toast.success('Auction created! See transaction details below.', {
+        toast.success('Auction submitted! Confirming on-chain (~15-30s)...', {
           duration: 8000,
         })
 
@@ -362,13 +362,13 @@ export default function CreateAuctionSection() {
           />
         )}
 
-        {/* Confirmed success card */}
+        {/* Submitted — verify on explorer */}
         {lastTxId && txStatus === 'confirmed' && (
-          <div className="p-4 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 space-y-3">
+          <div className="p-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/15 space-y-3">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-sm font-medium text-emerald-400">
-                Auction Created
+              <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              <span className="text-sm font-medium text-amber-400">
+                Auction Submitted -- Verify on Explorer
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -403,6 +403,9 @@ export default function CreateAuctionSection() {
               The auction ID is a Poseidon2 hash of your address + slot ID,
               computed on-chain. Look up the auction ID in the transition output
               on AleoScan (first argument in finalize).
+            </p>
+            <p className="text-[11px] text-white/40">
+              Shield Wallet uses delegated proving. Check AleoScan to verify final status.
             </p>
           </div>
         )}

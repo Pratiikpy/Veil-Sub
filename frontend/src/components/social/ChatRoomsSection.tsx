@@ -237,7 +237,7 @@ export default function ChatRoomsSection() {
           })
         } catch { /* best-effort registry save */ }
 
-        toast.success('Chat room created! Room list will refresh after finalize.', { description: `Room #${roomIdNum} -- TX: ${txId.slice(0, 16)}...` })
+        toast.success('Chat room submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', { description: `Room #${roomIdNum} -- TX: ${txId.slice(0, 16)}...`, duration: 8000 })
 
         // Auto-announce chat room in creator's feed (best-effort)
         if (address) {
@@ -315,7 +315,7 @@ export default function ChatRoomsSection() {
         SOCIAL_PROGRAM_ID,
       )
       if (txId) {
-        toast.success('Joined chat room! Member count will update after finalize.', { description: `Room #${roomIdNum} -- TX: ${txId.slice(0, 16)}...` })
+        toast.success('Join room submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', { description: `Room #${roomIdNum} -- TX: ${txId.slice(0, 16)}...`, duration: 8000 })
         setJoinCreatorAddr('')
         setJoinRoomId('')
         setJoinExpiry('')
@@ -678,7 +678,7 @@ function ProveMembershipSection() {
       )
       if (result) {
         setTxId(result)
-        toast.success('Membership proved on-chain!')
+        toast.success('Membership proof submitted! Confirming on-chain (~15-30s). Check AleoScan to verify.', { duration: 8000 })
       }
     } catch (err) {
       toast.error('Membership proof failed', {
@@ -737,11 +737,12 @@ function ProveMembershipSection() {
         </button>
 
         {txId && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-500/[0.06] border border-amber-500/15">
+            <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
             <div className="min-w-0">
-              <p className="text-xs text-emerald-400 font-medium">Membership proved!</p>
+              <p className="text-xs text-amber-400 font-medium">Proof submitted -- verify on AleoScan</p>
               <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
+              <p className="text-[11px] text-white/40 mt-1">Shield Wallet uses delegated proving. Check AleoScan to verify final status.</p>
             </div>
           </div>
         )}

@@ -243,7 +243,7 @@ export default function OraclePage() {
         ORACLE_PROGRAM_ID
       )
       if (txId) {
-        toast.success('Oracle initialized! TX: ' + txId.slice(0, 12) + '...')
+        toast.success('Oracle init submitted! Confirming on-chain (~15-30s). TX: ' + txId.slice(0, 12) + '...', { duration: 8000 })
         // Refresh after a delay to let finalize complete
         setTimeout(refreshOnChainData, 15_000)
       }
@@ -291,7 +291,7 @@ export default function OraclePage() {
         ORACLE_PROGRAM_ID
       )
       if (txId) {
-        toast.success('Price pushed on-chain! TX: ' + txId.slice(0, 12) + '...')
+        toast.success('Price update submitted! Confirming on-chain (~15-30s). TX: ' + txId.slice(0, 12) + '...', { duration: 8000 })
         setTimeout(refreshOnChainData, 15_000)
       }
     } catch (err) {
@@ -349,7 +349,7 @@ export default function OraclePage() {
         ORACLE_PROGRAM_ID
       )
       if (txId) {
-        toast.success('Tier price computed on-chain! TX: ' + txId.slice(0, 12) + '...')
+        toast.success('Tier price computation submitted! Confirming on-chain (~15-30s). TX: ' + txId.slice(0, 12) + '...', { duration: 8000 })
         setTimeout(refreshOnChainData, 15_000)
       }
     } catch (err) {
@@ -393,7 +393,7 @@ export default function OraclePage() {
       if (txId) {
         // If the transaction succeeds, the price is fresh (the assert passed)
         setFreshnessResult('fresh')
-        toast.success('Price is fresh! Verification TX: ' + txId.slice(0, 12) + '...')
+        toast.success('Freshness check submitted! Confirming on-chain (~15-30s). TX: ' + txId.slice(0, 12) + '...', { duration: 8000 })
       }
     } catch {
       // If the transaction fails, the assert failed — price is stale
