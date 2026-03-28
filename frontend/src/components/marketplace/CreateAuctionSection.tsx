@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import {
   Plus,
   Gavel,
@@ -12,6 +12,8 @@ import {
   Image,
   Megaphone,
   Star,
+  Shield,
+  CheckCircle2,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import GlassCard from '@/components/GlassCard'
@@ -19,7 +21,13 @@ import Button from '@/components/ui/Button'
 import { useContractExecute } from '@/hooks/useContractExecute'
 import { MICROCREDITS_PER_CREDIT } from '@/lib/config'
 import { MARKETPLACE_PROGRAM_ID, MARKETPLACE_FEES } from './constants'
-import { saveAuctionToStorage, saveSharedAuction } from './helpers'
+import {
+  saveAuctionToStorage,
+  updateAuctionStorageWithId,
+  saveSharedAuction,
+  updateSharedAuctionId,
+  pollForAuctionId,
+} from './helpers'
 import { computeWalletHash } from '@/lib/utils'
 import TransactionProgress from './TransactionProgress'
 import type { TxStatus } from './TransactionProgress'
@@ -82,8 +90,44 @@ export default function CreateAuctionSection() {
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
   const [txError, setTxError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [copiedAuctionId, setCopiedAuctionId] = useState(false)
   const [activeTemplate, setActiveTemplate] = useState<string | null>(null)
+  const [onChainAuctionId, setOnChainAuctionId] = useState<string | null>(null)
+  const [extracting, setExtracting] = useState(false)
+  const [extractionTimedOut, setExtractionTimedOut] = useState(false)
   const creatingRef = useRef(false)
+  const pollCleanupRef = useRef<(() => void) | null>(null)
+  const extractionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Track submission data for post-extraction updates
+  const submitDataRef = useRef<{ slotId: string; label: string } | null>(null)
+
+  // Cleanup polling and timeout on unmount
+  useEffect(() => {
+    return () => {
+      pollCleanupRef.current?.()
+      if (extractionTimeoutRef.current) clearTimeout(extractionTimeoutRef.current)
+    }
+  }, [])
+
+  // If extraction is stuck for 2 minutes, time out
+  useEffect(() => {
+    if (extracting && !onChainAuctionId) {
+      extractionTimeoutRef.current = setTimeout(() => {
+        if (!onChainAuctionId) {
+          setExtractionTimedOut(true)
+          setExtracting(false)
+          pollCleanupRef.current?.()
+        }
+      }, 120_000)
+      return () => {
+        if (extractionTimeoutRef.current) clearTimeout(extractionTimeoutRef.current)
+      }
+    }
+    if (onChainAuctionId && extractionTimeoutRef.current) {
+      clearTimeout(extractionTimeoutRef.current)
+      extractionTimeoutRef.current = null
+    }
+  }, [extracting, onChainAuctionId])
 
   const copyTxId = useCallback(() => {
     if (!lastTxId) return
@@ -91,6 +135,14 @@ export default function CreateAuctionSection() {
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }, [lastTxId])
+
+  const copyAuctionId = useCallback(() => {
+    if (!onChainAuctionId) return
+    navigator.clipboard.writeText(onChainAuctionId)
+    setCopiedAuctionId(true)
+    toast.success('Auction ID copied! Share this with bidders.')
+    setTimeout(() => setCopiedAuctionId(false), 2000)
+  }, [onChainAuctionId])
 
   const applyTemplate = useCallback((templateKey: string) => {
     const tpl = templates.find((t) => t.key === templateKey)
@@ -118,6 +170,10 @@ export default function CreateAuctionSection() {
     setLastTxId(null)
     setTxStatus('submitting')
     setTxError(null)
+    setOnChainAuctionId(null)
+    setExtracting(false)
+    setExtractionTimedOut(false)
+    pollCleanupRef.current?.()
 
     try {
       // Check public balance covers fee
@@ -149,6 +205,8 @@ export default function CreateAuctionSection() {
       const slotIdFormatted = contentSlotId.endsWith('field')
         ? contentSlotId
         : `${contentSlotId}field`
+      const auctionLabel = slotLabel || `Auction ${slotIdFormatted.slice(0, 8)}...`
+
       const txId = await execute(
         'create_auction',
         [slotIdFormatted],
@@ -156,8 +214,9 @@ export default function CreateAuctionSection() {
         MARKETPLACE_PROGRAM_ID
       )
       if (txId) {
-        const auctionLabel = slotLabel || `Auction ${slotIdFormatted.slice(0, 8)}...`
+        // Save with slotId as temporary key (will be updated once we extract auction_id)
         saveAuctionToStorage(slotIdFormatted, auctionLabel)
+        submitDataRef.current = { slotId: slotIdFormatted, label: auctionLabel }
 
         // Save to shared registry so other users can discover this auction
         saveSharedAuction({
@@ -189,29 +248,95 @@ export default function CreateAuctionSection() {
 
         setLastTxId(txId)
         setTxStatus('confirmed')
-        toast.success('Auction submitted! Confirming on-chain (~15-30s)...', {
+        toast.success('Auction submitted! Extracting on-chain auction ID...', {
           duration: 8000,
         })
 
-        // Auto-announce auction in creator's feed (best-effort)
-        if (address) {
-          try {
-            const walletHash = await computeWalletHash(address)
-            const marketplaceUrl = `${window.location.origin}/marketplace`
-            await fetch('/api/posts', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                creator: address,
-                walletHash,
-                timestamp: Date.now(),
-                title: '',
-                body: `Sealed-bid auction is now open: "${auctionLabel}"\n\nSlot ID: ${slotIdFormatted}\nBid here: ${marketplaceUrl}\n\nYour bid amount stays hidden until the reveal phase. Highest bidder wins at the second-highest price (Vickrey auction).\n\nTX: ${txId.slice(0, 24)}...`,
-                postType: 'note',
-                minTier: 0,
-              }),
-            })
-          } catch { /* best-effort announcement */ }
+        // Start polling to extract the real auction_id from the confirmed TX output.
+        // The Provable API takes ~15-60s to confirm the transaction. Once confirmed,
+        // the future arguments contain the Poseidon2 auction_id as the first field.
+        const isRealTxId = txId.startsWith('at1') || txId.startsWith('au1')
+        if (isRealTxId) {
+          setExtracting(true)
+          pollCleanupRef.current = pollForAuctionId(
+            txId,
+            (realAuctionId) => {
+              setOnChainAuctionId(realAuctionId)
+              setExtracting(false)
+              // Update storage with the real on-chain auction ID
+              updateAuctionStorageWithId(slotIdFormatted, realAuctionId, auctionLabel)
+              updateSharedAuctionId(slotIdFormatted, address || '', realAuctionId)
+              // Update Supabase registry with the real auction_id
+              try {
+                computeWalletHash(address || '').then(regHash => {
+                  fetch('/api/registry', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      type: 'auction',
+                      creatorAddress: address,
+                      itemId: realAuctionId,
+                      label: auctionLabel,
+                      metadata: { txId, slotId: slotIdFormatted, status: 'open', auctionId: realAuctionId },
+                      walletAddress: address,
+                      walletHash: regHash,
+                      timestamp: Date.now(),
+                    }),
+                  })
+                })
+              } catch { /* best-effort */ }
+              toast.success(
+                'Auction ID extracted! Share this with bidders.',
+                { duration: 6000 }
+              )
+              // Auto-announce auction in creator's feed with the real auction ID
+              if (address) {
+                try {
+                  computeWalletHash(address).then(walletHash => {
+                    const marketplaceUrl = `${window.location.origin}/marketplace?auction=${encodeURIComponent(realAuctionId)}`
+                    fetch('/api/posts', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        creator: address,
+                        walletHash,
+                        timestamp: Date.now(),
+                        title: '',
+                        body: `Sealed-bid auction is now live: "${auctionLabel}"\n\nAuction ID: ${realAuctionId}\nBid here: ${marketplaceUrl}\n\nYour bid amount stays hidden until the reveal phase. Highest bidder wins at the second-highest price (Vickrey auction).`,
+                        postType: 'note',
+                        minTier: 0,
+                      }),
+                    })
+                  })
+                } catch { /* best-effort announcement */ }
+              }
+            }
+          )
+        } else {
+          // Shield Wallet: txId is a temp ID (shield_*). We cannot poll for the
+          // auction_id until the real TX ID appears. Show instructions to the user.
+          setExtracting(false)
+          setExtractionTimedOut(true)
+          // Still announce with what we have
+          if (address) {
+            try {
+              const walletHash = await computeWalletHash(address)
+              const marketplaceUrl = `${window.location.origin}/marketplace`
+              await fetch('/api/posts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  creator: address,
+                  walletHash,
+                  timestamp: Date.now(),
+                  title: '',
+                  body: `Sealed-bid auction submitted: "${auctionLabel}"\n\nSlot ID: ${slotIdFormatted}\nBid here: ${marketplaceUrl}\n\nCheck AleoScan for the auction ID once the transaction confirms.`,
+                  postType: 'note',
+                  minTier: 0,
+                }),
+              })
+            } catch { /* best-effort announcement */ }
+          }
         }
 
         setSlotLabel('')
@@ -362,24 +487,137 @@ export default function CreateAuctionSection() {
           />
         )}
 
-        {/* Submitted — verify on explorer */}
-        {lastTxId && txStatus === 'confirmed' && (
-          <div className="p-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/15 space-y-3">
+        {/* On-Chain Auction ID — extracted from TX output */}
+        {lastTxId && txStatus === 'confirmed' && onChainAuctionId && (
+          <div className="p-4 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/20 space-y-3">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-              <span className="text-sm font-medium text-amber-400">
-                Auction Submitted -- Verify on Explorer
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span className="text-sm font-semibold text-emerald-400">
+                Auction Live -- Share This ID With Bidders
               </span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-white/60">Transaction ID</span>
+            <div className="p-3 rounded-lg bg-white/[0.04] border border-white/[0.08]">
+              <p className="text-[10px] text-white/40 mb-1">On-Chain Auction ID</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-white font-mono break-all flex-1">
+                  {onChainAuctionId}
+                </p>
+                <button
+                  onClick={copyAuctionId}
+                  className="shrink-0 p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-all"
+                  aria-label="Copy auction ID"
+                >
+                  {copiedAuctionId ? (
+                    <Check className="w-3.5 h-3.5" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Shield className="w-3 h-3 text-emerald-400/60" aria-hidden="true" />
+              <p className="text-xs text-white/50">
+                This Poseidon2 hash was computed on-chain from your address + slot ID.
+                Bidders enter this ID to place sealed bids.
+              </p>
+            </div>
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-xs text-white/40">Transaction</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-mono text-white/70">
+                <span className="text-xs font-mono text-white/50">
+                  {lastTxId.slice(0, 16)}...
+                </span>
+                <button
+                  onClick={copyTxId}
+                  className="text-white/40 hover:text-white/60 transition-colors"
+                  aria-label="Copy TX ID"
+                >
+                  {copied ? (
+                    <Check className="w-3 h-3 text-emerald-400" />
+                  ) : (
+                    <Copy className="w-3 h-3" />
+                  )}
+                </button>
+              </div>
+            </div>
+            <a
+              href={`https://testnet.aleoscan.io/transaction?id=${lastTxId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors"
+            >
+              <ExternalLink className="w-3 h-3" />
+              Verify on AleoScan
+            </a>
+          </div>
+        )}
+
+        {/* Extracting auction ID — polling in progress */}
+        {lastTxId && txStatus === 'confirmed' && extracting && !onChainAuctionId && (
+          <div className="p-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/15 space-y-3">
+            <div className="flex items-center gap-2">
+              <Loader2 className="w-4 h-4 text-amber-400 animate-spin" />
+              <span className="text-sm font-medium text-amber-400">
+                Extracting Auction ID from Transaction...
+              </span>
+            </div>
+            <p className="text-xs text-white/50 leading-relaxed">
+              The transaction is confirming on-chain. Once finalized, the
+              Poseidon2 auction ID will be extracted from the transition output.
+              This typically takes 15-60 seconds.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/40">Transaction</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-mono text-white/50">
                   {lastTxId.slice(0, 20)}...
                 </span>
                 <button
                   onClick={copyTxId}
-                  className="text-white/50 hover:text-white/70 transition-colors"
+                  className="text-white/40 hover:text-white/60 transition-colors"
+                  aria-label="Copy TX ID"
+                >
+                  {copied ? (
+                    <Check className="w-3 h-3 text-emerald-400" />
+                  ) : (
+                    <Copy className="w-3 h-3" />
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Extraction timed out — fallback instructions */}
+        {lastTxId && txStatus === 'confirmed' && extractionTimedOut && !onChainAuctionId && (
+          <div className="p-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/15 space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-amber-400" />
+              <span className="text-sm font-medium text-amber-400">
+                Auction Submitted -- Find Auction ID on Explorer
+              </span>
+            </div>
+            <p className="text-xs text-white/50 leading-relaxed">
+              The auction ID could not be extracted automatically. This can happen
+              with Shield Wallet (delegated proving) or if the transaction is still
+              confirming. Find the auction ID manually:
+            </p>
+            <ol className="text-xs text-white/50 space-y-1.5 list-decimal list-inside">
+              <li>Open the transaction on AleoScan (link below)</li>
+              <li>Find the <code className="text-violet-400/80 bg-white/[0.04] px-1 rounded">create_auction</code> transition</li>
+              <li>In the output section, look for the <code className="text-violet-400/80 bg-white/[0.04] px-1 rounded">future</code> output</li>
+              <li>The first argument (a field value like <code className="text-violet-400/80 bg-white/[0.04] px-1 rounded">12345field</code>) is your auction ID</li>
+            </ol>
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-xs text-white/40">Transaction</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-mono text-white/50">
+                  {lastTxId.slice(0, 20)}...
+                </span>
+                <button
+                  onClick={copyTxId}
+                  className="text-white/40 hover:text-white/60 transition-colors"
                   aria-label="Copy TX ID"
                 >
                   {copied ? (
@@ -399,13 +637,9 @@ export default function CreateAuctionSection() {
               <ExternalLink className="w-3 h-3" />
               View on AleoScan to find your auction ID
             </a>
-            <p className="text-[11px] text-amber-400/70 leading-relaxed">
-              The auction ID is a Poseidon2 hash of your address + slot ID,
-              computed on-chain. Look up the auction ID in the transition output
-              on AleoScan (first argument in finalize).
-            </p>
             <p className="text-[11px] text-white/40">
-              Shield Wallet uses delegated proving. Check AleoScan to verify final status.
+              Shield Wallet uses delegated proving. The real transaction ID may differ
+              from the one shown above.
             </p>
           </div>
         )}

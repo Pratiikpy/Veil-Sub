@@ -27,7 +27,7 @@ import Button from '@/components/ui/Button'
 import { useContractExecute } from '@/hooks/useContractExecute'
 import { MARKETPLACE_PROGRAM_ID, MARKETPLACE_FEES, AUCTION_STATUS } from './constants'
 import type { AuctionData, StoredBid, AuctionStatus } from './constants'
-import { getBidsFromStorage, getAuctionsFromStorage, getSharedAuctions, queryMapping, parseU64, parseU8 } from './helpers'
+import { getBidsFromStorage, getAuctionsFromStorage, getSharedAuctions, queryMapping, parseU64, parseU8, verifyAuctionOnChain } from './helpers'
 import { AuctionStatusBadge } from './SharedComponents'
 import AuctionLifecycleStepper from './AuctionLifecycleStepper'
 import AuctionPrivacyDashboard from './AuctionPrivacyDashboard'
@@ -56,11 +56,17 @@ export default function AuctionManagementSection() {
     setStoredBids(getBidsFromStorage())
 
     // Merge local + shared localStorage + global Supabase registry
-    const local = getAuctionsFromStorage()
+    // Prefer entries with real on-chain auctionId over raw slotId
+    const local = getAuctionsFromStorage().map(a => ({
+      id: a.auctionId || a.id,
+      label: a.label,
+      slotId: a.slotId,
+    }))
     const shared = getSharedAuctions().map(a => ({
-      id: a.slotId,
+      id: a.auctionId || a.slotId,
       label: a.label,
       creatorAddress: a.creatorAddress,
+      slotId: a.slotId,
     }))
 
     // Deduplicate by id
@@ -82,10 +88,13 @@ export default function AuctionManagementSection() {
         setStoredAuctions(prev => {
           const prevSeen = new Set(prev.map(a => a.id))
           const additions = data.entries
-            .filter((e: { item_id: string }) => !prevSeen.has(e.item_id))
-            .map((e: { item_id: string; label: string | null; creator_address: string; created_at: string }) => ({
-              id: e.item_id,
-              label: e.label || `Auction ${e.item_id.slice(0, 12)}...`,
+            .filter((e: { item_id: string; metadata?: { auctionId?: string } }) => {
+              const effectiveId = e.metadata?.auctionId || e.item_id
+              return !prevSeen.has(effectiveId)
+            })
+            .map((e: { item_id: string; label: string | null; creator_address: string; created_at: string; metadata?: { auctionId?: string } }) => ({
+              id: e.metadata?.auctionId || e.item_id,
+              label: e.label || `Auction ${(e.metadata?.auctionId || e.item_id).slice(0, 12)}...`,
               creatorAddress: e.creator_address,
               createdAt: e.created_at,
             }))

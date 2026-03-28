@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import {
   Lock,
   EyeOff,
@@ -11,6 +11,7 @@ import {
   Shield,
   Copy,
   Check,
+  Search,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import GlassCard from '@/components/GlassCard'
@@ -18,7 +19,7 @@ import Button from '@/components/ui/Button'
 import { useContractExecute } from '@/hooks/useContractExecute'
 import { MICROCREDITS_PER_CREDIT } from '@/lib/config'
 import { MARKETPLACE_PROGRAM_ID, MARKETPLACE_FEES } from './constants'
-import { generateSalt, saveBidToStorage } from './helpers'
+import { generateSalt, saveBidToStorage, getSharedAuctions, getAuctionsFromStorage, verifyAuctionOnChain } from './helpers'
 import TransactionProgress from './TransactionProgress'
 import type { TxStatus } from './TransactionProgress'
 import PrivacyNotice from './PrivacyNotice'
@@ -39,7 +40,72 @@ export default function PlaceBidSection({ initialAuctionId }: Props) {
   const [txStatus, setTxStatus] = useState<TxStatus>('idle')
   const [txError, setTxError] = useState<string | null>(null)
   const [saltCopied, setSaltCopied] = useState(false)
+  const [verifying, setVerifying] = useState(false)
+  const [verified, setVerified] = useState<boolean | null>(null)
+  const [knownAuctions, setKnownAuctions] = useState<{ id: string; label: string }[]>([])
   const biddingRef = useRef(false)
+
+  // Load known auctions from localStorage + shared registry (with real auction IDs)
+  useEffect(() => {
+    const local = getAuctionsFromStorage()
+      .filter(a => a.auctionId) // Only show auctions with real on-chain IDs
+      .map(a => ({ id: a.auctionId || a.id, label: a.label }))
+    const shared = getSharedAuctions()
+      .filter(a => a.auctionId) // Only show auctions with real on-chain IDs
+      .map(a => ({ id: a.auctionId || a.slotId, label: a.label }))
+    // Deduplicate
+    const seen = new Set<string>()
+    const merged: { id: string; label: string }[] = []
+    for (const a of [...local, ...shared]) {
+      if (!seen.has(a.id)) {
+        seen.add(a.id)
+        merged.push(a)
+      }
+    }
+    setKnownAuctions(merged)
+
+    // Also fetch from Supabase registry
+    fetch('/api/registry?type=auction')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!data?.entries?.length) return
+        setKnownAuctions(prev => {
+          const prevSeen = new Set(prev.map(a => a.id))
+          const additions = data.entries
+            .filter((e: { metadata?: { auctionId?: string } }) => e.metadata?.auctionId && !prevSeen.has(e.metadata.auctionId))
+            .map((e: { metadata: { auctionId: string }; label: string | null }) => ({
+              id: e.metadata.auctionId,
+              label: e.label || `Auction ${e.metadata.auctionId.slice(0, 12)}...`,
+            }))
+          return additions.length > 0 ? [...prev, ...additions] : prev
+        })
+      })
+      .catch(() => { /* registry unavailable */ })
+  }, [])
+
+  // Check URL params for shared auction ID
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const sharedAuctionId = params.get('auction')
+    if (sharedAuctionId) {
+      setAuctionId(sharedAuctionId)
+    }
+  }, [])
+
+  const handleVerifyAuction = useCallback(async () => {
+    if (!auctionId) return
+    setVerifying(true)
+    setVerified(null)
+    const exists = await verifyAuctionOnChain(auctionId)
+    setVerified(exists)
+    setVerifying(false)
+    if (exists) {
+      toast.success('Auction found on-chain and is active')
+    } else {
+      toast.error('Auction not found on-chain. Check the auction ID.')
+    }
+  }, [auctionId])
 
   const copySalt = useCallback(() => {
     navigator.clipboard.writeText(salt)
@@ -155,18 +221,85 @@ export default function PlaceBidSection({ initialAuctionId }: Props) {
       </div>
 
       <div className="space-y-4">
+        {/* Known Auctions — quick select */}
+        {knownAuctions.length > 0 && (
+          <div className="p-3 rounded-xl bg-blue-500/[0.04] border border-blue-500/10">
+            <div className="flex items-center gap-2 mb-2">
+              <Search className="w-3.5 h-3.5 text-blue-400" />
+              <span className="text-xs font-semibold text-white/70">
+                Available Auctions ({knownAuctions.length})
+              </span>
+            </div>
+            <div className="space-y-1.5 max-h-32 overflow-y-auto">
+              {knownAuctions.map((auction) => (
+                <button
+                  key={auction.id}
+                  type="button"
+                  onClick={() => {
+                    setAuctionId(auction.id)
+                    setVerified(null)
+                  }}
+                  className={`w-full text-left p-2 rounded-lg border transition-all text-xs ${
+                    auctionId === auction.id
+                      ? 'bg-blue-500/10 border-blue-500/20 text-blue-300'
+                      : 'bg-white/[0.02] border-white/[0.06] text-white/60 hover:border-white/[0.12]'
+                  }`}
+                >
+                  <p className="font-medium truncate">{auction.label}</p>
+                  <p className="font-mono text-[10px] text-white/30 truncate">{auction.id}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Auction ID */}
         <div>
           <label className="block text-sm font-medium text-white/70 mb-2">
             Auction ID
           </label>
-          <input
-            type="text"
-            value={auctionId}
-            onChange={(e) => setAuctionId(e.target.value)}
-            placeholder="Auction ID (field)"
-            className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/50"
-          />
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={auctionId}
+              onChange={(e) => {
+                setAuctionId(e.target.value)
+                setVerified(null)
+              }}
+              placeholder="Paste the on-chain auction ID (field)"
+              className="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/50"
+            />
+            <button
+              type="button"
+              onClick={handleVerifyAuction}
+              disabled={!auctionId || verifying}
+              className="shrink-0 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white/60 hover:text-white/80 hover:border-white/[0.15] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              title="Verify auction exists on-chain"
+            >
+              {verifying ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : verified === true ? (
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              ) : (
+                <Search className="w-3.5 h-3.5" />
+              )}
+            </button>
+          </div>
+          {verified === true && (
+            <p className="text-xs text-emerald-400/80 mt-1 flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" />
+              Auction verified on-chain
+            </p>
+          )}
+          {verified === false && (
+            <p className="text-xs text-red-400/80 mt-1 flex items-center gap-1">
+              <AlertTriangle className="w-3 h-3" />
+              Auction not found. Check the ID or wait for the transaction to confirm.
+            </p>
+          )}
+          <p className="text-xs text-white/40 mt-1">
+            Get this from the auction creator. It is a Poseidon2 hash (not the slot ID).
+          </p>
         </div>
 
         {/* Bid Amount */}
