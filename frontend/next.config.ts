@@ -49,6 +49,18 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        source: '/api/aleo/block/height/latest',
+        headers: [
+          { key: 'Cache-Control', value: 'public, s-maxage=5, stale-while-revalidate=10' },
+        ],
+      },
+      {
+        source: '/api/aleo/block/:height/transactions',
+        headers: [
+          { key: 'Cache-Control', value: 'public, s-maxage=60, stale-while-revalidate=120' },
+        ],
+      },
+      {
         source: '/api/aleo/transaction/:path*',
         headers: [
           { key: 'Cache-Control', value: 'public, s-maxage=300, stale-while-revalidate=600' },
@@ -87,6 +99,15 @@ const nextConfig: NextConfig = {
       {
         source: '/api/aleo/address/:address/transitions',
         destination: 'https://api.explorer.provable.com/v1/testnet/address/:address/transitions',
+      },
+      // Block queries for block-scanning pattern (Shield Wallet shield_* ID recovery)
+      {
+        source: '/api/aleo/block/height/latest',
+        destination: 'https://api.explorer.provable.com/v1/testnet/block/height/latest',
+      },
+      {
+        source: '/api/aleo/block/:height/transactions',
+        destination: 'https://api.explorer.provable.com/v1/testnet/block/:height/transactions',
       },
     ]
   },

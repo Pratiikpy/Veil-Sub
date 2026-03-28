@@ -27,6 +27,8 @@ import {
   saveSharedAuction,
   updateSharedAuctionId,
   pollForAuctionId,
+  fetchBlockHeight,
+  scanBlocksForAuctionId,
 } from './helpers'
 import { computeWalletHash } from '@/lib/utils'
 import TransactionProgress from './TransactionProgress'
@@ -158,6 +160,64 @@ export default function CreateAuctionSection({ onCreated }: CreateAuctionSection
     setContentSlotId(`${tpl.slotPrefix}${suffix}`)
   }, [])
 
+  // Shared callback: called when the real auction_id is found (from TX poll or block scan)
+  const handleAuctionIdFound = useCallback(
+    (realAuctionId: string, slotIdFormatted: string, auctionLabel: string, txId: string) => {
+      setOnChainAuctionId(realAuctionId)
+      setExtracting(false)
+      // Update storage with the real on-chain auction ID
+      updateAuctionStorageWithId(slotIdFormatted, realAuctionId, auctionLabel)
+      updateSharedAuctionId(slotIdFormatted, address || '', realAuctionId)
+      // Update Supabase registry with the real auction_id
+      try {
+        computeWalletHash(address || '').then(regHash => {
+          fetch('/api/registry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'auction',
+              creatorAddress: address,
+              itemId: realAuctionId,
+              label: auctionLabel,
+              metadata: { txId, slotId: slotIdFormatted, status: 'open', auctionId: realAuctionId },
+              walletAddress: address,
+              walletHash: regHash,
+              timestamp: Date.now(),
+            }),
+          })
+        })
+      } catch { /* best-effort */ }
+      toast.success(
+        'Auction ID extracted! Share this with bidders.',
+        { duration: 6000 }
+      )
+      // Notify parent that auction was created
+      onCreated?.()
+      // Auto-announce auction in creator's feed with the real auction ID
+      if (address) {
+        try {
+          computeWalletHash(address).then(walletHash => {
+            const marketplaceUrl = `${window.location.origin}/marketplace?auction=${encodeURIComponent(realAuctionId)}`
+            fetch('/api/posts', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                creator: address,
+                walletHash,
+                timestamp: Date.now(),
+                title: '',
+                body: `Sealed-bid auction is now live: "${auctionLabel}"\n\nAuction ID: ${realAuctionId}\nBid here: ${marketplaceUrl}\n\nYour bid amount stays hidden until the reveal phase. Highest bidder wins at the second-highest price (Vickrey auction).`,
+                postType: 'note',
+                minTier: 0,
+              }),
+            })
+          })
+        } catch { /* best-effort announcement */ }
+      }
+    },
+    [address, onCreated]
+  )
+
   const handleCreate = useCallback(async () => {
     if (creatingRef.current) return
     if (!connected) {
@@ -211,6 +271,10 @@ export default function CreateAuctionSection({ onCreated }: CreateAuctionSection
         : `${contentSlotId}field`
       const auctionLabel = slotLabel || `Auction ${slotIdFormatted.slice(0, 8)}...`
 
+      // Record block height BEFORE submitting TX — needed for block scanning
+      // if Shield Wallet returns a shield_* temp ID
+      const preSubmitHeight = await fetchBlockHeight()
+
       const txId = await execute(
         'create_auction',
         [slotIdFormatted],
@@ -258,93 +322,64 @@ export default function CreateAuctionSection({ onCreated }: CreateAuctionSection
         // Trigger immediate parent refresh so card appears in "Your Auctions"
         onCreated?.()
 
-        // Start polling to extract the real auction_id from the confirmed TX output.
-        // The Provable API takes ~15-60s to confirm the transaction. Once confirmed,
-        // the future arguments contain the Poseidon2 auction_id as the first field.
+        // Determine extraction strategy based on TX ID format
         const isRealTxId = txId.startsWith('at1') || txId.startsWith('au1')
+
         if (isRealTxId) {
+          // Strategy 1: Real TX ID — poll the Provable API by TX ID
           setExtracting(true)
           pollCleanupRef.current = pollForAuctionId(
             txId,
             (realAuctionId) => {
-              setOnChainAuctionId(realAuctionId)
-              setExtracting(false)
-              // Update storage with the real on-chain auction ID
-              updateAuctionStorageWithId(slotIdFormatted, realAuctionId, auctionLabel)
-              updateSharedAuctionId(slotIdFormatted, address || '', realAuctionId)
-              // Update Supabase registry with the real auction_id
-              try {
-                computeWalletHash(address || '').then(regHash => {
-                  fetch('/api/registry', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      type: 'auction',
-                      creatorAddress: address,
-                      itemId: realAuctionId,
-                      label: auctionLabel,
-                      metadata: { txId, slotId: slotIdFormatted, status: 'open', auctionId: realAuctionId },
-                      walletAddress: address,
-                      walletHash: regHash,
-                      timestamp: Date.now(),
-                    }),
-                  })
-                })
-              } catch { /* best-effort */ }
-              toast.success(
-                'Auction ID extracted! Share this with bidders.',
-                { duration: 6000 }
-              )
-              // Notify parent that auction was created
-              onCreated?.()
-              // Auto-announce auction in creator's feed with the real auction ID
-              if (address) {
-                try {
-                  computeWalletHash(address).then(walletHash => {
-                    const marketplaceUrl = `${window.location.origin}/marketplace?auction=${encodeURIComponent(realAuctionId)}`
-                    fetch('/api/posts', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        creator: address,
-                        walletHash,
-                        timestamp: Date.now(),
-                        title: '',
-                        body: `Sealed-bid auction is now live: "${auctionLabel}"\n\nAuction ID: ${realAuctionId}\nBid here: ${marketplaceUrl}\n\nYour bid amount stays hidden until the reveal phase. Highest bidder wins at the second-highest price (Vickrey auction).`,
-                        postType: 'note',
-                        minTier: 0,
-                      }),
-                    })
-                  })
-                } catch { /* best-effort announcement */ }
-              }
+              handleAuctionIdFound(realAuctionId, slotIdFormatted, auctionLabel, txId)
             }
           )
         } else {
-          // Shield Wallet: txId is a temp ID (shield_*). We cannot poll for the
-          // auction_id until the real TX ID appears. Show instructions to the user.
-          setExtracting(false)
-          setExtractionTimedOut(true)
-          // Still announce with what we have
-          if (address) {
-            try {
-              const walletHash = await computeWalletHash(address)
-              const marketplaceUrl = `${window.location.origin}/marketplace`
-              await fetch('/api/posts', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  creator: address,
-                  walletHash,
-                  timestamp: Date.now(),
-                  title: '',
-                  body: `Sealed-bid auction submitted: "${auctionLabel}"\n\nSlot ID: ${slotIdFormatted}\nBid here: ${marketplaceUrl}\n\nCheck AleoScan for the auction ID once the transaction confirms.`,
-                  postType: 'note',
-                  minTier: 0,
-                }),
-              })
-            } catch { /* best-effort announcement */ }
-          }
+          // Strategy 2: Shield Wallet shield_* temp ID — use block scanning
+          // Scan blocks from the pre-submission height forward to find our
+          // create_auction transition and extract the auction_id from its outputs.
+          setExtracting(true)
+          toast.info(
+            'Shield Wallet detected — scanning blocks for your auction. This may take 1-2 minutes...',
+            { duration: 15000 }
+          )
+
+          // Run block scan asynchronously
+          scanBlocksForAuctionId(preSubmitHeight).then((result) => {
+            if (result) {
+              // Found the real TX ID and auction ID from block scanning
+              setLastTxId(result.txId)
+              handleAuctionIdFound(result.auctionId, slotIdFormatted, auctionLabel, result.txId)
+              // Also update the shared auction with the real TX ID
+              updateSharedAuctionId(slotIdFormatted, address || '', result.auctionId)
+            } else {
+              // Block scanning timed out — fall back to manual instructions
+              setExtracting(false)
+              setExtractionTimedOut(true)
+              // Still announce with what we have
+              if (address) {
+                computeWalletHash(address).then(walletHash => {
+                  const marketplaceUrl = `${window.location.origin}/marketplace`
+                  fetch('/api/posts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      creator: address,
+                      walletHash,
+                      timestamp: Date.now(),
+                      title: '',
+                      body: `Sealed-bid auction submitted: "${auctionLabel}"\n\nSlot ID: ${slotIdFormatted}\nBid here: ${marketplaceUrl}\n\nCheck AleoScan for the auction ID once the transaction confirms.`,
+                      postType: 'note',
+                      minTier: 0,
+                    }),
+                  })
+                }).catch(() => { /* best-effort announcement */ })
+              }
+            }
+          }).catch(() => {
+            setExtracting(false)
+            setExtractionTimedOut(true)
+          })
         }
 
         setSlotLabel('')
@@ -360,7 +395,7 @@ export default function CreateAuctionSection({ onCreated }: CreateAuctionSection
       setSubmitting(false)
       creatingRef.current = false
     }
-  }, [connected, contentSlotId, slotLabel, execute, address])
+  }, [connected, contentSlotId, slotLabel, execute, address, handleAuctionIdFound])
 
   return (
     <GlassCard className="!p-6 sm:!p-8">

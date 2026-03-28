@@ -337,3 +337,105 @@ export async function verifyAuctionOnChain(auctionId: string): Promise<boolean> 
   const status = await queryMapping('auction_status', key)
   return status !== null
 }
+
+// ─── Block Height Helper ──────────────────────────────────────────────────────
+
+/**
+ * Fetch current block height from the Provable API (via proxy).
+ * Returns 0 on failure.
+ */
+export async function fetchBlockHeight(): Promise<number> {
+  try {
+    const res = await fetch('/api/aleo/block/height/latest')
+    if (!res.ok) return 0
+    const text = await res.text()
+    return parseInt(text, 10) || 0
+  } catch {
+    return 0
+  }
+}
+
+// ─── Block-Scanning Pattern (Obscura) ─────────────────────────────────────────
+// When Shield Wallet returns a shield_* temp ID instead of a real at1... TX ID,
+// we cannot query the Provable API by TX ID. Instead, we scan recent blocks
+// looking for our create_auction transition and extract the auction_id from
+// the transition outputs. This is the same approach Obscura uses.
+
+/**
+ * Scan recent blocks for a create_auction transaction from our marketplace program.
+ * Returns { txId, auctionId } if found, null otherwise.
+ *
+ * @param fromHeight - Block height at the time of TX submission (scan starts here)
+ * @param maxBlocks  - Maximum number of blocks to scan per attempt (default 20)
+ * @param maxRetries - Maximum polling attempts (~2 min at 3s intervals)
+ * @param intervalMs - Delay between polling attempts in milliseconds
+ */
+export async function scanBlocksForAuctionId(
+  fromHeight: number,
+  maxBlocks = 20,
+  maxRetries = 40,
+  intervalMs = 3000
+): Promise<{ txId: string; auctionId: string } | null> {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    await new Promise(r => setTimeout(r, intervalMs))
+    try {
+      // Get latest block height
+      const latestHeight = await fetchBlockHeight()
+      if (!latestHeight || latestHeight <= fromHeight) continue
+
+      // Scan blocks from submission height to latest (newest first for speed)
+      const start = Math.max(fromHeight + 1, latestHeight - maxBlocks + 1)
+
+      for (let h = latestHeight; h >= start; h--) {
+        try {
+          const blockRes = await fetch(`/api/aleo/block/${h}/transactions`)
+          if (!blockRes.ok) continue
+          const transactions = await blockRes.json()
+          if (!Array.isArray(transactions) || transactions.length === 0) continue
+
+          for (const confirmed of transactions) {
+            if (confirmed.status !== 'accepted') continue
+            const tx = confirmed.transaction
+            if (!tx?.execution?.transitions) continue
+
+            for (const transition of tx.execution.transitions) {
+              const prog = transition.program || transition.program_id
+              const func = transition.function || transition.function_name
+              if (prog === MARKETPLACE_PROGRAM_ID && func === 'create_auction') {
+                const txId = tx.id as string
+                const outputs = (transition.outputs || []) as Array<Record<string, unknown>>
+                const auctionId = extractFieldFromOutputs(outputs)
+                  || extractFieldFromFinalize(confirmed.finalize)
+
+                if (txId && auctionId) {
+                  return { txId, auctionId }
+                }
+              }
+            }
+          }
+        } catch {
+          continue
+        }
+      }
+    } catch {
+      // Network error — retry on next attempt
+    }
+  }
+  return null
+}
+
+/**
+ * Verify a bid was accepted on-chain by checking auction_bid_count.
+ * Returns true if bid_count increased above previousCount.
+ * Used as the onChainVerify callback for bid transactions.
+ */
+export async function verifyBidOnChain(
+  auctionId: string,
+  previousBidCount: number
+): Promise<boolean> {
+  const key = auctionId.endsWith('field') ? auctionId : `${auctionId}field`
+  const raw = await queryMapping('auction_bid_count', key)
+  if (!raw) return false
+  const newCount = parseU64(raw)
+  return newCount > previousBidCount
+}

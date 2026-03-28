@@ -31,7 +31,14 @@ import { shortenAddress } from '@/lib/utils'
 import { MARKETPLACE_PROGRAM_ID, MARKETPLACE_FEES, AUCTION_STATUS } from './constants'
 import type { AuctionStatus } from './constants'
 import { AuctionStatusBadge } from './SharedComponents'
-import { generateSalt, saveBidToStorage, getBidsFromStorage } from './helpers'
+import {
+  generateSalt,
+  saveBidToStorage,
+  getBidsFromStorage,
+  verifyBidOnChain,
+  fetchBlockHeight,
+  scanBlocksForAuctionId,
+} from './helpers'
 import TransactionProgress from './TransactionProgress'
 import type { TxStatus } from './TransactionProgress'
 import PrivacyNotice from './PrivacyNotice'
@@ -139,7 +146,31 @@ export default function AuctionCard({
     setLastTxId(null)
 
     try {
+      // First verify the auction exists at this ID (catches slot_id vs auction_id mismatch)
+      let auctionExists = false
+      try {
+        const statusRes = await fetch(`/api/aleo/program/${MARKETPLACE_PROGRAM_ID}/mapping/auction_status/${formattedId}`)
+        if (statusRes.ok) {
+          const statusRaw = await statusRes.text()
+          auctionExists = statusRaw !== 'null' && statusRaw !== ''
+        }
+      } catch { /* ignore */ }
+
+      if (!auctionExists) {
+        setTxStatus('failed')
+        setTxError('This auction ID is not valid on-chain. The auction may not have been created yet, or the ID is a slot ID instead of the real Poseidon2 auction ID. Check AleoScan for the correct auction ID.')
+        toast.error('Invalid auction ID — auction not found on-chain.')
+        setSubmitting(null)
+        actionRef.current = false
+        return
+      }
+
       setTxStatus('pending')
+
+      // Record block height BEFORE submission for block scanning fallback
+      const preSubmitHeight = await fetchBlockHeight()
+      const prevBidCount = auction.bidCount
+
       const txId = await execute(
         'place_sealed_bid',
         [formattedId, `${amountNum}u64`, salt],
@@ -155,38 +186,16 @@ export default function AuctionCard({
         toast.info('Bid submitted! Verifying on-chain — this takes ~30-60s...', { duration: 30000, id: 'bid-verify' })
         setTxStatus('pending')
 
-        // First verify the auction exists at this ID (catches slot_id vs auction_id mismatch)
-        let auctionExists = false
-        try {
-          const statusRes = await fetch(`/api/aleo/program/${MARKETPLACE_PROGRAM_ID}/mapping/auction_status/${formattedId}`)
-          if (statusRes.ok) {
-            const statusRaw = await statusRes.text()
-            auctionExists = statusRaw !== 'null' && statusRaw !== ''
-          }
-        } catch { /* ignore */ }
-
-        if (!auctionExists) {
-          toast.dismiss('bid-verify')
-          setTxStatus('failed')
-          setTxError('This auction ID is not valid on-chain. The auction may not have been created yet, or the ID is a slot ID instead of the real Poseidon2 auction ID. Check AleoScan for the correct auction ID.')
-          toast.error('Invalid auction ID — auction not found on-chain.')
-          return
-        }
-
-        // Poll bid_count to verify bid was accepted
-        const prevBidCount = auction.bidCount
+        // Use onChainVerify pattern: poll auction_bid_count as source of truth.
+        // This works regardless of whether we have a real TX ID or a shield_* ID.
         let verified = false
-        for (let i = 0; i < 12; i++) {
+        for (let i = 0; i < 20; i++) {
           await new Promise(r => setTimeout(r, 5000))
           try {
-            const countRes = await fetch(`/api/aleo/program/${MARKETPLACE_PROGRAM_ID}/mapping/auction_bid_count/${formattedId}`)
-            if (countRes.ok) {
-              const raw = await countRes.text()
-              const newCount = parseInt(raw.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
-              if (!isNaN(newCount) && newCount > prevBidCount) {
-                verified = true
-                break
-              }
+            const bidVerified = await verifyBidOnChain(formattedId, prevBidCount)
+            if (bidVerified) {
+              verified = true
+              break
             }
           } catch { /* retry */ }
         }
@@ -194,12 +203,48 @@ export default function AuctionCard({
         toast.dismiss('bid-verify')
 
         if (verified) {
+          // If we had a shield_* ID, try to get the real TX ID from block scanning
+          const isShieldId = !txId.startsWith('at1') && !txId.startsWith('au1')
+          let finalTxId = txId
+          if (isShieldId && preSubmitHeight > 0) {
+            // Quick block scan (just a few attempts since we know the TX confirmed)
+            try {
+              const latestHeight = await fetchBlockHeight()
+              if (latestHeight > preSubmitHeight) {
+                const start = Math.max(preSubmitHeight + 1, latestHeight - 10)
+                for (let h = latestHeight; h >= start; h--) {
+                  try {
+                    const blockRes = await fetch(`/api/aleo/block/${h}/transactions`)
+                    if (!blockRes.ok) continue
+                    const transactions = await blockRes.json()
+                    if (!Array.isArray(transactions)) continue
+                    for (const confirmed of transactions) {
+                      if (confirmed.status !== 'accepted') continue
+                      const tx = confirmed.transaction
+                      if (!tx?.execution?.transitions) continue
+                      for (const transition of tx.execution.transitions) {
+                        const prog = transition.program || transition.program_id
+                        const func = transition.function || transition.function_name
+                        if (prog === MARKETPLACE_PROGRAM_ID && func === 'place_sealed_bid') {
+                          finalTxId = tx.id as string
+                        }
+                      }
+                    }
+                  } catch { continue }
+                }
+              }
+            } catch { /* keep shield_* ID as fallback */ }
+            if (finalTxId !== txId) {
+              setLastTxId(finalTxId)
+            }
+          }
+
           // Only save bid AFTER on-chain verification
           saveBidToStorage({
             auctionId: formattedId,
             amount: amountNum,
             salt,
-            commitment: txId,
+            commitment: finalTxId,
             timestamp: Date.now(),
           })
           setTxStatus('confirmed')
@@ -222,7 +267,7 @@ export default function AuctionCard({
       setSubmitting(null)
       actionRef.current = false
     }
-  }, [connected, bidAmount, salt, formattedId, execute, onStatusChange])
+  }, [connected, bidAmount, salt, formattedId, execute, onStatusChange, auction.bidCount])
 
   // ─── Management actions ─────────────────────────────────────────────────────
 
