@@ -8,9 +8,10 @@ import dynamic from 'next/dynamic'
 import PageTransition from '@/components/PageTransition'
 import Skeleton from '@/components/ui/Skeleton'
 import AddressAvatar from '@/components/ui/AddressAvatar'
-import { estimateReadingTime, shortenAddress } from '@/lib/utils'
+import { estimateReadingTime, shortenAddress, computeWalletHash } from '@/lib/utils'
 import { FEATURED_CREATORS } from '@/lib/config'
 import { getCachedCreator } from '@/lib/creatorCache'
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import type { ContentPost } from '@/types'
 
 const ArticleReader = dynamic(() => import('@/components/ArticleReader'), { ssr: false })
@@ -94,11 +95,59 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
   const router = useRouter()
   const creator = searchParams.get('creator')
 
+  const { address: publicKey, signMessage, connected } = useWallet()
   const [post, setPost] = useState<(ContentPost & { creatorAddress: string }) | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [missingCreator, setMissingCreator] = useState(false)
   const [readerOpen, setReaderOpen] = useState(true)
+  const [unlocking, setUnlocking] = useState(false)
+
+  // Auto-unlock gated content if the user has a wallet connected
+  useEffect(() => {
+    if (!post || post.body || !connected || !publicKey || !post.creatorAddress) return
+    if (post.minTier === 0) return // Free content should have body — if null, it's a fetch issue
+    let cancelled = false
+    setUnlocking(true)
+
+    const tryUnlock = async () => {
+      try {
+        const walletHash = await computeWalletHash(publicKey)
+        const timestamp = Date.now()
+        const signFn = signMessage
+          ? async (msg: Uint8Array) => { const r = await signMessage(msg); if (!r) throw new Error('cancelled'); return r }
+          : null
+        const signatureB64 = signFn
+          ? btoa(String.fromCharCode(...(await signFn(new TextEncoder().encode(`veilsub-unlock:${post.id}:${timestamp}`)))))
+          : undefined
+
+        const res = await fetch('/api/posts/unlock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            postId: post.id,
+            creator: post.creatorAddress,
+            walletHash,
+            walletAddress: publicKey,
+            timestamp,
+            signature: signatureB64,
+          }),
+        })
+        if (res.ok) {
+          const data = await res.json()
+          if (!cancelled && data.body) {
+            setPost(prev => prev ? { ...prev, body: data.body } : prev)
+          }
+        }
+      } catch {
+        // Unlock failed silently — user still sees the gated notice
+      } finally {
+        if (!cancelled) setUnlocking(false)
+      }
+    }
+    tryUnlock()
+    return () => { cancelled = true }
+  }, [post?.id, post?.body, post?.creatorAddress, post?.minTier, connected, publicKey, signMessage])
 
   useEffect(() => {
     if (creator) {
@@ -186,21 +235,30 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
   if (missingCreator) return <MissingCreatorContext />
   if (notFound || !post) return <NotFound />
 
-  // If post body is null (gated), show a gated notice instead of the reader
+  // If post body is null (gated), try to unlock or show gated notice
   if (!post.body) {
     return (
       <PageTransition>
         <div className="min-h-screen bg-black flex items-center justify-center">
           <div className="text-center max-w-md px-6">
             <p className="text-lg font-semibold text-white mb-2">{post.title}</p>
-            <p className="text-sm text-white/50 mb-6">
-              This content requires a Tier {post.minTier}+ subscription to read.
-            </p>
+            {unlocking ? (
+              <div className="flex items-center justify-center gap-2 text-sm text-white/50 mb-6">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Verifying your subscription...
+              </div>
+            ) : (
+              <p className="text-sm text-white/50 mb-6">
+                {connected
+                  ? 'Your subscription could not be verified for this content. You may need a higher tier or your access pass may have expired.'
+                  : `This content requires a Tier ${post.minTier}+ subscription to read.`}
+              </p>
+            )}
             <button
               onClick={() => router.push(`/creator/${post.creatorAddress}`)}
               className="px-4 py-2 rounded-lg bg-white/[0.06] border border-white/[0.1] text-sm text-white hover:bg-white/[0.1] transition-colors"
             >
-              View creator page
+              {connected ? 'View creator page' : 'Subscribe to read'}
             </button>
           </div>
         </div>
