@@ -14,6 +14,9 @@ import {
   ArrowRight,
   Award,
   Zap,
+  Lock,
+  Eye,
+  Trophy,
 } from 'lucide-react'
 import Link from 'next/link'
 import GlassCard from '@/components/GlassCard'
@@ -311,6 +314,69 @@ export default function MarketplacePage() {
                 <div className="max-w-3xl mx-auto mb-8">
                   <SealedBidExplainer />
                 </div>
+
+                {/* Vickrey Explainer — inspired by Obscura's /learn page */}
+                <ScrollReveal delay={0.2}>
+                  <div className="max-w-3xl mx-auto">
+                    <div className="rounded-2xl bg-white/[0.02] border border-white/[0.06] overflow-hidden">
+                      <div className="h-0.5 bg-gradient-to-r from-blue-500 via-violet-500 to-blue-500" />
+                      <div className="p-5 sm:p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Trophy className="w-5 h-5 text-amber-400" aria-hidden="true" />
+                          <h3 className="text-sm font-semibold text-white">Why Vickrey (Second-Price)?</h3>
+                        </div>
+                        <div className="grid gap-4 sm:grid-cols-2 mb-4">
+                          <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                            <p className="text-xs font-semibold text-amber-400 mb-1">First-Price Problem</p>
+                            <p className="text-[11px] text-white/50 leading-relaxed">
+                              In first-price auctions, bidders shade their bids below true value.
+                              &quot;I value it at 100, but I bid 70 hoping to win cheap.&quot; This
+                              leads to inefficient markets where prices do not reflect real value.
+                            </p>
+                          </div>
+                          <div className="p-3 rounded-xl bg-emerald-500/[0.03] border border-emerald-500/10">
+                            <p className="text-xs font-semibold text-emerald-400 mb-1">Vickrey Solution</p>
+                            <p className="text-[11px] text-white/50 leading-relaxed">
+                              The winner pays the second-highest bid, not their own.
+                              Bidding your true value is always optimal -- you never overpay, and
+                              underbidding only risks losing. This is a mathematically dominant strategy.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="p-3 rounded-xl bg-violet-500/5 border border-violet-500/10">
+                          <p className="text-xs text-white/50 leading-relaxed">
+                            <span className="text-violet-400 font-semibold">Example: </span>
+                            Alice bids 100, Bob bids 80, Charlie bids 60. Alice wins but pays only 80
+                            (Bob&apos;s bid). Alice captures 20 ALEO surplus -- her reward for bidding truthfully.
+                            On-chain, the <code className="text-violet-400/70 text-[10px]">auction_second</code> mapping
+                            ensures the second price is immutable and auditable.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ScrollReveal>
+
+                {/* Privacy Stats Bar — inspired by Obscura's privacy wall */}
+                <ScrollReveal delay={0.3}>
+                  <div className="max-w-3xl mx-auto mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {[
+                      { icon: Lock, label: 'Bid Privacy', value: 'BHP256', color: 'text-emerald-400', bg: 'bg-emerald-500/5', border: 'border-emerald-500/10' },
+                      { icon: EyeOff, label: 'Identity', value: 'Poseidon2', color: 'text-blue-400', bg: 'bg-blue-500/5', border: 'border-blue-500/10' },
+                      { icon: Eye, label: 'Losing Bids', value: 'Private Forever', color: 'text-violet-400', bg: 'bg-violet-500/5', border: 'border-violet-500/10' },
+                      { icon: Shield, label: 'Settlement', value: 'Vickrey ZK', color: 'text-amber-400', bg: 'bg-amber-500/5', border: 'border-amber-500/10' },
+                    ].map((stat) => {
+                      const Icon = stat.icon
+                      return (
+                        <div key={stat.label} className={`p-3 rounded-xl ${stat.bg} border ${stat.border} text-center`}>
+                          <Icon className={`w-4 h-4 ${stat.color} mx-auto mb-1.5`} aria-hidden="true" />
+                          <p className={`text-xs font-bold ${stat.color}`}>{stat.value}</p>
+                          <p className="text-[10px] text-white/40 mt-0.5">{stat.label}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </ScrollReveal>
               </Container>
             </section>
 

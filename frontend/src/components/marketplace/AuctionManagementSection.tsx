@@ -14,16 +14,24 @@ import {
   ArrowRight,
   Loader2,
   RefreshCw,
+  AlertTriangle,
+  Shield,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import GlassCard from '@/components/GlassCard'
 import Button from '@/components/ui/Button'
 import { useContractExecute } from '@/hooks/useContractExecute'
 import { MARKETPLACE_PROGRAM_ID, MARKETPLACE_FEES, AUCTION_STATUS } from './constants'
-import type { AuctionData, StoredBid } from './constants'
+import type { AuctionData, StoredBid, AuctionStatus } from './constants'
 import { getBidsFromStorage, queryMapping, parseU64, parseU8 } from './helpers'
 import { AuctionStatusBadge } from './SharedComponents'
-import type { AuctionStatus } from './constants'
+import AuctionLifecycleStepper from './AuctionLifecycleStepper'
+import AuctionPrivacyDashboard from './AuctionPrivacyDashboard'
+import TransactionProgress from './TransactionProgress'
+import type { TxStatus } from './TransactionProgress'
+import PrivacyNotice from './PrivacyNotice'
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AuctionManagementSection() {
   const { execute, connected, address } = useContractExecute()
@@ -33,7 +41,9 @@ export default function AuctionManagementSection() {
   const [auctionData, setAuctionData] = useState<AuctionData | null>(null)
   const [lookingUp, setLookingUp] = useState(false)
   const [storedBids, setStoredBids] = useState<StoredBid[]>([])
-  const [confirmCancel, setConfirmCancel] = useState(false)
+  const [txStatus, setTxStatus] = useState<TxStatus>('idle')
+  const [txError, setTxError] = useState<string | null>(null)
+  const [lastTxId, setLastTxId] = useState<string | null>(null)
   const actionRef = useRef(false)
 
   useEffect(() => {
@@ -44,15 +54,18 @@ export default function AuctionManagementSection() {
     if (!auctionId) return
     setLookingUp(true)
     try {
-      const idFormatted = auctionId.endsWith('field') ? auctionId : `${auctionId}field`
-      const [statusRaw, creatorRaw, bidCountRaw, highestRaw, secondRaw, winnerRaw] = await Promise.all([
-        queryMapping('auction_status', idFormatted),
-        queryMapping('auction_creator', idFormatted),
-        queryMapping('auction_bid_count', idFormatted),
-        queryMapping('auction_highest', idFormatted),
-        queryMapping('auction_second', idFormatted),
-        queryMapping('auction_winner', idFormatted),
-      ])
+      const idFormatted = auctionId.endsWith('field')
+        ? auctionId
+        : `${auctionId}field`
+      const [statusRaw, creatorRaw, bidCountRaw, highestRaw, secondRaw, winnerRaw] =
+        await Promise.all([
+          queryMapping('auction_status', idFormatted),
+          queryMapping('auction_creator', idFormatted),
+          queryMapping('auction_bid_count', idFormatted),
+          queryMapping('auction_highest', idFormatted),
+          queryMapping('auction_second', idFormatted),
+          queryMapping('auction_winner', idFormatted),
+        ])
 
       if (statusRaw === null) {
         toast.error('Auction not found')
@@ -77,86 +90,136 @@ export default function AuctionManagementSection() {
     }
   }, [auctionId])
 
-  const handleAction = useCallback(async (action: string) => {
-    if (actionRef.current) return
-    if (!connected) {
-      toast.error('Please connect your wallet')
-      return
-    }
-    const idFormatted = auctionId.endsWith('field') ? auctionId : `${auctionId}field`
-    actionRef.current = true
-    setSubmitting(action)
-    setConfirmCancel(false)
-    try {
-      // Check public balance covers fee
-      const feeMap: Record<string, number> = {
-        close: MARKETPLACE_FEES.CLOSE_BIDDING,
-        resolve: MARKETPLACE_FEES.RESOLVE_AUCTION,
-        cancel: MARKETPLACE_FEES.CANCEL_AUCTION,
-        reveal: MARKETPLACE_FEES.REVEAL_BID,
+  const handleAction = useCallback(
+    async (action: string) => {
+      if (actionRef.current) return
+      if (!connected) {
+        toast.error('Please connect your wallet')
+        return
       }
-      const feeAmount = feeMap[action] ?? 200_000
+      const idFormatted = auctionId.endsWith('field')
+        ? auctionId
+        : `${auctionId}field`
+      actionRef.current = true
+      setSubmitting(action)
+      setTxStatus('submitting')
+      setTxError(null)
+      setLastTxId(null)
+
       try {
-        const pubRes = await fetch(`/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`)
-        if (pubRes.ok) {
-          const pubText = await pubRes.text()
-          const pubBal = parseInt(pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(), 10)
-          if (!isNaN(pubBal) && pubBal < feeAmount) {
-            toast.error(`Insufficient public balance. You need ~${(feeAmount / 1_000_000).toFixed(2)} ALEO for fees. Get testnet credits from the faucet.`)
-            setSubmitting(null)
-            actionRef.current = false
-            return
+        // Check public balance covers fee
+        const feeMap: Record<string, number> = {
+          close: MARKETPLACE_FEES.CLOSE_BIDDING,
+          resolve: MARKETPLACE_FEES.RESOLVE_AUCTION,
+          cancel: MARKETPLACE_FEES.CANCEL_AUCTION,
+          reveal: MARKETPLACE_FEES.REVEAL_BID,
+        }
+        const feeAmount = feeMap[action] ?? 200_000
+        try {
+          const pubRes = await fetch(
+            `/api/aleo/program/credits.aleo/mapping/account/${encodeURIComponent(address || '')}`
+          )
+          if (pubRes.ok) {
+            const pubText = await pubRes.text()
+            const pubBal = parseInt(
+              pubText.replace(/"/g, '').replace(/u\d+$/, '').trim(),
+              10
+            )
+            if (!isNaN(pubBal) && pubBal < feeAmount) {
+              toast.error(
+                `Insufficient public balance. You need ~${(feeAmount / 1_000_000).toFixed(2)} ALEO for fees.`
+              )
+              setSubmitting(null)
+              setTxStatus('idle')
+              actionRef.current = false
+              return
+            }
           }
+        } catch {
+          // Non-critical
         }
-      } catch {
-        // Non-critical — proceed and let the wallet handle it
-      }
 
-      let txId: string | null = null
+        setTxStatus('pending')
+        let txId: string | null = null
 
-      switch (action) {
-        case 'close': {
-          txId = await execute('close_bidding', [idFormatted], MARKETPLACE_FEES.CLOSE_BIDDING, MARKETPLACE_PROGRAM_ID)
-          if (txId) toast.success('Bidding closed! Bidders can now reveal their bids.')
-          break
-        }
-        case 'reveal': {
-          const bid = storedBids.find(b => b.auctionId === idFormatted)
-          if (!bid) {
-            toast.error('No stored bid found for this auction. You need the BidReceipt record from your wallet.')
+        switch (action) {
+          case 'close': {
+            txId = await execute(
+              'close_bidding',
+              [idFormatted],
+              MARKETPLACE_FEES.CLOSE_BIDDING,
+              MARKETPLACE_PROGRAM_ID
+            )
+            if (txId) toast.success('Bidding closed! Bidders can now reveal.')
             break
           }
-          toast.info('Reveal requires the BidReceipt record from your wallet. Use your wallet to execute reveal_bid directly.', { duration: 6000 })
-          break
-        }
-        case 'resolve': {
-          if (!winnerAddr) {
-            toast.error('Please enter the winner address')
+          case 'reveal': {
+            const bid = storedBids.find((b) => b.auctionId === idFormatted)
+            if (!bid) {
+              toast.error(
+                'No stored bid found for this auction. You need the BidReceipt record from your wallet.'
+              )
+              setTxStatus('idle')
+              break
+            }
+            toast.info(
+              'Reveal requires the BidReceipt record from your wallet. Use your wallet to execute reveal_bid directly.',
+              { duration: 6000 }
+            )
+            setTxStatus('idle')
             break
           }
-          txId = await execute('resolve_auction', [idFormatted, winnerAddr], MARKETPLACE_FEES.RESOLVE_AUCTION, MARKETPLACE_PROGRAM_ID)
-          if (txId) toast.success('Auction resolved! Winner determined via Vickrey (second-price) settlement.')
-          break
+          case 'resolve': {
+            if (!winnerAddr) {
+              toast.error('Please enter the winner address')
+              setTxStatus('idle')
+              break
+            }
+            txId = await execute(
+              'resolve_auction',
+              [idFormatted, winnerAddr],
+              MARKETPLACE_FEES.RESOLVE_AUCTION,
+              MARKETPLACE_PROGRAM_ID
+            )
+            if (txId)
+              toast.success(
+                'Auction resolved! Winner pays Vickrey second-price.'
+              )
+            break
+          }
+          case 'cancel': {
+            txId = await execute(
+              'cancel_auction',
+              [idFormatted],
+              MARKETPLACE_FEES.CANCEL_AUCTION,
+              MARKETPLACE_PROGRAM_ID
+            )
+            if (txId) toast.success('Auction cancelled.')
+            break
+          }
         }
-        case 'cancel': {
-          txId = await execute('cancel_auction', [idFormatted], MARKETPLACE_FEES.CANCEL_AUCTION, MARKETPLACE_PROGRAM_ID)
-          if (txId) toast.success('Auction cancelled.')
-          break
-        }
-      }
 
-      if (txId) {
-        toast.info('On-chain state updates in ~15-30s. Use the refresh button to check.', { duration: 6000 })
-        setTimeout(() => lookupAuction(), 15000)
+        if (txId) {
+          setLastTxId(txId)
+          setTxStatus('confirmed')
+          toast.info(
+            'On-chain state updates in ~15-30s. Use refresh to check.',
+            { duration: 6000 }
+          )
+          setTimeout(() => lookupAuction(), 15000)
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : `Failed to ${action}`
+        setTxError(msg)
+        setTxStatus('failed')
+        toast.error(msg)
+      } finally {
+        setSubmitting(null)
+        actionRef.current = false
       }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : `Failed to ${action}`
-      toast.error(msg)
-    } finally {
-      setSubmitting(null)
-      actionRef.current = false
-    }
-  }, [connected, auctionId, winnerAddr, storedBids, execute, lookupAuction])
+    },
+    [connected, auctionId, winnerAddr, storedBids, execute, lookupAuction, address]
+  )
 
   return (
     <GlassCard className="!p-6 sm:!p-8">
@@ -166,16 +229,23 @@ export default function AuctionManagementSection() {
         </div>
         <div>
           <h3 className="text-lg font-semibold text-white">Manage Auction</h3>
-          <p className="text-xs text-white/50">Close bidding, reveal bids, resolve, or cancel</p>
+          <p className="text-xs text-white/50">
+            Look up, close, reveal, resolve, or cancel
+          </p>
         </div>
       </div>
 
       <div className="space-y-4">
+        {/* Auction ID Lookup */}
         <div className="flex gap-2">
           <input
             type="text"
             value={auctionId}
-            onChange={e => { setAuctionId(e.target.value); setAuctionData(null) }}
+            onChange={(e) => {
+              setAuctionId(e.target.value)
+              setAuctionData(null)
+              setTxStatus('idle')
+            }}
             placeholder="Auction ID (field)"
             className="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/50"
           />
@@ -184,9 +254,12 @@ export default function AuctionManagementSection() {
             className="rounded-xl shrink-0"
             onClick={lookupAuction}
             disabled={lookingUp || !auctionId}
-            title="Look up auction"
           >
-            {lookingUp ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
+            {lookingUp ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Eye className="w-4 h-4" />
+            )}
           </Button>
           {auctionData && (
             <Button
@@ -196,11 +269,14 @@ export default function AuctionManagementSection() {
               disabled={lookingUp}
               title="Refresh on-chain data"
             >
-              <RefreshCw className={`w-4 h-4 ${lookingUp ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`w-4 h-4 ${lookingUp ? 'animate-spin' : ''}`}
+              />
             </Button>
           )}
         </div>
 
+        {/* Auction Data Display */}
         <AnimatePresence>
           {auctionData && (
             <m.div
@@ -208,8 +284,12 @@ export default function AuctionManagementSection() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={spring.gentle}
-              className="overflow-hidden"
+              className="overflow-hidden space-y-4"
             >
+              {/* Lifecycle Stepper */}
+              <AuctionLifecycleStepper currentStatus={auctionData.status} />
+
+              {/* Data grid */}
               <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-white/60">Status</span>
@@ -217,67 +297,85 @@ export default function AuctionManagementSection() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-white/60">Bids</span>
-                  <span className="text-sm font-semibold text-white">{auctionData.bidCount}</span>
+                  <span className="text-sm font-semibold text-white">
+                    {auctionData.bidCount}
+                  </span>
                 </div>
                 {auctionData.status >= AUCTION_STATUS.CLOSED && (
                   <>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/60">Highest Revealed</span>
+                      <span className="text-sm text-white/60">
+                        Highest Revealed
+                      </span>
                       <span className="text-sm font-mono text-white">
-                        {auctionData.highest > 0 ? `${auctionData.highest}` : '--'}
+                        {auctionData.highest > 0
+                          ? `${auctionData.highest}`
+                          : '--'}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/60">Second Price</span>
+                      <span className="text-sm text-white/60">
+                        Second Price (Vickrey)
+                      </span>
                       <span className="text-sm font-mono text-white">
-                        {auctionData.second > 0 ? `${auctionData.second}` : '--'}
+                        {auctionData.second > 0
+                          ? `${auctionData.second}`
+                          : '--'}
                       </span>
                     </div>
                   </>
                 )}
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-white/60">Creator Hash</span>
-                  <span className="text-xs font-mono text-white/60 truncate max-w-[180px]">
+                  <span className="text-xs font-mono text-white/50 truncate max-w-[180px]">
                     {auctionData.creatorHash}
                   </span>
                 </div>
 
+                {/* Action buttons — context-aware per status */}
                 <div className="pt-3 border-t border-white/[0.06] space-y-2">
                   {auctionData.status === AUCTION_STATUS.OPEN && (
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className="rounded-xl"
-                        onClick={() => handleAction('close')}
-                        disabled={submitting !== null}
-                      >
-                        {submitting === 'close' ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : (
-                          <Lock className="w-3 h-3" />
-                        )}
-                        Close Bidding
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="rounded-xl text-red-400 hover:text-red-300"
-                        onClick={() => handleAction('cancel')}
-                        disabled={submitting !== null}
-                      >
-                        {submitting === 'cancel' ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : (
-                          <XCircle className="w-3 h-3" />
-                        )}
-                        Cancel
-                      </Button>
-                    </div>
+                    <>
+                      {/* Privacy notice for open phase */}
+                      <PrivacyNotice variant="bid" className="mb-2" />
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="rounded-xl"
+                          onClick={() => handleAction('close')}
+                          disabled={submitting !== null}
+                        >
+                          {submitting === 'close' ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Lock className="w-3 h-3" />
+                          )}
+                          Close Bidding
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="rounded-xl text-red-400 hover:text-red-300"
+                          onClick={() => handleAction('cancel')}
+                          disabled={submitting !== null}
+                        >
+                          {submitting === 'cancel' ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <XCircle className="w-3 h-3" />
+                          )}
+                          Cancel
+                        </Button>
+                      </div>
+                    </>
                   )}
 
                   {auctionData.status === AUCTION_STATUS.CLOSED && (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
+                      {/* Privacy notice for reveal phase */}
+                      <PrivacyNotice variant="reveal" />
+
                       <Button
                         variant="secondary"
                         size="sm"
@@ -292,11 +390,14 @@ export default function AuctionManagementSection() {
                         )}
                         Reveal My Bid
                       </Button>
-                      <div>
+
+                      {/* Resolve section */}
+                      <div className="pt-2 border-t border-white/[0.04]">
+                        <PrivacyNotice variant="resolve" className="mb-2" />
                         <input
                           type="text"
                           value={winnerAddr}
-                          onChange={e => setWinnerAddr(e.target.value)}
+                          onChange={(e) => setWinnerAddr(e.target.value)}
                           placeholder="Winner address (aleo1...)"
                           className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-violet-500/50 transition-colors placeholder:text-white/50 mb-2"
                         />
@@ -312,47 +413,85 @@ export default function AuctionManagementSection() {
                           ) : (
                             <Trophy className="w-3 h-3" />
                           )}
-                          Resolve Auction
+                          Resolve Auction (Vickrey)
                         </Button>
                       </div>
                     </div>
                   )}
 
                   {auctionData.status === AUCTION_STATUS.RESOLVED && (
-                    <div className="text-center py-2">
+                    <div className="text-center py-3 space-y-2">
                       <p className="text-xs text-emerald-400 flex items-center justify-center gap-1">
                         <CheckCircle2 className="w-3 h-3" />
-                        Auction finalized
+                        Auction finalized via Vickrey settlement
                       </p>
                       {auctionData.winnerHash !== '0field' && (
-                        <p className="text-xs text-white/60 mt-1 font-mono truncate">
-                          Winner: {auctionData.winnerHash}
+                        <p className="text-xs text-white/50 font-mono truncate">
+                          Winner hash: {auctionData.winnerHash}
                         </p>
+                      )}
+                      {auctionData.second > 0 && (
+                        <div className="p-2.5 rounded-lg bg-violet-500/5 border border-violet-500/10">
+                          <p className="text-xs text-white/50">
+                            <span className="text-violet-400 font-medium">
+                              Settlement price:{' '}
+                            </span>
+                            {auctionData.second} (second-highest bid)
+                          </p>
+                        </div>
                       )}
                     </div>
                   )}
                 </div>
               </div>
+
+              {/* Privacy Dashboard */}
+              <AuctionPrivacyDashboard status={auctionData.status} />
+
+              {/* Transaction Progress */}
+              {txStatus !== 'idle' && (
+                <TransactionProgress
+                  status={txStatus}
+                  txId={lastTxId}
+                  error={txError}
+                />
+              )}
             </m.div>
           )}
         </AnimatePresence>
 
+        {/* Stored bids list */}
         {storedBids.length > 0 && (
           <div>
-            <p className="text-xs font-medium text-white/50 mb-2">Your Stored Bids</p>
+            <p className="text-xs font-medium text-white/50 mb-2">
+              Your Stored Bids
+            </p>
             <div className="space-y-2">
-              {storedBids.map(bid => (
-                <div
+              {storedBids.map((bid) => (
+                <button
                   key={bid.auctionId}
-                  className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] cursor-pointer hover:border-white/[0.12] transition-colors"
-                  onClick={() => setAuctionId(bid.auctionId)}
+                  type="button"
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] cursor-pointer hover:border-white/[0.12] transition-colors text-left"
+                  onClick={() => {
+                    setAuctionId(bid.auctionId)
+                    setAuctionData(null)
+                    setTxStatus('idle')
+                  }}
                 >
                   <div className="min-w-0">
-                    <p className="text-xs font-mono text-white/60 truncate">{bid.auctionId}</p>
-                    <p className="text-xs text-white/60">Amount: {bid.amount} | {new Date(bid.timestamp).toLocaleDateString()}</p>
+                    <p className="text-xs font-mono text-white/60 truncate">
+                      {bid.auctionId}
+                    </p>
+                    <p className="text-xs text-white/40">
+                      Amount: {bid.amount} |{' '}
+                      {new Date(bid.timestamp).toLocaleDateString()}
+                    </p>
                   </div>
-                  <ArrowRight className="w-3 h-3 text-white/20 shrink-0" />
-                </div>
+                  <ArrowRight
+                    className="w-3 h-3 text-white/20 shrink-0"
+                    aria-hidden="true"
+                  />
+                </button>
               ))}
             </div>
           </div>
