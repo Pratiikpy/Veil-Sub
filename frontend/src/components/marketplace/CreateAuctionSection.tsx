@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef } from 'react'
-import { Plus, Gavel, Loader2 } from 'lucide-react'
+import { Plus, Gavel, Loader2, ExternalLink, Copy, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import GlassCard from '@/components/GlassCard'
 import Button from '@/components/ui/Button'
@@ -15,7 +15,16 @@ export default function CreateAuctionSection() {
   const [slotLabel, setSlotLabel] = useState('')
   const [contentSlotId, setContentSlotId] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [lastTxId, setLastTxId] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
   const creatingRef = useRef(false)
+
+  const copyTxId = useCallback(() => {
+    if (!lastTxId) return
+    navigator.clipboard.writeText(lastTxId)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }, [lastTxId])
 
   const handleCreate = useCallback(async () => {
     if (creatingRef.current) return
@@ -30,6 +39,7 @@ export default function CreateAuctionSection() {
 
     creatingRef.current = true
     setSubmitting(true)
+    setLastTxId(null)
     try {
       // Check public balance covers fee
       try {
@@ -57,11 +67,8 @@ export default function CreateAuctionSection() {
       )
       if (txId) {
         saveAuctionToStorage(slotIdFormatted, slotLabel || `Auction ${slotIdFormatted.slice(0, 8)}...`)
-        // Save TX ID so user can find their auction ID from the explorer
-        toast.success(
-          `Auction created! TX: ${txId.slice(0, 16)}... View on AleoScan to find your auction ID (first argument in the transition output).`,
-          { duration: 12000 }
-        )
+        setLastTxId(txId)
+        toast.success('Auction created! See transaction details below.', { duration: 8000 })
         setSlotLabel('')
       }
     } catch (err) {
@@ -129,6 +136,38 @@ export default function CreateAuctionSection() {
             </>
           )}
         </Button>
+
+        {lastTxId && (
+          <div className="p-4 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-sm font-medium text-emerald-400">Auction Created</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/60">Transaction ID</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-mono text-white/70">{lastTxId.slice(0, 20)}...</span>
+                <button onClick={copyTxId} className="text-white/50 hover:text-white/70 transition-colors" aria-label="Copy TX ID">
+                  {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                </button>
+              </div>
+            </div>
+            <a
+              href={`https://testnet.aleoscan.io/transaction?id=${lastTxId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300 transition-colors"
+            >
+              <ExternalLink className="w-3 h-3" />
+              View on AleoScan to find your auction ID
+            </a>
+            <p className="text-[11px] text-amber-400/70 leading-relaxed">
+              The auction ID is a Poseidon2 hash of your address + slot ID, computed on-chain.
+              JavaScript cannot compute Poseidon2, so you must look up the auction ID in the
+              transition output on AleoScan (first argument in finalize).
+            </p>
+          </div>
+        )}
       </div>
     </GlassCard>
   )

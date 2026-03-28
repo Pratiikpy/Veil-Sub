@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useReducer } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Shield, Users, Hash, Plus, Loader2, CheckCircle2, BadgeCheck } from 'lucide-react'
+import { Shield, Users, Hash, Plus, Loader2, CheckCircle2, BadgeCheck, RefreshCw } from 'lucide-react'
 import { useContractExecute } from '@/hooks/useContractExecute'
 import { FEATURED_CREATORS, getCreatorHash, CREATOR_HASH_MAP } from '@/lib/config'
 import { shortenAddress, isValidAleoAddress } from '@/lib/utils'
@@ -30,6 +30,7 @@ export default function ChatRoomsSection() {
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
   const [joining, setJoining] = useState<string | null>(null)
+  const [refreshKey, forceRefresh] = useReducer((x: number) => x + 1, 0)
 
   // Create room form
   const [showCreateForm, setShowCreateForm] = useState(false)
@@ -88,7 +89,7 @@ export default function ChatRoomsSection() {
     }
     scanRooms()
     return () => { cancelled = true }
-  }, [])
+  }, [refreshKey])
 
   const handleCreateRoom = useCallback(async () => {
     if (!creatorHash || creating) return
@@ -123,9 +124,10 @@ export default function ChatRoomsSection() {
         SOCIAL_PROGRAM_ID,
       )
       if (txId) {
-        toast.success('Chat room created!', { description: `Room #${roomIdNum} -- TX: ${txId.slice(0, 16)}...` })
+        toast.success('Chat room created! Room list will refresh after finalize.', { description: `Room #${roomIdNum} -- TX: ${txId.slice(0, 16)}...` })
         setShowCreateForm(false)
         setNewRoomId('')
+        setTimeout(() => { setLoading(true); forceRefresh() }, 15000)
       }
     } catch (err) {
       toast.error('Failed to create room', {
@@ -178,10 +180,11 @@ export default function ChatRoomsSection() {
         SOCIAL_PROGRAM_ID,
       )
       if (txId) {
-        toast.success('Joined chat room!', { description: `Room #${roomIdNum} -- TX: ${txId.slice(0, 16)}...` })
+        toast.success('Joined chat room! Member count will update after finalize.', { description: `Room #${roomIdNum} -- TX: ${txId.slice(0, 16)}...` })
         setJoinCreatorAddr('')
         setJoinRoomId('')
         setJoinExpiry('')
+        setTimeout(() => { setLoading(true); forceRefresh() }, 15000)
       }
     } catch (err) {
       toast.error('Failed to join room', {
@@ -201,7 +204,16 @@ export default function ChatRoomsSection() {
       {/* Room List */}
       <motion.div variants={staggerItem} className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-5">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-medium text-white">Chat Rooms</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-sm font-medium text-white">Chat Rooms</h3>
+            <button
+              onClick={() => { setLoading(true); forceRefresh() }}
+              className="p-1 rounded-lg text-white/50 hover:text-white/70 transition-colors"
+              title="Refresh room list"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+            </button>
+          </div>
           {creatorHash && (
             <button
               onClick={() => setShowCreateForm(!showCreateForm)}

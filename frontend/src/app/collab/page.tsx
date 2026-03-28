@@ -231,12 +231,25 @@ function CreateCollabForm() {
         </Button>
 
         {txId && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-            <div className="min-w-0">
-              <p className="text-xs text-emerald-400 font-medium">Collaboration created!</p>
-              <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
+          <div className="p-4 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 space-y-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span className="text-xs text-emerald-400 font-medium">Collaboration created!</span>
             </div>
+            <p className="text-xs text-white/60 font-mono truncate">TX: {txId}</p>
+            <a
+              href={`https://testnet.aleoscan.io/transaction?id=${txId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 transition-colors"
+            >
+              <ArrowRight className="w-3 h-3" />
+              View on AleoScan
+            </a>
+            <p className="text-[11px] text-amber-400/70 leading-relaxed">
+              The collab_id is a Poseidon2 hash computed on-chain. Find it in the transition
+              output on AleoScan. You will need it for split_payment and publish_collab_content.
+            </p>
           </div>
         )}
       </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useReducer } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
@@ -40,6 +40,7 @@ export default function StoriesSection() {
   const [loading, setLoading] = useState(true)
   const [publishing, setPublishing] = useState(false)
   const [viewing, setViewing] = useState<string | null>(null)
+  const [refreshKey, forceRefresh] = useReducer((x: number) => x + 1, 0)
 
   // Publish form
   const [storyContent, setStoryContent] = useState('')
@@ -82,7 +83,7 @@ export default function StoriesSection() {
     }
     scanStories()
     return () => { cancelled = true }
-  }, [])
+  }, [refreshKey])
 
   // Auto-generate encryption key on mount
   useEffect(() => {
@@ -137,12 +138,14 @@ export default function StoriesSection() {
         SOCIAL_PROGRAM_ID,
       )
       if (txId) {
-        toast.success('Story published!', {
+        toast.success('Story published! Feed will refresh after finalize (~15-30s).', {
           description: `Expires in ${formatDurationBlocks(duration)} -- TX: ${txId.slice(0, 16)}...`,
         })
         setStoryContent('')
         setDurationBlocks('1200')
         setEncryptionKey(generatePassId())
+        // Refresh feed after finalize completes
+        setTimeout(forceRefresh, 15000)
       }
     } catch (err) {
       toast.error('Failed to publish story', {
@@ -318,7 +321,16 @@ export default function StoriesSection() {
 
       {/* Story Feed */}
       <motion.div variants={staggerItem} className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-5">
-        <h3 className="text-sm font-medium text-white mb-4">Stories</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-medium text-white">Stories</h3>
+          <button
+            onClick={() => { setLoading(true); forceRefresh() }}
+            className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white/60 transition-colors"
+          >
+            <Radio className="w-3 h-3" />
+            Refresh
+          </button>
+        </div>
 
         {loading ? (
           <div className="space-y-3">

@@ -397,7 +397,7 @@ function NotarizeContentForm() {
       )
       if (result) {
         setTxId(result)
-        toast.success('Content notarized with block height timestamp!')
+        toast.success('Content notarized with block height timestamp! You can verify it in the Lookup tab after ~15-30s.')
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed'
@@ -480,12 +480,25 @@ function NotarizeContentForm() {
         </Button>
 
         {txId && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-            <div className="min-w-0">
-              <p className="text-xs text-emerald-400 font-medium">Content notarized!</p>
-              <p className="text-xs text-white/60 font-mono truncate">{txId}</p>
+          <div className="p-4 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 space-y-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span className="text-xs text-emerald-400 font-medium">Content notarized!</span>
             </div>
+            <p className="text-xs text-white/60 font-mono truncate">TX: {txId}</p>
+            <a
+              href={`https://testnet.aleoscan.io/transaction?id=${txId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 transition-colors"
+            >
+              <Clock className="w-3 h-3" />
+              View on AleoScan to see the block height timestamp
+            </a>
+            <p className="text-[11px] text-amber-400/70 leading-relaxed">
+              The timestamp (block.height) is recorded on-chain via Poseidon2 key. Use the Lookup tab
+              with your content hash to verify the timestamp after finalize completes (~15-30s).
+            </p>
           </div>
         )}
       </div>

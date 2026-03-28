@@ -195,9 +195,10 @@ function ReviewsSection() {
       )
       if (result) {
         setTxId(result)
-        toast.success('Review submitted on-chain!')
-        // Refresh stats after a delay
-        setTimeout(fetchStats, 5000)
+        toast.success('Review submitted on-chain! Stats will update in ~15-30s.')
+        // Refresh stats after finalize completes
+        setTimeout(fetchStats, 15000)
+        setTimeout(fetchStats, 30000)
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Transaction failed'
@@ -215,6 +216,19 @@ function ReviewsSection() {
   return (
     <div className="space-y-6">
       {/* Stats cards */}
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-xs text-white/50 font-medium">On-Chain Stats</p>
+        {creatorHash && (
+          <button
+            onClick={fetchStats}
+            disabled={statsLoading}
+            className="flex items-center gap-1 text-xs text-white/60 hover:text-white/60 transition-colors disabled:opacity-40"
+          >
+            <BarChart3 className={`w-3 h-3 ${statsLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+        )}
+      </div>
       <div className="grid grid-cols-3 gap-3">
         <GlassCard className="!p-4 text-center">
           {statsLoading ? (
@@ -354,8 +368,7 @@ function LotterySection() {
   const [currentRound, setCurrentRound] = useState<number | null>(null)
   const [roundLoading, setRoundLoading] = useState(true)
 
-  // Fetch current round on mount
-  useEffect(() => {
+  const fetchRound = useCallback(() => {
     setRoundLoading(true)
     queryMapping('lottery_round', '0u8')
       .then((val) => {
@@ -366,7 +379,16 @@ function LotterySection() {
         }
       })
       .finally(() => setRoundLoading(false))
-  }, [drawTxId]) // refetch after a draw
+  }, [])
+
+  // Fetch current round on mount and after draw (with delay for finalize)
+  useEffect(() => {
+    fetchRound()
+    if (drawTxId) {
+      const timer = setTimeout(fetchRound, 15000)
+      return () => clearTimeout(timer)
+    }
+  }, [drawTxId, fetchRound])
 
   const handleDraw = useCallback(async () => {
     if (drawingRef.current) return
@@ -409,7 +431,7 @@ function LotterySection() {
       )
       if (result) {
         setDrawTxId(result)
-        toast.success('Lottery drawn! Winner index recorded on-chain.')
+        toast.success('Lottery drawn! Round counter will update in ~15-30s after finalize completes.')
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Transaction failed'
@@ -440,9 +462,19 @@ function LotterySection() {
               )}
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-white/50">Randomness</p>
-            <p className="text-xs text-emerald-400 font-mono">ChaCha::rand_u64()</p>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-xs text-white/50">Randomness</p>
+              <p className="text-xs text-emerald-400 font-mono">ChaCha::rand_u64()</p>
+            </div>
+            <button
+              onClick={fetchRound}
+              disabled={roundLoading}
+              className="p-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white/50 hover:text-white/70 transition-all disabled:opacity-40"
+              title="Refresh round counter"
+            >
+              <BarChart3 className={`w-3.5 h-3.5 ${roundLoading ? 'animate-spin' : ''}`} />
+            </button>
           </div>
         </div>
       </GlassCard>

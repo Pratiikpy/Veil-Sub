@@ -13,6 +13,7 @@ import {
   Eye,
   ArrowRight,
   Loader2,
+  RefreshCw,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import GlassCard from '@/components/GlassCard'
@@ -145,7 +146,8 @@ export default function AuctionManagementSection() {
       }
 
       if (txId) {
-        setTimeout(() => lookupAuction(), 3000)
+        toast.info('On-chain state updates in ~15-30s. Use the refresh button to check.', { duration: 6000 })
+        setTimeout(() => lookupAuction(), 15000)
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : `Failed to ${action}`
@@ -182,9 +184,21 @@ export default function AuctionManagementSection() {
             className="rounded-xl shrink-0"
             onClick={lookupAuction}
             disabled={lookingUp || !auctionId}
+            title="Look up auction"
           >
             {lookingUp ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
           </Button>
+          {auctionData && (
+            <Button
+              variant="ghost"
+              className="rounded-xl shrink-0"
+              onClick={lookupAuction}
+              disabled={lookingUp}
+              title="Refresh on-chain data"
+            >
+              <RefreshCw className={`w-4 h-4 ${lookingUp ? 'animate-spin' : ''}`} />
+            </Button>
+          )}
         </div>
 
         <AnimatePresence>

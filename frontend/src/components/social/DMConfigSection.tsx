@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useReducer } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
@@ -35,7 +35,9 @@ export default function DMConfigSection() {
   const [submitting, setSubmitting] = useState(false)
   const [priceInput, setPriceInput] = useState('')
   const [tierInput, setTierInput] = useState(1)
+  const [lastTxId, setLastTxId] = useState<string | null>(null)
   const configuringRef = useRef(false)
+  const [refreshKey, forceRefresh] = useReducer((x: number) => x + 1, 0)
 
   // Fetch current config from mappings
   useEffect(() => {
@@ -76,7 +78,7 @@ export default function DMConfigSection() {
     }
     fetchConfig()
     return () => { cancelled = true }
-  }, [creatorHash])
+  }, [creatorHash, refreshKey])
 
   const handleConfigure = useCallback(async () => {
     if (configuringRef.current) return
@@ -119,10 +121,13 @@ export default function DMConfigSection() {
         SOCIAL_PROGRAM_ID,
       )
       if (txId) {
-        toast.success('DM configuration submitted!', {
+        setLastTxId(txId)
+        toast.success('DM configuration submitted! Status will refresh after finalize.', {
           description: `TX: ${txId.slice(0, 16)}...`,
         })
         setConfig({ enabled: true, price: priceMicrocredits, minTier: tierInput })
+        // Re-fetch from chain after finalize
+        setTimeout(forceRefresh, 15000)
       }
     } catch (err) {
       toast.error('Failed to configure DMs', {
