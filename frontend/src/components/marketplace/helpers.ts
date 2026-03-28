@@ -1,6 +1,20 @@
 import { ALEO_API, MARKETPLACE_PROGRAM_ID } from './constants'
 import type { StoredBid } from './constants'
 
+// Known auction ID mappings (slot_id → on-chain Poseidon2 auction_id).
+// These are extracted from confirmed create_auction TX outputs and cached here
+// so that existing auctions work even when Shield Wallet's shield_* IDs
+// prevent automatic extraction from the Provable API.
+const KNOWN_AUCTION_IDS: Record<string, string> = {
+  '543field': '2998908903880585545820687583647941087927698842606495921360864167165502263833field',
+}
+
+/** Resolve a slot ID to its on-chain auction ID using known mappings */
+export function resolveAuctionId(slotId: string): string | null {
+  const formatted = slotId.endsWith('field') ? slotId : `${slotId}field`
+  return KNOWN_AUCTION_IDS[formatted] || null
+}
+
 // ─── Shared Auction Registry ─────────────────────────────────────────────────
 // Auctions are saved to a global registry keyed by slot ID so that ANY user
 // browsing the marketplace can discover them — not just the creator.

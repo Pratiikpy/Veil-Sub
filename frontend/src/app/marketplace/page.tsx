@@ -42,7 +42,7 @@ import CreateAuctionSection from '@/components/marketplace/CreateAuctionSection'
 import SealedBidExplainer from '@/components/marketplace/SealedBidExplainer'
 import AuctionCard from '@/components/marketplace/AuctionCard'
 import type { AuctionCardData } from '@/components/marketplace/AuctionCard'
-import { queryMapping, parseU64, parseU8, getBidsFromStorage } from '@/components/marketplace/helpers'
+import { queryMapping, parseU64, parseU8, getBidsFromStorage, resolveAuctionId } from '@/components/marketplace/helpers'
 
 // ─── How Reputation Works Steps ──────────────────────────────────────────────
 
@@ -110,12 +110,12 @@ function LiveAuctionsSection({ refreshKey }: { refreshKey: number }) {
       const data = await res.json()
       const entries: RegistryEntry[] = data.entries || []
 
-      // For each registry entry with an auctionId, query on-chain status
+      // For each registry entry, resolve auctionId (from metadata, known map, or skip)
       const enriched = await Promise.allSettled(
         entries
-          .filter(e => e.metadata?.auctionId)
+          .filter(e => e.metadata?.auctionId || resolveAuctionId(e.item_id))
           .map(async (entry): Promise<AuctionCardData> => {
-            const auctionId = entry.metadata!.auctionId!
+            const auctionId = entry.metadata?.auctionId || resolveAuctionId(entry.item_id)!
             const idFormatted = auctionId.endsWith('field') ? auctionId : `${auctionId}field`
 
             // Query on-chain data in parallel
@@ -145,14 +145,29 @@ function LiveAuctionsSection({ refreshKey }: { refreshKey: number }) {
         .filter((r): r is PromiseFulfilledResult<AuctionCardData> => r.status === 'fulfilled')
         .map(r => r.value)
 
-      // Also include registry entries that don't have on-chain auctionId yet
-      // (still confirming) with basic data
+      // Also include registry entries that don't have on-chain auctionId yet.
+      // For entries without auctionId, try to resolve by checking the TX on Provable API.
       const onChainIds = new Set(results.map(r => r.auctionId))
+
+      // Try to resolve missing auctionIds from TX outputs
+      for (const entry of entries) {
+        if (entry.metadata?.auctionId || !entry.metadata?.txId) continue
+        const txId = entry.metadata.txId as string
+        if (txId.startsWith('shield_')) continue // Can't resolve shield IDs
+        try {
+          const { extractAuctionIdFromTx } = await import('@/components/marketplace/helpers')
+          const realId = await extractAuctionIdFromTx(txId)
+          if (realId) {
+            entry.metadata = { ...entry.metadata, auctionId: realId }
+          }
+        } catch { /* non-critical */ }
+      }
+
       const pendingEntries = entries
         .filter(e => !e.metadata?.auctionId || !onChainIds.has(e.metadata.auctionId))
         .filter(e => e.item_id) // Must have some ID
         .map((entry): AuctionCardData => ({
-          auctionId: entry.metadata?.auctionId || entry.item_id,
+          auctionId: entry.metadata?.auctionId || resolveAuctionId(entry.item_id) || entry.item_id,
           label: entry.label || 'Sealed-Bid Auction',
           creatorAddress: entry.creator_address,
           status: AUCTION_STATUS.OPEN,
