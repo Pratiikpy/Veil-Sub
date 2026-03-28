@@ -19,7 +19,8 @@ import Button from '@/components/ui/Button'
 import { useContractExecute } from '@/hooks/useContractExecute'
 import { MICROCREDITS_PER_CREDIT } from '@/lib/config'
 import { MARKETPLACE_PROGRAM_ID, MARKETPLACE_FEES } from './constants'
-import { saveAuctionToStorage } from './helpers'
+import { saveAuctionToStorage, saveSharedAuction } from './helpers'
+import { computeWalletHash } from '@/lib/utils'
 import TransactionProgress from './TransactionProgress'
 import type { TxStatus } from './TransactionProgress'
 import PrivacyNotice from './PrivacyNotice'
@@ -155,15 +156,45 @@ export default function CreateAuctionSection() {
         MARKETPLACE_PROGRAM_ID
       )
       if (txId) {
-        saveAuctionToStorage(
-          slotIdFormatted,
-          slotLabel || `Auction ${slotIdFormatted.slice(0, 8)}...`
-        )
+        const auctionLabel = slotLabel || `Auction ${slotIdFormatted.slice(0, 8)}...`
+        saveAuctionToStorage(slotIdFormatted, auctionLabel)
+
+        // Save to shared registry so other users can discover this auction
+        saveSharedAuction({
+          slotId: slotIdFormatted,
+          label: auctionLabel,
+          creatorAddress: address || '',
+          txId,
+          timestamp: Date.now(),
+        })
+
         setLastTxId(txId)
         setTxStatus('confirmed')
         toast.success('Auction created! See transaction details below.', {
           duration: 8000,
         })
+
+        // Auto-announce auction in creator's feed (best-effort)
+        if (address) {
+          try {
+            const walletHash = await computeWalletHash(address)
+            const marketplaceUrl = `${window.location.origin}/marketplace`
+            await fetch('/api/posts', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                creator: address,
+                walletHash,
+                timestamp: Date.now(),
+                title: '',
+                body: `Sealed-bid auction is now open: "${auctionLabel}"\n\nSlot ID: ${slotIdFormatted}\nBid here: ${marketplaceUrl}\n\nYour bid amount stays hidden until the reveal phase. Highest bidder wins at the second-highest price (Vickrey auction).\n\nTX: ${txId.slice(0, 24)}...`,
+                postType: 'note',
+                minTier: 0,
+              }),
+            })
+          } catch { /* best-effort announcement */ }
+        }
+
         setSlotLabel('')
         setActiveTemplate(null)
       }

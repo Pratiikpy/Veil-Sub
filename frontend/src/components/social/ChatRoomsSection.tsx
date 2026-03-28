@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Shield, Users, Hash, Plus, Loader2, CheckCircle2, BadgeCheck, RefreshCw, ArrowRight, Search } from 'lucide-react'
 import { useContractExecute } from '@/hooks/useContractExecute'
 import { FEATURED_CREATORS, getCreatorHash, CREATOR_HASH_MAP } from '@/lib/config'
-import { shortenAddress, isValidAleoAddress } from '@/lib/utils'
+import { shortenAddress, isValidAleoAddress, computeWalletHash } from '@/lib/utils'
 import { spring, staggerContainer, staggerItem } from '@/lib/motion'
 import Skeleton from '@/components/ui/Skeleton'
 import AddressAvatar from '@/components/ui/AddressAvatar'
@@ -20,6 +20,40 @@ interface ChatRoom {
   minTier: number
   memberCount: number
   creatorAddress?: string
+}
+
+// ─── Shared Chat Room Registry ──────────────────────────────────────────────
+// Saved to localStorage so the discovery section can find rooms without
+// needing to compute Poseidon2 hashes in JS.
+
+interface SharedChatRoom {
+  creatorAddress: string
+  creatorHash: string
+  roomId: number
+  minTier: number
+  timestamp: number
+}
+
+const SHARED_ROOMS_KEY = 'veilsub_chat_rooms'
+
+function saveSharedChatRoom(room: SharedChatRoom): void {
+  if (typeof window === 'undefined') return
+  try {
+    const existing = JSON.parse(localStorage.getItem(SHARED_ROOMS_KEY) || '[]') as SharedChatRoom[]
+    // Deduplicate by creatorAddress + roomId
+    const filtered = existing.filter(
+      r => !(r.creatorAddress === room.creatorAddress && r.roomId === room.roomId)
+    )
+    filtered.push(room)
+    localStorage.setItem(SHARED_ROOMS_KEY, JSON.stringify(filtered))
+  } catch { /* localStorage unavailable */ }
+}
+
+function getSharedChatRooms(): SharedChatRoom[] {
+  if (typeof window === 'undefined') return []
+  try {
+    return JSON.parse(localStorage.getItem(SHARED_ROOMS_KEY) || '[]') as SharedChatRoom[]
+  } catch { return [] }
 }
 
 export default function ChatRoomsSection() {
@@ -48,13 +82,15 @@ export default function ChatRoomsSection() {
   // Check if current user already has a room (for duplicate prevention)
   const userHasRoom = rooms.some(r => r.creatorAddress === address)
 
-  // Scan known creators for rooms
+  // Scan known creators for rooms + check shared localStorage registry
   useEffect(() => {
     let cancelled = false
     async function scanRooms() {
       const foundRooms: ChatRoom[] = []
+      const seenKeys = new Set<string>()
       const creatorEntries = Object.entries(CREATOR_HASH_MAP)
 
+      // 1. Scan on-chain via CREATOR_HASH_MAP (existing behavior)
       for (const [addr, hash] of creatorEntries) {
         for (let roomId = 1; roomId <= 5; roomId++) {
           try {
@@ -78,6 +114,8 @@ export default function ChatRoomsSection() {
             const minTier = parseInt(tierText.replace(/"/g, '').replace(/u\d+$/,'').trim(), 10) || 1
 
             if (!cancelled) {
+              const key = `${addr}-${roomId}`
+              seenKeys.add(key)
               foundRooms.push({ creatorHash: hash, roomId, minTier, memberCount, creatorAddress: addr })
             }
             break // Only first room per creator
@@ -85,6 +123,22 @@ export default function ChatRoomsSection() {
             // Continue scanning
           }
         }
+      }
+
+      // 2. Merge rooms from shared localStorage registry (catches rooms
+      //    from creators not yet in CREATOR_HASH_MAP)
+      const sharedRooms = getSharedChatRooms()
+      for (const sr of sharedRooms) {
+        const key = `${sr.creatorAddress}-${sr.roomId}`
+        if (seenKeys.has(key)) continue
+        seenKeys.add(key)
+        foundRooms.push({
+          creatorHash: sr.creatorHash,
+          roomId: sr.roomId,
+          minTier: sr.minTier,
+          memberCount: 0,
+          creatorAddress: sr.creatorAddress,
+        })
       }
 
       if (!cancelled) {
@@ -129,7 +183,38 @@ export default function ChatRoomsSection() {
         SOCIAL_PROGRAM_ID,
       )
       if (txId) {
+        // Save to shared registry so other users can discover this room
+        saveSharedChatRoom({
+          creatorAddress: address || '',
+          creatorHash,
+          roomId: roomIdNum,
+          minTier: newRoomMinTier,
+          timestamp: Date.now(),
+        })
+
         toast.success('Chat room created! Room list will refresh after finalize.', { description: `Room #${roomIdNum} -- TX: ${txId.slice(0, 16)}...` })
+
+        // Auto-announce chat room in creator's feed (best-effort)
+        if (address) {
+          try {
+            const walletHash = await computeWalletHash(address)
+            const tierLabel = TIER_OPTIONS.find(t => t.value === newRoomMinTier)?.label || `Tier ${newRoomMinTier}`
+            await fetch('/api/posts', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                creator: address,
+                walletHash,
+                timestamp: Date.now(),
+                title: '',
+                body: `Chat Room #${roomIdNum} is now open! Join in the Social page, Chat Rooms tab.\n\nMin tier: ${tierLabel}\n\nMembership is proven via ZK circuit -- your address is never revealed to other members.`,
+                postType: 'note',
+                minTier: 0,
+              }),
+            })
+          } catch { /* best-effort announcement */ }
+        }
+
         setShowCreateForm(false)
         setNewRoomId('')
         setTimeout(() => { setLoading(true); forceRefresh() }, 15000)
@@ -141,7 +226,7 @@ export default function ChatRoomsSection() {
     } finally {
       setCreating(false)
     }
-  }, [creatorHash, newRoomId, newRoomMinTier, creating, execute])
+  }, [creatorHash, newRoomId, newRoomMinTier, creating, execute, address])
 
   const handleJoinRoom = useCallback(async () => {
     if (!address || !joinCreatorAddr || !joinRoomId || joining) return

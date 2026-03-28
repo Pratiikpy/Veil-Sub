@@ -1,6 +1,40 @@
 import { ALEO_API, MARKETPLACE_PROGRAM_ID } from './constants'
 import type { StoredBid } from './constants'
 
+// ─── Shared Auction Registry ─────────────────────────────────────────────────
+// Auctions are saved to a global registry keyed by slot ID so that ANY user
+// browsing the marketplace can discover them — not just the creator.
+
+export interface SharedAuction {
+  slotId: string
+  label: string
+  creatorAddress: string
+  txId: string
+  timestamp: number
+}
+
+const SHARED_AUCTIONS_KEY = 'veilsub_shared_auctions'
+
+export function saveSharedAuction(auction: SharedAuction): void {
+  if (typeof window === 'undefined') return
+  try {
+    const existing = JSON.parse(localStorage.getItem(SHARED_AUCTIONS_KEY) || '[]') as SharedAuction[]
+    // Deduplicate by slotId + creatorAddress
+    const filtered = existing.filter(
+      a => !(a.slotId === auction.slotId && a.creatorAddress === auction.creatorAddress)
+    )
+    filtered.push(auction)
+    localStorage.setItem(SHARED_AUCTIONS_KEY, JSON.stringify(filtered))
+  } catch { /* localStorage unavailable */ }
+}
+
+export function getSharedAuctions(): SharedAuction[] {
+  if (typeof window === 'undefined') return []
+  try {
+    return JSON.parse(localStorage.getItem(SHARED_AUCTIONS_KEY) || '[]') as SharedAuction[]
+  } catch { return [] }
+}
+
 // ─── LocalStorage helpers ────────────────────────────────────────────────────
 
 export function saveBidToStorage(bid: StoredBid): void {
