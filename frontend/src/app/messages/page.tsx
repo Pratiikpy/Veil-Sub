@@ -158,8 +158,12 @@ export default function MessagesPage() {
   // is false during first render even when address === activeCreator.
   const isCreator = connected && !!address && !!activeCreator && address === activeCreator
 
-  // Load user's raw access passes from the wallet (does NOT depend on blockHeight
-  // to avoid cancelling in-flight wallet queries when block height refreshes).
+  // Load user's raw access passes from the wallet.
+  // Use a ref for getAccessPasses to avoid effect re-triggering when the wallet
+  // adapter causes the callback reference to change (decrypt -> extractPlaintext -> getAccessPasses chain).
+  const getAccessPassesRef = useRef(getAccessPasses)
+  getAccessPassesRef.current = getAccessPasses
+
   const [rawPasses, setRawPasses] = useState<{ creator: string; tier: number; expiresAt: number }[]>([])
   useEffect(() => {
     if (!connected) {
@@ -171,7 +175,7 @@ export default function MessagesPage() {
     setLoadingPasses(true)
     async function loadPasses() {
       try {
-        const passTexts = await getAccessPasses()
+        const passTexts = await getAccessPassesRef.current()
         if (cancelled) return
         const parsed = passTexts
           .map(p => parseAccessPass(p))
@@ -186,7 +190,8 @@ export default function MessagesPage() {
     }
     loadPasses()
     return () => { cancelled = true }
-  }, [connected, getAccessPasses])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- getAccessPasses ref is stable
+  }, [connected])
 
   // Derive active (non-expired) passes from raw passes + current block height.
   // This updates reactively when blockHeight changes without re-fetching from wallet.
