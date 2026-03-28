@@ -87,6 +87,20 @@ export async function GET(req: NextRequest) {
       return badRequest('Valid walletHash required for unread count')
     }
 
+    // SEC-2: Require wallet auth for unread count queries
+    const unreadWalletAddress = params.get('walletAddress')
+    const unreadTimestamp = params.get('timestamp')
+    if (!unreadWalletAddress || !unreadTimestamp) {
+      return NextResponse.json(
+        { error: 'Authentication required (walletAddress + walletHash + timestamp)' },
+        { status: 401 }
+      )
+    }
+    const unreadAuth = await verifyWalletAuth(unreadWalletAddress, walletHashParam, Number(unreadTimestamp))
+    if (!unreadAuth.valid) {
+      return NextResponse.json({ error: unreadAuth.error || 'Authentication failed' }, { status: 401 })
+    }
+
     try {
       // Get all threads the user participates in (as creator or subscriber)
       // by checking message_read_status and comparing to latest messages
@@ -100,11 +114,15 @@ export async function GET(req: NextRequest) {
         readMap.set(`${rs.creator_address}:${rs.thread_id}`, rs.last_read_at)
       }
 
-      // Get latest messages for all threads the user is involved in
-      // We check private_messages for threads where this wallet_hash has sent/received
+      // SEC-2: Only fetch messages for threads involving this wallet's hash
+      // Filter to threads the user has read-status entries for, plus threads where
+      // they are the creator (creator_address matches their wallet)
       const { data: recentMessages } = await supabase
         .from('private_messages')
         .select('creator_address, thread_id, created_at')
+        .or(`creator_address.eq.${unreadWalletAddress},thread_id.in.(${
+          (readStatuses ?? []).map(rs => rs.thread_id).join(',')
+        })`)
         .order('created_at', { ascending: false })
         .limit(500)
 
@@ -437,10 +455,12 @@ export async function PUT(req: NextRequest) {
     return badRequest('Invalid JSON')
   }
 
-  const { walletHash, creatorAddress, threadId } = body as {
+  const { walletHash, creatorAddress, threadId, walletAddress, timestamp } = body as {
     walletHash?: string
     creatorAddress?: string
     threadId?: string
+    walletAddress?: string
+    timestamp?: unknown
   }
 
   if (!walletHash || !/^[a-f0-9]{64}$/.test(walletHash)) {
@@ -451,6 +471,18 @@ export async function PUT(req: NextRequest) {
   }
   if (!threadId || !THREAD_ID_RE.test(threadId)) {
     return badRequest('Valid threadId required (SHA-256 hex)')
+  }
+
+  // SEC-1: Wallet auth required for mark-as-read
+  if (!walletAddress || timestamp === undefined) {
+    return NextResponse.json(
+      { error: 'Authentication required (walletAddress + timestamp)' },
+      { status: 401 }
+    )
+  }
+  const auth = await verifyWalletAuth(walletAddress, walletHash, Number(timestamp))
+  if (!auth.valid) {
+    return NextResponse.json({ error: auth.error || 'Authentication failed' }, { status: 401 })
   }
 
   try {

@@ -497,20 +497,21 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
               </div>
               <p className="text-sm text-white/80 leading-relaxed mt-0.5 break-words">{c.text}</p>
               <div className="flex items-center gap-3 mt-1">
-                <button onClick={() => toggleLike(c.id)} className="flex items-center gap-1 text-white/50 hover:text-rose-400 transition-colors">
+                <button onClick={() => toggleLike(c.id)} aria-label="Like comment" className="min-h-[44px] min-w-[44px] flex items-center justify-center gap-1 text-white/50 hover:text-rose-400 transition-colors focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none rounded">
                   <Heart className={`w-3 h-3 ${likedComments.has(c.id) ? 'fill-rose-400 text-rose-400' : ''}`} />
                   {c.likes_count > 0 && <span className="text-[11px]">{c.likes_count}</span>}
                 </button>
                 {isSubscribed && (
-                  <button onClick={() => setReplyTo(replyTo === c.id ? null : c.id)} className="text-[11px] text-white/50 hover:text-white/60 transition-colors">
+                  <button onClick={() => setReplyTo(replyTo === c.id ? null : c.id)} aria-label="Reply to comment" className="text-[11px] text-white/50 hover:text-white/60 transition-colors py-2 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none rounded">
                     Reply
                   </button>
                 )}
                 {showDm && (
                   <button
                     onClick={() => handleDmCommenter(c)}
+                    aria-label="Direct message subscriber"
                     title="Direct message this subscriber"
-                    className="flex items-center gap-1 text-white/40 hover:text-violet-400 transition-colors"
+                    className="flex items-center gap-1 text-white/40 hover:text-violet-400 transition-colors py-2 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none rounded"
                   >
                     <Send className="w-3 h-3" />
                     <span className="text-[11px]">DM</span>
@@ -584,7 +585,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
 
       {/* Show more/less */}
       {topLevel.length > 3 && (
-        <button onClick={() => setExpanded(!expanded)} className="flex items-center gap-1 text-[11px] text-white/50 hover:text-white/60 transition-colors mb-3">
+        <button onClick={() => setExpanded(!expanded)} aria-label={expanded ? 'Show fewer comments' : 'Show more comments'} className="flex items-center gap-1 text-[11px] text-white/50 hover:text-white/60 transition-colors mb-3 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none rounded">
           {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
           {expanded ? 'Show less' : `View all ${topLevel.length} comments`}
         </button>
@@ -630,7 +631,7 @@ export default function PostComments({ contentId, isSubscribed, walletAddress, u
               placeholder={canCommentAnonymously && anonymous ? 'Add an anonymous comment...' : 'Add a comment...'}
               className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-colors"
             />
-            <button onClick={() => { setReplyTo(null); submit() }} disabled={!text.trim() || !!replyTo} className="px-4 py-2 rounded-lg bg-white/[0.06] text-white/70 text-sm font-medium hover:bg-white/[0.12] disabled:opacity-40 transition-colors">
+            <button onClick={() => { setReplyTo(null); submit() }} disabled={!text.trim() || !!replyTo} aria-label="Post comment" className="px-4 py-2 rounded-lg bg-white/[0.06] text-white/70 text-sm font-medium hover:bg-white/[0.12] disabled:opacity-40 transition-colors focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none">
               Post
             </button>
           </div>

@@ -21,8 +21,9 @@ export function useUnreadMessages() {
     if (!walletAddress) return
     try {
       const walletHash = await computeWalletHash(walletAddress)
+      const timestamp = Date.now()
       const res = await fetch(
-        `/api/messages?unread=true&walletHash=${encodeURIComponent(walletHash)}`,
+        `/api/messages?unread=true&walletHash=${encodeURIComponent(walletHash)}&walletAddress=${encodeURIComponent(walletAddress)}&timestamp=${timestamp}`,
         signal ? { signal } : undefined
       )
       if (!res.ok) return
@@ -57,7 +58,7 @@ export function useUnreadMessages() {
 
     return () => {
       clearInterval(interval)
-      controller.abort()
+      abortControllerRef.current?.abort()
     }
   }, [connected, walletAddress, fetchUnreadCount])
 

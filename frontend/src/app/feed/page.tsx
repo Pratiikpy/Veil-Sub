@@ -519,7 +519,7 @@ function FeedPostCard({
                   {/* Comment */}
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowComments(!showComments) }}
-                    className="group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-white/50 hover:text-blue-400 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:outline-none"
+                    className="group relative flex items-center gap-1.5 px-2.5 py-2.5 rounded-full text-white/50 hover:text-blue-400 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:outline-none"
                     aria-label="Toggle comments"
                   >
                     <span className="absolute inset-0 rounded-full group-hover:bg-blue-500/10 transition-colors duration-200" />
@@ -530,7 +530,7 @@ function FeedPostCard({
                   {/* Share */}
                   <button
                     onClick={(e) => { e.stopPropagation(); handleShare() }}
-                    className="group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-white/50 hover:text-green-400 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-green-400/50 focus-visible:outline-none"
+                    className="group relative flex items-center gap-1.5 px-2.5 py-2.5 rounded-full text-white/50 hover:text-green-400 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-green-400/50 focus-visible:outline-none"
                     aria-label="Share post"
                   >
                     <span className="absolute inset-0 rounded-full group-hover:bg-green-500/10 transition-colors duration-200" />
@@ -540,7 +540,7 @@ function FeedPostCard({
                   {/* Like */}
                   <button
                     onClick={(e) => { e.stopPropagation(); handleLike() }}
-                    className={`group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-full transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-pink-400/50 focus-visible:outline-none ${liked ? 'text-rose-400' : 'text-white/50 hover:text-rose-400'}`}
+                    className={`group relative flex items-center gap-1.5 px-2.5 py-2.5 rounded-full transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-pink-400/50 focus-visible:outline-none ${liked ? 'text-rose-400' : 'text-white/50 hover:text-rose-400'}`}
                     aria-label={liked ? 'Unlike' : 'Like'}
                   >
                     <span className="absolute inset-0 rounded-full group-hover:bg-pink-500/10 transition-colors duration-200" />
@@ -551,7 +551,7 @@ function FeedPostCard({
                   {/* Tip */}
                   <button
                     onClick={(e) => { e.stopPropagation(); router.push(`/creator/${post.creatorAddress}`) }}
-                    className="group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-white/50 hover:text-amber-400 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:outline-none"
+                    className="group relative flex items-center gap-1.5 px-2.5 py-2.5 rounded-full text-white/50 hover:text-amber-400 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:outline-none"
                     aria-label="Tip creator"
                   >
                     <span className="absolute inset-0 rounded-full group-hover:bg-amber-500/10 transition-colors duration-200" />
@@ -1066,7 +1066,7 @@ export default function FeedPage() {
 
   return (
     <PageTransition>
-      <main className="min-h-screen bg-background py-12 sm:py-16 relative">
+      <main className="min-h-screen bg-background py-12 sm:py-16 pb-24 relative">
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none"
           style={HERO_GLOW_STYLE}

@@ -11,7 +11,7 @@ const MOBILE_NAV = [
   { href: '/explore', label: 'Explore', icon: Search },
   { href: '/subscriptions', label: 'Subs', icon: CreditCard, requiresWallet: true },
   { href: '/notifications', label: 'Alerts', icon: Bell, requiresWallet: true },
-  { href: '/messages', label: 'Messages', icon: MessageCircle, requiresWallet: true, showMessageBadge: true },
+  { href: '/messages', label: 'DMs', icon: MessageCircle, requiresWallet: true, showMessageBadge: true },
 ]
 
 export default function MobileBottomNav() {

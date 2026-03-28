@@ -20,7 +20,7 @@ export function validateOrigin(req: NextRequest): boolean {
     ]
     // Also allow the actual host
     if (host) allowed.push(`https://${host}`)
-    return allowed.some(a => origin.startsWith(a)) || origin.includes('vercel.app')
+    return allowed.some(a => origin.startsWith(a)) || origin.endsWith('.veil-sub.vercel.app') || origin === 'https://veil-sub.vercel.app'
   }
 
   // Fallback: check referer

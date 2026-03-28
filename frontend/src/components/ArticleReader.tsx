@@ -31,7 +31,7 @@ export default function ArticleReader({ title, body, creator, publishedAt, readi
     ALLOWED_ATTR: [
       'href', 'target', 'rel',
       'src', 'alt', 'width', 'height', 'loading',
-      'class', 'style',
+      'class',
       'allowfullscreen', 'allow', 'frameborder',
     ],
     ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,

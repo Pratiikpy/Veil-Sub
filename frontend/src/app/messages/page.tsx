@@ -122,6 +122,8 @@ export default function MessagesPage() {
   // Track message IDs sent by current user (for peer mode message ownership)
   const sentMessageIdsRef = useRef<Set<string>>(new Set())
   const prevAddressRef = useRef(address)
+  // PC-3: Double-click guard for sendMessage
+  const sendingRef = useRef(false)
 
   // Reset all messaging state when wallet address changes (DI-1)
   useEffect(() => {
@@ -131,8 +133,10 @@ export default function MessagesPage() {
       setMessages([])
       setDecryptedMessages(new Map())
       setActiveThread(null)
+      setActiveCreator(null)
       setAnonId(null)
       setMobileShowThread(false)
+      sentMessageIdsRef.current = new Set()
     }
   }, [address])
 
@@ -277,6 +281,7 @@ export default function MessagesPage() {
     async function markRead() {
       try {
         const walletHash = await computeWalletHash(address!)
+        const timestamp = Date.now()
         await fetch('/api/messages', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -284,6 +289,8 @@ export default function MessagesPage() {
             walletHash,
             creatorAddress: activeCreator,
             threadId: activeThread,
+            walletAddress: address,
+            timestamp,
           }),
         })
         if (!cancelled) refreshUnread()
@@ -331,6 +338,8 @@ export default function MessagesPage() {
   // Send a message
   const sendMessage = useCallback(async () => {
     if (!messageText.trim() || !activeCreator || !address || sending) return
+    if (sendingRef.current) return
+    sendingRef.current = true
 
     const senderType = isCreator ? 'creator' : 'subscriber'
     // For peer threads, use activeThread (the pre-computed peer hash)
@@ -401,6 +410,7 @@ export default function MessagesPage() {
       toast.error('Failed to send message')
     } finally {
       setSending(false)
+      sendingRef.current = false
     }
   }, [messageText, activeCreator, address, sending, isCreator, isPeerThread, activeThread, anonId, activeTier, messages, fetchThreads, refreshUnread])
 
@@ -422,13 +432,13 @@ export default function MessagesPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <div className="text-center py-20">
             <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center mx-auto mb-6">
-              <MessageCircle className="w-8 h-8 text-white/30" />
+              <MessageCircle className="w-8 h-8 text-white/60" />
             </div>
             <h2 className="text-2xl font-serif italic text-white mb-3">Private Messages</h2>
             <p className="text-white/60 max-w-md mx-auto mb-6">
               Connect your wallet to access encrypted private messages with creators you subscribe to.
             </p>
-            <div className="flex items-center justify-center gap-2 text-xs text-white/40">
+            <div className="flex items-center justify-center gap-2 text-xs text-white/60">
               <Lock className="w-3.5 h-3.5" />
               End-to-end encrypted
             </div>
@@ -448,7 +458,7 @@ export default function MessagesPage() {
           {subscribedCreators.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center mx-auto mb-6">
-                <MessageCircle className="w-8 h-8 text-white/30" />
+                <MessageCircle className="w-8 h-8 text-white/60" />
               </div>
               <h3 className="text-lg font-medium text-white mb-2">No conversations yet</h3>
               <p className="text-sm text-white/60 max-w-md mx-auto mb-6">
@@ -473,7 +483,7 @@ export default function MessagesPage() {
                       setActiveCreator(creator)
                       setActiveTier(tier)
                     }}
-                    className="w-full flex items-center gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/[0.12] transition-all text-left group"
+                    className="w-full flex items-center gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/[0.12] transition-all text-left group focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none"
                   >
                     <AddressAvatar address={creator} size={40} />
                     <div className="flex-1 min-w-0">
@@ -485,7 +495,7 @@ export default function MessagesPage() {
                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${style.bg} ${style.text} border ${style.border}`}>
                       {getTierLabel(tier)}
                     </span>
-                    <ChevronRight className="w-4 h-4 text-white/30 group-hover:text-white/50 transition-colors" />
+                    <ChevronRight className="w-4 h-4 text-white/60 group-hover:text-white/50 transition-colors" />
                   </button>
                 )
               })}
@@ -513,7 +523,7 @@ export default function MessagesPage() {
             <div className="px-4 py-4 border-b border-white/[0.06]">
               <div className="flex items-center justify-between">
                 <h1 className="text-lg font-serif italic text-white">Messages</h1>
-                <div className="flex items-center gap-1.5 text-xs text-white/40">
+                <div className="flex items-center gap-1.5 text-xs text-white/60">
                   <Lock className="w-3 h-3" />
                   <span>E2E Encrypted</span>
                 </div>
@@ -527,7 +537,7 @@ export default function MessagesPage() {
                     setDecryptedMessages(new Map())
                     setMobileShowThread(false)
                   }}
-                  className="flex items-center gap-1.5 mt-2 p-2.5 -ml-2.5 text-xs text-white/50 hover:text-white/70 transition-colors"
+                  className="flex items-center gap-1.5 mt-2 p-2.5 -ml-2.5 text-xs text-white/50 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none"
                 >
                   <ArrowLeft className="w-3 h-3" />
                   Back to conversations
@@ -539,13 +549,13 @@ export default function MessagesPage() {
             <div className="flex-1 overflow-y-auto">
               {loadingThreads ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-5 h-5 text-white/30 animate-spin" />
+                  <Loader2 className="w-5 h-5 text-white/60 animate-spin" />
                 </div>
               ) : isCreator && threads.length === 0 ? (
                 <div className="text-center py-12 px-4">
                   <MessageCircle className="w-8 h-8 text-white/20 mx-auto mb-3" />
                   <p className="text-sm text-white/50">No messages yet</p>
-                  <p className="text-xs text-white/40 mt-1">Subscriber messages will appear here</p>
+                  <p className="text-xs text-white/60 mt-1">Subscriber messages will appear here</p>
                 </div>
               ) : isCreator ? (
                 threads.map(thread => {
@@ -558,7 +568,7 @@ export default function MessagesPage() {
                         setActiveThread(thread.thread_id)
                         setMobileShowThread(true)
                       }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all border-b border-white/[0.03] ${
+                      className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all border-b border-white/[0.03] focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none ${
                         isActive
                           ? 'bg-white/[0.05]'
                           : 'hover:bg-white/[0.02]'
@@ -572,7 +582,7 @@ export default function MessagesPage() {
                           <span className={`text-sm font-medium ${style.text}`}>
                             {thread.tier ? getTierLabel(thread.tier) : 'Subscriber'}
                           </span>
-                          <span className="text-[11px] text-white/40 ml-auto shrink-0">
+                          <span className="text-[11px] text-white/60 ml-auto shrink-0">
                             {timeAgo(thread.last_message_at)}
                           </span>
                         </div>
@@ -581,7 +591,7 @@ export default function MessagesPage() {
                           {isE2EEncrypted(thread.last_message) ? 'Encrypted message' : thread.last_message}
                         </p>
                       </div>
-                      <span className="text-[10px] text-white/40 bg-white/[0.04] px-1.5 py-0.5 rounded-full">
+                      <span className="text-[10px] text-white/60 bg-white/[0.04] px-1.5 py-0.5 rounded-full">
                         {thread.message_count}
                       </span>
                     </button>
@@ -592,7 +602,7 @@ export default function MessagesPage() {
                 activeCreator && (
                   <button
                     onClick={() => setMobileShowThread(true)}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left bg-white/[0.05] border-b border-white/[0.03]"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left bg-white/[0.05] border-b border-white/[0.03] focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none"
                   >
                     <AddressAvatar address={activeCreator} size={36} />
                     <div className="flex-1 min-w-0">
@@ -616,7 +626,7 @@ export default function MessagesPage() {
                   {/* Mobile back button */}
                   <button
                     onClick={() => setMobileShowThread(false)}
-                    className="md:hidden p-2.5 rounded-lg hover:bg-white/[0.04] transition-colors"
+                    className="md:hidden p-2.5 rounded-lg hover:bg-white/[0.04] transition-colors focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none"
                     aria-label="Back to threads"
                   >
                     <ArrowLeft className="w-4 h-4 text-white/60" />
@@ -629,7 +639,7 @@ export default function MessagesPage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-white/80">Private conversation</p>
-                        <p className="text-[11px] text-white/40">Anonymous subscriber-to-subscriber</p>
+                        <p className="text-[11px] text-white/60">Anonymous subscriber-to-subscriber</p>
                       </div>
                     </>
                   ) : isCreator ? (
@@ -647,7 +657,7 @@ export default function MessagesPage() {
                               <p className={`text-sm font-medium ${style.text}`}>
                                 {getTierLabel(tier)}
                               </p>
-                              <p className="text-[11px] text-white/40">Anonymous subscriber</p>
+                              <p className="text-[11px] text-white/60">Anonymous subscriber</p>
                             </div>
                           </>
                         )
@@ -660,12 +670,12 @@ export default function MessagesPage() {
                         <p className="text-sm font-medium text-white">
                           {getCreatorDisplayName(activeCreator!)}
                         </p>
-                        <p className="text-[11px] text-white/40">Creator</p>
+                        <p className="text-[11px] text-white/60">Creator</p>
                       </div>
                     </>
                   )}
 
-                  <div className="ml-auto flex items-center gap-1.5 text-[11px] text-white/30">
+                  <div className="ml-auto flex items-center gap-1.5 text-[11px] text-white/60">
                     <Lock className="w-3 h-3" />
                     Encrypted
                   </div>
@@ -675,13 +685,13 @@ export default function MessagesPage() {
                 <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
                   {loadingMessages ? (
                     <div className="flex items-center justify-center py-12">
-                      <Loader2 className="w-5 h-5 text-white/30 animate-spin" />
+                      <Loader2 className="w-5 h-5 text-white/60 animate-spin" />
                     </div>
                   ) : messages.length === 0 ? (
                     <div className="text-center py-12">
                       <Lock className="w-8 h-8 text-white/20 mx-auto mb-3" />
                       <p className="text-sm text-white/50">No messages yet</p>
-                      <p className="text-xs text-white/40 mt-1">
+                      <p className="text-xs text-white/60 mt-1">
                         {isCreator ? 'This subscriber hasn\'t sent any messages yet' : 'Send your first encrypted message'}
                       </p>
                     </div>
@@ -691,7 +701,7 @@ export default function MessagesPage() {
                       <div className="flex justify-center mb-4">
                         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06]">
                           <Lock className="w-3 h-3 text-violet-400/60" />
-                          <span className="text-[11px] text-white/40">Messages are end-to-end encrypted</span>
+                          <span className="text-[11px] text-white/60">Messages are end-to-end encrypted</span>
                         </div>
                       </div>
 
@@ -728,13 +738,13 @@ export default function MessagesPage() {
                               )}
                               <p className="text-sm text-white/90 leading-relaxed break-words whitespace-pre-wrap">
                                 {decrypted || (
-                                  <span className="text-white/40 italic flex items-center gap-1.5">
+                                  <span className="text-white/60 italic flex items-center gap-1.5">
                                     <Lock className="w-3 h-3" />
                                     Decrypting...
                                   </span>
                                 )}
                               </p>
-                              <p className={`text-[10px] mt-1 ${isMine ? 'text-violet-300/40' : 'text-white/30'}`}>
+                              <p className={`text-[10px] mt-1 ${isMine ? 'text-violet-300/40' : 'text-white/60'}`}>
                                 {timeAgo(msg.created_at)}
                               </p>
                             </div>
@@ -767,13 +777,13 @@ export default function MessagesPage() {
                         }}
                         placeholder={isCreator ? 'Reply to subscriber...' : 'Send an encrypted message...'}
                         maxLength={2000}
-                        className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors"
+                        className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors focus-visible:ring-2 focus-visible:ring-violet-500"
                         disabled={sending}
                       />
                       <button
                         onClick={sendMessage}
                         disabled={!messageText.trim() || sending}
-                        className="p-2.5 rounded-xl bg-violet-500/20 border border-violet-500/30 text-violet-300 hover:bg-violet-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                        className="p-2.5 rounded-xl bg-violet-500/20 border border-violet-500/30 text-violet-300 hover:bg-violet-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:outline-none"
                         aria-label="Send message"
                       >
                         {sending ? (
@@ -785,7 +795,7 @@ export default function MessagesPage() {
                     </div>
                   )}
                   {!isCreator && activeTier && (
-                    <div className="flex items-center gap-2 mt-2 text-[11px] text-white/30">
+                    <div className="flex items-center gap-2 mt-2 text-[11px] text-white/60">
                       <Shield className="w-3 h-3" />
                       <span>You appear as: <span className={getTierStyle(activeTier).text}>{getTierLabel(activeTier)}</span></span>
                     </div>

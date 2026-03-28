@@ -243,15 +243,15 @@ function RevenueChart({ data }: { data: DailyBucket[] }) {
       <div className="flex justify-between px-1 mt-1">
         {data.length > 0 && (
           <>
-            <span className="text-[10px] text-white/30">
+            <span className="text-[10px] text-white/60">
               {new Date(data[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </span>
             {data.length > 2 && (
-              <span className="text-[10px] text-white/30">
+              <span className="text-[10px] text-white/60">
                 {new Date(data[Math.floor(data.length / 2)].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
               </span>
             )}
-            <span className="text-[10px] text-white/30">
+            <span className="text-[10px] text-white/60">
               {new Date(data[data.length - 1].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </span>
           </>

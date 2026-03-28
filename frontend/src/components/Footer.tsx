@@ -74,7 +74,7 @@ export default function Footer() {
           <div className="flex items-center gap-2">
             <span className="font-serif italic text-white text-sm">VeilSub</span>
             <span className="px-2 py-1 text-[11px] font-medium text-white/50 bg-white/[0.04] border border-white/[0.06] rounded">
-              v29
+              {VERSION_LABEL}
             </span>
           </div>
           <a href="https://github.com/Pratiikpy/Veil-Sub" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository" className="flex items-center gap-1 text-xs text-white/60 hover:text-white/70 transition-colors focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none rounded">
