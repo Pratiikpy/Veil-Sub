@@ -103,18 +103,30 @@ export function useContractExecute() {
       }
 
       // Wrap executeTransaction with timeout to prevent indefinite ZK proof hangs
-      const result = await withTimeout(
-        executeTransaction({
-          program: program || DEPLOYED_PROGRAM_ID,
-          function: functionName,
-          inputs,
-          fee,
-          privateFee: process.env.NEXT_PUBLIC_PRIVATE_FEE === 'true' || false,
-        }),
-        ZK_PROOF_TIMEOUT_MS,
-        `ZK proof for ${functionName}`
-      )
-      return result?.transactionId ?? null
+      try {
+        const result = await withTimeout(
+          executeTransaction({
+            program: program || DEPLOYED_PROGRAM_ID,
+            function: functionName,
+            inputs,
+            fee,
+            privateFee: process.env.NEXT_PUBLIC_PRIVATE_FEE === 'true' || false,
+          }),
+          ZK_PROOF_TIMEOUT_MS,
+          `ZK proof for ${functionName}`
+        )
+        return result?.transactionId ?? null
+      } catch (execErr) {
+        // Enhance error message for companion programs
+        const progId = program || DEPLOYED_PROGRAM_ID
+        const errMsg = execErr instanceof Error ? execErr.message : String(execErr)
+        if (progId !== DEPLOYED_PROGRAM_ID && (errMsg.includes('Failed to execute') || errMsg.includes('not found') || errMsg.includes('proving key'))) {
+          throw new Error(
+            `Wallet could not execute on ${progId}. This feature requires Shield Wallet (leo.app) which supports delegated proving. Leo Wallet and other wallets may not support companion program execution.`
+          )
+        }
+        throw execErr
+      }
     },
     [address, executeTransaction, wallet]
   )
