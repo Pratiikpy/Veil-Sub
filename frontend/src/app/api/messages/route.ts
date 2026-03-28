@@ -368,15 +368,23 @@ export async function POST(req: NextRequest) {
 
   // Subscription verification (SEC-2): subscribers must have an active subscription
   // to this creator, OR the sender must BE the creator replying to their thread.
+  //
+  // The subscription_events table does NOT store subscriber identity (by privacy
+  // design — VeilSub never links subscriber addresses to creators on-chain or
+  // off-chain). The previous query checked a nonexistent `subscriber_hash` column
+  // which always returned empty, blocking ALL subscriber messages with 403.
+  //
+  // Subscription proof lives in the wallet's AccessPass records (verified client-side
+  // via getAccessPasses + parseAccessPass + blockHeight expiry check). The client
+  // only sends messages when activeTier is set, which requires a valid, non-expired
+  // AccessPass record in the subscriber's wallet. The tier value in the message body
+  // provides a lightweight server-side plausibility check: if tier is present and
+  // valid (1-20), the client had a pass. A determined attacker could forge this, but
+  // the privacy cost of storing subscriber identity server-side outweighs the risk
+  // of a fake tier-tagged message reaching one creator's inbox.
   if (senderType === 'subscriber') {
-    const { data: subEvents } = await supabase
-      .from('subscription_events')
-      .select('id')
-      .eq('creator_address', creatorAddress)
-      .eq('subscriber_hash', String(walletHash))
-      .limit(1)
     const isSelfCreator = walletAddress === creatorAddress
-    if (!isSelfCreator && (!subEvents || subEvents.length === 0)) {
+    if (!isSelfCreator && (!tier || tier < 1 || tier > 20)) {
       return NextResponse.json(
         { error: 'Active subscription required to message this creator' },
         { status: 403 }

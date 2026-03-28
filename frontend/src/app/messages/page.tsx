@@ -165,6 +165,9 @@ export default function MessagesPage() {
   getAccessPassesRef.current = getAccessPasses
 
   const [rawPasses, setRawPasses] = useState<{ creator: string; tier: number; expiresAt: number }[]>([])
+  // Retry counter: bumped to force a re-fetch when wallet returns empty passes on first try
+  // (wallet adapter may not have requestRecords ready when connected first fires).
+  const [passRetry, setPassRetry] = useState(0)
   useEffect(() => {
     if (!connected) {
       setRawPasses([])
@@ -182,16 +185,30 @@ export default function MessagesPage() {
           .filter((p): p is NonNullable<typeof p> => p !== null)
           .map(p => ({ creator: p.creator, tier: p.tier, expiresAt: p.expiresAt }))
         setRawPasses(parsed)
+        // If wallet returned empty and we haven't retried yet, schedule a retry.
+        // The wallet adapter's requestRecords may not be ready on the first call
+        // (connected fires before the adapter fully initializes).
+        if (parsed.length === 0 && passRetry < 2) {
+          setTimeout(() => {
+            if (!cancelled) setPassRetry(prev => prev + 1)
+          }, 1500)
+        }
       } catch (err) {
         console.warn('[Messages] Failed to load passes:', err instanceof Error ? err.message : err)
+        // Retry on failure too (wallet may not be ready)
+        if (passRetry < 2) {
+          setTimeout(() => {
+            if (!cancelled) setPassRetry(prev => prev + 1)
+          }, 1500)
+        }
       } finally {
         if (!cancelled) setLoadingPasses(false)
       }
     }
     loadPasses()
     return () => { cancelled = true }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- getAccessPasses ref is stable
-  }, [connected])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- getAccessPasses ref is stable; passRetry triggers re-fetch
+  }, [connected, passRetry])
 
   // Derive active (non-expired) passes from raw passes + current block height.
   // This updates reactively when blockHeight changes without re-fetching from wallet.
