@@ -279,7 +279,7 @@ export default function PrivacyPage() {
                     <h3 className="text-white font-semibold">Zero-Address Finalize</h3>
                   </div>
                   <p className="text-sm text-white/70 mb-4">
-                    All 30 mappings use Poseidon2 field-hashed keys. No raw address appears
+                    All 29 mappings use Poseidon2 field-hashed keys. No raw address appears
                     in any finalize function—compiler-enforced, not policy.
                   </p>
                   <div className="p-4 rounded-xl bg-black/40 border border-border">

@@ -20,6 +20,7 @@ import {
   saveCreatorHash,
   MICROCREDITS_PER_CREDIT,
   PLATFORM_FEE_PCT,
+  DEFAULT_TIER_NAMES,
 } from '@/lib/config'
 import { formatCredits, formatUsd } from '@/lib/utils'
 import type { CreatorProfile, ContentPost } from '@/types'
@@ -102,11 +103,7 @@ async function fetchMapping(mapping: string, key: string): Promise<number | null
 
 // ── Tier Name Mapping ────────────────────────────────────────────
 
-const TIER_NAMES: Record<number, string> = {
-  1: 'Supporter',
-  2: 'Premium',
-  3: 'VIP',
-}
+const TIER_NAMES = DEFAULT_TIER_NAMES
 
 const TIER_COLORS: Record<number, { bar: string; text: string }> = {
   1: { bar: 'bg-violet-500', text: 'text-violet-400' },

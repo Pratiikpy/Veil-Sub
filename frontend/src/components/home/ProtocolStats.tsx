@@ -13,9 +13,9 @@ const QUOTE_STYLE = { letterSpacing: '-0.02em' } as const
 
 const STATS = [
   { key: 'privacy', value: 100, suffix: '%', label: 'Private', sublabel: 'No addresses stored on-chain' },
-  { key: 'transitions', value: 27, suffix: '', label: 'Transitions', sublabel: 'Leo smart contract functions' },
+  { key: 'transitions', value: 31, suffix: '', label: 'Transitions', sublabel: 'Leo smart contract functions' },
   { key: 'records', value: 6, suffix: '', label: 'Record Types', sublabel: 'Subscription pass, audit token, etc.' },
-  { key: 'versions', value: 27, suffix: '', label: 'Versions', sublabel: 'Iterative testnet deploys', prefix: 'v' },
+  { key: 'versions', value: 30, suffix: '', label: 'Versions', sublabel: 'Iterative testnet deploys', prefix: 'v' },
 ]
 
 export default function ProtocolStats() {

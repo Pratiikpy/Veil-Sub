@@ -15,7 +15,7 @@ import { generatePassId, ALEO_USD_ESTIMATE, creditsToMicrocredits, computeWallet
 import { clearMappingCache } from '@/hooks/useCreatorStats'
 import { authenticatedFetch } from '@/lib/authenticatedFetch'
 import { poseidon2HashField } from '@/lib/poseidon'
-import { saveContentHash, SUGGESTED_TAGS, TAG_COLORS, API_LIMITS, DRAFT_AUTOSAVE_INTERVAL_MS } from '@/lib/config'
+import { saveContentHash, SUGGESTED_TAGS, TAG_COLORS, API_LIMITS, DRAFT_AUTOSAVE_INTERVAL_MS, DEFAULT_TIER_NAMES } from '@/lib/config'
 import TransactionStatus from './TransactionStatus'
 import type { TxStatus, PostStatus, PostType } from '@/types'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
@@ -748,7 +748,7 @@ export default function CreatePostForm({ creatorAddress, onPostCreated, editingP
     { id: 0, name: 'Free', description: 'Visible to everyone' },
     ...(paidTiers.length > 0
       ? paidTiers
-      : [{ id: 1, name: 'Supporter' }]  // Fallback only if no on-chain tiers
+      : [{ id: 1, name: DEFAULT_TIER_NAMES[1] }]  // Fallback only if no on-chain tiers
     ),
   ]
 

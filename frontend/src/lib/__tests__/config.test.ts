@@ -11,7 +11,9 @@ import {
   getCreatorCustomTiers,
   SUBSCRIPTION_DURATION_BLOCKS,
   FEATURED_CREATORS,
+  DEFAULT_TIER_NAMES,
 } from '../config'
+import { TIERS } from '@/types'
 import { isValidAleoAddress } from '../utils'
 
 describe('program configuration', () => {
@@ -37,6 +39,12 @@ describe('program configuration', () => {
 
   it('SUBSCRIPTION_DURATION_BLOCKS is ~30 days', () => {
     expect(SUBSCRIPTION_DURATION_BLOCKS).toBe(864_000)
+  })
+
+  it('DEFAULT_TIER_NAMES stays in sync with TIERS constant', () => {
+    for (const tier of TIERS) {
+      expect(DEFAULT_TIER_NAMES[tier.id]).toBe(tier.name)
+    }
   })
 })
 

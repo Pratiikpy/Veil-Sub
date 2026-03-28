@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Heart, MessageCircle, ChevronDown, ChevronUp, Shield, Send } from 'lucide-react'
 import { toast } from 'sonner'
 import { computeWalletHash, safeRandomUUID } from '@/lib/utils'
+import { DEFAULT_TIER_NAMES } from '@/lib/config'
 
 interface Comment {
   id: string
@@ -105,8 +106,7 @@ function getAnonTierStyle(tier: number) {
 }
 
 function getAnonTierLabel(tier: number): string {
-  const names: Record<number, string> = { 1: 'Supporter', 2: 'Premium', 3: 'VIP' }
-  return `Tier ${tier} ${names[tier] || 'Subscriber'}`
+  return `Tier ${tier} ${DEFAULT_TIER_NAMES[tier] || 'Subscriber'}`
 }
 
 /** Compute a per-post anonymous ID: SHA-256(wallet + contentId + salt) */

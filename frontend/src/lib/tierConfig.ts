@@ -1,4 +1,5 @@
 import { Globe, Star, MessageSquare, Crown } from 'lucide-react'
+import { DEFAULT_TIER_NAMES } from '@/lib/config'
 
 export const tierConfig: Record<number, { name: string; icon: typeof Star; color: string; border: string; bg: string; text: string; lockBg: string }> = {
   0: {
@@ -11,7 +12,7 @@ export const tierConfig: Record<number, { name: string; icon: typeof Star; color
     lockBg: 'bg-emerald-500/10',
   },
   1: {
-    name: 'Supporter',
+    name: DEFAULT_TIER_NAMES[1],
     icon: Star,
     color: 'green',
     border: 'border-green-500/20',
@@ -20,7 +21,7 @@ export const tierConfig: Record<number, { name: string; icon: typeof Star; color
     lockBg: 'bg-green-500/10',
   },
   2: {
-    name: 'Premium',
+    name: DEFAULT_TIER_NAMES[2],
     icon: MessageSquare,
     color: 'blue',
     border: 'border-blue-500/20',
@@ -29,7 +30,7 @@ export const tierConfig: Record<number, { name: string; icon: typeof Star; color
     lockBg: 'bg-blue-500/10',
   },
   3: {
-    name: 'VIP',
+    name: DEFAULT_TIER_NAMES[3],
     icon: Crown,
     color: 'violet',
     border: 'border-violet-500/20',

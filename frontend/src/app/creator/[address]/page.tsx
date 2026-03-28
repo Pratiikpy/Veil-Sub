@@ -61,7 +61,7 @@ import {
 } from '@/lib/utils'
 import { TIERS } from '@/types'
 import type { CreatorProfile, SubscriptionTier, AccessPass } from '@/types'
-import { FEATURED_CREATORS, DEPLOYED_PROGRAM_ID, PROGRAM_ID, getCreatorHash, CREATOR_HASH_MAP } from '@/lib/config'
+import { FEATURED_CREATORS, DEPLOYED_PROGRAM_ID, PROGRAM_ID, getCreatorHash, CREATOR_HASH_MAP, SUBSCRIPTION_DURATION_BLOCKS } from '@/lib/config'
 import { getCachedCreator, cacheSingleCreator } from '@/lib/creatorCache'
 
 import CreatorSkeleton from '@/components/CreatorSkeleton'
@@ -249,7 +249,7 @@ function ActivePasses({
   const getProgressPercent = (pass: AccessPass) => {
     if (blockHeight === null || pass.expiresAt === 0) return 100
     const blocksLeft = pass.expiresAt - blockHeight
-    return Math.min(100, Math.max(0, (blocksLeft / 864000) * 100))
+    return Math.min(100, Math.max(0, (blocksLeft / SUBSCRIPTION_DURATION_BLOCKS) * 100))
   }
 
   const tierColorMap: Record<number, string> = {
@@ -951,8 +951,15 @@ export default function CreatorPage({
       }
     }
     // Legacy fallback — only when NO custom tiers exist
-    if (!hasOnChainTiers && hardcoded) return hardcoded
-    return { id, name: `Tier ${id}`, priceMultiplier: id, description: '', features: [] as string[] }
+    // Still prefer creator's Supabase perks/descriptions over hardcoded defaults
+    if (!hasOnChainTiers && hardcoded) {
+      return {
+        ...hardcoded,
+        description: creatorDescriptions[id] || hardcoded.description,
+        features: creatorPerks[id]?.length ? creatorPerks[id] : hardcoded.features,
+      }
+    }
+    return { id, name: `Tier ${id}`, priceMultiplier: id, description: creatorDescriptions[id] || '', features: creatorPerks[id] || [] }
   })
 
   // Determine subscription status
@@ -1078,7 +1085,7 @@ export default function CreatorPage({
                         This creator is known but hasn&apos;t registered on the current contract version ({versionLabel}).
                       </p>
                       <p className="text-xs text-white/60">
-                        Each contract upgrade (e.g., v27 to {versionLabel}) creates a new on-chain program. Creator registrations, subscriptions, and content exist only on the version where they were created. This creator needs to re-register on {versionLabel} for their page to be fully active.
+                        Each contract upgrade creates a new on-chain program. Creator registrations, subscriptions, and content exist only on the version where they were created. This creator needs to re-register on {versionLabel} for their page to be fully active.
                       </p>
                     </div>
                     {(bio || featuredInfo?.bio) && (

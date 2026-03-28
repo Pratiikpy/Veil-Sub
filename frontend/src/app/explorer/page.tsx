@@ -31,7 +31,7 @@ import OnChainVerify from '@/components/OnChainVerify'
 import AnimatedCounter from '@/components/AnimatedCounter'
 import ActivityChart from '@/components/ActivityChart'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import { DEPLOYED_PROGRAM_ID, PLATFORM_ADDRESS, CREATOR_HASH_MAP } from '@/lib/config'
+import { DEPLOYED_PROGRAM_ID, PLATFORM_ADDRESS, CREATOR_HASH_MAP, DEFAULT_TIER_NAMES } from '@/lib/config'
 import type { CreatorProfile } from '@/types'
 
 // Static styles to prevent re-renders
@@ -71,9 +71,9 @@ function MiniSparkline({ data }: { data: number[] }) {
 }
 
 const TIER_LABELS: Record<number, { name: string; color: string; dot: string }> = {
-  1: { name: 'Supporter', color: 'bg-blue-500/20 text-blue-300 border-blue-500/30', dot: 'bg-blue-400' },
-  2: { name: 'Premium', color: 'bg-violet-500/20 text-violet-300 border-violet-500/30', dot: 'bg-violet-400' },
-  3: { name: 'VIP', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30', dot: 'bg-amber-400' },
+  1: { name: DEFAULT_TIER_NAMES[1], color: 'bg-blue-500/20 text-blue-300 border-blue-500/30', dot: 'bg-blue-400' },
+  2: { name: DEFAULT_TIER_NAMES[2], color: 'bg-violet-500/20 text-violet-300 border-violet-500/30', dot: 'bg-violet-400' },
+  3: { name: DEFAULT_TIER_NAMES[3], color: 'bg-amber-500/20 text-amber-300 border-amber-500/30', dot: 'bg-amber-400' },
 }
 
 const SEARCH_PLACEHOLDERS = [

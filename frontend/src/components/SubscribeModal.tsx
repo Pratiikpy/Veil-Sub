@@ -484,7 +484,9 @@ export default function SubscribeModal({
                       <p className="text-[11px] text-white/50">
                         {100 - PLATFORM_FEE_PCT}% to creator · {PLATFORM_FEE_PCT}% platform fee
                       </p>
-                      <p className="text-sm text-white/70 mt-2">{tier.description}</p>
+                      {tier.description && (
+                        <p className="text-sm text-white/70 mt-2">{tier.description}</p>
+                      )}
                       <ul className="mt-4 space-y-1">
                         {(tier.features.length > 0 ? tier.features : ['Access to all tier-gated content']).map((f) => (
                           <li

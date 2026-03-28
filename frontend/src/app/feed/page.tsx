@@ -58,7 +58,7 @@ import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { useSupabase } from '@/hooks/useSupabase'
 import { parseAccessPass, shortenAddress, estimateReadingTime, computeWalletHash } from '@/lib/utils'
-import { FEATURED_CREATORS, CREATOR_CUSTOM_TIERS } from '@/lib/config'
+import { FEATURED_CREATORS, CREATOR_CUSTOM_TIERS, DEFAULT_TIER_NAMES } from '@/lib/config'
 import { getCachedCreator, cacheSingleCreator } from '@/lib/creatorCache'
 import type { AccessPass, ContentPost } from '@/types'
 
@@ -91,23 +91,35 @@ function timeAgo(dateString: string): string {
 }
 
 function getCreatorLabel(address: string): string {
+  const cached = getCachedCreator(address)
+  if (cached?.display_name) return cached.display_name
   const featured = FEATURED_CREATORS.find((c) => c.address === address)
   if (featured) return featured.label
   return shortenAddress(address)
 }
 
 function getCreatorCategory(address: string): string | undefined {
+  const cached = getCachedCreator(address)
+  if (cached?.category) return cached.category
   const featured = FEATURED_CREATORS.find((c) => c.address === address)
   return featured?.category
 }
 
 function getTierName(creator: string, tierId: number): string {
+  // Check localStorage first (most recent — written on tier creation)
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(`veilsub_creator_tiers_${creator}`)
+      if (stored) {
+        const localTiers = JSON.parse(stored) as Record<string, { name: string }>
+        if (localTiers[String(tierId)]?.name) return localTiers[String(tierId)].name
+      }
+    } catch { /* ignore */ }
+  }
+  // Fallback to hardcoded config
   const tiers = CREATOR_CUSTOM_TIERS[creator]
   if (tiers && tiers[tierId]) return tiers[tierId].name
-  if (tierId === 1) return 'Supporter'
-  if (tierId === 2) return 'Premium'
-  if (tierId === 3) return 'VIP'
-  return `Tier ${tierId}`
+  return DEFAULT_TIER_NAMES[tierId] ?? `Tier ${tierId}`
 }
 
 /**

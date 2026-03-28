@@ -1,4 +1,5 @@
 import { Settings2, Send, Users, Sparkles } from 'lucide-react'
+import { DEFAULT_TIER_NAMES, SECONDS_PER_BLOCK } from '@/lib/config'
 
 export const SOCIAL_PROGRAM_ID = 'veilsub_social_v2.aleo'
 
@@ -11,8 +12,8 @@ export const SOCIAL_FEES = {
   VIEW_STORY: 150_000,
 } as const
 
-export const MAX_STORY_DURATION = 28800 // ~24 hours at 3s/block
-export const SECONDS_PER_BLOCK_APPROX = 3
+export const MAX_STORY_DURATION = Math.round((24 * 60 * 60) / SECONDS_PER_BLOCK) // ~24 hours
+export const SECONDS_PER_BLOCK_APPROX = SECONDS_PER_BLOCK
 
 export const TABS = [
   { id: 'dm-config', label: 'DM Config', icon: Settings2 },
@@ -24,9 +25,9 @@ export const TABS = [
 export type TabId = (typeof TABS)[number]['id']
 
 export const TIER_OPTIONS = [
-  { value: 1, label: 'Tier 1 - Supporter' },
-  { value: 2, label: 'Tier 2 - Premium' },
-  { value: 3, label: 'Tier 3 - VIP' },
+  { value: 1, label: `Tier 1 - ${DEFAULT_TIER_NAMES[1]}` },
+  { value: 2, label: `Tier 2 - ${DEFAULT_TIER_NAMES[2]}` },
+  { value: 3, label: `Tier 3 - ${DEFAULT_TIER_NAMES[3]}` },
 ]
 
 // ---------------------------------------------------------------------------

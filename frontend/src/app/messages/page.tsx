@@ -19,7 +19,7 @@ import { computeWalletHash, shortenAddress } from '@/lib/utils'
 import { encryptContent, decryptContent, isE2EEncrypted } from '@/lib/e2eEncryption'
 import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { parseAccessPass } from '@/lib/utils'
-import { FEATURED_CREATORS, ALEO_ADDRESS_RE } from '@/lib/config'
+import { FEATURED_CREATORS, ALEO_ADDRESS_RE, DEFAULT_TIER_NAMES } from '@/lib/config'
 import PageTransition from '@/components/PageTransition'
 import AddressAvatar from '@/components/ui/AddressAvatar'
 import { useUnreadMessages } from '@/hooks/useUnreadMessages'
@@ -70,9 +70,9 @@ function timeAgo(dateStr: string): string {
 
 /** Tier-based styles matching PostComments */
 const TIER_STYLES: Record<number, { bg: string; text: string; border: string; label: string }> = {
-  1: { bg: 'bg-violet-500/10', text: 'text-violet-300', border: 'border-violet-500/20', label: 'Supporter' },
-  2: { bg: 'bg-amber-500/10', text: 'text-amber-300', border: 'border-amber-500/20', label: 'Premium' },
-  3: { bg: 'bg-emerald-500/10', text: 'text-emerald-300', border: 'border-emerald-500/20', label: 'VIP' },
+  1: { bg: 'bg-violet-500/10', text: 'text-violet-300', border: 'border-violet-500/20', label: DEFAULT_TIER_NAMES[1] },
+  2: { bg: 'bg-amber-500/10', text: 'text-amber-300', border: 'border-amber-500/20', label: DEFAULT_TIER_NAMES[2] },
+  3: { bg: 'bg-emerald-500/10', text: 'text-emerald-300', border: 'border-emerald-500/20', label: DEFAULT_TIER_NAMES[3] },
 }
 
 function getTierStyle(tier: number) {
@@ -80,8 +80,7 @@ function getTierStyle(tier: number) {
 }
 
 function getTierLabel(tier: number): string {
-  const names: Record<number, string> = { 1: 'Supporter', 2: 'Premium', 3: 'VIP' }
-  return `Tier ${tier} ${names[tier] || 'Subscriber'}`
+  return `Tier ${tier} ${DEFAULT_TIER_NAMES[tier] || 'Subscriber'}`
 }
 
 function getCreatorDisplayName(address: string): string {

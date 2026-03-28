@@ -1,5 +1,5 @@
 export const PROGRAM_ID = process.env.NEXT_PUBLIC_PROGRAM_ID || 'veilsub_v30.aleo'
-// v30: Full stablecoin support (USDCx + USAD), Pedersen commitments, BSP, 31 transitions, 30 mappings
+// v30: Full stablecoin support (USDCx + USAD), Pedersen commitments, BSP, 31 transitions, 29 mappings
 export const DEPLOYED_PROGRAM_ID = process.env.NEXT_PUBLIC_DEPLOYED_PROGRAM_ID || 'veilsub_v30.aleo'
 
 // Governance companion program (independently deployed)
@@ -20,7 +20,7 @@ export const APP_DESCRIPTION = 'Private Creator Subscriptions on Aleo'
 
 // Fee estimates in microcredits — matched to NullPay baseline (100K = 0.1 ALEO)
 // NullPay uses 100K for a single transfer_private + finalize.
-// VeilSub v8 uses single transfer_private + finalize + record creation.
+// VeilSub uses single transfer_private + finalize + record creation per subscribe.
 export const FEES = {
   REGISTER: 150_000,       // 0.15 credits (finalize only)
   SUBSCRIBE: 300_000,      // 0.3 credits (transfer_private + AccessPass + CreatorReceipt + finalize)
@@ -104,6 +104,30 @@ export const API_LIMITS = {
   MAX_TAGS_PER_POST: 5,
   MAX_TAG_LENGTH: 30,
 } as const
+
+// Default tier names — single source of truth for fallback display when a creator
+// has no custom tier names on-chain.  Every component should import this instead of
+// re-declaring { 1: 'Supporter', 2: 'Premium', 3: 'VIP' } locally.
+export const DEFAULT_TIER_NAMES: Readonly<Record<number, string>> = {
+  1: 'Supporter',
+  2: 'Premium',
+  3: 'VIP',
+} as const
+
+/**
+ * Resolve the display name for a tier.
+ * Priority: creator's custom on-chain tier name > DEFAULT_TIER_NAMES > "Tier N".
+ */
+export function resolveTierName(
+  creatorAddress: string | undefined,
+  tierId: number,
+): string {
+  if (creatorAddress) {
+    const custom = CREATOR_CUSTOM_TIERS[creatorAddress]
+    if (custom?.[tierId]) return custom[tierId].name
+  }
+  return DEFAULT_TIER_NAMES[tierId] ?? `Tier ${tierId}`
+}
 
 // Pre-defined content tag suggestions for creators
 export const SUGGESTED_TAGS = [

@@ -23,7 +23,7 @@ import RenewModal from '@/components/RenewModal'
 import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { parseAccessPass, shortenAddress, formatCredits, formatExpiry } from '@/lib/utils'
-import { SECONDS_PER_BLOCK, FEATURED_CREATORS, CREATOR_CUSTOM_TIERS } from '@/lib/config'
+import { SECONDS_PER_BLOCK, FEATURED_CREATORS, CREATOR_CUSTOM_TIERS, DEFAULT_TIER_NAMES } from '@/lib/config'
 import { getCachedCreator, cacheSingleCreator } from '@/lib/creatorCache'
 import { useSupabase } from '@/hooks/useSupabase'
 import type { AccessPass } from '@/types'
@@ -44,18 +44,28 @@ interface ParsedSubscription {
 }
 
 function getCreatorLabel(address: string): string {
+  const cached = getCachedCreator(address)
+  if (cached?.display_name) return cached.display_name
   const featured = FEATURED_CREATORS.find((c) => c.address === address)
   if (featured) return featured.label
   return shortenAddress(address)
 }
 
 function getTierName(creator: string, tierId: number): string {
+  // Check localStorage first (most recent — written on tier creation)
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(`veilsub_creator_tiers_${creator}`)
+      if (stored) {
+        const localTiers = JSON.parse(stored) as Record<string, { name: string }>
+        if (localTiers[String(tierId)]?.name) return localTiers[String(tierId)].name
+      }
+    } catch { /* ignore */ }
+  }
+  // Fallback to hardcoded config
   const tiers = CREATOR_CUSTOM_TIERS[creator]
   if (tiers && tiers[tierId]) return tiers[tierId].name
-  if (tierId === 1) return 'Supporter'
-  if (tierId === 2) return 'Premium'
-  if (tierId === 3) return 'VIP'
-  return `Tier ${tierId}`
+  return DEFAULT_TIER_NAMES[tierId] ?? `Tier ${tierId}`
 }
 
 function formatCountdown(blocks: number): string {

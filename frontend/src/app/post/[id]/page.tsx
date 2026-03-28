@@ -10,6 +10,7 @@ import Skeleton from '@/components/ui/Skeleton'
 import AddressAvatar from '@/components/ui/AddressAvatar'
 import { estimateReadingTime, shortenAddress } from '@/lib/utils'
 import { FEATURED_CREATORS } from '@/lib/config'
+import { getCachedCreator } from '@/lib/creatorCache'
 import type { ContentPost } from '@/types'
 
 const ArticleReader = dynamic(() => import('@/components/ArticleReader'), { ssr: false })
@@ -80,6 +81,8 @@ function MissingCreatorContext() {
 }
 
 function getCreatorLabel(address: string): string {
+  const cached = getCachedCreator(address)
+  if (cached?.display_name) return cached.display_name
   const featured = FEATURED_CREATORS.find((c) => c.address === address)
   if (featured) return featured.label
   return shortenAddress(address)

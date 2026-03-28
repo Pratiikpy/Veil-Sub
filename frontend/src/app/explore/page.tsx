@@ -410,13 +410,18 @@ export default function ExplorePage() {
         if (err.name === 'AbortError') return
         // On API error, fall back to featured creators instead of showing error
         const now = new Date()
-        const featured = FEATURED_CREATORS.map((fc, i) => ({
-          address: fc.address,
-          display_name: fc.label,
-          bio: fc.bio ?? null,
-          category: fc.category ?? null,
-          created_at: new Date(now.getTime() - (30 - i * 5) * 24 * 60 * 60 * 1000).toISOString(),
-        }))
+        const featured = FEATURED_CREATORS.map((fc, i) => {
+          const cached = getCachedCreator(fc.address)
+          return {
+            address: fc.address,
+            display_name: cached?.display_name || fc.label,
+            bio: cached?.bio || (fc.bio ?? null),
+            category: cached?.category || (fc.category ?? null),
+            image_url: cached?.image_url || null,
+            cover_url: cached?.cover_url || null,
+            created_at: new Date(now.getTime() - (30 - i * 5) * 24 * 60 * 60 * 1000).toISOString(),
+          }
+        })
         setCreators(featured)
         cacheCreators(featured)
         setFetchError(false)

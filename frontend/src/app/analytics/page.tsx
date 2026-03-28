@@ -27,6 +27,7 @@ import AnalyticsInsights from '@/components/AnalyticsInsights'
 import AnalyticsDashboard from '@/components/dashboard/AnalyticsDashboard'
 import PageTransition from '@/components/PageTransition'
 import { formatCredits, formatUsd } from '@/lib/utils'
+import { DEFAULT_TIER_NAMES } from '@/lib/config'
 import { useAnalytics, type DateRange } from '@/hooks/useAnalytics'
 import {
   AreaChart,
@@ -335,11 +336,7 @@ function ChurnCard({
 
 // ── Recent Activity List ──────────────────────────────────────────
 
-const TIER_NAMES_DISPLAY: Record<number, string> = {
-  1: 'Supporter',
-  2: 'Premium',
-  3: 'VIP',
-}
+const TIER_NAMES_DISPLAY = DEFAULT_TIER_NAMES
 
 function RecentActivityList({ events, loading }: { events: { tier: number; amount_microcredits: number; tx_id: string | null; created_at: string }[]; loading: boolean }) {
   if (loading) {

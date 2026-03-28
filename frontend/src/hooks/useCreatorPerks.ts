@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { buildAuthPayload } from '@/lib/authenticatedFetch'
+import { API_LIMITS } from '@/lib/config'
 
 const STORAGE_PREFIX = 'veilsub_tier_perks_'
-const MAX_TIER_ID = 20
+const MAX_TIER_ID = API_LIMITS.MAX_TIER_ID
 
 export interface CreatorPerksResult {
   /** Map of tier_id => perk strings */

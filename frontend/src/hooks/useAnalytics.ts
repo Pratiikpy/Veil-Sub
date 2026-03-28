@@ -8,6 +8,7 @@ import {
   saveCreatorHash,
   CREATOR_CUSTOM_TIERS,
   MICROCREDITS_PER_CREDIT,
+  DEFAULT_TIER_NAMES,
 } from '@/lib/config'
 import { formatCredits } from '@/lib/utils'
 
@@ -98,11 +99,7 @@ const TIER_BAR_COLORS = [
   'bg-rose-500',
 ]
 
-const TIER_NAMES: Record<number, string> = {
-  1: 'Supporter',
-  2: 'Premium',
-  3: 'VIP',
-}
+const TIER_NAMES = DEFAULT_TIER_NAMES
 
 /** Fetch a single on-chain mapping value via the API proxy */
 async function fetchMapping(mapping: string, key: string): Promise<number | null> {

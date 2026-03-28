@@ -166,7 +166,7 @@ const PROGRAMS = [
   {
     name: DEPLOYED_PROGRAM_ID,
     transitions: 31,
-    mappings: 30,
+    mappings: 29,
     features: 'Core subscriptions, tipping, content, access verification, stablecoin support',
     status: 'deployed' as const,
     explorerUrl: `https://testnet.aleoscan.io/program?id=${DEPLOYED_PROGRAM_ID}`,

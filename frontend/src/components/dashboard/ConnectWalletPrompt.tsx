@@ -9,9 +9,9 @@ import { PROGRAM_ID } from '@/lib/config'
 const contractVersion = PROGRAM_ID.match(/v(\d+)/)?.[0] ?? 'v30'
 
 const PLATFORM_STATS = [
-  { icon: Users, value: '8', label: 'Creators', color: 'violet' },
+  { icon: Users, value: contractVersion, label: 'Contract', color: 'violet' },
   { icon: Lock, value: '0', label: 'Identity Leaks', color: 'emerald' },
-  { icon: FileCode, value: contractVersion, label: 'Contract', color: 'violet' },
+  { icon: FileCode, value: '31', label: 'Transitions', color: 'violet' },
 ]
 
 const WHY_VEILSUB = [

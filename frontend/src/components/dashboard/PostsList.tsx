@@ -19,7 +19,7 @@ function getFuseClass(): typeof import('fuse.js').default | null {
 }
 import { useContentFeed } from '@/hooks/useContentFeed'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
-import { getContentHash, DEPLOYED_PROGRAM_ID, TAG_COLORS } from '@/lib/config'
+import { getContentHash, DEPLOYED_PROGRAM_ID, TAG_COLORS, DEFAULT_TIER_NAMES } from '@/lib/config'
 import { estimateReadingTime } from '@/lib/utils'
 import type { ContentPost, PostStatus } from '@/types'
 
@@ -55,7 +55,7 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
 
   const getTierLabel = (tierId: number) => {
     const custom = onChainTiers[tierId]
-    const name = custom?.name || (tierId === 1 ? 'Supporter' : `Tier ${tierId}`)
+    const name = custom?.name || (DEFAULT_TIER_NAMES[tierId] ?? `Tier ${tierId}`)
     // Ensure non-negative index for tier colors (tierId 0 maps to index 0)
     const color = TIER_COLORS[Math.max(0, tierId - 1) % TIER_COLORS.length]
     return { name, color }

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { ERROR_MESSAGES, getErrorMessage } from '../errorMessages'
 
 describe('ERROR_MESSAGES', () => {
-  it('has 102 unique error codes covering all v27 features', () => {
+  it('has 119 unique error codes covering all v30 features', () => {
     const defined = Object.keys(ERROR_MESSAGES)
     expect(defined.length).toBeGreaterThanOrEqual(90)
   })
@@ -29,7 +29,7 @@ describe('ERROR_MESSAGES', () => {
     expect(ERROR_MESSAGES['ERR_067'].toLowerCase()).toContain('privacy')
   })
 
-  it('covers privacy proof codes (v27)', () => {
+  it('covers privacy proof codes (v25+)', () => {
     expect(ERROR_MESSAGES['ERR_108']).toBeDefined()
     expect(ERROR_MESSAGES['ERR_109']).toBeDefined()
     expect(ERROR_MESSAGES['ERR_110']).toContain('threshold')

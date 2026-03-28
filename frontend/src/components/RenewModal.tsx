@@ -11,7 +11,7 @@ import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useTransactionPoller } from '@/hooks/useTransactionPoller'
 import { useTransactionFlow } from '@/hooks/useTransactionFlow'
 import { generatePassId, formatCredits, formatUsd } from '@/lib/utils'
-import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT, FEES, SECONDS_PER_BLOCK, SECONDS_PER_DAY } from '@/lib/config'
+import { SUBSCRIPTION_DURATION_BLOCKS, PLATFORM_FEE_PCT, FEES, SECONDS_PER_BLOCK, SECONDS_PER_DAY, DEFAULT_TIER_NAMES } from '@/lib/config'
 import { getErrorMessage } from '@/lib/errorMessages'
 import { logSubscriptionEvent } from '@/lib/logEvent'
 import { notifyNewSubscriber } from '@/lib/notificationTrigger'
@@ -83,7 +83,7 @@ export default function RenewModal({
   const hasCustomTiers = Object.values(onChainTiers).some(t => t.price > 0)
   const tierOptions: { id: number; name: string; price: number }[] = hasCustomTiers
     ? [
-        { id: 1, name: 'Supporter', price: effectiveBasePrice },
+        { id: 1, name: DEFAULT_TIER_NAMES[1], price: effectiveBasePrice },
         ...Object.entries(onChainTiers)
           .filter(([, t]) => t.price > 0)
           .map(([id, t]) => ({ id: Number(id), name: t.name, price: t.price }))
@@ -126,7 +126,7 @@ export default function RenewModal({
 
   // Pass tier name for display in "Current pass" section
   const passTierName = onChainTiers[pass.tier]?.name
-    ?? (pass.tier === 1 ? 'Supporter' : `Tier ${pass.tier}`)
+    ?? (DEFAULT_TIER_NAMES[pass.tier] || `Tier ${pass.tier}`)
 
   const isExpired = blockHeight !== null && pass.expiresAt <= blockHeight
   const blocksRemaining = blockHeight !== null ? Math.max(0, pass.expiresAt - blockHeight) : null
