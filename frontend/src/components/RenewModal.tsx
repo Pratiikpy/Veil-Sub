@@ -241,8 +241,8 @@ export default function RenewModal({
             const isRejected = walletMsg.includes('Rejected') || walletMsg.includes('rejected')
             console.error('[RenewModal] Transaction failed:', walletMsg.slice(0, 200))
             if (isRejected) {
-              setError('Transaction was rejected by your wallet. Possible causes: (1) Not enough private ALEO — convert more public credits to private using the button below. (2) Your access pass record may not be synced — wait 10 seconds and retry. (3) Shield Wallet may need a page refresh to detect new records.')
-              // Show BalanceConverter so user can convert more credits
+              setError('Transaction was rejected by your wallet. Try these steps: (1) Refresh the page to resync wallet records. (2) If using Shield Wallet, close and reopen the wallet extension. (3) Ensure you have enough private ALEO for the tier price. If the issue persists, try unsubscribing and resubscribing at the higher tier instead of upgrading.')
+              // Show BalanceConverter in case it's a balance issue
               setInsufficientBalance(true)
             } else {
               setError('Renewal failed. Make sure you have enough private ALEO for the tier price and public ALEO (~0.3) for fees.')
