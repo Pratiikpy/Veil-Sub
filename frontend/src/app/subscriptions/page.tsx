@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Shield,
   Sparkles,
+  Compass,
 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
@@ -570,12 +571,14 @@ export default function SubscriptionsPage() {
             !error && (
               <GlassCard>
                 <div className="text-center py-12">
-                  <CreditCard
-                    className="w-12 h-12 text-white/20 mx-auto mb-4"
-                    aria-hidden="true"
-                  />
+                  <div className="relative w-16 h-16 mx-auto mb-5">
+                    <div className="absolute inset-0 rounded-2xl bg-white/[0.04] animate-pulse" />
+                    <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-border flex items-center justify-center">
+                      <CreditCard className="w-7 h-7 text-white/50" aria-hidden="true" />
+                    </div>
+                  </div>
                   <h2 className="text-lg font-medium text-white mb-2">
-                    Your private creator universe starts here
+                    No active subscriptions
                   </h2>
                   <p className="text-sm text-white/60 max-w-md mx-auto mb-6">
                     Find someone worth supporting. Your subscriptions are mathematically private -- only you know who you support.
@@ -584,6 +587,7 @@ export default function SubscriptionsPage() {
                     href="/explore"
                     className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 active:scale-[0.98] transition-all"
                   >
+                    <Compass className="w-4 h-4" aria-hidden="true" />
                     Explore Creators
                   </Link>
                 </div>

@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import { m } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 import { spring } from '@/lib/motion'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   AlertCircle,
   Rss,
   Lock,
-  Unlock,
   ArrowRight,
   Compass,
   Wallet,
@@ -24,19 +24,22 @@ import {
   Bookmark,
   MessageCircle,
   FileText,
+  Heart,
+  Share2,
+  Zap,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import Fuse from 'fuse.js'
 import dynamic from 'next/dynamic'
 const RichContentRenderer = dynamic(() => import('@/components/RichContentRenderer'), { ssr: false })
 const VideoEmbed = dynamic(() => import('@/components/VideoEmbed'), { ssr: false })
-const PostInteractions = dynamic(() => import('@/components/PostInteractions'), { ssr: false })
-const EmojiReactions = dynamic(() => import('@/components/EmojiReactions'), { ssr: false })
 const PostComments = dynamic(() => import('@/components/PostComments'), { ssr: false })
 const SavedPosts = dynamic(() => import('@/components/SavedPosts'), { ssr: false })
 const ImageLightbox = dynamic(() => import('@/components/ImageLightbox'), { ssr: false })
 const ArticleReader = dynamic(() => import('@/components/ArticleReader'), { ssr: false })
 const RecommendationsCard = dynamic(() => import('@/components/RecommendationsCard'), { ssr: false })
 const SubscriberWelcome = dynamic(() => import('@/components/SubscriberWelcome'), { ssr: false })
+import ProfileHoverCard from '@/components/ProfileHoverCard'
 import PageTransition from '@/components/PageTransition'
 import { useWalletRecords } from '@/hooks/useWalletRecords'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
@@ -52,6 +55,7 @@ import type { AccessPass, ContentPost } from '@/types'
 import { HERO_GLOW_STYLE_SUBTLE as HERO_GLOW_STYLE, TITLE_STYLE as LETTER_SPACING_STYLE } from '@/lib/styles'
 
 const POSTS_PER_PAGE = 10
+const POST_EXPAND_LIMIT = 280
 
 import { tierConfig } from '@/lib/tierConfig'
 
@@ -160,7 +164,7 @@ function FeedSkeleton() {
   )
 }
 
-// ─── Feed Post Card ───
+// ─── Feed Post Card (Features 1-5: engagement bar, expansion, smart click, grid layout) ───
 
 function FeedPostCard({
   post,
@@ -175,12 +179,106 @@ function FeedPostCard({
   walletAddress?: string | null
   userTier?: number | null
 }) {
+  const router = useRouter()
   const tier = tierConfig[post.minTier] || tierConfig[1]
   const tierName = getTierName(post.creatorAddress, post.minTier)
   const unlocked = hasAccess && post.body != null
   const [showComments, setShowComments] = useState(false)
   const [lightboxImages, setLightboxImages] = useState<string[] | null>(null)
   const [showReader, setShowReader] = useState(false)
+  const [bodyExpanded, setBodyExpanded] = useState(false)
+
+  // Feature 1: Engagement bar state
+  const [likeCount, setLikeCount] = useState(0)
+  const [liked, setLiked] = useState(false)
+  const [commentCount, setCommentCount] = useState(0)
+  const serverAvailableRef = useRef(true)
+
+  // Fetch engagement counts from /api/social on mount
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const [reactionsRes, commentsRes] = await Promise.allSettled([
+          fetch(`/api/social?type=reactions&contentId=${encodeURIComponent(post.id)}`),
+          fetch(`/api/social?type=comments&contentId=${encodeURIComponent(post.id)}`),
+        ])
+        if (cancelled) return
+        if (reactionsRes.status === 'fulfilled' && reactionsRes.value.ok) {
+          const { counts } = await reactionsRes.value.json()
+          if (counts?.heart > 0) setLikeCount(counts.heart)
+        }
+        if (commentsRes.status === 'fulfilled' && commentsRes.value.ok) {
+          const { comments } = await commentsRes.value.json()
+          if (comments?.length > 0) setCommentCount(comments.length)
+        }
+      } catch {
+        serverAvailableRef.current = false
+      }
+    })()
+    try {
+      if (localStorage.getItem(`veilsub_liked_${post.id}`) === '1') setLiked(true)
+    } catch { /* ignore */ }
+    return () => { cancelled = true }
+  }, [post.id])
+
+  // Optimistic like toggle
+  const handleLike = useCallback(async () => {
+    const wasLiked = liked
+    const prevCount = likeCount
+    const delta = wasLiked ? -1 : 1
+
+    setLiked(!wasLiked)
+    setLikeCount(Math.max(0, likeCount + delta))
+    try {
+      if (wasLiked) localStorage.removeItem(`veilsub_liked_${post.id}`)
+      else localStorage.setItem(`veilsub_liked_${post.id}`, '1')
+    } catch { /* quota */ }
+
+    if (serverAvailableRef.current) {
+      try {
+        const res = await fetch('/api/social', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'reaction', contentId: post.id, reactionType: 'heart', delta }),
+        })
+        if (!res.ok) {
+          setLiked(wasLiked)
+          setLikeCount(prevCount)
+          try {
+            if (wasLiked) localStorage.setItem(`veilsub_liked_${post.id}`, '1')
+            else localStorage.removeItem(`veilsub_liked_${post.id}`)
+          } catch { /* quota */ }
+        }
+      } catch {
+        setLiked(wasLiked)
+        setLikeCount(prevCount)
+        try {
+          if (wasLiked) localStorage.setItem(`veilsub_liked_${post.id}`, '1')
+          else localStorage.removeItem(`veilsub_liked_${post.id}`)
+        } catch { /* quota */ }
+        serverAvailableRef.current = false
+      }
+    }
+  }, [liked, likeCount, post.id])
+
+  // Share handler
+  const handleShare = useCallback(() => {
+    const url = `${window.location.origin}/post/${post.id}?creator=${post.creatorAddress}`
+    navigator.clipboard.writeText(url).then(
+      () => toast.success('Link copied to clipboard'),
+      () => toast.error('Could not copy link')
+    )
+  }, [post.id, post.creatorAddress])
+
+  // Feature 4: Smart click handling
+  const handleCardClick = useCallback((e: React.MouseEvent) => {
+    const target = e.target as HTMLElement
+    if (target.tagName === 'A' || target.tagName === 'BUTTON' || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
+    if (target.closest('a, button, [role="button"], input, textarea')) return
+    if (window.getSelection()?.toString()) return
+    router.push(`/post/${post.id}?creator=${post.creatorAddress}`)
+  }, [router, post.id, post.creatorAddress])
 
   // Preview text: use post.preview, or strip HTML from body, or show placeholder
   const previewText = useMemo(() => {
@@ -191,6 +289,13 @@ function FeedPostCard({
     }
     return null
   }, [post.preview, post.body])
+
+  // Feature 3: Plain text for inline expansion
+  const plainBody = useMemo(() => {
+    if (!post.body) return ''
+    return stripHtmlTags(post.body)
+  }, [post.body])
+  const needsExpansion = plainBody.length > POST_EXPAND_LIMIT
 
   // Reading time from body text
   const readingTime = useMemo(() => {
@@ -205,206 +310,277 @@ function FeedPostCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...spring.gentle, delay: Math.min(index * 0.05, 0.3) }}
-      className="post-card-mobile rounded-2xl border border-white/[0.06] bg-surface-1 overflow-hidden hover:border-white/[0.1] transition-colors duration-200"
+      className="post-card-mobile rounded-2xl border border-white/[0.06] bg-surface-1 overflow-hidden hover:border-white/[0.1] transition-colors duration-200 cursor-pointer"
+      onClick={handleCardClick}
     >
-      <div className="p-6">
-        {/* Creator attribution */}
-        <div className="flex items-center gap-3 mb-4">
-          <Link href={`/creator/${post.creatorAddress}`} className="shrink-0">
+      <div className="p-5 sm:p-6">
+        {/* Feature 5: Social media grid layout — [Avatar] [Content] */}
+        <div className="grid grid-cols-[40px,1fr] gap-x-3">
+          {/* Avatar column */}
+          <Link href={`/creator/${post.creatorAddress}`} className="shrink-0" onClick={e => e.stopPropagation()}>
             {post.creatorImageUrl ? (
               <img
                 src={post.creatorImageUrl}
                 alt=""
-                className="w-9 h-9 rounded-full object-cover border border-white/10"
+                className="w-10 h-10 rounded-full object-cover border border-white/10"
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
               />
             ) : null}
-            <div className={`w-9 h-9 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center ${post.creatorImageUrl ? 'hidden' : ''}`}>
+            <div className={`w-10 h-10 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center ${post.creatorImageUrl ? 'hidden' : ''}`}>
               <span className="text-sm font-medium text-white/70">
                 {post.creatorLabel.charAt(0).toUpperCase()}
               </span>
             </div>
           </Link>
-          <div className="flex-1 min-w-0">
-            <Link
-              href={`/creator/${post.creatorAddress}`}
-              className="text-sm font-medium text-white hover:text-white/70 transition-colors truncate block"
-            >
-              {post.creatorLabel}
-            </Link>
-            <div className="flex items-center gap-2 text-xs text-white/60">
+
+          {/* Content column */}
+          <div className="min-w-0">
+            {/* Name row: Name · category · time · tier badge */}
+            <div className="flex items-center gap-1.5 flex-wrap mb-1">
+              <ProfileHoverCard address={post.creatorAddress}>
+                <Link
+                  href={`/creator/${post.creatorAddress}`}
+                  className="text-sm font-semibold text-white hover:text-white/70 transition-colors truncate"
+                  onClick={e => e.stopPropagation()}
+                >
+                  {post.creatorLabel}
+                </Link>
+              </ProfileHoverCard>
               {post.creatorCategory && (
-                <span>{post.creatorCategory}</span>
-              )}
-              {post.creatorCategory && post.createdAt && (
-                <span aria-hidden="true">·</span>
+                <>
+                  <span className="text-white/30 text-xs" aria-hidden="true">&middot;</span>
+                  <span className="text-xs text-white/50">{post.creatorCategory}</span>
+                </>
               )}
               {post.createdAt && (
-                <span>{timeAgo(post.createdAt)}</span>
+                <>
+                  <span className="text-white/30 text-xs" aria-hidden="true">&middot;</span>
+                  <span className="text-xs text-white/50">{timeAgo(post.createdAt)}</span>
+                </>
               )}
-            </div>
-          </div>
-          {/* Tier badge */}
-          <span
-            className={`px-2.5 py-1 rounded-full text-xs font-medium border shrink-0 ${
-              unlocked
-                ? `${tier.text} ${tier.lockBg} ${tier.border}`
-                : 'text-white/50 bg-white/[0.04] border-white/[0.08]'
-            }`}
-          >
-            {tierName}
-          </span>
-        </div>
-
-        {/* Title */}
-        <h2 className={`text-lg font-semibold mb-3 leading-snug ${unlocked ? 'text-white' : 'text-white/80'}`}>
-          {post.title}
-        </h2>
-
-        {/* Unlocked image -- click to open lightbox */}
-        {unlocked && post.imageUrl && (
-          <div
-            className="mb-4 rounded-xl overflow-hidden border border-white/[0.06] aspect-video bg-white/[0.02] cursor-zoom-in"
-            role="button"
-            tabIndex={0}
-            onClick={() => {
-              const imgs = post.imageUrl!.includes(',')
-                ? post.imageUrl!.split(',').map((s: string) => s.trim()).filter(Boolean)
-                : [post.imageUrl!]
-              setLightboxImages(imgs)
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                const imgs = post.imageUrl!.includes(',')
-                  ? post.imageUrl!.split(',').map((s: string) => s.trim()).filter(Boolean)
-                  : [post.imageUrl!]
-                setLightboxImages(imgs)
-              }
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={post.imageUrl.includes(',') ? post.imageUrl.split(',')[0].trim() : post.imageUrl}
-              alt={`Image for ${post.title}`}
-              className="w-full h-full object-cover content-unlocked"
-              loading="lazy"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none'
-              }}
-            />
-          </div>
-        )}
-
-        {/* Gated image placeholder */}
-        {!unlocked && post.hasImage && (
-          <div className="mb-4 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-24">
-            <div className="flex items-center gap-2 text-white/50">
-              <ImageIcon className="w-4 h-4" aria-hidden="true" />
-              <span className="text-xs">Image -- subscription required</span>
-            </div>
-          </div>
-        )}
-
-        {/* Unlocked video */}
-        {unlocked && post.videoUrl && (
-          <div className="mb-4 content-unlocked">
-            <VideoEmbed url={post.videoUrl} title={post.title} />
-          </div>
-        )}
-
-        {/* Gated video placeholder */}
-        {!unlocked && post.hasVideo && (
-          <div className="mb-4 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-24">
-            <div className="flex items-center gap-2 text-white/50">
-              <Video className="w-4 h-4" aria-hidden="true" />
-              <span className="text-xs">Video -- subscription required</span>
-            </div>
-          </div>
-        )}
-
-        {/* Content body / preview */}
-        {unlocked && post.body ? (
-          <div className="content-unlocked">
-            <RichContentRenderer html={post.body} />
-            {post.body.length > 500 && (
-              <button
-                onClick={() => setShowReader(true)}
-                className="mt-3 flex items-center gap-1.5 text-xs text-white/50 hover:text-white/70 transition-colors"
+              <span
+                className={`px-2 py-0.5 rounded-full text-[11px] font-medium border shrink-0 ml-auto ${
+                  unlocked
+                    ? `${tier.text} ${tier.lockBg} ${tier.border}`
+                    : 'text-white/50 bg-white/[0.04] border-white/[0.08]'
+                }`}
               >
-                <FileText className="w-3.5 h-3.5" aria-hidden="true" />
-                Read in focus mode
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="relative min-h-[80px]">
-            {/* Blurred preview */}
-            {previewText ? (
-              <div className="content-locked">
-                <p className="text-sm text-white/70 leading-relaxed">
-                  {previewText}
-                </p>
+                {tierName}
+              </span>
+            </div>
+
+            {/* Title */}
+            <h2 className={`text-base font-semibold mb-2 leading-snug ${unlocked ? 'text-white' : 'text-white/80'}`}>
+              {post.title}
+            </h2>
+
+            {/* Content body with Feature 3: inline expansion for long posts */}
+            {unlocked && post.body ? (
+              <div className="content-unlocked">
+                {needsExpansion && !bodyExpanded ? (
+                  <div>
+                    <p className="text-sm text-white/80 leading-relaxed">
+                      {plainBody.slice(0, POST_EXPAND_LIMIT)}...
+                    </p>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setBodyExpanded(true) }}
+                      className="mt-1.5 text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors"
+                    >
+                      Show more
+                    </button>
+                  </div>
+                ) : (
+                  <AnimatePresence mode="wait">
+                    <m.div
+                      key="expanded-body"
+                      initial={needsExpansion ? { opacity: 0 } : false}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <RichContentRenderer html={post.body} />
+                      {needsExpansion && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setBodyExpanded(false) }}
+                          className="mt-1.5 text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                          Show less
+                        </button>
+                      )}
+                      {post.body.length > 500 && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setShowReader(true) }}
+                          className="mt-3 flex items-center gap-1.5 text-xs text-white/50 hover:text-white/70 transition-colors"
+                        >
+                          <FileText className="w-3.5 h-3.5" aria-hidden="true" />
+                          Read in focus mode
+                        </button>
+                      )}
+                    </m.div>
+                  </AnimatePresence>
+                )}
               </div>
             ) : (
-              <div className="content-locked">
-                <div className="space-y-2">
-                  <div className="h-3 rounded bg-white/[0.06] w-full" />
-                  <div className="h-3 rounded bg-white/[0.05] w-[85%]" />
-                  <div className="h-3 rounded bg-white/[0.04] w-[60%]" />
+              <div className="relative min-h-[80px]">
+                {previewText ? (
+                  <div className="content-locked">
+                    <p className="text-sm text-white/70 leading-relaxed">{previewText}</p>
+                  </div>
+                ) : (
+                  <div className="content-locked">
+                    <div className="space-y-2">
+                      <div className="h-3 rounded bg-white/[0.06] w-full" />
+                      <div className="h-3 rounded bg-white/[0.05] w-[85%]" />
+                      <div className="h-3 rounded bg-white/[0.04] w-[60%]" />
+                    </div>
+                  </div>
+                )}
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent rounded-lg">
+                  <Lock className={`w-5 h-5 ${tier.text} mb-2`} aria-hidden="true" />
+                  <Link
+                    href={`/creator/${post.creatorAddress}`}
+                    className={`px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${tier.lockBg} ${tier.text} border ${tier.border} hover:brightness-125`}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    Subscribe to unlock
+                    <ArrowRight className="w-3 h-3" aria-hidden="true" />
+                  </Link>
                 </div>
               </div>
             )}
-            {/* Unlock overlay */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent rounded-lg">
-              <Lock className={`w-5 h-5 ${tier.text} mb-2`} aria-hidden="true" />
-              <Link
-                href={`/creator/${post.creatorAddress}`}
-                className={`px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${tier.lockBg} ${tier.text} border ${tier.border} hover:brightness-125`}
+
+            {/* Unlocked image — click to open lightbox */}
+            {unlocked && post.imageUrl && (
+              <div
+                className="mt-3 rounded-xl overflow-hidden border border-white/[0.06] aspect-video bg-white/[0.02] cursor-zoom-in"
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const imgs = post.imageUrl!.includes(',')
+                    ? post.imageUrl!.split(',').map((s: string) => s.trim()).filter(Boolean)
+                    : [post.imageUrl!]
+                  setLightboxImages(imgs)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    const imgs = post.imageUrl!.includes(',')
+                      ? post.imageUrl!.split(',').map((s: string) => s.trim()).filter(Boolean)
+                      : [post.imageUrl!]
+                    setLightboxImages(imgs)
+                  }
+                }}
               >
-                Subscribe to unlock
-                <ArrowRight className="w-3 h-3" aria-hidden="true" />
-              </Link>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={post.imageUrl.includes(',') ? post.imageUrl.split(',')[0].trim() : post.imageUrl}
+                  alt={`Image for ${post.title}`}
+                  className="w-full h-full object-cover content-unlocked"
+                  loading="lazy"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                />
+              </div>
+            )}
+
+            {/* Gated image placeholder */}
+            {!unlocked && post.hasImage && (
+              <div className="mt-3 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-24">
+                <div className="flex items-center gap-2 text-white/50">
+                  <ImageIcon className="w-4 h-4" aria-hidden="true" />
+                  <span className="text-xs">Image -- subscription required</span>
+                </div>
+              </div>
+            )}
+
+            {/* Unlocked video */}
+            {unlocked && post.videoUrl && (
+              <div className="mt-3 content-unlocked">
+                <VideoEmbed url={post.videoUrl} title={post.title} />
+              </div>
+            )}
+
+            {/* Gated video placeholder */}
+            {!unlocked && post.hasVideo && (
+              <div className="mt-3 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-center h-24">
+                <div className="flex items-center gap-2 text-white/50">
+                  <Video className="w-4 h-4" aria-hidden="true" />
+                  <span className="text-xs">Video -- subscription required</span>
+                </div>
+              </div>
+            )}
+
+            {/* Feature 1: Engagement bar */}
+            <div className="mt-4 pt-3 border-t border-white/[0.04]">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-0.5">
+                  {/* Comment */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setShowComments(!showComments) }}
+                    className="group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-white/50 hover:text-blue-400 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:outline-none"
+                    aria-label="Toggle comments"
+                  >
+                    <span className="absolute inset-0 rounded-full group-hover:bg-blue-500/10 transition-colors duration-200" />
+                    <MessageCircle className="w-[18px] h-[18px] relative" />
+                    {commentCount > 0 && <span className="text-xs relative">{commentCount}</span>}
+                  </button>
+
+                  {/* Share */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleShare() }}
+                    className="group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-white/50 hover:text-green-400 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-green-400/50 focus-visible:outline-none"
+                    aria-label="Share post"
+                  >
+                    <span className="absolute inset-0 rounded-full group-hover:bg-green-500/10 transition-colors duration-200" />
+                    <Share2 className="w-[18px] h-[18px] relative" />
+                  </button>
+
+                  {/* Like */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleLike() }}
+                    className={`group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-full transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-pink-400/50 focus-visible:outline-none ${liked ? 'text-rose-400' : 'text-white/50 hover:text-rose-400'}`}
+                    aria-label={liked ? 'Unlike' : 'Like'}
+                  >
+                    <span className="absolute inset-0 rounded-full group-hover:bg-pink-500/10 transition-colors duration-200" />
+                    <Heart className={`w-[18px] h-[18px] relative transition-transform duration-200 ${liked ? 'fill-current scale-110' : ''}`} />
+                    {likeCount > 0 && <span className="text-xs relative">{likeCount}</span>}
+                  </button>
+
+                  {/* Tip */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); router.push(`/creator/${post.creatorAddress}`) }}
+                    className="group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-white/50 hover:text-amber-400 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:outline-none"
+                    aria-label="Tip creator"
+                  >
+                    <span className="absolute inset-0 rounded-full group-hover:bg-amber-500/10 transition-colors duration-200" />
+                    <Zap className="w-[18px] h-[18px] relative" />
+                  </button>
+                </div>
+
+                {readingTime && (
+                  <span className="flex items-center gap-1 text-[11px] text-white/40">
+                    <BookOpen className="w-3 h-3" aria-hidden="true" />
+                    {readingTime}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        )}
 
-        {/* Interactions bar */}
-        <div className="mt-4 pt-3 border-t border-white/[0.04]">
-          <div className="flex items-center gap-3">
-            {unlocked && (
-              <span className="flex items-center gap-1 text-xs text-green-400/70">
-                <Unlock className="w-3 h-3" aria-hidden="true" />
-                Unlocked
-              </span>
-            )}
-            {post.updatedAt && (
-              <span className="text-xs text-white/50 ml-auto">edited</span>
-            )}
+            {/* Collapsible comments with animation */}
+            <AnimatePresence>
+              {showComments && (
+                <m.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <PostComments contentId={post.id} isSubscribed={hasAccess} walletAddress={walletAddress} userTier={userTier} />
+                </m.div>
+              )}
+            </AnimatePresence>
           </div>
-          <PostInteractions
-            contentId={post.id}
-            readingTime={readingTime || undefined}
-            onCommentClick={() => setShowComments(!showComments)}
-            creatorAddress={post.creatorAddress}
-            postTitle={post.title || ''}
-          />
-          <EmojiReactions contentId={post.id} />
         </div>
-
-        {/* Collapsible comments */}
-        {showComments && (
-          <PostComments contentId={post.id} isSubscribed={hasAccess} walletAddress={walletAddress} userTier={userTier} />
-        )}
-        {!showComments && (
-          <button
-            onClick={() => setShowComments(true)}
-            className="flex items-center gap-1.5 mt-2 text-xs text-white/50 hover:text-white/60 transition-colors"
-          >
-            <MessageCircle className="w-3 h-3" aria-hidden="true" />
-            View comments
-          </button>
-        )}
       </div>
 
       {lightboxImages && (
@@ -432,6 +608,7 @@ function FeedPostCard({
 
 type SortOrder = 'newest' | 'oldest'
 type ContentTypeFilter = 'all' | 'posts' | 'images' | 'articles'
+type FeedTab = 'all' | 'subscribed' | 'free'
 
 export default function FeedPage() {
   const { connected, address: publicKey, signMessage } = useWallet()
@@ -451,6 +628,20 @@ export default function FeedPage() {
   const [feedSearchQuery, setFeedSearchQuery] = useState('')
   const [showSaved, setShowSaved] = useState(false)
   const [contentTypeFilter, setContentTypeFilter] = useState<ContentTypeFilter>('all')
+  // Feature 2: Feed tabs (All | Subscribed | Free) stored in URL search params
+  const searchParams = useSearchParams()
+  const feedTabRouter = useRouter()
+  const initialTab = (searchParams.get('tab') as FeedTab) || 'all'
+  const [feedTab, setFeedTab] = useState<FeedTab>(initialTab)
+
+  const handleFeedTabChange = useCallback((tab: FeedTab) => {
+    setFeedTab(tab)
+    const url = new URL(window.location.href)
+    if (tab === 'all') url.searchParams.delete('tab')
+    else url.searchParams.set('tab', tab)
+    feedTabRouter.replace(url.pathname + url.search, { scroll: false })
+  }, [feedTabRouter])
+
   const [discoveryPosts, setDiscoveryPosts] = useState<FeedPost[]>([])
   const [discoveryLoading, setDiscoveryLoading] = useState(false)
   const [creatorProfiles, setCreatorProfiles] = useState<Record<string, { name?: string; imageUrl?: string | null }>>({})
@@ -811,9 +1002,17 @@ export default function FeedPage() {
     })
   }, [feedPosts])
 
-  // Apply filters, search, and sort
+  // Apply filters, search, and sort (includes Feature 2: feed tabs)
   const filteredPosts = useMemo(() => {
     let result = feedPosts
+
+    // Feature 2: Feed tab filter
+    if (feedTab === 'subscribed') {
+      const subSet = new Set(subscribedCreators)
+      result = result.filter(p => subSet.has(p.creatorAddress))
+    } else if (feedTab === 'free') {
+      result = result.filter(p => p.minTier === 0)
+    }
 
     // Apply search
     if (feedSearchQuery.trim()) {
@@ -846,7 +1045,7 @@ export default function FeedPage() {
     })
 
     return sorted
-  }, [feedPosts, feedFuse, feedSearchQuery, selectedCreator, contentTypeFilter, sortOrder])
+  }, [feedPosts, feedFuse, feedSearchQuery, selectedCreator, contentTypeFilter, sortOrder, feedTab, subscribedCreators])
 
   const visiblePosts = filteredPosts.slice(0, visibleCount)
   const hasMore = visibleCount < filteredPosts.length
@@ -1031,13 +1230,25 @@ export default function FeedPage() {
           {/* Empty state: subscribed but no posts */}
           {connected && !loading && subscribedCreators.length > 0 && feedPosts.length === 0 && !error && (
             <div className="rounded-2xl border border-white/[0.06] bg-surface-1 p-12 text-center">
-              <BookOpen className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
+              <div className="relative w-16 h-16 mx-auto mb-5">
+                <div className="absolute inset-0 rounded-2xl bg-white/[0.04] animate-pulse" />
+                <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-border flex items-center justify-center">
+                  <FileText className="w-7 h-7 text-white/50" aria-hidden="true" />
+                </div>
+              </div>
               <h2 className="text-lg font-medium text-white mb-2">
                 Your creators haven&apos;t posted yet
               </h2>
-              <p className="text-sm text-white/50 max-w-md mx-auto">
-                Check back soon -- once they publish exclusive content, it will appear right here.
+              <p className="text-sm text-white/50 max-w-md mx-auto mb-6">
+                Check back soon! Once they publish exclusive content, it will appear right here in your feed.
               </p>
+              <Link
+                href="/explore"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white/[0.06] border border-border text-sm text-white/70 hover:bg-white/[0.1] transition-all"
+              >
+                <Compass className="w-4 h-4" aria-hidden="true" />
+                Discover more creators
+              </Link>
             </div>
           )}
 
@@ -1075,6 +1286,36 @@ export default function FeedPage() {
                   ))}
                 </div>
               )}
+
+              {/* Feature 2: Feed tabs (All | Subscribed | Free) */}
+              <div className="flex items-center gap-1 mb-4 border-b border-white/[0.06] relative" role="tablist" aria-label="Feed filter">
+                {([
+                  { key: 'all' as FeedTab, label: 'All' },
+                  { key: 'subscribed' as FeedTab, label: 'Subscribed' },
+                  { key: 'free' as FeedTab, label: 'Free' },
+                ]).map((tab) => (
+                  <button
+                    key={tab.key}
+                    role="tab"
+                    aria-selected={feedTab === tab.key}
+                    onClick={() => handleFeedTabChange(tab.key)}
+                    className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
+                      feedTab === tab.key
+                        ? 'text-white'
+                        : 'text-white/50 hover:text-white/70'
+                    }`}
+                  >
+                    {tab.label}
+                    {feedTab === tab.key && (
+                      <m.div
+                        layoutId="feed-tab-underline"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full"
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
 
               {/* Search bar */}
               <div className="relative mb-4">

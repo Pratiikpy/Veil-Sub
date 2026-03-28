@@ -16,6 +16,7 @@ const VideoEmbed = dynamic(() => import('./VideoEmbed'), { ssr: false })
 const PostInteractions = dynamic(() => import('./PostInteractions'), { ssr: false })
 const ImageLightbox = dynamic(() => import('./ImageLightbox'), { ssr: false })
 const ArticleReader = dynamic(() => import('./ArticleReader'), { ssr: false })
+import ProfileHoverCard from './ProfileHoverCard'
 import { estimateReadingTime, shortenAddress, formatCredits, formatUsd, creditsToMicrocredits, computeWalletHash } from '@/lib/utils'
 import { FEATURED_CREATORS, FEES } from '@/lib/config'
 import { toast } from 'sonner'
@@ -749,9 +750,11 @@ export default function ContentFeed({ creatorAddress, userPasses, connected, wal
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-medium text-white/80">
-                          {creatorInfo?.label || shortenAddress(creatorAddress)}
-                        </span>
+                        <ProfileHoverCard address={creatorAddress}>
+                          <span className="text-xs font-medium text-white/80 hover:text-white/60 transition-colors cursor-pointer">
+                            {creatorInfo?.label || shortenAddress(creatorAddress)}
+                          </span>
+                        </ProfileHoverCard>
                         <span className="text-[11px] text-white/50">{post.createdAt ? timeAgo(post.createdAt) : ''}</span>
                         <span className={`px-1.5 py-0.5 rounded text-[11px] font-medium ${noteIsEncrypted ? 'bg-violet-500/10 text-violet-400 border border-violet-500/15' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/15'}`}>
                           {noteIsEncrypted ? 'Subscribers Only' : 'Note'}

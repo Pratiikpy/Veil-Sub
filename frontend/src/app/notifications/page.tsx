@@ -74,8 +74,13 @@ export default function NotificationsPage() {
 
           {!loading && notifications.length === 0 && (
             <div className="text-center py-16 rounded-2xl bg-surface-1 border border-border">
-              <Bell className="w-12 h-12 text-white/20 mx-auto mb-4" aria-hidden="true" />
-              <h2 className="text-lg font-medium text-white mb-2">No notifications yet</h2>
+              <div className="relative w-16 h-16 mx-auto mb-5">
+                <div className="absolute inset-0 rounded-2xl bg-white/[0.04] animate-pulse" />
+                <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-border flex items-center justify-center">
+                  <Bell className="w-7 h-7 text-white/50" aria-hidden="true" />
+                </div>
+              </div>
+              <h2 className="text-lg font-medium text-white mb-2">All caught up!</h2>
               <p className="text-sm text-white/50 max-w-md mx-auto mb-6 leading-relaxed">
                 You&apos;ll see alerts here when:
               </p>

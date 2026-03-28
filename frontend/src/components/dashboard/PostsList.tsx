@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { m } from 'framer-motion'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
-import { FileText, Trash2, AlertTriangle, Search, X, Clock, Edit3, Send, Tag, CalendarClock } from 'lucide-react'
+import { FileText, Trash2, AlertTriangle, Search, X, Clock, Edit3, Send, Tag, CalendarClock, PenLine } from 'lucide-react'
 import { toast } from 'sonner'
 import Fuse from 'fuse.js'
 import { useContentFeed } from '@/hooks/useContentFeed'
@@ -324,9 +324,25 @@ export default function PostsList({ address, onEditPost }: PostsListProps) {
             </>
           ) : (
             <>
-              <FileText className="w-6 h-6 text-white/20 mx-auto mb-2" aria-hidden="true" />
-              <p className="text-sm text-white/50 mb-1">Your audience is waiting</p>
-              <p className="text-xs text-white/50">Write your first exclusive post. Subscribers verify access without revealing their identity.</p>
+              <div className="relative w-14 h-14 mx-auto mb-4">
+                <div className="absolute inset-0 rounded-2xl bg-white/[0.04] animate-pulse" />
+                <div className="relative w-full h-full rounded-2xl bg-surface-1 border border-border flex items-center justify-center">
+                  <PenLine className="w-6 h-6 text-white/50" aria-hidden="true" />
+                </div>
+              </div>
+              <p className="text-sm text-white/70 font-medium mb-1">Share your first post with subscribers</p>
+              <p className="text-xs text-white/50 mb-3">Write an exclusive post above. Subscribers verify access without revealing their identity.</p>
+              <button
+                onClick={() => {
+                  const composer = document.querySelector('[data-composer]') as HTMLElement
+                  composer?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                  composer?.focus()
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white/[0.06] border border-border text-xs text-white/70 hover:bg-white/[0.1] transition-all"
+              >
+                <PenLine className="w-3.5 h-3.5" aria-hidden="true" />
+                Write a post
+              </button>
             </>
           )}
         </div>
