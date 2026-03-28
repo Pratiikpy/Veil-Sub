@@ -36,6 +36,91 @@ import CreateAuctionSection from '@/components/marketplace/CreateAuctionSection'
 import PlaceBidSection from '@/components/marketplace/PlaceBidSection'
 import AuctionManagementSection from '@/components/marketplace/AuctionManagementSection'
 import SealedBidExplainer from '@/components/marketplace/SealedBidExplainer'
+import AddressAvatar from '@/components/ui/AddressAvatar'
+import { useCallback } from 'react'
+import { shortenAddress } from '@/lib/utils'
+import { Loader2 as Spinner } from 'lucide-react'
+
+// ─── Live Auctions Browse (fetches from global Supabase registry) ────────────
+
+function LiveAuctionsBrowse({ onSelectAuction }: { onSelectAuction: (id: string) => void }) {
+  const [auctions, setAuctions] = useState<{ id: string; creator_address: string; item_id: string; label: string; tx_id?: string; created_at: string }[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/registry?type=auction')
+      .then(r => r.ok ? r.json() : { entries: [] })
+      .then(data => {
+        if (!cancelled) setAuctions(data.entries || [])
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [])
+
+  const handleBid = useCallback((auction: typeof auctions[0]) => {
+    onSelectAuction(auction.item_id)
+    // Scroll to bid section
+    setTimeout(() => {
+      document.querySelector('[data-section="place-bid"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 200)
+  }, [onSelectAuction])
+
+  if (loading) {
+    return (
+      <section className="py-8 border-t border-border/50">
+        <Container>
+          <div className="flex items-center gap-2 text-white/50 text-sm"><Spinner className="w-4 h-4 animate-spin" /> Loading live auctions...</div>
+        </Container>
+      </section>
+    )
+  }
+
+  if (auctions.length === 0) return null // Don't show section if no auctions exist
+
+  return (
+    <section className="py-8 sm:py-12 border-t border-border/50">
+      <Container>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+            <Gavel className="w-5 h-5 text-amber-400" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-white">Live Auctions</h2>
+            <p className="text-xs text-white/50">{auctions.length} auction{auctions.length !== 1 ? 's' : ''} from creators on VeilSub</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {auctions.map((auction) => (
+            <div
+              key={auction.id}
+              className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/20 hover:bg-amber-500/[0.02] transition-all group"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <AddressAvatar address={auction.creator_address} size={32} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-white truncate">{auction.label || 'Sealed-Bid Auction'}</p>
+                  <p className="text-xs text-white/50">{shortenAddress(auction.creator_address)}</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-white/40">{new Date(auction.created_at).toLocaleDateString()}</span>
+                <button
+                  onClick={() => handleBid(auction)}
+                  className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs font-medium text-amber-400 hover:bg-amber-500/20 transition-colors"
+                >
+                  Place Bid →
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Container>
+    </section>
+  )
+}
 
 // ─── How Reputation Works Steps ──────────────────────────────────────────────
 
@@ -379,6 +464,9 @@ export default function MarketplacePage() {
                 </ScrollReveal>
               </Container>
             </section>
+
+            {/* Live Auctions Browse — global discovery from Supabase registry */}
+            <LiveAuctionsBrowse onSelectAuction={(id) => setPrefillAuctionId(id)} />
 
             {/* Interactive auction sections */}
             <section className="py-8 sm:py-12 border-t border-border/50">
