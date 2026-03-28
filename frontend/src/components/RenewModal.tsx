@@ -237,9 +237,14 @@ export default function RenewModal({
             notifyNewSubscriber(pass.creator, selectedTierId, result.resolvedTxId || id)
           } else if (result.status === 'failed') {
             setTxStatus('failed')
-            const walletDetail = result.walletMessage ? ` (Wallet: ${result.walletMessage.slice(0, 150)})` : ''
-            console.error('[RenewModal] Transaction failed:', walletDetail)
-            setError(`Renewal failed.${walletDetail} Check that you have enough credits and your subscription pass is still valid.`)
+            const walletMsg = result.walletMessage || ''
+            const isRejected = walletMsg.includes('Rejected') || walletMsg.includes('rejected')
+            console.error('[RenewModal] Transaction failed:', walletMsg.slice(0, 200))
+            if (isRejected) {
+              setError('Transaction was rejected by your wallet. This usually means you don\'t have enough private ALEO for the tier price. Try converting more public credits to private first.')
+            } else {
+              setError('Renewal failed. Make sure you have enough private ALEO for the tier price and public ALEO (~0.3) for fees.')
+            }
             toast.error('Renewal failed')
           } else if (result.status === 'timeout') {
             // Shield Wallet delegates proving and never reports 'confirmed' —
