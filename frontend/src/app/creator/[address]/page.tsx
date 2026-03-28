@@ -30,6 +30,7 @@ import { toast } from 'sonner'
 import { useWallet } from '@provablehq/aleo-wallet-adaptor-react'
 import { useCreatorStats, clearMappingCache } from '@/hooks/useCreatorStats'
 import { useCreatorTiers } from '@/hooks/useCreatorTiers'
+import { useCreatorPerks } from '@/hooks/useCreatorPerks'
 import { useVeilSub } from '@/hooks/useVeilSub'
 import { useBlockHeight } from '@/hooks/useBlockHeight'
 import { useSupabase } from '@/hooks/useSupabase'
@@ -717,6 +718,7 @@ export default function CreatorPage({
   const { connected, address: publicKey } = useWallet()
   const { fetchCreatorStats } = useCreatorStats()
   const { tiers: onChainTiers, tierCount: onChainTierCount, loading: tiersLoading } = useCreatorTiers(address)
+  const { perks: creatorPerks, descriptions: creatorDescriptions } = useCreatorPerks(address)
   const { getAccessPasses } = useVeilSub()
   const { blockHeight } = useBlockHeight()
   const { getCreatorProfile } = useSupabase()
@@ -939,14 +941,18 @@ export default function CreatorPage({
     const hardcoded = TIERS.find(t => t.id === id)
     const custom = onChainTiers[id]
     if (custom && custom.price > 0) {
+      // Use custom tier data with creator's actual perks from Supabase
       return {
-        ...(hardcoded ?? { description: '', features: [] as string[] }),
         id,
         name: custom.name || hardcoded?.name || `Tier ${id}`,
         priceMultiplier: basePrice > 0 ? custom.price / basePrice : 1,
+        description: creatorDescriptions[id] || '',
+        features: creatorPerks[id] || [],
       }
     }
-    return hardcoded ?? { id, name: `Tier ${id}`, priceMultiplier: id, description: '', features: [] as string[] }
+    // Legacy fallback — only when NO custom tiers exist
+    if (!hasOnChainTiers && hardcoded) return hardcoded
+    return { id, name: `Tier ${id}`, priceMultiplier: id, description: '', features: [] as string[] }
   })
 
   // Determine subscription status
